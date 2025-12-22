@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fourier Epicycles - Curve Decomposition</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <!-- KaTeX for LaTeX rendering -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+</head>
+<body>
+    <a href="../../../index.html" class="back-button">Back to Portfolio</a>
+    <!-- Header -->
+    <header class="main-header">
+        <h1 class="glitch-text" data-text="Fourier Epicycles" style="font-family: 'Playfair Display', serif;" >Drawing With Harmonics: Fourier Epicycles & More</h1>
+        <p class="subtitle">Decomposing Curves into Rotating Circles</p>
+        <div class="header-divider"></div>
+    </header>
+
+    <!-- Main Container -->
+    <div id="container">
+
+        <div class="info-panel">
+            
+            <h3>If you’ve ever watched a <strong>JD signing machine</strong> or antique mechanical automata and wondered
+how intricate motion emerges from simple mechanisms, this provides a visual intuition for the
+same principle. </h3>
+<h3>
+    That intuition is related — but not identical — to ideas from signal processing. 
+    This project supports <strong>four modes</strong>: selecting <strong>DFT</strong>, <strong>DCT</strong>, or <strong>HHT</strong> treats the curve purely as a time sequence, encoding its shape through global components; while by contrast, <strong>STFT mode</strong> reveals additional structure: not only the curve itself, but how its local speed and frequency content evolve over time.
+    </h3>
+            <!-- <h3>If you've ever seen <strong>JD signing machine</strong> or any antique mechanical automata that can perform complex sequences of actions and wonder how it encodes a complex signature using only gears, this might give you some inspiration.</h3> -->
+        </div>
+        <!-- Canvas -->
+        <div class="canvas-container">
+            <canvas id="epicycles-canvas"></canvas>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls-panel">
+            <div class="control-group">
+                <label for="num-circles">Number of Circles: <span id="circles-value">10</span></label>
+                <input type="range" id="num-circles" min="1" max="100" value="10" step="1">
+            </div>
+
+            <div class="control-group">
+                <label for="speed">Animation Speed: <span id="speed-value">1.0x</span></label>
+                <input type="range" id="speed" min="0.1" max="5" value="1" step="0.1">
+            </div>
+
+            <div class="control-group" id="stft-window-control" style="display: none;">
+                <label for="stft-window-size">STFT Window Size: <span id="stft-window-value">2.0s</span></label>
+                <input type="range" id="stft-window-size" min="500" max="5000" value="2000" step="100">
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 8px;">Adjust temporal window duration - smaller = more responsive, larger = smoother</p>
+            </div>
+
+            <div class="control-group">
+                <label for="transform-type">Transform Method:</label>
+                <select id="transform-type">
+                    <option value="fourier" selected>Fourier Transform (DFT)</option>
+                    <option value="dct">Discrete Cosine Transform (DCT)</option>
+                    <option value="stft">Short-Time Fourier Transform (STFT)</option>
+                    <option value="hht">Hilbert-Huang Transform (HHT)</option>
+                </select>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 8px;">
+                    <strong>DFT:</strong> Global frequency analysis with rotating circles<br>
+                    <strong>DCT:</strong> Cosine basis (JPEG compression)<br>
+                    <strong>STFT:</strong> Real-time localized analysis (draw mode only)<br>
+                    <strong>HHT:</strong> Adaptive decomposition via empirical modes
+                </p>
+            </div>
+
+            <div class="control-group">
+                <label for="drawing-mode">Drawing Mode:</label>
+                <select id="drawing-mode">
+                    <option value="preset" selected>Preset Curves</option>
+                    <option value="draw">Draw Your Own</option>
+                </select>
+            </div>
+
+            <div class="control-group" id="preset-group">
+                <label for="preset-curve">Preset Curve:</label>
+                <select id="preset-curve">
+                    <option value="circle">Circle</option>
+                    <option value="heart">Heart</option>
+                    <option value="star">Star</option>
+                    <option value="spiral">Spiral</option>
+                    <option value="infinity">Infinity Symbol</option>
+                    <option value="trefoil">Trefoil Knot</option>
+                </select>
+            </div>
+
+            <div class="button-group">
+                <button id="play-pause" class="btn-gold">⏸ Pause</button>
+                <button id="reset" class="btn-outline">↻ Reset</button>
+                <button id="clear-draw" class="btn-outline" style="display: none;">Clear Drawing</button>
+            </div>
+        </div>
+
+        <!-- Info Panel -->
+        <div class="info-panel">
+            <h2>How It Works</h2>
+            <p>
+A periodic signal can be represented as a sum of rotating vectors — often visualized as
+epicycles — where each rotation corresponds to a frequency component with an amplitude,
+angular speed, and phase. By treating a 2D parametric curve as a complex-valued time
+sequence, we apply a discrete Fourier transform to extract its frequency components and
+reconstruct the motion using the dominant ones.
+            </p>
+            <!-- <p>Any periodic curve can be decomposed into a sum of rotating circles (epicycles). Each circle represents a frequency component with radius (amplitude), rotation speed (frequency), and starting angle (phase). 
+                We see the curve as a time sequence on 2D plane, then we run the discrete transformation and pick the first few strongest spikes.
+            </p> -->
+            
+            <h3 style="color: var(--gold); margin-top: 30px;">Fourier Transform (DFT)</h3>
+            <p>The natural method for epicycles! Complex exponentials <strong>e^(iωt)</strong> are literally rotating vectors in the complex plane. Each Fourier coefficient directly gives you one rotating circle. This is why Fourier analysis is fundamental to understanding periodic phenomena—the math naturally describes rotation.</p>
+            
+            <h3 style="color: var(--gold); margin-top: 30px;">Discrete Cosine Transform (DCT)</h3>
+            <p>Used in JPEG, MP3, and video compression! DCT uses only real-valued cosine basis functions (no complex numbers). To make it work with epicycles, we mirror the signal symmetrically and apply DFT. This shows how compression formats represent curves using only half the information (no sine components). Works surprisingly well! You can visually tell that DCT results tend to be smoother, this is also expected.</p>
+
+            <p>You might notice that the DCT animation is longer: it will reach the end and go all the way back. This is because DCT requires the signal to be even, meaning it's symmetric with respect to the time.</p>
+
+            <h3 style="color: var(--gold); margin-top: 30px;">Short-Time Fourier Transform (STFT)</h3>
+            <p>STFT applies Fourier analysis to <strong>localized windows</strong> that continuously track your drawing. Unlike other transforms that analyze a complete closed curve, STFT operates in <strong>real-time on the most recent segment</strong> you've drawn. This mimics audio spectrograms which analyze sound as it plays.</p>
+            
+            <p><strong>Unique capability:</strong> STFT captures <strong>drawing speed information</strong> that regular Fourier Transform cannot! Fast drawing creates denser point spacing in time, affecting the frequency content. This is why STFT is crucial for analyzing non-stationary signals where characteristics change over time.</p>
+            
+            <p><strong>Clamping behavior:</strong> When you release the mouse, STFT assumes your position <strong>stays at that point</strong>. This causes the endpoint to accumulate weight over time, shown by the intensifying pulsing glow. The longer you wait, the more that single point dominates the frequency spectrum, distorting the reconstruction toward that location.</p>
+            
+            <p><strong>Drawing techniques:</strong> You can draw smooth curves by dragging, or create <strong>piecewise linear paths</strong> (like line charts) by clicking at different points without dragging. Both approaches work well for exploring STFT's time-localized behavior!</p>
+            
+            <p><strong>Visual indicators:</strong></p>
+            <ul style="color: var(--text-secondary); margin-top: 10px; padding-left: 20px;">
+                <li><span style="color: rgba(76, 175, 80, 0.9);">Bright green</span> = newest points in the window (high weight)</li>
+                <li><span style="color: rgba(76, 175, 80, 0.4);">Faded green</span> = older points in window (lower weight, about to be removed)</li>
+                <li><span style="color: rgba(150, 150, 150, 0.3);">Gray trail</span> = outside window (no longer analyzed)</li>
+                <li><span style="color: rgba(76, 175, 80, 1);">Pulsing glow</span> = clamped endpoint (weight accumulating, grows over time)</li>
+            </ul>
+
+            <h3 style="color: var(--gold); margin-top: 30px;">Hilbert-Huang Transform (HHT)</h3>
+            <p>HHT is an <strong>adaptive, data-driven</strong> method that normally uses Empirical Mode Decomposition (EMD). However, <strong>full EMD is extremely complex</strong> for this interactive demo. Instead, we use a simplified approach: compute a wider frequency range and adaptively select the strongest components.</p>
+            
+            <p><strong>⚠️ Warning: Component Explosion</strong></p>
+            <p>Increasing the number of components can cause <strong>chaotic behavior</strong>. Unlike DFT/DCT which have stable orthogonal bases, HHT adaptively selects components by amplitude ranking. When you change the slider mid-animation, previously dominant frequencies may suddenly get replaced by different ones, causing violent jumps. This is a key difference from Fourier methods!</p>
+            
+            <p><strong>HHT vs FFT Comparison:</strong></p>
+            <table style="width: 100%; margin-top: 10px; border-collapse: collapse; color: var(--text-secondary);">
+                <tr style="border-bottom: 1px solid rgba(214, 175, 54, 0.2);">
+                    <th style="padding: 8px; text-align: left;">Property</th>
+                    <th style="padding: 8px; text-align: left;">FFT/DFT</th>
+                    <th style="padding: 8px; text-align: left;">HHT</th>
+                </tr>
+                <tr>
+                    <td style="padding: 8px;">Basis functions</td>
+                    <td style="padding: 8px;">Fixed (sine/cosine)</td>
+                    <td style="padding: 8px;">Adaptive (data-driven)</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px;">Stability</td>
+                    <td style="padding: 8px;">✓ Stable, orthogonal</td>
+                    <td style="padding: 8px;">✗ Can be chaotic</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px;">Non-linear signals</td>
+                    <td style="padding: 8px;">✗ Poor for non-stationary</td>
+                    <td style="padding: 8px;">✓ Excellent</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px;">Speed</td>
+                    <td style="padding: 8px;">✓ Fast (O(n log n))</td>
+                    <td style="padding: 8px;">✗ Slow (iterative)</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px;">Use cases</td>
+                    <td style="padding: 8px;">Audio, images, general</td>
+                    <td style="padding: 8px;">Biomedical (EEG, ECG), seismic, climate</td>
+                </tr>
+            </table>
+            
+            <p style="margin-top: 15px;">HHT is widely used in <strong>biomechanical animation</strong> (motion capture analysis), <strong>medical imaging</strong> (extracting physiological rhythms), and <strong>financial time series</strong>. Its adaptive nature makes it ideal for signals with time-varying characteristics.</p>
+
+            <p class="highlight">The more circles you add, the more faithfully the original curve is reconstructed. Try adjusting the slider to see!</p>
+        </div>
+
+        <!-- Math Explanation -->
+        <div class="math-panel">
+            <h2>The Mathematics</h2>
+            <div class="formula-box">
+                <p>Fourier Series Decomposition:</p>
+                <p class="math-display">$$f(t) = \sum_{n=-\infty}^{\infty} c_n e^{2\pi i n t}$$</p>
+                <p class="math-note">Each coefficient $c_n$ represents a rotating circle with radius $|c_n|$ and frequency $n$</p>
+            </div>
+            
+            <div class="formula-box">
+                <p>Discrete Fourier Transform:</p>
+                <p class="math-display">$$X_k = \sum_{n=0}^{N-1} x_n e^{-2\pi i k n / N}$$</p>
+                <p class="math-note">Converts discrete time-domain points to frequency components (complex coefficients)</p>
+            </div>
+            
+            <div class="formula-box">
+                <p>Discrete Cosine Transform (Type-II):</p>
+                <p class="math-display">$$X_k = \sum_{n=0}^{N-1} x_n \cos\left[\frac{\pi k (n + 0.5)}{N}\right]$$</p>
+                <p class="math-note">Real-valued transform using only cosine basis. Popular in compression (JPEG uses 8×8 DCT blocks)</p>
+            </div>
+            
+            <div class="formula-box">
+                <p>Complex Exponential as Rotation:</p>
+                <p class="math-display">$$e^{i\theta} = \cos\theta + i\sin\theta$$</p>
+                <p class="math-note">Euler's formula shows why Fourier naturally creates rotating circles—complex exponentials trace circular paths!</p>
+            </div>
+            
+            <div class="formula-box">
+                <p>Short-Time Fourier Transform (STFT):</p>
+                <p class="math-display">$$\text{STFT}(t, \omega) = \int_{-\infty}^{\infty} f(\tau) w(\tau - t) e^{-i\omega\tau} d\tau$$</p>
+                <p class="math-note">Applies Fourier transform to windowed segments $w(t)$ (e.g., Hann window) sliding through time</p>
+            </div>
+            
+            <div class="formula-box">
+                <p>Empirical Mode Decomposition (EMD):</p>
+                <p class="math-display">$$f(t) = \sum_{i=1}^{n} \text{IMF}_i(t) + r_n(t)$$</p>
+                <p class="math-note">Adaptively decomposes signal into Intrinsic Mode Functions (IMFs) via iterative sifting based on local extrema</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Particle Background -->
+    <canvas id="particles"></canvas>
+
+    <script>
+        // Render LaTeX after page loads
+        document.addEventListener("DOMContentLoaded", function() {
+            if (typeof renderMathInElement !== 'undefined') {
+                renderMathInElement(document.body, {
+                    delimiters: [
+                        {left: "$$", right: "$$", display: true},
+                        {left: "$", right: "$", display: false}
+                    ]
+                });
+            }
+        });
+    </script>
+    <script src="fourier.js"></script>
+</body>
+</html>

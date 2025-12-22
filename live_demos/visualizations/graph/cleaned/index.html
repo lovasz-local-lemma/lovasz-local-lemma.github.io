@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Graph Algorithms Visualizer - Refactored</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .app-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 1400px;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .main-content {
+            display: flex;
+            height: 700px;
+        }
+
+        .sidebar {
+            width: 320px;
+            background: #f8f9fa;
+            padding: 20px;
+            overflow-y: auto;
+            border-right: 1px solid #ddd;
+        }
+
+        .canvas-container {
+            flex: 1;
+            position: relative;
+            background: #1a1a2e;
+        }
+
+        .data-panel {
+            width: 350px;
+            background: white;
+            padding: 20px;
+            overflow-y: auto;
+            border-left: 1px solid #ddd;
+        }
+
+        .data-section {
+            margin-bottom: 20px;
+        }
+
+        .data-highlight {
+            background: #f0f4ff;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .control-group {
+            margin-bottom: 25px;
+        }
+
+        .control-group h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 5px;
+        }
+
+        .control-row {
+            margin-bottom: 12px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        select, input[type="range"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            flex: 1;
+            min-width: 80px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-weight: 600;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .info-box {
+            background: white;
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            margin-top: 10px;
+        }
+
+        .info-box p {
+            margin: 5px 0;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .info-box strong {
+            color: #333;
+        }
+
+        .speed-value {
+            text-align: center;
+            margin-top: 5px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .graph-preset {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 8px;
+        }
+
+        .graph-preset:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .graph-preset h4 {
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .graph-preset p {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+
+        .badge-success {
+            background: #4caf50;
+            color: white;
+        }
+
+        .badge-info {
+            background: #2196F3;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="header">
+            <h1>🚀 Graph Algorithms Visualizer</h1>
+            <p>Refactored with Design Patterns - Clean Architecture Demo</p>
+        </div>
+
+        <div class="main-content">
+            <!-- Sidebar Controls -->
+            <div class="sidebar">
+                <!-- Graph Selection -->
+                <div class="control-group">
+                    <h3>📊 Select Graph</h3>
+                    <div id="graph-presets"></div>
+                </div>
+
+                <!-- Graph Setup Options -->
+                <div class="control-group">
+                    <h3>⚙️ Graph Setup</h3>
+                    <div class="control-row">
+                        <label for="node-count-select">Number of Nodes:</label>
+                        <select id="node-count-select">
+                            <option value="5">5 Nodes</option>
+                            <option value="6" selected>6 Nodes</option>
+                            <option value="7">7 Nodes</option>
+                            <option value="8">8 Nodes</option>
+                            <option value="10">10 Nodes</option>
+                        </select>
+                    </div>
+                    <div class="control-row">
+                        <label for="topology-select">Topology:</label>
+                        <select id="topology-select">
+                            <option value="random" selected>Random</option>
+                            <option value="grid">Grid</option>
+                            <option value="circular">Circular</option>
+                            <option value="star">Star</option>
+                            <option value="complete">Complete</option>
+                        </select>
+                    </div>
+                    <div class="control-row">
+                        <label for="graph-type-select">Graph Type:</label>
+                        <select id="graph-type-select">
+                            <option value="undirected" selected>Undirected</option>
+                            <option value="directed">Directed</option>
+                        </select>
+                    </div>
+                    <div class="control-row">
+                        <button id="generate-graph-btn">🔄 Generate New Graph</button>
+                    </div>
+                </div>
+
+                <!-- Algorithm Selection -->
+                <div class="control-group">
+                    <h3>🎯 Algorithm</h3>
+                    <div class="control-row">
+                        <label for="algorithm-select">Algorithm:</label>
+                        <select id="algorithm-select">
+                            <option value="">-- Select --</option>
+                            <optgroup label="Shortest Path">
+                                <option value="floyd">Floyd-Warshall (All Pairs)</option>
+                                <option value="dijkstra">Dijkstra (Single Source)</option>
+                                <option value="bellman">Bellman-Ford (Negative OK)</option>
+                                <option value="spfa">SPFA (Queue-based)</option>
+                            </optgroup>
+                            <optgroup label="Minimum Spanning Tree">
+                                <option value="prim">Prim's MST (Optimized)</option>
+                                <option value="prim-unoptimized">Prim's MST (Unoptimized)</option>
+                                <option value="kruskal">Kruskal's MST</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                    <div class="control-row">
+                        <button id="start-btn">▶ Start Algorithm</button>
+                    </div>
+                </div>
+
+                <!-- Floyd Visualization Mode (shown when Floyd selected) -->
+                <div class="control-group" id="floyd-mode-group" style="display: none;">
+                    <h3>🎨 Floyd Visualization</h3>
+                    <div class="control-row">
+                        <label for="floyd-mode-select">Visualization Mode:</label>
+                        <select id="floyd-mode-select">
+                            <option value="path-tracking">Path Tracking (Hover Paths)</option>
+                            <option value="length-only">Length Only (No Paths)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Visual Style Options -->
+                <div class="control-group">
+                    <h3>🎨 Visual Style</h3>
+                    <div class="control-row">
+                        <label for="visual-style-select">Node Style:</label>
+                        <select id="visual-style-select">
+                            <option value="3d">3D Glossy (Modern)</option>
+                            <option value="flat">Flat (Classic)</option>
+                        </select>
+                    </div>
+                    <div class="control-row">
+                        <label>
+                            <input type="checkbox" id="show-distances-check" checked> 
+                            Show Distance Labels
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Playback Controls -->
+                <div class="control-group">
+                    <h3>⏯️ Playback</h3>
+                    <div class="button-group">
+                        <button id="play-btn" disabled>▶ Play</button>
+                        <button id="pause-btn" disabled>⏸ Pause</button>
+                    </div>
+                    <div class="button-group" style="margin-top: 8px;">
+                        <button id="prev-btn" disabled>⏮ Previous</button>
+                        <button id="next-btn" disabled>⏭ Next</button>
+                    </div>
+                    <div class="button-group" style="margin-top: 8px;">
+                        <button id="reset-btn">🔄 Reset</button>
+                    </div>
+                </div>
+
+                <!-- Speed Control -->
+                <div class="control-group">
+                    <h3>⚡ Animation Speed</h3>
+                    <div class="control-row">
+                        <input type="range" id="speed-slider" min="1" max="10" value="2" step="0.5">
+                        <div class="speed-value" id="speed-value">2x</div>
+                    </div>
+                </div>
+
+                <!-- Info Display -->
+                <div class="control-group">
+                    <h3>ℹ️ Current Step</h3>
+                    <div class="info-box" id="step-info">
+                        <p><strong>Step:</strong> <span id="step-number">0</span> / <span id="total-steps">0</span></p>
+                        <p><strong>Type:</strong> <span id="step-type">-</span></p>
+                        <p><strong>Message:</strong></p>
+                        <p id="step-message">Select a graph and algorithm to begin</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Canvas -->
+            <div class="canvas-container">
+                <canvas id="graph-canvas"></canvas>
+            </div>
+
+            <!-- Data Panel -->
+            <div class="data-panel" id="data-panel">
+                <h3 style="color: #667eea; margin-bottom: 15px;">📊 Algorithm Data</h3>
+                <p style="color: #999; text-align: center; padding: 20px;">Run an algorithm to see data</p>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { GraphVisualizer } from './js/GraphVisualizer.js';
+        import { DataPanel } from './js/ui/DataPanel.js';
+        import { Graph } from './js/core/Graph.js';
+
+        // Initialize data panel
+        const dataPanel = new DataPanel('data-panel');
+
+        // Sample graphs
+        const graphs = {
+            simple: {
+                name: 'Simple Graph',
+                description: '4 nodes, easy to follow',
+                directed: false,
+                nodes: [
+                    { x: 200, y: 150 },
+                    { x: 400, y: 150 },
+                    { x: 200, y: 350 },
+                    { x: 400, y: 350 }
+                ],
+                edges: [
+                    { from: 0, to: 1, weight: 5 },
+                    { from: 0, to: 2, weight: 3 },
+                    { from: 1, to: 3, weight: 2 },
+                    { from: 2, to: 3, weight: 4 }
+                ]
+            },
+            pentagon: {
+                name: 'Pentagon',
+                description: '5 nodes in pentagon shape',
+                directed: false,
+                nodes: [
+                    { x: 300, y: 100 },
+                    { x: 450, y: 200 },
+                    { x: 400, y: 380 },
+                    { x: 200, y: 380 },
+                    { x: 150, y: 200 }
+                ],
+                edges: [
+                    { from: 0, to: 1, weight: 4 },
+                    { from: 1, to: 2, weight: 3 },
+                    { from: 2, to: 3, weight: 5 },
+                    { from: 3, to: 4, weight: 2 },
+                    { from: 4, to: 0, weight: 6 },
+                    { from: 0, to: 2, weight: 7 },
+                    { from: 1, to: 3, weight: 8 }
+                ]
+            },
+            complex: {
+                name: 'Complex Network',
+                description: '7 nodes, multiple paths',
+                directed: false,
+                nodes: [
+                    { x: 300, y: 100 },
+                    { x: 150, y: 200 },
+                    { x: 450, y: 200 },
+                    { x: 100, y: 350 },
+                    { x: 300, y: 350 },
+                    { x: 500, y: 350 },
+                    { x: 300, y: 500 }
+                ],
+                edges: [
+                    { from: 0, to: 1, weight: 4 },
+                    { from: 0, to: 2, weight: 3 },
+                    { from: 1, to: 3, weight: 2 },
+                    { from: 1, to: 4, weight: 5 },
+                    { from: 2, to: 4, weight: 1 },
+                    { from: 2, to: 5, weight: 6 },
+                    { from: 3, to: 6, weight: 3 },
+                    { from: 4, to: 6, weight: 2 },
+                    { from: 5, to: 6, weight: 4 }
+                ]
+            }
+        };
+
+        // Initialize visualizer
+        const visualizer = new GraphVisualizer('graph-canvas');
+
+        // Load default graph
+        visualizer.loadGraph(graphs.simple);
+
+        // Populate graph presets
+        const presetsContainer = document.getElementById('graph-presets');
+        Object.entries(graphs).forEach(([key, graph]) => {
+            const preset = document.createElement('div');
+            preset.className = 'graph-preset';
+            preset.innerHTML = `
+                <h4>${graph.name}</h4>
+                <p>${graph.description}</p>
+                <span class="badge badge-info">${graph.nodes.length} nodes</span>
+                <span class="badge badge-success">${graph.edges.length} edges</span>
+            `;
+            preset.addEventListener('click', () => {
+                visualizer.loadGraph(graph);
+                visualizer.reset();
+                updateUI();
+            });
+            presetsContainer.appendChild(preset);
+        });
+
+        // UI Elements
+        const algorithmSelect = document.getElementById('algorithm-select');
+        const floydModeGroup = document.getElementById('floyd-mode-group');
+        const floydModeSelect = document.getElementById('floyd-mode-select');
+        const visualStyleSelect = document.getElementById('visual-style-select');
+        const showDistancesCheck = document.getElementById('show-distances-check');
+        const nodeCountSelect = document.getElementById('node-count-select');
+        const topologySelect = document.getElementById('topology-select');
+        const graphTypeSelect = document.getElementById('graph-type-select');
+        const generateGraphBtn = document.getElementById('generate-graph-btn');
+        const startBtn = document.getElementById('start-btn');
+        const playBtn = document.getElementById('play-btn');
+        const pauseBtn = document.getElementById('pause-btn');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const speedSlider = document.getElementById('speed-slider');
+        const speedValue = document.getElementById('speed-value');
+
+        // Event Listeners
+        algorithmSelect.addEventListener('change', () => {
+            // Show Floyd mode selector only for Floyd-Warshall
+            if (algorithmSelect.value === 'floyd') {
+                floydModeGroup.style.display = 'block';
+            } else {
+                floydModeGroup.style.display = 'none';
+            }
+        });
+
+        floydModeSelect.addEventListener('change', () => {
+            visualizer.setFloydMode(floydModeSelect.value);
+        });
+
+        visualStyleSelect.addEventListener('change', () => {
+            visualizer.setVisualStyle(visualStyleSelect.value);
+        });
+
+        showDistancesCheck.addEventListener('change', () => {
+            visualizer.toggleDistances(showDistancesCheck.checked);
+        });
+
+        generateGraphBtn.addEventListener('click', () => {
+            generateCustomGraph();
+        });
+
+        // Generate custom graph based on user settings
+        function generateCustomGraph() {
+            const nodeCount = parseInt(nodeCountSelect.value);
+            const topology = topologySelect.value;
+            const isDirected = graphTypeSelect.value === 'directed';
+            
+            const graph = new Graph();
+            const canvas = visualizer.canvas;
+            const margin = 80;
+            const width = canvas.width - 2 * margin;
+            const height = canvas.height - 2 * margin;
+            
+            // Generate node positions based on topology
+            const positions = generateNodePositions(nodeCount, topology, width, height, margin);
+            
+            // Add nodes
+            positions.forEach((pos, i) => {
+                graph.addNode(i, pos.x, pos.y);
+            });
+            
+            // Add edges based on topology
+            generateEdges(graph, nodeCount, topology, isDirected);
+            
+            // Load into visualizer
+            visualizer.loadGraph(graph);
+            visualizer.reset();
+            updateUI();
+        }
+
+        function generateNodePositions(count, topology, width, height, margin) {
+            const positions = [];
+            const centerX = margin + width / 2;
+            const centerY = margin + height / 2;
+            const radius = Math.min(width, height) / 2 - 20;
+            
+            switch (topology) {
+                case 'circular':
+                    for (let i = 0; i < count; i++) {
+                        const angle = (i / count) * 2 * Math.PI - Math.PI / 2;
+                        positions.push({
+                            x: centerX + radius * Math.cos(angle),
+                            y: centerY + radius * Math.sin(angle)
+                        });
+                    }
+                    break;
+                    
+                case 'grid':
+                    const cols = Math.ceil(Math.sqrt(count));
+                    const rows = Math.ceil(count / cols);
+                    const cellW = width / (cols + 1);
+                    const cellH = height / (rows + 1);
+                    for (let i = 0; i < count; i++) {
+                        const row = Math.floor(i / cols);
+                        const col = i % cols;
+                        positions.push({
+                            x: margin + cellW * (col + 1),
+                            y: margin + cellH * (row + 1)
+                        });
+                    }
+                    break;
+                    
+                case 'star':
+                    // Center node
+                    positions.push({ x: centerX, y: centerY });
+                    // Surrounding nodes
+                    for (let i = 1; i < count; i++) {
+                        const angle = ((i - 1) / (count - 1)) * 2 * Math.PI;
+                        positions.push({
+                            x: centerX + radius * Math.cos(angle),
+                            y: centerY + radius * Math.sin(angle)
+                        });
+                    }
+                    break;
+                    
+                case 'complete':
+                case 'random':
+                default:
+                    // Random or complete (same positions, different edges)
+                    for (let i = 0; i < count; i++) {
+                        const angle = (i / count) * 2 * Math.PI;
+                        const r = radius * (0.6 + Math.random() * 0.4);
+                        positions.push({
+                            x: centerX + r * Math.cos(angle),
+                            y: centerY + r * Math.sin(angle)
+                        });
+                    }
+                    break;
+            }
+            
+            return positions;
+        }
+
+        function generateEdges(graph, nodeCount, topology, isDirected) {
+            const edges = new Set();
+            
+            const addEdge = (from, to, weight) => {
+                const key = isDirected ? `${from}-${to}` : [from, to].sort().join('-');
+                if (!edges.has(key)) {
+                    graph.addEdge(from, to, weight);
+                    edges.add(key);
+                    if (!isDirected && from !== to) {
+                        graph.addEdge(to, from, weight);
+                    }
+                }
+            };
+            
+            switch (topology) {
+                case 'circular':
+                    for (let i = 0; i < nodeCount; i++) {
+                        const next = (i + 1) % nodeCount;
+                        addEdge(i, next, Math.floor(Math.random() * 10) + 1);
+                    }
+                    // Add some random cross edges
+                    for (let i = 0; i < Math.floor(nodeCount / 2); i++) {
+                        const a = Math.floor(Math.random() * nodeCount);
+                        const b = Math.floor(Math.random() * nodeCount);
+                        if (a !== b) {
+                            addEdge(a, b, Math.floor(Math.random() * 15) + 1);
+                        }
+                    }
+                    break;
+                    
+                case 'grid':
+                    const cols = Math.ceil(Math.sqrt(nodeCount));
+                    for (let i = 0; i < nodeCount; i++) {
+                        const row = Math.floor(i / cols);
+                        const col = i % cols;
+                        // Right neighbor
+                        if (col < cols - 1 && i + 1 < nodeCount) {
+                            addEdge(i, i + 1, Math.floor(Math.random() * 10) + 1);
+                        }
+                        // Bottom neighbor
+                        if (row < Math.floor((nodeCount - 1) / cols) && i + cols < nodeCount) {
+                            addEdge(i, i + cols, Math.floor(Math.random() * 10) + 1);
+                        }
+                    }
+                    break;
+                    
+                case 'star':
+                    // Connect center (0) to all others
+                    for (let i = 1; i < nodeCount; i++) {
+                        addEdge(0, i, Math.floor(Math.random() * 10) + 1);
+                    }
+                    break;
+                    
+                case 'complete':
+                    // Connect every node to every other node
+                    for (let i = 0; i < nodeCount; i++) {
+                        for (let j = i + 1; j < nodeCount; j++) {
+                            addEdge(i, j, Math.floor(Math.random() * 15) + 1);
+                        }
+                    }
+                    break;
+                    
+                case 'random':
+                default:
+                    // Random edges - ensure connectivity
+                    // First create a spanning tree for connectivity
+                    for (let i = 1; i < nodeCount; i++) {
+                        const parent = Math.floor(Math.random() * i);
+                        addEdge(parent, i, Math.floor(Math.random() * 10) + 1);
+                    }
+                    // Add random additional edges
+                    const extraEdges = Math.floor(nodeCount * 1.5);
+                    for (let i = 0; i < extraEdges; i++) {
+                        const a = Math.floor(Math.random() * nodeCount);
+                        const b = Math.floor(Math.random() * nodeCount);
+                        if (a !== b) {
+                            addEdge(a, b, Math.floor(Math.random() * 15) + 1);
+                        }
+                    }
+                    break;
+            }
+        }
+
+        startBtn.addEventListener('click', () => {
+            const algorithm = algorithmSelect.value;
+            if (!algorithm) {
+                alert('Please select an algorithm first!');
+                return;
+            }
+
+            visualizer.startAlgorithm(algorithm);
+            updateUI();
+        });
+
+        playBtn.addEventListener('click', () => {
+            visualizer.play();
+            updateUI();
+        });
+
+        pauseBtn.addEventListener('click', () => {
+            visualizer.pause();
+            updateUI();
+        });
+
+        prevBtn.addEventListener('click', () => {
+            visualizer.stepBackward();
+            updateUI();
+        });
+
+        nextBtn.addEventListener('click', () => {
+            visualizer.stepForward();
+            updateUI();
+        });
+
+        resetBtn.addEventListener('click', () => {
+            visualizer.reset();
+            updateUI();
+        });
+
+        speedSlider.addEventListener('input', () => {
+            const speed = parseFloat(speedSlider.value);
+            visualizer.setSpeed(speed);
+            speedValue.textContent = `${speed}x`;
+        });
+
+        // Update UI state
+        function updateUI() {
+            const stepInfo = visualizer.getCurrentStepInfo();
+            const hasSteps = stepInfo.totalSteps > 0;
+
+            // Update step info
+            document.getElementById('step-number').textContent = stepInfo.stepNumber;
+            document.getElementById('total-steps').textContent = stepInfo.totalSteps;
+            document.getElementById('step-type').textContent = stepInfo.type || '-';
+            document.getElementById('step-message').textContent = stepInfo.message || 'No message';
+
+            // Update data panel
+            if (hasSteps && stepInfo.currentStep) {
+                dataPanel.update(visualizer.selectedAlgorithm, stepInfo.currentStep);
+            } else {
+                dataPanel.clear();
+            }
+
+            // Enable/disable buttons
+            playBtn.disabled = !hasSteps || visualizer.animationState.isPlaying;
+            pauseBtn.disabled = !hasSteps || !visualizer.animationState.isPlaying;
+            prevBtn.disabled = !hasSteps || visualizer.animationState.currentStep === 0;
+            nextBtn.disabled = !hasSteps || visualizer.animationState.currentStep >= stepInfo.totalSteps - 1;
+        }
+
+        // Initial UI update
+        updateUI();
+
+        // Auto-update UI during animation
+        setInterval(updateUI, 100);
+
+        console.log('%c🚀 Graph Visualizer Loaded!', 'color: #667eea; font-size: 20px; font-weight: bold;');
+        console.log('%c✅ All refactored modules working!', 'color: #4caf50; font-size: 14px;');
+    </script>
+</body>
+</html>

@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2D Geometric Optics - Prism Light Simulation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --gold-primary: #D4AF37;
+            --gold-light: #F4D03F;
+            --dark-bg: #0A0A0A;
+            --dark-surface: #151515;
+            --text-primary: #E8E8E8;
+            --text-secondary: #B0B0B0;
+        }
+        
+        body {
+            margin: 0;
+            padding: 20px;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            font-family: 'Source Code Pro', monospace;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        /* Animated background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(138, 43, 226, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(212, 175, 55, 0.06) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(75, 0, 130, 0.05) 0%, transparent 50%);
+            z-index: -1;
+            animation: floatBackground 20s ease-in-out infinite;
+        }
+        
+        /* Floating sparks */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle, rgba(212, 175, 55, 0.6) 1px, transparent 1px),
+                radial-gradient(circle, rgba(138, 43, 226, 0.5) 1px, transparent 1px),
+                radial-gradient(circle, rgba(244, 208, 63, 0.4) 1px, transparent 1px);
+            background-size: 800px 800px, 600px 600px, 400px 400px;
+            background-position: 0 0, 100px 50px, 200px 100px;
+            z-index: -1;
+            opacity: 0.3;
+            animation: sparkFloat 30s linear infinite;
+        }
+        
+        @keyframes sparkFloat {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(-100px, -100px); }
+        }
+        
+        @keyframes floatBackground {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -30px) scale(1.05); }
+            66% { transform: translate(-30px, 30px) scale(0.95); }
+        }
+        
+        /* Back Button */
+        .back-button {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            z-index: 1000;
+            background: linear-gradient(135deg, rgba(15, 15, 32, 0.9) 0%, rgba(10, 10, 24, 0.85) 100%);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 12px;
+            padding: 0.8rem 1.5rem;
+            color: var(--gold-light);
+            text-decoration: none;
+            font-size: 1rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        .back-button:hover {
+            border-color: rgba(212, 175, 55, 0.6);
+            box-shadow: 0 6px 25px rgba(212, 175, 55, 0.25);
+            transform: translateX(-4px);
+            color: var(--gold-primary);
+        }
+        
+        .back-button::before {
+            content: '←';
+            font-size: 1.2rem;
+        }
+        
+        h1 {
+            font-family: 'Playfair Display', serif;
+            color: var(--gold-primary);
+            text-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        #container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+            margin-bottom: 30px;
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        #mainView {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            flex-wrap: wrap;
+            width: 100%;
+        }
+        
+        #canvasContainer, #sensor {
+            position: relative;
+        }
+        
+        #controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px 20px;
+        }
+        
+        #canvas {
+            border: 2px solid rgba(212, 175, 55, 0.4);
+            background: #000;
+            box-shadow: 
+                0 0 60px rgba(212, 175, 55, 0.3),
+                0 0 120px rgba(138, 43, 226, 0.2),
+                inset 0 0 80px rgba(0, 0, 0, 0.5);
+            border-radius: 12px;
+            animation: canvasBreathe 4s ease-in-out infinite;
+        }
+        
+        @keyframes canvasBreathe {
+            0%, 100% {
+                box-shadow: 
+                    0 0 60px rgba(212, 175, 55, 0.3),
+                    0 0 120px rgba(138, 43, 226, 0.2),
+                    inset 0 0 80px rgba(0, 0, 0, 0.5);
+            }
+            50% {
+                box-shadow: 
+                    0 0 80px rgba(212, 175, 55, 0.4),
+                    0 0 140px rgba(138, 43, 226, 0.3),
+                    inset 0 0 80px rgba(0, 0, 0, 0.5);
+            }
+        }
+        
+        #sensorCanvas {
+            border: 2px solid rgba(212, 175, 55, 0.4);
+            background: #000;
+            box-shadow: 
+                0 0 60px rgba(212, 175, 55, 0.3),
+                0 0 120px rgba(138, 43, 226, 0.2),
+                inset 0 0 80px rgba(0, 0, 0, 0.5);
+            border-radius: 12px;
+        }
+        
+        #controls {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.08), rgba(212, 175, 55, 0.03));
+            border: 1px solid rgba(212, 175, 55, 0.25);
+            padding: 25px;
+            border-radius: 12px;
+            max-width: 1400px;
+            width: 100%;
+            box-shadow: 0 4px 20px rgba(212, 175, 55, 0.15);
+            backdrop-filter: blur(10px);
+            transition: box-shadow 0.3s ease, transform 0.3s ease;
+        }
+        
+        #controls:hover, #sensor:hover {
+            box-shadow: 0 8px 40px rgba(212, 175, 55, 0.3), 0 0 60px rgba(212, 175, 55, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .control-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 18px;
+            color: var(--gold-light);
+            font-weight: 500;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        input[type="range"] {
+            width: 100%;
+        }
+        
+        button {
+            background: linear-gradient(135deg, var(--gold-primary), var(--gold-light));
+            color: var(--dark-bg);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 4px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(212, 175, 55, 0.5);
+        }
+        
+        /* LaTeX-style equations */
+        code {
+            font-family: 'Latin Modern Math', 'Computer Modern', 'Times New Roman', serif;
+            background: rgba(212, 175, 55, 0.15);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 1.15em;
+            color: #f0c850;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), 0 0 20px rgba(212, 175, 55, 0.1);
+        }
+        
+        /* Keyword highlighting */
+        strong {
+            color: var(--gold-light);
+            font-weight: 600;
+        }
+        
+        em {
+            color: #a78bfa;
+            font-style: italic;
+        }
+        
+        h2 {
+            font-family: 'Playfair Display', serif;
+            color: var(--gold-primary);
+            border-bottom: 2px solid rgba(212, 175, 55, 0.3);
+            padding-bottom: 10px;
+            text-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+        }
+        
+        #info {
+            font-size: 12px;
+            color: #aaa;
+            margin-top: 20px;
+        }
+        
+        #sensor {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.08), rgba(212, 175, 55, 0.03));
+            border: 1px solid rgba(212, 175, 55, 0.25);
+            padding: 20px;
+            border-radius: 12px;
+            min-width: 250px;
+            box-shadow: 0 4px 20px rgba(212, 175, 55, 0.15);
+            transition: box-shadow 0.3s ease, transform 0.3s ease;
+        }
+        
+        #sensor h3 {
+            color: var(--gold-light);
+            font-family: 'Playfair Display', serif;
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+        }
+        
+        #sensorCanvas {
+            width: 100%;
+            height: 200px;
+            background: #000;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 6px;
+            display: block;
+        }
+        
+        #theory {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.08), rgba(212, 175, 55, 0.03));
+            border: 1px solid rgba(212, 175, 55, 0.25);
+            padding: 20px;
+            border-radius: 12px;
+            max-width: 1600px;
+            margin: 20px auto;
+            box-shadow: 0 4px 20px rgba(212, 175, 55, 0.15);
+        }
+        
+        #theory h2 {
+            color: var(--gold-primary);
+            font-family: 'Playfair Display', serif;
+            margin-bottom: 15px;
+        }
+        
+        #theory p {
+            line-height: 1.6;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+        
+        #theory ul {
+            margin-left: 20px;
+            color: var(--text-secondary);
+        }
+        
+        #theory ul li {
+            margin-bottom: 8px;
+        }
+        
+        #theory strong {
+            color: var(--gold-light);
+        }
+        
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 15px rgba(212, 175, 55, 0.5); }
+            50% { box-shadow: 0 0 25px rgba(212, 175, 55, 0.8); }
+        }
+        
+        @keyframes flashHighlight {
+            0% { opacity: 0; }
+            50% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <a href="../../../index.html" class="back-button">Back to Portfolio</a>
+    <h1>2D Geometric Optics Simulation</h1>
+    <div id="container">
+        <div id="mainView">
+            <div id="canvasContainer">
+                <canvas id="canvas" width="900" height="600"></canvas>
+            </div>
+            <div id="sensor">
+            <div id="sensorDisplay">
+                <canvas id="sensorCanvas" width="500" height="400"></canvas>
+                <div id="spectrumDisplay" style="margin-top: 15px; padding: 10px; background: #1a1a1a; border-radius: 8px; border: 1px solid #333;">
+                    <h4 style="color: #d4af37; margin: 0 0 10px 0; font-size: 16px; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);">Spectrum Distribution</h4>
+                    <canvas id="spectrumCanvas" width="480" height="200" style="display: block; width: 100%;"></canvas>
+                    <div id="customSpectrumControls" style="margin-top: 10px; display: none;">
+                        <button onclick="simulation.clearCustomSpectrum()" style="background: linear-gradient(135deg, #d4af37, #f0c850); color: #0a0a0a; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: 600; box-shadow: 0 0 15px rgba(212, 175, 55, 0.5); animation: pulse 2s infinite;">
+                            Clear Custom Ranges ✨
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <p style="font-size: 15px; color: var(--text-secondary); margin-top: 10px; text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);">
+                Accumulates photons over time. Watch the rainbow pattern emerge!
+            </p>
+            <p style="font-size: 13px; color: #888; margin-top: 5px; font-style: italic; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);">
+                ⚠️ If you see overexposed (white) pixels, adjust the sensitivity slider
+            </p>
+            </div>
+        </div>
+        
+        <div id="controls">
+            <div class="control-group">
+                <label>Light Angle:</label>
+                <input type="range" id="lightAngle" min="-180" max="180" value="10">
+                <span id="angleValue">10°</span>
+            </div>
+            
+            <div class="control-group">
+                <label>Photon Rate:</label>
+                <input type="range" id="photonRate" min="50" max="1000" value="500">
+                <span id="rateValue">500/s</span>
+            </div>
+            
+            <div class="control-group">
+                <label>Beam Range (spread):</label>
+                <input type="range" id="lightRange" min="0" max="90" value="0">
+                <span id="rangeValue">0°</span>
+            </div>
+            
+            <div class="control-group">
+                <label>Spectrum:</label>
+                <select id="spectrumMode">
+                    <option value="white">Full Spectrum (White)</option>
+                    <option value="purple-single">Purple (Single λ=420nm)</option>
+                    <option value="purple-dual">Purple (Red+Blue) ★ Metamerism</option>
+                    <option value="red-violet">Red+Violet (Opposite Ends)</option>
+                    <option value="yellow-single">Yellow (Single λ=580nm)</option>
+                    <option value="yellow-dual">Yellow (Green+Red) ★ Metamerism</option>
+                    <option value="cyan">Cyan (Single λ=490nm)</option>
+                    <option value="magenta">Magenta (Blue+Red)</option>
+                    <option value="green-narrow">Green (Narrow Band)</option>
+                    <option value="custom">Custom Ranges</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label>Light Source Type:</label>
+                <select id="lightSourceType">
+                    <option value="point">Point (Diverging)</option>
+                    <option value="parallel">Parallel Beam</option>
+                    <option value="diffuse">Diffuse</option>
+                    <option value="diffuse-sphere">Diffuse Sphere</option>
+                </select>
+                <span id="flashlightValue">0°</span>
+            </div>
+            
+            <div class="control-group">
+                <label>
+                    <input type="checkbox" id="tunnelMode"> Tunnel Mode (Perfect Mirrors)
+                </label>
+            </div>
+            
+            <div class="control-group">
+                <label>Sensor Type:</label>
+                <select id="sensorType">
+                    <option value="retina">Retina (Logarithmic)</option>
+                    <option value="cmos" selected>CMOS (Linear)</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label>Sensor Sensitivity:</label>
+                <input type="range" id="sensorSensitivity" min="0.1" max="5" step="0.1" value="1">
+                <span id="sensitivityValue">1.0x</span>
+            </div>
+            
+            <div class="control-group">
+                <label>Splat Type:</label>
+                <select id="splatType">
+                    <option value="point">Point (No Spread)</option>
+                    <option value="tent">Tent (Linear Falloff)</option>
+                    <option value="gaussian" selected>Gaussian (Smooth)</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label>Surface Roughness:</label>
+                <input type="range" id="surfaceRoughness" min="0" max="1" step="0.01" value="0">
+                <span id="roughnessValue">0.00</span>
+            </div>
+            
+            <div class="control-group">
+                <button onclick="simulation.resetSensor()">Reset Sensor</button>
+            </div>
+            
+            <div class="control-group">
+                <label>Prism Material (Central IOR @ 550nm):</label>
+                <select id="prismMaterial">
+                    <option value="glass">Glass (n₀=1.5)</option>
+                    <option value="diamond">Diamond (n₀=2.4)</option>
+                    <option value="water">Water (n₀=1.33)</option>
+                    <option value="flint">Flint Glass (n₀=1.6)</option>
+                    <option value="sapphire">Sapphire (n₀=1.77)</option>
+                    <option value="cubic-zirconia">Cubic Zirconia (n₀=2.15)</option>
+                    <option value="quartz">Quartz (n₀=1.46)</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label>Scene:</label>
+                <select id="sceneSelector" onchange="simulation.changeScene(this.value)">
+                    <option value="prism">Prism Dispersion</option>
+                    <option value="raindrop">Water Drop (4 Sensors, Not Physically Accurate)</option>
+                    <option value="tir">Cube</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <button onclick="simulation.reset()">Reset</button>
+                <button onclick="simulation.togglePause()">Pause/Play</button>
+                <button onclick="simulation.toggleTrails()">Toggle Trails</button>
+            </div>
+            
+            <div class="control-group">
+                <button onclick="showLensModal()">Add Lens / Mirror</button>
+                <button onclick="simulation.clearObjects()">Clear Objects</button>
+            </div>
+            
+            <!-- Lens Configuration Modal -->
+            <div id="lensModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; justify-content: center; align-items: center;">
+                <div style="background: linear-gradient(135deg, #1a1a1a, #0a0a0a); border: 2px solid rgba(212, 175, 55, 0.5); border-radius: 16px; padding: 25px; max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto;">
+                    <h3 style="color: #d4af37; margin: 0 0 20px 0; font-family: 'Playfair Display', serif;">Add Optical Element</h3>
+                    
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; color: #f4d03f;">Element Type:</label>
+                        <select id="lensType" onchange="updateLensOptions()" style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: #e8e8e8; border-radius: 6px;">
+                            <option value="circular">Circular Lens (Polygon Approximation)</option>
+                            <option value="convex-spherical">Convex Lens (Spherical)</option>
+                            <option value="convex-parabolic">Convex Lens (Parabolic/Aspherical)</option>
+                            <option value="concave-spherical">Concave Lens (Spherical)</option>
+                            <option value="concave-parabolic">Concave Lens (Parabolic/Aspherical)</option>
+                            <option value="perfect-convex">Perfect Concave Lens (Optimized for λ)</option>
+                            <option value="perfect-concave">Perfect Convex Lens (Optimized for λ)</option>
+                        </select>
+                    </div>
+                    
+                    <div id="lensExplanation" style="background: rgba(212, 175, 55, 0.1); border-left: 3px solid #d4af37; padding: 10px; margin-bottom: 15px; font-size: 13px; color: #b0b0b0;">
+                        A circular lens approximated by a polygon. More faces = smoother circle.
+                    </div>
+                    
+                    <div id="materialSection" style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; color: #f4d03f;">Material (IOR):</label>
+                        <select id="lensMaterial" style="width: 100%; padding: 8px; background: #252525; border: 1px solid #444; color: #e8e8e8; border-radius: 6px;">
+                            <option value="glass">Glass (n₀=1.5)</option>
+                            <option value="diamond">Diamond (n₀=2.4)</option>
+                            <option value="water">Water (n₀=1.33)</option>
+                            <option value="flint">Flint Glass (n₀=1.6)</option>
+                            <option value="sapphire">Sapphire (n₀=1.77)</option>
+                            <option value="cubic-zirconia">Cubic Zirconia (n₀=2.15)</option>
+                            <option value="quartz">Quartz (n₀=1.46)</option>
+                        </select>
+                    </div>
+                    
+                    <div id="radiusSection" style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; color: #f4d03f;">Radius: <span id="radiusValue">50</span>px</label>
+                        <input type="range" id="lensRadius" min="20" max="150" value="50" style="width: 100%;">
+                    </div>
+                    
+                    <div id="facesSection" style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; color: #f4d03f;">Number of Faces: <span id="facesValue">12</span></label>
+                        <input type="range" id="lensFaces" min="3" max="64" value="12" style="width: 100%;">
+                        <div style="font-size: 11px; color: #888; margin-top: 3px;">3=triangle, 4=square, 6=hexagon, 12+=circle-like</div>
+                    </div>
+                    
+                    <div id="curvatureSection" style="margin-bottom: 15px; display: none;">
+                        <label style="display: block; margin-bottom: 5px; color: #f4d03f;">Curvature: <span id="curvatureValue">0.5</span></label>
+                        <input type="range" id="lensCurvature" min="0.1" max="1.0" step="0.05" value="0.5" style="width: 100%;">
+                    </div>
+                    
+                    <div id="thicknessSection" style="margin-bottom: 15px; display: none;">
+                        <label style="display: block; margin-bottom: 5px; color: #f4d03f;">Thickness: <span id="thicknessValue">30</span>px</label>
+                        <input type="range" id="lensThickness" min="10" max="100" value="30" style="width: 100%;">
+                    </div>
+                    
+                    <div id="rotationSection" style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; color: #f4d03f;">Rotation: <span id="rotationValue">0</span>°</label>
+                        <input type="range" id="lensRotation" min="0" max="360" value="0" style="width: 100%;">
+                    </div>
+                    
+                    <div id="wavelengthSection" style="margin-bottom: 15px; display: none;">
+                        <label style="display: block; margin-bottom: 5px; color: #f4d03f;">Optimize for Wavelength: <span id="wavelengthValue">550</span>nm</label>
+                        <input type="range" id="lensWavelength" min="380" max="750" value="550" style="width: 100%;">
+                        <div style="height: 20px; margin-top: 5px; border-radius: 4px; background: linear-gradient(to right, violet, indigo, blue, cyan, green, yellow, orange, red);"></div>
+                    </div>
+                    
+                    <div id="perfectLensExplanation" style="display: none; background: rgba(212, 175, 55, 0.15); border-left: 3px solid #d4af37; padding: 10px; margin-bottom: 15px; font-size: 13px; color: #b0b0b0;">
+                        <strong style="color: #f4d03f;">Why "Perfect"?</strong><br>
+                        A parabolic surface reflects all parallel rays to exactly one focal point. Similarly, knowing the IOR of a material, we can design an aspherical lens surface so that refracted rays concentrate perfectly for a specific wavelength. Other wavelengths will still have chromatic aberration.
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+                        <button onclick="hideLensModal()" style="background: #333; color: #e8e8e8;">Cancel</button>
+                        <button onclick="addConfiguredLens()">Add Element</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="info">
+                <p style="font-size: 15px;"><strong>Motivation:</strong></p>
+                <p style="font-size: 15px; line-height: 1.6;">While I was being the teaching assistant in a rendering class, I noticed most students struggling with getting refraction to work properly, although it's one of the fundamentals. This motivated me to create this demo, giving some intuition on the topic without introducing any deep theory.</p>
+                
+                <p><strong>Instructions:</strong></p>
+                <p>• Click to place light source</p>
+                <p>• Drag to move objects</p>
+                <p>• Watch photons split and create rainbows through the prism</p>
+                <p>• Each photon represents a different wavelength</p>
+            </div>
+        </div>
+    </div>
+    
+    <div id="theory">
+        <h2>A Gentle Introduction to Geometric Optics</h2>
+        <p>
+            This is an <strong>introductory educational demo</strong> that shows an interesting way to visualize optical phenomena: 
+            modeling light as a stream of photons with probabilistic behavior. While this approach trades physical rigor for simplicity and visual clarity, 
+            it can help build intuition about refraction, reflection, and dispersion.
+        </p>
+        
+        <p><strong>Rendering Perspective:</strong></p>
+        <p>
+            At every interface between materials with different refractive indices, incident light is <em>partially reflected</em> and <em>partially transmitted</em> (refracted). 
+            The Fresnel equations determine the exact energy split between these two components. In path tracing and Monte Carlo rendering, 
+            we cannot afford to deterministically split rays at every interface—instead, we use <strong>stochastic sampling</strong>: each ray makes a probabilistic choice 
+            between reflection and refraction, weighted by the Fresnel reflectance coefficient <em>R</em>. With probability <em>R</em>, the ray reflects; with probability <em>(1-R)</em>, 
+            it refracts. Over many samples, the aggregate distribution converges to the correct energy partition. This approach is unbiased and naturally handles complex 
+            multi-bounce scenarios without exponential ray splitting.
+        </p>
+        
+        <p><strong>What This Demo Shows:</strong></p>
+        <ul>
+            <li><strong>White Light as a Statistical Mixture:</strong> We model "white" light as randomly sampled wavelengths across the visible spectrum (380-750 nm).</li>
+            
+            <li><strong>Wavelength-Dependent Refraction:</strong> Each photon's refraction angle is determined by Snell's law with a wavelength-dependent refractive index (Cauchy's approximation: n(λ) ≈ n₀ + B/λ²). Shorter wavelengths (blue) bend more than longer ones (red).</li>
+            
+            <li><strong>Fresnel Reflection:</strong> At each interface, we use the Fresnel equations to calculate reflection probability:
+                <br><span style="font-family: 'Latin Modern Math', 'Times New Roman', serif; color: #f0c850; font-size: 1.05em; padding: 2px 4px;">R<sub>s</sub> = ||(n₁cosθᵢ - n₂cosθₜ) / (n₁cosθᵢ + n₂cosθₜ)||²</span>
+                <br><span style="font-family: 'Latin Modern Math', 'Times New Roman', serif; color: #f0c850; font-size: 1.05em; padding: 2px 4px;">R<sub>p</sub> = ||(n₁cosθₜ - n₂cosθᵢ) / (n₁cosθₜ + n₂cosθᵢ)||²</span>
+                <br>For unpolarized light: <span style="font-family: 'Latin Modern Math', 'Times New Roman', serif; color: #f0c850; font-size: 1.05em; padding: 2px 4px;">R = (R<sub>s</sub> + R<sub>p</sub>) / 2</span>
+                <br>We then randomly decide whether each photon reflects or refracts based on this probability.
+            </li>
+            
+            <li><strong>Total Internal Reflection:</strong> When sin²θₜ > 1 (beyond the critical angle), all light reflects. This creates the sharp cutoff in the TIR demo.</li>
+            
+            <li><strong>Statistical Patterns:</strong> The sensor accumulates individual photon hits over time. Though each photon's path involves randomness, the ensemble average reveals familiar patterns like rainbow dispersion.</li>
+        </ul>
+        
+        <p><strong>Important Limitations:</strong></p>
+        <p>
+            This simulation <strong>significantly simplifies</strong> real optics. We treat photons as rays (no wave effects like interference or diffraction), 
+            exaggerate dispersion for visibility, and use geometric approximations throughout. Real optical phenomena involve electromagnetic wave theory, 
+            polarization, coherence, and many other effects not captured here. This demo is purely for educational visualization—not for accurate optical design.
+        </p>
+        
+        <p><strong>Metamerism: Different Spectra, Same Appearance</strong></p>
+        <p>
+            An important phenomenon this demo illustrates is <strong>metamerism</strong>: different spectral distributions can appear identical to the human eye. 
+            For example, the "Purple (Red+Blue)" mode mixes red (~650nm) and blue (~420nm) photons, creating the visual perception of purple—yet 
+            a "true" single-wavelength purple (~420nm) looks nearly the same to us. This is because human color vision is trichromatic: we have only three 
+            types of cone cells, so any combination of wavelengths that stimulates them in the same ratio appears identical.
+        </p>
+        <p>
+            Our simplified model maps wavelength directly to RGB, which approximates but oversimplifies real eye sensitivity curves (the actual spectral 
+            response functions are more complex bell curves). Despite this limitation, the demo shows why <strong>spectral analysis with prisms</strong> 
+            is valuable: two colors that look identical to the eye reveal their true composition when dispersed—a single-wavelength purple creates one 
+            narrow band, while red+blue creates two distinct separated bands. This principle is used in spectroscopy to identify materials.
+        </p>
+        
+        <p><strong>Geometric Optics with Chromatic Effects:</strong></p>
+        <p>
+            One interesting aspect: we can demonstrate wavelength-dependent phenomena (dispersion, color) using only geometric ray tracing, 
+            without implementing full wave mechanics. The wavelength is just a parameter that affects the refractive index and perceived color. 
+            This shows the power (and limitations) of geometric optics as an approximation.
+        </p>
+    </div>
+    
+    <script src="optics-simulation.js"></script>
+</body>
+</html>

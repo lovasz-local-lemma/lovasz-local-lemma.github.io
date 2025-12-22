@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Refactored Graph Visualizer Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 900px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .demo-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .demo-section h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .demo-section h3 {
+            color: #764ba2;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        canvas {
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            background: white;
+            display: block;
+            margin: 20px auto;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-weight: 600;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .output {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+        }
+
+        .success {
+            color: #4caf50;
+            font-weight: bold;
+        }
+
+        .info {
+            color: #2196F3;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: #e0e0e0;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Refactored Graph Visualizer</h1>
+        <p class="subtitle">Clean Architecture Demo - Design Patterns in Action</p>
+
+        <!-- Progress Section -->
+        <div class="demo-section">
+            <h2>📈 Refactoring Progress</h2>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 60%;">60% Complete</div>
+            </div>
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-value">4</div>
+                    <div class="stat-label">Phases Complete</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">27</div>
+                    <div class="stat-label">Files Created</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">~2000</div>
+                    <div class="stat-label">Lines Refactored</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Core Modules Demo -->
+        <div class="demo-section">
+            <h2>✅ Phase 1: Core Modules</h2>
+            <p><strong>Status:</strong> <span class="success">Complete</span></p>
+            <button onclick="testCoreModules()">Test Core Modules</button>
+            <div id="core-output" class="output"></div>
+        </div>
+
+        <!-- Algorithm Demo -->
+        <div class="demo-section">
+            <h2>✅ Phase 2: Floyd-Warshall Algorithm</h2>
+            <p><strong>Status:</strong> <span class="success">Complete</span></p>
+            <button onclick="testFloydWarshall()">Run Floyd-Warshall</button>
+            <div id="algorithm-output" class="output"></div>
+        </div>
+
+        <!-- Particle System Demo -->
+        <div class="demo-section">
+            <h2>✅ Phase 3: Particle System (Factory Pattern)</h2>
+            <p><strong>Status:</strong> <span class="success">Complete</span></p>
+            <canvas id="particle-canvas" width="800" height="300"></canvas>
+            <div class="controls">
+                <button onclick="testPulseParticle()">Create Pulse</button>
+                <button onclick="testTriangleParticle()">Create Triangle</button>
+                <button onclick="testExplosion()">Create Explosion</button>
+                <button onclick="clearParticles()">Clear All</button>
+            </div>
+            <div id="particle-output" class="output"></div>
+        </div>
+
+        <!-- Visualization Modes Demo -->
+        <div class="demo-section">
+            <h2>✅ Phase 4: Visualization Modes (Strategy Pattern)</h2>
+            <p><strong>Status:</strong> <span class="success">Complete</span></p>
+            <canvas id="mode-canvas" width="800" height="300"></canvas>
+            <div class="controls">
+                <button onclick="testSimpleMode()">Simple Mode</button>
+                <button onclick="testColorfulMode()">Colorful Mode</button>
+                <button onclick="testPathTrackingMode()">Path Tracking</button>
+            </div>
+            <div id="mode-output" class="output"></div>
+        </div>
+
+        <!-- Next Steps -->
+        <div class="demo-section">
+            <h2>🎯 Next: Phase 5 & 6</h2>
+            <p><strong>Coming up:</strong></p>
+            <ul style="margin-left: 20px; margin-top: 10px; line-height: 1.8;">
+                <li><strong>Phase 5:</strong> Refactor remaining algorithms (Dijkstra, BellmanFord, etc.)</li>
+                <li><strong>Phase 6:</strong> Extract UI components (ControlPanel, DataPanel)</li>
+                <li><strong>Phase 7:</strong> Integration and testing</li>
+            </ul>
+        </div>
+    </div>
+
+    <script type="module">
+        import { COLORS, NODE, ANIMATION } from './js/core/Constants.js';
+        import { calculateDistance, createMatrix } from './js/core/Utils.js';
+        import { Graph } from './js/core/Graph.js';
+        import { FloydWarshall } from './js/algorithms/FloydWarshall.js';
+        import { ParticleSystem } from './js/visualization/ParticleSystem.js';
+        import { ModeManager } from './js/visualization/modes/ModeManager.js';
+
+        // Global instances for demo
+        window.particleSystem = new ParticleSystem();
+        window.modeManager = new ModeManager();
+        
+        let animationFrameId = null;
+
+        // Test Core Modules
+        window.testCoreModules = function() {
+            const output = document.getElementById('core-output');
+            output.innerHTML = '';
+            
+            try {
+                // Test Constants
+                output.innerHTML += `<div class="success">✓ Constants loaded</div>`;
+                output.innerHTML += `<div class="info">  - Colors: ${Object.keys(COLORS).length} defined</div>`;
+                output.innerHTML += `<div class="info">  - Node size: ${NODE.RADIUS}px</div>`;
+                
+                // Test Utils
+                const dist = calculateDistance(0, 0, 3, 4);
+                output.innerHTML += `<div class="success">✓ Utils working</div>`;
+                output.innerHTML += `<div class="info">  - Distance(0,0 → 3,4) = ${dist}</div>`;
+                
+                const matrix = createMatrix(3, 3, 0);
+                output.innerHTML += `<div class="info">  - Matrix 3x3 created</div>`;
+                
+                // Test Graph
+                const graph = new Graph();
+                graph.addNode(0, 100, 100);
+                graph.addNode(1, 200, 100);
+                graph.addEdge(0, 1, 5);
+                
+                output.innerHTML += `<div class="success">✓ Graph class working</div>`;
+                output.innerHTML += `<div class="info">  - Nodes: ${graph.nodes.length}, Edges: ${graph.edges.length}</div>`;
+                
+            } catch (error) {
+                output.innerHTML += `<div style="color: red;">✗ Error: ${error.message}</div>`;
+            }
+        };
+
+        // Test Floyd-Warshall Algorithm
+        window.testFloydWarshall = function() {
+            const output = document.getElementById('algorithm-output');
+            output.innerHTML = '';
+            
+            try {
+                // Create a simple graph
+                const graph = new Graph();
+                graph.addNode(0, 100, 100);
+                graph.addNode(1, 200, 100);
+                graph.addNode(2, 150, 200);
+                graph.addEdge(0, 1, 5);
+                graph.addEdge(1, 2, 3);
+                graph.addEdge(0, 2, 10);
+                
+                output.innerHTML += `<div class="success">✓ Test graph created (3 nodes, 3 edges)</div>`;
+                
+                // Run algorithm
+                const floyd = new FloydWarshall();
+                const generator = floyd.execute(graph);
+                
+                let stepCount = 0;
+                let lastStep = null;
+                
+                for (const step of generator) {
+                    stepCount++;
+                    lastStep = step;
+                }
+                
+                output.innerHTML += `<div class="success">✓ Floyd-Warshall executed</div>`;
+                output.innerHTML += `<div class="info">  - Total steps: ${stepCount}</div>`;
+                output.innerHTML += `<div class="info">  - Final distance matrix computed</div>`;
+                
+                if (lastStep && lastStep.dist) {
+                    output.innerHTML += `<div class="info">  - Sample: dist[0→2] = ${lastStep.dist[0][2]}</div>`;
+                }
+                
+            } catch (error) {
+                output.innerHTML += `<div style="color: red;">✗ Error: ${error.message}</div>`;
+                console.error(error);
+            }
+        };
+
+        // Initialize particle canvas
+        const particleCanvas = document.getElementById('particle-canvas');
+        const particleCtx = particleCanvas.getContext('2d');
+        window.particleSystem.setContext(particleCtx);
+
+        // Animate particles
+        function animateParticles() {
+            particleCtx.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
+            
+            window.particleSystem.update(0.016);
+            window.particleSystem.render(particleCtx);
+            
+            animationFrameId = requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+
+        // Test Pulse Particle
+        window.testPulseParticle = function() {
+            const x = Math.random() * 700 + 50;
+            const y = Math.random() * 200 + 50;
+            
+            window.particleSystem.createPulse(x, y, COLORS.VISITED, 1.0, 1.0);
+            
+            const output = document.getElementById('particle-output');
+            output.innerHTML = `<div class="success">✓ Pulse particle created at (${Math.round(x)}, ${Math.round(y)})</div>`;
+            output.innerHTML += `<div class="info">  - Total particles: ${window.particleSystem.getCount()}</div>`;
+        };
+
+        // Test Triangle Particle
+        window.testTriangleParticle = function() {
+            const points = [
+                { x: 200, y: 100 },
+                { x: 400, y: 100 },
+                { x: 300, y: 200 }
+            ];
+            
+            window.particleSystem.createDashedTriangle(points, COLORS.FLOYD_ACCEPTED, 1.0);
+            
+            const output = document.getElementById('particle-output');
+            output.innerHTML = `<div class="success">✓ Dashed triangle created</div>`;
+            output.innerHTML += `<div class="info">  - Total particles: ${window.particleSystem.getCount()}</div>`;
+        };
+
+        // Test Explosion
+        window.testExplosion = function() {
+            const x = particleCanvas.width / 2;
+            const y = particleCanvas.height / 2;
+            
+            window.particleSystem.createExplosion(x, y, COLORS.PROCESSED, 16);
+            
+            const output = document.getElementById('particle-output');
+            output.innerHTML = `<div class="success">✓ Explosion created (16 particles)</div>`;
+            output.innerHTML += `<div class="info">  - Total particles: ${window.particleSystem.getCount()}</div>`;
+        };
+
+        // Clear Particles
+        window.clearParticles = function() {
+            window.particleSystem.clearAll();
+            
+            const output = document.getElementById('particle-output');
+            output.innerHTML = `<div class="success">✓ All particles cleared</div>`;
+        };
+
+        // Visualization Mode Tests
+        const modeCanvas = document.getElementById('mode-canvas');
+        const modeCtx = modeCanvas.getContext('2d');
+
+        function drawModeDemo(modeName, description) {
+            modeCtx.clearRect(0, 0, modeCanvas.width, modeCanvas.height);
+            
+            // Draw background
+            modeCtx.fillStyle = '#f8f9fa';
+            modeCtx.fillRect(0, 0, modeCanvas.width, modeCanvas.height);
+            
+            // Draw title
+            modeCtx.fillStyle = '#667eea';
+            modeCtx.font = 'bold 24px Arial';
+            modeCtx.textAlign = 'center';
+            modeCtx.fillText(modeName, modeCanvas.width / 2, 40);
+            
+            // Draw description
+            modeCtx.fillStyle = '#666';
+            modeCtx.font = '16px Arial';
+            modeCtx.fillText(description, modeCanvas.width / 2, 70);
+            
+            // Draw sample nodes
+            const nodes = [
+                { x: 200, y: 150, label: 'i' },
+                { x: 400, y: 150, label: 'k' },
+                { x: 600, y: 150, label: 'j' }
+            ];
+            
+            nodes.forEach(node => {
+                modeCtx.beginPath();
+                modeCtx.arc(node.x, node.y, 20, 0, Math.PI * 2);
+                modeCtx.fillStyle = '#667eea';
+                modeCtx.fill();
+                modeCtx.strokeStyle = 'white';
+                modeCtx.lineWidth = 3;
+                modeCtx.stroke();
+                
+                modeCtx.fillStyle = 'white';
+                modeCtx.font = 'bold 16px Arial';
+                modeCtx.textAlign = 'center';
+                modeCtx.textBaseline = 'middle';
+                modeCtx.fillText(node.label, node.x, node.y);
+            });
+        }
+
+        window.testSimpleMode = function() {
+            const mode = window.modeManager.getModeByName('simple');
+            const metadata = mode.getMetadata();
+            
+            drawModeDemo(metadata.name, metadata.description);
+            
+            // Draw triangle
+            modeCtx.strokeStyle = COLORS.FLOYD_ACCEPTED;
+            modeCtx.lineWidth = 2;
+            modeCtx.setLineDash([5, 5]);
+            modeCtx.beginPath();
+            modeCtx.moveTo(200, 150);
+            modeCtx.lineTo(400, 150);
+            modeCtx.lineTo(600, 150);
+            modeCtx.closePath();
+            modeCtx.stroke();
+            modeCtx.setLineDash([]);
+            
+            const output = document.getElementById('mode-output');
+            output.innerHTML = `<div class="success">✓ ${metadata.name} loaded</div>`;
+            output.innerHTML += `<div class="info">  - ${metadata.description}</div>`;
+        };
+
+        window.testColorfulMode = function() {
+            const mode = window.modeManager.getModeByName('colorful');
+            const metadata = mode.getMetadata();
+            
+            drawModeDemo(metadata.name, metadata.description);
+            
+            // Draw paths
+            modeCtx.strokeStyle = COLORS.PATH_CANDIDATE;
+            modeCtx.lineWidth = 3;
+            modeCtx.shadowBlur = 10;
+            modeCtx.shadowColor = COLORS.PATH_CANDIDATE;
+            modeCtx.beginPath();
+            modeCtx.moveTo(200, 150);
+            modeCtx.lineTo(400, 150);
+            modeCtx.lineTo(600, 150);
+            modeCtx.stroke();
+            
+            modeCtx.strokeStyle = COLORS.PATH_CURRENT;
+            modeCtx.shadowColor = COLORS.PATH_CURRENT;
+            modeCtx.beginPath();
+            modeCtx.moveTo(200, 150);
+            modeCtx.quadraticCurveTo(400, 100, 600, 150);
+            modeCtx.stroke();
+            
+            modeCtx.shadowBlur = 0;
+            
+            const output = document.getElementById('mode-output');
+            output.innerHTML = `<div class="success">✓ ${metadata.name} loaded</div>`;
+            output.innerHTML += `<div class="info">  - ${metadata.description}</div>`;
+        };
+
+        window.testPathTrackingMode = function() {
+            const mode = window.modeManager.getModeByName('path-tracking');
+            const metadata = mode.getMetadata();
+            
+            drawModeDemo(metadata.name, metadata.description);
+            
+            // Draw reconstructed paths
+            modeCtx.strokeStyle = COLORS.PATH_HOVER;
+            modeCtx.lineWidth = 3;
+            modeCtx.globalAlpha = 0.7;
+            modeCtx.shadowBlur = 10;
+            modeCtx.shadowColor = COLORS.PATH_HOVER;
+            
+            modeCtx.beginPath();
+            modeCtx.moveTo(200, 150);
+            modeCtx.lineTo(400, 150);
+            modeCtx.lineTo(600, 150);
+            modeCtx.stroke();
+            
+            // Draw arrowhead
+            const angle = 0;
+            modeCtx.fillStyle = COLORS.PATH_HOVER;
+            modeCtx.beginPath();
+            modeCtx.moveTo(600, 150);
+            modeCtx.lineTo(600 - 12 * Math.cos(angle - Math.PI / 6), 150 - 12 * Math.sin(angle - Math.PI / 6));
+            modeCtx.lineTo(600 - 12 * Math.cos(angle + Math.PI / 6), 150 - 12 * Math.sin(angle + Math.PI / 6));
+            modeCtx.closePath();
+            modeCtx.fill();
+            
+            modeCtx.globalAlpha = 1;
+            modeCtx.shadowBlur = 0;
+            
+            const output = document.getElementById('mode-output');
+            output.innerHTML = `<div class="success">✓ ${metadata.name} loaded</div>`;
+            output.innerHTML += `<div class="info">  - ${metadata.description}</div>`;
+            output.innerHTML += `<div class="info">  - Includes hover functionality for all paths</div>`;
+        };
+
+        // Initialize with first demo
+        console.log('%c🚀 Refactored Graph Visualizer Demo Loaded!', 'color: #667eea; font-size: 20px; font-weight: bold;');
+        console.log('%c✅ All modules loaded successfully', 'color: #4caf50; font-size: 14px;');
+    </script>
+</body>
+</html>

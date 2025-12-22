@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AVL Tree Visualization</title>
+  <style>
+    .back-button {
+      position: fixed;
+      top: 2rem;
+      left: 2rem;
+      z-index: 1000;
+      background: linear-gradient(135deg, rgba(15, 15, 32, 0.9) 0%, rgba(10, 10, 24, 0.85) 100%);
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      border-radius: 12px;
+      padding: 0.8rem 1.5rem;
+      color: #F4D03F;
+      text-decoration: none;
+      font-size: 1rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+    
+    .back-button:hover {
+      border-color: rgba(212, 175, 55, 0.6);
+      box-shadow: 0 6px 25px rgba(212, 175, 55, 0.25);
+      transform: translateX(-4px);
+      color: #D4AF37;
+    }
+    
+    .back-button::before {
+      content: '←';
+      font-size: 1.2rem;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #0A0A0A 0%, #1a1a1a 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      max-width: 1600px;
+      margin: 0 auto;
+      background: #1a1a1a;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(212, 175, 55, 0.2);
+      border: 1px solid rgba(212, 175, 55, 0.2);
+    }
+    .header {
+      background: linear-gradient(135deg, rgba(212, 175, 55, 0.15) 0%, rgba(212, 175, 55, 0.05) 100%);
+      color: #F4D03F;
+      padding: 30px;
+      text-align: center;
+      border-radius: 12px 12px 0 0;
+      border-bottom: 2px solid rgba(212, 175, 55, 0.3);
+    }
+    h1 { font-size: 2.5em; margin-bottom: 10px; }
+    .timeline {
+      padding: 30px;
+    }
+    .step-container {
+      margin-bottom: 40px;
+      border: 2px solid rgba(212, 175, 55, 0.2);
+      border-radius: 8px;
+      overflow: hidden;
+      background: #0f0f0f;
+    }
+    .step-header {
+      background: linear-gradient(135deg, rgba(212, 175, 55, 0.2), rgba(212, 175, 55, 0.1));
+      color: #F4D03F;
+      padding: 15px 20px;
+      font-weight: bold;
+      font-size: 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+    }
+    .step-header.needs-rebalance {
+      background: linear-gradient(135deg, rgba(255, 107, 107, 0.3), rgba(255, 107, 107, 0.2));
+      color: #ff6b6b;
+    }
+    .expand-btn {
+      background: rgba(212, 175, 55, 0.2);
+      color: #D4AF37;
+      border: 1px solid rgba(212, 175, 55, 0.4);
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.2s;
+    }
+    .expand-btn:hover {
+      transform: scale(1.05);
+      background: rgba(212, 175, 55, 0.3);
+      box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
+    }
+    .step-content {
+      padding: 20px;
+      background: #151515;
+      color: #e8e8e8;
+    }
+    .frame-container {
+      margin-bottom: 20px;
+      position: relative;
+    }
+    .frame {
+      position: relative;
+    }
+    svg { width: 100%; height: auto; }
+    .node-circle {
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    .node-circle:hover {
+      filter: brightness(1.1);
+    }
+    .node-circle.highlight-correspondence {
+      filter: drop-shadow(0 0 10px #ffd43b) drop-shadow(0 0 20px #ffd43b);
+      stroke: #ffd43b;
+      stroke-width: 4;
+    }
+    .node-circle.rotation-from {
+      filter: drop-shadow(0 0 12px #51cf66) drop-shadow(0 0 24px #51cf66);
+      stroke: #51cf66;
+      stroke-width: 5;
+    }
+    .node-circle.rotation-to {
+      filter: drop-shadow(0 0 12px #ff6b6b) drop-shadow(0 0 24px #ff6b6b);
+      stroke: #ff6b6b;
+      stroke-width: 5;
+    }
+    .node-circle.rotation-pivot {
+      filter: drop-shadow(0 0 15px #4c6ef5) drop-shadow(0 0 30px #4c6ef5);
+      stroke: #4c6ef5;
+      stroke-width: 6;
+    }
+    .rotation-arrow-indicator {
+      fill: none;
+      stroke: #4c6ef5;
+      stroke-width: 3;
+      marker-end: url(#rotation-arrow-head);
+      opacity: 0.8;
+    }
+    .node-text { 
+      pointer-events: none; 
+      user-select: none;
+      font-size: 14px;
+      font-weight: bold;
+    }
+    .edge { 
+      stroke: #666; 
+      stroke-width: 2; 
+      fill: none;
+    }
+    .correspondence-arrow {
+      stroke: #9775fa;
+      stroke-width: 3;
+      fill: none;
+      marker-end: url(#correspondence-marker);
+      stroke-dasharray: 5,5;
+      animation: dash 1.5s linear infinite;
+    }
+    .highlight-add { stroke: #28a745; stroke-width: 4; filter: drop-shadow(0 0 8px #28a745); }
+    .highlight-remove { stroke: #dc3545; stroke-width: 4; filter: drop-shadow(0 0 8px #dc3545); }
+    .highlight-search { stroke: #007bff; stroke-width: 3; filter: drop-shadow(0 0 6px #007bff); }
+    .highlight-search_end { stroke: #007bff; stroke-width: 4; filter: drop-shadow(0 0 12px #007bff); }
+    .substeps-container {
+      margin-top: 20px;
+      display: none;
+    }
+    .substeps-container.expanded {
+      display: block;
+    }
+    .substep-frame {
+      margin-bottom: 30px;
+      padding: 15px;
+      background: #f1f3f5;
+      border-radius: 6px;
+      border-left: 4px solid #667eea;
+    }
+    .substep-title {
+      font-weight: bold;
+      color: #667eea;
+      margin-bottom: 15px;
+      font-size: 16px;
+    }
+    .legend {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      padding: 20px;
+      background: #f8f9fa;
+      flex-wrap: wrap;
+      border-radius: 0 0 12px 12px;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .legend-box {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: 3px solid;
+    }
+    .legend-add { border-color: #28a745; background: #d4edda; }
+    .legend-remove { border-color: #dc3545; background: #f8d7da; }
+    .legend-search { border-color: #007bff; background: #cce5ff; }
+    .legend-red { border-color: #c92a2a; background: #ff6b6b; }
+    .legend-black { border-color: #212529; background: #495057; }
+  </style>
+</head>
+<body>
+  <a href="index.html" class="back-button">Back to Fortune's Algorithm</a>
+  <div class="container">
+    <div class="header">
+      <h1>AVL Tree Visualization</h1>
+      <p>All Operations in Sequence</p>
+    </div>
+    
+    <div class="timeline" id="timeline"></div>
+    
+    <div class="legend">
+      <div class="legend-item">
+        <div class="legend-box legend-add"></div>
+        <span>Insert</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-box legend-remove"></div>
+        <span>Delete</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-box legend-search"></div>
+        <span>Search Path</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-box legend-red"></div>
+        <span>Red Node</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-box legend-black"></div>
+        <span>Black Node</span>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    const steps = [{"operation":"insert","value":"1","nodes":[{"id":"node_1_2730507587184","value":"1","x":400.0,"y":50.0,"highlight":"add"}],"substeps":[],"needs_rebalance":false},{"operation":"insert","value":"2","nodes":[{"id":"node_1_2730507587184","value":"1","x":400.0,"y":50.0,"right_id":"node_2_2730507587136"},{"id":"node_2_2730507587136","value":"2","x":600.0,"y":130.0,"highlight":"add"}],"substeps":[],"needs_rebalance":false},{"operation":"insert","value":"3","nodes":[{"id":"node_2_2730507587136","value":"2","x":400.0,"y":50.0,"left_id":"node_1_2730507587184","right_id":"node_3_2730507587088"},{"id":"node_1_2730507587184","value":"1","x":200.0,"y":130.0},{"id":"node_3_2730507587088","value":"3","x":600.0,"y":130.0,"highlight":"add"}],"substeps":[],"needs_rebalance":false},{"operation":"insert","value":"4","nodes":[{"id":"node_2_2730507587136","value":"2","x":400.0,"y":50.0,"left_id":"node_1_2730507587184","right_id":"node_3_2730507587088"},{"id":"node_1_2730507587184","value":"1","x":200.0,"y":130.0},{"id":"node_3_2730507587088","value":"3","x":600.0,"y":130.0,"right_id":"node_4_2730507587040"},{"id":"node_4_2730507587040","value":"4","x":720.0,"y":210.0,"highlight":"add"}],"substeps":[],"needs_rebalance":false},{"operation":"insert","value":"5","nodes":[{"id":"node_2_2730507587136","value":"2","x":400.0,"y":50.0,"left_id":"node_1_2730507587184","right_id":"node_4_2730507587040"},{"id":"node_1_2730507587184","value":"1","x":200.0,"y":130.0},{"id":"node_4_2730507587040","value":"4","x":600.0,"y":130.0,"left_id":"node_3_2730507587088","right_id":"node_5_2730507586992"},{"id":"node_3_2730507587088","value":"3","x":480.0,"y":210.0},{"id":"node_5_2730507586992","value":"5","x":720.0,"y":210.0,"highlight":"add"}],"substeps":[],"needs_rebalance":false},{"operation":"insert","value":"6","nodes":[{"id":"node_4_2730507587040","value":"4","x":400.0,"y":50.0,"left_id":"node_2_2730507587136","right_id":"node_5_2730507586992"},{"id":"node_2_2730507587136","value":"2","x":200.0,"y":130.0,"left_id":"node_1_2730507587184","right_id":"node_3_2730507587088"},{"id":"node_1_2730507587184","value":"1","x":80.0,"y":210.0},{"id":"node_3_2730507587088","value":"3","x":320.0,"y":210.0},{"id":"node_5_2730507586992","value":"5","x":600.0,"y":130.0,"right_id":"node_6_2730507586944"},{"id":"node_6_2730507586944","value":"6","x":720.0,"y":210.0,"highlight":"add"}],"substeps":[],"needs_rebalance":false},{"operation":"insert","value":"7","nodes":[{"id":"node_4_2730507587040","value":"4","x":400.0,"y":50.0,"left_id":"node_2_2730507587136","right_id":"node_6_2730507586944"},{"id":"node_2_2730507587136","value":"2","x":200.0,"y":130.0,"left_id":"node_1_2730507587184","right_id":"node_3_2730507587088"},{"id":"node_1_2730507587184","value":"1","x":80.0,"y":210.0},{"id":"node_3_2730507587088","value":"3","x":320.0,"y":210.0},{"id":"node_6_2730507586944","value":"6","x":600.0,"y":130.0,"left_id":"node_5_2730507586992","right_id":"node_7_2730507586896"},{"id":"node_5_2730507586992","value":"5","x":480.0,"y":210.0},{"id":"node_7_2730507586896","value":"7","x":720.0,"y":210.0,"highlight":"add"}],"substeps":[],"needs_rebalance":false},{"operation":"insert","value":"8","nodes":[{"id":"node_4_2730507587040","value":"4","x":400.0,"y":50.0,"left_id":"node_2_2730507587136","right_id":"node_6_2730507586944"},{"id":"node_2_2730507587136","value":"2","x":200.0,"y":130.0,"left_id":"node_1_2730507587184","right_id":"node_3_2730507587088"},{"id":"node_1_2730507587184","value":"1","x":80.0,"y":210.0},{"id":"node_3_2730507587088","value":"3","x":320.0,"y":210.0},{"id":"node_6_2730507586944","value":"6","x":600.0,"y":130.0,"left_id":"node_5_2730507586992","right_id":"node_7_2730507586896"},{"id":"node_5_2730507586992","value":"5","x":480.0,"y":210.0},{"id":"node_7_2730507586896","value":"7","x":720.0,"y":210.0,"right_id":"node_8_2730507586848"},{"id":"node_8_2730507586848","value":"8","x":792.0,"y":290.0,"highlight":"add"}],"substeps":[],"needs_rebalance":false},{"operation":"insert","value":"9","nodes":[{"id":"node_4_2730507587040","value":"4","x":400.0,"y":50.0,"left_id":"node_2_2730507587136","right_id":"node_6_2730507586944"},{"id":"node_2_2730507587136","value":"2","x":200.0,"y":130.0,"left_id":"node_1_2730507587184","right_id":"node_3_2730507587088"},{"id":"node_1_2730507587184","value":"1","x":80.0,"y":210.0},{"id":"node_3_2730507587088","value":"3","x":320.0,"y":210.0},{"id":"node_6_2730507586944","value":"6","x":600.0,"y":130.0,"left_id":"node_5_2730507586992","right_id":"node_8_2730507586848"},{"id":"node_5_2730507586992","value":"5","x":480.0,"y":210.0},{"id":"node_8_2730507586848","value":"8","x":720.0,"y":210.0,"left_id":"node_7_2730507586896","right_id":"node_9_2730507586800"},{"id":"node_7_2730507586896","value":"7","x":648.0,"y":290.0},{"id":"node_9_2730507586800","value":"9","x":792.0,"y":290.0,"highlight":"add"}],"substeps":[],"needs_rebalance":false},{"operation":"insert","value":"10","nodes":[{"id":"node_4_2730507587040","value":"4","x":400.0,"y":50.0,"left_id":"node_2_2730507587136","right_id":"node_8_2730507586848"},{"id":"node_2_2730507587136","value":"2","x":200.0,"y":130.0,"left_id":"node_1_2730507587184","right_id":"node_3_2730507587088"},{"id":"node_1_2730507587184","value":"1","x":80.0,"y":210.0},{"id":"node_3_2730507587088","value":"3","x":320.0,"y":210.0},{"id":"node_8_2730507586848","value":"8","x":600.0,"y":130.0,"left_id":"node_6_2730507586944","right_id":"node_9_2730507586800"},{"id":"node_6_2730507586944","value":"6","x":480.0,"y":210.0,"left_id":"node_5_2730507586992","right_id":"node_7_2730507586896"},{"id":"node_5_2730507586992","value":"5","x":408.0,"y":290.0},{"id":"node_7_2730507586896","value":"7","x":552.0,"y":290.0},{"id":"node_9_2730507586800","value":"9","x":720.0,"y":210.0,"right_id":"node_10_2730507586752"},{"id":"node_10_2730507586752","value":"10","x":792.0,"y":290.0,"highlight":"add"}],"substeps":[],"needs_rebalance":false}];
+    let nodeElementsById = new Map(); // Maps node ID to array of circle elements
+    
+    function createSVG(nodes, substepMeta = null) {
+      // Calculate bounding box from node positions
+      if (nodes.length === 0) {
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('viewBox', '0 0 800 400');
+        svg.setAttribute('style', 'min-height: 300px;');
+        return svg;
+      }
+      
+      let minX = Infinity, maxX = -Infinity;
+      let minY = Infinity, maxY = -Infinity;
+      
+      nodes.forEach(node => {
+        minX = Math.min(minX, node.x);
+        maxX = Math.max(maxX, node.x);
+        minY = Math.min(minY, node.y);
+        maxY = Math.max(maxY, node.y);
+      });
+      
+      // Add padding (node radius is 25, plus extra space)
+      const padding = 50;
+      minX -= padding;
+      maxX += padding;
+      minY -= padding;
+      maxY += padding;
+      
+      let width = maxX - minX;
+      let height = maxY - minY;
+      
+      // For small trees (1-3 nodes), ensure minimum size to avoid huge nodes
+      const minWidth = 300;
+      const minHeight = 200;
+      
+      if (width < minWidth) {
+        const diff = minWidth - width;
+        minX -= diff / 2;
+        width = minWidth;
+      }
+      
+      if (height < minHeight) {
+        const diff = minHeight - height;
+        minY -= diff / 2;
+        height = minHeight;
+      }
+      
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.setAttribute('viewBox', `${minX} ${minY} ${width} ${height}`);
+      svg.setAttribute('style', 'min-height: 300px;');
+      
+      // Draw edges
+      nodes.forEach(node => {
+        if (node.left_id) {
+          const child = nodes.find(n => n.id === node.left_id);
+          if (child) {
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('class', 'edge');
+            line.setAttribute('x1', node.x);
+            line.setAttribute('y1', node.y);
+            line.setAttribute('x2', child.x);
+            line.setAttribute('y2', child.y);
+            svg.appendChild(line);
+          }
+        }
+        if (node.right_id) {
+          const child = nodes.find(n => n.id === node.right_id);
+          if (child) {
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('class', 'edge');
+            line.setAttribute('x1', node.x);
+            line.setAttribute('y1', node.y);
+            line.setAttribute('x2', child.x);
+            line.setAttribute('y2', child.y);
+            svg.appendChild(line);
+          }
+        }
+      });
+      
+      // Draw nodes
+      nodes.forEach(node => {
+        const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        let circleClass = 'node-circle';
+        if (node.highlight) circleClass += ' highlight-' + node.highlight;
+        
+        // Add rotation highlights from substep metadata
+        if (substepMeta) {
+          if (substepMeta.rotation_pivot && node.id === substepMeta.rotation_pivot) {
+            circleClass += ' rotation-pivot';
+          }
+          if (substepMeta.from_node && node.id === substepMeta.from_node) {
+            circleClass += ' rotation-from';
+          }
+          if (substepMeta.to_node && node.id === substepMeta.to_node) {
+            circleClass += ' rotation-to';
+          }
+        }
+        
+        circle.setAttribute('class', circleClass);
+        circle.setAttribute('cx', node.x);
+        circle.setAttribute('cy', node.y);
+        circle.setAttribute('r', '25');
+        circle.setAttribute('data-node-id', node.id);
+        
+        // Color for Red-Black trees - FIXED: proper color handling
+        if (node.color === 'red') {
+          circle.setAttribute('fill', '#ff6b6b');
+          circle.setAttribute('stroke', '#c92a2a');
+          circle.setAttribute('stroke-width', '3');
+        } else if (node.color === 'black') {
+          circle.setAttribute('fill', '#495057');
+          circle.setAttribute('stroke', '#212529');
+          circle.setAttribute('stroke-width', '3');
+        } else {
+          circle.setAttribute('fill', '#e9ecef');
+          circle.setAttribute('stroke', '#495057');
+          circle.setAttribute('stroke-width', '2');
+        }
+        
+        g.appendChild(circle);
+        
+        // Add visual indicators
+        if (node.highlight === 'add') {
+          const plus = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          plus.setAttribute('x', node.x + 30);
+          plus.setAttribute('y', node.y - 20);
+          plus.setAttribute('fill', '#28a745');
+          plus.setAttribute('font-size', '24');
+          plus.setAttribute('font-weight', 'bold');
+          plus.textContent = '+';
+          g.appendChild(plus);
+        } else if (node.highlight === 'remove') {
+          const x = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          x.setAttribute('x', node.x + 30);
+          x.setAttribute('y', node.y - 20);
+          x.setAttribute('fill', '#dc3545');
+          x.setAttribute('font-size', '24');
+          x.setAttribute('font-weight', 'bold');
+          x.textContent = '×';
+          g.appendChild(x);
+        }
+        
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        text.setAttribute('class', 'node-text');
+        text.setAttribute('x', node.x);
+        text.setAttribute('y', node.y);
+        text.setAttribute('text-anchor', 'middle');
+        text.setAttribute('dominant-baseline', 'middle');
+        // Text color based on node color
+        text.setAttribute('fill', (node.color === 'red' || node.color === 'black') ? 'white' : '#212529');
+        text.textContent = node.value;
+        
+        g.appendChild(text);
+        svg.appendChild(g);
+      });
+      
+      return svg;
+    }
+    
+    function buildCorrespondences() {
+      // Build a map of node IDs to all their circle elements across all frames
+      const allCircles = document.querySelectorAll('.node-circle');
+      
+      allCircles.forEach(circle => {
+        const nodeId = circle.getAttribute('data-node-id');
+        if (!nodeId) return;
+        
+        if (!nodeElementsById.has(nodeId)) {
+          nodeElementsById.set(nodeId, []);
+        }
+        nodeElementsById.get(nodeId).push(circle);
+        
+        // Add hover listeners
+        circle.addEventListener('mouseenter', () => highlightCorrespondingNodes(nodeId));
+        circle.addEventListener('mouseleave', () => unhighlightCorrespondingNodes(nodeId));
+      });
+    }
+    
+    function highlightCorrespondingNodes(nodeId) {
+      const circles = nodeElementsById.get(nodeId);
+      if (circles) {
+        circles.forEach(circle => {
+          circle.classList.add('highlight-correspondence');
+        });
+      }
+    }
+    
+    function unhighlightCorrespondingNodes(nodeId) {
+      const circles = nodeElementsById.get(nodeId);
+      if (circles) {
+        circles.forEach(circle => {
+          circle.classList.remove('highlight-correspondence');
+        });
+      }
+    }
+    
+    function toggleSubsteps(stepIndex) {
+      const container = document.getElementById('substeps-' + stepIndex);
+      const btn = document.getElementById('expand-btn-' + stepIndex);
+      
+      if (container.classList.contains('expanded')) {
+        container.classList.remove('expanded');
+        btn.textContent = '▼ Expand Detailed Steps';
+      } else {
+        container.classList.add('expanded');
+        btn.textContent = '▲ Collapse Detailed Steps';
+      }
+    }
+    
+    function renderTimeline() {
+      const timeline = document.getElementById('timeline');
+      
+      steps.forEach((step, idx) => {
+        const stepDiv = document.createElement('div');
+        stepDiv.className = 'step-container';
+        stepDiv.id = 'step-' + idx;
+        
+        const header = document.createElement('div');
+        header.className = 'step-header' + (step.needs_rebalance ? ' needs-rebalance' : '');
+        
+        const title = document.createElement('span');
+        title.textContent = `Step ${idx + 1}: ${step.operation.toUpperCase()}(${step.value})`;
+        header.appendChild(title);
+        
+        if (step.substeps && step.substeps.length > 0) {
+          const btn = document.createElement('button');
+          btn.className = 'expand-btn';
+          btn.id = 'expand-btn-' + idx;
+          btn.textContent = '▼ Expand Detailed Steps (' + step.substeps.length + ' steps)';
+          btn.onclick = () => toggleSubsteps(idx);
+          header.appendChild(btn);
+        }
+        
+        stepDiv.appendChild(header);
+        
+        const content = document.createElement('div');
+        content.className = 'step-content';
+        
+        // Main frame - single frame per operation
+        const mainFrame = document.createElement('div');
+        mainFrame.className = 'frame-container';
+        mainFrame.appendChild(createSVG(step.nodes));
+        
+        content.appendChild(mainFrame);
+        
+        // Substeps (if any)
+        if (step.substeps && step.substeps.length > 0) {
+          const substepsContainer = document.createElement('div');
+          substepsContainer.className = 'substeps-container';
+          substepsContainer.id = 'substeps-' + idx;
+          
+          step.substeps.forEach((substep, subIdx) => {
+            const substepDiv = document.createElement('div');
+            substepDiv.className = 'substep-frame';
+            substepDiv.id = `substep-${idx}-${subIdx}`;
+            
+            const substepTitle = document.createElement('div');
+            substepTitle.className = 'substep-title';
+            let titleText = `${subIdx + 1}. ${substep.description}`;
+            
+            // Add rotation metadata to title
+            if (substep.rotation_direction) {
+              titleText += ` — 🔵 Blue: pivot, 🟢 Green: rotated down, 🔴 Red: moved up`;
+            }
+            
+            substepTitle.textContent = titleText;
+            substepDiv.appendChild(substepTitle);
+            
+            // Create substep frame container - single frame
+            const substepFrameContainer = document.createElement('div');
+            substepFrameContainer.className = 'frame-container';
+            substepFrameContainer.appendChild(createSVG(substep.nodes, substep));
+            
+            substepDiv.appendChild(substepFrameContainer);
+            substepsContainer.appendChild(substepDiv);
+          });
+          
+          content.appendChild(substepsContainer);
+        }
+        
+        stepDiv.appendChild(content);
+        timeline.appendChild(stepDiv);
+      });
+    }
+    
+    // Initialize
+    renderTimeline();
+    
+    // Build correspondences after rendering
+    setTimeout(() => {
+      buildCorrespondences();
+    }, 100);
+  </script>
+</body>
+</html>

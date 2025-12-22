@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tree Algorithms Demo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles_prev_gold.css">
+</head>
+<body>
+    <a href="../../../index.html" class="back-button">Back to Portfolio</a>
+    <div class="container">
+        <header>
+            <h1>Search Tree Visualization</h1>
+            <p>Compare the behaviors of different search tree data structures side by side</p>
+        </header>
+
+        <div class="controls" style="display:flex; flex-direction:column; align-items:center; width:80%; margin:0 auto 24px;">
+
+            <div class="input-section">
+                <input type="number" id="valueInput" placeholder="Enter an integer">
+                <button id="insertBtn">Insert</button>
+                <button id="deleteBtn" style="display: none;">Delete</button>
+                <button id="clearBtn">Clear All</button>
+                <button id="randomBtn">Insert Random</button>
+                <button id="sequentialBtn">Sequential (Repeat)</button>
+                <button id="sequentialGrowBtn">Sequential (Advance)</button>
+
+            </div>
+            
+            <!-- <div class="preset-section">
+            </div> -->
+
+            <div class="layout-control" style="display: none;">
+                <button id="layout2" class="layout-btn">2 Cards</button>
+                <button id="layout3" class="layout-btn active">3 Cards</button>
+            </div>
+
+            <div class="range-control" >
+                <label for="maxRange">Max Range:</label>
+                <input type="number" id="maxRange" min="100" max="900" value="100" step="100">
+                <button id="confirmRangeBtn">Confirm</button>
+
+                            <div class="speed-control">
+                <label for="speedSlider">Animation Speed:</label>
+                <input type="range" id="speedSlider" min="1" max="10" value="5">
+                <span id="speedValue">5</span>
+            </div>
+
+            </div>
+        </div>
+
+        <div class="heatmap-container">
+            <div class="heatmap-header">
+                <div class="heatmap-title-section">
+                    <div class="heatmap-title">Value Distribution (1-<span id="maxRangeDisplay">100</span>)</div>
+                    <div class="heatmap-instruction">Click a position to change the starting value</div>
+                </div>
+                <div class="heatmap-legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #4CAF50;"></div>
+                        <span>Current Batch</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #2196F3;"></div>
+                        <span>Previous</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #9C27B0;"></div>
+                        <span>Next Sequential</span>
+                    </div>
+                </div>
+            </div>
+            <div id="heatmapGrid" class="heatmap-grid"></div>
+        </div>
+
+        <div class="tree-grid">
+            <div class="tree-container" data-tree="bst">
+                <h3>Naive BST</h3>
+                <p class="tree-description">Simple binary tree with O(n) worst case. Left children are smaller, right children are larger.</p>
+                <div class="tree-info">
+                    <span class="height">Height: 0</span>
+                    <span class="nodes">Nodes: 0</span>
+                </div>
+                <svg class="tree-canvas" width="500" height="600"></svg>
+                <p class="tree-usage">Used in simple databases and file systems where balance is not critical.<br><span class="warning-text">Can get O(N) lookup complexity in worst case. Once a long linear chain forms, it will never self-correct without manual deletion.</span></p>
+            </div>
+
+            <div class="tree-container" data-tree="avl">
+                <h3>AVL Tree</h3>
+                <p class="tree-description">Self-balancing tree maintaining |height(left) - height(right)| ≤ 1 at every node.</p>
+                <div class="tree-info">
+                    <span class="height">Height: 0</span>
+                    <span class="nodes">Nodes: 0</span>
+                </div>
+                <svg class="tree-canvas" width="500" height="600"></svg>
+                <p class="tree-usage">Used in databases requiring strict lookup time guarantees and frequent searches.<br>
+                    <span class="advantage-text">Guarantees O(log N) operations with strict height balance.</span><br>
+                    <span class="caution-text">Sometimes considered too strict — performs more rotations than necessary compared to RBT.</span>
+                </p>
+            </div>
+
+            <div class="tree-container" data-tree="rbt">
+                <h3>Red-Black Tree</h3>
+                <p class="tree-description">Balanced using node colors with relaxed balance rules. Height ≤ 2log₂(n+1).</p>
+                <div class="tree-info">
+                    <span class="height">Height: 0</span>
+                    <span class="nodes">Nodes: 0</span>
+                </div>
+                <svg class="tree-canvas" width="500" height="600"></svg>
+                <p class="tree-usage">Used in system internals (Linux kernel, Java TreeMap) — often outperforms AVL in practice.<br>
+                    <span class="advantage-text">Faster insertions than AVL due to fewer rotations, while maintaining O(log N) guarantees.</span><br>
+                    <span class="caution-text">More complex to implement than simpler balanced trees.</span>
+                </p>
+            </div>
+
+            <div class="tree-container" data-tree="sbt">
+                <h3>Size Balanced Tree</h3>
+                <p class="tree-description">Maintains balance using subtree sizes. Size(left) and Size(right) bounded by each other's children.</p>
+                <div class="tree-info">
+                    <span class="height">Height: 0</span>
+                    <span class="nodes">Nodes: 0</span>
+                </div>
+                <svg class="tree-canvas" width="500" height="600"></svg>
+                <p class="tree-usage">Popular in competitive programming for order statistics and rank queries.<br>
+                    <span class="advantage-text">Efficiently supports finding k-th smallest element and node ranking operations.</span><br>
+                    <span class="advantage-text">Maintaining size metadata is computationally simpler than height tracking.</span>
+                </p>
+            </div>
+
+            <div class="tree-container" data-tree="treap">
+                <h3>Treap</h3>
+                <p class="tree-description">Randomized BST with heap property on priorities. Maintains balance probabilistically.</p>
+                <div class="tree-info">
+                    <span class="height">Height: 0</span>
+                    <span class="nodes">Nodes: 0</span>
+                </div>
+                <svg class="tree-canvas" width="500" height="600"></svg>
+                <p class="tree-usage">Good for dynamic sets with frequent insertions/deletions and no strict balance requirements.<br>
+                    <span class="warning-text">Worst-case O(N) complexity exists,</span> <span class="advantage-text">but probabilistically almost impossible (only with RNG malfunction).</span><br>
+                    <span class="caution-text">Not considered as reliable as guaranteed balanced trees like AVL/RBT.</span>
+                </p>
+            </div>
+
+            <div class="tree-container" data-tree="splay">
+                <h3>Splay Tree</h3>
+                <p class="tree-description">Self-adjusting tree bringing accessed elements to root via rotations (splaying).</p>
+                <div class="tree-info">
+                    <span class="height">Height: 0</span>
+                    <span class="nodes">Nodes: 0</span>
+                </div>
+                <svg class="tree-canvas" width="500" height="600"></svg>
+                <p class="tree-usage">Excellent for caches and memory systems where recently accessed items are likely to be accessed again.<br>
+                    <span class="advantage-text">Self-optimizing: accessing existing nodes restructures the tree for better future access patterns.</span><br>
+                    <span class="warning-text">Takes multiple operations per insertion and can be O(N) for individual operations. Can also stay a linear chain for really long time since self correction isn't guaranteed.</span>
+                </p>
+            </div>
+
+            <div class="tree-container" data-tree="234">
+                <h3>2-3-4 Tree</h3>
+                <p class="tree-description">B-tree variant where nodes can have 2, 3, or 4 children. Always perfectly balanced.</p>
+                <div class="tree-info">
+                    <span class="height">Height: 0</span>
+                    <span class="nodes">Nodes: 0</span>
+                </div>
+                <svg class="tree-canvas" width="500" height="600"></svg>
+                <p class="tree-usage">Used in file systems and databases for efficient disk I/O operations.<br>
+                    <span class="advantage-text">Multi-way branching minimizes tree height, reducing disk reads in large datasets.</span><br>
+                    <span class="caution-text">More complex node structure makes implementation and debugging harder.</span>
+                </p>
+            </div>
+        </div>
+
+        <div class="metrics-panel">
+            <h3>Tree Comparison Metrics</h3>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <h4>Height Comparison</h4>
+                    <div id="heightChart" class="chart"></div>
+                </div>
+                <div class="metric-card">
+                    <h4>Balance Factor</h4>
+                    <div id="balanceChart" class="chart"></div>
+                </div>
+                <div class="metric-card">
+                    <h4>Operation Count</h4>
+                    <div id="operationChart" class="chart"></div>
+                </div>
+                <div class="metric-card">
+                    <h4>Tree Properties</h4>
+                    <div id="propertiesTable" class="properties"></div>
+                </div>
+            </div>
+            
+            <div class="explanation-card">
+                <h4>About Operation Counts</h4>
+                <p>
+                    <strong>Measurement Methodology:</strong> 
+                    We quantify atomic tree operations to analyze constant-factor performance differences among algorithms with equivalent asymptotic complexity. 
+                    Each single rotation is counted as one unit operation; double rotations (e.g., LR, RL) count as two units. 
+                    Metadata operations including Red-Black Tree recoloring are also included in the count as O(1) operations.
+                    <br><em><strong>Note: This metric is experimental and subject to refinement as we evaluate alternative counting methodologies.</strong></em>
+                    <!-- Only structural changes — spins (rotations), splits, merges, and borrows. 
+                    Recoloring (Red-Black Tree) is NOT counted since it's just metadata changes with O(1) cost. -->
+                </p>
+                <p>
+                    <strong>AVL Tree:</strong> Uses single rotations (1 spin) and double rotations like Left-Right or Right-Left (2 spins). 
+                    Strictly balanced — typically 0-2 operations per insertion.
+                </p>
+                <p>
+                    <strong>Red-Black Tree:</strong> Uses rotations sparingly by relying more on recoloring (not counted). 
+                    On random input, RBT often needs fewer rotations than AVL. On sequential input, AVL wins.
+                </p>
+                <p>
+                    <strong>Size Balanced Tree (SBT):</strong> Similar to AVL but balances based on subtree sizes. 
+                    Competitive performance with slightly different rotation patterns.
+                </p>
+                <p>
+                    <strong>Treap:</strong> Randomized tree using node priorities. Average case is good (similar to random BST), 
+                    but can require rotations on every insertion to maintain heap property, leading to moderate operation counts.
+                </p>
+                <p>
+                    <strong>Splay Tree:</strong> Aggressively rotates to move accessed nodes to the root using zig-zig and zig-zag patterns. 
+                    Uses many spins per operation (can be 2-3x more than AVL) but self-optimizes for access patterns (amortized efficiency).
+                </p>
+                <p>
+                    <strong>Why it matters:</strong> Lower structural change counts mean faster insertions. 
+                    AVL excels on sequential data, RBT on random data. Splay prioritizes recent access over insertion cost.
+                </p>
+            </div>
+        </div>
+
+        <div class="operation-log">
+            <h3>Operation Log</h3>
+            <div id="logContent"></div>
+        </div>
+    </div>
+
+    <script src="js/trees/TreeNode.js"></script>
+    <script src="js/trees/BST.js"></script>
+    <script src="js/trees/AVL.js"></script>
+    <script src="js/trees/RedBlackTree.js"></script>
+    <script src="js/trees/SizeBalancedTree.js"></script>
+    <script src="js/trees/Treap.js"></script>
+    <script src="js/trees/SplayTree.js"></script>
+    <script src="js/trees/Tree234.js"></script>
+    <script src="js/TreeVisualizer.js"></script>
+    <script src="js/AnimationEngine.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

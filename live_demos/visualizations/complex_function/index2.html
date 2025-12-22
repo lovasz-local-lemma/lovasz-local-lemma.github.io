@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complex Function Visualizer - Domain Coloring & Transformation</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <a href="../../../index.html" class="back-button" style="top: 120px; left: 40px;">Back to Portfolio</a>
+    <a href="index1.html" class="back-button" style="top: 180px; left: 40px; background: rgba(52, 152, 219, 0.15); border-color: #3498db;">
+        <span style="font-size: 0.85em;">Switch to Riemann Surface Mode</span><br>    
+    </a>
+    <!-- Header -->
+    <div id="header">
+        <h1 style="font-family: 'Playfair Display', serif;">Two-Mode Complex Function Visualizer</h1>
+        <p>Interactive 3D Visualization of Complex Transformations</p>
+    </div>
+    
+    <div id="container">
+        <canvas id="canvas"></canvas>
+    </div>
+    
+    <div id="controls">
+        <h2 style="font-family: 'Playfair Display', serif;">Plane-Plane Mapping Mode</h2>
+        
+        <div class="control-section">
+            <h3>Function</h3>
+            <select id="functionSelect">
+                <optgroup label="Basic Functions">
+                    <option value="identity">Identity: f(z) = z</option>
+                    <option value="square">Square: f(z) = z²</option>
+                    <option value="cube">Cube: f(z) = z³</option>
+                    <option value="inverse">Inverse: f(z) = 1/z</option>
+                </optgroup>
+                <optgroup label="Transcendental">
+                    <option value="exp">Exponential: f(z) = e^z</option>
+                    <option value="sin">Sine: f(z) = sin(z)</option>
+                    <option value="cos">Cosine: f(z) = cos(z)</option>
+                    <option value="tan">Tangent: f(z) = tan(z)</option>
+                    <option value="log">Logarithm: f(z) = log(z)</option>
+                </optgroup>
+                <optgroup label="Multi-Valued">
+                    <option value="sqrt" selected>Square Root: f(z) = √z</option>
+                    <option value="cbrt">Cube Root: f(z) = ∛z</option>
+                </optgroup>
+                <optgroup label="Special">
+                    <option value="mobius">Möbius: f(z) = (z-1)/(z+1)</option>
+                    <option value="joukowsky">Joukowsky: f(z) = z + 1/z</option>
+                </optgroup>
+            </select>
+        </div>
+        
+        <div class="control-section">
+            <h3>Visualization Mode</h3>
+            <div class="radio-group">
+                <label>
+                    <input type="radio" name="vizMode" value="color" checked>
+                    Color Mapping
+                </label>
+                <label>
+                    <input type="radio" name="vizMode" value="arrows">
+                    Grid Arrows
+                </label>
+                <label>
+                    <input type="radio" name="vizMode" value="derivative">
+                    Derivative Overlay
+                </label>
+                <label>
+                    <input type="radio" name="vizMode" value="distortion">
+                    Conformal Distortion Field
+                </label>
+            </div>
+        </div>
+        
+        <div class="control-section" id="distortionControls" style="display: none;">
+            <h3>Distortion Field Settings</h3>
+            <label>
+                <input type="checkbox" id="showDistortionArrows" checked>
+                Show Direction Arrows
+            </label>
+            <label>
+                <input type="checkbox" id="showDistortionEllipses" checked>
+                Show Stretch Ellipses
+            </label>
+            <label>
+                Grid Density: <span id="distortionDensityValue">12</span>
+                <input type="range" id="distortionDensity" min="6" max="20" step="2" value="12">
+            </label>
+        </div>
+        
+        <div class="control-section" id="derivativeControls" style="display: none;">
+            <h3>Derivative Landscape Settings</h3>
+            <label>
+                <input type="checkbox" id="showContourLines" checked>
+                Show Axis Contours
+            </label>
+            <label>
+                <input type="checkbox" id="showContourMarkers">
+                Show Sample Point Markers
+            </label>
+            <label>
+                Height Scale: <span id="heightScaleValue">1.5</span>
+                <input type="range" id="heightScale" min="0.5" max="3" step="0.1" value="1.5">
+            </label>
+            <label>
+                Material Style:
+                <select id="materialStyle">
+                    <option value="iridescent" selected>Iridescent Bubble</option>
+                    <option value="glass">Glass-like</option>
+                    <option value="standard">Standard</option>
+                </select>
+            </label>
+        </div>
+        
+        <div class="control-section">
+            <h3>Curve Settings</h3>
+            <label>
+                <input type="checkbox" id="curvedArrows" checked>
+                Curved (vs Straight)
+            </label>
+            <label>
+                <input type="checkbox" id="thickArrows" checked>
+                Thick Tubes (vs Thin Lines)
+            </label>
+            <label>
+                Opacity: <span id="arrowOpacityValue">0.7</span>
+                <input type="range" id="arrowOpacity" min="0.1" max="1.0" step="0.1" value="0.7">
+            </label>
+        </div>
+        
+        <div class="control-section" id="arrowControls">
+            <h3>Arrow Grid Settings</h3>
+            <label>
+                Grid Density: <span id="gridDensityValue">10</span>
+                <input type="range" id="gridDensity" min="5" max="30" value="10">
+            </label>
+        </div>
+        
+        <div class="control-section" id="highlightControls">
+            <h3>Highlight Settings</h3>
+            <label>
+                <input type="checkbox" id="showHighlight" checked>
+                Show Highlight (Hover)
+            </label>
+            <label>
+                Region Shape:
+                <select id="regionShape">
+                    <option value="square">Square</option>
+                    <option value="circle">Circle</option>
+                    <option value="triangle">Triangle</option>
+                    <option value="morph_circle_ellipse">Morphing: Circle ↔ Ellipse</option>
+                    <option value="morph_circle_triangle">Morphing: Circle ↔ Triangle</option>
+                </select>
+            </label>
+            <label>
+                Region Size: <span id="highlightRadiusValue">0.3</span>
+                <input type="range" id="highlightRadius" min="0.1" max="0.8" step="0.05" value="0.3">
+            </label>
+            <label>
+                Pipe Density: <span id="pipeDensityValue">24</span>
+                <input type="range" id="pipeDensity" min="16" max="48" step="4" value="24">
+            </label>
+        </div>
+        
+        <div class="control-section">
+            <h3>Display</h3>
+            <label>
+                <input type="checkbox" id="showFromPlane" checked>
+                Show From Plane
+            </label>
+            <label>
+                <input type="checkbox" id="showToPlane" checked>
+                Show To Plane
+            </label>
+            <label>
+                <input type="checkbox" id="showGrid" checked>
+                Show Grid
+            </label>
+        </div>
+        
+        <div class="control-section">
+            <h3>Singularity Analysis</h3>
+            <label>
+                <input type="checkbox" id="showFunctionPoles" checked>
+                f(z) Poles (Bright Red)
+            </label>
+            <label>
+                <input type="checkbox" id="showFunctionZeros" checked>
+                f(z) Zeros (Bright Blue)
+            </label>
+            <label>
+                <input type="checkbox" id="showDerivativePoles">
+                f'(z) Poles (Dark Red)
+            </label>
+            <label>
+                <input type="checkbox" id="showDerivativeZeros">
+                f'(z) Zeros (Dark Blue)
+            </label>
+            <label>
+                Search Radius: <span id="singularityRadiusValue">2.0</span>
+                <input type="range" id="singularityRadius" min="1.0" max="4.0" step="0.5" value="2.0">
+            </label>
+        </div>
+        
+        <div class="control-section">
+            <h3>Multi-Value Display</h3>
+            <label>
+                <input type="checkbox" id="showMultiValue" checked>
+                Branch Control
+            </label>
+            <label style="margin-left: 20px;" id="riemannModeLabel">
+                Display Mode:
+                <select id="riemannMode">
+                    <option value="single">Single Branch</option>
+                    <option value="stacked" selected>Stacked (with offset)</option>
+                    <option value="overlapping">Overlapping (same plane)</option>
+                </select>
+            </label>
+            <label>
+                Plane Separation: <span id="separationValue">3.0</span>
+                <input type="range" id="separation" min="1" max="6" step="0.5" value="3">
+            </label>
+        </div>
+        
+        <div class="control-section">
+            <h3>Camera</h3>
+            <button id="resetCamera">Reset Camera</button>
+        </div>
+        
+        <div id="info">
+            <p><strong>Interaction:</strong> Hover over the domain plane to see transformations in action: which region gets mapped where</p>
+            <p id="selectedPoint"></p>
+            <div id="functionInfo" style="margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(212, 175, 55, 0.2);"></div>
+        </div>
+        
+        <div class="control-section" style="margin-top: 16px; opacity: 0.8;">
+            <p style="font-size: 0.8em; color: #B8B8B8; line-height: 1.5;">
+                <strong style="color: #F4D03F;">About Color Noise:</strong> The chaotic/noisy color regions you may see (especially near the origin for 1/z, or at poles) are <em>singularities</em> — points where the function blows up to infinity or is undefined. Near these points, values change extremely rapidly, causing the "color explosion" effect. This is mathematically correct behavior, not a rendering artifact!
+            </p>
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+    <script src="gaussian_blur_shader.js"></script>
+    <script src="derivative_shader.js"></script>
+    <script src="distortion_field.js"></script>
+    <script src="singularity_detector.js"></script>
+    <script src="app2.js"></script>
+</body>
+</html>

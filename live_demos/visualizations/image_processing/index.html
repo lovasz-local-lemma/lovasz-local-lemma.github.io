@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Algorithm Visualization Demo - Bilateral Grid & Hough Transform</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #D4AF37;
+            --primary-dark: #B8941F;
+            --secondary: #F4D03F;
+            --accent: #FFD700;
+            --bg-dark: #0f0f0f;
+            --bg-darker: #0A0A0A;
+            --glass-bg: rgba(212, 175, 55, 0.03);
+            --glass-border: rgba(212, 175, 55, 0.15);
+            --text-primary: #E5E5E5;
+            --text-secondary: #B8B8B8;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-darker);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Animated background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(212, 175, 55, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(244, 208, 63, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 40% 20%, rgba(255, 215, 0, 0.06) 0%, transparent 50%);
+            z-index: -1;
+            animation: pulse 15s ease-in-out infinite;
+        }
+
+        /* Floating gradient orbs */
+        body::after {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: 
+                radial-gradient(circle at 30% 30%, rgba(212, 175, 55, 0.04) 0%, transparent 25%),
+                radial-gradient(circle at 70% 70%, rgba(244, 208, 63, 0.03) 0%, transparent 25%),
+                radial-gradient(circle at 50% 90%, rgba(255, 215, 0, 0.03) 0%, transparent 25%);
+            z-index: -1;
+            animation: float 30s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        @keyframes float {
+            0%, 100% { 
+                transform: translate(0, 0) rotate(0deg); 
+                opacity: 0.6;
+            }
+            33% { 
+                transform: translate(2%, -2%) rotate(5deg); 
+                opacity: 0.8;
+            }
+            66% { 
+                transform: translate(-2%, 2%) rotate(-5deg); 
+                opacity: 0.7;
+            }
+        }
+
+        .back-button {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            z-index: 1000;
+            background: linear-gradient(135deg, 
+                rgba(15, 15, 15, 0.9) 0%, 
+                rgba(10, 10, 10, 0.85) 100%);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 12px;
+            padding: 0.8rem 1.5rem;
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 1rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .back-button:hover {
+            border-color: rgba(212, 175, 55, 0.6);
+            box-shadow: 0 6px 25px rgba(212, 175, 55, 0.25);
+            transform: translateX(-4px);
+            color: var(--accent);
+        }
+
+        .back-button::before {
+            content: '←';
+            font-size: 1.2rem;
+        }
+
+        .container {
+            max-width: 1900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 3.5em;
+            font-weight: 700;
+            background: linear-gradient(135deg, #D4AF37 0%, #F4D03F 50%, #FFD700 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.02em;
+            text-shadow: 0 0 40px rgba(212, 175, 55, 0.3);
+        }
+
+        .subtitle {
+            text-align: center;
+            margin-bottom: 50px;
+            color: var(--text-secondary);
+            font-size: 1.2em;
+            font-weight: 300;
+        }
+
+        /* Glassmorphism card */
+        .demo-section {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 35px;
+            margin-bottom: 40px;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .demo-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 200%;
+            height: 1px;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                transparent 40%,
+                rgba(212, 175, 55, 0.8) 50%, 
+                transparent 60%,
+                transparent 100%);
+            animation: shimmer 8s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(50%); }
+        }
+
+        .demo-section h2 {
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            font-size: 2em;
+            font-weight: 600;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .canvas-container {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 30px 0;
+        }
+
+        .canvas-wrapper {
+            position: relative;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid var(--glass-border);
+            box-shadow: 
+                0 8px 24px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .canvas-wrapper::after {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: 18px;
+            background: linear-gradient(45deg, 
+                transparent,
+                rgba(212, 175, 55, 0.1),
+                transparent,
+                rgba(244, 208, 63, 0.1),
+                transparent);
+            background-size: 400% 400%;
+            opacity: 0;
+            z-index: -1;
+            animation: gradient-shift 6s ease infinite;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .canvas-wrapper:hover::after {
+            opacity: 1;
+        }
+
+        .canvas-wrapper:hover {
+            transform: translateY(-4px);
+            box-shadow: 
+                0 12px 32px rgba(212, 175, 55, 0.2),
+                inset 0 1px 0 rgba(212, 175, 55, 0.1);
+        }
+
+        @keyframes gradient-shift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        /* Template active state - glowing effect */
+        .canvas-wrapper.template-active {
+            border: 2px solid var(--primary);
+            box-shadow: 
+                0 8px 24px rgba(0, 0, 0, 0.4),
+                0 0 20px rgba(212, 175, 55, 0.4),
+                inset 0 0 20px rgba(212, 175, 55, 0.1);
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+
+        .canvas-wrapper.template-active canvas {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { 
+                box-shadow: 
+                    0 8px 24px rgba(0, 0, 0, 0.4),
+                    0 0 20px rgba(212, 175, 55, 0.4),
+                    inset 0 0 20px rgba(212, 175, 55, 0.1);
+            }
+            50% { 
+                box-shadow: 
+                    0 8px 24px rgba(0, 0, 0, 0.4),
+                    0 0 30px rgba(212, 175, 55, 0.6),
+                    inset 0 0 30px rgba(212, 175, 55, 0.15);
+            }
+        }
+
+        canvas {
+            display: block;
+            max-width: 100%;
+            cursor: crosshair;
+        }
+
+        .canvas-label {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            color: var(--text-primary);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.85em;
+            font-weight: 500;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            letter-spacing: 0.02em;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin: 25px 0;
+            align-items: flex-end;
+            background: rgba(255, 255, 255, 0.02);
+            padding: 20px;
+            border-radius: 16px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .control-group label {
+            font-weight: 500;
+            font-size: 0.9em;
+            color: var(--text-secondary);
+            letter-spacing: 0.02em;
+        }
+
+        /* Modern range slider */
+        input[type="range"] {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            width: 220px;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.1);
+            outline: none;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(212, 175, 55, 0.5);
+            transition: transform 0.2s ease;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 8px rgba(212, 175, 55, 0.5);
+        }
+
+        /* Modern buttons */
+        button {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.95em;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        button:hover::before {
+            left: 100%;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button.active {
+            background: linear-gradient(135deg, var(--accent), var(--secondary));
+            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.5);
+        }
+
+        input[type="file"] {
+            padding: 10px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            cursor: pointer;
+            color: var(--text-primary);
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+        }
+
+        input[type="file"]:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--primary);
+        }
+
+        select {
+            padding: 12px 16px;
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            font-size: 0.95em;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+        }
+
+        select:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--primary);
+        }
+
+        select option {
+            background: var(--bg-dark);
+            color: var(--text-primary);
+        }
+
+        /* Info boxes */
+        .info-box {
+            background: rgba(212, 175, 55, 0.05);
+            border-left: 3px solid var(--primary);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+        }
+
+        .info-box h3 {
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        .info-box p {
+            color: var(--text-secondary);
+            line-height: 1.8;
+            font-size: 0.95em;
+        }
+
+        .info-box strong {
+            color: var(--text-primary);
+        }
+
+        /* Stats */
+        .stats {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+
+        .stat-item {
+            background: rgba(99, 102, 241, 0.1);
+            padding: 14px 20px;
+            border-radius: 12px;
+            font-weight: 500;
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .stat-item:hover {
+            background: rgba(99, 102, 241, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .stat-value {
+            color: var(--primary);
+            font-size: 1.3em;
+            font-weight: 600;
+        }
+
+        #bilateral3d, #gradient3d {
+            cursor: grab;
+        }
+
+        #bilateral3d:active, #gradient3d:active {
+            cursor: grabbing;
+        }
+
+        .color-picker-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        input[type="color"] {
+            width: 50px;
+            height: 40px;
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            cursor: pointer;
+            background: transparent;
+        }
+
+        /* Mode toggle */
+        .mode-toggle {
+            display: flex;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 4px;
+            border-radius: 10px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .mode-toggle button {
+            padding: 8px 16px;
+            font-size: 0.85em;
+            box-shadow: none;
+            background: transparent;
+        }
+
+        .mode-toggle button.active {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+        }
+
+        /* Explanation panel */
+        .explanation-panel {
+            background: rgba(139, 92, 246, 0.08);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 12px;
+            padding: 16px;
+            margin: 15px 0;
+            font-size: 0.9em;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        .explanation-panel code {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: var(--primary);
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <a href="../../../index.html" class="back-button">Back to Portfolio</a>
+    <div class="container">
+        <h1>🎨 Computational Photography, Computer Vision, & Image Processing</h1>
+        <!-- <p class="subtitle">Interactive demo for filters and shape detection</p> -->
+<p class="subtitle">
+   This page brings together a set of interactive algorithm visualizations designed to make 
+    classical image-processing techniques transparent. By exposing their internal structures—
+    from bilateral grids to Hough parameter spaces—these demos reveal the computational and 
+    geometric principles behind filters, detectors, and transforms used throughout vision and graphics.
+    <strong>(More computationally intensive algorithms will be showcased in a separate demo built on a higher-performance backend.)</strong>
+</p>
+
+<!-- Bilateral Grid Section -->
+        <div class="demo-section">
+            <h2>📊 Bilateral Grid Filter</h2>
+            <div class="info-box">
+                <h3>About Bilateral Grid</h3>
+                <p>The bilateral grid is an efficient data structure for edge-preserving image filtering. 
+                   It extends the 2D image into a 3D space where X and Y are spatial coordinates, and Z is 
+                   the intensity/color dimension. Pixels are "splatted" into this 3D grid, accumulating in cells. 
+                   The <strong>3D visualization shows the actual grid structure</strong>: each point is a grid cell, 
+                   its <strong>size represents accumulated weight</strong> (how many similar pixels cluster there), 
+                   and its <strong>color shows the average color</strong> in that cell. Larger, brighter points = 
+                   denser clusters of similar pixels in both space and color!</p>
+            </div>
+
+            <div class="controls">
+                <div class="control-group">
+                    <label>Spatial Sigma: <span id="spatialSigmaValue">16</span></label>
+                    <input type="range" id="spatialSigma" min="4" max="64" value="16" step="2">
+                </div>
+                <div class="control-group">
+                    <label>Range Sigma: <span id="rangeSigmaValue">0.2</span></label>
+                    <input type="range" id="rangeSigma" min="0.05" max="0.5" value="0.2" step="0.05">
+                </div>
+                <div class="control-group">
+                    <label>Grid Scale: <span id="gridScaleValue">8</span></label>
+                    <input type="range" id="gridScale" min="4" max="32" value="8" step="2">
+                </div>
+                <div class="control-group">
+                    <label style="display: flex; align-items: center; gap: 8px;">
+                        <input type="checkbox" id="autoUpdateBilateral" checked>
+                        <span>Real-time Update</span>
+                    </label>
+                </div>
+                <button id="applyBilateral">Apply Filter</button>
+                <button id="resetBilateral">Reset</button>
+            </div>
+
+            <div class="canvas-container">
+                <div class="canvas-wrapper">
+                    <canvas id="bilateralInput" width="512" height="512"></canvas>
+                    <div class="canvas-label">Input Image</div>
+                </div>
+                <div class="canvas-wrapper">
+                    <canvas id="bilateralOutput" width="512" height="512"></canvas>
+                    <div class="canvas-label">Filtered Output</div>
+                </div>
+                <div class="canvas-wrapper">
+                    <canvas id="bilateral3d" width="512" height="512"></canvas>
+                    <div class="canvas-label">3D Grid Space - Size = Weight/Density (Drag to Rotate)</div>
+                </div>
+            </div>
+
+            <div class="stats">
+                <div class="stat-item">Grid Size: <span class="stat-value" id="gridSizeInfo">-</span></div>
+                <div class="stat-item">Active Clusters: <span class="stat-value" id="clusterCount">-</span></div>
+                <div class="stat-item">Processing Time: <span class="stat-value" id="processingTime">-</span></div>
+            </div>
+        </div>
+
+        <!-- Hough Transform Section -->
+        <div class="demo-section">
+            <h2>📐 Hough Transform - Line Detection</h2>
+            <div class="info-box">
+                <h3>About Hough Transform</h3>
+                <p>The Hough Transform detects lines by mapping image space to parameter space (ρ, θ). 
+                   Each point in the image contributes a sinusoidal curve in Hough space. Lines appear 
+                   as bright spots where many curves intersect. Draw on the canvas to create lines and 
+                   watch them appear in the Hough space in real-time!</p>
+            </div>
+
+            <div class="controls">
+                <div class="control-group">
+                    <label>Drawing Mode:</label>
+                    <select id="drawingMode">
+                        <option value="draw">Draw Lines</option>
+                        <option value="liquify">Liquify (Drag)</option>
+                        <option value="erase">Erase</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>Brush Size: <span id="brushSizeValue">5</span></label>
+                    <input type="range" id="brushSize" min="1" max="30" value="5">
+                </div>
+                <div class="color-picker-wrapper">
+                    <label>Color:</label>
+                    <input type="color" id="drawColor" value="#ffffff">
+                </div>
+                <div class="control-group">
+                    <label>Threshold: <span id="thresholdValue">100</span></label>
+                    <input type="range" id="threshold" min="20" max="200" value="100">
+                </div>
+                <button id="clearCanvas">Clear Canvas</button>
+                <button id="detectLines">Detect Lines</button>
+                <button id="loadSampleImage">Load Sample</button>
+            </div>
+
+            <div class="explanation-panel">
+                <strong>Line Field Visualization Modes:</strong><br>
+                <code>Dominant Direction</code> - Shows the strongest line orientation at each point (current implementation)<br>
+                <code>Hough Accumulation</code> - Stacks semi-transparent lines based on Hough space brightness (your suggestion)<br><br>
+                <strong>How it works:</strong> For each pixel in Hough space (ρ, θ), we draw the corresponding line in image space. 
+                Brighter pixels in Hough space = more opaque lines. This creates a beautiful overlay showing all potential lines!
+            </div>
+
+            <div class="controls" style="justify-content: center;">
+                <div class="mode-toggle">
+                    <button id="lineFieldOff" class="active">Off</button>
+                    <button id="lineFieldDominant">Dominant Direction</button>
+                    <button id="lineFieldAccumulation">Hough Accumulation</button>
+                </div>
+                <div class="control-group">
+                    <label>Line Opacity: <span id="lineOpacityValue">0.3</span></label>
+                    <input type="range" id="lineOpacity" min="0.05" max="1.0" value="0.3" step="0.05">
+                </div>
+            </div>
+
+            <div class="canvas-container">
+                <div class="canvas-wrapper">
+                    <canvas id="houghInput" width="512" height="512"></canvas>
+                    <div class="canvas-label">Drawing Canvas (Interactive)</div>
+                </div>
+                <div class="canvas-wrapper">
+                    <canvas id="houghSpace" width="512" height="512"></canvas>
+                    <div class="canvas-label">Hough Space (ρ-θ)</div>
+                </div>
+                <div class="canvas-wrapper">
+                    <canvas id="houghOutput" width="512" height="512"></canvas>
+                    <div class="canvas-label">Detected Lines</div>
+                </div>
+            </div>
+
+            <div class="stats">
+                <div class="stat-item">Lines Detected: <span class="stat-value" id="linesDetected">0</span></div>
+                <div class="stat-item">Hough Time: <span class="stat-value" id="houghTime">-</span></div>
+            </div>
+        </div>
+
+        <!-- Hough Circle Transform Section -->
+        <div class="demo-section">
+            <h2>⭕ Hough Circle Transform - Circle Detection</h2>
+            <div class="info-box">
+                <h3>About Hough Circle Transform</h3>
+                <p>The Hough Circle Transform extends line detection to circles by using a 3D parameter space (x, y, r). 
+                   Each edge point votes for possible circle centers at various radii. Circles appear as peaks in this 3D space. 
+                   Draw circles or load an image to detect them in real-time!</p>
+            </div>
+
+            <div class="explanation-panel">
+                <strong>How Circle Detection Works:</strong><br>
+                For each edge pixel at (x₁, y₁), we vote for all possible circle centers (x₀, y₀) at distance r:<br>
+                <code>x₀ = x₁ - r·cos(θ)</code>, <code>y₀ = y₁ - r·sin(θ)</code> for θ ∈ [0, 2π]<br><br>
+                The 3D accumulator stores votes for each (x, y, r) combination. Peaks indicate detected circles!<br>
+                <strong>Visualization Modes:</strong> Similar to line field, we can show dominant circles or accumulation overlay.
+            </div>
+
+            <div class="controls">
+                <div class="control-group">
+                    <label>Drawing Mode:</label>
+                    <select id="circleDrawingMode">
+                        <option value="draw">Draw Circles</option>
+                        <option value="erase">Erase</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>Brush Size: <span id="circleBrushSizeValue">5</span></label>
+                    <input type="range" id="circleBrushSize" min="1" max="30" value="5">
+                </div>
+                <div class="color-picker-wrapper">
+                    <label>Color:</label>
+                    <input type="color" id="circleDrawColor" value="#ffffff">
+                </div>
+                <div class="control-group">
+                    <label>Min Radius: <span id="minRadiusValue">10</span></label>
+                    <input type="range" id="minRadius" min="5" max="50" value="10">
+                </div>
+                <div class="control-group">
+                    <label>Max Radius: <span id="maxRadiusValue">100</span></label>
+                    <input type="range" id="maxRadius" min="50" max="200" value="100">
+                </div>
+                <div class="control-group">
+                    <label>Threshold: <span id="circleThresholdValue">8</span></label>
+                    <input type="range" id="circleThreshold" min="5" max="50" value="8">
+                </div>
+                <button id="clearCircleCanvas">Clear Canvas</button>
+                <button id="detectCircles">Detect Circles</button>
+                <button id="loadCircleSample">Load Sample</button>
+            </div>
+
+
+            <div class="canvas-container">
+                <div class="canvas-wrapper">
+                    <canvas id="circleInput" width="512" height="512"></canvas>
+                    <div class="canvas-label">Drawing Canvas (Interactive)</div>
+                </div>
+                <div class="canvas-wrapper">
+                    <canvas id="circleHoughSpace" width="512" height="512"></canvas>
+                    <div class="canvas-label">Hough Space (Slice at r)</div>
+                </div>
+                <div class="canvas-wrapper">
+                    <canvas id="circleOutput" width="512" height="512"></canvas>
+                    <div class="canvas-label">Detected Circles</div>
+                </div>
+            </div>
+
+            <div class="stats">
+                <div class="stat-item">Circles Detected: <span class="stat-value" id="circlesDetected">0</span></div>
+                <div class="stat-item">Current Radius: <span class="stat-value" id="currentRadius">55</span></div>
+                <div class="stat-item">Circle Time: <span class="stat-value" id="circleTime">-</span></div>
+            </div>
+        </div>
+
+        <!-- Hough Arbitrary Shape Section -->
+        <div class="demo-section">
+            <h2>🎯 Generalized Hough Transform - Arbitrary Shape Detection</h2>
+            <div class="info-box">
+                <h3>About Generalized Hough Transform</h3>
+                <p>Detects arbitrary user-defined shapes with rotation and scale invariance! Draw a template shape, 
+                   then the algorithm finds all instances of that shape in the target image, even if rotated or scaled. 
+                   Uses an R-table to encode shape geometry.</p>
+            </div>
+
+            <div class="explanation-panel">
+                <strong>How It Works (Ballard's Algorithm):</strong><br>
+                1. <strong>Template Creation:</strong> Extract edge points and gradient directions from your drawn shape<br>
+                2. <strong>R-Table Construction:</strong> For each gradient angle φ, store vectors from centroid to edge points<br>
+                3. <strong>Detection:</strong> For each edge in target image with gradient φ, vote for possible reference points<br>
+                4. <strong>Scale & Rotation:</strong> Test multiple scales and rotations by transforming R-table vectors<br><br>
+                
+                <strong>Mathematical Formula:</strong><br>
+                For edge at (x, y) with gradient angle φ, vote for reference point:<br>
+                <code>(x_ref, y_ref) = (x, y) - s·R(θ)·r(φ)</code><br>
+                where s = scale, R(θ) = rotation matrix, r(φ) = R-table vector for angle φ
+            </div>
+
+            <div class="controls">
+                <div class="control-group">
+                    <label>Template Brush Size: <span id="templateBrushValue">3</span>px</label>
+                    <input type="range" id="templateBrushSize" min="1" max="10" value="3">
+                </div>
+                <div class="control-group">
+                    <label>Step 1: Define Template Shape</label>
+                    <button id="createShapeTemplate">Build Template</button>
+                    <button id="clearShapeTemplate">Clear Template</button>
+                </div>
+                <div class="control-group">
+                    <label>Target Brush Size: <span id="targetBrushValue">3</span>px</label>
+                    <input type="range" id="targetBrushSize" min="1" max="10" value="3">
+                </div>
+                <div class="control-group">
+                    <label>Step 2: Draw Target Image</label>
+                    <button id="clearShapeTarget">Clear Target</button>
+                </div>
+                <div class="control-group">
+                    <label>Min Scale: <span id="minScaleValue">0.5</span></label>
+                    <input type="range" id="minScale" min="0.1" max="1.0" value="0.5" step="0.1">
+                </div>
+                <div class="control-group">
+                    <label>Max Scale: <span id="maxScaleValue">2.0</span></label>
+                    <input type="range" id="maxScale" min="1.0" max="5.0" value="2.0" step="0.1">
+                </div>
+                <div class="control-group">
+                    <label>Angle Step: <span id="angleStepValue">10°</span></label>
+                    <input type="range" id="angleStep" min="1" max="45" value="5">
+                </div>
+                <button id="detectShape">Detect Shape</button>
+                <button id="loadShapeSample">Load Sample</button>
+            </div>
+
+            <div class="canvas-container">
+                <div class="canvas-wrapper" id="templateWrapper">
+                    <canvas id="shapeTemplate" width="512" height="512"></canvas>
+                    <div class="canvas-label">Template Shape (Draw Here - or hit 'Clear Template' to redraw)</div>
+                </div>
+                <div class="canvas-wrapper">
+                    <canvas id="shapeTarget" width="512" height="512"></canvas>
+                    <div class="canvas-label">Target Image (Draw Here)</div>
+                </div>
+                <div class="canvas-wrapper">
+                    <canvas id="shapeOutput" width="512" height="512"></canvas>
+                    <div class="canvas-label">Detected Shapes (with rotation/scale)</div>
+                </div>
+            </div>
+
+            <div class="stats">
+                <div class="stat-item">Template Status: <span class="stat-value" id="templateStatus">Not Created</span></div>
+                <div class="stat-item">Shapes Found: <span class="stat-value" id="shapesDetected">0</span></div>
+                <div class="stat-item">Detection Time: <span class="stat-value" id="shapeTime">-</span></div>
+            </div>
+        </div>
+
+        <!-- Additional Algorithms Section -->
+        <div class="demo-section">
+            <h2>🔬 Image Processing Filters</h2>
+            <div class="info-box">
+                <h3>Comprehensive Collection</h3>
+                <p>A comprehensive collection of common image processing algorithms, from basic operations to complex filters. 
+                   Each filter includes a brief explanation of how it works!</p>
+            </div>
+
+            <div class="explanation-panel">
+                <strong>📊 Basic Filters (O(n)):</strong><br>
+                <code>Brightness/Contrast</code> - Linear transform: <code>out = α·in + β</code><br>
+                <code>Invert</code> - Complement: <code>out = 255 - in</code><br>
+                <code>Threshold</code> - Binary: <code>out = in > T ? 255 : 0</code><br>
+                <code>Posterize</code> - Quantization: <code>out = floor(in / step) · step</code><br><br>
+                
+                <strong>🎨 Convolution Filters (O(n·k²)):</strong><br>
+                <code>Gaussian Blur</code> - Weighted average with Gaussian kernel <code>G(x,y) = e^(-(x²+y²)/(2σ²))</code><br>
+                <code>Sharpen</code> - Unsharp mask: <code>sharp = img + α·(img - blur)</code><br>
+                <code>Emboss</code> - Directional derivative kernel highlights edges<br>
+                <code>Edge Enhance</code> - High-pass filter emphasizes transitions<br><br>
+                
+                <strong>🔍 Edge Detection (O(n)):</strong><br>
+                <code>Sobel</code> - Gradient magnitude: <code>G = √(Gx² + Gy²)</code> using [-1,0,1] kernels<br>
+                <code>Canny</code> - Multi-stage: Gaussian blur → Sobel → Non-max suppression → Hysteresis<br>
+                <code>Laplacian</code> - Second derivative: <code>∇²f = ∂²f/∂x² + ∂²f/∂y²</code><br><br>
+                
+                <strong>🧬 Morphological Operations (O(n·k²)):</strong><br>
+                <code>Dilate</code> - Expand bright regions: <code>max over kernel</code><br>
+                <code>Erode</code> - Shrink bright regions: <code>min over kernel</code><br>
+                <code>Open</code> - Erode then dilate (removes noise)<br>
+                <code>Close</code> - Dilate then erode (fills gaps)<br><br>
+                
+                <strong>🎭 Other Filters:</strong><br>
+                <code>Median Filter</code> - Non-linear: replaces with median of neighborhood (great for salt-pepper noise)<br>
+                <code>Unsharp Mask</code> - Professional sharpening: <code>sharp = original + amount·(original - blurred)</code><br>
+                <code>High-Pass Filter</code> - Preserves high-frequency details: <code>highpass = img - lowpass</code><br>
+                <code>Sepia</code> - Vintage warm tone effect<br>
+                <code>Vignette</code> - Darkens edges for focus<br>
+                <code>Pixelate</code> - Mosaic effect by downsampling
+            </div>
+
+            <div class="controls">
+                <div class="control-group">
+                    <label>Filter Category:</label>
+                    <select id="filterCategory">
+                        <option value="basic">Basic Adjustments</option>
+                        <option value="blur">Blur & Sharpen</option>
+                        <option value="edge">Edge Detection</option>
+                        <option value="morphology">Morphological Ops</option>
+                        <option value="other">Other Filters</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>Filter:</label>
+                    <select id="filterType">
+                        <optgroup label="Basic Adjustments">
+                            <option value="brightness">Brightness</option>
+                            <option value="contrast">Contrast</option>
+                            <option value="invert">Invert</option>
+                            <option value="threshold">Threshold</option>
+                            <option value="posterize">Posterize</option>
+                        </optgroup>
+                        <optgroup label="Blur & Sharpen">
+                            <option value="gaussianBlur">Gaussian Blur</option>
+                            <option value="sharpen">Sharpen</option>
+                            <option value="unsharpMask">Unsharp Mask</option>
+                            <option value="emboss">Emboss</option>
+                            <option value="edgeEnhance">Edge Enhance</option>
+                        </optgroup>
+                        <optgroup label="Edge Detection">
+                            <option value="sobel">Sobel</option>
+                            <option value="canny">Canny</option>
+                            <option value="laplacian">Laplacian</option>
+                        </optgroup>
+                        <optgroup label="Morphological">
+                            <option value="dilate">Dilate</option>
+                            <option value="erode">Erode</option>
+                            <option value="open">Open (Erode→Dilate)</option>
+                            <option value="close">Close (Dilate→Erode)</option>
+                        </optgroup>
+                        <optgroup label="Other">
+                            <option value="median">Median Filter</option>
+                            <option value="highpass">High-Pass Filter</option>
+                            <option value="sepia">Sepia Tone</option>
+                            <option value="vignette">Vignette</option>
+                            <option value="pixelate">Pixelate</option>
+                        </optgroup>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>Intensity: <span id="filterIntensityValue">1.0</span></label>
+                    <input type="range" id="filterIntensity" min="0.1" max="3.0" value="1.0" step="0.1">
+                </div>
+                <button id="applyFilter">Apply Filter</button>
+                <button id="resetFilter">Reset</button>
+            </div>
+
+            <div class="canvas-container">
+                <div class="canvas-wrapper">
+                    <canvas id="extraInput" width="512" height="512"></canvas>
+                    <div class="canvas-label">Input</div>
+                </div>
+                <div class="canvas-wrapper">
+                    <canvas id="extraOutput" width="512" height="512"></canvas>
+                    <div class="canvas-label">Processed</div>
+                </div>
+            </div>
+
+            <div class="stats">
+                <div class="stat-item">Current Filter: <span class="stat-value" id="currentFilter">-</span></div>
+                <div class="stat-item">Processing Time: <span class="stat-value" id="filterTime">-</span></div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="main.js"></script>
+</body>
+</html>

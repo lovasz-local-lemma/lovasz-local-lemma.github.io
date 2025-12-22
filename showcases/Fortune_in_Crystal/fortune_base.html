@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Fortune’s Algorithm &amp; Balanced Trees: A Deep Dive into Voronoi Diagrams</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+  </style>
+  <script defer=""
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js"
+  type="text/javascript"></script>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Fortune’s Algorithm &amp; Balanced Trees:<br />
+A Deep Dive into Voronoi Diagrams</h1>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#introduction" id="toc-introduction">Introduction</a>
+<ul>
+<li><a href="#why-this-project-stands-out"
+id="toc-why-this-project-stands-out">Why This Project Stands
+Out</a></li>
+</ul></li>
+<li><a href="#fortunes-algorithm-the-foundation"
+id="toc-fortunes-algorithm-the-foundation">Fortune’s Algorithm: The
+Foundation</a>
+<ul>
+<li><a href="#the-sweep-line-paradigm"
+id="toc-the-sweep-line-paradigm">The Sweep Line Paradigm</a>
+<ul>
+<li><a href="#the-beach-line" id="toc-the-beach-line">The Beach
+Line</a></li>
+<li><a href="#discrete-event-simulation"
+id="toc-discrete-event-simulation">Discrete Event Simulation</a></li>
+</ul></li>
+<li><a href="#breakpoint-dynamics"
+id="toc-breakpoint-dynamics">Breakpoint Dynamics</a></li>
+</ul></li>
+<li><a href="#the-beach-line-as-a-balanced-tree"
+id="toc-the-beach-line-as-a-balanced-tree">The Beach Line as a Balanced
+Tree</a>
+<ul>
+<li><a href="#why-trees-matter" id="toc-why-trees-matter">Why Trees
+Matter</a></li>
+<li><a href="#the-dual-nature-spatial-tree-structure"
+id="toc-the-dual-nature-spatial-tree-structure">The Dual Nature: Spatial
++ Tree Structure</a>
+<ul>
+<li><a href="#option-1-arcs-on-leaves-only"
+id="toc-option-1-arcs-on-leaves-only">Option 1: Arcs on Leaves
+Only</a></li>
+<li><a href="#option-2-arcs-on-all-nodes-our-choice"
+id="toc-option-2-arcs-on-all-nodes-our-choice">Option 2: Arcs on All
+Nodes (Our Choice)</a></li>
+</ul></li>
+<li><a href="#threaded-tree-optimization"
+id="toc-threaded-tree-optimization">Threaded Tree Optimization</a></li>
+</ul></li>
+<li><a href="#the-hard-parts-what-most-implementations-miss"
+id="toc-the-hard-parts-what-most-implementations-miss">The Hard Parts:
+What Most Implementations Miss</a>
+<ul>
+<li><a href="#degenerate-site-events"
+id="toc-degenerate-site-events">Degenerate Site Events</a>
+<ul>
+<li><a href="#the-initial-singularity"
+id="toc-the-initial-singularity">The Initial Singularity</a></li>
+<li><a href="#splitting-the-beach-line"
+id="toc-splitting-the-beach-line">Splitting the Beach Line</a></li>
+<li><a href="#maintaining-balance"
+id="toc-maintaining-balance">Maintaining Balance</a></li>
+</ul></li>
+<li><a href="#circle-event-handling"
+id="toc-circle-event-handling">Circle Event Handling</a>
+<ul>
+<li><a href="#numerical-precision"
+id="toc-numerical-precision">Numerical Precision</a></li>
+<li><a href="#the-disappearing-arc" id="toc-the-disappearing-arc">The
+Disappearing Arc</a></li>
+<li><a href="#derivative-based-ordering"
+id="toc-derivative-based-ordering">Derivative-Based Ordering</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#balanced-tree-implementation-maximum-elegance"
+id="toc-balanced-tree-implementation-maximum-elegance">Balanced Tree
+Implementation: Maximum Elegance</a>
+<ul>
+<li><a href="#the-symmetry-principle"
+id="toc-the-symmetry-principle">The Symmetry Principle</a>
+<ul>
+<li><a href="#the-direction-enum" id="toc-the-direction-enum">The
+Direction Enum</a></li>
+<li><a href="#unified-rotation" id="toc-unified-rotation">Unified
+Rotation</a></li>
+</ul></li>
+<li><a href="#avl-balancing-with-height-caching"
+id="toc-avl-balancing-with-height-caching">AVL Balancing with Height
+Caching</a>
+<ul>
+<li><a href="#the-four-rotation-cases"
+id="toc-the-four-rotation-cases">The Four Rotation Cases</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#crystal-the-language-choice"
+id="toc-crystal-the-language-choice">Crystal: The Language Choice</a>
+<ul>
+<li><a href="#why-crystal" id="toc-why-crystal">Why Crystal?</a>
+<ul>
+<li><a href="#partial-specialization"
+id="toc-partial-specialization">Partial Specialization</a></li>
+<li><a href="#union-types" id="toc-union-types">Union Types</a></li>
+<li><a href="#ruby-compatibility" id="toc-ruby-compatibility">Ruby
+Compatibility</a></li>
+</ul></li>
+<li><a href="#sfml-integration" id="toc-sfml-integration">SFML
+Integration</a></li>
+</ul></li>
+<li><a href="#implementation-highlights"
+id="toc-implementation-highlights">Implementation Highlights</a>
+<ul>
+<li><a href="#debugging-infrastructure"
+id="toc-debugging-infrastructure">Debugging Infrastructure</a></li>
+<li><a href="#numerical-robustness"
+id="toc-numerical-robustness">Numerical Robustness</a></li>
+<li><a href="#dcel-construction" id="toc-dcel-construction">DCEL
+Construction</a></li>
+</ul></li>
+<li><a href="#project-philosophy-enthusiasm-meets-rigor"
+id="toc-project-philosophy-enthusiasm-meets-rigor">Project Philosophy:
+Enthusiasm Meets Rigor</a>
+<ul>
+<li><a href="#going-beyond" id="toc-going-beyond">Going Beyond</a></li>
+<li><a href="#the-absurd-level-of-detail"
+id="toc-the-absurd-level-of-detail">The Absurd Level of Detail</a></li>
+<li><a href="#why-it-matters" id="toc-why-it-matters">Why It
+Matters</a></li>
+</ul></li>
+<li><a href="#conclusion" id="toc-conclusion">Conclusion</a></li>
+</ul>
+</nav>
+<h1 id="introduction">Introduction</h1>
+<p>Computing Voronoi diagrams is a fundamental problem in computational
+geometry with applications spanning robotics, computer graphics, spatial
+analysis, and beyond. While the naive <span
+class="math inline">\(O(n^2)\)</span> algorithm is straightforward,
+Fortune’s sweep line algorithm elegantly computes Voronoi diagrams in
+<span class="math inline">\(O(n \log n)\)</span> time—optimal for the
+comparison model.</p>
+<p>This project presents a complete, production-quality implementation
+of Fortune’s algorithm from the ground up, written in Crystal. Unlike
+most educational implementations found online, this one tackles
+<em>all</em> the hard problems: numerical stability with degenerate
+cases, proper balanced tree operations, and complete DCEL
+(Doubly-Connected Edge List) construction. The implementation also
+includes a sophisticated real-time visualizer built with SFML, allowing
+you to watch the algorithm sweep through point sets and observe the
+beach line evolve in real time.</p>
+<h2 class="unnumbered" id="why-this-project-stands-out">Why This Project
+Stands Out</h2>
+<p>Most online implementations and tutorials gloss over critical
+details:</p>
+<ul>
+<li><p><strong>Incomplete balancing</strong>: Many use simple BSTs
+without proper rebalancing, leading to <span
+class="math inline">\(O(n^2)\)</span> worst-case behavior</p></li>
+<li><p><strong>Missing degenerate cases</strong>: Vertical line
+segments, co-circular points, and numerical precision issues are often
+ignored</p></li>
+<li><p><strong>Oversimplified data structures</strong>: The beach line’s
+dual nature (spatial ordering + tree structure) requires careful
+design</p></li>
+<li><p><strong>No real-world testing</strong>: Without visualization and
+stress testing, subtle bugs remain hidden</p></li>
+</ul>
+<p>This implementation addresses all these issues with meticulous
+attention to detail, elegant code design, and comprehensive testing
+infrastructure.</p>
+<h1 id="fortunes-algorithm-the-foundation">Fortune’s Algorithm: The
+Foundation</h1>
+<h2 id="the-sweep-line-paradigm">The Sweep Line Paradigm</h2>
+<p>Fortune’s algorithm uses a sweep line approach: imagine a horizontal
+line sweeping downward across the plane. At any moment, the sweep line
+is at height <span class="math inline">\(y = \ell\)</span>. The key
+insight is that we can determine which site "owns" any point above the
+sweep line by measuring distances <em>in the metric induced by the sweep
+line</em>.</p>
+<h3 id="the-beach-line">The Beach Line</h3>
+<p>For a point <span class="math inline">\(p = (x, y)\)</span> with
+<span class="math inline">\(y &gt; \ell\)</span> and a site <span
+class="math inline">\(s_i = (x_i, y_i)\)</span> with <span
+class="math inline">\(y_i \geq \ell\)</span>, the "distance" from <span
+class="math inline">\(p\)</span> to <span
+class="math inline">\(s_i\)</span> is not the Euclidean distance, but
+rather the vertical distance from <span class="math inline">\(p\)</span>
+to the parabola defined by focus <span
+class="math inline">\(s_i\)</span> and directrix <span
+class="math inline">\(y = \ell\)</span>.</p>
+<p>The parabola with focus <span class="math inline">\((x_i,
+y_i)\)</span> and directrix <span class="math inline">\(y =
+\ell\)</span> is given by: <span class="math display">\[\begin{align}
+    \text{dist}(p, s_i)^2 &amp;= (x - x_i)^2 + (y - y_i)^2 \\
+    \text{dist}(p, \ell)^2 &amp;= (y - \ell)^2
+\end{align}\]</span></p>
+<p>Setting these equal (since points on the parabola are equidistant
+from focus and directrix): <span class="math display">\[\begin{align}
+    (x - x_i)^2 + (y - y_i)^2 &amp;= (y - \ell)^2 \\
+    (x - x_i)^2 &amp;= (y - \ell)^2 - (y - y_i)^2 \\
+    &amp;= -2y(\ell - y_i) + \ell^2 - y_i^2 \\
+    y &amp;= \frac{(x - x_i)^2 + y_i^2 - \ell^2}{2(y_i - \ell)}
+\end{align}\]</span></p>
+<p>The <strong>beach line</strong> is the lower envelope of all these
+parabolas—it consists of parabolic arcs, one for each site currently
+"active" above the sweep line.</p>
+<figure data-latex-placement="h!">
+<img src="../arc_highlight.png" style="width:90.0%" />
+<figcaption>The beach line (highlighted in yellow) showing parabolic
+arcs. Each arc corresponds to a site, and breakpoints between arcs trace
+out Voronoi edges. The red horizontal line is the sweep
+line.</figcaption>
+</figure>
+<h3 id="discrete-event-simulation">Discrete Event Simulation</h3>
+<p>The algorithm processes two types of events:</p>
+<ol>
+<li><p><strong>Site events</strong>: When the sweep line reaches a new
+site <span class="math inline">\(s\)</span>, a new parabola appears as a
+single point (degenerate case) and immediately starts growing</p></li>
+<li><p><strong>Circle events</strong>: When three consecutive arcs <span
+class="math inline">\(A\)</span>, <span
+class="math inline">\(B\)</span>, <span class="math inline">\(C\)</span>
+on the beach line converge to a single point, arc <span
+class="math inline">\(B\)</span> disappears. This happens when the sweep
+line reaches the lowest point of the circle passing through the three
+sites</p></li>
+</ol>
+<p>The key property: the beach line changes only at these discrete
+events. Between events, the breakpoints move continuously but
+predictably—they trace out Voronoi edges.</p>
+<h2 id="breakpoint-dynamics">Breakpoint Dynamics</h2>
+<p>A breakpoint between two arcs (corresponding to sites <span
+class="math inline">\(s_i\)</span> and <span
+class="math inline">\(s_j\)</span>) is the intersection of their
+parabolas. This breakpoint moves as the sweep line descends. The
+position <span class="math inline">\(x_b\)</span> of a breakpoint
+satisfies: <span class="math display">\[\begin{align}
+    \frac{(x_b - x_i)^2 + y_i^2 - \ell^2}{2(y_i - \ell)} = \frac{(x_b -
+x_j)^2 + y_j^2 - \ell^2}{2(y_j - \ell)}
+\end{align}\]</span></p>
+<p>As <span class="math inline">\(\ell\)</span> decreases, <span
+class="math inline">\(x_b\)</span> changes. Computing the derivative
+<span class="math inline">\(\frac{dx_b}{d\ell}\)</span> tells us whether
+the breakpoint moves left or right. This is crucial for determining arc
+ordering during circle events.</p>
+<p>Let <span class="math inline">\(a_i = \frac{1}{2(y_i -
+\ell)}\)</span> and <span class="math inline">\(b_i = y_i^2 -
+\ell^2\)</span>. Then: <span class="math display">\[\begin{align}
+    a_i(x_b - x_i)^2 + a_i b_i &amp;= a_j(x_b - x_j)^2 + a_j b_j
+\end{align}\]</span></p>
+<p>Taking the derivative with respect to <span
+class="math inline">\(\ell\)</span>: <span
+class="math display">\[\begin{align}
+    \frac{da_i}{d\ell}(x_b - x_i)^2 + 2a_i(x_b - x_i)\frac{dx_b}{d\ell}
++ \frac{db_i}{d\ell}a_i + b_i\frac{da_i}{d\ell} &amp;= \cdots
+\end{align}\]</span></p>
+<p>The sign of <span class="math inline">\(\frac{dx_b}{d\ell}\)</span>
+determines ordering. When arc <span class="math inline">\(B\)</span>
+disappears in a circle event, we need to know whether the new breakpoint
+between <span class="math inline">\(A\)</span> and <span
+class="math inline">\(C\)</span> should be inserted to the left or right
+of the old breakpoints.</p>
+<h1 id="the-beach-line-as-a-balanced-tree">The Beach Line as a Balanced
+Tree</h1>
+<h2 id="why-trees-matter">Why Trees Matter</h2>
+<p>The beach line stores arcs in left-to-right spatial order. We need
+to:</p>
+<ul>
+<li><p>Find which arc is directly above a new site (during site
+events)</p></li>
+<li><p>Insert new arcs when sites appear</p></li>
+<li><p>Delete arcs when circle events occur</p></li>
+<li><p>Query predecessor/successor arcs for circle event
+detection</p></li>
+</ul>
+<p>All these operations need to be efficient: <span
+class="math inline">\(O(\log n)\)</span> per operation. This demands a
+<strong>balanced</strong> binary search tree.</p>
+<h2 id="the-dual-nature-spatial-tree-structure">The Dual Nature: Spatial
++ Tree Structure</h2>
+<p>Most tutorials gloss over a critical design decision: <em>where do we
+store the arcs?</em></p>
+<h3 id="option-1-arcs-on-leaves-only">Option 1: Arcs on Leaves Only</h3>
+<p>In this design, internal nodes represent breakpoints (intervals), and
+leaves represent arcs:</p>
+<pre><code>          [A|B]
+         /      \
+        A    [B|C]
+            /     \
+           B       C</code></pre>
+<p><strong>Pros</strong>:</p>
+<ul>
+<li><p>Clean conceptual separation</p></li>
+<li><p>Breakpoints are explicit in the tree structure</p></li>
+</ul>
+<p><strong>Cons</strong>:</p>
+<ul>
+<li><p>Internal nodes and leaves have different types</p></li>
+<li><p>Tree rotations become complex (need to maintain breakpoint
+invariants)</p></li>
+<li><p>Harder to implement standard balanced tree algorithms</p></li>
+</ul>
+<h3 id="option-2-arcs-on-all-nodes-our-choice">Option 2: Arcs on All
+Nodes (Our Choice)</h3>
+<p>In this design, every node stores an arc. The in-order traversal
+gives the left-to-right spatial ordering:</p>
+<pre><code>            B
+          /   \
+         A     C</code></pre>
+<p>In-order: A, B, C (left-to-right spatial order)</p>
+<p><strong>Pros</strong>:</p>
+<ul>
+<li><p>Uniform node structure—every node is an arc</p></li>
+<li><p>Standard balanced tree algorithms (AVL, Red-Black) apply
+directly</p></li>
+<li><p>Rotations are clean and don’t violate spatial ordering</p></li>
+<li><p>Predecessor/successor queries are trivial (threaded tree
+pointers)</p></li>
+</ul>
+<p><strong>Cons</strong>:</p>
+<ul>
+<li><p>Breakpoints are implicit (between consecutive arcs in in-order
+traversal)</p></li>
+<li><p>Need to compute breakpoint positions on the fly</p></li>
+</ul>
+<p>We chose Option 2. The key insight: in-order traversal of a BST
+naturally gives sorted order, which exactly matches the left-to-right
+spatial ordering we need.</p>
+<h2 id="threaded-tree-optimization">Threaded Tree Optimization</h2>
+<p>To efficiently find predecessor/successor arcs, we use threaded
+pointers: each node maintains explicit pointers to its in-order
+predecessor and successor. This makes circle event checking <span
+class="math inline">\(O(1)\)</span> after locating an arc.</p>
+<p><span class="math display">\[\begin{align}
+    \text{Node structure: } &amp;\texttt{value, left, right, parent,
+prev, next}
+\end{align}\]</span></p>
+<p>When inserting/deleting, we maintain these threads carefully.</p>
+<h1 id="the-hard-parts-what-most-implementations-miss">The Hard Parts:
+What Most Implementations Miss</h1>
+<h2 id="degenerate-site-events">Degenerate Site Events</h2>
+<p>When a new site <span class="math inline">\(s\)</span> appears, it
+creates a degenerate parabola (vertical line segment) at <span
+class="math inline">\(x = s_x\)</span>. This is the most numerically
+sensitive part of the algorithm.</p>
+<h3 id="the-initial-singularity">The Initial Singularity</h3>
+<p>At the exact moment the sweep line touches <span
+class="math inline">\(s\)</span>, the parabola is degenerate: <span
+class="math display">\[\begin{align}
+    y_i = \ell \implies \text{denominator} = 0
+\end{align}\]</span></p>
+<p>The parabola equation becomes undefined. In practice, we handle this
+by recognizing that the new arc appears as an infinitesimally small
+segment, then immediately starts growing.</p>
+<h3 id="splitting-the-beach-line">Splitting the Beach Line</h3>
+<p>When we insert a new site <span class="math inline">\(s\)</span> into
+the beach line:</p>
+<ol>
+<li><p>Find the arc <span class="math inline">\(A\)</span> directly
+above <span class="math inline">\(s\)</span> (query the tree at <span
+class="math inline">\(x = s_x\)</span>)</p></li>
+<li><p>Split <span class="math inline">\(A\)</span> into two arcs: <span
+class="math inline">\(A_{\text{left}}\)</span> and <span
+class="math inline">\(A_{\text{right}}\)</span></p></li>
+<li><p>Insert the new arc <span class="math inline">\(S\)</span> between
+them</p></li>
+</ol>
+<p>Tree structure before:</p>
+<pre><code>    ...--A--...</code></pre>
+<p>After (simplified):</p>
+<pre><code>    ...--A_left--S--A_right--...</code></pre>
+<p><strong>The challenge</strong>: Normal balanced trees assume you
+insert <em>one</em> node at a time. Here, we’re inserting <em>three</em>
+nodes (two split pieces of <span class="math inline">\(A\)</span> plus
+the new arc <span class="math inline">\(S\)</span>) in a specific
+spatial configuration.</p>
+<h3 id="maintaining-balance">Maintaining Balance</h3>
+<p>We can’t just insert three nodes sequentially—this would violate the
+spatial ordering invariant during intermediate states. Instead:</p>
+<ol>
+<li><p>Create all three nodes: <span
+class="math inline">\(A_{\text{left}}\)</span>, <span
+class="math inline">\(S\)</span>, <span
+class="math inline">\(A_{\text{right}}\)</span></p></li>
+<li><p>Set up their threaded pointers to maintain in-order
+invariant</p></li>
+<li><p>Perform a custom "triple insert" operation that maintains tree
+balance</p></li>
+<li><p>Update parent pointers and rebalance from the insertion point
+upward</p></li>
+</ol>
+<p>In our AVL tree implementation, this requires careful height updates
+and potentially multiple rotations.</p>
+<h2 id="circle-event-handling">Circle Event Handling</h2>
+<p>Circle events are triggered when three consecutive arcs converge.
+Detecting them requires checking if three sites are co-circular and
+computing the circumcircle’s lowest point.</p>
+<h3 id="numerical-precision">Numerical Precision</h3>
+<p>The circumcircle computation involves solving a system of equations.
+For sites <span class="math inline">\((x_1, y_1)\)</span>, <span
+class="math inline">\((x_2, y_2)\)</span>, <span
+class="math inline">\((x_3, y_3)\)</span>, the circumcenter <span
+class="math inline">\((c_x, c_y)\)</span> satisfies: <span
+class="math display">\[\begin{align}
+    (x_1 - c_x)^2 + (y_1 - c_y)^2 &amp;= r^2 \\
+    (x_2 - c_x)^2 + (y_2 - c_y)^2 &amp;= r^2 \\
+    (x_3 - c_x)^2 + (y_3 - c_y)^2 &amp;= r^2
+\end{align}\]</span></p>
+<p>This is solved using linear algebra, but nearly-collinear points lead
+to numerical instability. We use robust predicates with
+epsilon-tolerances.</p>
+<h3 id="the-disappearing-arc">The Disappearing Arc</h3>
+<p>When arc <span class="math inline">\(B\)</span> disappears (squeezed
+by arcs <span class="math inline">\(A\)</span> and <span
+class="math inline">\(C\)</span>), we must:</p>
+<ol>
+<li><p>Remove <span class="math inline">\(B\)</span> from the tree
+(standard BST deletion)</p></li>
+<li><p>Update threaded pointers: <span
+class="math inline">\(A.\texttt{next} \leftarrow C\)</span>, <span
+class="math inline">\(C.\texttt{prev} \leftarrow A\)</span></p></li>
+<li><p>Create a Voronoi vertex at the circle center</p></li>
+<li><p>Update the DCEL structure</p></li>
+<li><p>Check if <span class="math inline">\(A\)</span> and <span
+class="math inline">\(C\)</span> now form new circle events with their
+neighbors</p></li>
+</ol>
+<h3 id="derivative-based-ordering">Derivative-Based Ordering</h3>
+<p>The tricky part: after <span class="math inline">\(B\)</span>
+disappears, the breakpoint between <span
+class="math inline">\(A\)</span> and <span
+class="math inline">\(C\)</span> must be inserted at the correct
+position. We use the derivative <span
+class="math inline">\(\frac{dx_b}{d\ell}\)</span> to determine if the
+new breakpoint is to the left or right of the convergence point.</p>
+<figure data-latex-placement="h!">
+<img src="../circle_event.png" style="width:90.0%" />
+<figcaption>A circle event occurring: three arcs converge to a point.
+The green circle passes through three sites, and its lowest point
+(marked "event") is where the middle arc disappears.</figcaption>
+</figure>
+<h1 id="balanced-tree-implementation-maximum-elegance">Balanced Tree
+Implementation: Maximum Elegance</h1>
+<h2 id="the-symmetry-principle">The Symmetry Principle</h2>
+<p>Most balanced tree implementations duplicate code for left and right
+operations. We take a different approach: <strong>maximum symmetry
+through direction abstraction</strong>.</p>
+<h3 id="the-direction-enum">The Direction Enum</h3>
+<p>Instead of writing separate <code>rotate_left</code> and
+<code>rotate_right</code> functions, we define:</p>
+<pre style="crystalstyle"><code>enum Direction
+  Left
+  Right
+  
+  def opposite : Direction
+    self == Left ? Right : Left
+  end
+end</code></pre>
+<h3 id="unified-rotation">Unified Rotation</h3>
+<p>A single rotation function handles both directions:</p>
+<pre style="crystalstyle"><code>def rotate(dir : Direction) : BSTNode
+  new_root = child(dir.opposite)
+  same_side_subtree = new_root.child(dir)
+  
+  set_child(dir.opposite, same_side_subtree)
+  same_side_subtree.try(&amp;.parent = self)
+  
+  new_root.set_child(dir, self)
+  new_root.parent = @parent
+  @parent = new_root
+  
+  new_root
+end</code></pre>
+<p>Now <code>rotate_left</code> and <code>rotate_right</code> are
+just:</p>
+<pre style="crystalstyle"><code>def rotate_left
+  rotate(Direction::Left)
+end
+
+def rotate_right
+  rotate(Direction::Right)
+end</code></pre>
+<p>This is not just aesthetically pleasing—it eliminates an entire class
+of bugs where left/right cases diverge.</p>
+<h2 id="avl-balancing-with-height-caching">AVL Balancing with Height
+Caching</h2>
+<p>Our AVL implementation caches heights in each node:</p>
+<pre style="crystalstyle"><code>class AVLNode(T)
+  property height_cache : Int32
+  
+  def balance_factor : Int32
+    left_h = @left ? @left.height_cache : 0
+    right_h = @right ? @right.height_cache : 0
+    left_h - right_h
+  end
+end</code></pre>
+<p>After any modification, we update heights bottom-up and rebalance if
+<span class="math inline">\(|\text{balance\_factor}| &gt;
+1\)</span>.</p>
+<h3 id="the-four-rotation-cases">The Four Rotation Cases</h3>
+<p>AVL rebalancing has four cases, but with our direction abstraction,
+we only need two:</p>
+<pre style="crystalstyle"><code>def rebalance(node : AVLNode, dir : Direction)
+  if node.balance_factor.abs &gt; 1
+    heavy_side = node.balance_factor &gt; 0 ? Direction::Left : Direction::Right
+    child = node.child(heavy_side)
+    
+    if child.balance_factor &lt; 0
+      # Double rotation case
+      child.rotate(heavy_side)
+    end
+    
+    node.rotate(heavy_side.opposite)
+  end
+end</code></pre>
+<p>This handles all four cases (LL, LR, RR, RL) with elegant
+symmetry.</p>
+<h1 id="crystal-the-language-choice">Crystal: The Language Choice</h1>
+<h2 id="why-crystal">Why Crystal?</h2>
+<p>Crystal is a compiled, statically-typed language with Ruby-like
+syntax. It offers:</p>
+<ul>
+<li><p><strong>Performance</strong>: Compiles to native code via
+LLVM</p></li>
+<li><p><strong>Type safety</strong>: Static type checking with
+inference</p></li>
+<li><p><strong>Expressiveness</strong>: Ruby’s elegance without the
+runtime penalty</p></li>
+<li><p><strong>Generics</strong>: Powerful type parameters with
+specialization</p></li>
+</ul>
+<h3 id="partial-specialization">Partial Specialization</h3>
+<p>Crystal’s generics are specialized at compile time. The compiler
+generates optimized code for each concrete type:</p>
+<pre style="crystalstyle"><code>class AVLTree(T)
+  def insert(value : T)
+    # Specialized for Int32, Float64, String, etc.
+  end
+end
+
+tree_int = AVLTree(Int32).new
+tree_str = AVLTree(String).new</code></pre>
+<p>This gives us zero-cost abstractions—generic code with C++
+template-like performance.</p>
+<h3 id="union-types">Union Types</h3>
+<p>Crystal’s union types handle nullable pointers elegantly:</p>
+<pre style="crystalstyle"><code>property left : AVLNode(T) | Nil
+
+if left_child = @left
+  # left_child is guaranteed non-nil here
+  left_child.do_something
+end</code></pre>
+<h3 id="ruby-compatibility">Ruby Compatibility</h3>
+<p>Crystal’s syntax is intentionally close to Ruby, making it
+approachable:</p>
+<pre style="crystalstyle"><code># Ruby-like syntax
+sites = [Point.new(1, 2), Point.new(3, 4)]
+sites.each { |s| puts s }
+
+# But with compile-time type safety!</code></pre>
+<h2 id="sfml-integration">SFML Integration</h2>
+<p>The visualizer uses CrSFML (Crystal bindings to SFML). We built a
+custom UI framework on top:</p>
+<ul>
+<li><p>Smooth animations for sweep line movement</p></li>
+<li><p>Real-time parabola rendering (hundreds of curves per
+frame)</p></li>
+<li><p>Interactive controls (pause, step, speed adjustment)</p></li>
+<li><p>Highlighted arcs and breakpoints during events</p></li>
+<li><p>Tree structure visualization for debugging</p></li>
+</ul>
+<p>All rendering is done from scratch—no external UI libraries. This
+gives complete control over visual appearance and performance.</p>
+<h1 id="implementation-highlights">Implementation Highlights</h1>
+<h2 id="debugging-infrastructure">Debugging Infrastructure</h2>
+<p>The test files (<code>avl_worst_case.html</code>,
+<code>rb_worst_case.html</code>) visualize tree operations step-by-step.
+Each operation generates an SVG showing:</p>
+<ul>
+<li><p>Tree structure before and after</p></li>
+<li><p>Highlighted nodes involved in rotations</p></li>
+<li><p>Height/color annotations</p></li>
+<li><p>Operation sequence</p></li>
+</ul>
+<p>This was essential for debugging the balanced tree logic.</p>
+<h2 id="numerical-robustness">Numerical Robustness</h2>
+<p>We handle several degenerate cases:</p>
+<ul>
+<li><p><strong>Vertical site events</strong>: When a site is directly
+below another</p></li>
+<li><p><strong>Co-circular points</strong>: Four or more sites on the
+same circle</p></li>
+<li><p><strong>Collinear sites</strong>: Sites forming a line (infinite
+Voronoi edges)</p></li>
+<li><p><strong>Duplicate sites</strong>: Multiple sites at the same
+location</p></li>
+</ul>
+<p>Each case requires special handling to avoid division by zero, NaN
+propagation, and infinite loops.</p>
+<h2 id="dcel-construction">DCEL Construction</h2>
+<p>The output is a complete Doubly-Connected Edge List:</p>
+<ul>
+<li><p><strong>Vertices</strong>: Voronoi vertices
+(circumcenters)</p></li>
+<li><p><strong>Half-edges</strong>: Directed edges with twin
+pointers</p></li>
+<li><p><strong>Faces</strong>: Voronoi cells corresponding to input
+sites</p></li>
+</ul>
+<p>This allows efficient traversal of the Voronoi diagram for downstream
+applications (path planning, interpolation, etc.).</p>
+<h1 id="project-philosophy-enthusiasm-meets-rigor">Project Philosophy:
+Enthusiasm Meets Rigor</h1>
+<h2 id="going-beyond">Going Beyond</h2>
+<p>This project embodies a philosophy: <strong>if you’re going to do
+something, do it right</strong>.</p>
+<ul>
+<li><p><strong>Complete implementation</strong>: Not a toy demo, but
+production-quality code</p></li>
+<li><p><strong>Numerical rigor</strong>: Handling degenerate cases
+others ignore</p></li>
+<li><p><strong>Elegant design</strong>: Code that’s a pleasure to
+read</p></li>
+<li><p><strong>Visual polish</strong>: A visualizer that’s actually
+informative</p></li>
+<li><p><strong>Testing infrastructure</strong>: Comprehensive tests with
+visual debugging</p></li>
+</ul>
+<h2 id="the-absurd-level-of-detail">The Absurd Level of Detail</h2>
+<p>Why implement a balanced tree from scratch when libraries exist?
+Because:</p>
+<ul>
+<li><p><strong>Learning</strong>: Understanding every line of
+code</p></li>
+<li><p><strong>Control</strong>: Optimizing for this specific use case
+(threaded trees, custom comparisons)</p></li>
+<li><p><strong>Elegance</strong>: Creating the most symmetric, beautiful
+code possible</p></li>
+<li><p><strong>Challenge</strong>: Proving it can be done</p></li>
+</ul>
+<p>This is enthusiasm taken to the extreme—but it’s an enthusiasm backed
+by technical proficiency.</p>
+<h2 id="why-it-matters">Why It Matters</h2>
+<p>Most online resources for Fortune’s algorithm fall into two
+categories:</p>
+<ol>
+<li><p><strong>High-level descriptions</strong>: Explain the concepts
+but gloss over implementation details</p></li>
+<li><p><strong>Incomplete implementations</strong>: Work for simple
+cases but fail on edge cases</p></li>
+</ol>
+<p>This project sits in the rare middle ground: <strong>complete,
+correct, and comprehensible</strong>.</p>
+<p>For students learning computational geometry, this serves as a
+reference implementation. For practitioners, it’s a starting point for
+production use. For enthusiasts, it’s a demonstration of what’s possible
+with care and attention to detail.</p>
+<h1 id="conclusion">Conclusion</h1>
+<p>Computing Voronoi diagrams efficiently requires more than just
+understanding Fortune’s algorithm—it demands careful data structure
+design, numerical robustness, and attention to detail. This
+implementation tackles all the hard problems head-on:</p>
+<ul>
+<li><p><strong>Balanced trees</strong>: Proper AVL/Red-Black trees with
+elegant symmetric operations</p></li>
+<li><p><strong>Degenerate cases</strong>: Vertical segments, co-circular
+points, and numerical edge cases</p></li>
+<li><p><strong>Efficient queries</strong>: <span
+class="math inline">\(O(\log n)\)</span> operations via threaded tree
+pointers</p></li>
+<li><p><strong>Complete output</strong>: Full DCEL construction for
+downstream use</p></li>
+</ul>
+<p>The choice of Crystal provides modern language features (generics,
+type safety) without sacrificing performance. The custom visualizer
+makes the algorithm tangible and aids debugging.</p>
+<p>This project demonstrates that enthusiasm and rigor are not opposing
+forces—they amplify each other. By going <em>absurdly deep</em> into
+every detail, we create something that’s not just correct, but
+<em>elegant</em>.</p>
+<p>The full source code, test suite, and visualizations are available in
+this repository. Whether you’re learning computational geometry,
+implementing your own Voronoi algorithm, or just appreciate well-crafted
+code, I hope this project serves as a valuable resource.</p>
+<div class="center">
+<p><em>Built from the ground up with Crystal. Balanced with care.
+Visualized with precision.</em></p>
+</div>
+</body>
+</html>

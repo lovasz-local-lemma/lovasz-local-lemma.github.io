@@ -1,0 +1,1504 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Fortune's Algorithm in Crystal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=Lora:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&family=Source+Code+Pro:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      background: linear-gradient(135deg, #0f0f1e 0%, #1a1a35 50%, #151530 100%);
+      min-height: 100vh;
+      scroll-behavior: auto;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      color: #d8d8d8;
+      background: transparent;
+      margin: 0;
+      padding: 80px 50px 80px 350px;
+      line-height: 1.8;
+      font-weight: 400;
+    }
+
+    .back-button {
+      display: none; /* Hidden - now in nav */
+    }
+    
+    nav#TOC .nav-back-button {
+      display: flex !important;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, 
+          rgba(15, 15, 32, 0.9) 0%, 
+          rgba(10, 10, 24, 0.85) 100%) !important;
+      border: 1px solid rgba(212, 175, 55, 0.3) !important;
+      border-radius: 12px !important;
+      padding: 0.8rem 1.5rem !important;
+      color: #F4D03F !important;
+      text-decoration: none !important;
+      font-size: 1rem !important;
+      font-weight: 500 !important;
+      align-items: center;
+      gap: 0.5rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    nav#TOC .nav-back-button:hover {
+      background: linear-gradient(135deg, rgba(212, 175, 55, 0.25), rgba(212, 175, 55, 0.15)) !important;
+      border-color: #D4AF37 !important;
+      transform: translateX(-3px);
+      box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+      color: #FFD700 !important;
+    }
+
+    .back-button::before {
+      content: '←';
+      font-size: 1.2rem;
+    }
+
+    .language-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, 
+          rgba(212, 175, 55, 0.2) 0%, 
+          rgba(212, 175, 55, 0.1) 100%);
+      border: 1px solid rgba(212, 175, 55, 0.4);
+      border-radius: 8px;
+      padding: 0.4rem 1rem;
+      color: #F4D03F;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-left: 1rem;
+      box-shadow: 0 2px 8px rgba(212, 175, 55, 0.15);
+    }
+
+    /* Fixed Sidebar Navigation */
+    nav#TOC {
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 300px;
+      height: 100vh;
+      background: linear-gradient(180deg, rgba(15, 15, 30, 0.95) 0%, rgba(26, 26, 53, 0.95) 100%);
+      border-right: 2px solid rgba(212, 175, 55, 0.28);
+      padding: 50px 30px;
+      overflow-y: auto;
+      box-shadow: 10px 0 40px rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+    }
+
+    nav#TOC > h2 {
+      font-family: 'Lora', serif;
+      color: #d4af37;
+      margin-top: 0;
+      font-size: 1.3em;
+      margin-bottom: 30px;
+      text-align: center;
+      padding-bottom: 20px;
+      border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+    }
+
+    nav#TOC ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    nav#TOC li {
+      list-style: none;
+      margin: 0;
+    }
+
+    nav#TOC > ul > li {
+      margin-bottom: 15px;
+    }
+
+    nav#TOC ul ul {
+      padding-left: 20px;
+      margin-top: 8px;
+      border-left: 2px solid rgba(212, 175, 55, 0.15);
+    }
+
+    nav#TOC a {
+      font-family: 'Lora', serif;
+      font-size: 0.95em;
+      color: #a89968;
+      border: none;
+      transition: all 0.3s ease;
+      font-weight: 500;
+      cursor: pointer;
+      display: block;
+      padding: 8px 12px;
+      border-radius: 6px;
+      text-decoration: none;
+    }
+
+    nav#TOC a:hover {
+      color: #f0e68c;
+      background: rgba(212, 175, 55, 0.1);
+      text-shadow: 0 0 8px rgba(212, 175, 55, 0.3);
+    }
+
+    nav#TOC a.active {
+      color: #f0e68c;
+      background: rgba(212, 175, 55, 0.15);
+      font-weight: 600;
+      border-left: 3px solid #d4af37;
+      padding-left: 9px;
+      box-shadow: 0 0 15px rgba(212, 175, 55, 0.4), inset 0 0 10px rgba(212, 175, 55, 0.2);
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 100px;
+      padding: 80px 50px;
+      background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(212, 175, 55, 0.05) 100%);
+      border: 2px solid rgba(212, 175, 55, 0.35);
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(212, 175, 55, 0.2);
+      position: relative;
+      overflow: hidden;
+    }
+
+    header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(circle at 20% 50%, rgba(212, 175, 55, 0.08) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    h1.title {
+      font-family: 'Lora', serif;
+      font-size: 3.5em;
+      font-weight: 600;
+      background: linear-gradient(135deg, #d4af37 0%, #f0e68c 50%, #d4af37 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -2px;
+      margin-bottom: 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    header p {
+      font-family: 'Lora', serif;
+      color: #c9a961;
+      font-size: 1.15em;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      position: relative;
+      z-index: 1;
+    }
+
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.8em;
+      font-weight: 700;
+      color: #d4af37;
+      margin-top: 80px;
+      margin-bottom: 40px;
+      letter-spacing: -1px;
+      position: relative;
+      padding-bottom: 20px;
+    }
+
+    h1::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100px;
+      height: 2px;
+      background: linear-gradient(90deg, #d4af37, #f0e68c, transparent);
+    }
+
+    h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2em;
+      font-weight: 700;
+      color: #f0e68c;
+      margin-top: 60px;
+      margin-bottom: 25px;
+      letter-spacing: -0.5px;
+    }
+
+    h3, h4, h5, h6 {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      color: #d4af37;
+      margin-top: 40px;
+      margin-bottom: 20px;
+    }
+
+    h3 {
+      font-size: 1.6em;
+    }
+
+    h4 {
+      font-size: 1.3em;
+    }
+
+    p {
+      margin: 1.3em 0;
+      font-size: 1.05em;
+      color: #d8d8d8;
+      letter-spacing: 0.3px;
+      font-weight: 400;
+    }
+
+    a {
+      color: #d4af37;
+      text-decoration: none;
+      border-bottom: 2px solid rgba(212, 175, 55, 0.4);
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    a:hover {
+      color: #f0e68c;
+      border-bottom-color: #f0e68c;
+      text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+    }
+
+    /* Content containers */
+    section {
+      background: linear-gradient(135deg, rgba(212, 175, 55, 0.03) 0%, rgba(212, 175, 55, 0.01) 100%);
+      border: 1px solid rgba(212, 175, 55, 0.22);
+      padding: 50px;
+      margin: 50px 0;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(212, 175, 55, 0.1);
+      max-width: 950px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* Math display */
+    .math.display {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 25px;
+      border-radius: 15px;
+      overflow-x: auto;
+      margin: 25px 0;
+      border-left: 4px solid #d4af37;
+      box-shadow: inset 0 1px 0 rgba(212, 175, 55, 0.1);
+    }
+
+    .math.inline {
+      font-style: italic;
+      color: #f0e68c;
+    }
+
+    /* Images and figures */
+    figure {
+      margin: 50px auto;
+      text-align: center;
+      max-width: 85%;
+    }
+
+    figure.small {
+      max-width: 60%;
+    }
+
+    figure img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 15px;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5), 0 0 30px rgba(212, 175, 55, 0.1);
+      transition: all 0.3s ease;
+      border: 1px solid rgba(212, 175, 55, 0.15);
+      background: #1a1a2e;
+      padding: 15px;
+    }
+
+    figure img:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 40px rgba(212, 175, 55, 0.2);
+    }
+
+    figcaption {
+      margin-top: 20px;
+      font-size: 0.95em;
+      color: #f0e68c;
+      line-height: 1.7;
+      letter-spacing: 0.2px;
+      font-weight: 500;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+    }
+
+    /* Highlighted content */
+    .highlight-new {
+      background: rgba(212, 175, 55, 0.15);
+      border-left: 3px solid #d4af37;
+      padding: 15px 20px;
+      margin: 15px 0;
+      border-radius: 8px;
+    }
+
+    /* Lists */
+    ol, ul {
+      padding-left: 35px;
+      margin: 25px 0;
+    }
+
+    li {
+      margin: 12px 0;
+      color: #d8d8d8;
+      font-weight: 400;
+    }
+
+    ul li::marker {
+      color: #d4af37;
+    }
+
+    ol li::marker {
+      color: #d4af37;
+      font-weight: 600;
+    }
+
+    /* Code */
+    code {
+      font-family: 'Source Code Pro', monospace;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 3px 8px;
+      border-radius: 6px;
+      color: #f0e68c;
+      font-size: 0.95em;
+      border: 1px solid rgba(212, 175, 55, 0.2);
+      font-weight: 600;
+    }
+
+    pre {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 25px;
+      border-radius: 15px;
+      overflow-x: auto;
+      border: 1px solid rgba(212, 175, 55, 0.2);
+      margin: 25px 0;
+      box-shadow: inset 0 1px 0 rgba(212, 175, 55, 0.1);
+    }
+
+    pre code {
+      background: none;
+      padding: 0;
+      border: none;
+      color: #d8d8d8;
+      font-weight: 400;
+    }
+
+    /* Blockquote */
+    blockquote {
+      border-left: 4px solid #d4af37;
+      padding-left: 25px;
+      margin: 25px 0;
+      color: #c9a961;
+      background: rgba(212, 175, 55, 0.05);
+      padding: 20px 25px;
+      border-radius: 12px;
+      font-weight: 400;
+    }
+
+    /* Video container */
+    .video-container {
+      position: relative;
+      width: 100%;
+      max-width: 900px;
+      margin: 40px auto;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+      border: 2px solid rgba(212, 175, 55, 0.3);
+    }
+
+    .video-container video {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      nav#TOC {
+        width: 250px;
+      }
+
+      body {
+        padding: 80px 30px 80px 280px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      nav#TOC {
+        width: 100%;
+        height: auto;
+        position: relative;
+        border-right: none;
+        border-bottom: 2px solid rgba(212, 175, 55, 0.28);
+        padding: 30px;
+      }
+
+      body {
+        padding: 30px 20px;
+      }
+
+      header {
+        padding: 50px 25px;
+        margin-bottom: 60px;
+      }
+
+      h1.title {
+        font-size: 2.5em;
+      }
+
+      h1 {
+        font-size: 1.8em;
+        margin-top: 50px;
+      }
+
+      h2 {
+        font-size: 1.4em;
+      }
+
+      section {
+        padding: 30px;
+        margin: 30px 0;
+        border-radius: 15px;
+      }
+
+      figure {
+        max-width: 100%;
+      }
+
+      figure.small {
+        max-width: 80%;
+      }
+
+      /* Stack debugging report cards on mobile */
+      .debug-reports-grid {
+        grid-template-columns: 1fr !important;
+      }
+    }
+
+    @media print {
+      html {
+        background: white;
+      }
+
+      body {
+        color: black;
+        padding: 80px 50px;
+      }
+
+      nav#TOC {
+        display: none;
+      }
+
+      header, section {
+        background: white;
+        border: none;
+        box-shadow: none;
+      }
+
+      h1.title, h1, h2 {
+        color: black;
+      }
+
+      a {
+        color: black;
+      }
+    }
+    
+    /* Syntax highlighting for Crystal code */
+    code .keyword { color: #c586c0; font-weight: 600; }
+    code .class { color: #4ec9b0; font-weight: 600; }
+    code .function { color: #dcdcaa; }
+    code .constant { color: #4fc1ff; }
+    code .variable { color: #9cdcfe; }
+    code .comment { color: #6a9955; font-style: italic; }
+    code .number { color: #b5cea8; }
+    code .string { color: #ce9178; }
+  </style>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const navLinks = document.querySelectorAll('nav#TOC a');
+      
+      // Smooth scroll with easing for navigation links (skip external links like back button)
+      navLinks.forEach(link => {
+        const href = link.getAttribute('href');
+        // Only handle internal anchor links (starting with #)
+        if (href && href.startsWith('#')) {
+          link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetId = href.substring(1);
+            const targetElement = document.getElementById(targetId);
+            
+            if (targetElement) {
+              smoothScrollTo(targetElement);
+            }
+          });
+        }
+      });
+      
+      // Update active link on scroll
+      window.addEventListener('scroll', updateActiveLink);
+      updateActiveLink();
+      
+      function updateActiveLink() {
+        const sections = document.querySelectorAll('section[id], h1[id], h2[id]');
+        let current = '';
+        
+        sections.forEach(section => {
+          const sectionTop = section.offsetTop - 150;
+          if (window.pageYOffset >= sectionTop) {
+            current = section.getAttribute('id');
+          }
+        });
+        
+        navLinks.forEach(link => {
+          link.classList.remove('active');
+          if (link.getAttribute('href') === '#' + current) {
+            link.classList.add('active');
+          }
+        });
+      }
+      
+      function smoothScrollTo(element) {
+        const startPosition = window.pageYOffset;
+        const targetPosition = element.offsetTop - 80;
+        const distance = targetPosition - startPosition;
+        const duration = 1100;
+        let start = null;
+        
+        function easeInOutQuad(t) {
+          return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+        }
+        
+        function animation(currentTime) {
+          if (start === null) start = currentTime;
+          const elapsed = currentTime - start;
+          const progress = Math.min(elapsed / duration, 1);
+          const ease = easeInOutQuad(progress);
+          
+          window.scrollTo(0, startPosition + distance * ease);
+          
+          if (elapsed < duration) {
+            requestAnimationFrame(animation);
+          }
+        }
+        
+        requestAnimationFrame(animation);
+      }
+    });
+</script>
+</head>
+<body>
+  <a href="../../index.html" class="back-button">Back to Portfolio</a>
+<nav id="TOC" role="doc-toc">
+<a href="../../index.html" class="nav-back-button">← Back to Portfolio</a>
+<h2>Contents</h2>
+<ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#fortune-algorithm">Fortune's Algorithm: The Foundation</a>
+  <ul>
+    <li><a href="#problem-setup">Problem Setup</a></li>
+    <li><a href="#intuition">Intuition</a></li>
+    <li><a href="#sweep-line">The Sweep Line Paradigm</a></li>
+    <li><a href="#breakpoint">Breakpoint Dynamics & Derivatives</a></li>
+  </ul>
+</li>
+<li><a href="#balanced-tree">The Beach Line as a Balanced Tree</a>
+  <ul>
+    <li><a href="#why-trees">Why Trees Matter</a></li>
+    <li><a href="#dual-nature">Arc Ordering & Comparison</a></li>
+    <li><a href="#threaded">Threaded Tree Optimization</a></li>
+  </ul>
+</li>
+<li><a href="#hard-parts">The Tricky Parts</a>
+  <ul>
+    <li><a href="#degenerate">Degenerate Site Events</a></li>
+    <li><a href="#circle-events">Circle Event Handling</a></li>
+  </ul>
+</li>
+<li><a href="#implementation">Implementation Highlights</a>
+  <ul>
+    <li><a href="#symmetry">Direction Abstraction</a></li>
+    <li><a href="#numerical">Numerical Robustness</a></li>
+    <li><a href="#dcel">DCEL Construction</a></li>
+    <li><a href="#sfml">GL-Powered Visualizer</a></li>
+  </ul>
+</li>
+<li><a href="#crystal">Crystal: The Language Choice</a></li>
+</ul>
+</nav>
+
+<header id="title-block-header">
+  <h1 id="fortunes-algorithm-in-crystal">Fortune's Algorithm in Crystal <span class="language-badge">Crystal</span></h1>
+<p>A Deep Dive into Voronoi Diagrams from the Ground Up</p>
+</header>
+
+<section id="introduction">
+<h1>Introduction</h1>
+
+<div class="highlight-new">
+<p><strong>Computing Voronoi diagrams</strong> is a fundamental problem in computational geometry with applications spanning robotics, computer graphics, spatial analysis, and beyond. While the naive \(O(n^2)\) algorithm is straightforward, Fortune's sweep line algorithm elegantly computes Voronoi diagrams in \(O(n \log n)\) time—optimal for the comparison model.</p>
+</div>
+
+<strong>Fortune's algorithm</strong> isn't overly difficult conceptually, but anyone who ever attempted to implement it will be surprised by how scarce online resources are: 
+there do exist tutorials and toy demos online, but the vast majority of them cannot serve as reliable references. Many online demos omit essential components, and most tutorials stop at the same conceptual boundary without addressing the implementation details that make the algorithm genuinely challenging. 
+
+<p>This project presents a <strong>complete and optimized implementation</strong> of Fortune's algorithm from the ground up, written in <strong>Crystal</strong>. It tackles <em>all</em> the non-trivial problems: numerical stability with degenerate cases, proper balanced tree operations, and complete DCEL (Doubly-Connected Edge List) construction. The project also includes a real-time visualizer built with SFML, show extra information about how the beach line and background data structure evolve in real time.</p>
+
+<div style="margin-top: 20px; padding: 40px; background: rgba(212, 175, 55, 0.08); border-radius: 15px; text-align: center; border: 2px solid rgba(212, 175, 55, 0.25);">
+<p style="font-family: 'Lora', serif; font-size: 1.3em; font-style: italic; color: #f0e68c; margin: 0;">
+<div class="video-container">
+  <video controls preload="metadata">
+    <source src="./demo.mp4" type="video/mp4">
+    Your browser does not support the video tag. <a href="./demo.mkv" style="color: #d4af37;">Download the video here</a>.
+  </video>
+</div>
+<figcaption style="text-align: center; margin-top: 10px;">Real-time visualization of Fortune's algorithm in action. Watch the sweep line descend and the beach line evolve. As well as the Voronoi diagram emerging little by little.</figcaption>
+
+</p>
+</div>
+
+<h2>What's Different</h2>
+
+<p>Many educational implementations simplify or omit certain details, which is understandable for teaching contexts but insufficient for a full, production-level understanding. This project aims to fill that gap:</p>
+
+<ul>
+    <li><strong>Incomplete balancing</strong>: Many use simple BSTs without proper rebalancing, leading to \(O(n^2)\) worst-case behavior. Adding balancing is harder than just adding a plain AVL, since the beachline is not a traditional tree and has uncommon insertion rules (adding a new arc means splitting the original into two and inserting another. Depending on the implementation detail, this operation requires extra care.)</li>
+    <li><strong>Degenerate cases not handled properly</strong>: Vertical line segments, co-circular points, and numerical precision issues are often ignored. </li>
+    <li><strong>Oversimplified procedure and suboptimal data structures</strong>: 
+      Fortune’s algorithm only reads like a clean sweep-line procedure on paper. In code, 
+      the beach line's dual nature (spatial ordering + tree structure) requires careful design, and a lot of data structures also need to support uncommon operations. 
+</ul>
+
+Although performance is not a critical concern in a visualization, the underlying implementation should still reflect the actual algorithm. Presenting a faithful version ensures that the demo accurately represents what a production-level implementation must account for.
+<!-- Breakpoints between arcs are defined by the intersection of moving parabolas, so their positions change continuously and must be recomputed on demand: if we recompute these more than needed, then again the algorithm loses its purpose. -->
+
+
+<p>This implementation addresses <strong>all</strong> these issues with meticulous attention to detail, elegant code design, and comprehensive testing infrastructure</p>
+
+<h2>Why Implement Fortune's Algorithm?</h2>
+
+<p>Fortune's algorithm is famous in computational geometry, yet complete implementations are surprisingly rare. </p>
+
+<p>Implementing it properly touches on multiple fundamental areas:</p>
+
+<ul>
+    <li><strong>Algorithm design</strong>: Sweep line paradigm, event-driven simulation</li>
+    <li><strong>Data structures</strong>: Balanced trees, priority queues, threaded pointers, half-edge meshes</li>
+    <li><strong>Computational geometry</strong>: Parabola intersections, circle computations, planarity</li>
+    <li><strong>Numerical robustness</strong>: Handling degenerate cases, floating-point precision</li>
+    <li><strong>Software engineering</strong>: Debugging complex state, visualization tools</li>
+</ul>
+
+<p>Students who work through a complete implementation will be amazed by how <strong>beautifully these pieces fit together</strong>. It's a perfect example of how theoretical elegance meets practical engineering challenges. The algorithm is complex enough to be interesting, but structured enough that each component can be understood and tested independently.</p>
+
+<p>This project aims to serve as a <strong>reference implementation</strong> that students can study, learn from, and use as a foundation for their own explorations in computational geometry.</p>
+
+
+</section>
+
+<section id="fortune-algorithm">
+<h1>Fortune's Algorithm: The Foundation</h1>
+This article mainly serves to explain the project and also give some extra details omitted in most online demos, it assumes the readers have already tried following some tutorials online or attempted to implement the algorithm. 
+Besides discussions on the implementation details of the project itself, we won't talk too much about the basic ideas. 
+Here's a quick refresher on what <strong>Voronoi diagram</strong> is and how <strong>Fortune's algorithm</strong> works.
+
+<h3 id="problem-setup">Problem Setup</h3>
+
+<p>The Voronoi diagram partitions the plane so that each region contains all points closest to a given site. Geometrically, every pair of sites defines a perpendicular bisector, and all Voronoi edges and vertices lie on these bisectors. This leads to an intuitive but expensive construction: for each site, intersect the half-planes that keep points closer to it than to others. Even with efficient half-plane intersection, doing this for all sites gives roughly <code>O(n² log n)</code> complexity, and more naive brute-force interpretations can degrade to <code>O(n³)</code>. Fortune’s algorithm avoids enumerating all pairwise bisectors explicitly, achieving the optimal <code>O(n log n)</code> by maintaining a dynamic beach line and event structure instead.</p>
+
+<h3 id="intuition">Intuition</h3>
+
+<p>If we imagine knowing the Voronoi edges at a given sweep-line height <em>y</em>, then lowering the sweep line only perturbs their positions slightly; the combinatorial structure changes only at specific moments when two edges meet or an arc disappears. Fortune’s key insight is that these structural changes can be predicted and processed as discrete events, allowing the diagram to be built dynamically rather than recomputed from scratch at every step.</p>
+
+<p>The parabola arises naturally from the distance definition: the set of points whose distance to a site equals their vertical distance to the sweep line forms a parabola with the site as its focus and the sweep line as its directrix. Each site therefore generates a parabolic arc on the beach line, and the intersection of two such parabolas marks points equidistant to both sites. When three parabolas intersect at a single point, that point is equidistant to all three corresponding sites, giving rise to a Voronoi vertex.</p>
+
+<p>Because the distance to each site changes monotonically as the sweep line moves, the ordering of these parabolic arcs changes only at well-defined moments. These events—where one arc overtakes another or collapses—are exactly the times when the Voronoi structure changes. Fortune’s algorithm tracks these transitions explicitly, enabling an <code>O(n log n)</code> construction by reacting only to the discrete combinatorial updates rather than recomputing the geometry continuously.</p>
+
+<h2 id="sweep-line">The Sweep Line Paradigm</h2>
+
+<p>Fortune's algorithm uses a <strong>sweep line approach</strong>: imagine a horizontal line sweeping downward across the plane. At any moment, the sweep line is at height \(y = \ell\). The key insight is that we can determine which site "owns" any point above the sweep line by measuring distances <em>in the metric induced by the sweep line</em>.</p>
+
+<h3>The Beach Line</h3>
+
+<p>For a point \(p = (x, y)\) with \(y > \ell\) and a site \(s_i = (x_i, y_i)\) with \(y_i \geq \ell\), the "distance" from \(p\) to \(s_i\) is not the Euclidean distance, but rather the vertical distance from \(p\) to the parabola defined by focus \(s_i\) and directrix \(y = \ell\).</p>
+
+<p>The parabola with focus \((x_i, y_i)\) and directrix \(y = \ell\) is given by:</p>
+
+\begin{align}
+    \text{dist}(p, s_i)^2 &= (x - x_i)^2 + (y - y_i)^2 \\
+    \text{dist}(p, \ell)^2 &= (y - \ell)^2
+\end{align}
+
+<p>Setting these equal (since points on the parabola are equidistant from focus and directrix):</p>
+
+\begin{align}
+    (x - x_i)^2 + (y - y_i)^2 &= (y - \ell)^2 \\
+    (x - x_i)^2 &= (y - \ell)^2 - (y - y_i)^2 \\
+    &= -2y(\ell - y_i) + \ell^2 - y_i^2 \\
+    y &= \frac{(x - x_i)^2 + y_i^2 - \ell^2}{2(y_i - \ell)}
+\end{align}
+
+<p>The <strong>beach line</strong> is the lower envelope of all these parabolas—it consists of parabolic arcs, one for each site currently "active" above the sweep line.</p>
+
+<figure>
+<img src="./arc_highlight.png" alt="Beach line visualization">
+<figcaption>The beach line (highlighted in yellow) showing parabolic arcs. Each arc corresponds to a site, and breakpoints between arcs trace out Voronoi edges. The red horizontal line is the sweep line. The visualizer highlights the chosen arc, the region it occupies, and its tree node for further inspection.</figcaption>
+</figure>
+
+<h3>Discrete Event Simulation</h3>
+
+<p>Fortune's algorithm is fundamentally a <strong>discrete event simulation</strong>. We initialize the event queue with all input sites (site events), sorted by y-coordinate. As we process events, new circle events may be discovered and added to the queue.</p>
+
+<h4>The Two Event Types</h4>
+
+<p><strong>Site Events</strong>: When the sweep line reaches a new site \(s\), a new parabola is born. At the exact moment of contact, the parabola is <em>degenerate</em>—a vertical line segment at \(x = s_x\). This is because when \(y_i = \ell\), the denominator in our parabola equation becomes zero:</p>
+
+\begin{align}
+y = \frac{(x - x_i)^2 + y_i^2 - \ell^2}{2(y_i - \ell)} \quad \xrightarrow{y_i \to \ell} \quad \text{undefined}
+\end{align}
+
+<p>In the visualization, we always render the beach line with the sweep line slightly below the event point, so the arc already appears to have width. This is intentional—it helps visualize what's happening, but it's important to understand that at the exact event moment, it's a vertical segment.</p>
+
+<figure>
+<img src="./new_arc.png" alt="New arc with derivatives">
+<figcaption>In the beginning, we simply enqueue all the sites as events in the priority quene, then we proceed them one by one. 
+  A new site event creating a degenerate arc (green vertical segment). In the visualization, the scanline is always intentionally moved down a bit, so that  
+  the new arc isn't a vertical segment anymore. Blue arrows indicate derivatives at intersection points—these tell us which arc is above/below as we move left-to-right.</figcaption>
+</figure>
+
+<p><strong>Circle Events</strong>: When three consecutive arcs \(A\), \(B\), \(C\) converge to a point, arc \(B\) disappears. This occurs when the sweep line reaches the bottom of the circumcircle through the three sites.</p>
+
+<p>The <strong>key property</strong>: the beach line topology changes <em>only</em> at these discrete events. Between events, breakpoints move continuously but predictably—they trace out Voronoi edges.</p>
+
+<h2 id="breakpoint">Breakpoint Dynamics and Derivatives</h2>
+
+<p>A breakpoint between two arcs (corresponding to sites \(s_i\) and \(s_j\)) is the intersection of their parabolas. This breakpoint moves as the sweep line descends. The position \(x_b\) of a breakpoint satisfies:</p>
+
+\begin{align}
+    \frac{(x_b - x_i)^2 + y_i^2 - \ell^2}{2(y_i - \ell)} = \frac{(x_b - x_j)^2 + y_j^2 - \ell^2}{2(y_j - \ell)}
+\end{align}
+
+<h3>Why Derivatives Matter</h3>
+
+<p>As \(\ell\) decreases (sweep line moves down), \(x_b\) changes. Computing the derivative \(\frac{dx_b}{d\ell}\) tells us <strong>which direction</strong> the breakpoint moves. This is crucial for two reasons:</p>
+
+<ol>
+<li><strong>Arc ordering</strong>: At an intersection point, the derivatives of both parabolas tell us which arc is above/below as we move from left to right. If arc \(A\)'s parabola has a steeper positive slope than arc \(B\) at their intersection, then \(A\) is locally above \(B\) on the right side.</li>
+
+<li><strong>Circle event detection</strong>: We need to determine which arc gets squeezed into a point. By analyzing how breakpoints move, we can predict when three consecutive arcs will converge. The arc whose two surrounding breakpoints are moving toward each other is the one that will disappear.</li>
+</ol>
+
+<p>Consider three consecutive arcs \(A\), \(B\), \(C\). Let \(x_{AB}\) be the breakpoint between \(A\) and \(B\), and \(x_{BC}\) between \(B\) and \(C\). If \(\frac{dx_{AB}}{d\ell} > 0\) (moving right) and \(\frac{dx_{BC}}{d\ell} < 0\) (moving left), and they're converging toward the same point, then \(B\) will be squeezed out — that's a circle event.</p>
+
+</section>
+
+<section id="balanced-tree">
+<h1>The Beach Line as a Balanced Tree</h1>
+
+<h2 id="why-trees">Why Trees Matter</h2>
+
+<p>The beach line stores arcs in left-to-right spatial order. We need to:</p>
+
+<ul>
+    <li>Find which arc is directly above a new site (during site events)</li>
+    <li>Insert new arcs when sites appear</li>
+    <li>Delete arcs when circle events occur</li>
+    <li>Query predecessor/successor arcs for circle event detection</li>
+</ul>
+
+<p>All these operations need to be efficient: \(O(\log n)\) per operation. This demands a <strong>balanced binary search tree</strong>.</p>
+
+<h2 id="dual-nature">The Dual Nature: Spatial + Tree Structure</h2>
+
+<p>Most tutorials gloss over a critical design decision: <em>where do we store the arcs?</em> This question gets at the heart of what the beach line actually represents: it's both a <strong>spatial structure</strong> (arcs ordered left-to-right) and a <strong>search structure</strong> (we need fast queries).</p>
+
+<h3>Arc Ordering and Comparison</h3>
+
+<p>Before we discuss storage, we need to define what it means for arcs to be "ordered". Two arcs are adjacent in the beach line if their parabolas intersect, and we need to know which is on the left. This ordering is <strong>not</strong> based on site coordinates directly, but on the <strong>parabola geometry at the current sweep line position</strong>.</p>
+
+<h4>Finding the Arc Above a Point</h4>
+
+<p>When we say "find which arc is directly above a new site", we mean: if we shoot a <strong>vertical ray upward</strong> from the site, which arc does it hit first? This is the arc that will be split when the new site is inserted.</p>
+
+<p>Naively, we could iterate through all arcs and check each one—but with \(n\) sites, that would be \(O(n)\) per query, giving \(O(n^2)\) total time. We need something faster.</p>
+
+<h4>The Search Tree Solution</h4>
+
+<p>Here's where the balanced search tree becomes essential. We can think of each parabola as defining a <strong>half-plane</strong>: the region where that site is closest. Since the tree stores arcs in sorted order based on their intersection points (the x-coordinates "where each arc extends out the most"), we can perform a binary search.</p>
+
+<p>The key insight: <strong>if a parabola is completely covered by others, it's no longer in the tree</strong>. Only the arcs that are actually visible on the beach line (not dominated by other arcs) are stored. This means the tree size stays \(O(n)\) and queries are \(O(\log n)\).</p>
+
+<h4>Comparable Arcs</h4>
+
+<p>In the code, we define an <strong>Arc class that is comparable</strong>. Each time we compare two arcs, we do it based on their <strong>intersection point</strong> at the current sweep line position. This is a geometric computation: given two parabolas with foci at different sites and a shared directrix (the sweep line), we solve for their intersection.</p>
+
+<p>Crucially, the shape of each parabola—and thus the intersection points—depends on <strong>where the sweep line currently is</strong>. As the sweep line descends, the parabolas change shape. This means arc comparison is dynamic and context-dependent.</p>
+
+<p>Most implementations gloss over this: they assume you can just "compare" arcs, but the comparison is actually a sophisticated geometric computation. Getting this right, including handling edge cases where parabolas don't intersect or are degenerate, is essential for correct beach line maintenance.</p>
+
+<h3>Option 1: Arcs on Leaves Only</h3>
+
+<p>In this design, internal nodes represent breakpoints (intervals), and leaves represent arcs:</p>
+
+<pre><code>      [A|B]
+     /      \
+    A    [B|C]
+        /     \
+       B       C
+</code></pre>
+
+<p><strong>Pros</strong>: Clean conceptual separation, breakpoints are explicit<br>
+<strong>Cons</strong>: Internal nodes and leaves have different types, tree rotations become complex, harder to implement standard balanced tree algorithms</p>
+
+<h3>Option 2: Arcs on All Nodes (Our Choice)</h3>
+
+<p>In this design, every node stores an arc. The in-order traversal gives the left-to-right spatial ordering:</p>
+
+<pre><code class="language-crystal"><span class="keyword">property</span> value : <span class="class">T</span>
+<span class="keyword">property</span> parent : <span class="class">BSTNode</span>(<span class="class">T</span>)?
+</code></pre>
+
+<p>In-order: A, B, C (left-to-right spatial order)</p>
+
+<p><strong>Pros</strong>:</p>
+<ul>
+    <li>Uniform node structure—every node is an arc</li>
+    <li>Standard balanced tree algorithms (AVL, Red-Black) apply directly</li>
+    <li>Rotations are clean and don't violate spatial ordering</li>
+    <li>Predecessor/successor queries are trivial (threaded tree pointers)</li>
+</ul>
+
+<!-- <p><strong>Cons</strong>: Breakpoints are implicit (between consecutive arcs in in-order traversal), need to compute breakpoint positions on the fly</p> -->
+
+<p>We chose <strong>Option 2</strong>. <em>In-order traversal of a BST naturally gives the arcs in sorted order</em>, and every tree node has the same data type. Less cases to handle.</p>
+
+<h2 id="threaded">Uncommon Data Structure Behaviors</h2>
+
+<p>Fortune's algorithm demands several data structures that behave in unusual ways. Understanding these quirks is essential for a correct implementation.</p>
+
+<h3>1. Balanced Tree with Non-Standard Insertion</h3>
+
+<p>Most balanced tree tutorials assume you insert <strong>one node at a time</strong>. But when a site event occurs in Fortune's algorithm, we need to:</p>
+
+<ol>
+    <li>Find the arc \(A\) above the new site</li>
+    <li><strong>Split \(A\) into three nodes</strong>: \(A_{\text{left}}\), \(S_{\text{new}}\), \(A_{\text{right}}\)</li>
+    <li>Maintain the spatial ordering invariant <em>during</em> insertion</li>
+    <li>Rebalance the tree from the insertion point</li>
+</ol>
+
+<p>This "triple insertion" violates the usual balanced tree contract. We can't insert the three nodes sequentially—intermediate states would break the in-order traversal property. Instead, we need a <strong>custom atomic insertion</strong> that handles all three nodes together, then triggers standard rebalancing.</p>
+
+<!-- <p>This is why simply using a library balanced tree won't work. We need to implement our own with hooks for these unusual operations.</p> -->
+
+<h3>2. Priority Queue with Random Access</h3>
+
+<p>The event queue is a priority queue sorted by y-coordinate. Standard priority queue operations are:</p>
+
+<ul>
+    <li><code>insert(event)</code>: Add a new event</li>
+    <li><code>pop_min()</code>: Get the next event to process</li>
+</ul>
+
+<p>Fortune's algorithm requires one capability that a standard binary heap does not provide: <strong>deletion of arbitrary events</strong>. When a circle event becomes invalid (because one of its arcs was replaced during another event), we must remove it from the event queue <em>before</em> it reaches the top.</p>
+
+<p>This necessitates a priority queue that supports:</p>
+
+<ul>
+    <li><strong>Handles</strong> or references to specific nodes in the heap</li>
+    <li><strong>\(O(\log n)\) deletion</strong> by using those handles</li>
+</ul>
+
+<p>Our implementation uses a custom priority queue where each event retains a direct pointer to its position inside the heap array. When an event becomes invalid, we delete it via its stored index and restore heap order in logarithmic time. This avoids the usual “lazy deletion” approach found in many educational implementations and ensures that the queue remains compact and accurate throughout the algorithm.</p>
+
+<p>Among the various data-structure adaptations required by Fortune’s algorithm, this modification is the most straightforward. </p>
+
+
+<!-- <p>But Fortune's algorithm requires an additional operation: <strong>random deletion</strong>. When a circle event becomes invalid (because one of its arcs was removed by another event), we need to find and remove it from the queue <em>without popping it</em>.</p>
+
+<p>This requires either:</p>
+
+<ul>
+    <li>Lazy deletion: Mark events as invalid, skip them when popped</li>
+    <li>A priority queue that supports \(O(\log n)\) deletion by pointer</li>
+</ul>
+
+<p>We use <strong>lazy deletion</strong> with validity flags. Each circle event stores pointers to its arcs. When we pop an event, we check if those arcs are still consecutive in the beachline. If not, the event is stale and we skip it. This avoids the complexity of removing items from the middle of a heap.</p> -->
+
+<h3>3. Threaded Tree for \(O(1)\) Predecessor/Successor</h3>
+
+<p>To efficiently find predecessor/successor arcs, we use <strong>threaded pointers</strong>: each node maintains explicit pointers to its in-order predecessor and successor. This makes circle event checking \(O(1)\) after locating an arc.</p>
+
+\begin{align}
+    \text{Node structure: } &\texttt{value, left, right, parent, prev, next}
+\end{align}
+
+<p>Threading introduces overhead: every insertion and deletion must update not just the tree structure (parent/child pointers) but also the sequential links (prev/next pointers). This creates more places where bugs can hide—if the threads become inconsistent with the tree structure, you'll get incorrect results that are hard to debug.</p>
+
+<p>However, the performance gain is <strong>absolutely worth it</strong>. In Fortune's algorithm, we need to check for potential circle events constantly. After inserting a new arc, we need to check if it forms a circle with its predecessor and successor. After a circle event, we need to check the newly-adjacent arcs. Without threading, finding a predecessor/successor requires tree traversal—\(O(\log n)\) in a balanced tree. With threading, it's \(O(1)\)—just follow a pointer.</p>
+
+<p>Given that we perform these queries <em>at least</em> once per event, and there are \(O(n)\) events, threading saves us from \(O(n \log n)\) work down to \(O(n)\) for these queries. The added complexity is a price worth paying for this asymptotic improvement.</p>
+
+<h3>The Challenge of Unusual Data Structures</h3>
+
+<p>These data structure modifications—triple insertion, indexed priority queue deletion, and threading—are <strong>rarely covered in standard algorithms courses</strong>. Most tutorials gloss over them with "use a balanced tree" and "use a priority queue", leaving implementers to discover these issues through painful debugging.</p>
+
+<h3>Same-Site Arc Adjacency</h3>
+
+<p>Another subtle issue: <strong>multiple arcs can belong to the same site</strong>. When a new site splits an existing arc, the two resulting pieces both reference the original site. This means an arc's predecessor and successor in the beachline can reference the <em>same</em> site—requiring careful distinction between "same arc" vs "different arc, same site."</p>
+
+<p>Operations that check arc identity (e.g., circle event validation) must compare arc <em>pointers</em>, not site references. When duplicating arc data for the split, we must decide what to copy vs share. These details are easy to get wrong and rarely discussed in textbooks.</p>
+
+<p>This is a major reason why complete Fortune implementations are rare. The algorithm appears simple conceptually, but these data structure subtleties turn it into a significant engineering challenge.</p>
+
+</section>
+
+<section id="hard-parts">
+<h1>The Tricky Parts</h1>
+
+<h2 id="degenerate">Degenerate Site Events</h2>
+
+<p>When a new site \(s\) appears, it creates a <strong>degenerate parabola</strong> (vertical line segment) at \(x = s_x\). This is the most numerically sensitive part of the algorithm.</p>
+
+<h3>The Initial Singularity</h3>
+
+<p>At the exact moment the sweep line touches \(s\), the parabola is degenerate:</p>
+
+\begin{align}
+    y_i = \ell \implies \text{denominator} = 0
+\end{align}
+
+<p>The parabola equation becomes <strong>undefined</strong>. In practice, we handle this by recognizing that the new arc appears as an infinitesimally small segment, then immediately starts growing.</p>
+
+<h3>Splitting the Beach Line</h3>
+
+<p>When we insert a new site \(s\) into the beach line:</p>
+
+<ol>
+    <li>Find the arc \(A\) directly above \(s\) (query the tree at \(x = s_x\))</li>
+    <li>Split \(A\) into two arcs: \(A_{\text{left}}\) and \(A_{\text{right}}\)</li>
+    <li>Insert the new arc \(S\) between them</li>
+</ol>
+
+<p><strong>The challenge</strong>: Normal balanced trees assume you insert <em>one</em> node at a time. Here, we're inserting <strong>three</strong> nodes (two split pieces of \(A\) plus the new arc \(S\)) in a specific spatial configuration.</p>
+
+<h3>Maintaining Balance</h3>
+
+<p>We can't just insert three nodes sequentially—this would violate the spatial ordering invariant during intermediate states. Instead:</p>
+
+<ol>
+    <li>Create all three nodes: \(A_{\text{left}}\), \(S\), \(A_{\text{right}}\)</li>
+    <li>Set up their threaded pointers to maintain in-order invariant</li>
+    <li>Perform a custom "triple insert" operation that maintains tree balance</li>
+    <li>Update parent pointers and rebalance from the insertion point upward</li>
+</ol>
+
+<p>In our AVL tree implementation, this requires careful height updates and potentially multiple rotations.</p>
+
+<h2 id="circle-events">Circle Event Handling</h2>
+
+<p>Circle events are the most intricate part of Fortune's algorithm. Understanding <strong>why</strong> they're called "circle events" and how they predict Voronoi structure is crucial.</p>
+
+<h3>Why "Circle Event"?</h3>
+
+<p>When we have three consecutive arcs on the beachline—corresponding to sites \(L\), \(M\), and \(R\) (left, middle, right)—their breakpoints trace out Voronoi edges. These two edges are the <strong>perpendicular bisectors</strong> between \(L\)-\(M\) and \(M\)-\(R\).</p>
+
+<p>These two bisectors will eventually meet at a point that is <strong>equidistant from all three sites</strong> \(L\), \(M\), \(R\). This point is the <strong>center of the unique circle passing through all three sites</strong>—the circumcircle.</p>
+
+<figure>
+<img src="./new_circle.png" alt="Circle event with three sites">
+<figcaption><strong>Circle Event Discovery</strong>: Three consecutive arcs (L, M, R) define a circle. When the sweep line reaches the bottom of this circle, the middle arc \(M\) will be squeezed to a point and disappear. The sites L, M, R are marked, and the circle passes through all three.</figcaption>
+</figure>
+
+<p>The key insight: <strong>when the sweep line reaches the bottom of this circle</strong>, all three sites are equidistant from that lowest point. At that moment:</p>
+
+<ul>
+    <li>The middle arc \(M\) <strong>disappears</strong> (squeezed to zero width)</li>
+    <li>Arcs \(L\) and \(R\) become adjacent</li>
+    <li>The center of the circle becomes a <strong>Voronoi vertex</strong> (where three edges meet)</li>
+</ul>
+
+<figure>
+<img src="./circle_vertex.png" alt="Circle event creating Voronoi vertex">
+<figcaption><strong>Circle Event Execution</strong>: As the sweep line reaches the bottom of the circle, the middle arc is squeezed to exactly zero width. The convergence point (circle center) becomes a Voronoi vertex where three edges meet. This is the moment the circle event triggers.</figcaption>
+</figure>
+
+<h3>How to Detect Circle Events</h3>
+
+<p>Whenever we insert or remove an arc from the beachline, we check triplets of consecutive arcs. For each triplet \(L\), \(M\), \(R\):</p>
+
+<ol>
+    <li><strong>Compute the circumcircle</strong> through sites \(L\), \(M\), \(R\)</li>
+    <li><strong>Find the lowest point</strong> of the circle (center_y - radius)</li>
+    <li><strong>Check if it's below the sweep line</strong> (future event)</li>
+    <li><strong>Check if the breakpoints are converging</strong> (not diverging)</li>
+    <li>If all checks pass, <strong>add the circle event</strong> to the priority queue</li>
+</ol>
+
+<p>The circumcircle center \((c_x, c_y)\) satisfies the system of equations:</p>
+
+\begin{align}
+    (x_L - c_x)^2 + (y_L - c_y)^2 &= r^2 \\
+    (x_M - c_x)^2 + (y_M - c_y)^2 &= r^2 \\
+    (x_R - c_x)^2 + (y_R - c_y)^2 &= r^2
+\end{align}
+
+<p>This is solved using linear algebra. Nearly-collinear points lead to numerical instability, so we use <strong>robust geometric predicates</strong> with epsilon-tolerances to detect when points are too close to collinear.</p>
+
+<h3>Circle Event Invalidation: The Hidden Complexity</h3>
+
+<p><strong>This is the detail most tutorials miss</strong>: Not all circle events actually trigger! When we detect a potential circle event (three consecutive arcs converging), we add it to the priority queue. But before it triggers, the beach line might change in a way that invalidates it.</p>
+
+<figure>
+<img src="./circle.png" alt="Circle event invalidation">
+<figcaption><strong>Circle Event Invalidation</strong>: We were waiting for arc \(B\) to be squeezed by arcs \(A\) and \(C\). But then a <em>different</em> circle event causes \(C\) to be squeezed first! Now \(A\) and \(B\) are no longer adjacent to each other with \(C\) in between, so the original circle event (A-B-C) is <strong>invalid</strong> and must be skipped.</figcaption>
+</figure>
+
+<p>Consider the scenario illustrated above:</p>
+
+<ol>
+    <li>We detect that arcs \(A\), \(B\), \(C\) will converge → add circle event to queue</li>
+    <li>Before this event triggers, arc \(C\) gets squeezed by <em>other</em> arcs</li>
+    <li>Now \(A\) and \(B\) are no longer adjacent in the beachline</li>
+    <li>The circle event (A-B-C) is now <strong>invalid</strong> and should be discarded</li>
+</ol>
+
+<p><strong>Implementation approach</strong>: Each circle event stores pointers to the three arcs involved. When the event pops from the priority queue, we check:</p>
+
+<ul>
+    <li>Are these three arcs <strong>still consecutive</strong> in the beachline?</li>
+    <li>Are they in the <strong>same left-to-right order</strong>?</li>
+    <li>Have any of them been <strong>deleted</strong>?</li>
+</ul>
+
+<p>If any check fails, we discard the event and continue. This <strong>lazy invalidation</strong> strategy is simpler than trying to remove invalidated events from the priority queue. The cost is minimal—we just skip stale events when we pop them.</p>
+
+<h3>Why This Matters</h3>
+
+<p>Getting circle event invalidation wrong leads to:</p>
+
+<ul>
+    <li><strong>Crashes</strong>: Accessing deleted arc pointers</li>
+    <li><strong>Incorrect output</strong>: Spurious Voronoi vertices at wrong locations</li>
+    <li><strong>Topology errors</strong>: DCEL becomes inconsistent</li>
+</ul>
+
+<p>This is where <strong>most bugs in Fortune implementations come from</strong>. The algorithm looks simple on paper, but correctly handling event invalidation requires careful pointer management and validity checking. This is a detail that's easy to overlook but catastrophic to get wrong.</p>
+
+</section>
+
+<section id="implementation">
+<h1>Implementation Highlights</h1>
+
+<h2 id="symmetry">Direction Abstraction for Symmetric Operations</h2>
+
+<p>Most balanced tree implementations duplicate code for left and right operations. Our approach uses <strong>direction abstraction</strong> to achieve complete symmetry, eliminating code duplication and an entire class of mirror-image bugs.</p>
+
+<h3>The Direction Enum</h3>
+
+<p>Instead of writing separate <code>rotate_left</code> and <code>rotate_right</code> functions, we define:</p>
+
+<pre><code class="language-crystal"><span class="keyword">enum</span> <span class="class">Direction</span>
+  <span class="constant">Left</span>
+  <span class="constant">Right</span>
+  
+  <span class="keyword">def</span> <span class="function">opposite</span> : <span class="class">Direction</span>
+    <span class="keyword">self</span> == <span class="constant">Left</span> ? <span class="constant">Right</span> : <span class="constant">Left</span>
+  <span class="keyword">end</span>
+<span class="keyword">end</span>
+</code></pre>
+
+<h3>Unified Rotation</h3>
+
+<p>A single rotation function handles both directions:</p>
+
+<pre><code class="language-crystal"><span class="keyword">def</span> <span class="function">rotate</span>(dir : <span class="class">Direction</span>) : <span class="class">BSTNode</span>
+  new_root = child(dir.opposite)
+  same_side_subtree = new_root.child(dir)
+  
+  set_child(dir.opposite, same_side_subtree)
+  same_side_subtree.try(&<span class="keyword">.</span>parent = <span class="keyword">self</span>)
+  
+  new_root.set_child(dir, <span class="keyword">self</span>)
+  new_root.parent = <span class="variable">@parent</span>
+  <span class="variable">@parent</span> = new_root
+  
+  new_root
+<span class="keyword">end</span>
+</code></pre>
+
+<p>Now <code>rotate_left</code> and <code>rotate_right</code> are just thin wrappers:</p>
+
+<pre><code class="language-crystal"><span class="keyword">def</span> <span class="function">rotate_left</span>
+  rotate(<span class="class">Direction</span>::<span class="constant">Left</span>)
+<span class="keyword">end</span>
+
+<span class="keyword">def</span> <span class="function">rotate_right</span>
+  rotate(<span class="class">Direction</span>::<span class="constant">Right</span>)
+<span class="keyword">end</span>
+</code></pre>
+
+<h3>Double Rotations Through Composition</h3>
+
+<p>AVL trees sometimes require <strong>double rotations</strong> (LR and RL cases). With our symmetric design, these become trivial compositions:</p>
+
+<pre><code class="language-crystal"><span class="keyword">def</span> <span class="function">double_rotate</span>(dir : <span class="class">Direction</span>) : <span class="class">BSTNode</span>
+  <span class="comment"># First rotate the child in the opposite direction</span>
+  child_node = child(dir.opposite)
+  set_child(dir.opposite, child_node.rotate(dir.opposite))
+  
+  <span class="comment"># Then rotate self in the primary direction</span>
+  rotate(dir)
+<span class="keyword">end</span>
+</code></pre>
+
+<p>This <strong>single function</strong> handles all double rotation cases. The LR rotation (Left-Right) is <code>double_rotate(Direction::Left)</code>, and the RL rotation (Right-Left) is <code>double_rotate(Direction::Right)</code>. No code duplication, no asymmetry, no room for subtle bugs where one case is handled differently from its mirror.</p>
+
+<p>The beauty of this approach: we write the rotation logic <em>once</em>, prove it correct <em>once</em>, and it automatically works for all cases. This is not just aesthetically pleasing—it <strong>eliminates an entire class of bugs</strong> where left/right cases diverge.</p>
+
+<h2 id="visual-debugging">Visual Debugging Infrastructure</h2>
+
+<p>Implementing complex algorithms like Fortune's requires rigorous validation. We can't just run the code and hope it works—with geometric algorithms, subtle bugs can hide in edge cases that only appear with specific input configurations. </p>
+
+<p>To ensure <strong>100% correctness</strong>,  I built a comprehensive visual debugging system. The test suite doesn't just check that operations complete—it generates <strong>interactive HTML reports</strong> showing every single step of execution.</p>
+
+<h3>Examples of Reports Generated by the Debugger</h3>
+
+<div class="debug-reports-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin: 40px 0;">
+  <div style="border: 2px solid rgba(212, 175, 55, 0.3); border-radius: 12px; overflow: hidden; background: rgba(212, 175, 55, 0.05);">
+    <a href="./avl_worst_case.html" target="_blank" style="text-decoration: none; border: none;">
+      <div style="padding: 20px; background: linear-gradient(135deg, rgba(102, 126, 234, 0.8), rgba(118, 75, 162, 0.8));">
+        <h4 style="color: white; margin: 0; font-size: 1.2em;">AVL Tree Worst Case</h4>
+        <p style="color: rgba(255,255,255,0.9); margin-top: 8px; font-size: 0.9em;">Sequential insertion stress test</p>
+      </div>
+      <div style="padding: 20px; color: #d8d8d8;">
+        <p style="margin: 0; font-size: 0.95em;">Step-by-step visualization of AVL tree operations under worst-case insertion patterns. Shows tree structure, height annotations, and rotation sequences.</p>
+        <p style="margin-top: 12px; color: #d4af37; font-weight: 600; font-size: 0.9em;">→ View full report</p>
+      </div>
+    </a>
+  </div>
+  
+  <div style="border: 2px solid rgba(212, 175, 55, 0.3); border-radius: 12px; overflow: hidden; background: rgba(212, 175, 55, 0.05);">
+    <a href="./rb_worst_case.html" target="_blank" style="text-decoration: none; border: none;">
+      <div style="padding: 20px; background: linear-gradient(135deg, rgba(102, 126, 234, 0.8), rgba(118, 75, 162, 0.8));">
+        <h4 style="color: white; margin: 0; font-size: 1.2em;">Red-Black Tree Worst Case</h4>
+        <p style="color: rgba(255,255,255,0.9); margin-top: 8px; font-size: 0.9em;">Color flip and rotation validation</p>
+      </div>
+      <div style="padding: 20px; color: #d8d8d8;">
+        <p style="margin: 0; font-size: 0.95em;">Detailed trace of Red-Black tree balancing with color annotations. Validates that all RB-tree properties are maintained after each operation.</p>
+        <p style="margin-top: 12px; color: #d4af37; font-weight: 600; font-size: 0.9em;">→ View full report</p>
+      </div>
+    </a>
+  </div>
+</div>
+
+<p>Each report shows:</p>
+
+<ul>
+    <li><strong>Tree structure before and after</strong> each operation (insert, delete, rotate)</li>
+    <li><strong>Highlighted nodes</strong> involved in rotations and rebalancing</li>
+    <li><strong>Height/color annotations</strong> to verify balance properties</li>
+    <li><strong>Operation sequence</strong> with detailed explanations</li>
+    <li><strong>Visual diff</strong> showing exactly what changed</li>
+</ul>
+
+<p>This infrastructure was <strong>absolutely essential</strong>. When a test fails, I don't just get a boolean "failed"—I get a complete visual history showing exactly where the tree structure diverged from expected. This turned debugging from guesswork into systematic analysis.</p>
+
+<p>Building this debugging infrastructure took almost as long as implementing the algorithms themselves. But it's a perfect example of the engineering philosophy behind this project: <strong>if you're going to build something complex, build the tools to validate it</strong>. The confidence that comes from knowing every edge case is tested and visualized is worth the investment.</p>
+
+<h2 id="numerical">Numerical Robustness</h2>
+
+<p>Numerical precision is one of the most challenging aspects of implementing Fortune's algorithm. The naive approach leads to catastrophic failures in edge cases.</p>
+
+<h3>Degenerate Arc Initialization</h3>
+
+<p>When a new site appears, its "parabola" at the exact moment the sweep line touches it is <strong>degenerate</strong>—mathematically undefined. The parabola equation \(y = s_y + \frac{(x - s_x)^2}{2(s_y - \ell)}\) has a <strong>division by zero</strong> when \(s_y = \ell\).</p>
+
+<p>The key insight: at this singularity, the parabola degenerates into a <strong>vertical ray</strong> pointing upward from the site. We handle this by:</p>
+
+<ul>
+    <li><strong>Treating new arcs as rays initially</strong>: Don't immediately compute parabola intersections</li>
+    <li><strong>Using limit behavior</strong>: As \(\ell \to s_y^-\), the parabola becomes increasingly steep, approaching a vertical line</li>
+    <li><strong>Deferring intersection computation</strong>: Only compute breakpoints after the sweep line has descended past the site</li>
+</ul>
+
+<p>In the code, we implement this by checking if the arc is "active" (sweep line has moved past its site) before computing intersections. This is theoretically correct: at the limit case, the new arc occupies zero width and immediately splits an existing arc.</p>
+
+<h3>Parabola Intersection Edge Cases</h3>
+
+<p>Computing the intersection of two parabolas requires solving a quadratic equation. The implementation in <code>arc.cr</code> handles several edge cases:</p>
+
+<pre><code class="language-crystal"><span class="comment"># Solve: a*x² + b*x + c = 0</span>
+a = d1 - d2
+b = <span class="number">2</span>*(x2*d2 - x1*d1)
+c = (x1**<span class="number">2</span> + y1**<span class="number">2</span> - directrix**<span class="number">2</span>)*d1 - (x2**<span class="number">2</span> + y2**<span class="number">2</span> - directrix**<span class="number">2</span>)*d2
+delta = b**<span class="number">2</span> - <span class="number">4</span>*a*c
+
+<span class="keyword">return</span> [] <span class="keyword">of</span> <span class="class">Point</span> <span class="keyword">if</span> delta < <span class="number">0</span>  <span class="comment"># No intersection</span>
+
+<span class="keyword">if</span> delta == <span class="number">0</span>  <span class="comment"># Tangent (rare but possible)</span>
+    xx0 = (-b)/<span class="number">2.0</span>/a
+    <span class="keyword">return</span> [<span class="class">Point</span>.new(xx0, eval_at(xx0))]
+<span class="keyword">end</span>
+
+<span class="comment"># Two intersections - use both</span>
+xx1, xx2 = (-b - Math.sqrt(delta))/<span class="number">2.0</span>/a, (-b + Math.sqrt(delta))/<span class="number">2.0</span>/a
+<span class="keyword">return</span> [<span class="class">Point</span>.new(xx1, eval_at(xx1)), <span class="class">Point</span>.new(xx2, eval_at(xx2))]</code></pre>
+
+<h3>Other Degenerate Cases</h3>
+
+<ul>
+    <li><strong>Vertical site events</strong>: Sites with identical x-coordinates create parallel parabolas (no intersection)</li>
+    <li><strong>Co-circular points</strong>: Four or more sites on the same circle create degenerate circle events</li>
+    <li><strong>Collinear sites</strong>: Sites forming a line produce infinite Voronoi edges that must be clipped to the bounding box</li>
+    <li><strong>Duplicate sites</strong>: Multiple sites at the same location are filtered during preprocessing</li>
+</ul>
+
+<p>Rather than using rational arithmetic (which would be slow), we use <strong>careful floating-point handling</strong> with geometric predicates that check for degenerate configurations <em>before</em> performing problematic computations. This is much faster than symbolic math while maintaining correctness.</p>
+
+<h2 id="dcel">DCEL Construction</h2>
+
+<p>The output of Fortune's algorithm is a <strong>Doubly-Connected Edge List (DCEL)</strong>, a standard data structure for representing planar subdivisions that enables efficient traversal and queries.</p>
+
+<h3>Half-Edge Basics</h3>
+
+<p>A DCEL represents edges as <strong>pairs of directed half-edges</strong>. Each half-edge stores:</p>
+
+<ul>
+    <li><strong>Origin vertex</strong>: The vertex it starts from</li>
+    <li><strong>Twin</strong>: The oppositely-directed half-edge on the same geometric edge</li>
+    <li><strong>Next/Prev</strong>: Pointers to adjacent half-edges around the incident face</li>
+    <li><strong>Incident face</strong>: The Voronoi cell this half-edge bounds</li>
+</ul>
+
+<p>This structure allows \(O(1)\) navigation: given a half-edge, you can instantly find its origin, destination (<code>twin.origin</code>), the face it bounds, and walk around that face.</p>
+
+<h3>Incremental Construction During Fortune's Algorithm</h3>
+
+<p>The tricky part: <strong>DCEL edges are constructed incrementally as the sweep line descends</strong>. This creates several challenges:</p>
+
+<h4>Ray-to-Segment Transition</h4>
+
+<p>When a new arc appears (site event) or an arc disappears (circle event), we create a new Voronoi edge. Initially, this edge has:</p>
+
+<ul>
+    <li><strong>One known vertex</strong>: The circle event point (if any)</li>
+    <li><strong>Unknown endpoint</strong>: The other vertex will be determined by a future event</li>
+</ul>
+
+<p>We represent this as a <strong>half-edge with null destination</strong>. The implementation tracks these "open" half-edges:</p>
+
+<pre><code class="language-crystal"><span class="class">Halfedge</span>
+    @orig : <span class="class">Site</span> | <span class="class">Nil</span>   <span class="comment"># Known start vertex</span>
+    @dest : <span class="class">Site</span> | <span class="class">Nil</span>   <span class="comment"># Initially nil, filled later</span>
+    @twin : <span class="class">Halfedge</span> | <span class="class">Nil</span>
+    @incident_face : <span class="class">Face</span> | <span class="class">Nil</span></code></pre>
+
+<p>As the algorithm progresses:</p>
+
+<ol>
+    <li><strong>First vertex added</strong>: Edge exists as a ray with known origin, unknown destination</li>
+    <li><strong>Second vertex added</strong>: Edge becomes fully determined, both <code>orig</code> and <code>dest</code> are set</li>
+    <li><strong>Some edges never close</strong>: Infinite rays extending to the bounding box remain open until post-processing</li>
+</ol>
+
+<h4>Stitching the Mesh</h4>
+
+<p>During circle events, we must <strong>connect half-edges</strong> to form complete face boundaries. This requires:</p>
+
+<ul>
+    <li><strong>Maintaining arc-to-edge mappings</strong>: Each arc tracks its left and right bounding edges</li>
+    <li><strong>Updating twins</strong>: When edges are created, ensure twin pointers are set correctly</li>
+    <li><strong>Linking next/prev</strong>: Close the face boundary by connecting half-edges in counter-clockwise order</li>
+</ul>
+
+<p>The final result is a complete topological structure where every face is a valid Voronoi cell, every edge has a twin, and you can traverse the entire diagram efficiently. This enables downstream applications like nearest-neighbor queries, interpolation, and path planning.</p>
+
+<h2 id="sfml">GL-Powered Visualizer using SFML</h2>
+
+<p>The real-time visualizer is built using <strong>CrSFML</strong> (Crystal bindings to SFML - Simple and Fast Multimedia Library). Rather than using a high-level UI framework, we built a custom rendering system from scratch, giving complete control over visual appearance and performance.</p>
+
+<h3>Custom Graphics Pipeline</h3>
+
+<p>The visualizer renders complex geometric primitives in real-time:</p>
+
+<ul>
+    <li><strong>Smooth animations</strong>: Sweep line descends with easing functions for visual clarity</li>
+    <li><strong>Real-time parabola rendering</strong>: Hundreds of curved arcs per frame, computed on-the-fly</li>
+    <li><strong>Interactive controls</strong>: Pause, step-by-step execution, speed adjustment</li>
+    <li><strong>Dynamic highlighting</strong>: Arcs and breakpoints change color during events</li>
+    <li><strong>Tree structure overlay</strong>: Live visualization of the AVL tree structure for debugging</li>
+    <li><strong>Event queue display</strong>: Shows upcoming site and circle events with color coding</li>
+</ul>
+
+<h3>OpenGL-Accelerated Rendering</h3>
+
+<p>SFML provides OpenGL-accelerated rendering, which is essential for smooth animation. Each frame, we:</p>
+
+<ol>
+    <li><strong>Compute parabola curves</strong>: Evaluate each arc's equation at multiple points</li>
+    <li><strong>Tessellate into line segments</strong>: Convert curves to polylines for GPU rendering</li>
+    <li><strong>Batch draw calls</strong>: Minimize state changes for performance</li>
+    <li><strong>Update overlays</strong>: Redraw UI elements (text, buttons, status indicators)</li>
+</ol>
+
+<p>All rendering is done <strong>from scratch</strong> using SFML's low-level primitives. No external UI libraries—just direct vertex manipulation and shader-free 2D graphics. This gives us the flexibility to implement custom visual effects while maintaining 60+ FPS even with complex diagrams.</p>
+
+</section>
+
+<section id="crystal">
+<h1>Crystal: The Language Choice</h1>
+
+<h2>Why Crystal?</h2>
+
+<p>I've written code in many languages over the years, 
+  but <strong>Ruby</strong> holds a special place. 
+  Its expressiveness, and its ability to make code read like prose are unmatched. </p>
+
+<p>But Ruby has one major drawback: performance. For a computationally intensive algorithm like Fortune's, where we're manipulating complex data structures and performing geometric computations thousands of times per second, the interpreted nature of Ruby becomes a bottleneck.</p>
+
+<p>Enter <strong>Crystal</strong>: a language that captures Ruby's elegance while compiling to native code. Crystal's syntax is intentionally Ruby-like, and many Ruby programs run in Crystal with minimal changes. But under the hood, it's statically typed and compiled via LLVM, giving you C++-level performance.</p>
+
+<p>Crystal offers:</p>
+
+<ul>
+    <li><strong>Performance</strong>: Native code compilation, no garbage collection pauses during tight loops</li>
+    <li><strong>Type safety</strong>: Static type checking catches errors at compile time, but with inference so you don't sacrifice readability</li>
+    <li><strong>Expressiveness</strong>: Ruby's elegance—blocks, iterators, method chaining—without the runtime penalty</li>
+    <li><strong>Generics</strong>: Powerful type parameters with compile-time specialization</li>
+</ul>
+
+<p>For me, Crystal hits the sweet spot: I can write beautiful, expressive code that <em>feels</em> like Ruby, but get the performance needed for serious computational geometry. It's the best of both worlds.</p>
+
+<h3>Partial Specialization</h3>
+
+<p>Crystal's generics are specialized at compile time. The compiler generates optimized code for each concrete type:</p>
+
+<pre><code>class AVLTree(T)
+  def insert(value : T)
+    # Specialized for Int32, Float64, String, etc.
+  end
+end
+
+tree_int = AVLTree(Int32).new
+tree_str = AVLTree(String).new
+</code></pre>
+
+<p>This gives us <strong>zero-cost abstractions</strong>—generic code with C++ template-like performance.</p>
+
+<h3>Union Types</h3>
+
+<p>Crystal's union types handle nullable pointers elegantly:</p>
+
+<pre><code>property left : AVLNode(T) | Nil
+
+if left_child = @left
+  # left_child is guaranteed non-nil here
+  left_child.do_something
+end
+</code></pre>
+
+<h3>Ruby Compatibility</h3>
+
+<p>Crystal's syntax is intentionally close to Ruby, making it approachable:</p>
+
+<pre><code># Ruby-like syntax
+sites = [Point.new(1, 2), Point.new(3, 4)]
+sites.each { |s| puts s }
+
+# But with compile-time type safety!
+</code></pre>
+
+</section>
+
+<!-- <section id="philosophy">
+<h1>Project Philosophy: Enthusiasm Meets Rigor</h1>
+
+<h2>Going Beyond</h2>
+
+<p>Just like all my other projects, this project was approached with the goal of producing a complete, transparent implementation rather than a minimal demonstration.</p>
+
+<ul>
+    <li><strong>Complete implementation</strong>: Not a toy demo, but production-quality code</li>
+    <li><strong>Numerical rigor</strong>: Handling degenerate cases others ignore</li>
+    <li><strong>Elegant design</strong>: Code that's a pleasure to read</li>
+    <li><strong>Visual polish</strong>: A visualizer that's actually informative</li>
+    <li><strong>Testing infrastructure</strong>: Comprehensive tests with visual debugging</li>
+</ul>
+
+<h2>The Absurd Level of Detail</h2>
+
+<p>Why implement a balanced tree from scratch when libraries exist? Because:</p>
+
+<ul>
+    <li><strong>Learning</strong>: Understanding every line of code</li>
+    <li><strong>Control</strong>: Optimizing for this specific use case (threaded trees, custom comparisons)</li>
+    <li><strong>Elegance</strong>: Creating the most symmetric, beautiful code possible</li>
+    <li><strong>Challenge</strong>: Proving it can be done</li>
+</ul>
+
+<p>This reflects a deliberate choice to understand every component thoroughly. Reimplementing core structures allows fine-grained control, targeted optimizations, and clarity about how each part interacts with the others.</p>
+
+<h2>Why It Matters</h2>
+
+<p>Most online resources for Fortune's algorithm fall into two categories:</p>
+
+<ol>
+    <li><strong>High-level descriptions</strong>: Explain the concepts but gloss over implementation details</li>
+    <li><strong>Incomplete implementations</strong>: Work for simple cases but fail on edge cases</li>
+</ol>
+
+<p>This project sits in the rare middle ground: <strong>complete, correct, and comprehensible</strong>.</p>
+
+<p>For students learning computational geometry, this serves as a <strong>reference implementation</strong>. For practitioners, it's a starting point for production use. For enthusiasts, it's a demonstration of what's possible with care and attention to detail.</p>
+
+</section>
+
+<section id="conclusion">
+<h1>Conclusions</h1>
+
+<p>Computing Voronoi diagrams efficiently requires more than just understanding Fortune's algorithm—it demands careful data structure design, numerical robustness, and attention to detail. This implementation tackles all the hard problems head-on:</p>
+
+<ul>
+    <li><strong>Balanced trees</strong>: Proper AVL/Red-Black trees with elegant symmetric operations</li>
+    <li><strong>Degenerate cases</strong>: Vertical segments, co-circular points, and numerical edge cases</li>
+    <li><strong>Efficient queries</strong>: \(O(\log n)\) operations via threaded tree pointers</li>
+    <li><strong>Complete output</strong>: Full DCEL construction for downstream use</li>
+</ul>
+
+<p>The choice of <strong>Crystal</strong> provides modern language features (generics, type safety) without sacrificing performance. The custom visualizer makes the algorithm tangible and aids debugging.</p>
+
+
+<p>This project demonstrates that <strong>enthusiasm and rigor are not opposing forces</strong>—they amplify each other. By going <em>absurdly deep</em> into every detail, we create something that's not just correct, but <em>elegant</em>.</p>
+
+<div style="margin-top: 60px; padding: 40px; background: rgba(212, 175, 55, 0.08); border-radius: 15px; text-align: center; border: 2px solid rgba(212, 175, 55, 0.25);">
+<p style="font-family: 'Lora', serif; font-size: 1.3em; font-style: italic; color: #f0e68c; margin: 0;">
+This project demonstrates that <strong>enthusiasm and rigor are not opposing forces</strong>—they amplify each other. By going <em>absurdly deep</em> into every detail, we create something that's not just correct, but <em>elegant</em>.
+</p>
+</div>
+
+</section> -->
+
+</body>
+</html>

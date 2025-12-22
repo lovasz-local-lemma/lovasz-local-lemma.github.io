@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laplace Transform Visualizer - Building Geometric Intuition</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../symbolic_math_showcase/styles.css">
+    <style>
+        .hero-card {
+            background: linear-gradient(135deg, 
+                rgba(15, 15, 32, 0.7) 0%, 
+                rgba(10, 10, 24, 0.5) 100%);
+            border: 1px solid rgba(212, 175, 55, 0.25);
+            border-radius: 16px;
+            padding: 3rem;
+            margin-bottom: 3rem;
+            box-shadow: 
+                0 8px 32px rgba(212, 175, 55, 0.1), 
+                0 0 40px rgba(212, 175, 55, 0.15),
+                inset 0 1px 0 rgba(212, 175, 55, 0.05);
+        }
+        
+        .hero-card p {
+            font-size: 1.15rem;
+            line-height: 1.8;
+            color: var(--text-secondary);
+        }
+        
+        .video-showcase {
+            background: linear-gradient(135deg, 
+                rgba(15, 15, 32, 0.7) 0%, 
+                rgba(10, 10, 24, 0.5) 100%);
+            border: 1px solid rgba(212, 175, 55, 0.25);
+            border-radius: 16px;
+            padding: 2.5rem;
+            margin: 3rem 0;
+            box-shadow: 
+                0 8px 32px rgba(212, 175, 55, 0.1), 
+                0 0 40px rgba(212, 175, 55, 0.15);
+            transition: all 0.4s ease;
+        }
+        
+        .video-showcase:hover {
+            transform: translateY(-4px);
+            box-shadow: 
+                0 12px 40px rgba(212, 175, 55, 0.2), 
+                0 0 50px rgba(212, 175, 55, 0.25);
+            border-color: rgba(212, 175, 55, 0.4);
+        }
+        
+        .video-showcase h3 {
+            font-family: 'Playfair Display', serif;
+            color: var(--gold-light);
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+        
+        video {
+            width: 100%;
+            border-radius: 12px;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .theory-section {
+            margin: 4rem 0;
+        }
+        
+        .theory-section > h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            background: linear-gradient(135deg, var(--gold-primary), var(--gold-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        video {
+            width: 100%;
+            max-width: 900px;
+            border-radius: 12px;
+            border: 2px solid rgba(212, 175, 55, 0.3);
+            display: block;
+            margin: 2rem auto;
+            box-shadow: 0 10px 40px rgba(212, 175, 55, 0.2);
+        }
+        
+        .theory-card {
+            background: linear-gradient(135deg, 
+                rgba(15, 15, 32, 0.6) 0%, 
+                rgba(10, 10, 24, 0.4) 100%);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 12px;
+            padding: 2.5rem;
+            margin: 2rem 0;
+            box-shadow: 0 4px 20px rgba(212, 175, 55, 0.15);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .theory-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(212, 175, 55, 0.1) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+        
+        .theory-card:hover::before {
+            opacity: 1;
+        }
+        
+        .theory-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(212, 175, 55, 0.4);
+            box-shadow: 0 8px 30px rgba(212, 175, 55, 0.25);
+        }
+        
+        .theory-card h3 {
+            font-family: 'Playfair Display', serif;
+            color: var(--gold-light);
+            margin-bottom: 1.5rem;
+            font-size: 1.6rem;
+            position: relative;
+        }
+
+        /* Styled Page Header */
+        .page-header {
+            background: linear-gradient(135deg, 
+                rgba(15, 15, 32, 0.8) 0%, 
+                rgba(10, 10, 24, 0.6) 100%);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 16px;
+            padding: 2.5rem 3rem;
+            margin-bottom: 3rem;
+            box-shadow: 
+                0 8px 32px rgba(212, 175, 55, 0.15),
+                0 0 60px rgba(212, 175, 55, 0.1);
+            text-align: center;
+        }
+
+        .page-header .header-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 1rem;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            color: var(--gold-light);
+            margin-bottom: 1.5rem;
+            text-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
+        }
+
+        .page-header .language-badge {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.2), rgba(212, 175, 55, 0.1));
+            border: 1px solid rgba(212, 175, 55, 0.4);
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-family: 'Source Code Pro', monospace;
+            font-size: 0.85rem;
+            color: var(--gold-primary);
+        }
+
+        .page-header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--gold-primary), var(--gold-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 40px rgba(212, 175, 55, 0.3);
+        }
+
+        .page-header .subtitle {
+            font-size: 1.15rem;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        /* Content sections with plain text need cards */
+        .content-section {
+            margin: 3rem 0;
+        }
+
+        .content-section > h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, var(--gold-primary), var(--gold-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .content-section > h3 {
+            font-family: 'Playfair Display', serif;
+            color: var(--gold-light);
+            font-size: 1.4rem;
+            margin: 1.5rem 0 1rem;
+        }
+
+        .content-section > p,
+        .content-section > ul {
+            background: linear-gradient(135deg, 
+                rgba(15, 15, 32, 0.5) 0%, 
+                rgba(10, 10, 24, 0.3) 100%);
+            border: 1px solid rgba(212, 175, 55, 0.15);
+            border-radius: 12px;
+            padding: 1.5rem 2rem;
+            margin: 1rem 0;
+            color: var(--text-secondary);
+            line-height: 1.8;
+        }
+
+        .content-section > ul {
+            padding-left: 3rem;
+        }
+
+        .section-note {
+            background: rgba(212, 175, 55, 0.08);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-left: 3px solid var(--gold-primary);
+            border-radius: 8px;
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .footnote {
+            background: linear-gradient(135deg, 
+                rgba(15, 15, 32, 0.6) 0%, 
+                rgba(10, 10, 24, 0.4) 100%);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 12px;
+            padding: 1.5rem 2rem;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+    </style>
+</head>
+<body>
+    <a href="../../index.html" class="back-button">Back to Portfolio</a>
+    <div class="background-gradient"></div>
+    
+    <main class="container">
+        <header class="page-header">
+            <div class="header-badge">Experimental / Exploratory <span class="language-badge">Ruby (OpenGL)</span></div>
+            <h1>Laplace Transform Visualizer</h1>
+            <p class="subtitle">Building geometric intuition for complex-domain transforms</p>
+        </header>
+
+        <div class="hero-card">
+            <p style="font-style: italic; color: var(--gold-light); margin-bottom: 1.5rem;">
+                The Laplace transform is fundamental to control systems, signal processing, and differential 
+                equations—building geometric intuition makes these applications more accessible.
+            </p>
+            
+            <h2>The Challenge</h2>
+            <p>
+                The <strong>Fourier transform</strong> has excellent visual intuitions: rotating vectors, 
+                periodic decomposition, frequency spectra (see the 
+                <a href="../fourier_art_generator/index.html" style="color: var(--gold-light);">Fourier Art Generator</a>). 
+                The <strong>Laplace transform</strong> is harder—it introduces growth, decay, and complex 
+                scaling that don't map as naturally to physical intuition.
+            </p>
+            
+            <p>
+                This project experiments with interactive visual mappings to reveal how structure in the 
+                <strong>time domain</strong> is reflected in the <strong>s-domain</strong>. The visualizations 
+                work, but honestly <em>still don't feel as intuitive as Fourier</em>—this remains an open problem.
+            </p>
+            
+            <div class="code-block">
+                <pre><code style="font-size:x-large;">F(s) = ∫₀^∞ f(t)·e^(-st) dt    where s = σ + iω</code></pre>
+            </div>
+        </div>
+
+        <section class="content-section">
+            <h2>Interactive Visualization</h2>
+            <div class="section-note">
+                <strong>Note:</strong> This is a pre-rendered video from the original native implementation. 
+                The full interactive visualizer has not yet been ported to the web.
+            </div>
+
+            <video controls preload="metadata">
+                <source src="../../live_demos/visualizations/to_be_ported/Laplacian.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        </section>
+
+        <!-- Six-Panel Layout Explanation -->
+        <section class="theory-section">
+            <h2>The Six-Panel Layout</h2>
+            
+            <div class="theory-card">
+                <p>
+                    This layout presents the Laplace transform through coordinated views, each revealing a different aspect of the computation:</p>
+                <ul>
+                    <li><strong>Panel 1a (s-plane):</strong> Click and drag to adjust σ + iω—this is your "control surface" for exploring the transform</li>
+                    <li><strong>Panel 1b (f(t)):</strong> The original time-domain function before transformation</li>
+                    <li><strong>Panel 2a (Re/Im components):</strong> Real and imaginary parts of the integrand f(t)·e^(-st)—watch how changing s affects oscillation and decay</li>
+                    <li><strong>Panel 2b (Complex path):</strong> The trajectory traced by the integrand in the complex plane as t increases</li>
+                    <li><strong>Panel 3 (Riemann sum):</strong> The accumulating integral F(s)—rectangles sum to give the final transform value</li>
+                </ul>
+                <p>
+                    The power is in the <strong>coordination</strong>: adjusting s in one panel immediately updates 
+                    all others, revealing how the abstract integral formula manifests geometrically.
+                </p>
+            </div>
+        </section>
+
+        <!-- Global Operator View (moved up) -->
+        <section class="theory-section">
+            <h2>Global Operator View</h2>
+            
+            <div class="hero-card">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                    <div>
+                        <img src="../../live_demos/visualizations/to_be_ported/laplacian/View-Single.png" 
+                             alt="Single s-value view" 
+                             style="width: 100%; border-radius: 12px; border: 1px solid rgba(212, 175, 55, 0.3);">
+                        <p style="text-align: center; color: var(--text-secondary); margin-top: 0.5rem; font-size: 0.9rem;">
+                            Single s-value: detailed integrand view
+                        </p>
+                    </div>
+                    <div>
+                        <img src="../../live_demos/visualizations/to_be_ported/laplacian/View-Grid.png" 
+                             alt="Grid view across s-plane" 
+                             style="width: 100%; border-radius: 12px; border: 1px solid rgba(212, 175, 55, 0.3);">
+                        <p style="text-align: center; color: var(--text-secondary); margin-top: 0.5rem; font-size: 0.9rem;">
+                            Grid view: transform evaluated across s-plane
+                        </p>
+                    </div>
+                </div>
+                <p style="margin-top: 1rem;">
+                    The visualizer supports both detailed single-point analysis and a global view that evaluates 
+                    the transform across a grid of s-values, revealing how oscillation, decay, and amplification 
+                    interact across the complex plane.
+                </p>
+            </div>
+        </section>
+
+        <!-- Polarization Section -->
+        <section class="theory-section">
+            <h2>Polarization Interpretation</h2>
+            
+            <div class="hero-card">
+                <h3>The Laplace Integrand as Polarized Motion</h3>
+    <p>
+        The Laplace integrand
+        <code>f(t)·e<sup>−st</sup></code>, with <code>s = σ + iω</code>,
+        can be interpreted geometrically as a trajectory in the complex plane.
+    </p>
+
+    <p>
+        The complex exponential decomposes as
+        <code>e<sup>−st</sup> = e<sup>−σt</sup> · e<sup>−iωt</sup></code>,
+        combining two distinct motions:
+    </p>
+
+    <ul>
+        <li>
+            <strong>Rotation</strong>
+            (<code>e<sup>−iωt</sup></code>): uniform phase rotation in the complex plane at angular frequency ω
+        </li>
+        <li>
+            <strong>Decay</strong>
+            (<code>e<sup>−σt</sup></code>): a radially shrinking amplitude envelope with decay rate σ
+        </li>
+    </ul>
+
+    <p>
+        Together, these generate a <strong>contracting spiral</strong>.
+        When modulated by <code>f(t)</code>, the resulting motion is analogous to
+        <strong>elliptically polarized light with decaying intensity</strong> — a geometric,
+        optics - inspired view.
+    </p>
+                <!-- <p>
+                    The integrand <code>f(t)·e^(-st)</code> traces a path in the complex plane. 
+                    The complex exponential <code>e^(-st) = e^(-σt)·e^(-iωt)</code> combines:
+                </p>
+                <ul>
+                    <li><strong>Rotation</strong> (<code>e^(-iωt)</code>): spinning in the complex plane at frequency ω</li>
+                    <li><strong>Decay</strong> (<code>e^(-σt)</code>): shrinking amplitude envelope</li>
+                </ul>
+                <p>
+                    Together, these produce a <strong>spiral</strong>.  
+                    with decaying intensity.
+                </p> -->
+            </div>
+
+            <div class="hero-card">
+                <img src="../../live_demos/visualizations/to_be_ported/laplacian/Polarization.png" 
+                     alt="Polarization visualization of Laplace integrand" 
+                     style="width: 100%; border-radius: 12px; border: 1px solid rgba(212, 175, 55, 0.3); margin-bottom: 1rem;">
+                <p style="text-align: center; color: var(--text-secondary);">
+                    The Laplace integrand visualized as polarized wave motion: rotation + decay creates 
+                    spiraling trajectories in the complex plane.
+                </p>
+            </div>
+
+            <div class="theory-card">
+                <h3>How the Polarization Mode Works</h3>
+                <p>
+                    The visualizer displays four simultaneous views of the same integrand <code>f(t)·e^(-st)</code>:
+                </p>
+                <ul>
+                    <li><strong>Polarization Ellipse</strong>: The instantaneous "shape" of the integrand. 
+                        Size = |f(t)|·e^(-σt) (decaying amplitude), rotation = -ωt (phase). 
+                        Shows a rotating, shrinking ellipse with fading history.</li>
+                    <li><strong>Circular Decomposition</strong>: Splits the motion into two counter-rotating 
+                        circles—<em>left-handed</em> (+ω, counterclockwise) and <em>right-handed</em> (-ω, clockwise). 
+                        For real f(t): both components have equal magnitude A₊ = A₋ = amplitude/2.</li>
+                    <li><strong>Spiral Path</strong>: The full 3D trajectory with time as depth. The spiral 
+                        tightness is controlled by ω, shrinkage by σ.</li>
+                    <li><strong>Phasor Diagram</strong>: Shows the decomposition e^(-st) = e^(-σt) · e^(-iωt) 
+                        with reference and decayed circles, plus the rotating phasor vector.</li>
+                </ul>
+            </div>
+
+            <div class="theory-card">
+                <h3>The Light Analogy</h3>
+                <p>
+                    This connects directly to <strong>polarized light</strong>:
+                </p>
+                <div class="code-block">
+                    <pre><code># Polarization decomposition (like optics)
+Linear polarization  ↕  =  ↻ + ↺    (equal left + right circular)
+Elliptical          ⬮  =  a·↻ + b·↺  (unequal components)
+Circular            ↻  or  ↺        (pure single-handed rotation)
+
+# For real f(t), the Laplace integrand is "linearly polarized":
+f(t)·e^(-st) = A₊(t)·e^(-iωt) + A₋(t)·e^(+iωt)
+               ↓                ↓
+           Left-handed      Right-handed
+           (positive ω)     (negative ω)</code></pre>
+                </div>
+                <p>
+                    The two counter-rotating components sum to produce the observed linear/elliptical motion, 
+                    just as left and right circularly polarized light combine to form other polarization states.
+                </p>
+            </div>
+
+            <div class="theory-card">
+                <h3>Generalizing the Spinner Model</h3>
+                <p>
+                    Fourier's "rotating vector" intuition (the spinner) works because <code>e^(-iωt)</code> 
+                    stays on the unit circle. The Laplace generalization allows the spinner to:
+                </p>
+                <ul>
+                    <li><strong>Shrink</strong> (σ > 0): spiral inward, converging to origin</li>
+                    <li><strong>Grow</strong> (σ < 0): spiral outward, diverging</li>
+                    <li><strong>Stay constant</strong> (σ = 0): pure rotation (Fourier case)</li>
+                </ul>
+                <p>
+                    The <strong>Region of Convergence</strong> becomes visually intuitive: it's the set of σ values 
+                    where the polarization ellipse shrinks to a point as t → ∞. The ellipse must decay—σ must be 
+                    large enough to overcome any growth in f(t).
+                </p>
+            </div>
+        </section>
+
+        <!-- Fourier Scanline Section (experimental/incomplete) -->
+        <section class="theory-section">
+            <h2>Fourier Scanline Interpretation</h2>
+            
+            <div class="section-note">
+                <strong>Status:</strong> This interpretation is less developed than the others—included here 
+                as a direction for future exploration.
+            </div>
+
+            <div class="hero-card">
+                <p>
+                    One way to build intuition: the <strong>Fourier transform</strong> evaluates 
+                    <code>F(iω) = ∫f(t)e^(-iωt)dt</code>—it samples along the <em>imaginary axis</em> of the s-plane.
+                </p>
+                <p>
+                    The <strong>Laplace transform</strong> generalizes this to the entire complex plane. 
+                    Each horizontal line <code>s = σ + iω</code> (fixed σ, varying ω) is like a "Fourier scanline" 
+                    with an exponential envelope <code>e^(-σt)</code> applied first.
+                </p>
+            </div>
+
+            <div class="hero-card">
+                <img src="../../live_demos/visualizations/to_be_ported/laplacian/Fourier_Scanline.png" 
+                     alt="Fourier Scanline interpretation" 
+                     style="width: 100%; border-radius: 12px; border: 1px solid rgba(212, 175, 55, 0.3); margin-bottom: 1rem;">
+                <p style="text-align: center; color: var(--text-secondary);">
+                    Visualizing the Laplace transform as Fourier analysis performed after exponential windowing. 
+                    Different σ values reveal different aspects of the signal's structure.
+                </p>
+            </div>
+
+            <div class="theory-card">
+                <h3>The Idea</h3>
+                <p>
+                    This perspective clarifies why the <strong>region of convergence</strong> matters: 
+                    the integral only converges for σ values where <code>e^(-σt)</code> decays faster than 
+                    <code>f(t)</code> grows. The Fourier transform (σ = 0) only works for bounded signals; 
+                    Laplace extends to exponentially growing signals by "damping" them first.
+                </p>
+                <div class="code-block">
+                    <pre><code># Fourier: only works if f(t) is bounded
+F(iω) = ∫ f(t) · e^(-iωt) dt
+
+# Laplace: works for exponentially growing f(t) if σ > growth rate  
+F(σ + iω) = ∫ f(t) · e^(-σt) · e^(-iωt) dt
+          = ∫ [f(t)·e^(-σt)] · e^(-iωt) dt   ← Fourier of damped signal</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <section class="content-section">
+            <h2>Future Directions</h2>
+            <div class="theory-card">
+                <h3>Planned Extensions</h3>
+                <ul>
+                    <li><strong>Inverse transform visualization:</strong> Contour integration in the s-plane</li>
+                    <li><strong>Pole-zero dynamics:</strong> Interactive exploration of system behavior</li>
+                    <li><strong>Transfer function view:</strong> Input → system → output with Laplace</li>
+                    <li><strong>Z-transform bridge:</strong> Connecting continuous and discrete domains</li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="content-section" style="margin-top: 4rem;">
+            <div class="footnote">
+                <strong>Project Status:</strong> This is an experimental/exploratory visualization project. 
+                The native Ruby implementation provides real-time interaction; web port is planned 
+                for future development. The goal is building intuition, not replacing formal analysis tools.
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p><a href="../../index.html" style="color: var(--gold-primary);">← Back to Portfolio</a></p>
+    </footer>
+</body>
+</html>

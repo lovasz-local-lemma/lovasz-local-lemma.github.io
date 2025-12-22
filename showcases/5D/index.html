@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exploring Representation and Evolution in Five Dimensions</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../symbolic_math_showcase/styles.css">
+    <style>
+        .hero-card {
+            background: linear-gradient(135deg, 
+                rgba(15, 15, 32, 0.7) 0%, 
+                rgba(10, 10, 24, 0.5) 100%);
+            border: 1px solid rgba(212, 175, 55, 0.25);
+            border-radius: 16px;
+            padding: 3rem;
+            margin-bottom: 3rem;
+            box-shadow: 
+                0 8px 32px rgba(212, 175, 55, 0.1), 
+                0 0 40px rgba(212, 175, 55, 0.15),
+                inset 0 1px 0 rgba(212, 175, 55, 0.05);
+        }
+        
+        .hero-card p {
+            font-size: 1.15rem;
+            line-height: 1.8;
+            color: var(--text-secondary);
+        }
+        
+        .video-showcase {
+            background: linear-gradient(135deg, 
+                rgba(15, 15, 32, 0.7) 0%, 
+                rgba(10, 10, 24, 0.5) 100%);
+            border: 1px solid rgba(212, 175, 55, 0.25);
+            border-radius: 16px;
+            padding: 2.5rem;
+            margin: 3rem 0;
+            box-shadow: 
+                0 8px 32px rgba(212, 175, 55, 0.1), 
+                0 0 40px rgba(212, 175, 55, 0.15);
+            transition: all 0.4s ease;
+        }
+        
+        .video-showcase:hover {
+            transform: translateY(-4px);
+            box-shadow: 
+                0 12px 40px rgba(212, 175, 55, 0.2), 
+                0 0 50px rgba(212, 175, 55, 0.25);
+            border-color: rgba(212, 175, 55, 0.4);
+        }
+        
+        .video-showcase h3 {
+            font-family: 'Playfair Display', serif;
+            color: var(--gold-light);
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+        
+        video {
+            width: 100%;
+            border-radius: 12px;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .theory-section {
+            margin: 4rem 0;
+        }
+        
+        .theory-section > h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            background: linear-gradient(135deg, var(--gold-primary), var(--gold-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .dimension-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .dim-card {
+            background: linear-gradient(135deg, 
+                rgba(15, 15, 32, 0.6) 0%, 
+                rgba(10, 10, 24, 0.4) 100%);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 10px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .dim-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(212, 175, 55, 0.1) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+        
+        .dim-card:hover::before {
+            opacity: 1;
+        }
+        
+        .dim-card:hover {
+            border-color: var(--gold-primary);
+            box-shadow: 0 8px 25px rgba(212, 175, 55, 0.3);
+            transform: translateY(-4px);
+        }
+        
+        .dim-card h4 {
+            color: var(--gold-light);
+            margin-bottom: 0.5rem;
+        }
+        
+        .dim-label {
+            font-size: 2rem;
+            color: var(--gold-primary);
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        
+        .theory-card {
+            background: linear-gradient(135deg, 
+                rgba(15, 15, 32, 0.6) 0%, 
+                rgba(10, 10, 24, 0.4) 100%);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 12px;
+            padding: 2.5rem;
+            margin: 2rem 0;
+            box-shadow: 0 4px 20px rgba(212, 175, 55, 0.15);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .theory-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(212, 175, 55, 0.1) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+        
+        .theory-card:hover::before {
+            opacity: 1;
+        }
+        
+        .theory-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(212, 175, 55, 0.4);
+            box-shadow: 0 8px 30px rgba(212, 175, 55, 0.25);
+        }
+        
+        .theory-card h2, .theory-card h3 {
+            font-family: 'Playfair Display', serif;
+            color: var(--gold-light);
+            margin-bottom: 1.5rem;
+            font-size: 1.6rem;
+            position: relative;
+        }
+
+        /* Styled Page Header */
+        .page-header {
+            background: linear-gradient(135deg, 
+                rgba(15, 15, 32, 0.8) 0%, 
+                rgba(10, 10, 24, 0.6) 100%);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 16px;
+            padding: 2.5rem 3rem;
+            margin-bottom: 3rem;
+            box-shadow: 
+                0 8px 32px rgba(212, 175, 55, 0.15),
+                0 0 60px rgba(212, 175, 55, 0.1);
+            text-align: center;
+        }
+
+        .page-header .header-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 1rem;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            color: var(--gold-light);
+            margin-bottom: 1.5rem;
+            text-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
+        }
+
+        .page-header .language-badge {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.2), rgba(212, 175, 55, 0.1));
+            border: 1px solid rgba(212, 175, 55, 0.4);
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-family: 'Source Code Pro', monospace;
+            font-size: 0.85rem;
+            color: var(--gold-primary);
+        }
+
+        .page-header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--gold-primary), var(--gold-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 40px rgba(212, 175, 55, 0.3);
+        }
+
+        .page-header .subtitle {
+            font-size: 1.15rem;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        /* Content sections with plain text need cards */
+        .content-section {
+            margin: 3rem 0;
+        }
+
+        .content-section > h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, var(--gold-primary), var(--gold-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .content-section > h3 {
+            font-family: 'Playfair Display', serif;
+            color: var(--gold-light);
+            font-size: 1.4rem;
+            margin: 1.5rem 0 1rem;
+        }
+
+        .content-section > p,
+        .content-section > ul {
+            background: linear-gradient(135deg, 
+                rgba(15, 15, 32, 0.5) 0%, 
+                rgba(10, 10, 24, 0.3) 100%);
+            border: 1px solid rgba(212, 175, 55, 0.15);
+            border-radius: 12px;
+            padding: 1.5rem 2rem;
+            margin: 1rem 0;
+            color: var(--text-secondary);
+            line-height: 1.8;
+        }
+
+        .content-section > ul {
+            padding-left: 3rem;
+        }
+
+        .section-note {
+            background: rgba(212, 175, 55, 0.08);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-left: 3px solid var(--gold-primary);
+            border-radius: 8px;
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .footnote {
+            background: linear-gradient(135deg, 
+                rgba(15, 15, 32, 0.6) 0%, 
+                rgba(10, 10, 24, 0.4) 100%);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 12px;
+            padding: 1.5rem 2rem;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+    </style>
+</head>
+<body>
+    <a href="../../index.html" class="back-button">Back to Portfolio</a>
+    <div class="background-gradient"></div>
+    
+    <main class="container">
+        <header class="page-header">
+            <div class="header-badge">Experimental / Exploratory <span class="language-badge">Python (Taichi)</span></div>
+            <h1>Representation and Evolution in Five Dimensions</h1>
+            <p class="subtitle" style=" margin-bottom: 1rem">How high-dimensional data can evolve through changes in representation</p>
+        </header>
+
+        <div class="hero-card">
+            <h2>Beyond Static Visualization</h2>
+            <p>
+                This project explores how <strong>high-dimensional data</strong> can evolve through changes in representation. 
+                It begins with a <strong>procedural five-dimensional field</strong>, where spatial, temporal, and latent axes 
+                are treated symmetrically and mapped to color. Distinct views are formed through slicing and projection, 
+                visualized via <strong>ray marching</strong>.
+            </p>
+            
+            <p>
+                The key insight: fixing temporal and latent dimensions yields a concrete 3D field, but the act of viewing 
+                introduces new degrees of freedom. Representation shifts from <strong>(x,y,z,w,t) → RGBA</strong> to 
+                <strong>(x,y,z) + view direction → RGBA</strong>, effectively trading latent dimensions for angular ones.
+            </p>
+            
+            <p>
+                This reframing opens two parallel paths for evolution: <strong>NeRF-style neural representations</strong> 
+                as a resampling mechanism, and <strong>Taichi-based diffusion dynamics</strong> operating on slices of the field.
+            </p>
+        </div>
+        
+        <div class="video-showcase">
+            <h3>5D Procedural Field Exploration</h3>
+
+            <p style="text-align: center; color: var(--text-secondary); margin-top: 1rem; margin-bottom: 1rem;">
+                The base system generates structure in five dimensions via an iterated nonlinear mapping. 
+                By choosing which dimensions map to XYZ, which serves as time, and which as a navigable latent axis, 
+                the same underlying field produces radically different visual behavior.
+            </p>
+
+            <video controls preload="metadata">
+                <source src="../../live_demos/visualizations/to_be_ported/5D_fractal.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+
+            <div class="section-note">
+                <strong>Note:</strong> This is a pre-rendered video from the original native implementation. 
+                The full interactive viewer with real-time dimension swapping and navigation has not yet been ported to the web.
+            </div>
+        </div>
+
+        <!-- Taichi Diffusion Section -->
+        <section class="theory-section">
+            <h2>Evolution via Taichi Diffusion</h2>
+            
+            <div class="hero-card">
+                <h3>The Challenge: Evolving Procedural Data</h3>
+                <p>
+                    A procedural field is defined by a function—it has no persistent state to modify. 
+                    You can't "write" to a purely procedural volume. So how can we introduce evolution and feedback?
+                </p>
+                
+                <p>
+                    The solution: <strong>sample the procedural field into a discrete 3D tensor</strong>, 
+                    run simulation dynamics on that slice, and track the <strong>difference</strong> between 
+                    the evolved state and the original procedural values. This difference field becomes 
+                    the medium for evolution.
+                </p>
+            </div>
+
+            <div class="theory-card">
+                <h3>Reaction-Diffusion on Sliced Data</h3>
+                <p>
+                    Using <strong>Taichi</strong> for GPU-accelerated computation, the system samples a 3D slice 
+                    from the 5D field at fixed (W, T) values, then applies reaction-diffusion dynamics:
+                </p>
+                <div class="code-block">
+                    <pre><code># Sample 3D slice from 5D procedural field
+slice = sample_5d_field(w=current_w, t=current_t)
+
+# Initialize simulation state from procedural density
+state = init_from_procedural(slice)
+
+# Run Gray-Scott / SmoothLife dynamics
+for step in range(n_steps):
+    state = diffusion_step(state, slice)  # procedural modulates feed rate
+    
+# Track deviation from original
+deviation = state - slice  # This is what "evolved"</code></pre>
+                </div>
+                <p>
+                    The procedural field seeds and modulates the simulation, while the simulation's 
+                    deviation from the original becomes a form of learned or evolved structure.
+                </p>
+            </div>
+
+            <div class="hero-card">
+                <img src="../../live_demos/visualizations/to_be_ported/5D/Taichi_Diffusion-Reaction.png" 
+                     alt="Taichi Diffusion-Reaction on 5D slice" 
+                     style="width: 100%; border-radius: 12px; border: 1px solid rgba(212, 175, 55, 0.3); margin-bottom: 1rem;">
+                <p style="text-align: center; color: var(--text-secondary);">
+                    Gray-Scott reaction-diffusion running on a sampled slice, with the procedural field 
+                    modulating local feed rates. Organic patterns emerge from the interplay.
+                </p>
+            </div>
+        </section>
+
+        <!-- Arbitrary Slicing Section -->
+        <section class="theory-section">
+            <h2>Arbitrary Slicing: Beyond Canonical Axes</h2>
+            
+            <div class="hero-card">
+                <p>
+                    Rather than examining the 5D field through <strong>orthogonal slices</strong>—choosing 
+                    three of the five canonical axes as XYZ—the implementation supports <strong>arbitrary slicing</strong>: 
+                    cutting along <em>any</em> 3D hyperplane through the 5D space.
+                </p>
+                
+                <p>
+                    This transforms navigation from discrete axis-swapping into a <strong>continuous, geometry-driven 
+                    process</strong>—smoothly rotating through higher-dimensional space rather than jumping between 
+                    axis-aligned perspectives.
+                </p>
+            </div>
+
+            <div class="hero-card">
+                <img src="../../live_demos/visualizations/to_be_ported/arb_slicing.png" 
+                     alt="Arbitrary slicing through 5D space" 
+                     style="width: 100%; border-radius: 12px; border: 1px solid rgba(212, 175, 55, 0.3); margin-bottom: 1rem;">
+                <p style="text-align: center; color: var(--text-secondary);">
+                    Arbitrary slice navigation: the viewing hyperplane rotates continuously through 5D, 
+                    revealing structure that axis-aligned slices would miss.
+                </p>
+            </div>
+
+            <div class="theory-card">
+                <h3>From Discrete to Continuous Navigation</h3>
+                <div class="code-block">
+                    <pre><code># Orthogonal slice: pick 3 axes from {x,y,z,w,t}
+view_axes = [0, 1, 2]  # XYZ slice at fixed W, T
+
+# Arbitrary slice: define 3D hyperplane by basis vectors
+basis_1 = normalize([1, 0, 0.3, 0.1, 0])   # Not axis-aligned
+basis_2 = normalize([0, 1, -0.2, 0, 0.1])
+basis_3 = normalize(cross_5d(basis_1, basis_2, ...))
+
+# Slice coordinates become linear combinations
+point_5d = origin + u*basis_1 + v*basis_2 + w*basis_3</code></pre>
+                </div>
+                <p>
+                    Smooth interpolation between different "views" of the 5D structure becomes possible—the 
+                    slice plane itself can be animated, creating trajectories through the space of all possible 3D cross-sections.
+                </p>
+            </div>
+        </section>
+
+        <!-- Two 5D Fields: The Parallel -->
+        <section class="theory-section">
+            <h2>Two 5D Fields: (x,y,z,w,t) ↔ (x,y,z,θ,φ)</h2>
+            
+            <div class="hero-card">
+                <h3>The Key Observation</h3>
+                <p>
+                    We start with a procedural field defined over five dimensions. But when we <em>view</em> a 3D slice, 
+                    the viewing direction itself adds two more degrees of freedom. This gives us <strong>another</strong> 
+                    5D field—structured differently, but parallel in form:
+                </p>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin: 1.5rem 0;">
+                <div class="theory-card" style="margin: 0;">
+                    <h3 style="color: var(--gold-primary);">Original Field</h3>
+                    <div class="code-block">
+                        <pre><code>(x, y, z, w, t) → RGBA</code></pre>
+                    </div>
+                    <p>
+                        <strong>w, t</strong> are latent/temporal axes. We pick values for them, 
+                        then explore the resulting 3D structure.
+                    </p>
+                </div>
+                <div class="theory-card" style="margin: 0;">
+                    <h3 style="color: var(--gold-primary);">View-Based Field</h3>
+                    <div class="code-block">
+                        <pre><code>(x, y, z, θ, φ) → RGBA</code></pre>
+                    </div>
+                    <p>
+                        <strong>θ, φ</strong> are viewing angles. We pick a viewpoint, 
+                        then see the resulting 3D appearance.
+                    </p>
+                </div>
+            </div>
+
+            <div class="hero-card">
+                <p>
+                    Both are <strong>5D → appearance mappings</strong>. The interpretation differs—the original field's 
+                    extra dimensions encode latent/temporal state, while the view field's encode observer perspective—but 
+                    the mathematical structure is identical. This is the foundation for the feedback loop.
+                </p>
+            </div>
+
+            <div class="hero-card">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                    <div>
+                        <img src="../../live_demos/visualizations/to_be_ported/5D/View_1.png" 
+                             alt="View 1 of 5D field" 
+                             style="width: 100%; border-radius: 12px; border: 1px solid rgba(212, 175, 55, 0.3);">
+                        <p style="text-align: center; color: var(--text-secondary); margin-top: 0.5rem; font-size: 0.9rem;">
+                            View from angle (θ₁, φ₁)
+                        </p>
+                    </div>
+                    <div>
+                        <img src="../../live_demos/visualizations/to_be_ported/5D/View_2.png" 
+                             alt="View 2 of 5D field" 
+                             style="width: 100%; border-radius: 12px; border: 1px solid rgba(212, 175, 55, 0.3);">
+                        <p style="text-align: center; color: var(--text-secondary); margin-top: 0.5rem; font-size: 0.9rem;">
+                            View from angle (θ₂, φ₂)
+                        </p>
+                    </div>
+                </div>
+                <p style="text-align: center; color: var(--text-secondary); margin-top: 1rem;">
+                    Fixing (w,t) and varying (θ,φ) produces training data for a NeRF—which encodes the same 
+                    structure, but parameterized by viewing angle instead of latent coordinates.
+                </p>
+            </div>
+        </section>
+
+        <!-- Two Feedback Loops -->
+        <section class="theory-section">
+            <h2>Two Complementary Feedback Loops</h2>
+            
+            <div class="hero-card">
+                <h3>Different Domains, Complementary Roles</h3>
+                <p>
+                    The key insight: these two loops operate on <strong>different domains</strong> and serve 
+                    complementary purposes. Understanding this distinction is crucial.
+                </p>
+            </div>
+
+            <div class="theory-card">
+                <h3>Loop 1: NeRF Iteration (Function → Function)</h3>
+                <p>
+                    This loop <strong>evolves the background field itself</strong>. Starting from the purely 
+                    procedural field (which is just a function—no stored values), we render views and train 
+                    a NeRF to <em>encode</em> this field in a new parameterization.
+                </p>
+                <div class="code-block">
+                    <pre><code># Iteration 0: Start with procedural field
+procedural: (x,y,z,w,t) → RGBA     # Pure function, no stored data
+
+# Fix (w,t), render many views
+views = [render_procedural(w₀, t₀, θ, φ) for θ, φ in viewpoints]
+
+# Train NeRF to encode this view-field
+nerf_1: (x,y,z,θ,φ) → RGBA         # NeRF encodes the field
+
+# Reinterpret: treat (θ,φ) as new (w,t)
+# Now nerf_1 can be queried as a new background field!
+
+# Iteration 1+: NeRF → NeRF
+views = [render_nerf(nerf_1, w₀, t₀, θ, φ) for θ, φ in viewpoints]
+nerf_2 = train_nerf(views)
+# ... and so on</code></pre>
+                </div>
+                <p>
+                    After the first iteration, it's <strong>NeRF → NeRF</strong> all the way down. Each cycle 
+                    produces a new neural encoding of the transformed field. The background field evolves 
+                    through representation change.
+                </p>
+            </div>
+
+            <div class="theory-card">
+                <h3>Loop 2: Taichi Diffusion (Numerical Evolution ON the Field)</h3>
+                <p>
+                    This loop operates <strong>on top of</strong> whatever background field currently exists 
+                    (procedural or NeRF). It samples a 3D slice, runs reaction-diffusion dynamics, and tracks 
+                    the deviation.
+                </p>
+                <div class="code-block">
+                    <pre><code># Taichi operates on the current background field
+background = current_field  # Could be procedural OR nerf_n
+
+# Sample a 3D slice at fixed (w,t)
+slice = sample(background, w=w₀, t=t₀)
+
+# Run diffusion dynamics
+state = initialize_from(slice)
+for step in range(n_steps):
+    state = diffusion_step(state, slice)  # BG modulates dynamics
+
+# Track what evolved
+deviation = state - slice  # This is the "foreground" structure</code></pre>
+                </div>
+                <p>
+                    This is <strong>local, numerical evolution</strong>—patterns emerge and evolve on the 
+                    current background, whatever that background happens to be.
+                </p>
+            </div>
+
+            <div class="hero-card">
+                <h3>Why Both?</h3>
+                <p>
+                    The loops complement each other:
+                </p>
+                <ul>
+                    <li><strong>NeRF loop</strong>: Evolves the <em>background field itself</em> (global transformation)</li>
+                    <li><strong>Taichi loop</strong>: Evolves <em>structure on the background</em> (local dynamics)</li>
+                </ul>
+                <p>
+                    You could run Taichi on a procedural background, or on a NeRF-encoded background, or 
+                    alternate between them. The NeRF loop changes <em>what</em> you're evolving on; 
+                    the Taichi loop changes <em>what's happening</em> on it.
+                </p>
+            </div>
+
+            <div class="hero-card">
+                <img src="../../live_demos/visualizations/to_be_ported/5D/Duality_Iteration.png" 
+                     alt="Duality iteration between representations" 
+                     style="width: 100%; border-radius: 12px; border: 1px solid rgba(212, 175, 55, 0.3); margin-bottom: 1rem;">
+                <p style="text-align: center; color: var(--text-secondary);">
+                    The NeRF feedback loop: field → views → train NeRF → NeRF encodes new field → repeat
+                </p>
+            </div>
+
+            <div class="theory-card">
+                <h3>The Blending Problem</h3>
+                <p>
+                    What does it mean to "blend" two NeRFs or interpolate between fields? Unlike blending 
+                    two images (just mix pixel values), these are <strong>generators</strong>—functions that 
+                    produce values on demand. To blend them, you must keep <em>both</em> in memory.
+                </p>
+                <div class="code-block">
+                    <pre><code># Naive blending: query both, interpolate outputs
+def blended_field(x, y, z, w, t, alpha):
+    val_a = nerf_a(x, y, z, w, t)   # Need nerf_a in memory
+    val_b = nerf_b(x, y, z, w, t)   # Need nerf_b in memory
+    return (1-alpha) * val_a + alpha * val_b
+
+# After N iterations: N networks in memory!
+# Rendering slows down linearly with iteration count</code></pre>
+                </div>
+                <p>
+                    This is a fundamental tension: smooth evolution via blending requires keeping history, 
+                    but history accumulates. After 100 iterations, you'd need 100 NeRF networks.
+                </p>
+            </div>
+
+            <div class="theory-card">
+                <h3>Potential Solutions</h3>
+                <p>
+                    Several directions might address this:
+                </p>
+                <ul>
+                    <li><strong>NeRF Distillation</strong>: Train a single "student" NeRF to approximate the 
+                        blended output of multiple "teacher" NeRFs, then discard the teachers.</li>
+                    <li><strong>NeRF Merging Research</strong>: Recent work explores combining multiple NeRFs 
+                        into unified representations—could enable "committing" a blend to a single network.</li>
+                    <li><strong>Lazy Evaluation</strong>: Only materialize the blend when needed, accepting 
+                        the computational cost during rendering.</li>
+                </ul>
+                <p>
+                    This connects to a broader theme in the 
+                    <a href="../symbolic_math_showcase/index.html" style="color: var(--gold-light);">Symbolic Math</a> 
+                    project: the tension between <strong>symbolic/lazy</strong> representations (compact but 
+                    expensive to evaluate) and <strong>materialized/eager</strong> ones (fast but memory-heavy). 
+                    The NeRF iteration faces the same tradeoff.
+                </p>
+            </div>
+        </section>
+
+        <!-- Taichi Dimensionality -->
+        <section class="theory-section">
+            <h2>Taichi: Not Limited to 3D</h2>
+            
+            <div class="hero-card">
+                <p>
+                    The examples show Taichi operating on 3D slices, but this is a <strong>practical choice, 
+                    not a fundamental limitation</strong>. Reaction-diffusion dynamics work in any dimension—you 
+                    could run them on a 4D or 5D tensor directly.
+                </p>
+                <div class="code-block">
+                    <pre><code># 3D slice (current implementation)
+slice_3d = sample_field(w=w₀, t=t₀)  # Shape: (Nx, Ny, Nz)
+evolved_3d = run_diffusion(slice_3d)
+
+# 4D slice (fix only t)
+slice_4d = sample_field(t=t₀)        # Shape: (Nx, Ny, Nz, Nw)
+evolved_4d = run_diffusion(slice_4d)
+
+# Full 5D (no slicing)
+full_5d = sample_field()             # Shape: (Nx, Ny, Nz, Nw, Nt)
+evolved_5d = run_diffusion(full_5d)  # Memory-intensive!</code></pre>
+                </div>
+                <p>
+                    The constraint is <strong>memory</strong>: a 256³ volume is ~16M voxels; a 256⁵ volume 
+                    would be ~1 trillion. But for modest resolutions or sparse representations, higher-dimensional 
+                    diffusion is entirely feasible.
+                </p>
+            </div>
+        </section>
+
+        <!-- Experimental Nature -->
+        <section class="theory-section">
+            <h2>The Experimental Nature</h2>
+            
+            <div class="hero-card">
+                <p>
+                    This project is <strong>purely exploratory</strong>. There's no theorem guaranteeing convergence, 
+                    no proof that interesting structure will emerge. The questions are empirical:
+                </p>
+                <ul>
+                    <li><em>"What does this iteration look like after 10 cycles? 100?"</em></li>
+                    <li><em>"Does blending old and new fields produce smoother evolution?"</em></li>
+                    <li><em>"Can we guide the process toward particular structures?"</em></li>
+                    <li><em>"What happens if we combine both loops—diffusion AND representation cycling?"</em></li>
+                </ul>
+                <p>
+                    The goal isn't to prove something works—it's to <strong>discover what's interesting</strong> 
+                    before deciding what's useful.
+                </p>
+            </div>
+        </section>
+
+        <!-- Future Work -->
+        <section class="theory-section">
+            <h2>Future Directions</h2>
+            
+            <div class="theory-card">
+                <h3>Current Limitations</h3>
+                <p>
+                    The project is <strong>theoretically interesting but visually less compelling</strong> than 
+                    hoped. Some aspects are unnecessarily complex in the current implementation:
+                </p>
+                <ul>
+                    <li>The highly symmetric procedural fields produce results that aren't substantially 
+                        different from using <strong>tabulated data</strong>.</li>
+                    <li>We could simplify by pre-computing a finite 5D tensor at startup and applying 
+                        <strong>periodic boundary conditions</strong> (wrapping around on all axes). This 
+                        would eliminate the need to maintain analytical field definitions.</li>
+                </ul>
+            </div>
+
+            <div class="theory-card">
+                <h3>Simplifying the Pipeline</h3>
+                <p>
+                    If we start with a <strong>numerical 5D field</strong> (tabulated tensor), the NeRF iteration 
+                    becomes more uniform: each cycle performs dense sampling to convert the NeRF encoding back 
+                    into a numerical field, which then feeds the next iteration.
+                </p>
+                <div class="code-block">
+                    <pre><code># Numerical-first pipeline
+tensor_5d = precompute_field()           # Dense 5D tensor at startup
+
+# NeRF iteration cycle
+views = render_from_tensor(tensor_5d, viewpoints)
+nerf = train_nerf(views)
+tensor_5d = dense_sample(nerf)           # Back to numerical
+# Repeat...</code></pre>
+                </div>
+                <p>
+                    This avoids the complexity of maintaining both analytical field definitions and NeRF networks 
+                    simultaneously. The tradeoff is memory (tabulated fields are larger), but the pipeline is 
+                    conceptually cleaner.
+                </p>
+                <div class="section-note">
+                    <strong>Status:</strong> Still exploring how this performs in practice—whether the 
+                    dense sampling preserves enough structure, and how iteration count affects quality.
+                </div>
+            </div>
+
+            <div class="theory-card">
+                <h3>Where It Gets Interesting</h3>
+                <p>
+                    The framework becomes more meaningful with <strong>less symmetric, aperiodic fields</strong>:
+                </p>
+                <ul>
+                    <li>Non-periodic procedural functions where the structure genuinely varies across the 
+                        full 5D domain—here, infinite evaluation matters.</li>
+                    <li>Data-driven fields (e.g., volumetric captures, simulations) where the 5D structure 
+                        comes from real phenomena rather than mathematical formulas.</li>
+                    <li>Hybrid approaches: procedural base with learned refinements that break symmetry.</li>
+                </ul>
+                <p>
+                    The NeRF iteration machinery is overkill for symmetric fields but could reveal 
+                    genuinely novel structures when applied to richer, less predictable data.
+                </p>
+            </div>
+        </section>
+
+        <!-- Original dimension mapping section, condensed -->
+        <section class="theory-section">
+            <h2>Dimension Mapping (Original System)</h2>
+            
+            <div class="hero-card">
+                <p>
+                    The base visualization assigns five dimensions to different roles:
+                </p>
+
+                <div class="dimension-grid">
+                    <div class="dim-card">
+                        <div class="dim-label">X, Y, Z</div>
+                        <h4>Spatial Axes</h4>
+                        <p style="color: var(--text-secondary);">3D view space</p>
+                    </div>
+                    
+                    <div class="dim-card">
+                        <div class="dim-label">W</div>
+                        <h4>Latent Dimension</h4>
+                        <p style="color: var(--text-secondary);">Navigate via slider</p>
+                    </div>
+                    
+                    <div class="dim-card">
+                        <div class="dim-label">T</div>
+                        <h4>Time</h4>
+                        <p style="color: var(--text-secondary);">Animates the view</p>
+                    </div>
+                </div>
+                
+                <p style="margin-top: 1.5rem;">
+                    Any permutation is valid—smoothness in 5D implies coherent structure from any projection. 
+                    Swapping which axis serves as time versus latent dimension produces completely different 
+                    animations from the same underlying field.
+                </p>
+            </div>
+
+            <div class="hero-card">
+                <h3>NeRF Input Space: (x, y, z, θ, φ)</h3>
+                <p>
+                    A Neural Radiance Field takes a different 5D input: <strong>spatial position (x, y, z)</strong> plus 
+                    <strong>viewing direction (θ, φ)</strong>. The network outputs color and density for that point 
+                    as seen from that angle.
+                </p>
+                
+                <div class="dimension-grid">
+                    <div class="dim-card">
+                        <div class="dim-label">X, Y, Z</div>
+                        <h4>Spatial Position</h4>
+                        <p style="color: var(--text-secondary);">Point in 3D scene</p>
+                    </div>
+                    
+                    <div class="dim-card">
+                        <div class="dim-label">θ, φ</div>
+                        <h4>View Direction</h4>
+                        <p style="color: var(--text-secondary);">Spherical angles</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="theory-card">
+                <h3>The Equivalence</h3>
+                <p>
+                    Both systems map <strong>5D → RGBA</strong>. If we have a NeRF trained on arbitrary viewpoints, 
+                    we can reinterpret it as a <strong>time-varying volumetric field</strong>: treat one angular 
+                    dimension as time (θ → t), and the other as a latent axis (φ → w). The network becomes a 
+                    procedural 5D field—exactly the structure we started with.
+                </p>
+                <div class="code-block">
+                    <pre><code># NeRF interpretation
+nerf(x, y, z, θ, φ) → RGBA
+
+# Reinterpret as time volume
+volume(x, y, z, w=φ, t=θ) → RGBA
+
+# Same function, different semantics</code></pre>
+                </div>
+            </div>
+        </section>
+        
+        <section class="theory-section">
+            <h2>Mathematical Foundation</h2>
+            
+            <div class="theory-card">
+                <h3>5D Distance Metric</h3>
+                <p>
+                    The fractal is computed using the 5D Euclidean distance:
+                </p>
+                <div class="code-block">
+                    <pre><code>d = √(x₀² + x₁² + x₂² + x₃² + x₄²)</code></pre>
+                </div>
+
+                <h3>Iterative Formula</h3>
+                <p>
+                    A 5D Mandelbrot-style fractal uses:
+                </p>
+                <div class="code-block">
+                    <pre><code>z_{n+1} = f(z_n) + c</code></pre>
+                </div>
+                <p>
+                    where z and c are 5-dimensional vectors, and f represents the fractal transformation 
+                    (often a power operation extended to 5D using geometric algebra or quaternion-like structures).
+                </p>
+
+                <h3>Projection to 3D</h3>
+                <p>
+                    Given dimension assignment (i, j, k, w, t), the 3D point displayed is:
+                </p>
+                <div class="code-block">
+                    <pre><code>x_3D = dimensions[i]
+y_3D = dimensions[j]
+z_3D = dimensions[k]
+
+// Fix hidden dimension w at slider value
+dimensions[w] = w_value
+
+// Animate time dimension t
+dimensions[t] = sin(time * frequency)</code></pre>
+                </div>
+            </div>
+
+            <div class="theory-card">
+                <h2>Projection Mathematics: Intuition</h2>
+                
+                <h3>What is a Projection?</h3>
+            <p>
+                A <strong>projection</strong> is a way of "squashing" higher-dimensional space into lower dimensions. 
+                Think of a 3D object casting a 2D shadow - you lose depth information, but retain shape.
+            </p>
+
+            <p>
+                For a 5D point p = (p₀, p₁, p₂, p₃, p₄), projecting to 3D means:
+            </p>
+            <div class="code-block">
+                <pre><code>// Choose 3 dimensions to display
+Projection(p) = (p_i, p_j, p_k)
+
+// The other dimensions (p_w, p_t) are "collapsed"</code></pre>
+            </div>
+
+            <h3>Orthogonal vs. Perspective Projection</h3>
+            <p>
+                This viewer uses <strong>orthogonal projection</strong> - parallel lines in 5D remain parallel 
+                in the 3D view. The alternative, perspective projection, would make distant 5D points appear 
+                smaller, but is harder to interpret for higher dimensions.
+            </p>
+
+            <div class="code-block">
+                <pre><code>Orthogonal:    (x,y,z,w,t) → (x,y,z)  [simply drop w,t]
+Perspective:   (x,y,z,w,t) → (x,y,z)/f(w,t)  [scale by distance]</code></pre>
+            </div>
+
+            <h3>The Hidden Dimension Slice</h3>
+            <p>
+                When you set the hidden dimension w to a value w₀, you're looking at a <strong>3D slice</strong> 
+                (technically a 4D slice with time) of the 5D fractal:
+            </p>
+            <div class="code-block">
+                <pre><code>Slice at w = w₀:
+S = {(x,y,z,w₀,t) : fractal(x,y,z,w₀,t) < threshold}
+
+This is a 4D manifold embedded in 5D space</code></pre>
+            </div>
+
+            <p>
+                As you move the slider through different w values, you're traveling through the 5D structure 
+                perpendicular to your viewing plane. Each position shows a different cross-section.
+            </p>
+            </div>
+
+            <div class="theory-card">
+                <h2>Continuity and Smoothness</h2>
+            
+            <h3>Why Smooth in 5D Means Smooth in Any View</h3>
+            <p>
+                Here's the key insight: <strong>smoothness is an intrinsic property</strong> of the 5D fractal, 
+                independent of how you view it.
+            </p>
+
+            <p>
+                Mathematically, a function f: ℝ⁵ → ℝ is smooth if all its partial derivatives exist and are continuous:
+            </p>
+            <div class="code-block">
+                <pre><code>∂f/∂x₀, ∂f/∂x₁, ∂f/∂x₂, ∂f/∂x₃, ∂f/∂x₄ all continuous
+∂²f/∂x_i∂x_j all continuous
+... and so on</code></pre>
+            </div>
+
+            <p>
+                When you project to 3D, you're looking at a <strong>restriction</strong> of this smooth function:
+            </p>
+            <div class="code-block">
+                <pre><code>// Original 5D function
+f(x₀, x₁, x₂, x₃, x₄)
+
+// Projected 3D view (fixing x₃=w₀, x₄=t₀)
+g(x₀, x₁, x₂) = f(x₀, x₁, x₂, w₀, t₀)</code></pre>
+            </div>
+
+            <p>
+                If f was smooth in 5D, then g is automatically smooth in 3D because:
+            </p>
+            <div class="code-block">
+                <pre><code>∂g/∂x₀ = ∂f/∂x₀  (just restrict the derivative)</code></pre>
+            </div>
+
+            <p>
+                <strong>Continuity is preserved under projection.</strong> No matter which 4 dimensions you choose 
+                to view, the projection inherits the continuity of the original 5D structure.
+            </p>
+
+            <h3>Smooth Transitions Between Views</h3>
+            <p>
+                When you switch which dimensions map to XYZ, the fractal structure morphs smoothly because 
+                you're continuously rotating your viewpoint in 5D space. Think of it like walking around a 3D 
+                sculpture - the object doesn't change, only your perspective does.
+            </p>
+
+            <p>
+                The transition can be interpolated:
+            </p>
+            <div class="code-block">
+                <pre><code>// Old view: dimensions (0,1,2) → XYZ
+// New view: dimensions (1,2,3) → XYZ
+
+// Interpolate with rotation matrix R(θ) in 5D
+view(θ) = R(θ) · original_view
+
+As θ: 0 → π/2, smoothly rotate from old to new</code></pre>
+            </div>
+
+            <h3>Coherence Across All Projections</h3>
+            <p>
+                The "coherence" you see - that the fractal looks structured from any angle - comes from the 
+                fact that fractals have <strong>self-similarity</strong> in all directions. The 5D fractal has 
+                correlation between all its dimensions:
+            </p>
+            <div class="code-block">
+                <pre><code>// A point is in the fractal set if:
+|z_n| < threshold for all n iterations
+
+where z_n ∈ ℝ⁵ evolves via:
+z_{n+1} = f(z_n) + c
+
+This evolution couples ALL 5 dimensions together</code></pre>
+            </div>
+
+            <p>
+                Because the dimensions are coupled through the iterative formula, structure in one dimension 
+                influences structure in all others. You can't have chaos in one view and smoothness in another - 
+                the 5D dynamics enforce global coherence.
+            </p>
+
+            <h3>Mathematical Guarantee</h3>
+            <p>
+                For Mandelbrot-type fractals, the boundary (where |z_n| ≈ threshold) is a <strong>4D manifold</strong> 
+                embedded in 5D space. This manifold is closed and bounded (compact), which guarantees:
+            </p>
+            <ul>
+                <li>Any projection to 3D is bounded (won't extend to infinity)</li>
+                <li>Any projection to 3D is continuous (no sudden jumps)</li>
+                <li>Topological features (holes, connectedness) are preserved in generic projections</li>
+            </ul>
+
+            <p>
+                This is why switching views doesn't break the fractal - you're always looking at different slices 
+                of the same underlying 4D boundary surface.
+            </p>
+            </div>
+        </section>
+
+        <!-- <section class="content-section">
+            <h2>Demonstration Video</h2>
+        </section> -->
+
+        <section class="content-section">
+            <h2>Future Directions</h2>
+            
+            <div class="theory-card">
+                <h3>Open Questions</h3>
+                <ul>
+                    <li><strong>Convergence:</strong> Does the procedural → NeRF → reinterpret cycle converge to stable structure?</li>
+                    <li><strong>Attraction:</strong> Can we introduce forces that pull representations toward similarity under projection?</li>
+                    <li><strong>Hybrid dynamics:</strong> What happens when diffusion and neural resampling operate simultaneously?</li>
+                    <li><strong>Topological persistence:</strong> Which features survive multiple representation changes?</li>
+                </ul>
+            </div>
+
+            <h2>Technical Implementation</h2>
+            
+            <h3>GPU Acceleration</h3>
+            <p>
+                The system uses <strong>Taichi</strong> for GPU-accelerated simulation (diffusion dynamics on 128³–256³ grids) 
+                and custom GLSL shaders for real-time ray marching. Memory management is critical—a 256³ single-channel 
+                field requires 64MB, three-channel requires 192MB.
+            </p>
+
+            <h3>Performance Targets</h3>
+            <ul>
+                <li><strong>Simulation:</strong> 10–20ms per frame for diffusion updates</li>
+                <li><strong>Rendering:</strong> 16–33ms per frame for ray marching</li>
+                <li><strong>Combined:</strong> 30 FPS with simulation + rendering</li>
+            </ul>
+        </section>
+
+        <section class="content-section" style="margin-top: 4rem;">
+            <div class="footnote">
+                <strong>Project Status:</strong> This is an experimental/exploratory project investigating 
+                how high-dimensional volumetric data can evolve across representations. The base procedural 
+                viewer exists; Taichi diffusion and NeRF integration are in active development. The concepts 
+                explored here—arbitrary slicing, representation duality, evolution via resampling—represent 
+                ongoing research directions rather than finished tools.
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p><a href="../../index.html" style="color: var(--gold-primary);">← Back to Portfolio</a></p>
+    </footer>
+</body>
+</html>

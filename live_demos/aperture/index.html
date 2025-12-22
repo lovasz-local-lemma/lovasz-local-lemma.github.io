@@ -1,0 +1,1421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Optical Simulator - Camera & Lens Design</title>
+    
+    <!-- Google Fonts for better typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Source+Code+Pro:wght@400;500;600;700&family=Fira+Code:wght@400;500;600;700&family=Roboto+Mono:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --checkbox-label-size: 13px;
+        }
+        
+        body {
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+            font-weight: 500;
+            background: #1a1a1a;
+            color: #e0e0e0;
+            overflow: hidden;
+        }
+        
+        #container {
+            display: grid;
+            grid-template-columns: 300px 1fr 350px;
+            grid-template-rows: 60px 1fr;
+            height: 100vh;
+            gap: 0;
+        }
+        
+        #header {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, rgba(20, 20, 20, 0.98), rgba(30, 30, 30, 0.95));
+            border-bottom: 2px solid rgba(212, 175, 55, 0.5);
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 15px rgba(212, 175, 55, 0.2),
+                        inset 0 -8px 20px -10px rgba(212, 175, 55, 0.4),
+                        inset 0 -4px 15px -8px rgba(200, 80, 50, 0.3);
+        }
+        
+        #back-button {
+            background: rgba(212, 175, 55, 0.15);
+            border: 1px solid rgba(212, 175, 55, 0.4);
+            color: #D4AF37;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        #back-button:hover {
+            background: rgba(212, 175, 55, 0.25);
+            border-color: #D4AF37;
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+            transform: translateX(-3px);
+        }
+        
+        #header h1 {
+            font-size: 24px;
+            color: #D4AF37;
+            font-weight: 300;
+            text-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
+        }
+        
+        #header .stats {
+            font-size: 12px;
+            color: #888;
+        }
+        
+        #scene-controls {
+            background: linear-gradient(180deg, rgba(20, 20, 20, 0.95), rgba(25, 25, 25, 0.95));
+            padding: 20px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            border-right: 1px solid rgba(212, 175, 55, 0.3);
+            height: 100%;
+            max-height: calc(100vh - 60px);
+            box-shadow: inset 0 0 30px rgba(212, 175, 55, 0.05);
+        }
+        
+        #viewports {
+            display: flex;
+            flex-direction: column; /* VERTICAL stack (top/bottom) */
+            flex: 1;
+            gap: 0;
+            background: #000;
+        }
+        
+        #resize-handle {
+            height: 8px;
+            width: 100%;
+            background: #666;
+            cursor: ns-resize; /* North-South resize cursor */
+            flex-shrink: 0;
+            transition: background 0.2s;
+        }
+        
+        #resize-handle:hover {
+            background: #888 !important;
+        }
+        
+        #resize-handle:active {
+            background: #aaa !important;
+        }
+        
+        #viewport-container {
+            display: flex;
+            flex-direction: column;
+            background: #1a1a1a;
+        }
+        
+        #scene-viewport {
+            flex: 1 1 auto;
+            min-height: 200px;
+            position: relative;
+        }
+        
+        #camera-viewport {
+            flex: 0 0 300px; /* Fixed height of 300px */
+            position: relative;
+            border-top: 2px solid #333;
+        }
+        
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        
+        #camera-controls {
+            background: linear-gradient(180deg, rgba(20, 20, 20, 0.95), rgba(25, 25, 25, 0.95));
+            padding: 20px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            border-left: 1px solid rgba(212, 175, 55, 0.3);
+            height: 100%;
+            max-height: calc(100vh - 60px);
+            box-shadow: inset 0 0 30px rgba(212, 175, 55, 0.05);
+        }
+        
+        .control-section {
+            margin-bottom: 25px;
+            padding: 15px;
+            background: linear-gradient(135deg, rgba(30, 30, 30, 0.95), rgba(25, 25, 25, 0.95));
+            border-radius: 8px;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3), 0 0 15px rgba(212, 175, 55, 0.08), inset 0 0 20px rgba(212, 175, 55, 0.03);
+            transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+        }
+        
+        .control-section:hover {
+            border-color: rgba(212, 175, 55, 0.6);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), 0 0 30px rgba(212, 175, 55, 0.2), 0 0 50px rgba(212, 175, 55, 0.1), inset 0 0 30px rgba(212, 175, 55, 0.06);
+            transform: translateY(-1px);
+        }
+        
+        .control-section h3 {
+            color: #D4AF37;
+            margin-bottom: 15px;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+        }
+        
+        .control-group {
+            margin-bottom: 15px;
+        }
+        
+        .control-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 12px;
+            color: #bbb;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 500;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            height: 4px;
+            background: #333;
+            outline: none;
+            border-radius: 2px;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            background: linear-gradient(135deg, #D4AF37, #F4D03F);
+            cursor: pointer;
+            border-radius: 50%;
+            box-shadow: 0 0 8px rgba(212, 175, 55, 0.6);
+            transition: all 0.2s ease;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb:hover {
+            background: linear-gradient(135deg, #FFE55C, #FFF8DC);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 1), 0 0 30px rgba(244, 208, 63, 0.6);
+            transform: scale(1.15);
+        }
+        
+        input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            background: linear-gradient(135deg, #D4AF37, #F4D03F);
+            cursor: pointer;
+            border-radius: 50%;
+            border: none;
+            box-shadow: 0 0 8px rgba(212, 175, 55, 0.6);
+        }
+        
+        .value-display {
+            float: right;
+            color: #D4AF37;
+            font-weight: 600;
+            font-size: 11px;
+            text-shadow: 0 0 8px rgba(212, 175, 55, 0.4);
+        }
+        
+        select, button {
+            width: 100%;
+            padding: 8px;
+            background: linear-gradient(135deg, rgba(40, 40, 40, 0.95), rgba(30, 30, 30, 0.95));
+            border: 1px solid #444;
+            color: #e0e0e0;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+        
+        button:hover {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.3), rgba(212, 175, 55, 0.2));
+            border-color: rgba(212, 175, 55, 0.6);
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+            color: #F4D03F;
+        }
+        
+        select, button {
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        select:focus, button:focus {
+            outline: none;
+            border-color: rgba(212, 175, 55, 0.6);
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+        }
+        
+        .viewport-label {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.7);
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-size: 11px;
+            color: #3498db;
+            pointer-events: none;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            margin-right: 10px;
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+            background: rgba(255, 255, 255, 0.08);
+            border: 2px solid #5dade2;
+            border-radius: 4px;
+            position: relative;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4), 
+                        0 0 0 rgba(93, 173, 226, 0);
+        }
+        
+        .checkbox-group input[type="checkbox"]:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: #85c1e9;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.5), 
+                        0 0 12px rgba(93, 173, 226, 0.5);
+        }
+        
+        .checkbox-group input[type="checkbox"]:checked {
+            background: rgba(93, 173, 226, 0.25);
+            border-color: #85c1e9;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.5), 
+                        0 0 16px rgba(93, 173, 226, 0.7);
+        }
+        
+        .checkbox-group input[type="checkbox"]:checked::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #85c1e9;
+            font-size: 14px;
+            font-weight: bold;
+            text-shadow: 0 0 4px rgba(93, 173, 226, 0.8);
+        }
+        
+        .checkbox-group label {
+            margin: 0;
+            text-transform: none;
+            font-size: var(--checkbox-label-size);
+        }
+        
+        /* Helper class for control descriptions */
+        .control-description {
+            font-size: 11px;
+            color: #888;
+            margin-top: 2px;
+            margin-bottom: 8px;
+        }
+        
+        /* BSDF card hover interaction */
+        .bsdf-card:hover {
+            border-color: rgba(212, 175, 55, 0.8) !important;
+            box-shadow: 0 0 40px rgba(212, 175, 55, 0.35), 0 0 70px rgba(180, 100, 255, 0.25), 0 0 100px rgba(212, 175, 55, 0.15), inset 0 0 50px rgba(180, 100, 255, 0.1) !important;
+            transform: translateY(-2px);
+        }
+        
+        /* Featured card hover interaction - Tilt-shift (signature, pink-gold) */
+        .featured-card:hover {
+            border-color: rgba(255, 136, 255, 0.7) !important;
+            box-shadow: 0 0 40px rgba(255, 100, 255, 0.3), 0 0 60px rgba(212, 175, 55, 0.2), 0 0 80px rgba(255, 100, 255, 0.15), inset 0 0 40px rgba(255, 100, 255, 0.08) !important;
+            transform: translateY(-2px);
+        }
+        
+        /* Chromatic card hover - RGB with gold blend */
+        .chromatic-card:hover {
+            border-color: rgba(212, 175, 55, 0.7) !important;
+            box-shadow: 0 0 35px rgba(255, 100, 100, 0.2), 0 0 35px rgba(100, 255, 100, 0.2), 0 0 35px rgba(100, 100, 255, 0.2), 0 0 50px rgba(212, 175, 55, 0.25), inset 0 0 30px rgba(212, 175, 55, 0.08) !important;
+            transform: translateY(-2px);
+        }
+        
+        #loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.9);
+            padding: 30px 50px;
+            border-radius: 8px;
+            border: 2px solid #3498db;
+            z-index: 1000;
+        }
+        
+        .spinner {
+            border: 3px solid #333;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Mega-category glow animation */
+        @keyframes glow-pulse {
+            0%, 100% { box-shadow: 0 0 20px rgba(74, 158, 255, 0.3); }
+            50% { box-shadow: 0 0 30px rgba(74, 158, 255, 0.6); }
+        }
+        
+        @keyframes glow-pulse-green {
+            0%, 100% { box-shadow: 0 0 20px rgba(74, 255, 170, 0.3); }
+            50% { box-shadow: 0 0 30px rgba(74, 255, 170, 0.6); }
+        }
+        
+        @keyframes bsdf-glow {
+            0%, 100% { background-position: 0% center; filter: drop-shadow(0 0 12px rgba(212, 175, 55, 0.6)) drop-shadow(0 0 20px rgba(180, 100, 255, 0.4)); }
+            50% { background-position: 100% center; filter: drop-shadow(0 0 18px rgba(180, 100, 255, 0.7)) drop-shadow(0 0 25px rgba(212, 175, 55, 0.5)); }
+        }
+        
+        @keyframes rgb-glow {
+            0%, 100% { box-shadow: 0 0 25px rgba(255, 80, 80, 0.2), 0 0 40px rgba(212, 175, 55, 0.15), inset 0 0 30px rgba(255, 80, 80, 0.05); }
+            33% { box-shadow: 0 0 25px rgba(80, 255, 80, 0.2), 0 0 40px rgba(212, 175, 55, 0.15), inset 0 0 30px rgba(80, 255, 80, 0.05); }
+            66% { box-shadow: 0 0 25px rgba(80, 80, 255, 0.2), 0 0 40px rgba(212, 175, 55, 0.15), inset 0 0 30px rgba(80, 80, 255, 0.05); }
+        }
+        
+        @keyframes cwtof-glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(0, 255, 255, 0.15), inset 0 0 25px rgba(0, 255, 255, 0.05); }
+            50% { box-shadow: 0 0 30px rgba(0, 255, 255, 0.25), inset 0 0 35px rgba(0, 255, 255, 0.08); }
+        }
+        
+        .mega-category {
+            margin: 20px 0;
+            padding: 12px;
+            border-radius: 8px;
+            animation: glow-pulse 3s ease-in-out infinite;
+        }
+        
+        .mega-category h2 {
+            margin: 0;
+            padding: 0;
+            font-size: 18px;
+            text-align: center;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+        
+        /* Subtle glow on slider hover */
+        input[type="range"]:hover {
+            box-shadow: 0 0 6px rgba(212, 175, 55, 0.35), 0 0 10px rgba(255, 153, 68, 0.2);
+            transition: box-shadow 0.3s ease;
+        }
+        
+        /* Active glow for captured phase viewer */
+        input[type="range"].active-viewer {
+            filter: drop-shadow(0 0 12px rgba(255, 170, 0, 0.8)) !important;
+        }
+        
+        /* Gradient text for fancy headings */
+        .gradient-text {
+            background: linear-gradient(90deg, #4a9eff, #9d4aff);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: bold;
+        }
+        
+        /* Rainbow animated gradient for standout features */
+        @keyframes rainbow-glow {
+            0% { text-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000; }
+            16% { text-shadow: 0 0 10px #ff8800, 0 0 20px #ff8800; }
+            33% { text-shadow: 0 0 10px #ffff00, 0 0 20px #ffff00; }
+            50% { text-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00; }
+            66% { text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff; }
+            83% { text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff; }
+            100% { text-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000; }
+        }
+        
+        .standout-feature {
+            animation: rainbow-glow 3s linear infinite;
+            font-weight: bold;
+            position: relative;
+        }
+        
+        /* Section headers with glow */
+        .control-section h3 {
+            text-shadow: 0 2px 8px rgba(74, 158, 255, 0.3);
+            font-weight: 600;
+        }
+        
+        /* Global select styling - prevent white on white */
+        select {
+            background: #2a2a2a !important;
+            color: white !important;
+            border: 1px solid #4a90e2 !important;
+            border-radius: 4px !important;
+            padding: 5px 8px !important;
+            font-weight: 600 !important;
+        }
+        
+        select option {
+            background: #2a2a2a !important;
+            color: white !important;
+            font-weight: 600 !important;
+        }
+    </style>
+</head>
+<body>
+    <div id="loading">
+        <div class="spinner"></div>
+        <div id="loading-text" style="text-align: center; color: #3498db; font-size: 14px; margin-top: 10px;">
+            Initializing Optical Simulator...
+        </div>
+        <div id="loading-status" style="text-align: center; color: #888; font-size: 11px; margin-top: 5px;">
+            Please wait...
+        </div>
+    </div>
+    
+    <div id="container">
+        <div id="header">
+            <a href="../../../index.html" id="back-button">← Back to Portfolio</a>
+            <h1 style="font-family: 'Playfair Display', serif; font-weight: 600; font-size: 30px; background: linear-gradient(135deg, #D4AF37, #F4D03F, #FFE55C); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-shadow: none; filter: drop-shadow(0 0 20px rgba(212, 175, 55, 0.6)) drop-shadow(0 0 40px rgba(212, 175, 55, 0.3));">💡 Advanced Photography Simulator</h1>
+            <div class="stats" style="display: flex; align-items: center; gap: 15px;">
+                <label style="color: #aaa; font-size: 12px;">Font:</label>
+                <select id="font-selector" style="padding: 3px 8px; font-size: 11px;">
+                    <option value="'Courier New', monospace">Courier New</option>
+                    <option value="'JetBrains Mono', monospace" selected>JetBrains Mono</option>
+                    <option value="'Source Code Pro', monospace">Source Code Pro</option>
+                    <option value="'Fira Code', monospace">Fira Code</option>
+                    <option value="'Consolas', monospace">Consolas</option>
+                    <option value="'Monaco', monospace">Monaco</option>
+                    <option value="'Roboto Mono', monospace">Roboto Mono</option>
+                </select>
+            </div>
+        </div>
+        
+        <div id="scene-controls">
+            <!-- ═══════════════════════════════════════════════════════════ -->
+            <!-- BOUNCE CONTROL -->
+            <!-- ═══════════════════════════════════════════════════════════ -->
+            <div class="control-section">
+                <h3 style="background: linear-gradient(90deg, #5cb8ff, #ffcc44); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 700; filter: drop-shadow(0 0 6px rgba(92, 184, 255, 0.5));">🔄 Bounce Control</h3>
+                <div class="control-group">
+                    <label>Min Bounces <span class="value-display" id="min-bounces-value">1</span></label>
+                    <input type="range" id="min-bounces" min="0" max="16" value="1">
+                </div>
+                <div style="font-size: 11px; color: #888; margin-top: -5px;">Minimum path bounces (0=direct, 1=one bounce)</div>
+                
+                <div class="control-group">
+                    <label>Bounce Range <span class="value-display" id="bounce-range-value">8</span></label>
+                    <input type="range" id="bounce-range" min="1" max="32" value="8">
+                </div>
+                <div style="font-size: 11px; color: #888; margin-top: -5px;">Range (max = min + range). Isolate specific bounces!</div>
+            </div>
+            
+            <!-- ═══════════════════════════════════════════════════════════ -->
+            <!-- AUTO-FOCUS & VISUALIZATION -->
+            <!-- ═══════════════════════════════════════════════════════════ -->
+            <div class="control-section">
+                <h3 style="background: linear-gradient(90deg, #17ffb6, #60fb44); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 700; filter: drop-shadow(0 0 6px rgba(96, 251, 68, 0.5));">🚀 Auto-focus & Visualization</h3>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" id="visualize-focus">
+                    <label for="visualize-focus">Highlight Focus Regions</label>
+                </div>
+
+                <div style="font-size: 12px; color: #17ffb6; margin-top: 2px;">
+                    The default aperture is small, keeping most of the scene in focus.
+                </div>
+                <div style="font-size: 12px; color: #17ffb6;">
+                    Lower the <strong style="font-weight: 700; color: var(--focus-glow); text-shadow: 0 0 6px rgba(214, 255, 202, 0.7), 0 0 14px rgba(96, 251, 68, 0.848);">F-stop</strong> to introduce depth-of-field blur and reduce the in-focus range.
+                </div>
+                <div style="font-size: 12px; color: #17ffb6; margin-top: 2px; margin-bottom: 12px;">
+                    Click any object in the scene to trigger autofocus.
+                </div>
+                
+                <div class="control-group">
+                    <label style="font-size: 12px; font-weight: 600; color: #e0e0e0;">Highlighting Mode</label>
+                    <select id="focus-vis-mode" style="width: 100%; padding: 10px 12px; font-size: 13px; margin-top: 6px; background: linear-gradient(135deg, rgba(23, 255, 182, 0.1), rgba(96, 251, 68, 0.1)); border: 1px solid rgba(96, 251, 68, 0.4); border-radius: 6px; color: #17ffb6; cursor: pointer; transition: all 0.3s ease;">
+                        <option value="additive">➕ Additive (Green+Red)</option>
+                        <option value="inverted">🎨 Tint Out-of-Focus</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label>Traditional Tolerance <span class="value-display" id="tolerance-value">1.5</span></label>
+                    <input type="range" id="focus-tolerance" min="0.5" max="5.0" step="0.1" value="1.5">
+                </div>
+                <div class="control-group">
+                    <label>Scheimpflug Tolerance <span class="value-display" id="scheimpflug-tolerance-value">2.0</span></label>
+                    <input type="range" id="scheimpflug-tolerance" min="0.5" max="50.0" step="0.5" value="2.0">
+                </div>
+                <div style="font-size: 11px; color: #888; margin-top: -10px; margin-bottom: 10px;">
+                    Green = traditional planar focus, Red = Scheimpflug (tilt-shift). Tolerance = pixels of acceptable blur.
+                </div>
+            </div>
+            
+            <!-- ═══════════════════════════════════════════════════════════ -->
+            <!-- VOLUME RENDERING -->
+            <!-- ═══════════════════════════════════════════════════════════ -->
+            <div class="control-section">
+                <h3 style="background: linear-gradient(90deg, #66bbff, #aaddff, #66bbff); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 700; filter: drop-shadow(0 0 8px rgba(102, 187, 255, 0.5));">☁️ Volume (Particilating Media)</h3>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="enable-vpt">
+                    <label for="enable-vpt">Enable Volumetric Path Tracing (VPT)</label>
+                </div>
+                <div style="font-size: 11px; color: #888; margin-top: -5px; margin-bottom: 10px;">Required for environment fog and volumetric spheres. Only <strong style="color: hsla(19, 100%, 72%, 0.6)">preliminary</strong> volumetric support is included, due to the high computational cost of real-time volumetric path tracing.</div>
+                
+                <div class="control-group">
+                    <label>VPT Max Bounces <span class="value-display" id="vpt-bounces-value">12</span></label>
+                    <input type="range" id="vpt-max-bounces" min="4" max="32" value="12">
+                    <div style="font-size: 11px; color: #888;">Higher bounces for volumetric scattering</div>
+                </div>
+            </div>
+            
+            <!-- ═══════════════════════════════════════════════════════════ -->
+            <!-- ENVIRONMENT -->
+            <!-- ═══════════════════════════════════════════════════════════ -->
+            <div class="control-section">
+                <h3 style="background: linear-gradient(90deg, #4aff88, #D4AF37); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 700; filter: drop-shadow(0 0 6px rgba(74, 255, 136, 0.4));">🌍 Environment</h3>
+                <!-- <div class="control-group">
+                    <label>Sky Intensity <span class="value-display" id="sky-value">1.0</span></label>
+                    <input type="range" id="sky-intensity" min="0" max="3" step="0.1" value="1.0">
+                </div> -->
+                
+                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #333;">
+                    <div style="font-size: 11px; color: #aaa; margin-bottom: 8px; font-weight: bold;">Environment Fog (requires VPT)</div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="enable-environment-fog">
+                        <label for="enable-environment-fog">Enable Fog</label>
+                    </div>
+                    <div class="control-group">
+                        <label>Fog Density <span class="value-display" id="fog-density-value">0.05</span></label>
+                        <input type="range" id="fog-density" min="0" max="0.5" step="0.01" value="0.05" disabled>
+                    </div>
+                    <div class="control-group">
+                        <label>Anisotropy (g) <span class="value-display" id="fog-anisotropy-value">0.0</span></label>
+                        <input type="range" id="fog-anisotropy" min="-0.9" max="0.9" step="0.05" value="0" disabled>
+                    </div>
+                    <div style="font-size: 11px; color: #888; margin-top: -5px;">
+                        g: -1=backscatter, 0=isotropic, +1=forward scatter
+                    </div>
+                </div>
+                
+                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #333;">
+                    <div style="font-size: 11px; color: #aaa; margin-bottom: 8px; font-weight: bold;">Ground Pattern</div>
+                    <div class="control-group">
+                        <label>Pattern:</label>
+                        <select id="ground-pattern" style="width: 150px;">
+                            <option value="0">None (Solid)</option>
+                            <option value="1">Checkerboard</option>
+                            <option value="3">Fine Grid</option>
+                            <option value="4">Thick Grid</option>
+                            <option value="5">Concentric Circles</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label>Pattern Scale <span class="value-display" id="ground-scale-value">1.0</span></label>
+                        <input type="range" id="ground-pattern-scale" min="0.1" max="5.0" step="0.1" value="1.0">
+                    </div>
+                    <div style="font-size: 11px; color: #888; margin-top: -5px;">
+                        Patterns help visualize depth/focus
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ═══════════════════════════════════════════════════════════ -->
+            <!-- SCENE OBJECTS -->
+            <!-- ═══════════════════════════════════════════════════════════ -->
+            <div class="control-section">
+                <h3 style="background: linear-gradient(90deg, #ff9944, #D4AF37); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 700; filter: drop-shadow(0 0 6px rgba(255, 153, 68, 0.4));">🎲 Scene Objects</h3>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="animate-lights">
+                    <label for="animate-lights">Animate Lights (Will Change Render Mode)</label>
+                </div>
+                <button id="add-depth-array-dense"><strong>Add Depth Array (Dense)</strong></button>
+                <button id="add-depth-array-thin"><strong>Add Depth Array (Thin)</strong></button>
+                <button id="reset-scene"><strong>Reset Scene</strong></button>
+            </div>
+        </div>
+        
+        <div id="viewports">
+            <div id="scene-viewport">
+                <canvas id="scene-canvas"></canvas>
+                <div class="viewport-label">Scene Render (Top)</div>
+                <div id="stats" style="position: absolute; top: 10px; left: 10px; color: #0f0; font-family: monospace; font-size: 12px; background: rgba(0,0,0,0.7); padding: 5px;">Loading...</div>
+                <div id="status"></div>
+                <div id="holography-status" style="position: fixed; top: 10px; right: 10px; color: white; background: rgba(0,0,0,0.8); padding: 10px 14px; border-radius: 4px; font-family: monospace; font-size: 11px; z-index: 1000; display: none;">
+                    <div style="font-weight: bold; margin-bottom: 6px; font-size: 12px;"> Holography Setup</div>
+                    <div id="status-planar-light" style="margin: 3px 0;"> Planar Light</div>
+                    <div id="status-freq-match" style="margin: 3px 0;"> Frequency Match</div>
+                    <div id="status-bounce" style="margin: 3px 0;"> Max Bounce = 2</div>
+                    <div id="status-scene-lights" style="margin: 3px 0;"> Scene Lights Off</div>
+                </div>
+                <div id="spp-indicator" style="position: absolute; top: 40px; left: 10px; color: white; background: rgba(0,0,0,0.7); padding: 5px 10px; font-family: monospace; font-size: 12px; border-radius: 3px;">
+                    SPP: 0 / <span id="target-spp-display">100</span>
+                </div>
+                <!-- Off-Axis Holography Pipeline Preview -->
+                <div id="fft-preview-overlay" style="display: none; position: absolute; top: 10px; right: 10px;">
+                    <!-- Stage 1: FFT Magnitude -->
+                    <div style="display: inline-block; margin: 0 5px;">
+                        <div style="width: 180px; height: 180px; border: 2px solid #ffcc00; background: #000; box-shadow: 0 0 10px rgba(0,0,0,0.8);">
+                            <canvas id="fft-preview-canvas" width="512" height="512" style="width: 100%; height: 100%; image-rendering: pixelated;"></canvas>
+                        </div>
+                        <div style="font-size: 9px; color: #ffcc00; background: rgba(0,0,0,0.9); padding: 2px 4px; font-family: monospace; text-align: center; margin-top: 2px;">1. FFT Magnitude</div>
+                    </div>
+                    <!-- Stage 2: Filtered Sideband -->
+                    <div style="display: inline-block; margin: 0 5px;">
+                        <div style="width: 180px; height: 180px; border: 2px solid #00ff00; background: #000; box-shadow: 0 0 10px rgba(0,0,0,0.8);">
+                            <canvas id="filtered-preview-canvas" width="512" height="512" style="width: 100%; height: 100%; image-rendering: pixelated;"></canvas>
+                        </div>
+                        <div style="font-size: 9px; color: #00ff00; background: rgba(0,0,0,0.9); padding: 2px 4px; font-family: monospace; text-align: center; margin-top: 2px;">2. Filtered (Centered)</div>
+                    </div>
+                    <!-- Stage 3: Reconstructed Phase/Depth -->
+                    <div style="display: inline-block; margin: 0 5px;">
+                        <div style="width: 180px; height: 180px; border: 2px solid #ff00ff; background: #000; box-shadow: 0 0 10px rgba(0,0,0,0.8);">
+                            <canvas id="reconstructed-preview-canvas" width="512" height="512" style="width: 100%; height: 100%; image-rendering: pixelated;"></canvas>
+                        </div>
+                        <div style="font-size: 9px; color: #ff00ff; background: rgba(0,0,0,0.9); padding: 2px 4px; font-family: monospace; text-align: center; margin-top: 2px;">3a. IFFT Magnitude</div>
+                    </div>
+                    <br>
+                    <!-- Stage 1b: FFT Phase (raw) -->
+                    <div style="display: inline-block; margin: 0 5px;">
+                        <div style="width: 180px; height: 180px; border: 2px solid #ff8800; background: #000; box-shadow: 0 0 10px rgba(0,0,0,0.8);">
+                            <canvas id="fft-phase-canvas" width="512" height="512" style="width: 100%; height: 100%; image-rendering: pixelated;"></canvas>
+                        </div>
+                        <div style="font-size: 9px; color: #ff8800; background: rgba(0,0,0,0.9); padding: 2px 4px; font-family: monospace; text-align: center; margin-top: 2px;">1b. FFT Phase (Raw)</div>
+                    </div>
+                    <!-- Stage 2b: Filtered Phase -->
+                    <div style="display: inline-block; margin: 0 5px;">
+                        <div style="width: 180px; height: 180px; border: 2px solid #00ffaa; background: #000; box-shadow: 0 0 10px rgba(0,0,0,0.8);">
+                            <canvas id="filtered-phase-canvas" width="512" height="512" style="width: 100%; height: 100%; image-rendering: pixelated;"></canvas>
+                        </div>
+                        <div style="font-size: 9px; color: #00ffaa; background: rgba(0,0,0,0.9); padding: 2px 4px; font-family: monospace; text-align: center; margin-top: 2px;">2b. Filtered Phase</div>
+                    </div>
+                    <!-- Stage 3b: Reconstructed Phase (Depth) -->
+                    <div style="display: inline-block; margin: 0 5px;">
+                        <div style="width: 180px; height: 180px; border: 2px solid #ff00ff; background: #000; box-shadow: 0 0 10px rgba(0,0,0,0.8);">
+                            <canvas id="ifft-phase-canvas" width="512" height="512" style="width: 100%; height: 100%; image-rendering: pixelated;"></canvas>
+                        </div>
+                        <div style="font-size: 9px; color: #ff00ff; background: rgba(0,0,0,0.9); padding: 2px 4px; font-family: monospace; text-align: center; margin-top: 2px;">3b. Wrapped Phase</div>
+                    </div>
+                    <!-- Stage 3c: Unwrapped Phase (Depth) -->
+                    <div style="display: inline-block; margin: 0 5px;">
+                        <div style="width: 180px; height: 180px; border: 2px solid #ff00ff; background: #000; box-shadow: 0 0 10px rgba(0,0,0,0.8);">
+                            <canvas id="unwrapped-phase-canvas" width="512" height="512" style="width: 100%; height: 100%; image-rendering: pixelated;"></canvas>
+                        </div>
+                        <div style="font-size: 9px; color: #ff00ff; background: rgba(0,0,0,0.9); padding: 2px 4px; font-family: monospace; text-align: center; margin-top: 2px;">3c. Unwrapped + Masked</div>
+                    </div>
+                    <br>
+                    <!-- Stage 4: Comparison View (optional) -->
+                    <div id="comparison-view" style="display: none; margin-top: 10px;">
+                        <div style="display: inline-block; margin: 0 5px;">
+                            <div style="width: 370px; height: 180px; border: 2px solid #ffff00; background: #000; box-shadow: 0 0 10px rgba(0,0,0,0.8);">
+                                <canvas id="comparison-canvas" width="1024" height="512" style="width: 100%; height: 100%; image-rendering: pixelated;"></canvas>
+                            </div>
+                            <div style="font-size: 9px; color: #ffff00; background: rgba(0,0,0,0.9); padding: 2px 4px; font-family: monospace; text-align: center; margin-top: 2px;">4. Side-by-Side: Wrapped (left) | Unwrapped (right)</div>
+                        </div>
+                    </div>
+                </div>
+                <!-- CW-ToF Reconstruction Preview -->
+                <div id="cwtof-preview-overlay" style="display: none; position: absolute; bottom: 10px; left: 10px;">
+                    <div style="display: inline-block; margin: 0 5px;">
+                        <div style="width: 256px; height: 256px; border: 2px solid #00ffff; background: #000; box-shadow: 0 0 10px rgba(0,255,255,0.5);">
+                            <canvas id="cwtof-reconstruction-canvas" width="512" height="512" style="width: 100%; height: 100%; image-rendering: pixelated;"></canvas>
+                        </div>
+                        <div style="font-size: 11px; color: #00ffff; background: rgba(0,0,0,0.9); padding: 3px 6px; font-family: monospace; text-align: center; margin-top: 2px;">CW-ToF Reconstructed Depth (4-phase unwrapped)</div>
+                    </div>
+                </div>
+            </div>
+            <div id="resize-handle"></div>
+            <div id="camera-viewport">
+                <canvas id="camera-canvas"></canvas>
+                <div class="viewport-label">Camera Internal View (Bottom)</div>
+            </div>
+        </div>
+        
+        <div id="camera-controls">
+            <div class="control-section bsdf-card" style="background: linear-gradient(135deg, rgba(30, 25, 35, 0.95), rgba(20, 18, 25, 0.95)); border: 2px solid rgba(212, 175, 55, 0.6); border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 0 30px rgba(212, 175, 55, 0.25), 0 0 60px rgba(180, 100, 255, 0.2), inset 0 0 40px rgba(180, 100, 255, 0.08), inset 0 0 2px rgba(180, 100, 255, 0.4); transition: all 0.3s ease;">
+                <h3 style="font-size: 16px; background: linear-gradient(90deg, #D4AF37, #ff88ff, #88ddff, #D4AF37); background-size: 200% auto; background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 700; animation: bsdf-glow 3s ease-in-out infinite; filter: drop-shadow(0 0 12px rgba(212, 175, 55, 0.6)) drop-shadow(0 0 20px rgba(180, 100, 255, 0.4));">🎨 BSDF Selector</h3>
+                <div style="font-size: 12px; color: #d4a8ff; margin-top: 2px; margin-bottom: 12px; font-weight: 600; text-shadow: 0 0 8px rgba(180, 100, 255, 0.5);">Physics-based, animated, surreal & hybrid materials!</div>
+                <label style="display: block; margin-bottom: 6px; font-size: 12px; color: #bbb;">Center Sphere Material</label>
+                <select id="center-sphere-material" style="width: 100%; padding: 8px; background: #2a2a2a; color: white; border: 1px solid #4a90e2; border-radius: 4px; font-size: 12px;">
+                    <option value="gold-fbm">✨ Gold (FBM Cracks)</option>
+                    <option value="brushed-metal">⚙️ Brushed Metal</option>
+                    <option value="car-paint">💎 Dielectric Coating</option>
+                    <option value="holographic">🌈 Animated Holographic</option>
+                    <option value="chromatic-geometry">📐 Chromatic</option>
+                    <option value="energy-shield">⚡ Energy Shield</option>
+                    <option value="fractal-emissive">🔥 Emissive</option>
+                    <option value="angle-rainbow">🎨 Angle Rainbow</option>
+                    <option value="chrome">💿 Chrome</option>
+                    <option value="pearl">🤍 Pearl (Iridescent)</option>
+                    <option value="velvet-red">❤️ Red Velvet</option>
+                    <option value="iridescent">🧫 Iridescent</option>
+                    <option value="jade">💚 Jade (SSS)</option>
+                    <option value="beer-glass">🍺 Glass (Absorption)</option>
+                    <option value="hair-brown">👩 Hair (Brown)</option>
+                    <!-- <option value="triple-layer">Triple Layer</option> -->
+                    <option value="black-hole">🌀 Black Hole</option>
+                    <option value="impossible">👁️ Impossible Material</option>
+                    <!-- <option value="variable-coat-fractal">💎 Variable Coat (Fractal)</option>
+                    <option value="variable-coat-grid">🔲 Variable Coat (Grid)</option> -->
+                    <option value="quantum-foam">✨ Quantum Foam</option>
+                    <option value="glossy-plastic">🔮 Glossy Plastic</option>
+                </select>
+                <div style="font-size: 11px; color: #888; margin-top: 8px;">
+                    ✨ Switch between different BSDF materials in real-time
+                </div>
+                
+                <!-- Anisotropy Controls (for brushed metal) -->
+                <div id="anisotropy-controls" style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #333; display: none;">
+                    <div class="control-group">
+                        <label>Anisotropy Strength <span class="value-display" id="anisotropy-value">0.80</span></label>
+                        <input type="range" id="anisotropy-strength" min="0" max="1" step="0.05" value="0.8">
+                    </div>
+                    <div style="font-size: 11px; color: #888; margin-top: -5px; margin-bottom: 8px;">
+                        0 = isotropic (circular), 1 = fully stretched (linear brushes)
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>Brush Direction <span class="value-display" id="anisotropy-rotation-value">0°</span></label>
+                        <input type="range" id="anisotropy-rotation" min="0" max="360" step="5" value="0">
+                    </div>
+                    <div style="font-size: 11px; color: #888; margin-top: -5px;">
+                        Rotate the brush direction (0° = horizontal brushes)
+                    </div>
+                </div>
+                
+                <!-- Clear Coat Controls (for car paint) -->
+                <div id="clearcoat-controls" style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #333; display: none;">
+                    <div class="control-group">
+                        <label>Clear Coat Strength <span class="value-display" id="clearcoat-strength-value">1.00</span></label>
+                        <input type="range" id="clearcoat-strength" min="0" max="1" step="0.05" value="1.0">
+                    </div>
+                    <div style="font-size: 11px; color: #888; margin-top: -5px; margin-bottom: 8px;">
+                        Amount of glossy clear coat layer (0 = matte, 1 = full gloss)
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>Clear Coat Roughness <span class="value-display" id="clearcoat-roughness-value">0.05</span></label>
+                        <input type="range" id="clearcoat-roughness" min="0.01" max="0.3" step="0.01" value="0.05">
+                    </div>
+                    <div style="font-size: 11px; color: #888; margin-top: -5px; margin-bottom: 8px;">
+                        Smoothness of clear coat (lower = glossier)
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>Base Roughness <span class="value-display" id="base-roughness-value">0.60</span></label>
+                        <input type="range" id="base-roughness" min="0.1" max="1" step="0.05" value="0.6">
+                    </div>
+                    <div style="font-size: 11px; color: #888; margin-top: -5px;">
+                        Roughness of base paint layer (metallic flakes or diffuse)
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ╔═══════════════════════════════════════════════════════════╗ -->
+            <!-- ║              📷 CAMERA CONTROL                             ║ -->
+            <!-- ╚═══════════════════════════════════════════════════════════╝ -->
+            <div class="mega-category" style="background: linear-gradient(135deg, #1a3a4a 0%, #0d1f2a 100%); border: 3px solid #4a9eff;">
+                <h2 style="color: #4a9eff; text-shadow: 0 0 10px rgba(74, 158, 255, 0.8);">
+                    📷 CAMERA CONTROL
+                </h2>
+            </div>
+            
+            <div class="control-section">
+                <h3 style="background: linear-gradient(90deg, #4a9eff, #9d4aff); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 20px rgba(74, 158, 255, 0.5); font-weight: bold;">📷 Camera Type</h3>
+                <select id="camera-type" style="background: rgba(74, 158, 255, 0.1); border: 1px solid #4a9eff; color: #fff;">
+                    <option value="pinhole">📍 Pinhole (Infinite DOF)</option>
+                    <option value="thin-lens" selected>🔍 Thin Lens (Realistic DOF)</option>
+                </select>
+            </div>
+            
+            <div class="control-section">
+                <h3 style="color: #D4AF37; text-shadow: 0 0 8px rgba(212, 175, 55, 0.4);">💫 Camera Rotation</h3>
+                <div class="control-group">
+                    <label>Yaw (Left/Right) <span class="value-display" id="cam-yaw-value">180°</span></label>
+                    <input type="range" id="cam-yaw" min="0" max="360" step="1" value="180">
+                </div>
+                <div class="control-group">
+                    <label>Pitch (Up/Down) <span class="value-display" id="cam-pitch-value">6°</span></label>
+                    <input type="range" id="cam-pitch" min="-89" max="89" step="1" value="6">
+                </div>
+                <div class="control-group">
+                    <label>Distance <span class="value-display" id="cam-distance-value">12.0m</span></label>
+                    <input type="range" id="cam-distance" min="0.5" max="20" step="0.1" value="12.0">
+                </div>
+            </div>
+            
+            <div class="control-section">
+                <h3 style="background: linear-gradient(90deg, #9d4aff, #4a9eff); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 700; filter: drop-shadow(0 0 6px rgba(157, 74, 255, 0.4));">🌀 Lens Distortion</h3>
+                <div class="control-group">
+                    <label>Type</label>
+                    <select id="distortion-type">
+                        <option value="none" selected>⭕ None</option>
+                        <option value="barrel">🎣 Barrel (Wide Angle)</option>
+                        <option value="pincushion">📌 Pincushion (Telephoto)</option>
+                        <option value="fisheye">🐟 Fisheye (Ultra Wide)</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>Amount <span class="value-display" id="distortion-value">0.0</span></label>
+                    <input type="range" id="distortion-amount" min="0" max="1" step="0.01" value="0">
+                </div>
+            </div>
+            
+            <div class="control-section">
+                <h3 style="background: linear-gradient(90deg, #ffaa00, #ff6600); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 700; filter: drop-shadow(0 0 8px rgba(255, 170, 0, 0.5));">⭐ Aperture</h3>
+                <div class="control-group">
+                    <label>Shape <span id="aperture-preview" style="font-size: 24px; margin-left: 10px;">⭐</span></label>
+                    <select id="aperture-shape" style="background: rgba(255, 170, 0, 0.1); border: 1px solid #ffaa00;">
+                        <option value="circular">⚪ Circular</option>
+                        <option value="polygon">⬡ Regular Polygon (N-gon)</option>
+                        <option value="square">⬜ Square</option>
+                        <option value="star" selected>⭐ Star (N-pointed)</option>
+                        <option value="ring">🍩 Ring (Annular)</option>
+                        <option value="diagonal">⚡ Diagonal Scar</option>
+                        <option value="coded">🔬 Coded Aperture (MURA)</option>
+                        <option value="pinhole-grid">📐 Pinhole Grid (NxN)</option>
+                        <option value="heart">❤️ Heart</option>
+                        <option value="cat">🐱 Cat Eye</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>Size (<strong style=" font-weight: 700; color: #17ffb6f3;
+  text-shadow:
+    0 0 6px rgba(214, 255, 202, 0.7),
+    0 0 14px rgba(96, 251, 68, 0.848);
+    ">F-stop</strong>) <span class="value-display" id="aperture-value">f/50</span></label>
+                    <input type="range" id="aperture-size" min="0" max="120" step="0.1" value="96">
+                </div>
+                <div class="control-description">
+                    f/0.01 to f/128. Wide range for extreme shallow/deep DOF. Far lights show bokeh.
+                </div>
+                <div class="control-group">
+                    <label>Blades / Density <span class="value-display" id="blades-value">6</span></label>
+                    <input type="range" id="aperture-blades" min="3" max="16" value="6">
+                </div>
+                <div class="control-description">
+                    Controls: Star points, Polygon sides, Pinhole grid size (NxN)
+                </div>
+                <div class="control-group">
+                    <label>Shift X (Right) <span class="value-display" id="aperture-shift-x-value">0.00</span></label>
+                    <input type="range" id="aperture-shift-x" min="-0.02" max="0.02" step="0.001" value="0.0">
+                </div>
+                <div class="control-group">
+                    <label>Shift Y (Up) <span class="value-display" id="aperture-shift-y-value">0.00</span></label>
+                    <input type="range" id="aperture-shift-y" min="-0.02" max="0.02" step="0.001" value="0.0">
+                </div>
+                <div class="control-group">
+                    <label>Shift Z (Forward) <span class="value-display" id="aperture-shift-z-value">0.00</span></label>
+                    <input type="range" id="aperture-shift-z" min="-0.5" max="0.5" step="0.01" value="0.0">
+                </div>
+                <!-- Commented out: Aperture tilt doesn't work correctly
+                <div class="control-group">
+                    <label>Tilt X <span class="value-display" id="aperture-tilt-x-value">0°</span></label>
+                    <input type="range" id="aperture-tilt-x" min="-30" max="30" step="0.5" value="0">
+                </div>
+                <div class="control-group">
+                    <label>Tilt Y <span class="value-display" id="aperture-tilt-y-value">0°</span></label>
+                    <input type="range" id="aperture-tilt-y" min="-30" max="30" step="0.5" value="0">
+                </div>
+                -->
+            </div>
+            
+            <div class="control-section">
+                <h3 style="background: linear-gradient(90deg, #4a9eff, #88ddff); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 700; filter: drop-shadow(0 0 6px rgba(74, 158, 255, 0.4));">🔭 Lens</h3>
+                <div class="control-group">
+                    <label>Focal Length <span class="value-display" id="focal-value">50mm</span></label>
+                    <input type="range" id="focal-length" min="10" max="200" value="50">
+                </div>
+                <div class="control-group">
+                    <label>Focus Distance <span class="value-display" id="focus-value">5.0</span></label>
+                    <input type="range" id="focus-distance" min="0.5" max="100" step="0.1" value="5.0">
+                </div>
+                <div class="control-description">
+                    💡 Tip: Click on the canvas to auto-focus on that point!
+                </div>
+                <div class="control-group">
+                    <label>Autofocus Speed <span class="value-display" id="autofocus-speed-value">0.50</span></label>
+                    <input type="range" id="autofocus-speed" min="0.1" max="1.0" step="0.05" value="0.5">
+                </div>
+                <div style="font-size: 11px; color: #888; margin-top: -5px;">
+                    How fast focus moves. Lower = slower, more cinematic pull.
+                </div>
+                <div class="control-group">
+                    <label>Temporal Smoothing <span class="value-display" id="autofocus-blend-value">0.30</span></label>
+                    <input type="range" id="autofocus-blend" min="0.1" max="0.7" step="0.05" value="0.3">
+                </div>
+                <div style="font-size: 11px; color: #888; margin-top: -5px;">
+                    Reduces flicker during focus transitions. Lower = smoother but more ghosting.
+                </div>
+                <!-- Lens Elements removed - not implemented in shader -->
+            </div>
+            
+            <div class="control-section">
+                <h3 style="background: linear-gradient(90deg, #ff88aa, #D4AF37); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 700; filter: drop-shadow(0 0 6px rgba(255, 136, 170, 0.4));">📽️ Film/Sensor</h3>
+                <div style="font-size: 11px; color: #888; margin-bottom: 10px;">
+                    Shift/Tilt in camera local space (X=right, Y=up, Z=forward)
+                </div>
+                <div class="control-group">
+                    <label>Shift X (Right) <span class="value-display" id="film-shift-x-value">0.00</span></label>
+                    <input type="range" id="film-shift-x" min="-0.05" max="0.05" step="0.001" value="0.0">
+                </div>
+                <div class="control-group">
+                    <label>Shift Y (Up) <span class="value-display" id="film-shift-y-value">0.00</span></label>
+                    <input type="range" id="film-shift-y" min="-0.05" max="0.05" step="0.001" value="0.0">
+                </div>
+                <!-- Commented out: May not be needed
+                <div class="control-group">
+                    <label>Shift Z (Forward) <span class="value-display" id="film-shift-z-value">0.00</span></label>
+                    <input type="range" id="film-shift-z" min="-5" max="5" step="0.01" value="0.0">
+                </div>
+                -->
+                <div class="control-group">
+                    <label>Tilt X (Non-physically-based) <span class="value-display" id="tilt-x-value">0°</span></label>
+                    <input type="range" id="film-tilt-x" min="-60" max="60" step="0.5" value="0">
+                </div>
+                <div class="control-group">
+                    <label>Tilt Y (Non-physically-based) <span class="value-display" id="tilt-y-value">0°</span></label>
+                    <input type="range" id="film-tilt-y" min="-60" max="60" step="0.5" value="0">
+                </div>
+                
+                <div style="font-size: 11px; color: #4a90e2; margin: 12px 0 8px 0; font-weight: bold;">
+                    📐 Sensor Viewport (pan to see shifted image)
+                </div>
+                <div class="control-group">
+                    <label>Sensor Offset X <span class="value-display" id="sensor-offset-x-value">0.00</span></label>
+                    <input type="range" id="sensor-offset-x" min="-10" max="10" step="0.05" value="0.0">
+                </div>
+                <div class="control-group">
+                    <label>Sensor Offset Y <span class="value-display" id="sensor-offset-y-value">0.00</span></label>
+                    <input type="range" id="sensor-offset-y" min="-10" max="10" step="0.05" value="0.0">
+                </div>
+                <div style="font-size: 11px; color: #888; margin-top: -5px; margin-bottom: 10px;">
+                    Pan sensor viewport to see parts of the image outside the screen. Useful for checking lens shift perspective.
+                </div>
+                
+                <div class="control-group">
+                    <label>Curvature <span class="value-display" id="curve-value">0.0</span></label>
+                    <input type="range" id="film-curvature" min="0" max="2" step="0.01" value="0">
+                </div>
+                <div class="control-group">
+                    <label>Size (diagonal) <span class="value-display" id="film-size-value">43mm</span></label>
+                    <input type="range" id="film-size" min="15" max="100" value="43">
+                    <div style="font-size: 11px; color: #888; margin-top: 5px;">
+                        43mm = Full Frame (36x24mm), 29mm = APS-C, 17mm = Micro 4/3
+                    </div>
+                </div>
+            </div>
+            
+            <div class="control-section featured-card" style="border: 1px solid rgba(212, 175, 55, 0.4); background: linear-gradient(135deg, rgba(40, 30, 50, 0.95), rgba(25, 20, 35, 0.95)); padding: 15px; border-radius: 8px; box-shadow: 0 0 25px rgba(255, 100, 255, 0.15), 0 0 40px rgba(212, 175, 55, 0.1), inset 0 0 30px rgba(255, 100, 255, 0.05); transition: all 0.3s ease;">
+                <h3 style="font-size: 15px; background: linear-gradient(90deg, #ff88ff, #D4AF37, #ff88ff); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 700; filter: drop-shadow(0 0 10px rgba(255, 100, 255, 0.6)) drop-shadow(0 0 20px rgba(212, 175, 55, 0.4));">🔮 PHYSICALLY BASED TILT-SHIFT ⭐</h3>
+                <div style="font-size: 11px; color: #b388ff; margin-bottom: 8px; text-shadow: 0 0 6px rgba(180, 100, 255, 0.4);">Based on Ray Tracing Gems II - Tilt-Shift Rendering Using a Thin Lens Model</div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="enable-new-tiltshift">
+                    <label for="enable-new-tiltshift">Enable Physically Based Tilt-Shift</label>
+                </div>
+                <div style="font-size: 11px; color: #888; margin-top: -5px; margin-bottom: 10px;">
+                    Proper Scheimpflug implementation from RTG II Ch.31. Define focal plane by 3 points. When the intended focal plane is about perpendicular to the image plane, we see expected artifacts, due to the geometry setup causing intersection extremely far.
+                </div>
+                
+                <div class="checkbox-group" style="margin-top: 10px;">
+                    <input type="checkbox" id="show-gizmo">
+                    <label for="show-gizmo">Show Focal Plane Gizmo for Interactive Control</label>
+                </div>
+                <div style="font-size: 11px; color: #888; margin-top: -5px; margin-bottom: 10px;">
+                    Shows: RGB spheres, axes, and focal plane triangle. Hover to highlight, click and drag to manipulate.
+                </div>
+                
+                <div style="font-size: 11px; color: #6f6; margin-top: 10px; padding: 10px; background: rgba(0,255,0,0.1); border-radius: 4px;">
+                    <strong>How it works:</strong><br>
+                    • The gizmo (triangle) defines the focal plane in 3D space.<br>
+                    • Hold on RGB spheres to rotate the focal plane.<br>
+                    • Hold LMB on the center of the triangle to translate it in XY-plane (parallel to the image plane);<br>
+                    • Hold RMB on the center of the triangle to translate it in XZ-plane (perpendicular to the image plane);<br>
+                    • First increase the aperture size (smaller F-stop), then play with the gizmo and see how the depth of field changes in action.<br>
+                    • The artifact you see when the focal plane is perpendicular to the image plane: this is expected behavior, since this case involves intersection at infinitely far.                    
+                </div>
+                
+            </div>
+            
+            <div class="control-section chromatic-card" style="border: 1px solid rgba(212, 175, 55, 0.4); background: linear-gradient(135deg, rgba(40, 35, 25, 0.95), rgba(30, 25, 20, 0.95)); padding: 15px; border-radius: 8px; animation: rgb-glow 4s ease-in-out infinite; transition: all 0.3s ease;">
+                <h3 style="font-size: 15px; background: linear-gradient(90deg, #ff6666, #D4AF37, #66ff66, #D4AF37, #6666ff, #D4AF37); background-size: 300% auto; background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 700; filter: drop-shadow(0 0 8px rgba(212, 175, 55, 0.5));">🌈 CHROMATIC ABERRATION & EFFECTS ⭐</h3>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="enable-chromatic-aberration">
+                    <label for="enable-chromatic-aberration">Enable Chromatic Aberration</label>
+                </div>
+                
+                <div class="control-group">
+                    <label>Mode</label>
+                    <select id="chromatic-mode" disabled>
+                        <option value="rgb">🔴🟢🔵 RGB (Discrete)</option>
+                        <option value="spectrum">🌈 Spectrum (Continuous)</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label>Strength <span class="value-display" id="chromatic-aberration-value">1.0</span></label>
+                    <input type="range" id="chromatic-aberration" min="0" max="3" step="0.1" value="1.0" disabled>
+                </div>
+                <div style="font-size: 11px; color: #888; margin-top: -5px; margin-bottom: 10px;">
+                    Wavelength-dependent IOR creates rainbow dispersion through glass.
+                </div>
+                
+                <div id="rgb-channel-debug" style="margin-top: 15px; padding: 10px; background: #1a1a1a; border-radius: 4px;">
+                    <div style="font-size: 11px; color: #aaa; margin-bottom: 8px; font-weight: bold;">RGB Channel Debug</div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="show-red-channel" checked disabled>
+                        <label for="show-red-channel">Red Channel</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="show-green-channel" checked disabled>
+                        <label for="show-green-channel">Green Channel</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="show-blue-channel" checked disabled>
+                        <label for="show-blue-channel">Blue Channel</label>
+                    </div>
+                </div>
+                
+                <div id="spectral-filter" style="margin-top: 15px; padding: 10px; background: #1a1a1a; border-radius: 4px; display: none;">
+                    <div style="font-size: 11px; color: #aaa; margin-bottom: 8px; font-weight: bold;">Spectral Filter</div>
+                    <div class="control-group">
+                        <label>Min Wavelength <span class="value-display" id="spectral-min-value">0.0 (Red)</span></label>
+                        <input type="range" id="spectral-filter-min" min="0" max="1" step="0.01" value="0" disabled>
+                    </div>
+                    <div class="control-group">
+                        <label>Max Wavelength <span class="value-display" id="spectral-max-value">1.0 (Blue)</span></label>
+                        <input type="range" id="spectral-filter-max" min="0" max="1" step="0.01" value="1" disabled>
+                    </div>
+                    <div style="font-size: 11px; color: #888; margin-top: -5px;">
+                        Filter visible wavelength range. 0=Red, 0.5=Green, 1=Blue
+                    </div>
+                </div>
+                
+                <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #333;">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="enable-lens-chromatic-aberration">
+                        <label for="enable-lens-chromatic-aberration">Lens Chromatic Aberration</label>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>Mode</label>
+                        <select id="lens-chromatic-mode" disabled>
+                            <option value="postprocess">Post-Process (RGB)</option>
+                            <option value="spectral">Spectral (Ray-Level)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>Strength <span class="value-display" id="lens-chromatic-value">1.0</span></label>
+                        <input type="range" id="lens-chromatic-aberration" min="0" max="5" step="0.1" value="1.0" disabled>
+                    </div>
+                    <div style="font-size: 11px; color: #888; margin-top: -5px;">
+                        <span id="lens-ca-desc">Post-Process: Fast RGB shift. Spectral: True wavelength dispersion (slower).</span>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #333;">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="enable-tof">
+                        <label for="enable-tof">Time-of-Flight (TOF) Filter</label>
+                    </div>
+                    <div class="control-group">
+                        <label>Start Distance <span class="value-display" id="tof-min-value">0.0m</span></label>
+                        <input type="range" id="tof-min-distance" min="0" max="100" step="0.1" value="0" disabled>
+                    </div>
+                    <div class="control-group">
+                        <label>Range (Window) <span class="value-display" id="tof-range-value">50.0m</span></label>
+                        <input type="range" id="tof-range" min="0.1" max="100" step="0.1" value="50" disabled>
+                    </div>
+                    <div style="font-size: 11px; color: #888; margin-top: -5px;">
+                        Slide start to see light propagate through depth ranges. Simulates TOF cameras.
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ╔═══════════════════════════════════════════════════════════╗ -->
+            <!-- ║                 🌊 HOLOGRAPHY                              ║ -->
+            <!-- ╚═══════════════════════════════════════════════════════════╝ -->
+            <div class="mega-category" style="background: linear-gradient(135deg, #1a4a3a 0%, #0d2a1a 100%); border: 3px solid #4affaa; animation: glow-pulse-green 3s ease-in-out infinite;">
+                <h2 style="color: #4affaa; text-shadow: 0 0 10px rgba(74, 255, 170, 0.8);">
+                    🌊 HOLOGRAPHY
+                </h2>
+            </div>
+            
+            <div class="control-section">
+                <h3 class="standout-feature" style="color: #03a9f4; text-shadow: 0 0 10px rgba(3, 169, 244, 0.8);">General Settings</h3>
+                <div class="control-group">
+                    <label>Target SPP (min samples) <span class="value-display" id="target-spp-value">100</span></label>
+                    <input type="range" id="target-spp" min="10" max="1000" step="10" value="100">
+                    <div style="font-size: 11px; color: #888;">Minimum samples before capturing hologram/ToF (reduces noise)</div>
+                </div>
+                
+                <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #333;">
+                    <div style="font-size: 11px; color: #aaa; margin-bottom: 8px; font-weight: bold;">💡 Planar Wave Light Source</div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="enable-planar-wave-light">
+                        <label for="enable-planar-wave-light">Enable Planar Wave Light</label>
+                    </div>
+                    
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="disable-scene-lights">
+                        <label for="disable-scene-lights">Disable Scene Lights (Emissive + Sky)</label>
+                    </div>
+                    
+                    <div style="font-size: 11px; color: #888; margin-bottom: 8px;">
+                        Large square area light behind camera for coherent illumination
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>Distance Behind Cam <span class="value-display" id="planar-wave-distance-value">5.0m</span></label>
+                        <input type="range" id="planar-wave-distance" min="1" max="20" step="0.5" value="5" disabled>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>Light Size <span class="value-display" id="planar-wave-size-value">20.0m</span></label>
+                        <input type="range" id="planar-wave-size" min="5" max="50" step="1" value="20" disabled>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>Intensity <span class="value-display" id="planar-wave-intensity-value">10.0</span></label>
+                        <input type="range" id="planar-wave-intensity" min="0.1" max="100" step="0.5" value="10" disabled>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>Carrier Frequency <span class="value-display" id="planar-wave-carrier-value">0.0 MHz</span></label>
+                        <input type="range" id="planar-wave-carrier" min="0" max="100" step="5" value="0" disabled>
+                    </div>
+                    <div style="font-size: 11px; color: #888; margin-top: -5px;">
+                        Spatial carrier for off-axis holography (0=no carrier, match CW-ToF freq for homodyne)
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>Tilt Angle <span class="value-display" id="planar-wave-tilt-value">0.0°</span></label>
+                        <input type="range" id="planar-wave-tilt" min="-45" max="45" step="1" value="0" disabled>
+                    </div>
+                    <div style="font-size: 11px; color: #888; margin-top: -5px;">
+                        Tilt planar wave left/right (creates angled illumination)
+                    </div>
+                </div>
+                
+                <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #333;">
+                    <div style="font-size: 11px; color: #aaa; margin-bottom: 8px; font-weight: bold;">🌊 Reference Wave (Interference)</div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="enable-ref-wave">
+                        <label for="enable-ref-wave">Enable Reference Wave Interference</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="ref-wave-color-mode">
+                        <label for="ref-wave-color-mode">Color Mode (preserve scene colors)</label>
+                    </div>
+                    <div style="font-size: 11px; color: #888; margin-bottom: 8px;">
+                        Grayscale = traditional hologram, Color = interference on scene
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>Reference Intensity <span class="value-display" id="ref-wave-intensity-value">0.50</span></label>
+                        <input type="range" id="ref-wave-intensity" min="0" max="2" step="0.05" value="0.5">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>Reference Frequency <span class="value-display" id="ref-wave-freq-value">30.0 MHz</span></label>
+                        <input type="range" id="ref-wave-freq" min="1" max="100" step="1" value="30">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>Reference Phase <span class="value-display" id="ref-wave-phase-value">0.0°</span></label>
+                        <input type="range" id="ref-wave-phase" min="0" max="360" step="5" value="0">
+                    </div>
+                    <div style="font-size: 11px; color: #888; margin-top: -5px;">
+                        Adjust to see interference fringes (bright/dark ripples based on path length)
+                    </div>
+                </div>
+                
+                <div style="margin-top: 20px; padding: 15px; border: 1px solid rgba(0, 255, 255, 0.3); border-radius: 8px; background: linear-gradient(135deg, rgba(0, 40, 50, 0.5), rgba(0, 25, 35, 0.5)); animation: cwtof-glow 3s ease-in-out infinite;">
+                    <div style="font-size: 13px; color: #00ffff; margin-bottom: 8px; font-weight: bold; text-shadow: 0 0 8px rgba(0, 255, 255, 0.5);">🌊 Holographic Depth Sensing (CW-ToF)</div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="enable-cwtof">
+                        <label for="enable-cwtof">Enable CW-ToF</label>
+                    </div>
+                    <div style="font-size: 11px; color: #888; margin-bottom: 8px;">
+                        Continuous Wave Time-of-Flight with interference patterns for depth extraction
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>Modulation Freq <span class="value-display" id="cwtof-freq-value">30 MHz</span></label>
+                        <input type="range" id="cwtof-freq" min="10" max="100" step="5" value="30" disabled>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>Phase Offset (Live Preview) <span class="value-display" id="cwtof-phase-value">0°</span></label>
+                        <input type="range" id="cwtof-phase" min="0" max="270" step="90" value="0" disabled>
+                    </div>
+                    <div style="font-size: 11px; color: #888; margin-top: -5px;">
+                        Progressive accumulation at selected phase (live)
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>View Captured Phase <span class="value-display" id="cwtof-view-phase-value">0°</span></label>
+                        <input type="range" id="cwtof-view-phase" min="0" max="270" step="90" value="0" disabled style="transition: all 0.3s ease;">
+                    </div>
+                    <div style="font-size: 11px; color: #888; margin-top: -5px;">
+                        View stored high-quality phase images (after capture)
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>Wavelength <span class="value-display" id="cwtof-wavelength-value">850nm</span></label>
+                        <input type="range" id="cwtof-wavelength" min="600" max="1000" step="50" value="850" disabled>
+                    </div>
+                    <div style="font-size: 11px; color: #888; margin-top: -5px;">
+                        Coherent light wavelength (850nm = near-IR)
+                    </div>
+                    
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="cwtof-show-interference" checked disabled>
+                        <label for="cwtof-show-interference">Show Interference Patterns</label>
+                    </div>
+                    
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="cwtof-show-ground-truth" disabled>
+                        <label for="cwtof-show-ground-truth">Show Ground Truth Depth</label>
+                    </div>
+                    
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="cwtof-show-reconstruction" disabled>
+                        <label for="cwtof-show-reconstruction">Show Reconstructed Depth (4-phase)</label>
+                    </div>
+                    
+                    <button id="cwtof-capture-4phase" style="padding: 8px 12px; margin: 10px 0; background: #00bcd4; color: white; border: none; border-radius: 4px; cursor: pointer; width: 100%; font-weight: bold;" disabled>
+                        📸 Capture 4-Phase & Reconstruct Depth
+                    </button>
+                    <div style="font-size: 9px; color: #888; margin-top: -5px; margin-bottom: 8px;">
+                        Captures at 0°, 90°, 180°, 270° then computes depth
+                    </div>
+                    
+                    <div style="font-size: 11px; color: #888; margin-top: 8px; padding: 8px; background: rgba(255,255,255,0.05); border-radius: 4px;">
+                        <strong>Pipeline:</strong> Coherent modulated light → Phase shift from distance → Interference fringes → 4-phase algorithm → Depth map
+                    </div>
+                </div>
+                
+                <div style="margin-top: 20px; padding: 15px; border: 2px solid rgba(0, 255, 200, 0.3); background: rgba(0, 255, 200, 0.05); border-radius: 8px;">
+                    <div class="standout-feature" style="font-size: 13px; margin-bottom: 8px;">🌊 OFF-AXIS HOLOGRAPHY (Full Pipeline) ⭐</div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="enable-offaxis">
+                        <label for="enable-offaxis">Enable Off-Axis Holography</label>
+                    </div>
+                    <div style="font-size: 11px; color: #888; margin-bottom: 8px;">
+                        Angled reference beam creates spatial carrier fringes for single-shot depth capture
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>Carrier Frequency <span class="value-display" id="offaxis-carrier-value">50 MHz</span></label>
+                        <input type="range" id="offaxis-carrier" min="10" max="150" step="5" value="50" disabled>
+                    </div>
+                    <div style="font-size: 11px; color: #888; margin-top: -5px;">
+                        Spatial frequency of interference fringes in MHz (higher = more tilted fringes)
+                    </div>
+                    
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="offaxis-show-fft-preview" disabled>
+                        <label for="offaxis-show-fft-preview">Show Real-Time FFT Preview</label>
+                    </div>
+                    
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="offaxis-fft-test-mode" disabled>
+                        <label for="offaxis-fft-test-mode">🧪 Use Test Pattern (Sanity Check)</label>
+                    </div>
+                    
+                    <div style="font-size: 11px; color: #6f6; margin-top: 5px; padding: 5px; background: rgba(0,255,0,0.1); border-radius: 3px;">
+                        ℹ️ Uses Target SPP from Holography settings above
+                    </div>
+                    
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="offaxis-show-comparison" disabled>
+                        <label for="offaxis-show-comparison">📊 Show Wrapped/Unwrapped Comparison</label>
+                    </div>
+                    
+                    <div style="font-size: 11px; color: #888; margin-top: 5px;">
+                        Full pipeline preview (updates every 500ms):<br>
+                        1. FFT → 2. Filter sideband → 3. Reconstruct depth<br>
+                        ✓ Phase unwrapping & magnitude masking enabled
+                    </div>
+                </div>
+                
+                <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #333;">
+                    <div style="font-size: 11px; color: #aaa; margin-bottom: 8px; font-weight: bold;">📏 Ground Truth Reference</div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="show-depth-reference">
+                        <label for="show-depth-reference">Show Depth Map (Ground Truth)</label>
+                    </div>
+                    <div style="font-size: 11px; color: #888; margin-top: 5px;">
+                        Direct raycast depth for comparison with reconstructed results
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ═══════════════════════════════════════════════════════════ -->
+            <!-- VISUALIZATION (NOT FUNCTIONAL) -->
+            <!-- ═══════════════════════════════════════════════════════════ -->
+            <!-- <div class="control-section" style="opacity: 0.4; pointer-events: none;">
+                <h3>👁️ Visualization <span style="font-size: 11px; color: #f88;">(Not Implemented)</span></h3>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="show-rays" checked disabled>
+                    <label for="show-rays">Show Sample Rays</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="show-components" checked disabled>
+                    <label for="show-components">Show Components</label>
+                </div>
+                <div class="control-group">
+                    <label>Ray Count <span class="value-display" id="ray-count-value">80</span></label>
+                    <input type="range" id="viz-ray-count" min="5" max="200" value="80" disabled>
+                </div>
+                <div style="font-size: 11px; color: #f88; margin-top: 5px; font-style: italic;">
+                    ⚠️ This feature is currently non-functional
+                </div>
+            </div> -->
+        </div>
+    </div>
+    
+    <!-- Gizmo Interaction Status -->
+    <div id="gizmo-status" style="display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(0, 0, 0, 0.85); color: white; padding: 12px 24px; border-radius: 8px; font-size: 16px; font-weight: bold; z-index: 10000; box-shadow: 0 4px 12px rgba(0,0,0,0.5); border: 2px solid #4a9eff;">
+    </div>
+    
+    <script type="module" src="js/main.js?v=10"></script>
+</body>
+</html>

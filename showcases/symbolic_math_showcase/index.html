@@ -1,0 +1,1309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Symbolic Math Engine - Ruby Implementation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/ruby.min.js"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Back Button -->
+    <a href="../../index.html" class="back-button">Back to Portfolio</a>
+
+    <!-- Background Effects -->
+    <div class="background-gradient"></div>
+    <div class="orbs">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="nav-bar">
+        <div class="nav-logo">Symbolic Math Engine</div>
+        <div class="nav-links">
+            <a href="#overview" class="nav-link active">Overview</a>
+            <a href="#architecture" class="nav-link">Architecture</a>
+            <a href="#derivatives" class="nav-link">Derivatives</a>
+            <a href="#integration" class="nav-link">Integration</a>
+            <a href="#simplification" class="nav-link">Simplification</a>
+            <a href="#demos" class="nav-link">Demos</a>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <header class="hero-section">
+        <div class="hero-content">
+            <div class="hero-badge">Ruby Implementation <span class="language-badge">Ruby</span></div>
+            <h1 class="hero-title">Symbolic Mathematics Engine</h1>
+            <p class="hero-subtitle">A comprehensive computer algebra system built from scratch in Ruby</p>
+            <div class="hero-features">
+                <span class="feature-pill">Symbolic Differentiation</span>
+                <span class="feature-pill">Heuristic Integration</span>
+                <span class="feature-pill">Tree-Based AST</span>
+                <span class="feature-pill">Derivation Tracing</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container">
+
+        <!-- Quick Demo Section -->
+        <section id="demo-intro" class="content-section">
+            <div class="section-header">
+                <h2 class="section-title">See It In Action</h2>
+                <div class="section-divider"></div>
+            </div>
+
+            <div class="demo-video-section">
+                <p class="text-content">
+                    Watch a quick demonstration of the symbolic math engine handling a complex derivative (more demos: <strong>integral</strong> and <strong>simplification</strong> below):
+                </p>
+                <div class="video-showcase">
+                    <video controls preload="metadata">
+                        <source src="complex_derivative.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            </div>
+
+            <h3 class="subsection-title">How to Use the Interface</h3>
+            <p class="text-content">
+                The web interface provides an intuitive workflow for symbolic computation:
+            </p>
+
+            <div class="ui-guide">
+                <div class="ui-step">
+                    <img src="input.png" alt="Input Bar" class="ui-image">
+                    <div class="ui-description">
+                        <h4>1. Input Bar</h4>
+                        <p>Type a mathematical formula using standard notation and press Enter to parse it into the expression tree.</p>
+                    </div>
+                </div>
+
+                <div class="ui-step">
+                    <img src="side_bar.png" alt="Tree View and Operations" class="ui-image">
+                    <div class="ui-description">
+                        <h4>2. Tree View & Operations</h4>
+                        <p>Once entered, the original formula appears on the left as a tree structure. Choose operations from the right sidebar to proceed: differentiate, integrate, simplify, or evaluate.</p>
+                    </div>
+                </div>
+
+                <div class="ui-step">
+                    <img src="solved.png" alt="Result Display" class="ui-image">
+                    <div class="ui-description">
+                        <h4>3. Result Display</h4>
+                        <p>The result is shown as a tree structure, written out in raw infix form, and beautifully rendered in LaTeX notation.</p>
+                    </div>
+                </div>
+
+                <div class="ui-step">
+                    <img src="steps.png" alt="Step-by-Step View" class="ui-image">
+                    <div class="ui-description">
+                        <h4>4. Step-by-Step View</h4>
+                        <p>Expand the steps section below to see every transformation applied during the computation, perfect for learning and debugging.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Overview Section -->
+        <section id="overview" class="content-section">
+            <div class="section-header">
+                <h2 class="section-title">What It Can Do</h2>
+                <div class="section-divider"></div>
+            </div>
+
+            <div class="info-grid">
+                <div class="info-card">
+                    <div class="info-icon">🌲</div>
+                    <h3>Tree-Based Architecture</h3>
+                    <p>Expressions are represented as binary trees, where operators form internal nodes and operands form leaves. This elegant structure enables recursive algorithms for all operations.</p>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-icon">∂</div>
+                    <h3>Symbolic Differentiation</h3>
+                    <p>Complete implementation of calculus rules: product rule, quotient rule, chain rule, and derivatives of all elementary functions. Handles arbitrary compositions.</p>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-icon">∫</div>
+                    <h3>Heuristic Integration</h3>
+                    <p>Pattern-matching integration with algebraic simplification, by-parts detection, substitution, and partial fractions—covering common integral forms without a full decision procedure.</p>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-icon">⚡</div>
+                    <h3>Smart Simplification</h3>
+                    <p>Iterative simplification engine with algebraic rules, constant folding, identity elimination, and experimental expansion strategies.</p>
+                </div>
+            </div>
+
+            <div class="tech-note">
+                <div class="note-icon">📐</div>
+                <div class="note-content">
+                    <strong>Why Symbolic/Analytical?</strong> Numerical methods dominate practical computation, but analytical 
+                    approaches unlock capabilities that numerical methods cannot provide: exact derivatives enable gradient-based 
+                    optimization without discretization error; closed-form solutions reveal structural properties invisible to 
+                    sampling; symbolic manipulation enables algebraic simplification before expensive evaluation. Even when 
+                    <em>fully</em> analytical solutions are intractable, <strong>partially analytical pipelines</strong>—symbolic 
+                    where possible, numerical where necessary—often outperform purely numerical approaches. Research on analytical 
+                    solutions to rendering equations (achievable only in simplified setups) and automatic differentiation frameworks 
+                    both demonstrate this principle: analytical treatment, even partial, provides leverage.
+                </div>
+            </div>
+
+            <div class="tech-note">
+                <div class="note-icon">🔧</div>
+                <div class="note-content">
+                    <strong>Why From the Ground Up?</strong> Existing CAS libraries (SymPy, Mathematica, Maple) are powerful but 
+                    opaque. Building a symbolic engine from scratch provides direct insight into the comparative difficulty of 
+                    each component: parsing is straightforward, differentiation follows mechanical rules, but integration requires 
+                    sophisticated decision procedures (the Risch algorithm) that reveal deep connections between algebra and analysis. 
+                    Understanding these internals—where the hard problems actually lie—informs how to design systems that combine 
+                    symbolic and numerical computation effectively.
+                </div>
+            </div>
+
+            <div class="tech-note">
+                <div class="note-icon">💎</div>
+                <div class="note-content">
+                    <strong>Why Ruby?</strong> Ruby's elegant syntax and powerful metaprogramming capabilities make it ideal for implementing mathematical abstractions. The language's expressiveness allows the code to closely mirror mathematical notation.
+                </div>
+            </div>
+
+            <div class="github-note">
+                <div class="note-icon">⚠️</div>
+                <div class="note-content">
+                    <strong>GitHub Pages Limitation:</strong> This project cannot be hosted live on GitHub Pages because the backend mathematical engine is written in Ruby (using Sinatra). GitHub Pages only supports static HTML/CSS/JavaScript. The original live demo required a Ruby server to handle symbolic computation requests.
+                </div>
+            </div>
+        </section>
+
+        <!-- Architecture Section -->
+        <section id="architecture" class="content-section">
+            <div class="section-header">
+                <h2 class="section-title">System Architecture</h2>
+                <div class="section-divider"></div>
+            </div>
+
+            <h3 class="subsection-title">Expression Tree Data Structure</h3>
+            <p class="text-content">
+                At the core of the system is the <code>ExpressionNode</code> class, implementing a binary tree where:
+            </p>
+            <ul class="styled-list">
+                <li><strong>Leaf nodes</strong> contain constants or variables</li>
+                <li><strong>Internal nodes</strong> contain operators (+, -, ×, ÷, ^, sin, cos, ln, etc.)</li>
+                <li><strong>Each node</strong> maintains pointers to left child, right child, and parent</li>
+                <li><strong>Unary operators</strong> (sin, cos, ln) use only the right child</li>
+            </ul>
+
+            <div class="code-block-wrapper">
+                <div class="code-header">
+                    <span class="code-lang">Ruby</span>
+                    <span class="code-file">expression_node.rb</span>
+                </div>
+                <pre><code class="language-ruby">class ExpressionNode
+  attr_accessor :isleaf, :data, :left, :right, :parent, :type
+  
+  def initialize(is_leaf, value)
+    @isleaf = is_leaf
+    @data = value.is_a?(Numeric) ? value : value.clone
+    @left = nil
+    @right = nil
+    @parent = nil
+    @type = nil
+  end
+  
+  # Deep clone of node and its subtree
+  def deep_clone
+    new_node = ExpressionNode.new(@isleaf, @data)
+    new_node.type = @type
+    
+    if @left
+      new_node.left = @left.deep_clone
+      new_node.left.parent = new_node
+    end
+    
+    if @right
+      new_node.right = @right.deep_clone
+      new_node.right.parent = new_node
+    end
+    
+    new_node
+  end
+  
+  # Check if subtree is constant with respect to a variable
+  def constant_wrt?(variable)
+    return false unless self
+    
+    if @isleaf
+      return @data != variable
+    end
+    
+    left_const = @left ? @left.constant_wrt?(variable) : true
+    right_const = @right ? @right.constant_wrt?(variable) : true
+    
+    return left_const && right_const
+  end
+end</code></pre>
+            </div>
+
+            <p class="text-content">
+                The <code>deep_clone</code> method is crucial for derivative and integration operations, as it allows us to create independent copies of subtrees without modifying the original expression. The <code>constant_wrt?</code> method recursively checks if a subtree depends on a given variable, enabling optimization of integration and simplification routines.
+            </p>
+
+            <h3 class="subsection-title">Tree Visualization System</h3>
+            <p class="text-content">
+                One of the most elegant parts of the codebase is the tree visualizer, which renders expression trees with beautiful Unicode formatting:
+            </p>
+
+            <div class="code-block-wrapper">
+                <div class="code-header">
+                    <span class="code-lang">Ruby</span>
+                    <span class="code-file">tree_visualizer.rb</span>
+                </div>
+                <pre><code class="language-ruby">def visualize_node(node, prefix, output, show_values, branch_type = "ROOT")
+  return unless node
+  
+  # Node visualization with clear branch indicators
+  if branch_type == "ROOT"
+    output.print "  🌲 ROOT: "
+  else
+    output.print prefix
+    if branch_type == "LEFT"
+      output.print "├─[L]─ "
+    else
+      output.print "└─[R]─ "
+    end
+  end
+  
+  # Node content with styling
+  if node.isleaf
+    case node.data
+    when Numeric
+      output.print "【#{format_number(node.data)}】"
+    when String
+      if @variables.key?(node.data)
+        value_str = show_values && @variables[node.data] ? "=#{@variables[node.data]}" : ""
+        output.print "<#{node.data}#{value_str}>"
+      else
+        output.print "【#{node.data}】"
+      end
+    end
+  else
+    output.print "⟨#{node.data}⟩"
+  end
+  output.puts
+  
+  # Recursively display children with proper indentation
+  if node.left || node.right
+    new_prefix = branch_type == "ROOT" ? "  " : 
+                 branch_type == "LEFT" ? prefix + "│      " : 
+                                        prefix + "       "
+    
+    visualize_node(node.left, new_prefix, output, show_values, "LEFT") if node.left
+    visualize_node(node.right, new_prefix, output, show_values, "RIGHT") if node.right
+  end
+end</code></pre>
+            </div>
+
+            <div class="example-output">
+                <div class="output-header">Example Tree Output</div>
+                <pre class="output-content">
+  🌲 ROOT: ⟨+⟩
+  ├─[L]─ ⟨*⟩
+  │      ├─[L]─ 【2】
+  │      └─[R]─ ⟨^⟩
+  │             ├─[L]─ <x>
+  │             └─[R]─ 【2】
+  └─[R]─ ⟨*⟩
+         ├─[L]─ 【3】
+         └─[R]─ <x>
+                </pre>
+                <div class="output-caption">Expression: 2x² + 3x</div>
+            </div>
+        </section>
+
+        <!-- Derivatives Section -->
+        <section id="derivatives" class="content-section">
+            <div class="section-header">
+                <h2 class="section-title">Symbolic Differentiation</h2>
+                <div class="section-divider"></div>
+            </div>
+
+            <p class="text-content">
+                The derivative engine implements all fundamental calculus rules through recursive tree manipulation. Each operation creates a new subtree representing the derivative, following exact mathematical rules.
+            </p>
+
+            <h3 class="subsection-title">Core Differentiation Rules</h3>
+
+            <div class="math-rules">
+                <div class="math-rule">
+                    <div class="rule-name">Power Rule</div>
+                    <div class="rule-formula">$$\frac{d}{dx}(x^n) = n \cdot x^{n-1}$$</div>
+                </div>
+                <div class="math-rule">
+                    <div class="rule-name">Product Rule</div>
+                    <div class="rule-formula">$$\frac{d}{dx}(uv) = u'v + uv'$$</div>
+                </div>
+                <div class="math-rule">
+                    <div class="rule-name">Quotient Rule</div>
+                    <div class="rule-formula">$$\frac{d}{dx}\left(\frac{u}{v}\right) = \frac{u'v - uv'}{v^2}$$</div>
+                </div>
+                <div class="math-rule">
+                    <div class="rule-name">Chain Rule</div>
+                    <div class="rule-formula">$$\frac{d}{dx}f(g(x)) = f'(g(x)) \cdot g'(x)$$</div>
+                </div>
+            </div>
+
+            <h3 class="subsection-title">Implementation: Product Rule</h3>
+            <p class="text-content">
+                The product rule implementation showcases the elegance of tree-based symbolic computation:
+            </p>
+
+            <div class="code-block-wrapper">
+                <div class="code-header">
+                    <span class="code-lang">Ruby</span>
+                    <span class="code-file">derivative_operations.rb</span>
+                </div>
+                <pre><code class="language-ruby">when '*'
+  # Product rule: (uv)' = u'v + uv'
+  u = node.left
+  v = node.right
+  u_prime = compute_derivative(u, variable, steps, aggressive_simplify)
+  v_prime = compute_derivative(v, variable, steps, aggressive_simplify)
+  
+  # u'v term
+  term1 = ExpressionNode.new(false, "*")
+  term1.connect(u_prime, "L")
+  term1.connect(v.deep_clone, "R")
+  
+  # uv' term
+  term2 = ExpressionNode.new(false, "*")
+  term2.connect(u.deep_clone, "L")
+  term2.connect(v_prime, "R")
+  
+  # u'v + uv'
+  result = ExpressionNode.new(false, "+")
+  result.connect(term1, "L")
+  result.connect(term2, "R")
+  
+  steps << {
+    operation: "derivative", 
+    rule: "Product Rule: (uv)' = u'v + uv'", 
+    from: node.to_infix, 
+    to: result.to_infix
+  } if steps
+  
+  result</code></pre>
+            </div>
+
+            <h3 class="subsection-title">Advanced: General Power Rule</h3>
+            <p class="text-content">
+                For the general case \(f(x)^{g(x)}\), we use logarithmic differentiation. This is one of the more complex implementations:
+            </p>
+
+            <div class="code-block-wrapper">
+                <div class="code-header">
+                    <span class="code-lang">Ruby</span>
+                    <span class="code-file">derivative_operations.rb</span>
+                </div>
+                <pre><code class="language-ruby"># General case: f(x)^g(x) using logarithmic differentiation
+# d/dx(f^g) = f^g * d/dx(g*ln(f)) = f^g * (g'*ln(f) + g*f'/f)
+
+result = ExpressionNode.new(false, "*")
+result.connect(node.deep_clone, "L")
+
+# (g'*ln(f) + g*f'/f)
+inner = ExpressionNode.new(false, "+")
+
+# g' * ln(f)
+term1 = ExpressionNode.new(false, "*")
+term1.connect(compute_derivative(node.right, variable, steps, aggressive_simplify), "L")
+ln_f = ExpressionNode.new(false, "ln")
+ln_f.connect(node.left.deep_clone, "R")
+term1.connect(ln_f, "R")
+
+# g * f' / f
+term2 = ExpressionNode.new(false, "*")
+term2.connect(node.right.deep_clone, "L")
+div_part = ExpressionNode.new(false, "/")
+div_part.connect(compute_derivative(node.left, variable, steps, aggressive_simplify), "L")
+div_part.connect(node.left.deep_clone, "R")
+term2.connect(div_part, "R")
+
+inner.connect(term1, "L")
+inner.connect(term2, "R")
+result.connect(inner, "R")</code></pre>
+            </div>
+
+            <div class="math-explanation">
+                <strong>Mathematical Insight:</strong> For \(f(x)^{g(x)}\), we can't use the simple power rule or exponential rule. Instead, we take the logarithm: \(\ln(y) = g(x)\ln(f(x))\), then differentiate implicitly: \(\frac{1}{y}\frac{dy}{dx} = g'(x)\ln(f(x)) + g(x)\frac{f'(x)}{f(x)}\), giving us \(\frac{dy}{dx} = f(x)^{g(x)}\left[g'(x)\ln(f(x)) + g(x)\frac{f'(x)}{f(x)}\right]\).
+            </div>
+
+            <h3 class="subsection-title">Derivative Demonstrations</h3>
+            
+            <div class="demo-video-section">
+                <h4>Complex Hand-Typed Derivative</h4>
+                <p class="text-content">
+                    Watch the engine handle a complex derivative typed by hand:
+                </p>
+                <div class="video-showcase">
+                    <video controls preload="metadata">
+                        <source src="complex_derivative.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            </div>
+
+            <div class="demo-video-section">
+                <h4>An Even More Complex Derivative</h4>
+                <p class="text-content">
+                    The system handles arbitrarily nested compositions. Here's a significantly more complex example:
+                </p>
+                <div class="image-showcase">
+                    <img src="Absurdly_Complex_Derivative_(Verified).png" 
+                         alt="Complex derivative computation" 
+                         style="width: 100%; border-radius: 12px; border: 1px solid rgba(212, 175, 55, 0.3);">
+                </div>
+            </div>
+
+            <div class="demo-video-section">
+                <h4>More Derivatives in Action</h4>
+                <p class="text-content">
+                    Here are additional examples showing consistent behavior across different function types:
+                </p>
+                <div class="video-showcase">
+                    <video controls preload="metadata">
+                        <source src="more_derivatives.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            </div>
+
+            <div class="feature-highlight">
+                <div class="highlight-icon">✓</div>
+                <p class="highlight-text">
+                    <strong>All derivatives can be solved regardless of complexity.</strong> The recursive tree-based algorithm handles arbitrary compositions of functions, applying the chain rule, product rule, and quotient rule as needed.
+                </p>
+            </div>
+        </section>
+
+        <!-- Integration Section -->
+        <section id="integration" class="content-section">
+            <div class="section-header">
+                <h2 class="section-title">Symbolic Integration</h2>
+                <div class="section-divider"></div>
+            </div>
+
+            <p class="text-content">
+                Integration is significantly more complex than differentiation. The system uses a <strong>heuristic pattern-matching</strong> approach:
+            </p>
+
+            <div class="tier-grid">
+                <div class="tier-card">
+                    <div class="tier-badge">Core Rules</div>
+                    <h4>Direct Integration</h4>
+                    <p>Handles standard forms using known antiderivatives:</p>
+                    <ul>
+                        <li>Power rule: \(\int x^n dx = \frac{x^{n+1}}{n+1}\)</li>
+                        <li>Trigonometric and exponential forms</li>
+                        <li>Sum/difference and constant multiple rules</li>
+                        <li>Logarithmic patterns</li>
+                    </ul>
+                </div>
+                <div class="tier-card">
+                    <div class="tier-badge experimental">Advanced</div>
+                    <h4>Transformation Techniques</h4>
+                    <p>Pattern detection and algebraic manipulation:</p>
+                    <ul>
+                        <li>Integration by parts (LIATE heuristic)</li>
+                        <li>Substitution detection</li>
+                        <li>Partial fraction decomposition</li>
+                        <li>Trigonometric power reduction</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="risch-note">
+                <div class="note-icon">🔬</div>
+                <div class="note-content">
+                    <h4>Why Not Full RISCH?</h4>
+                    <p>
+                        The <strong>Risch algorithm</strong> is completely deterministic and can even determine whether a function has an elementary antiderivative. However, implementing the full algorithm is extraordinarily complex—even <strong>Mathematica doesn't have a complete RISCH implementation</strong>. A theoretically perfect and complete Risch algorithm is considered practically impossible to implement in its full generality.
+                    </p>
+                    <p>
+                        This project takes a pragmatic approach: using pattern matching and heuristic methods inspired by Risch's ideas, achieving good coverage of common integrals without the overwhelming complexity of the full algorithm.
+                    </p>
+                </div>
+            </div>
+
+            <h3 class="subsection-title">Term Rewriting: A Practical Alternative</h3>
+            <p class="text-content">
+                Instead of implementing the full Risch algorithm, this system uses a <strong>term rewriting</strong> approach—fundamentally the same technique used in chess engines and Monte Carlo ray tracing:
+            </p>
+
+            <div class="info-grid" style="margin-bottom: 2rem;">
+                <div class="info-card">
+                    <div class="info-icon">♟️</div>
+                    <h3>The Search Space Analogy</h3>
+                    <p>
+                        A chess engine explores possible moves; a ray tracer samples possible light paths; this integrator 
+                        explores possible algebraic transformations. Each applies <strong>local rewrite rules</strong> 
+                        (subtree substitutions) and evaluates whether the result is "better" by some heuristic.
+                    </p>
+                </div>
+                <div class="info-card">
+                    <div class="info-icon">🎲</div>
+                    <h3>Non-Deterministic Exploration</h3>
+                    <p>
+                        Unlike Risch's deterministic decision procedure, this stochastic approach explores multiple 
+                        transformation paths. When one path fails, it backtracks and tries another—trading 
+                        theoretical completeness for practical coverage of common cases.
+                    </p>
+                </div>
+            </div>
+
+            <div class="code-block-wrapper">
+                <div class="code-header">
+                    <span class="code-lang">Ruby</span>
+                    <span class="code-file">simplification.rb (conceptual)</span>
+                </div>
+                <pre><code class="language-ruby"># Term rewriting = recursive subtree substitution
+def apply_rewrite_rules(node, steps)
+  changed = false
+  
+  # Each rule: pattern → replacement
+  changed |= apply_rule(node, "x + x", "2*x")      # Combine like terms
+  changed |= apply_rule(node, "x * x", "x^2")      # Power conversion
+  changed |= apply_rule(node, "(x^a)^b", "x^(a*b)") # Power of power
+  changed |= apply_rule(node, "x - x", "0")        # Cancellation
+  
+  # Recursively apply to children
+  changed |= apply_rewrite_rules(node.left, steps) if node.left
+  changed |= apply_rewrite_rules(node.right, steps) if node.right
+  
+  # Iterate until no more changes (fixed point)
+  changed
+end</code></pre>
+            </div>
+
+            <div class="tech-note">
+                <div class="note-icon">✓</div>
+                <div class="note-content">
+                    <strong>Practical Results:</strong> Despite being theoretically incomplete, this approach already handles 
+                    many non-trivial integrals: products of exponentials and trigonometrics (e.g., ∫e^x·sin(x)dx), 
+                    rational functions, inverse trig functions, and nested compositions. The heuristic-driven exploration 
+                    succeeds where a naive algebraic approach would fail.
+                </div>
+            </div>
+
+            <h3 class="subsection-title">Pattern Detection System</h3>
+            <p class="text-content">
+                The experimental integrator uses sophisticated pattern matching with colored terminal output for debugging:
+            </p>
+
+            <!-- TODO: Verify this code snippet matches current implementation -->
+            <div class="code-block-wrapper">
+                <div class="code-header">
+                    <span class="code-lang">Ruby</span>
+                    <span class="code-file">experimental_risch.rb</span>
+                </div>
+                <pre><code class="language-ruby">module StepVisualizer
+  def self.print_pattern(description, color = Colors::BRIGHT_BLUE)
+    msg = "│ 🔍 Pattern: #{description}"
+    ExperimentalRisch.log_debug("#{color}#{msg}#{Colors::RESET}", level: 0)
+  end
+  
+  def self.print_method(method_name, color = Colors::BRIGHT_GREEN)
+    msg = "│ ⚡ Method: #{method_name}"
+    ExperimentalRisch.log_debug("#{color}#{msg}#{Colors::RESET}", level: 0)
+  end
+  
+  def self.print_step(label, value, color = Colors::BRIGHT_YELLOW)
+    msg = "│ ├─ #{label}: #{value}"
+    ExperimentalRisch.log_debug("#{color}#{msg}#{Colors::RESET}", level: 0)
+  end
+  
+  def self.print_result(result, color = Colors::BRIGHT_PURPLE)
+    msg = "│ ✓ Result: #{result}"
+    ExperimentalRisch.log_debug("#{color}#{msg}#{Colors::RESET}", level: 0)
+  end
+end</code></pre>
+            </div>
+
+            <h3 class="subsection-title">Integration Techniques by Test Case</h3>
+            
+            <div class="technique-showcase">
+                <div class="technique-item">
+                    <div class="technique-header">
+                        <span class="technique-name">Polynomial Integration</span>
+                        <span class="technique-tag">Power Rule</span>
+                    </div>
+                    <div class="technique-example">
+                        $$\int (2x^2 + 3x + 1) \, dx = \frac{2x^3}{3} + \frac{3x^2}{2} + x + C$$
+                    </div>
+                    <p>Handles arbitrary polynomial degrees by recursively applying the power rule to each term.</p>
+                </div>
+
+                <div class="technique-item">
+                    <div class="technique-header">
+                        <span class="technique-name">Trigonometric Integration</span>
+                        <span class="technique-tag">Pattern Matching</span>
+                    </div>
+                    <div class="technique-example">
+                        $$\int \sin(x) \, dx = -\cos(x) + C$$
+                        $$\int \cos(x) \, dx = \sin(x) + C$$
+                        $$\int \sec^2(x) \, dx = \tan(x) + C$$
+                    </div>
+                    <p>Recognizes standard trigonometric forms and applies known antiderivatives.</p>
+                </div>
+
+                <div class="technique-item">
+                    <div class="technique-header">
+                        <span class="technique-name">Rational Functions</span>
+                        <span class="technique-tag">Algebraic Simplification</span>
+                    </div>
+                    <div class="technique-example">
+                        $$\int \frac{x}{x^2} \, dx = \int \frac{1}{x} \, dx = \ln|x| + C$$
+                    </div>
+                    <p>Simplifies rational expressions before integration, canceling common factors.</p>
+                </div>
+
+                <div class="technique-item">
+                    <div class="technique-header">
+                        <span class="technique-name">Substitution Detection</span>
+                        <span class="technique-tag">Experimental</span>
+                    </div>
+                    <div class="technique-example">
+                        $$\int 2x \cdot e^{x^2} \, dx \rightarrow u = x^2, du = 2x \, dx$$
+                        $$= \int e^u \, du = e^{x^2} + C$$
+                    </div>
+                    <p>Automatically detects when a composition suggests u-substitution.</p>
+                </div>
+            </div>
+
+            <h3 class="subsection-title">Rational Fraction Handling</h3>
+            <p class="text-content">
+                A subtle but important detail: the system preserves exact rational representations to avoid floating-point errors:
+            </p>
+
+            <div class="code-block-wrapper">
+                <div class="code-header">
+                    <span class="code-lang">Ruby</span>
+                    <span class="code-file">integration_operations.rb</span>
+                </div>
+                <pre><code class="language-ruby">def create_rational_fraction(numerator_val, denominator_val)
+  # Check if division produces a clean decimal
+  if denominator_val != 0 && is_clean_decimal?(numerator_val, denominator_val)
+    # Create as evaluated number
+    result = numerator_val.to_f / denominator_val.to_f
+    return ExpressionNode.new(true, result)
+  else
+    # Keep as fraction
+    fraction = ExpressionNode.new(false, "/")
+    fraction.connect(ExpressionNode.new(true, numerator_val), "L")
+    fraction.connect(ExpressionNode.new(true, denominator_val), "R")
+    return fraction
+  end
+end
+
+def is_clean_decimal?(num, den)
+  return false if den == 0
+  
+  num_int = num.to_f == num.to_i.to_f ? num.to_i : num
+  den_int = den.to_f == den.to_i.to_f ? den.to_i : den
+  
+  return true unless num_int.is_a?(Integer) && den_int.is_a?(Integer)
+  
+  # Check if denominator only has factors of 2 and 5 (terminating decimal)
+  den_reduced = den_int.abs
+  den_reduced /= 2 while den_reduced % 2 == 0
+  den_reduced /= 5 while den_reduced % 5 == 0
+  
+  # If only 1 remains, it's a terminating decimal
+  den_reduced == 1
+end</code></pre>
+            </div>
+
+            <div class="math-explanation">
+                <strong>Why This Matters:</strong> When integrating \(\int x \, dx = \frac{x^2}{2}\), we want to keep it as \(\frac{1}{2} \cdot x^2\) in symbolic form, not convert to \(0.5 \cdot x^2\). This preserves exactness and produces cleaner LaTeX output. However, for \(\frac{1}{4}\) (which equals 0.25), the system uses the decimal since it terminates cleanly.
+            </div>
+
+            <h3 class="subsection-title">Integration Demonstrations</h3>
+            
+            <div class="demo-video-section">
+                <h4>Simple Integral Examples</h4>
+                <p class="text-content">
+                    Watch the system handle straightforward integration problems with algebraic and trigonometric functions:
+                </p>
+                <div class="video-showcase">
+                    <video controls preload="metadata">
+                        <source src="simple_integral.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            </div>
+
+            <div class="demo-video-section">
+                <h4>Complex Integral with Pattern Detection</h4>
+                <p class="text-content">
+                    Here's a more challenging integral where the experimental Risch-like algorithm identifies patterns and applies substitution techniques:
+                </p>
+                <div class="video-showcase">
+                    <video controls preload="metadata">
+                        <source src="complex_integral.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            </div>
+        </section>
+
+        <!-- Simplification Section -->
+        <section id="simplification" class="content-section">
+            <div class="section-header">
+                <h2 class="section-title">Expression Simplification</h2>
+                <div class="section-divider"></div>
+            </div>
+
+            <p class="text-content">
+                Without simplification, symbolic operations quickly produce unwieldy expressions. Consider differentiating \(x^3\) using the product rule three times—you'd get \(x \cdot x \cdot 1 + x \cdot 1 \cdot x + 1 \cdot x \cdot x\) instead of \(3x^2\). The simplification engine prevents this explosion.
+            </p>
+
+            <h3 class="subsection-title">Why Simplification is Critical</h3>
+            
+            <div class="complexity-demo">
+                <div class="complexity-item">
+                    <div class="complexity-label">Without Simplification</div>
+                    <div class="complexity-expr">
+                        $$\frac{d^2}{dx^2}(x^4) = ((4 \cdot x^{4-1}) \cdot 1) \cdot (4-1) \cdot x^{(4-1)-1}$$
+                    </div>
+                </div>
+                <div class="complexity-arrow">→ Simplify →</div>
+                <div class="complexity-item">
+                    <div class="complexity-label">With Simplification</div>
+                    <div class="complexity-expr">
+                        $$\frac{d^2}{dx^2}(x^4) = 12x^2$$
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="subsection-title">Two-Tier Simplification System</h3>
+
+            <div class="code-block-wrapper">
+                <div class="code-header">
+                    <span class="code-lang">Ruby</span>
+                    <span class="code-file">simplification.rb</span>
+                </div>
+                <pre><code class="language-ruby">def simplify(track_steps: false, max_iterations: 30)
+  puts "\n========================================="
+  puts "STARTING SIMPLIFICATION"
+  puts "Expression: #{@root.to_infix}"
+  puts "Mode: #{@use_experimental_simplification ? 'Experimental' : 'Standard'}"
+  puts "=========================================\n"
+  
+  steps = [] if track_steps
+  iteration = 0
+  changed = true
+  last_expr = @root.to_infix
+  
+  while changed && iteration < max_iterations
+    iteration += 1
+    current_expr = @root.to_infix
+    
+    if @use_experimental_simplification
+      changed = experimental_simplify_pass(@root, steps)
+    else
+      changed = standard_simplify_pass(@root, steps)
+    end
+    
+    new_expr = @root.to_infix
+    
+    # Detect infinite loop
+    if new_expr == last_expr && changed
+      puts "  ⚠️  WARNING: Expression unchanged, stopping to prevent infinite loop"
+      changed = false
+    end
+    
+    last_expr = current_expr
+  end
+  
+  puts "\nFINAL RESULT: #{@root.to_infix}"
+  self
+end</code></pre>
+            </div>
+
+            <h3 class="subsection-title">Standard Simplification Rules</h3>
+
+            <div class="rules-grid">
+                <div class="rule-card">
+                    <div class="rule-title">Identity Elimination</div>
+                    <ul class="rule-list">
+                        <li>\(x + 0 = x\)</li>
+                        <li>\(x \times 1 = x\)</li>
+                        <li>\(x^1 = x\)</li>
+                    </ul>
+                </div>
+                <div class="rule-card">
+                    <div class="rule-title">Zero Absorption</div>
+                    <ul class="rule-list">
+                        <li>\(x \times 0 = 0\)</li>
+                        <li>\(x^0 = 1\)</li>
+                        <li>\(0 - x = -x\)</li>
+                    </ul>
+                </div>
+                <div class="rule-card">
+                    <div class="rule-title">Constant Folding</div>
+                    <ul class="rule-list">
+                        <li>\(2 + 3 = 5\)</li>
+                        <li>\(4 \times 5 = 20\)</li>
+                        <li>\(2^3 = 8\)</li>
+                    </ul>
+                </div>
+                <div class="rule-card">
+                    <div class="rule-title">Cancellation</div>
+                    <ul class="rule-list">
+                        <li>\((a + c) - c = a\)</li>
+                        <li>\(\frac{x^n}{x} = x^{n-1}\)</li>
+                        <li>\(\frac{a \cdot x}{x} = a\)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3 class="subsection-title">Experimental: Algebraic Expansion</h3>
+            <p class="text-content">
+                The experimental mode includes expansion rules for common algebraic identities:
+            </p>
+
+            <div class="code-block-wrapper">
+                <div class="code-header">
+                    <span class="code-lang">Ruby</span>
+                    <span class="code-file">simplification.rb - Binomial Expansion</span>
+                </div>
+                <pre><code class="language-ruby"># Expand (x+a)^2 → x^2 + 2*x*a + a^2
+if node.data == '^' && node.right && node.right.isleaf && 
+   node.right.data.is_a?(Numeric) && node.right.data == 2 &&
+   node.left && node.left.data == '+'
+  
+  u = node.left.left
+  v = node.left.right
+  
+  if u && v
+    # Build u^2
+    u_squared = ExpressionNode.new(false, "^")
+    u_squared.connect(u.deep_clone, "L")
+    u_squared.connect(ExpressionNode.new(true, 2), "R")
+    
+    # Build 2*u*v
+    two_uv = ExpressionNode.new(false, "*")
+    two_uv.connect(ExpressionNode.new(true, 2), "L")
+    uv_node = ExpressionNode.new(false, "*")
+    uv_node.connect(u.deep_clone, "L")
+    uv_node.connect(v.deep_clone, "R")
+    two_uv.connect(uv_node, "R")
+    
+    # Build v^2
+    v_squared = ExpressionNode.new(false, "^")
+    v_squared.connect(v.deep_clone, "L")
+    v_squared.connect(ExpressionNode.new(true, 2), "R")
+    
+    # Build u^2 + 2*u*v
+    sum1 = ExpressionNode.new(false, "+")
+    sum1.connect(u_squared, "L")
+    sum1.connect(two_uv, "R")
+    
+    # Build (u^2 + 2*u*v) + v^2
+    result = ExpressionNode.new(false, "+")
+    result.connect(sum1, "L")
+    result.connect(v_squared, "R")
+    
+    replace_node_with(node, result)
+    steps << {
+      operation: "simplification", 
+      rule: "Expand: (u+v)^2 = u^2 + 2*u*v + v^2"
+    } if steps
+    changed = true
+  end
+end</code></pre>
+            </div>
+
+            <div class="expansion-showcase">
+                <h4>Supported Expansions</h4>
+                <div class="expansion-list">
+                    <div class="expansion-item">
+                        <span class="expansion-formula">$$(u + v)^2 = u^2 + 2uv + v^2$$</span>
+                    </div>
+                    <div class="expansion-item">
+                        <span class="expansion-formula">$$(u - v)^2 = u^2 - 2uv + v^2$$</span>
+                    </div>
+                    <div class="expansion-item">
+                        <span class="expansion-formula">$$(u + v)^3 = u^3 + 3u^2v + 3uv^2 + v^3$$</span>
+                    </div>
+                    <div class="expansion-item">
+                        <span class="expansion-formula">$$(u - v)^3 = u^3 - 3u^2v + 3uv^2 - v^3$$</span>
+                    </div>
+                    <div class="expansion-item">
+                        <span class="expansion-formula">$$a(b + c) = ab + ac$$</span>
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="subsection-title">The Simplification Dilemma</h3>
+            <p class="text-content">
+                Interestingly, "simplified" is context-dependent. Is \((x+1)^2\) simpler than \(x^2 + 2x + 1\)? The factored form is more compact, but the expanded form is easier for polynomial operations. The system makes trade-offs based on tree depth and operation counts.
+            </p>
+
+            <h3 class="subsection-title">Simplification in Action</h3>
+            
+            <div class="demo-video-section">
+                <p class="text-content">
+                    Watch how the iterative simplification engine reduces complex expressions step by step, applying multiple rules in sequence:
+                </p>
+                <div class="video-showcase">
+                    <video controls preload="metadata">
+                        <source src="simplification.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            </div>
+        </section>
+
+        <!-- Additional Features Section -->
+        <section id="demos" class="content-section">
+            <div class="section-header">
+                <h2 class="section-title">Additional Features</h2>
+                <div class="section-divider"></div>
+            </div>
+
+            <h3 class="subsection-title">Expression Evaluation</h3>
+            <p class="text-content">
+                With the tree structure, evaluation is trivial—a simple post-order traversal:
+            </p>
+
+            <div class="code-block-wrapper">
+                <div class="code-header">
+                    <span class="code-lang">Ruby</span>
+                    <span class="code-file">expression_node.rb</span>
+                </div>
+                <pre><code class="language-ruby">def evaluate(var_values)
+  return 0 unless self
+  
+  if @isleaf
+    case @data
+    when Numeric
+      return @data.to_f
+    when String
+      return var_values[@data].to_f if var_values[@data]
+      return 0.0
+    end
+  end
+  
+  # Operator evaluation
+  case @data
+  when '+'
+    return @left.evaluate(var_values) + @right.evaluate(var_values)
+  when '-'
+    return @left.evaluate(var_values) - @right.evaluate(var_values)
+  when '*'
+    return @left.evaluate(var_values) * @right.evaluate(var_values)
+  when '/'
+    right_val = @right.evaluate(var_values)
+    return right_val != 0 ? @left.evaluate(var_values) / right_val : Float::INFINITY
+  when '^'
+    return @left.evaluate(var_values) ** @right.evaluate(var_values)
+  when 'sin'
+    return Math.sin(@right.evaluate(var_values))
+  when 'cos'
+    return Math.cos(@right.evaluate(var_values))
+  # ... more functions
+  end
+end</code></pre>
+            </div>
+
+            <h3 class="subsection-title">Vector Calculus Operations</h3>
+            <p class="text-content">
+                The system extends to multivariable calculus with gradient, Laplacian, and differential form computations:
+            </p>
+
+            <div class="vector-ops">
+                <div class="vector-op">
+                    <div class="vector-name">Gradient</div>
+                    <div class="vector-formula">$$\nabla f = \left(\frac{\partial f}{\partial x}, \frac{\partial f}{\partial y}, \frac{\partial f}{\partial z}\right)$$</div>
+                </div>
+                <div class="vector-op">
+                    <div class="vector-name">Laplacian</div>
+                    <div class="vector-formula">$$\nabla^2 f = \frac{\partial^2 f}{\partial x^2} + \frac{\partial^2 f}{\partial y^2} + \frac{\partial^2 f}{\partial z^2}$$</div>
+                </div>
+                <div class="vector-op">
+                    <div class="vector-name">Differential Form</div>
+                    <div class="vector-formula">$$df = \frac{\partial f}{\partial x}dx + \frac{\partial f}{\partial y}dy + \frac{\partial f}{\partial z}dz$$</div>
+                </div>
+            </div>
+
+            <div class="demo-video-section">
+                <h4>Gradient Computation</h4>
+                <p class="text-content">
+                    The gradient operation computes partial derivatives with respect to multiple variables simultaneously:
+                </p>
+                <div class="video-showcase">
+                    <video controls preload="metadata">
+                        <source src="gradient.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            </div>
+
+            <div class="demo-video-section">
+                <h4>Expression Evaluation</h4>
+                <p class="text-content">
+                    Evaluate expressions with specific variable values, perfect for numerical analysis and verification:
+                </p>
+                <div class="video-showcase">
+                    <video controls preload="metadata">
+                        <source src="eval.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            </div>
+
+            <h3 class="subsection-title">Tree View Modes: Graphical vs. Text</h3>
+            <p class="text-content">
+                The interface supports two tree visualization modes: a graphical node-based view and a text-based hierarchical view. Each has distinct advantages:
+            </p>
+
+            <div class="demo-video-section">
+                <h4>Switching Between Views</h4>
+                <div class="video-showcase">
+                    <video controls preload="metadata">
+                        <source src="text_graphical_expression_view.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            </div>
+
+            <div class="view-comparison">
+                <div class="view-benefits">
+                    <h4>When Text View is Handy</h4>
+                    <ul>
+                        <li><strong>Machine Processing:</strong> Text tree format is easily parseable by other programs or scripts for automated analysis</li>
+                        <li><strong>Debugging:</strong> Quickly spot structural issues by reading the tree hierarchy without visual clutter</li>
+                        <li><strong>Copy-Paste:</strong> Export tree structure to documentation, reports, or code comments</li>
+                        <li><strong>Compact Representation:</strong> View deeply nested expressions without requiring large screen space</li>
+                        <li><strong>Version Control:</strong> Track changes to expression structure in text-based diff tools</li>
+                        <li><strong>API Integration:</strong> Feed tree representation directly into other symbolic computation tools</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3 class="subsection-title">LaTeX Output Generation</h3>
+            <p class="text-content">
+                For presentation, the system converts expression trees to beautiful LaTeX notation:
+            </p>
+
+            <div class="code-block-wrapper">
+                <div class="code-header">
+                    <span class="code-lang">Ruby</span>
+                    <span class="code-file">tree_visualizer.rb</span>
+                </div>
+                <pre><code class="language-ruby">def to_latex(node = nil, parent_op = nil)
+  node = @root if node.nil?
+  return "" unless node
+  
+  if node.isleaf
+    if node.data.is_a?(Numeric)
+      if node.data.to_f == node.data.to_i.to_f
+        return node.data.to_i.to_s
+      else
+        # Convert to fraction for LaTeX
+        rational = node.data.rationalize(1e-10)
+        numerator = rational.numerator
+        denominator = rational.denominator
+        
+        if denominator != 1 && denominator <= 1000
+          return "\\frac{#{numerator}}{#{denominator}}"
+        else
+          return node.data.to_s
+        end
+      end
+    else
+      return node.data.to_s
+    end
+  end
+  
+  result = case node.data
+  when '+'
+    "#{to_latex(node.left, '+')} + #{to_latex(node.right, '+')}"
+  when '/'
+    "\\frac{#{to_latex(node.left, '/')}}{#{to_latex(node.right, '/')}}"
+  when '^'
+    base = to_latex(node.left, '^')
+    "{#{base}}^{#{to_latex(node.right, '^')}}"
+  when 'sin'
+    "\\sin\\left(#{to_latex(node.right)}\\right)"
+  when 'sqrt'
+    "\\sqrt{#{to_latex(node.right)}}"
+  # ... more cases
+  end
+  
+  result
+end</code></pre>
+            </div>
+
+            <div class="latex-examples">
+                <h4>Example Outputs</h4>
+                <div class="latex-grid">
+                    <div class="latex-example">
+                        <div class="latex-input">Input: "x^2 + 2*x + 1"</div>
+                        <div class="latex-output">$$x^2 + 2x + 1$$</div>
+                    </div>
+                    <div class="latex-example">
+                        <div class="latex-input">Input: "sin(x)^2 + cos(x)^2"</div>
+                        <div class="latex-output">$$\sin^2(x) + \cos^2(x)$$</div>
+                    </div>
+                    <div class="latex-example">
+                        <div class="latex-input">Input: "(x^3)/3"</div>
+                        <div class="latex-output">$$\frac{x^3}{3}$$</div>
+                    </div>
+                    <div class="latex-example">
+                        <div class="latex-input">Input: "sqrt(x^2 + y^2)"</div>
+                        <div class="latex-output">$$\sqrt{x^2 + y^2}$$</div>
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="subsection-title">Comprehensive Test Suite</h3>
+            <p class="text-content">
+                The project includes extensive testing across all features:
+            </p>
+
+            <div class="test-stats">
+                <!-- Derivatives - Blue theme -->
+                <div class="test-category" style="border-left: 3px solid #4a9eff;">
+                    <div class="test-icon" style="color: #4a9eff;">∂</div>
+                    <div class="test-name">Derivatives</div>
+                    <div class="test-count" style="color: #4a9eff;">Compositions, products, chains</div>
+                </div>
+                
+                <!-- Integration - Green theme -->
+                <div class="test-category" style="border-left: 3px solid #4ade80;">
+                    <div class="test-icon" style="color: #4ade80;">∫</div>
+                    <div class="test-name">Basic Integrals</div>
+                    <div class="test-count" style="color: #4ade80;">8 cases</div>
+                </div>
+                <div class="test-category" style="border-left: 3px solid #4ade80;">
+                    <div class="test-icon" style="color: #4ade80;">∫</div>
+                    <div class="test-name">By Parts</div>
+                    <div class="test-count" style="color: #4ade80;">4 cases</div>
+                </div>
+                <div class="test-category" style="border-left: 3px solid #4ade80;">
+                    <div class="test-icon" style="color: #4ade80;">∫</div>
+                    <div class="test-name">Trig Powers</div>
+                    <div class="test-count" style="color: #4ade80;">9 cases</div>
+                </div>
+                <div class="test-category" style="border-left: 3px solid #4ade80;">
+                    <div class="test-icon" style="color: #4ade80;">∫</div>
+                    <div class="test-name">Partial Fractions</div>
+                    <div class="test-count" style="color: #4ade80;">4 cases</div>
+                </div>
+                <div class="test-category" style="border-left: 3px solid #4ade80;">
+                    <div class="test-icon" style="color: #4ade80;">∫</div>
+                    <div class="test-name">Trig Substitution</div>
+                    <div class="test-count" style="color: #4ade80;">3 cases</div>
+                </div>
+                <div class="test-category" style="border-left: 3px solid #4ade80;">
+                    <div class="test-icon" style="color: #4ade80;">∫</div>
+                    <div class="test-name">Advanced</div>
+                    <div class="test-count" style="color: #4ade80;">10+ cases</div>
+                </div>
+                
+                <!-- Simplification - Purple theme -->
+                <div class="test-category" style="border-left: 3px solid #c084fc;">
+                    <div class="test-icon" style="color: #c084fc;">⚡</div>
+                    <div class="test-name">Simplification</div>
+                    <div class="test-count" style="color: #c084fc;">Algebraic, trig identities</div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Technical Notes Section -->
+        <section class="content-section">
+            <div class="section-header">
+                <h2 class="section-title">Technical Notes</h2>
+                <div class="section-divider"></div>
+            </div>
+
+            <div class="achievements-grid">
+                <div class="achievement-card">
+                    <div class="achievement-icon">🏗️</div>
+                    <h4>Built from Scratch</h4>
+                    <p>No external CAS libraries—every algorithm implemented from first principles, following classical symbolic computation literature.</p>
+                </div>
+
+                <div class="achievement-card">
+                    <div class="achievement-icon">🌳</div>
+                    <h4>Uniform Tree Operations</h4>
+                    <p>Differentiation, integration, and simplification share the same recursive pattern: inspect node type, transform children, combine results. One traversal structure handles all symbolic operations.</p>
+                </div>
+
+                <div class="achievement-card">
+                    <div class="achievement-icon">🔬</div>
+                    <h4>Heuristic Integration</h4>
+                    <p>Pattern matching and term rewriting handle common integral forms—polynomials, trig powers, by-parts candidates, partial fractions—without requiring a full decision procedure.</p>
+                </div>
+
+                <div class="achievement-card">
+                    <div class="achievement-icon">🎨</div>
+                    <h4>Informative Visualization</h4>
+                    <p>Expression trees rendered as ASCII art or graphical output; derivation steps traced and exportable, making the engine's reasoning transparent and easy to communicate.</p>
+                </div>
+
+                <div class="achievement-card">
+                    <div class="achievement-icon">⚙️</div>
+                    <h4>Production-Ready API</h4>
+                    <p>Sinatra web server with RESTful endpoints, JSON responses, and interactive web interface.</p>
+                </div>
+
+                <div class="achievement-card">
+                    <div class="achievement-icon">🧪</div>
+                    <h4>Comprehensive Testing</h4>
+                    <p>30+ test cases covering edge cases, complex compositions, and multivariable calculus.</p>
+                </div>
+            </div>
+
+            <div class="final-note">
+                <h3>About This Showcase</h3>
+                <p>
+                    This document presents a Ruby-based symbolic mathematics engine that implements core computer algebra system functionality. While the live demo cannot be hosted on GitHub Pages due to the Ruby backend requirement, the codebase demonstrates sophisticated algorithmic techniques and clean software architecture. The implementation serves as both a practical tool and an educational resource for understanding how symbolic computation works under the hood.
+                </p>
+                <p>
+                    <strong>Project Highlights:</strong> Tree-based expression representation, recursive differentiation with all calculus rules, experimental Risch-like integration algorithm, iterative simplification with algebraic identities, LaTeX and Unicode output generation, and comprehensive vector calculus support.
+                </p>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p class="footer-note">
+                💎 Built with Ruby • Symbolic computation from scratch • Unable to host live on GitHub Pages (Ruby backend required)
+            </p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,1629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShaderWeave - The Ultimate GPU Playground</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=Source+Code+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        :root {
+            --gold: #FFB700;
+            --gold-light: #FFD54F;
+            --gold-dark: #CC9200;
+            --cyan: #00E5FF;
+            --blue: #2979FF;
+            --purple: #D500F9;
+            --magenta: #FF0080;
+            --nvidia-green: #76B900;
+            --nvidia-green-light: #8ED100;
+            --bg-darker: #050510;
+            --bg-dark: #0A0A18;
+            --bg-card: #0F0F20;
+            --text-primary: #EEEEEE;
+            --text-secondary: #B8B8C8;
+            --text-dim: #808090;
+        }
+
+        /* CUDA text styling - NVIDIA green glow */
+        .cuda-text {
+            color: var(--nvidia-green-light) ;
+            -webkit-text-fill-color: var(--nvidia-green-light) ;
+            background: none ;
+            text-shadow: 
+                0 0 6px rgba(118, 185, 0, 0.7),
+                0 0 12px rgba(118, 185, 0, 0.4) ;
+            font-weight: 600;
+        }
+
+        /* OptiX text styling - NVIDIA green glow */
+        .optix-text {
+            color: var(--nvidia-green-light);
+            -webkit-text-fill-color: var(--nvidia-green-light);
+            background: none;
+            text-shadow: 
+                0 0 6px rgba(118, 185, 0, 0.7),
+                0 0 12px rgba(118, 185, 0, 0.4);
+            font-weight: 600;
+        }
+
+        /* Compute Shader text styling - warm milky white glow */
+        .compute-text {
+            color: #FFF8E7 !important;
+            -webkit-text-fill-color: #FFF8E7 !important;
+            background: none !important;
+            text-shadow: 
+                0 0 6px rgba(255, 245, 220, 0.7),
+                0 0 12px rgba(255, 230, 180, 0.4) !important;
+            font-weight: 600;
+        }
+
+        body {
+            font-family: 'Source Code Pro', monospace;
+            background: var(--bg-darker);
+            color: var(--text-primary);
+            line-height: 1.7;
+            overflow-x: hidden;
+            position: relative;
+            padding-left: 280px;
+        }
+
+        .back-button {
+            display: none; /* Hidden - now in nav */
+        }
+        
+        .nav-back-button {
+            display: block;
+            margin-bottom: 20px;
+            padding: 12px 16px;
+            background: linear-gradient(135deg, rgba(255, 183, 0, 0.15), rgba(255, 183, 0, 0.05));
+            border: 1px solid rgba(255, 183, 0, 0.4);
+            border-radius: 8px;
+            color: var(--gold-light);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-align: center;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, 
+                rgba(15, 15, 32, 0.9) 0%, 
+                rgba(10, 10, 24, 0.85) 100%);
+            border: 1px solid rgba(255, 183, 0, 0.3);
+            border-radius: 12px;
+            padding: 0.8rem 1.5rem;
+            color: var(--gold-light);
+            text-decoration: none;
+            font-size: 1rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-back-button:hover {
+            background: linear-gradient(135deg, rgba(255, 183, 0, 0.25), rgba(255, 183, 0, 0.15));
+            border-color: var(--gold);
+            transform: translateX(-3px);
+            box-shadow: 0 4px 12px rgba(255, 183, 0, 0.3);
+        }
+
+        .back-button::before {
+            content: '←';
+            font-size: 1.2rem;
+        }
+
+        .language-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, 
+                rgba(255, 183, 0, 0.2) 0%, 
+                rgba(255, 183, 0, 0.1) 100%);
+            border: 1px solid rgba(255, 183, 0, 0.4);
+            border-radius: 8px;
+            padding: 0.4rem 1rem;
+            color: var(--gold-light);
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-left: 1rem;
+            box-shadow: 0 2px 8px rgba(255, 183, 0, 0.15);
+        }
+
+        /* Enhanced spectrum + gold gradient background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(ellipse at 20% 20%, rgba(255, 183, 0, 0.18) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 30%, rgba(0, 229, 255, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 70%, rgba(213, 0, 249, 0.12) 0%, transparent 50%),
+                radial-gradient(ellipse at 90% 80%, rgba(41, 121, 255, 0.08) 0%, transparent 50%),
+                linear-gradient(180deg, #050510 0%, #0A0A18 50%, #050510 100%);
+            z-index: -2;
+            animation: spectrumShift 20s ease-in-out infinite;
+        }
+
+        @keyframes spectrumShift {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.9; transform: scale(1.05); }
+        }
+
+        /* Animated Triangle Canvas */
+        #triangle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 60px 40px;
+            position: relative;
+        }
+
+        /* Header with gold emphasis */
+        header {
+            text-align: center;
+            padding: 120px 40px 80px;
+            margin-bottom: 100px;
+            position: relative;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(ellipse at 50% 30%, rgba(255, 183, 0, 0.2) 0%, transparent 60%),
+                radial-gradient(ellipse at 30% 40%, rgba(0, 229, 255, 0.15) 0%, transparent 60%),
+                radial-gradient(ellipse at 70% 40%, rgba(213, 0, 249, 0.12) 0%, transparent 60%);
+            animation: headerGlow 6s ease-in-out infinite;
+        }
+
+        @keyframes headerGlow {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 1; }
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(3.5rem, 8vw, 6rem);
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 24px;
+            background: linear-gradient(135deg, 
+                var(--gold) 0%, 
+                var(--cyan) 20%,
+                var(--blue) 35%,
+                var(--purple) 50%,
+                var(--gold) 70%,
+                var(--cyan) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            background-size: 200% auto;
+            animation: spectrumFlow 10s ease-in-out infinite;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 0 60px rgba(255, 183, 0, 0.4);
+        }
+
+        @keyframes spectrumFlow {
+            0%, 100% { background-position: 0% center; }
+            50% { background-position: 100% center; }
+        }
+
+        .subtitle {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.4rem;
+            background: linear-gradient(90deg, var(--gold), var(--cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            margin-bottom: 32px;
+            text-transform: uppercase;
+        }
+
+        .tagline {
+            font-size: 1.05rem;
+            color: var(--text-secondary);
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.9;
+        }
+
+        /* Sidebar with gold accent */
+        nav.side-nav {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 260px;
+            height: 100vh;
+            background: linear-gradient(180deg, 
+                rgba(15, 15, 32, 0.95) 0%, 
+                rgba(10, 10, 24, 0.95) 100%);
+            border-right: 2px solid rgba(255, 183, 0, 0.3);
+            padding: 40px 20px;
+            overflow-y: auto;
+            box-shadow: 8px 0 32px rgba(255, 183, 0, 0.2), 8px 0 48px rgba(0, 229, 255, 0.1);
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        nav.side-nav h3 {
+            font-family: 'Playfair Display', serif;
+            background: linear-gradient(135deg, var(--gold), var(--cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 1rem;
+            margin: 0 0 24px 0;
+            text-align: center;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(255, 183, 0, 0.25);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        nav.side-nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        nav.side-nav li {
+            margin-bottom: 6px;
+        }
+
+        nav.side-nav a {
+            display: block;
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+            border-left: 2px solid transparent;
+        }
+
+        nav.side-nav a:hover {
+            color: var(--gold-light);
+            border-left-color: var(--gold);
+            background: rgba(255, 183, 0, 0.08);
+            transform: translateX(4px);
+            box-shadow: 0 0 12px rgba(255, 183, 0, 0.3), inset 0 0 8px rgba(0, 229, 255, 0.1);
+        }
+
+        nav.side-nav a.active {
+            background: linear-gradient(90deg, 
+                rgba(255, 183, 0, 0.25), 
+                rgba(0, 229, 255, 0.15));
+            color: var(--gold-light);
+            border-left-color: var(--cyan);
+            font-weight: 600;
+            box-shadow: 0 0 16px rgba(255, 183, 0, 0.4), inset 0 0 12px rgba(0, 229, 255, 0.15);
+        }
+
+        /* Section styling */
+        section {
+            margin-bottom: 120px;
+            position: relative;
+        }
+
+        section h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.8rem;
+            font-weight: 700;
+            margin-bottom: 48px;
+            background: linear-gradient(135deg, var(--gold), var(--cyan), var(--purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            position: relative;
+            display: inline-block;
+            filter: drop-shadow(0 0 20px rgba(255, 183, 0, 0.3));
+        }
+
+        section h2::after {
+            content: '';
+            position: absolute;
+            bottom: -12px;
+            left: 0;
+            width: 60%;
+            height: 2px;
+            background: linear-gradient(to right, var(--gold), var(--cyan), transparent);
+            box-shadow: 0 0 8px rgba(255, 183, 0, 0.6);
+        }
+
+        section h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin: 48px 0 24px;
+            color: var(--gold-light);
+        }
+
+        /* Glass card with gold glow */
+        .glass-card {
+            background: linear-gradient(135deg, 
+                rgba(15, 15, 32, 0.7) 0%, 
+                rgba(10, 10, 24, 0.5) 100%);
+            border: 1px solid rgba(255, 183, 0, 0.25);
+            border-radius: 12px;
+            padding: 36px;
+            box-shadow: 
+                0 8px 32px rgba(0, 229, 255, 0.1), 
+                0 0 40px rgba(255, 183, 0, 0.15),
+                inset 0 1px 0 rgba(255, 183, 0, 0.05);
+            transition: all 0.4s ease;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 
+                0 12px 40px rgba(0, 229, 255, 0.2), 
+                0 0 50px rgba(255, 183, 0, 0.25);
+            border-color: rgba(255, 183, 0, 0.4);
+        }
+
+        /* Feature grid */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 28px;
+            margin: 48px 0;
+        }
+
+        .feature-card {
+            background: linear-gradient(135deg, 
+                rgba(15, 15, 32, 0.6) 0%, 
+                rgba(10, 10, 24, 0.4) 100%);
+            border: 1px solid rgba(255, 183, 0, 0.2);
+            border-radius: 10px;
+            padding: 28px;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 183, 0, 0.15) 0%, rgba(0, 229, 255, 0.1) 50%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(255, 183, 0, 0.5);
+            box-shadow: 0 16px 48px rgba(255, 183, 0, 0.2), 0 0 30px rgba(0, 229, 255, 0.15);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 16px;
+            filter: drop-shadow(0 0 8px rgba(255, 183, 0, 0.5)) drop-shadow(0 0 12px rgba(0, 229, 255, 0.3));
+        }
+
+        .feature-card h4 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 14px;
+            background: linear-gradient(90deg, var(--gold), var(--cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .feature-card p {
+            color: var(--text-secondary);
+            line-height: 1.8;
+            margin-bottom: 12px;
+        }
+
+        /* Video showcase */
+        .video-showcase {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
+            gap: 36px;
+            margin: 48px 0;
+        }
+
+        .video-item {
+            background: linear-gradient(135deg, 
+                rgba(15, 15, 32, 0.7) 0%, 
+                rgba(10, 10, 24, 0.5) 100%);
+            border: 1px solid rgba(255, 183, 0, 0.25);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.4s ease;
+        }
+
+        .video-item:hover {
+            transform: translateY(-8px);
+            box-shadow: 
+                0 20px 60px rgba(255, 183, 0, 0.25), 
+                0 0 40px rgba(0, 229, 255, 0.2);
+            border-color: rgba(255, 183, 0, 0.5);
+        }
+
+        .video-item video {
+            width: 100%;
+            display: block;
+            border-bottom: 1px solid rgba(255, 183, 0, 0.2);
+        }
+
+        .video-info {
+            padding: 24px;
+        }
+
+        .video-info h4 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--gold-light);
+        }
+
+        .video-info p {
+            color: var(--text-secondary);
+            line-height: 1.8;
+        }
+
+        /* Single video showcase with size limit */
+        .video-showcase-single {
+            max-width: 60%;
+            margin: 48px auto;
+        }
+
+        /* Medium video showcase */
+        .video-showcase-medium {
+            max-width: 75%;
+            margin: 48px auto;
+        }
+
+        /* Code comparison */
+        .code-comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin: 40px 0;
+        }
+
+        .code-block {
+            background: rgba(10, 10, 24, 0.8);
+            border: 1px solid rgba(255, 183, 0, 0.25);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .code-block h5 {
+            padding: 14px 18px;
+            background: linear-gradient(90deg, rgba(255, 183, 0, 0.15), rgba(0, 229, 255, 0.1));
+            color: var(--gold);
+            font-size: 0.95rem;
+            font-weight: 600;
+            border-bottom: 1px solid rgba(255, 183, 0, 0.25);
+        }
+
+        .code-block img {
+            width: 100%;
+            display: block;
+        }
+
+        /* Tech stack */
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            margin: 32px 0;
+        }
+
+        .tech-badge {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, 
+                rgba(255, 183, 0, 0.2), 
+                rgba(0, 229, 255, 0.15));
+            border: 1px solid rgba(255, 183, 0, 0.4);
+            border-radius: 20px;
+            color: var(--gold-light);
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .tech-badge:hover {
+            transform: scale(1.05);
+            box-shadow: 
+                0 4px 16px rgba(255, 183, 0, 0.4), 
+                0 0 12px rgba(0, 229, 255, 0.3);
+        }
+
+        /* Image container with size limit */
+        .image-showcase {
+            max-width: 60%;
+            margin: 48px auto;
+        }
+
+        .image-showcase img {
+            width: 100%;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 183, 0, 0.3);
+            box-shadow: 0 8px 32px rgba(255, 183, 0, 0.2), 0 0 40px rgba(0, 229, 255, 0.1);
+        }
+
+        .image-showcase p {
+            color: var(--text-dim);
+            margin-top: 16px;
+            text-align: center;
+            font-style: italic;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 60px 40px;
+            margin-top: 100px;
+            border-top: 1px solid rgba(255, 183, 0, 0.2);
+            color: var(--text-dim);
+            font-size: 0.95rem;
+        }
+
+        footer p {
+            margin-bottom: 12px;
+        }
+
+        /* Workflow list styling */
+        .workflow-list {
+            padding-left: 24px;
+            border-left: 2px solid var(--gold);
+            margin: 32px 0;
+            box-shadow: -8px 0 16px rgba(255, 183, 0, 0.1);
+        }
+
+        .workflow-list p {
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+        }
+
+        .workflow-list strong {
+            color: var(--gold-light);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            body { padding-left: 0; }
+            nav.side-nav { display: none; }
+            .feature-grid, .video-showcase { grid-template-columns: 1fr; }
+            .code-comparison { grid-template-columns: 1fr; }
+            .video-showcase-single,
+            .video-showcase-medium,
+            .image-showcase { max-width: 100%; }
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2.5rem; }
+            section h2 { font-size: 2rem; }
+            .container { padding: 40px 20px; }
+        }
+
+        /* Animation on scroll */
+        .animate-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .animate-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <a href="../../index.html" class="back-button">Back to Portfolio</a>
+    <!-- Animated Triangle Background -->
+    <canvas id="triangle-canvas"></canvas>
+
+    <!-- Side Navigation -->
+    <nav class="side-nav">
+        <a href="../../index.html" class="nav-back-button">← Back to Portfolio</a>
+        <h3>Navigation</h3>
+        <ul>
+            <li><a href="#overview">Overview</a></li>
+            <li><a href="#compatibility">ShaderToy Compatible</a></li>
+            <li><a href="#hot-swap">Hot-Swappable Everything</a></li>
+            <li><a href="#feedback"><span class="compute-text">Compute Shader</span> & Feedback Loops</a></li>
+            <li><a href="#cuda"><span class="cuda-text">CUDA</span> JIT Integration</a></li>
+            <li><a href="#optix"><span class="optix-text">OptiX</span> Ray Tracing</a></li>
+            <li><a href="#ui">Intuitive Node UI</a></li>
+            <li><a href="#hackable">Fully Hackable</a></li>
+            <li><a href="#visual">Fully Visual</a></li>
+            <li><a href="#workflow">Workflow</a></li>
+            <li><a href="#tech">Technology</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <header>
+            <h1>ShaderWeave <span class="language-badge">C++</span></h1>
+            <p class="subtitle">The Ultimate GPU Playground for Real-Time Graphics</p>
+            <p class="tagline">
+                An innovative, high-performance, node-based shader development environment for interactive GPU graphics. 
+                Built with C++ and ImGui for maximum performance and flexibility.
+            </p>
+        </header>
+
+        <!-- Overview -->
+        <section id="overview" class="animate-in">
+            <h2>Beyond ShaderToy</h2>
+            <div class="glass-card">
+                <p style="font-size: 1.15rem; line-height: 1.9; color: var(--text-secondary); margin-bottom: 20px;">
+
+                        Most shader playgrounds, including ShaderToy, revolve around a single fragment shader. 
+    <strong style="background: linear-gradient(90deg, var(--gold), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">ShaderWeave</strong> extends that model into a full visual dataflow graph: 
+    node-based workflows spanning fragment and compute shaders, automatic uniform and resource binding, 
+    and real-time hot-swapping of individual stages.
+                </p>
+                <p style="font-size: 1.1rem; line-height: 1.9; color: var(--text-secondary);">
+    Instead of editing one monolithic shader, you assemble pipelines by connecting nodes. 
+    Each node has explicit, typed inputs and outputs, so complex networks stay understandable, 
+    debuggable, and easy to extend.
+                </p>
+            </div>
+
+            <div class="video-showcase" style="margin-top: 48px;">
+                <div class="video-item">
+                    <video controls loop>
+                        <source src="usecases/more_examples.mp4" type="video/mp4">
+                    </video>
+                    <div class="video-info">
+                        <h4>Complex Shader Networks in Action</h4>
+                        <p>
+                            Multiple shaders working together, with real-time preview of every intermediate 
+                            result. The node-based interface makes it trivial to route outputs between shaders, 
+                            creating complex effects that would be impractical in traditional shader editors.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="video-item">
+                    <video controls loop>
+                        <source src="usecases/COMPLEX_shader.mp4" type="video/mp4">
+                    </video>
+                    <div class="video-info">
+                        <h4>Advanced Shader Composition</h4>
+                        <p>
+                            Build sophisticated rendering pipelines by combining multiple shader stages. 
+                            Each node can output to multiple targets, and the system automatically handles 
+                            type checking and connection validation.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Key Features -->
+        <section id="features" class="animate-in">
+            <h2>Features</h2>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🔗</div>
+                    <h4>100% ShaderToy Compatible</h4>
+                    <p>
+                        Copy-paste ShaderToy code and watch it run instantly. The system automatically 
+                        inspects your code, detects missing uniforms and declarations, then injects 
+                        them seamlessly.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🔄</div>
+                    <h4>Everything is Hot-Swappable</h4>
+                    <p>
+                        Each shader node can expose its framebuffer, 3D volumes, or arbitrary compute buffers 
+    as typed outputs. <strong style="background: linear-gradient(90deg, var(--gold), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">ShaderWeave</strong> tracks these resources and keeps them live while you edit.
+                    </p>
+                    <p style="margin-top: 12px;">
+                        Swap individual nodes in a running pipeline, reroute skybox faces, 
+    or feed a node's output back into earlier stages to build feedback loops without restarting the graph.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h4>Native <span class="compute-text">Compute Shaders</span></h4>
+                    <p>
+                        Full <span class="compute-text">compute shader</span> support enables true 3D simulations, volumetric effects, 
+                        and complex iterative algorithms—far beyond traditional 2D ping-pong buffers.
+                    </p>
+                    <p style="margin-top: 12px;">
+                        Build 3D cellular automata, time volumes, or any GPU compute application 
+                        with the same visual workflow as fragment shaders.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🎯</div>
+                    <h4>Automatic Type Detection</h4>
+                    <p>
+                        The system scans your shader code and automatically determines inputs and outputs. 
+                        Connections between matching socket types resolve automatically.
+                    </p>
+                    <p style="margin-top: 12px;">
+                        Drag-and-drop external files (images, HDR, models, volumes) directly into 
+                        the graph. The default viewer is itself an editable shader.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🛠️</div>
+                    <h4>Fully Hackable</h4>
+                    <p>
+                        All-in-one solution with integrated text editor, preview windows, and node view. 
+                        Apply shader networks to UI elements or external windows.
+                    </p>
+                    <p style="margin-top: 12px;">
+                        Smart defaults (auto-enables ping-pong for feedback loops), but everything 
+                        is overridable. Complete control when you need it.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">👁️</div>
+                    <h4>Fully Visual</h4>
+                    <p>
+                        View every intermediate result simultaneously. Complex shaders become visual 
+                        networks, making it easy to understand data flow and debug issues.
+                    </p>
+                    <p style="margin-top: 12px;">
+                        Export/import entire shader networks as reusable modules. Build a library 
+                        of effects and compose them visually.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ShaderToy Compatibility -->
+        <section id="compatibility" class="animate-in">
+            <h2>Seamless ShaderToy Integration</h2>
+            
+            <div class="video-showcase-medium">
+                <div class="video-item">
+                    <video controls loop>
+                        <source src="usecases/shadertoy_compatibility.mp4" type="video/mp4">
+                    </video>
+                    <div class="video-info">
+                        <h4>Direct ShaderToy Import</h4>
+                        <p>
+                            Copy the code from ShaderToy, paste into <strong style="background: linear-gradient(90deg, var(--gold), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">ShaderWeave</strong>, and watch it work immediately. 
+                            Either pasting the file in the shader folder or pasting the content in the editor works. 
+                        </p>
+
+                        <p>
+                            In this demo, we first deleted the previous network we were working on, then we loaded a few shaders (each time you launch, it will scan the shader folder and make the shaders ready to use). 
+                        </p>
+                        
+                        <p>
+                            When you write your own code, you can choose to either use the ShaderToy-styled built-ins or not, and the system will do the rest automatically.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+                        <div class="glass-card" style="margin-bottom: 40px;">
+                <h3 style="margin-top: 0;"><strong>Automatic Code Injection</strong></h3>
+                                    <p style="color: var(--text-secondary); line-height: 1.8; margin-bottom: 24px;">
+                        The editor has two views: the raw view shows the original code and the injected view 
+                        shows the code after processing. 
+                                                The injection system handles all compatibility differences automatically, 
+                            including texture samplers, uniform buffers, and built-in functions. 
+                            It supported all the built-ins include: iResolution, iTime, iChannel, iMouse, and others.
+                    </p>
+                    <p style="color: var(--text-secondary); line-height: 1.8; margin-bottom: 24px;">
+                        As we know, <strong> ShaderToy buffer passes are not stand-alone GLSL programs. </strong>
+                        Besides the missing uniforms, we also synthesize the missing main() entry point and required bindings.
+                    <strong style="background: linear-gradient(90deg, var(--gold), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">ShaderWeave</strong> analyzes your shader code at runtime, detecting which ShaderToy 
+                    uniforms and built-ins you're using. It then injects only what's needed.
+                    </p>
+                    <p>
+The auto-injected code is now fully portable: all required built-ins are explicitly declared, so any environment only needs to supply the inputs.
+                    </p>
+
+
+                <div class="code-comparison">
+                    <div class="code-block">
+                        <h5>📋 Original ShaderToy Code</h5>
+                        <img src="code_after_injection.png" alt="Original ShaderToy code">
+                    </div>
+                    <div class="code-block">
+                        <h5>✨ Auto-Injected in ShaderWeave</h5>
+                        <img src="code_orig.png" alt="Code after automatic injection">
+                    </div>
+                </div>
+
+                <p style="color: var(--text-dim); font-size: 0.95rem; margin-top: 24px; font-style: italic;">
+                    The system inspects your code for undefined variables, compares against ShaderToy's 
+                    API, and injects necessary declarations. You get full ShaderToy compatibility 
+                    without cluttering your workspace with default variables when working on custom shaders.
+                </p>
+            </div>
+
+
+             <div class="glass-card" style="margin-bottom: 40px; max-width: 70%; margin-left: auto; margin-right: auto;">
+                <h3 style="margin-top: 0;"><strong>Fully Automatic Node Generation </strong></h3>
+                <p style="color: var(--text-secondary); line-height: 1.8; margin-bottom: 24px;">
+                    How does <strong style="background: linear-gradient(90deg, var(--gold), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">ShaderWeave</strong> turn arbitrary code into a node?
+                    In many node-based systems you have to define node types manually, 
+    including metadata and registration, almost like writing a plugin. 
+In <strong style="background: linear-gradient(90deg, var(--gold), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">ShaderWeave</strong>, any valid shader file becomes a node automatically. Input and output sockets are discovered via simple naming conventions in the main input/output variables, which the compiler metadata maps to concrete types. 
+For compute shaders, the system also interprets GLSL qualifiers (readonly, writeonly, image2D, etc.) to infer whether a socket is an input, output, or bidirectional. 
+                </p>
+
+                    <div class="code-block" style="margin-bottom: 40px;">
+                        <h5>📋 Different types of sockets</h5>
+                        <img src="sockets.png" alt="sockets">
+                    </div>
+
+                <p style="color: var(--text-dim); font-size: 0.95rem; margin-top: 24px; font-style: italic;">
+                   All of the boilerplate is handled automatically by the system.
+                </p>
+            </div>
+        </section>
+
+        <!-- Hot-Swappable Everything -->
+        <section id="hot-swap" class="animate-in">
+            <h2>Hot-Swappable Architecture</h2>
+
+            <div class="glass-card" style="margin-bottom: 40px;">
+                <p style="color: var(--text-secondary); line-height: 1.8;">
+                    In <strong style="background: linear-gradient(90deg, var(--gold), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">ShaderWeave</strong>, all resources are exposed as <strong style="color: var(--gold);">typed sockets</strong>: framebuffers, textures, skybox faces, compute volumes, and more.
+They can be connected, disconnected, and rerouted in real-time without breaking your workflow. This workflow is far more flexible than traditional shader editors.
+                </p>
+            </div>
+
+            <div class="video-showcase">
+                <div class="video-item">
+                    <video controls loop>
+                        <source src="usecases/hot_swap.mp4" type="video/mp4">
+                    </video>
+                    <div class="video-info">
+                        <h4>Real-Time Shader Swapping</h4>
+                        <p>
+                            Replace any shader in a running pipeline without restarting. Connect outputs 
+                            to different inputs, swap entire processing chains, experiment freely—the 
+                            system stays live throughout. In this example, we can see how the shader we replaced affects the participating media directly.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="video-item">
+                    <video controls loop>
+                        <source src="usecases/hot_swap_2.mp4" type="video/mp4">
+                    </video>
+                    <div class="video-info">
+                        <h4>Dynamic Routing</h4>
+                        <p>
+                            Route any output to any compatible input. Mix and match effects, 
+                            combine multiple shader outputs, or feed results back as new inputs. 
+                            The graph updates instantly with every connection change.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="video-item">
+                    <video controls loop>
+                        <source src="usecases/dynamic_skybox_hot_swap.mp4" type="video/mp4">
+                    </video>
+                    <div class="video-info">
+                        <h4>Skybox Face Hot-Swapping</h4>
+                        <p>
+                            This example demonstrates hot-swapping individual skybox faces. This output can also be connected back to form a feedback loop.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Advanced Feedback Loops -->
+        <section id="feedback" class="animate-in">
+            <h2>Compute Shader & Feedback Loops</h2>
+
+            <div class="glass-card" style="margin-bottom: 40px;">
+                <p style="color: var(--text-secondary); line-height: 1.8; margin-bottom: 20px;">
+                    ShaderToy supports ping-pong buffers for 2D iterative simulations. <strong style="background: linear-gradient(90deg, var(--gold), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">ShaderWeave</strong> 
+                    takes this <strong style="color: var(--gold);">to the next level</strong>: 
+                    Besides ping-pong buffer for each fragment shader, <strong style="background: linear-gradient(90deg, var(--gold), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">ShaderWeave</strong> also fully supports 
+                    <span class="compute-text">compute shader</span>, allowing  2-way sockets and arbitrary feedback mechanics. 
+                    <!-- Compute shader allows full 3D feedback loops, time volumes, multi-buffer routing, 
+                    and complex state management—all visualized in the node graph. -->
+                </p>
+                <p style="color: var(--text-secondary); line-height: 1.8;">
+This enables 3D cellular automata, volumetric simulations, and complex multi-stage recursive effects
+that extend the classic 2D ping-pong model.
+                </p>
+            </div>
+
+            <div class="video-showcase">
+                <div class="video-item">
+                    <video controls loop>
+                        <source src="usecases/feedback_smoothlife.mp4" type="video/mp4">
+                    </video>
+                    <div class="video-info">
+                        <h4>Classic 2D Feedback: SmoothLife</h4>
+                        <p>
+                            Traditional 2D automata like SmoothLife work perfectly with ping-pong 
+                            buffers. Each frame reads from the previous state and writes to the 
+                            next, creating continuous evolution over time.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="video-item">
+                    <video controls loop>
+                        <source src="usecases/ping-pong-buffer.mp4" type="video/mp4">
+                    </video>
+                    <div class="video-info">
+                        <h4>What Happens Without Ping-Pong?</h4>
+                        <p>
+                            This example shows what goes wrong when ping-pong is disabled on a 
+                            feedback loop (IO conflict). The system auto-detects when ping-pong is needed, but 
+                            the system also allows manually overriding this for rare cases in which this shader behavior is needed.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="video-item">
+                    <video controls loop>
+                        <source src="usecases/compute_shader_ping_pong.mp4" type="video/mp4">
+                    </video>
+                    <div class="video-info">
+                        <h4>Compute Shader: beyond Ping-Pong buffer</h4>
+                        <p>
+                            <span class="compute-text">Compute shaders</span> enable feedback loops with arbitrary 
+                            data structures. Not limited to 2D textures—use 3D volumes, structured 
+                            buffers, or any GPU-writable resource. 
+                            The feedback <strong>circuit</strong> can be a general directed graph of computation, where nodes can read and write arbitrary buffers across iterations.
+                            See a simple example in action:
+                        </p>
+                    </div>
+                </div>
+
+                <div class="video-item">
+                    <video controls loop>
+                        <source src="usecases/compute_shader_time_volume.mp4" type="video/mp4">
+                    </video>
+                    <div class="video-info">
+                        <h4>Time Volumes: 3D Feedback</h4>
+                        <p>
+                            One application is building a volumetric history by accumulating results across time in a 3D texture. Each 
+                            frame becomes a slice in a 3D volume, creating temporal structures 
+                            that can then be passed to another node for display (e.g. a raymarching node in this example).
+                            In ShaderWeave, this is trivial to implement.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="video-item">
+                    <video controls loop>
+                        <source src="usecases/simple_feedback_accumulation_buffer.mp4" type="video/mp4">
+                    </video>
+                    <div class="video-info">
+                        <h4>Accumulation Buffers</h4>
+                        <p>
+                            Another example of a feedback loop in action.
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- CUDA JIT Integration -->
+        <section id="cuda" class="animate-in">
+            <h2>CUDA JIT Integration</h2>
+
+            <div class="glass-card" style="margin-bottom: 40px;">
+                <p style="color: var(--text-secondary); line-height: 1.8; margin-bottom: 20px;">
+                    <span class="cuda-text">CUDA</span> programs work as <strong style="color: var(--gold);">first-class nodes</strong> in the shader pipeline.
+                    They read inputs, perform compute work, and write outputs—just like any other node. Since shader nodes 
+                    expose their data as textures, <span class="cuda-text">CUDA</span> integration uses <strong style="color: var(--cyan);"><span class="cuda-text">CUDA</span> surface data mapping</strong>
+                    to seamlessly bridge between the two worlds.
+                </p>
+                <p style="color: var(--text-secondary); line-height: 1.8;">
+                    <span class="cuda-text">CUDA</span> nodes also have access to all the standard built-ins: <strong style="color: var(--gold);">time, mouse, keyboard</strong>, 
+                    and more. This makes exploration incredibly convenient—setting up an environment that allows experimentation is often 
+                    a much harder problem than using the technique itself. <strong style="background: linear-gradient(90deg, var(--gold), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">ShaderWeave</strong> handles that complexity for you.
+                </p>
+            </div>
+
+            <div class="image-showcase">
+                <img src="CUDA.png" alt="CUDA JIT node showcase: smoothlife in CUDA">
+                <p>
+                    An example of a simple <span class="cuda-text">CUDA</span> node: a <span class="cuda-text">CUDA</span> program that implements 2D Smoothlife.
+                </p>
+            </div>
+
+            <div class="feature-grid" style="grid-template-columns: repeat(2, 1fr); margin-top: 40px;">
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h4>Just Another Node</h4>
+                    <p>
+                        <span class="cuda-text">CUDA</span> kernels appear as regular nodes in the graph. Connect texture inputs, 
+                        wire up outputs, and the system handles all the interop automatically.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🔧</div>
+                    <h4>Full Built-in Support</h4>
+                    <p>
+                        All the convenience built-ins (iTime, iMouse, iResolution, etc.) are available 
+                        in <span class="cuda-text">CUDA</span> code too. Start experimenting immediately without boilerplate setup.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- OptiX Ray Tracing -->
+        <section id="optix" class="animate-in">
+            <h2>OptiX Ray Tracing Support</h2>
+
+            <div class="glass-card" style="margin-bottom: 40px;">
+                <p style="color: var(--text-secondary); line-height: 1.8; margin-bottom: 20px;">
+                    <strong class="optix-text">OptiX programs</strong> can also be used as nodes in the pipeline. 
+                    They can serve as a <strong style="color: var(--cyan);">starting node</strong> where <span class="optix-text">OptiX</span> renders a scene, 
+                    or as a <strong style="color: var(--cyan);">processing stage</strong> in the middle of a pipeline (requires extra work to set up).
+                </p>
+                <p style="color: var(--text-secondary); line-height: 1.8;">
+                    Since <span class="optix-text">OptiX</span> recompilation is slow, <strong style="color: var(--gold);">live editing mode is disabled</strong> 
+                    for these nodes. Overall, <span class="optix-text">OptiX</span> nodes are more heavyweight and play a different role compared to <span class="cuda-text">CUDA</span>
+                    and shader nodes—they're designed for complex ray tracing workloads rather than rapid iteration.
+                </p>
+            </div>
+
+            <div class="image-showcase">
+                <img src="Optix.png" alt="OptiX node: an interactive Optix holographic renderer">
+                <p>
+                    An example of a complex <span class="optix-text">OptiX</span> node: The node contains a Wave-level realtime path tracer with a reference plane wave, producing visible interference fringes.
+                </p>
+            </div>
+
+            <div class="feature-grid" style="grid-template-columns: repeat(2, 1fr); margin-top: 40px;">
+                <div class="feature-card">
+                    <div class="feature-icon">🎯</div>
+                    <h4><span class="optix-text">OptiX</span> as Initial Node</h4>
+                    <p>
+                        Let <span class="optix-text">OptiX</span> load a scene and run advanced algorithms, creating renders as the initial input. 
+                        Can produce multiple outputs like different sensing modes, image + depth, etc., which are 
+                        then fed into shader pipelines for post-processing.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🔗</div>
+                    <h4><span class="optix-text">OptiX</span> as Processing Stage</h4>
+                    <p>
+                        <span class="optix-text">OptiX</span> can also be used as a processing stage rather than a rendering backend. RTX hardware 
+                        naturally operates on complex spatial scene representations through ray traversal, making it 
+                        well-suited for spatial computation that would be difficult to express in shader-based pipelines. 
+                        This parallels early programmable GPU pipelines, where general computation had to be reframed 
+                        as rendering primitives to access GPU acceleration.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Intuitive Node UI -->
+        <section id="ui" class="animate-in">
+            <h2>Intuitive Node-Based Interface</h2>
+
+            <div class="glass-card" style="margin-bottom: 40px;">
+                <p style="color: var(--text-secondary); line-height: 1.8;">
+                    <strong style="color: var(--gold);">Every shader is a node.</strong> <strong style="background: linear-gradient(90deg, var(--gold), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">ShaderWeave</strong> 
+                    automatically scans your code to determine inputs and outputs, then creates 
+                    type-safe sockets. Connect compatible sockets to build shader pipelines visually—no 
+                    manual configuration required. 
+                </p>
+            </div>
+
+            <div class="image-showcase">
+                <img src="nodes.png" alt="Node-based shader interface">
+                <p>
+                    Clean and intuitive node graph with automatic input/output detection and type-safe connections.
+                </p>
+            </div>
+
+            <div class="image-showcase">
+                <img src="more types of nodes.png" alt="Various node types">
+                <p>
+                    Rich variety of node types: fragment shaders, compute shaders, textures, models, volumes—all unified in one interface. The built-in viewer and the node editor are both themselves nodes.
+                </p>
+            </div>
+
+            <div class="video-showcase">
+                <div class="video-item">
+                    <video controls loop>
+                        <source src="usecases/drag_and_drop.mp4" type="video/mp4">
+                    </video>
+                    <div class="video-info">
+                        <h4>Drag-and-Drop Everything</h4>
+                        <p>
+                            External assets—images, HDR maps, 3D models, volumetric data—can be 
+                            added by simply dragging them into the graph. They become nodes instantly, 
+                            ready to connect. 
+                        </p>
+                    </div>
+                </div>
+
+                <div class="video-item">
+                    <video controls loop>
+                        <source src="usecases/more examples 2.mp4" type="video/mp4">
+                    </video>
+                    <div class="video-info">
+                        <h4>Complex Routing Made Simple</h4>
+                        <p>
+                            Connect outputs from one shader to inputs of another. The graph 
+                            automatically handles execution order, dependency resolution (a simple dependency analysis and topological sorting is performed in the backend), and 
+                            resource synchronization. Focus on creativity, not plumbing.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Fully Hackable -->
+        <section id="hackable" class="animate-in">
+            <h2>A Hackable All-In-One Environment</h2>
+
+            <div class="glass-card" style="margin-bottom: 40px;">
+                <p style="color: var(--text-secondary); line-height: 1.8;">
+                    <strong style="background: linear-gradient(90deg, var(--gold), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">ShaderWeave</strong> is an <strong style="color: var(--gold);">all-in-one solution</strong> 
+                    with integrated code editor, preview windows, and node view—all synchronized in 
+                    real-time. But it goes further: you can apply shader networks to the UI itself, 
+                    external windows, and (in development) other applications.
+                </p>
+            </div>
+
+            <div class="image-showcase">
+                <img src="scr1.png" alt="Modular shader network with multiple components">
+                <p>
+                    An example showing the main window displaying the text editor after attaching a stylization shader. 
+                    This is only part of the network—notice the multiple disjoint components working in parallel, 
+                    demonstrating the highly modular architecture.
+                </p>
+            </div>
+
+            <div class="image-showcase">
+                <img src="scr2.png" alt="Complete ShaderWeave UI with complex network">
+                <p>
+                    The full UI in action: the network has multiple independent components that can be easily 
+                    connected or disconnected. This modularity allows for flexible experimentation and rapid prototyping.
+                </p>
+            </div>
+
+            <div class="video-showcase">
+                <div class="video-item">
+                    <video controls loop>
+                        <source src="usecases/built-in_editor.mp4" type="video/mp4">
+                    </video>
+                    <div class="video-info">
+                        <h4>Integrated Code Editor</h4>
+                        <p>
+                            Full-featured text editor with syntax highlighting, auto-completion, 
+                            and live error feedback. Edit shader code and see results instantly with no 
+                            external tools required. The editor itself is part of the hackable UI.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="video-item">
+                    <video controls loop>
+                        <source src="usecases/editor_project.mp4" type="video/mp4">
+                    </video>
+                    <div class="video-info">
+                        <h4>Using the editor as a node</h4>
+                        <p>
+The editor node exposes its own framebuffer, allowing you to sample it and treat it like any other texture.
+                            In this demo, we can see the text editor projected onto the blocks.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="video-item">
+                    <video controls loop>
+                        <source src="usecases/external_window.mp4" type="video/mp4">
+                    </video>
+                    <div class="video-info">
+                        <h4>Apply the Shader Network to a Window</h4>
+                        <p>
+                            Entire shader networks can be applied back to windows and UI elements (editor, node editor, etc), opening up patterns like live UI stylization, interactive debug overlays, and shader-driven editor skins.
+                        </p>
+                    <p>
+                        In this demo, we can see we first applied accumulation buffer effect to the text editor, then we switched to some other shaders to see them taking effect immediately. 
+                    </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Fully Visual -->
+        <section id="visual" class="animate-in">
+            <h2>Everything is Visual</h2>
+
+            <div class="glass-card" style="margin-bottom: 40px;">
+                <p style="color: var(--text-secondary); line-height: 1.8;">
+                    Traditional shader editors show you the final result. <strong style="background: linear-gradient(90deg, var(--gold), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">ShaderWeave</strong> shows you 
+                    <strong style="color: var(--gold);">every single step</strong>: intermediate 
+                    buffers, debug outputs, node states—all visualized simultaneously. This makes it straightforward to understand and debug complex pipelines, and it also doubles as a powerful teaching and documentation tool.
+                </p>
+            </div>
+
+            <div class="video-showcase-single">
+                <div class="video-item">
+                    <video controls loop>
+                        <source src="usecases/complex_shader+.mp4" type="video/mp4">
+                    </video>
+                    <div class="video-info">
+                        <h4>Complex Networks Visualized</h4>
+                        <p>
+                            Watch data flow through complex shader pipelines. Every connection, 
+                            every transformation, every intermediate result is visible. Debug 
+                            issues by inspecting any stage in isolation or observing the whole 
+                            pipeline at once.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Workflow -->
+        <section id="workflow" class="animate-in">
+            <h2>Seamless Workflow</h2>
+
+            <div class="glass-card">
+                <h3 style="margin-top: 0; background: linear-gradient(90deg, var(--gold), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Typical Session</h3>
+                
+                <div class="workflow-list">
+                    <p>
+                        <strong>1. Launch & Scan:</strong><br>
+                        <strong style="background: linear-gradient(90deg, var(--gold), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">ShaderWeave</strong> scans your shader folder and lists all usable shaders. 
+                        Your library is immediately available—no manual importing.
+                    </p>
+
+                    <p>
+                        <strong>2. Add & Connect:</strong><br>
+                        Drag shaders into the workspace, connect their sockets. The system 
+                        validates types and handles execution order automatically.
+                    </p>
+
+                    <p>
+                        <strong>3. Edit & Iterate:</strong><br>
+                        Live edit shader code and watch results update in real-time. Modify 
+                        connections, swap nodes, experiment freely—everything stays hot.
+                    </p>
+
+                    <p>
+                        <strong>4. Discover & Reuse:</strong><br>
+Intermediate results from one network often become useful inputs for others. 
+Route outputs between networks to build effects you might not have designed explicitly from the start.
+                    </p>
+
+                    <p style="margin-bottom: 0;">
+                        <strong>5. Export & Share:</strong><br>
+                        Save entire shader networks as modules. Import them in future projects. 
+                        Build a personal library of reusable effects.
+                    </p>
+                </div>
+
+                <p style="background: linear-gradient(90deg, var(--gold), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-size: 1.1rem; font-weight: 500; margin-top: 32px;">
+                    A shader workflow designed to be visual, intuitive, and explorative.
+                </p>
+            </div>
+        </section>
+
+        <!-- Technology -->
+        <section id="tech" class="animate-in">
+            <h2>Technology Stack</h2>
+
+            <div class="glass-card" style="margin-bottom: 40px;">
+                <h3 style="margin-top: 0;">Built for Performance</h3>
+                <p style="color: var(--text-secondary); line-height: 1.8; margin-bottom: 24px;">
+                    <strong style="background: linear-gradient(90deg, var(--gold), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">ShaderWeave</strong> is implemented in <strong style="color: var(--gold);">C++</strong> 
+                    for maximum performance and low-level control. This enables features that would be 
+                    difficult or impossible in higher-level languages: native compute shader support, 
+                    direct GPU resource management, and minimal overhead in the hot path.
+                </p>
+                <p style="color: var(--text-secondary); line-height: 1.8;">
+                    The UI is built with <strong style="color: var(--cyan);">Dear ImGui</strong>—a 
+                    powerful immediate-mode GUI library that's highly customizable. 
+                    While many ImGui applications stick to simple debug-style interfaces, 
+<strong style="background: linear-gradient(90deg, var(--gold), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">ShaderWeave</strong> uses custom rendering and layout to build a complex, polished UI 
+that would traditionally require a retained-mode framework.
+                </p>
+            </div>
+
+            <div class="tech-stack">
+                <div class="tech-badge">C++17</div>
+                <div class="tech-badge">OpenGL</div>
+                <div class="tech-badge">GLSL</div>
+                <div class="tech-badge"><span class="cuda-text">CUDA</span> JIT</div>
+                <div class="tech-badge"><span class="optix-text">OptiX</span></div>
+                <div class="tech-badge">Dear ImGui</div>
+                <div class="tech-badge"><span class="compute-text">Compute Shaders</span></div>
+                <div class="tech-badge">Node Graphs</div>
+                <div class="tech-badge">Hot Reloading</div>
+                <div class="tech-badge">Real-Time Rendering</div>
+            </div>
+
+            <div class="glass-card" style="margin-top: 40px;">
+                <h3 style="margin-top: 0;">Why C++ & ImGui?</h3>
+                <ul style="color: var(--text-secondary); line-height: 1.9; padding-left: 24px;">
+                    <li style="margin-bottom: 12px;">
+                        <strong style="color: var(--gold);">Performance:</strong> Direct GPU 
+                        access with minimal abstraction overhead. Critical for real-time shader development.
+                    </li>
+                    <li style="margin-bottom: 12px;">
+                        <strong><span class="compute-text">Compute Shader</span>, <span class="cuda-text">CUDA</span>, & <span class="optix-text">Optix</span> Support:</strong> 
+                        Native GPU compute requires low-level control. C++ provides direct access to 
+                        <span class="compute-text">OpenGL</span>, <span class="cuda-text">CUDA</span>, and <span class="optix-text">Optix</span> APIs.
+                    </li>
+                    <li style="margin-bottom: 12px;">
+                        <strong style="color: var(--gold);">ImGui Flexibility:</strong> 
+                        Immediate-mode paradigm makes complex, dynamic UIs straightforward. Full 
+                        customization of visual effects and dynamic layout: perfect for specialized tools.
+                    </li>
+                    <li>
+                        <strong style="color: var(--gold);">Platform Integration:</strong> 
+                        Direct OS APIs for window management, file system access, and future inter-app 
+                        communication features.
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <footer>
+            <p style="font-size: 1.05rem; color: var(--text-secondary); margin-bottom: 16px;">
+                Built with C++ and Dear ImGui. Designed for explorers, researchers, and visual programmers.
+            </p>
+            <!-- <p style="color: var(--text-dim);">
+                        <p style="background: linear-gradient(90deg, var(--gold), var(--cyan), var(--purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-top: 20px; font-size: 0.9rem; font-weight: 600;">
+                ✦ The Ultimate Shader Playground ✦
+            </p>
+
+            </p> -->
+
+            <!-- <p style="background: linear-gradient(90deg, var(--gold), var(--cyan), var(--purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-top: 20px; font-size: 0.9rem; font-weight: 600;">
+                ShaderWeave: bringing visual workflows and high flexibility to GPU development.
+            </p> -->
+
+            
+            <p style="background: linear-gradient(90deg, var(--gold), var(--cyan), var(--purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-top: 20px; font-size: 0.9rem; font-weight: 600;">
+                ShaderWeave: ✦ The Ultimate GPU Playground ✦
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        // Animated Triangle Background with Spectrum Colors + Golden Enhancement
+        const canvas = document.getElementById('triangle-canvas');
+        const ctx = canvas.getContext('2d');
+        
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        const colors = [
+            { r: 255, g: 183, b: 0 },     // gold (increased presence)
+            { r: 255, g: 213, b: 79 },    // gold-light
+            { r: 0, g: 229, b: 255 },     // cyan
+            { r: 41, g: 121, b: 255 },    // blue
+            { r: 213, g: 0, b: 249 }      // purple
+        ];
+
+        class Point {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.vx = (Math.random() - 0.5) * 0.4;
+                this.vy = (Math.random() - 0.5) * 0.4;
+                this.radius = 2.5;
+                // Bias toward gold colors
+                const rand = Math.random();
+                if (rand < 0.4) {
+                    this.colorIndex = 0; // gold
+                } else if (rand < 0.6) {
+                    this.colorIndex = 1; // gold-light
+                } else {
+                    this.colorIndex = 2 + Math.floor(Math.random() * 3); // other colors
+                }
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+
+                if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+            }
+
+            draw() {
+                const color = colors[this.colorIndex];
+                const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius * 2);
+                gradient.addColorStop(0, `rgba(${color.r}, ${color.g}, ${color.b}, 0.8)`);
+                gradient.addColorStop(1, `rgba(${color.r}, ${color.g}, ${color.b}, 0)`);
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius * 2, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        const points = [];
+        for (let i = 0; i < 35; i++) {
+            points.push(new Point(
+                Math.random() * canvas.width,
+                Math.random() * canvas.height
+            ));
+        }
+
+        function animate() {
+            ctx.fillStyle = 'rgba(5, 5, 16, 0.08)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            points.forEach(p => {
+                p.update();
+                p.draw();
+            });
+
+            // Draw golden spectrum-colored triangles
+            for (let i = 0; i < points.length; i++) {
+                for (let j = i + 1; j < points.length; j++) {
+                    for (let k = j + 1; k < points.length; k++) {
+                        const dist1 = Math.hypot(points[i].x - points[j].x, points[i].y - points[j].y);
+                        const dist2 = Math.hypot(points[j].x - points[k].x, points[j].y - points[k].y);
+                        const dist3 = Math.hypot(points[k].x - points[i].x, points[k].y - points[i].y);
+
+                        if (dist1 < 190 && dist2 < 190 && dist3 < 190) {
+                            const avgDist = (dist1 + dist2 + dist3) / 3;
+                            const opacity = 1 - (avgDist / 190);
+                            const time = Date.now() * 0.002;
+                            const specular = Math.sin(time + i * 0.4 + j * 0.6 + k * 0.8) * 0.5 + 0.5;
+                            
+                            // Color interpolation with golden bias
+                            const c1 = colors[points[i].colorIndex];
+                            const c2 = colors[points[j].colorIndex];
+                            const c3 = colors[points[k].colorIndex];
+                            const r = Math.floor((c1.r + c2.r + c3.r) / 3);
+                            const g = Math.floor((c1.g + c2.g + c3.g) / 3);
+                            const b = Math.floor((c1.b + c2.b + c3.b) / 3);
+                            
+                            ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, ${opacity * 0.3})`;
+                            ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${opacity * specular * 0.15})`;
+                            ctx.shadowColor = `rgba(${r}, ${g}, ${b}, 0.4)`;
+                            ctx.shadowBlur = 8 * specular;
+                            
+                            ctx.beginPath();
+                            ctx.moveTo(points[i].x, points[i].y);
+                            ctx.lineTo(points[j].x, points[j].y);
+                            ctx.lineTo(points[k].x, points[k].y);
+                            ctx.closePath();
+                            ctx.fill();
+                            ctx.stroke();
+                            
+                            ctx.shadowBlur = 0;
+                        }
+                    }
+                }
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+
+        // Navigation
+        const navLinks = document.querySelectorAll('nav.side-nav a');
+        const sections = document.querySelectorAll('section[id]');
+
+        const highlightNav = () => {
+            let current = '';
+            let minDistance = Infinity;
+            
+            sections.forEach(section => {
+                const rect = section.getBoundingClientRect();
+                const distance = Math.abs(rect.top - 100);
+                
+                if (rect.top <= 300 && distance < minDistance) {
+                    minDistance = distance;
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.classList.add('active');
+                }
+            });
+        };
+
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                // Skip external links (like back to portfolio)
+                const href = link.getAttribute('href');
+                if (!href.startsWith('#')) return;
+                
+                e.preventDefault();
+                const targetId = href.substring(1);
+                document.getElementById(targetId)?.scrollIntoView({ behavior: 'smooth' });
+            });
+        });
+
+        window.addEventListener('scroll', highlightNav);
+        highlightNav();
+
+        // Scroll-triggered animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.animate-in').forEach(el => observer.observe(el));
+    </script>
+</body>
+</html>

@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Time-of-Flight Imaging</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=Lora:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&family=Source+Code+Pro:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      background: linear-gradient(135deg, #0f0f1e 0%, #1a1a35 50%, #151530 100%);
+      min-height: 100vh;
+      scroll-behavior: auto;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      color: #d8d8d8;
+      background: transparent;
+      margin: 0;
+      padding: 80px 50px 80px 350px;
+      line-height: 1.8;
+      font-weight: 400;
+    }
+
+    .back-button {
+      position: fixed;
+      top: 2rem;
+      left: 2rem;
+      z-index: 1001;
+      background: linear-gradient(135deg, 
+          rgba(15, 15, 32, 0.9) 0%, 
+          rgba(10, 10, 24, 0.85) 100%);
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      border-radius: 12px;
+      padding: 0.8rem 1.5rem;
+      color: #F4D03F;
+      text-decoration: none;
+      font-size: 1rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    .back-button:hover {
+      border-color: rgba(212, 175, 55, 0.6);
+      box-shadow: 0 6px 25px rgba(212, 175, 55, 0.25);
+      transform: translateX(-4px);
+      color: #D4AF37;
+    }
+
+    .back-button::before {
+      content: '←';
+      font-size: 1.2rem;
+    }
+
+    .language-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, 
+          rgba(212, 175, 55, 0.2) 0%, 
+          rgba(212, 175, 55, 0.1) 100%);
+      border: 1px solid rgba(212, 175, 55, 0.4);
+      border-radius: 8px;
+      padding: 0.4rem 1rem;
+      color: #F4D03F;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-left: 1rem;
+      box-shadow: 0 2px 8px rgba(212, 175, 55, 0.15);
+    }
+
+    /* Fixed Sidebar Navigation */
+    nav#TOC {
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 300px;
+      height: 100vh;
+      background: linear-gradient(180deg, rgba(15, 15, 30, 0.95) 0%, rgba(26, 26, 53, 0.95) 100%);
+      border-right: 2px solid rgba(212, 175, 55, 0.28);
+      padding: 50px 30px;
+      overflow-y: auto;
+      box-shadow: 10px 0 40px rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+    }
+
+    nav#TOC > h2 {
+      font-family: 'Lora', serif;
+      color: #d4af37;
+      margin-top: 0;
+      font-size: 1.3em;
+      margin-bottom: 30px;
+      text-align: center;
+      padding-bottom: 20px;
+      border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+    }
+
+    nav#TOC ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    nav#TOC li {
+      list-style: none;
+      margin: 0;
+    }
+
+    nav#TOC > ul > li {
+      margin-bottom: 15px;
+    }
+
+    nav#TOC ul ul {
+      padding-left: 20px;
+      margin-top: 8px;
+      border-left: 2px solid rgba(212, 175, 55, 0.15);
+    }
+
+    nav#TOC a {
+      font-family: 'Lora', serif;
+      font-size: 0.95em;
+      color: #a89968;
+      border: none;
+      transition: all 0.3s ease;
+      font-weight: 500;
+      cursor: pointer;
+      display: block;
+      padding: 8px 12px;
+      border-radius: 6px;
+      text-decoration: none;
+    }
+
+    nav#TOC a:hover {
+      color: #f0e68c;
+      background: rgba(212, 175, 55, 0.1);
+      text-shadow: 0 0 8px rgba(212, 175, 55, 0.3);
+    }
+
+    nav#TOC a.active {
+      color: #f0e68c;
+      background: rgba(212, 175, 55, 0.15);
+      font-weight: 600;
+      border-left: 3px solid #d4af37;
+      padding-left: 9px;
+      box-shadow: 0 0 15px rgba(212, 175, 55, 0.4), inset 0 0 10px rgba(212, 175, 55, 0.2);
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 100px;
+      padding: 80px 50px;
+      background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(212, 175, 55, 0.05) 100%);
+      border: 2px solid rgba(212, 175, 55, 0.35);
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(212, 175, 55, 0.2);
+      position: relative;
+      overflow: hidden;
+    }
+
+    header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(circle at 20% 50%, rgba(212, 175, 55, 0.08) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    h1.title {
+      font-family: 'Lora', serif;
+      font-size: 4em;
+      font-weight: 600;
+      background: linear-gradient(135deg, #d4af37 0%, #f0e68c 50%, #d4af37 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -2px;
+      margin-bottom: 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    header p {
+      font-family: 'Lora', serif;
+      color: #c9a961;
+      font-size: 1.15em;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      position: relative;
+      z-index: 1;
+    }
+
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.8em;
+      font-weight: 700;
+      color: #d4af37;
+      margin-top: 40px;
+      margin-bottom: 40px;
+      letter-spacing: -1px;
+      position: relative;
+      padding-bottom: 20px;
+    }
+
+    h1::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100px;
+      height: 2px;
+      background: linear-gradient(90deg, #d4af37, #f0e68c, transparent);
+    }
+
+    h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2em;
+      font-weight: 700;
+      color: #f0e68c;
+      margin-top: 60px;
+      margin-bottom: 25px;
+      letter-spacing: -0.5px;
+    }
+
+    h3, h4, h5, h6 {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      color: #d4af37;
+      margin-top: 40px;
+      margin-bottom: 20px;
+    }
+
+    p {
+      margin: 1.3em 0;
+      font-size: 1.05em;
+      color: #d8d8d8;
+      letter-spacing: 0.3px;
+      font-weight: 400;
+    }
+
+    a {
+      color: #d4af37;
+      text-decoration: none;
+      border-bottom: 2px solid rgba(212, 175, 55, 0.4);
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    a:hover {
+      color: #f0e68c;
+      border-bottom-color: #f0e68c;
+      text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+    }
+
+    /* Content containers */
+    section {
+      background: linear-gradient(135deg, rgba(212, 175, 55, 0.03) 0%, rgba(212, 175, 55, 0.01) 100%);
+      border: 1px solid rgba(212, 175, 55, 0.22);
+      padding: 50px;
+      margin: 50px 0;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(212, 175, 55, 0.1);
+      max-width: 950px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* Math display */
+    .math.display {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 25px;
+      border-radius: 15px;
+      overflow-x: auto;
+      margin: 25px 0;
+      border-left: 4px solid #d4af37;
+      box-shadow: inset 0 1px 0 rgba(212, 175, 55, 0.1);
+    }
+
+    .math.inline {
+      font-style: italic;
+      color: #f0e68c;
+    }
+
+    /* Images and figures */
+    figure {
+      margin: 50px auto;
+      text-align: center;
+      max-width: 85%;
+    }
+
+    figure.small {
+      max-width: 60%;
+    }
+
+    figure img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 15px;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5), 0 0 30px rgba(212, 175, 55, 0.1);
+      transition: all 0.3s ease;
+      border: 1px solid rgba(212, 175, 55, 0.15);
+      background: #f5f3f0;
+      padding: 15px;
+    }
+
+    figure img:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 40px rgba(212, 175, 55, 0.2);
+    }
+
+    figcaption {
+      margin-top: 20px;
+      font-size: 0.95em;
+      color: #f0e68c;
+      line-height: 1.7;
+      letter-spacing: 0.2px;
+      font-weight: 500;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+    }
+
+    /* Highlighted content for review */
+    .highlight-new {
+      background: rgba(212, 175, 55, 0.15);
+      border-left: 3px solid #d4af37;
+      padding: 15px 20px;
+      margin: 15px 0;
+      border-radius: 8px;
+    }
+
+    /* Lists */
+    ol, ul {
+      padding-left: 35px;
+      margin: 25px 0;
+    }
+
+    li {
+      margin: 12px 0;
+      color: #d8d8d8;
+      font-weight: 400;
+    }
+
+    /* Code */
+    code {
+      font-family: 'Source Code Pro', monospace;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 3px 8px;
+      border-radius: 6px;
+      color: #f0e68c;
+      font-size: 0.95em;
+      border: 1px solid rgba(212, 175, 55, 0.2);
+      font-weight: 600;
+    }
+
+    pre {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 25px;
+      border-radius: 15px;
+      overflow-x: auto;
+      border: 1px solid rgba(212, 175, 55, 0.2);
+      margin: 25px 0;
+      box-shadow: inset 0 1px 0 rgba(212, 175, 55, 0.1);
+    }
+
+    pre code {
+      background: none;
+      padding: 0;
+      border: none;
+      color: #d8d8d8;
+      font-weight: 400;
+    }
+
+    /* Blockquote */
+    blockquote {
+      border-left: 4px solid #d4af37;
+      padding-left: 25px;
+      margin: 25px 0;
+      color: #c9a961;
+      background: rgba(212, 175, 55, 0.05);
+      padding: 20px 25px;
+      border-radius: 12px;
+      font-weight: 400;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      nav#TOC {
+        width: 250px;
+      }
+
+      body {
+        padding: 80px 30px 80px 280px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      nav#TOC {
+        width: 100%;
+        height: auto;
+        position: relative;
+        border-right: none;
+        border-bottom: 2px solid rgba(212, 175, 55, 0.28);
+        padding: 30px;
+      }
+
+      body {
+        padding: 30px 20px;
+      }
+
+      header {
+        padding: 50px 25px;
+        margin-bottom: 60px;
+      }
+
+      h1.title {
+        font-size: 2.5em;
+      }
+
+      h1 {
+        font-size: 1.8em;
+        margin-top: 50px;
+      }
+
+      h2 {
+        font-size: 1.4em;
+      }
+
+      section {
+        padding: 30px;
+        margin: 30px 0;
+        border-radius: 15px;
+      }
+
+      figure {
+        max-width: 100%;
+      }
+
+      figure.small {
+        max-width: 80%;
+      }
+    }
+
+    @media print {
+      html {
+        background: white;
+      }
+
+      body {
+        color: black;
+        padding: 80px 50px;
+      }
+
+      nav#TOC {
+        display: none;
+      }
+
+      header, section {
+        background: white;
+        border: none;
+        box-shadow: none;
+      }
+
+      h1.title, h1, h2 {
+        color: black;
+      }
+
+      a {
+        color: black;
+      }
+    }
+  </style>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const navLinks = document.querySelectorAll('nav#TOC a');
+      
+      // Smooth scroll with easing for navigation links
+      navLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+          e.preventDefault();
+          const targetId = this.getAttribute('href').substring(1);
+          const targetElement = document.getElementById(targetId);
+          
+          if (targetElement) {
+            smoothScrollTo(targetElement);
+          }
+        });
+      });
+      
+      // Update active link on scroll
+      window.addEventListener('scroll', updateActiveLink);
+      updateActiveLink();
+      
+      function updateActiveLink() {
+        const sections = document.querySelectorAll('section[id]');
+        let current = '';
+        
+        sections.forEach(section => {
+          const sectionTop = section.offsetTop - 150;
+          if (window.pageYOffset >= sectionTop) {
+            current = section.getAttribute('id');
+          }
+        });
+        
+        navLinks.forEach(link => {
+          link.classList.remove('active');
+          if (link.getAttribute('href') === '#' + current) {
+            link.classList.add('active');
+          }
+        });
+      }
+      
+      function smoothScrollTo(element) {
+        const startPosition = window.pageYOffset;
+        const targetPosition = element.offsetTop - 80;
+        const distance = targetPosition - startPosition;
+        const duration = 1100;
+        let start = null;
+        
+        function easeInOutQuad(t) {
+          return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+        }
+        
+        function animation(currentTime) {
+          if (start === null) start = currentTime;
+          const elapsed = currentTime - start;
+          const progress = Math.min(elapsed / duration, 1);
+          const ease = easeInOutQuad(progress);
+          
+          window.scrollTo(0, startPosition + distance * ease);
+          
+          if (elapsed < duration) {
+            requestAnimationFrame(animation);
+          }
+        }
+        
+        requestAnimationFrame(animation);
+      }
+    });
+  </script>
+</head>
+<body>
+  <a href="../../index.html" class="back-button">Back to Portfolio</a>
+<nav id="TOC" role="doc-toc">
+<h2>Contents</h2>
+<ul>
+<li><a href="#background" id="toc-background">Background</a></li>
+<li><a href="#basic-setup" id="toc-basic-setup">Basic Setup & Derivation</a></li>
+<li><a href="#some-observations-and-caveats" id="toc-some-observations-and-caveats">Observations & Caveats</a>
+<ul>
+<li><a href="#the-setups-that-wont-work" id="toc-the-setups-that-wont-work">Setups That Won't Work</a></li>
+<li><a href="#the-setups-that-can-work" id="toc-the-setups-that-can-work">Setups That Can Work</a></li>
+</ul></li>
+<li><a href="#indirect-lighting" id="toc-indirect-lighting">Indirect Lighting</a>
+<ul>
+<li><a href="#open-lambertian-scene" id="toc-open-lambertian-scene">Open Lambertian Scene</a></li>
+<li><a href="#closed-semi-specular-high-albedo-scene" id="toc-closed-semi-specular-high-albedo-scene">Closed Scene</a></li>
+</ul></li>
+<li><a href="#Conclusions" id="toc-Conclusions">Conclusions</a></li>
+</ul>
+</nav>
+
+<header id="title-block-header">
+<h1 class="title">Single-Shot Depth Reconstruction via Off-Axis Holography <span class="language-badge">C++</span></h1>
+<p>A side project inspired by time-of-flight imaging</p>
+</header>
+
+<section>
+<h1 class="unnumbered" id="background">Background</h1>
+
+<div class="highlight-new">
+<p><strong>Welcome!</strong> 
+  This project develops a flexible simulation framework for <strong>continuous-wave (CW) time-of-flight (TOF)</strong>  imaging  and uses it to investigate how CW-TOF measurements can be repurposed to achieve <strong>single-shot depth estimation</strong> through a mechanism analogous to <strong>off-axis holography</strong>.
+</div>
+</div>
+<strong>Off-Axis Holography and CW Time-of-Flight Sensing</strong>
+<p>
+Off-axis holography and continuous-wave (CW) time-of-flight (TOF) sensing represent two distinct but mathematically related approaches to recovering scene information from modulated optical signals.
+</p>
+<p>
+  <strong>Off-axis holography</strong> uses a tilted reference wave to heterodyne the object field in space.
+The interference pattern contains a shifted cross-term that can be isolated in the Fourier domain, enabling single-shot recovery of the complex optical field (amplitude and phase). This requires spatial filtering but no temporal modulation.
+</p>
+<p>
+ <strong>CW-TOF</strong> sensing, in contrast, relies on temporal modulation.
+A modulated illumination signal is reflected by the scene and correlated with a reference waveform inside the sensor through lock-in demodulation. By sampling multiple phase shifts, the system estimates the propagation delay and recovers per-pixel distance.
+</p>
+<p>Although framed differently, both techniques rely on heterodyning and correlation, implemented either optically in space or electronically in time.</p>
+<!-- <p>Continuous-wave time-of-flight (CW-TOF) cameras use a temporally-modulated light source and a sensor with modulated sensitivity. A carrier wave gets sent out by the light source and the sensor is controlled by a demodulation wave with the same frequency. The end result is equivalent to taking the cross-correlation of the demodulation wave and the received object wave which is the carrier wave with an extra phase shift caused by interacting with the scene.</p> -->
+<!-- <p>Normally, it requires taking multiple shots, which can be restricting, since the whole scene is assumed to be static during the whole process.</p> -->
+<p>We propose a new method that takes advantage of off-axis holography and show that with specific setup of the sensor and light source, the depth of the scene can be reconstructed from one single image. We show the theoretical derication, reasoning on the detailed setups, and the results produced by our implementation.</p>
+<div class="highlight-new">
+<p>From an implementation standpoint, the system is fundamentally a CW-TOF pipeline:
+light sources emit temporally modulated signals, and the sensor performs lock-in correlation with a reference waveform. The core objective is not to replicate off-axis holography directly, but to show that a <strong>properly configured CW-TOF system can reproduce off-axis behavior</strong> — and thus recover complex-valued scene information from a single exposure.</p>
+<p>
+  <strong>Implementation-wise</strong>, the system is an entirely CW-TOF pipeline with extra options:
+light sources emit temporally modulated signals, and the sensor performs lock-in correlation with the reference waveform. The path tracer is extended to support time-resolved propagation, modulated emitters of various types, and modulated sensors capable of gated or heterodyne measurements. This creates a general-purpose environment in which a wide range of spatiotemporal modulation schemes can be tested.
+</p>
+<p>
+  The renderer is built around a time-resolved path tracer with support for a wide set of interchangeable modules, including:
+</p>
+<ul>
+  <li><strong>Modulated Light sources:</strong> arbitrary waveform generators, point and line laser scanners</li>
+  <li><strong>Modulated Sensors:</strong> global-shutter and rolling-shutter detectors</li>
+  <li><strong>Auxiliary Controls:</strong> configurable per-pixel synchronization between the light source and sensor activation</li>
+</ul>
+<p>
+  This modular design enables us to explore a large family of spatiotemporal modulation schemes, many of which cannot be tested easily in real hardware.
+</p>
+<p>
+<strong> Theory-wise</strong> , the core contribution is deriving the conditions under which a CW-TOF sensor, combined with spatial heterodyning, produces an isolatable cross-correlation term—equivalent to the off-axis holography cross-term—and can therefore recover a complex field from a single shot. The analysis also reveals that several configurations that appear valid at first glance actually fail due to subtle issues such as spatial–temporal aliasing, mismatch between the heterodyne carrier and the sampling lattice, or destructive mixing of undesired interference terms.
+</p>
+<p>
+  Using the modular simulation framework, we validate these insights experimentally. Configurations predicted to succeed do indeed produce clean reconstructions, while the ones predicted to fail exhibit exactly the artifacts anticipated by the theory. The simulator thus serves both as an engineering platform for modulated light transport and as a tool for understanding the delicate conditions under which spatial and temporal heterodyning interact.
+</p>
+<!-- This project develops a flexible simulation framework for modulated imaging, capable of reproducing and extending the behavior of both off-axis holography and continuous-wave (CW) time-of-flight (TOF) sensing.  -->
+<!-- Standard implementations of these systems are relatively straightforward to simulate in isolation, but combining spatial and temporal modulation within a physically based renderer introduces several subtle challenges. Our goal is not to reproduce existing optical systems verbatim, but to build a general platform that exposes the underlying structure shared by these techniques and enables exploration of mixed spatiotemporal demodulation strategies. -->
+  <!-- This project explores an interdisciplinary problem at the intersection of rendering and computational imaging: a workflow in which depth information is encoded into rendered images and later recovered through a physics-based decoding model. The reconstruction process follows basic principles similar to sonars and time-of-flight sensing, where a modulated signal is emitted and the returned signal is compared against the original waveform to infer the distance. -->
+</p>
+<figure>
+<div class="center">
+<img src="figs/cbox_.png" />
+</div>
+<figcaption>For demonstration, we perform all the tests in this simple Cornell Box scene (with the light source removed). For some tests, we also changed some materials in the scene to make some unwanted artifacts stand out more.</figcaption>
+</figure>
+
+</section>
+
+<section>
+<h1 class="unnumbered" id="basic-setup">Basic Setup & Derivation</h1>
+<div class="highlight-new">
+<p><strong>Core idea:</strong> When a modulated light signal travels through the scene and reflects off surfaces, the returned waveform carries a measurable delay. Correlating this signal with the known modulation pattern enables recovery of the distance to each point in the scene.</p>
+</div>
+<p>Assume we have such a setup: the original carrier wave <span class="math inline">\(E_c\)</span> gets sent out and returns after hitting the scene, creating the object wave <span class="math inline">\(E_o\)</span>. The reference wave <span class="math inline">\(E_r\)</span> is used to control the sensitivity of the sensor for demodulation.</p>
+<p>If we send out a plane wave, then each position has the same phase in the carrier wave:</p>
+<div class="math display">\[\begin{align}
+    \text{Carrier wave:~}&E_c = \cos(\omega t) \\
+    &\text{the original wave to send out} \\
+    \text{Object wave:~}&E_o = A \cos(\omega t - \phi(x,y)) \\
+    &\text{phase delay $\phi$ depends on the position $(x,y)$}
+\end{align}\]</div>
+<p>In a normal off-axis holography camera, a tilted plane wave is used to interfere with the object wave. Here, if the sensor supports a rolling-shutter-like functionality that allows different pixels to have a differently phase-shifted demodulation wave, we can do something similar by using a tilted plane wave for demodulation, for example, we add a phase shift that's proportional to x position:</p>
+<div class="math display">\[\begin{align}
+        \text{Reference wave:~} &E_r = \cos(\omega t + \kappa \cdot x)
+\end{align}\]</div>
+<p>Now we take the cross-correlation between <span class="math inline">\(E_r\)</span> and <span class="math inline">\(E_o\)</span>:</p>
+<div class="math display">\[\begin{align}
+    I(x,y) &= \lim_{T\rightarrow\infty}  \int_{-\frac{T}{2}}^{+\frac{T}{2}} \frac{A}{T} \cos(\omega t + \kappa \cdot x)\cos(\omega t - \phi(x,y)) \mathrm{d}t \\
+    &= \frac{A}{2} \cos(\kappa \cdot x + \phi(x,y))
+\end{align}\]</div>
+<p>If we take the Fourier transformation:</p>
+<div class="math display">\[\begin{align}
+F[I](k_x,k_y) &=  \int_{-\infty}^\infty \int_{-\infty}^\infty \frac{A}{2} \cos(\kappa \cdot x +\phi(x,y)) e^{-2\pi j(k_x x + k_y y)} \mathrm{d}x\mathrm{d}y \\
+&= \frac{A}{4} \iint e^{ j(\kappa\cdot x + \phi(x,y)) -2\pi j (k_x x + k_y y)} + e^{ -j(\kappa\cdot x + \phi(x,y)) -2\pi j(k_x x + k_y y)} \mathrm{d}x\mathrm{d}y
+\end{align}\]</div>
+<p>This has 2 components, we call them <span class="math inline">\(g_1\)</span> and <span class="math inline">\(g_2\)</span>:</p>
+<div class="math display">\[\begin{align}
+g_1 &= \frac{A}{4} \iint e^{ j(\kappa\cdot x + \phi(x,y)) -2\pi j (k_x x + k_y y)}  \mathrm{d}x\mathrm{d}y \\
+g_2 &= \frac{A}{4} \iint e^{ -j(\kappa\cdot x + \phi(x,y)) -2\pi j (k_x x + k_y y)}  \mathrm{d}x\mathrm{d}y
+\end{align}\]</div>
+<p>Since:</p>
+<div class="math display">\[\begin{align}
+g_1 &= \frac{A}{4} \iint e^{ j(\kappa\cdot x + \phi(x,y)) -2\pi j (k_x x + k_y y)}  \mathrm{d}x\mathrm{d}y \\
+&= \frac{A}{4} \iint e^{ j \phi(x,y) -2\pi j (k_x x + k_y y)} e^{j(\kappa\cdot x) } \mathrm{d}x\mathrm{d}y  \\
+&= \frac{A}{4} F[e^{ j \phi(x,y)}](k_x - \kappa, k_y)
+\end{align}\]</div>
+<p>Similarly:</p>
+<div class="math display">\[\begin{align}
+g_2 = \frac{A}{4} F[e^{ -j \phi(x,y)}](k_x + \kappa, k_y)
+\end{align}\]</div>
+<p>As we can see, from this setup, we expect to see 2 images centered at <span class="math inline">\([\kappa,0]\)</span> and <span class="math inline">\([-\kappa,0]\)</span>. We can use either of them to reconstruct a hologram that includes the phase <span class="math inline">\(\phi\)</span> (first shifting it back to the center, then take the inverse Fourier transformation).</p>
+<p>As long as we can create a phase shift that only linearly depends on the spatial pixel position on the image, this will work, or else it's not simply a translation anymore. We'll give more details in the next section.</p>
+</section>
+
+<section>
+<h1 class="unnumbered" id="some-observations-and-caveats">Observations and Caveats</h1>
+<div class="highlight-new">
+<p>The setup described above only works under very specific conditions, and not merely because of parameter tuning. 
+  There are multiple ways to introduce the carrier and reference waves—through illumination delay, sensor-side tilts, or reference-phase shifts—but only a subset of these configurations produces a usable cross-term.
+  Certain classes of configurations are fundamentally incapable of producing an isolatable cross-term, regardless of how their parameters are adjusted. These failures arise from structural incompatibilities in how spatial and temporal heterodyning interact with the sensor’s sampling process.</p>
+</div>
+<p>One thing we can notice is that: adding a phase shift on the object wave will have the same effect as adding one to the demodulation wave. Instead of:</p>
+<div class="math display">\[\begin{align}
+    \text{Carrier wave:~}&E_c = \cos(\omega t) \\
+    \text{Object wave:~}&E_o = A \cos(\omega t - \phi(x,y)) \\
+    \text{Reference wave:~} &E_r = \cos(\omega t + \kappa \cdot x)
+\end{align}\]</div>
+<p>we can also do:</p>
+<div class="math display">\[\begin{align}
+    \text{Carrier wave:~}&E_c = \cos(\omega t - \kappa \cdot x) \\
+    \text{Object wave:~}&E_o = A \cos(\omega t - \kappa \cdot x - \phi(x,y)) \\
+    \text{Reference wave:~} &E_r = \cos(\omega t)
+\end{align}\]</div>
+<p>The important thing is that either way we do it, the extra phase shift <span class="math inline">\(\kappa \cdot x\)</span> has to be linear with respect to pixel position <span class="math inline">\(x\)</span>. Since the phase shift rate <span class="math inline">\(\kappa\)</span> directly determines the amount of shift in the frequency domain, if it's not constant across the whole image, that means different frequency component gets shifted differently and there's not a single central frequency shift anymore.</p>
+<p>Some seemingly correct setup will fail due to this.</p>
+
+<figure>
+<div class="center">
+<img src="figs/output2.png" />
+</div>
+<figcaption>An example of a setup that doesn't work. It's easy to visually tell that the stripes have different widths.</figcaption>
+</figure>
+
+<h2 class="unnumbered" id="the-setups-that-wont-work">The setups that won't work</h2>
+<ol>
+<li><p>Sweeping a thin laser source and use an un-tilted plane wave for demodulation.</p></li>
+<li><p>Using a quad laser light on which different positions activates with a delay depending on the position and an un-tilted plane wave for demodulation.</p></li>
+<li><p>Using a tilted quad laser light and an un-tilted plane wave for demodulation.</p></li>
+</ol>
+
+<figure>
+<img src="figs/delta-1.png" />
+<figcaption>As we can see, the left and right halves of the image plane correspond to different amounts of phase shift, causing <span class="math inline">\(\kappa\)</span> to be varying across the whole image.</figcaption>
+</figure>
+
+<p>These are basically the same. They all create a tilted plane wave as the carrier wave. The main issue with this type of setup is that the phase shift depends on the position on the light source not the position on the image. The position on the light source directly corresponds to the position of the hitpoint in the scene, and this will cause the <strong>phase shift/pixel position</strong> rate to differ depending on how far the object is. As a result, in the frequency domain, different parts of the scene will be shifted differently and there won't be a central frequency, meaning we can't expect to shift it to the center and demodulate using one single frequency.</p>
+
+<figure>
+<img src="figs/S0.png" />
+<figcaption>An example of a setup that doesn't work. As we can see, the 3 streaks correspond to the 3 regions with different pattern widths.</figcaption>
+</figure>
+
+<p>If there're multiple objects at multiple distances, they will be shifted differently in the frequency domain; the same happens if there's one big object with a ramp. If we can first separate the frequency components, this kind of setup could potentially work, but it requires extra work.</p>
+
+<figure>
+<img src="figs/NG_G.png" />
+<figcaption>The one on the left (shifted quad light) doesn't work, and the one on the right (shifted demodulation wave) works. As we can tell visually, in the image produced by a non-working setup, the stripes have different width on different regions, corresponding to a different frequency component. We can't make 2 frequency components centered at the same time with one single phase shift.</figcaption>
+</figure>
+
+<p>For this type of setup to work directly, we need an orthographic camera, so that now <span class="math inline">\(\kappa\)</span> doesn't depend on the depth anymore and is constant. Besides using an orthographic camera, there're other easier working setups:</p>
+
+<h2 class="unnumbered" id="the-setups-that-can-work">The setups that can work</h2>
+<p>If we can modulate pixels differently, we can simply make the demodulation wave tilted instead, as discussed above:</p>
+<ol>
+<li><p>A plane wave as the carrier wave and a tilted plane wave for demodulation.</p></li>
+</ol>
+
+<figure>
+<div class="center">
+<img src="figs/delta_inv-1.png" />
+  <img src="figs/delta.png" />
+</div>
+<figcaption>An example of a working setup, as we can see, one key difference is that the width of the stripes doesn't depend on the distance anymore. Since it's still a unidirectional light, the side walls are completely invisible.</figcaption>
+</figure>
+
+<figure>
+<div class="center">
+<img src="figs/XY2.png" />
+</div>
+<figcaption>A plane wave as carrier and tilted plane wave as demodulation wave. In this setup, the walls are completely dark since they're parallel to any light emitted from the light source, making them contain no depth information. The lit parts are reconstructed properly.</figcaption>
+</figure>
+
+<p>In fact, the carrier wave can be anything, as long as we can have a tilted plane wave for demodulation.</p>
+<ol start="2">
+<li><p>A laser projector as the light source and a tilted plane wave for demodulation.</p></li>
+</ol>
+
+<p>With a laser projector, another option is to add the phase shift on the carrier wave, since it's possible to make the phase shift <span class="math inline">\(\kappa \cdot x\)</span> if we set it up properly:</p>
+<ol start="3">
+<li><p>A laser projector with phase shift depending on the pixel position as the light source and an un-tilted plane wave for demodulation.</p></li>
+</ol>
+
+<p>This is easy to implement by using a rotating mirror to reflect a line source, as done in some other papers.</p>
+
+<figure>
+<img src="figs/projector-1.png" />
+<figcaption>With a laser projector, we can generate the exact same result adding a phase shift on either the light source or the demodulation wave.</figcaption>
+</figure>
+
+<figure>
+<div class="center">
+<img src="figs/z0x.png" />
+</div>
+<figcaption>With a laser projector, the most noticeable visual difference is that now all the side walls are illuminated, as expected. Adding the phase shift on the light source or the sensor are equivalent and can produce the exact same results when tuned properly.</figcaption>
+</figure>
+
+<figure>
+<div class="center">
+<img src="figs/z1xx.png" />
+</div>
+<figcaption>The depth reconstructed using the laser projector setup. This one also includes the side walls.</figcaption>
+</figure>
+</section>
+
+<section>
+<h1 class="unnumbered" id="indirect-lighting">Indirect Lighting</h1>
+<div class="highlight-new">
+<p>In practical environments, light rarely follows a single line-of-sight path. Instead, it undergoes multiple reflections, refractions, and scattering interactions, which introduce higher-order light transport terms that substantially complicate the measurement process.</p>
+</div>
+<p>The previous section focused on direct lighting, but in reality, we expect the light to bounce in the scene multiple times, making the problem more challenging.</p>
+<p>Each pixel corresponds to one camera ray hitting one position in the scene. With a laser source, we expect each shaded point in the scene to correspond to one single ray. As a result, each pixel only corresponds to one single path and one single distance.</p>
+
+<figure class="small">
+<div class="center">
+<img src="figs/SS-1.png" />
+</div>
+<figcaption>Single scatter: each shading point only corresponds to one light path.</figcaption>
+</figure>
+
+<p>For multi-scatter, this is not the case anymore: although each pixel still only corresponds to one point in the scene, the light that comes to this point can come from any position in the scene, making each pixel correspond to multiple light paths.</p>
+
+<figure class="small">
+<div class="center">
+<img src="figs/MS-1.png" />
+</div>
+<figcaption>Multi scatter: now each shading point correspond to a group of light paths with different lengths and doesn't directly correspond to the distance anymore. Limiting the direction of the incoming light can solve this problem.</figcaption>
+</figure>
+
+<p>Since the path lengths now follow a distribution with a large range, we expect to see a lot of noise. In a real scene dominated by multi-scatter light transport, for example, an indoor scene in which light can bounce multiple times without exiting, this is likely to happen.</p>
+<p>There exist papers that deal with extracting information from multi-scatter light transport, but for now, we assume we want to exclude the multi-scatter light transport.</p>
+<p>If we use the line-source-sweeping setup, one possible way to achieve this is by synchronizing the sensor with the sweeping of the light source: at each specific point of time, as the light source sweeps over the scene, only one column of pixels is activated. This will exclude the vast majority of multi-scatter light transport.</p>
+
+<figure>
+<img src="figs/sync-1.png" />
+<figcaption>If we can synchronize the sensor with the light source, making only the corresponding line of pixels to be activated at any time, most multi-scatter light transport can be excluded.</figcaption>
+</figure>
+
+<figure>
+<img src="figs/streak.png" />
+<figcaption>At any instant, a single scanline of the sensor is active, and the illumination is confined to the corresponding region of the scene. The light source is temporally synchronized with the sensor’s rolling-shutter exposure so that the active illumination band and the sensing band coincide. In this way, we filtered out the unwanted multiple-scattering contribution (the width is exaggerated here for demonstration purpose).</figcaption>
+</figure>
+
+
+<h2 class="unnumbered" id="open-lambertian-scene">Open lambertian scene</h2>
+<p>In the scene, every material is Lambertian and the scene is not closed (the whole wall on the side of the camera is removed). As a result, multi-scatter contribution is not so strong. In this case, although we can see some noticeable random noise, even without doing anything extra, we can reconstruct the depth without much trouble.</p>
+
+<figure>
+<img src="figs/MS.png" />
+<figcaption>We can see the noise in this setup, though it's not too pronounced.</figcaption>
+</figure>
+
+<figure>
+<img src="figs/DS_bright.png" />
+<figcaption>If we only visualize double-scattering, we can see the noise as expected (the original output was dark, the exposure was raised high for demonstration purpose).</figcaption>
+</figure>
+
+<figure>
+<img src="figs/MS_X.png" />
+<figcaption>The reconstructed result also looks noisy.</figcaption>
+</figure>
+
+<p>If we visualize only double-scatter, we can see the noise as expected, although it's really dark.</p>
+
+<h2 class="unnumbered" id="closed-semi-specular-high-albedo-scene">Closed, semi-specular, high-albedo scene</h2>
+<p>To make the multi-scatter contribution more pronounced, I added a different scene: the shape of the box is similar but the camera and light source are now inside. The material is a rough metal with really high albedo.</p>
+
+<figure>
+<img src="figs/n1x.png" />
+<figcaption>Left: single-scatter only; Right: multi-scatter enabled. With this setup, we see much more pronounced noise created by multi-scatter.</figcaption>
+</figure>
+
+<figure>
+<img src="figs/noisy_SS_2.png" />
+<figcaption>If only single-scatter is enabled, it works normally.</figcaption>
+</figure>
+
+<figure>
+<img src="figs/noisy_MS_2.png" />
+<figcaption>If we also enable multi-scatter, now large regions are covered by noise.</figcaption>
+</figure>
+
+<figure>
+<img src="figs/after_filter.png" />
+<figcaption>After synchronizing the shutter and the light source, most noise is removed.</figcaption>
+</figure>
+
+<figure>
+<img src="figs/noisy_sync.png" />
+<figcaption>If you synchronize the shutter with the sweeping line light projector, we get a lot of noise removed and the boundaries also become much clearer.</figcaption>
+</figure>
+
+<p>If we only look at double-scatter, we can see that after taking the correlation, instead of forming patterns, large regions will be covered with random noise, as expected.</p>
+
+<!-- <h2 class="unnumbered" id="some-other-experiments">Some other experiments</h2>
+<p>Whether or not it forms patterns depends on whether or not there's a direct relationship between the path length and pixel position. In some cases, we can see clear patterns even on multi-scatter.</p>
+<p>From the simulation, we can see that if we assume we only have single-scatter in the scene, there're multiple ways to achieve the goal. In reality, it's likely that the image also includes multi-scatter, especially when it's an in-door scene. This brings in extra challenge:</p>
+<p>With multi-scatter, each pixel now has contribution from all the lightpaths that goes towards that pixel direction directly or after several bounces. This means that the contribution on each pixel now corresponds to a group of lightpaths with different lengths, thus we can't expect the hologram to directly correspond to the depth anymore.</p>
+<p>One way to resolve this is to synchronize the light source and sensor: if we use the laser projector with a phase shift depending on <span class="math inline">\(x\)</span>, if we also set the sensor to only have the corresponding line of pixels active at any point of time, this will filter out most of the contribution from indirect lighting.</p>
+</section> -->
+</section>
+
+<section>
+<h1 class="unnumbered" id="Conclusions">Conclusions</h1>
+
+<p>
+This project shows that a CW time-of-flight (TOF) imaging system—normally requiring multiple phase-shifted exposures—can be reconfigured to recover depth and complex phase information from a <strong>single shot</strong> by leveraging principles from off-axis holography. Achieving this is far from straightforward: only a narrow class of spatiotemporal modulation patterns produces an isolatable heterodyne term, and many seemingly valid configurations fail due to subtle geometric and sampling constraints.
+</p>
+
+<p>
+A key contribution of this work is identifying <strong>exactly which configurations work and why</strong>. We demonstrate that only setups imposing a <strong>spatially linear phase directly in image coordinates</strong> generate a clean, shiftable spectral component. Configurations that impose phase through illumination geometry (e.g., swept or offset laser patterns) break this alignment and cannot be salvaged by parameter tuning alone. These failure modes are rarely discussed but critically important for anyone attempting mixed spatiotemporal demodulation.
+</p>
+
+<p>
+On the engineering side, the project introduces a <strong>general-purpose, time-resolved simulation framework</strong> capable of evaluating a wide family of modulation schemes. This required extending a path tracer with modulated emitters and sensors, rolling/global-shutter behavior, waveform-controlled demodulation, and per-pixel synchronization—tools that do not exist in standard rendering systems. The simulator makes it possible to probe subtle interactions between optical coding and light transport that would be extremely difficult to isolate on hardware.
+</p>
+
+<p>
+Finally, we analyze and address a major practical obstacle: <strong>multi-scatter contamination</strong>. Through controlled experiments, we show how higher-order transport destroys the sinusoidal structure needed for holographic recovery, and we demonstrate that synchronizing illumination and sensor activation can suppress most of these contributions even in high-albedo scenes.
+</p>
+
+</section>
+
+
+
+
+</body>
+</html>

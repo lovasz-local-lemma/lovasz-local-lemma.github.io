@@ -1,0 +1,4089 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photon Primitives - Path Sampling as Art</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Source+Code+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- THREE.js for gallery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <!-- KaTeX for LaTeX rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    
+    <style>
+        /* ============================================
+           CSS Variables
+           ============================================ */
+        :root {
+            --gold: #D4AF37;
+            --gold-light: #F4D03F;
+            --gold-dark: #B8860B;
+            --dark-bg: #0A0A0A;
+            --dark-panel: #151515;
+            --dark-card: #1A1A1A;
+            --text-primary: #E8E8E8;
+            --text-secondary: #B0B0B0;
+            --accent-blue: #4A9EFF;
+            --accent-purple: #9B59B6;
+            
+            --font-title: 'Playfair Display', serif;
+            --font-content: 'Source Code Pro', monospace;
+        }
+
+        /* ============================================
+           Reset & Base
+           ============================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-content);
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .red-text {
+    color: rgba(255, 57, 57, 0.867);
+    font-weight: 700;
+    /* font-size: 1.4em; */
+    text-shadow: 0 0 10px rgba(142, 36, 36, 0.5);
+}
+
+        /* ============================================
+           Layer Structure (Proper Separation)
+           ============================================ */
+        
+        /* Background Layer - Behind everything */
+        #bg-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        #bg-canvas {
+            width: 100%;
+            height: 100%;
+            filter: blur(3px); /* GPU-accelerated glow */
+        }
+        
+        #fg-canvas {
+            filter: blur(1px); /* Slight foreground blur */
+        }
+
+        /* Content Layer - Main scrollable content */
+        #content-layer {
+            position: relative;
+            z-index: 10;
+            /* No background - fully transparent to see BG layer */
+        }
+
+        /* Foreground Layer - Floating elements */
+        #fg-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        #fg-canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* UI Layer - Navigation, controls */
+        #ui-layer {
+            position: fixed;
+            z-index: 100;
+        }
+
+        /* ============================================
+           Back Button
+           ============================================ */
+        .back-button {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            z-index: 1000;
+            background: rgba(15, 15, 32, 0.9);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 12px;
+            padding: 0.8rem 1.5rem;
+            color: var(--gold-light);
+            text-decoration: none;
+            font-family: var(--font-content);
+            font-size: 1rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .back-button:hover {
+            border-color: rgba(212, 175, 55, 0.6);
+            box-shadow: 0 6px 25px rgba(212, 175, 55, 0.25);
+            transform: translateX(-4px);
+        }
+
+        .back-button::before {
+            content: '←';
+            font-size: 1.2rem;
+        }
+
+        /* ============================================
+           Side Navigator
+           ============================================ */
+        .side-nav {
+            position: fixed;
+            right: 2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .side-nav .nav-item {
+            background: linear-gradient(135deg, rgba(20, 20, 25, 0.9), rgba(10, 10, 15, 0.85));
+            border: 1px solid rgba(212, 175, 55, 0.35);
+            border-radius: 10px;
+            padding: 0.7rem 1.2rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-family: var(--font-content);
+            font-size: 0.82rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(12px);
+            box-shadow: 
+                0 2px 8px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+
+        .side-nav .nav-item:hover {
+            border-color: var(--gold);
+            color: var(--gold-light);
+            box-shadow: 
+                0 0 20px rgba(212, 175, 55, 0.35),
+                0 4px 12px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.08);
+            text-shadow: 0 0 8px rgba(212, 175, 55, 0.5);
+        }
+
+        .side-nav .nav-item.active {
+            border-color: var(--gold);
+            color: var(--gold);
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.18), rgba(180, 140, 40, 0.12));
+            box-shadow: 
+                0 0 25px rgba(212, 175, 55, 0.4),
+                0 0 50px rgba(212, 175, 55, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.6);
+        }
+
+        @media (max-width: 1200px) {
+            .side-nav { display: none; }
+        }
+
+        /* ============================================
+           Control Panel
+           ============================================ */
+        .control-panel {
+            position: fixed;
+            bottom: 2rem;
+            left: 2rem;
+            z-index: 1000;
+            background: rgba(15, 15, 15, 0.9);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 12px;
+            padding: 1rem;
+            backdrop-filter: blur(10px);
+            min-width: 200px;
+        }
+
+        .control-panel h4 {
+            font-family: var(--font-title);
+            color: var(--gold);
+            margin-bottom: 0.8rem;
+            font-size: 0.9rem;
+        }
+
+        .control-group {
+            margin-bottom: 0.8rem;
+        }
+
+        .control-group label {
+            display: block;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.3rem;
+        }
+
+        .control-group select,
+        .control-group input[type="range"] {
+            width: 100%;
+            background: var(--dark-panel);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 4px;
+            padding: 0.4rem;
+            color: var(--text-primary);
+            font-family: var(--font-content);
+            font-size: 0.75rem;
+        }
+
+        .control-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+
+        .control-toggle input {
+            accent-color: var(--gold);
+        }
+
+        /* ============================================
+           Glowing Button Selectors
+           ============================================ */
+        .glow-btn {
+            padding: 6px 14px;
+            font-size: 0.75rem;
+            font-family: var(--font-content);
+            background: rgba(30, 30, 35, 0.9);
+            color: var(--text-secondary);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .glow-btn:hover {
+            border-color: rgba(212, 175, 55, 0.5);
+            color: var(--text-primary);
+            background: rgba(40, 40, 45, 0.9);
+        }
+        
+        .glow-btn.active {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.25), rgba(212, 175, 55, 0.1));
+            border-color: var(--gold);
+            color: var(--gold-light);
+            box-shadow: 
+                0 0 12px rgba(212, 175, 55, 0.4),
+                0 0 24px rgba(212, 175, 55, 0.2),
+                inset 0 0 8px rgba(212, 175, 55, 0.1);
+            text-shadow: 0 0 8px rgba(212, 175, 55, 0.5);
+        }
+        
+        .glow-btn.inverse {
+            border-color: rgba(255, 100, 100, 0.3);
+        }
+        
+        .glow-btn.inverse.active {
+            background: linear-gradient(135deg, rgba(255, 100, 100, 0.25), rgba(255, 100, 100, 0.1));
+            border-color: #ff6666;
+            color: #ffaaaa;
+            box-shadow: 
+                0 0 12px rgba(255, 100, 100, 0.4),
+                0 0 24px rgba(255, 100, 100, 0.2),
+                inset 0 0 8px rgba(255, 100, 100, 0.1);
+            text-shadow: 0 0 8px rgba(255, 100, 100, 0.5);
+        }
+
+        /* ============================================
+           Demo Canvas Styling
+           ============================================ */
+        .demo-canvas {
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 8px;
+            background: #000;
+            cursor: grab;
+            box-shadow: 
+                0 0 15px rgba(212, 175, 55, 0.1),
+                0 0 30px rgba(212, 175, 55, 0.05),
+                inset 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+        
+        .demo-canvas:hover {
+            border-color: rgba(212, 175, 55, 0.5);
+            box-shadow: 
+                0 0 20px rgba(212, 175, 55, 0.15),
+                0 0 40px rgba(212, 175, 55, 0.08),
+                inset 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+
+        /* ============================================
+           Main Container
+           ============================================ */
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* ============================================
+           Header
+           ============================================ */
+        .page-header {
+            text-align: center;
+            padding: 80px 0 60px;
+        }
+
+        .page-header h1 {
+            font-family: var(--font-title);
+            font-size: 3.5rem;
+            font-weight: 600;
+            color: var(--gold-light);
+            margin-bottom: 1rem;
+            text-shadow: 
+                0 0 10px rgba(255, 220, 100, 0.8),
+                0 0 30px rgba(212, 175, 55, 0.6),
+                0 0 60px rgba(212, 175, 55, 0.4),
+                0 0 100px rgba(212, 175, 55, 0.2),
+                0 4px 8px rgba(0, 0, 0, 0.5);
+            letter-spacing: 2px;
+        }
+
+        .language-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.2), rgba(212, 175, 55, 0.1));
+            border: 1px solid rgba(212, 175, 55, 0.4);
+            border-radius: 8px;
+            padding: 0.4rem 1rem;
+            color: var(--gold-light);
+            font-family: var(--font-content);
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-left: 1rem;
+            vertical-align: middle;
+        }
+
+        .page-header .subtitle {
+            font-family: var(--font-title);
+            font-size: 1.6rem;
+            font-style: italic;
+            font-weight: 400;
+            color: #e8d5a3;
+            margin-bottom: 2rem;
+            text-shadow: 
+                0 0 8px rgba(255, 220, 150, 0.5),
+                0 0 20px rgba(212, 175, 55, 0.3),
+                0 3px 6px rgba(0, 0, 0, 0.6);
+            letter-spacing: 1px;
+        }
+
+        .page-header .intro-text {
+            max-width: 800px;
+            margin: 0 auto;
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #f0f0f0;
+            text-shadow: 
+                0 0 20px rgba(0, 0, 0, 0.9),
+                0 0 40px rgba(0, 0, 0, 0.7),
+                0 2px 4px rgba(0, 0, 0, 0.8);
+        }
+
+        .page-header .note {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            font-style: italic;
+            margin-top: 1.5rem;
+            text-shadow: 
+                0 0 20px rgba(0, 0, 0, 0.95),
+                0 0 40px rgba(0, 0, 0, 0.8),
+                0 2px 4px rgba(0, 0, 0, 0.9);
+        }
+
+        /* ============================================
+           Glowing Cards
+           ============================================ */
+        .glow-card {
+            background: linear-gradient(135deg, 
+                rgba(21, 21, 21, 0.95) 0%, 
+                rgba(26, 26, 26, 0.9) 100%);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 16px;
+            padding: 2.5rem;
+            margin: 2rem 0;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s ease;
+            box-shadow: 
+                0 0 20px rgba(212, 175, 55, 0.1),
+                0 5px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .glow-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(
+                ellipse at top left,
+                rgba(212, 175, 55, 0.12) 0%,
+                transparent 50%
+            );
+            pointer-events: none;
+        }
+
+        .glow-card:hover {
+            border-color: rgba(212, 175, 55, 0.5);
+            box-shadow: 
+                0 0 40px rgba(212, 175, 55, 0.25),
+                0 0 60px rgba(212, 175, 55, 0.1),
+                0 10px 40px rgba(0, 0, 0, 0.3);
+            transform: translateY(-4px);
+        }
+
+        .glow-card h2 {
+            font-family: var(--font-title);
+            font-size: 2rem;
+            color: var(--gold);
+            margin-bottom: 1.5rem;
+            position: relative;
+            text-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+        }
+
+        .glow-card h3 {
+            font-family: var(--font-title);
+            font-size: 1.5rem;
+            color: var(--gold-light);
+            margin: 2rem 0 1rem;
+            text-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+            letter-spacing: 0.05em;
+            font-style: italic;
+            background: linear-gradient(90deg, var(--gold-light), var(--gold), var(--gold-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .glow-card p {
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            line-height: 1.8;
+        }
+
+        /* ============================================
+           Section Styling
+           ============================================ */
+        .content-section {
+            padding: 2rem 0;
+        }
+        
+        /* Improve text readability against dynamic BG */
+        .content-section p,
+        .content-section li {
+            text-shadow: 
+                0 0 15px rgba(0, 0, 0, 0.95),
+                0 0 30px rgba(0, 0, 0, 0.8),
+                0 1px 3px rgba(0, 0, 0, 0.9);
+        }
+        
+        .content-section strong {
+            text-shadow: 
+                0 0 10px rgba(212, 175, 55, 0.3),
+                0 0 20px rgba(0, 0, 0, 0.9),
+                0 1px 3px rgba(0, 0, 0, 0.9);
+        }
+
+        .section-title {
+            font-family: var(--font-title);
+            font-size: 2.5rem;
+            color: var(--gold);
+            text-align: center;
+            margin-bottom: 3rem;
+            text-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+        }
+
+        /* ============================================
+           Gallery Section
+           ============================================ */
+        .gallery-wrapper {
+            position: relative;
+            margin: 3rem 0;
+            border-radius: 20px;
+            overflow: hidden;
+            border: 2px solid rgba(212, 175, 55, 0.3);
+            box-shadow: 
+                0 0 40px rgba(212, 175, 55, 0.1),
+                inset 0 0 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .gallery-wrapper::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, 
+                var(--gold-dark), 
+                transparent, 
+                var(--gold-dark), 
+                transparent);
+            z-index: -1;
+            border-radius: 22px;
+            animation: border-glow 4s linear infinite;
+        }
+
+        @keyframes border-glow {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        #gallery-3d {
+            width: 100%;
+            height: 600px;
+            background: #0a0a0a;
+            position: relative;
+        }
+
+        #gallery-canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        .view-controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .view-btn {
+            background: rgba(10, 10, 10, 0.8);
+            border: 1px solid var(--gold-dark);
+            color: var(--text-secondary);
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-family: var(--font-content);
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .view-btn:hover,
+        .view-btn.active {
+            background: rgba(212, 175, 55, 0.2);
+            border-color: var(--gold);
+            color: var(--gold-light);
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.6);
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.3), inset 0 0 10px rgba(212, 175, 55, 0.1);
+        }
+
+        #grid-view {
+            padding: 2rem;
+        }
+
+        #grid-view.hidden {
+            display: none;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .grid-item {
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .grid-item:hover {
+            border-color: var(--gold);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+            transform: scale(1.02);
+        }
+
+        .grid-item img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .back-to-3d {
+            background: rgba(10, 10, 10, 0.9);
+            border: 1px solid var(--gold-dark);
+            color: var(--gold-light);
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: var(--font-content);
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .back-to-3d:hover {
+            background: rgba(212, 175, 55, 0.2);
+            border-color: var(--gold);
+        }
+
+        /* ============================================
+           Image Grids (2-up layout)
+           ============================================ */
+        .image-grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            max-width: 800px;
+            margin: 2rem auto;
+        }
+
+        .image-grid-2 .image-item {
+            background: var(--dark-panel);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .image-grid-2 .image-item:hover {
+            border-color: var(--gold);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
+        }
+
+        .image-grid-2 .image-item img {
+            max-width: 100%;
+            max-height: 180px;
+            width: auto;
+            height: auto;
+            border-radius: 8px;
+            margin-bottom: 0.8rem;
+        }
+
+        .image-grid-2 .image-item p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        /* Wide images */
+        .image-wide {
+            max-width: 700px;
+            margin: 2rem auto;
+            text-align: center;
+        }
+
+        .image-wide img {
+            max-width: 100%;
+            border-radius: 12px;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+        }
+
+        .image-wide p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-top: 1rem;
+        }
+
+        /* ============================================
+           Comparison Grid
+           ============================================ */
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .comparison-item {
+            background: var(--dark-panel);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .comparison-header {
+            font-family: var(--font-title);
+            font-size: 1.3rem;
+            color: var(--gold-light);
+            margin-bottom: 1rem;
+        }
+
+        .comparison-item img {
+            max-width: 100%;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .comparison-item .result {
+            color: var(--gold);
+            font-weight: 600;
+            margin-top: 0.5rem;
+        }
+
+        /* ============================================
+           Lists
+           ============================================ */
+        .styled-list {
+            list-style: none;
+            padding: 0;
+            margin: 1.5rem 0;
+        }
+
+        .styled-list li {
+            background: rgba(21, 21, 21, 0.8);
+            border-left: 3px solid var(--gold);
+            padding: 1rem 1.5rem;
+            margin-bottom: 0.8rem;
+            border-radius: 0 8px 8px 0;
+            transition: all 0.3s ease;
+        }
+
+        .styled-list li:hover {
+            background: rgba(212, 175, 55, 0.05);
+            transform: translateX(4px);
+        }
+
+        .styled-list li strong {
+            color: var(--gold-light);
+        }
+
+        /* ============================================
+           Highlight Text
+           ============================================ */
+        .gold-text {
+            color: var(--gold-light);
+            font-weight: 700;
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, 
+                rgba(212, 175, 55, 0.1) 0%, 
+                rgba(212, 175, 55, 0.05) 100%);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 12px;
+            padding: 1.5rem 2rem;
+            margin: 2rem 0;
+            text-align: center;
+        }
+
+        /* ============================================
+           Paper Link
+           ============================================ */
+        .paper-link {
+            background: linear-gradient(135deg, 
+                rgba(212, 175, 55, 0.1) 0%, 
+                rgba(212, 175, 55, 0.05) 100%);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            margin: 3rem 0;
+        }
+
+        .paper-link a {
+            color: var(--gold-light);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+
+        .paper-link a:hover {
+            color: var(--gold);
+            text-decoration: underline;
+        }
+
+        /* ============================================
+           Footer
+           ============================================ */
+        footer {
+            text-align: center;
+            padding: 4rem 0;
+            color: var(--text-secondary);
+        }
+
+        /* Elegant Quote - with fancy font and glow effects */
+        .elegant-quote {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-style: italic;
+            font-size: 1.3rem;
+            font-weight: 400;
+            color: #f0e6c8;
+            text-align: center;
+            margin: 2rem auto;
+            max-width: 700px;
+            line-height: 1.7;
+            letter-spacing: 0.5px;
+            text-shadow: 
+                0 0 15px rgba(255, 220, 130, 0.4),
+                0 0 30px rgba(212, 175, 55, 0.25),
+                0 0 50px rgba(180, 140, 40, 0.15),
+                0 3px 8px rgba(0, 0, 0, 0.7),
+                0 1px 0 rgba(255, 255, 255, 0.1);
+            position: relative;
+            padding: 0 20px;
+        }
+        
+        .elegant-quote::before,
+        .elegant-quote::after {
+            content: '✦';
+            color: rgba(212, 175, 55, 0.5);
+            font-size: 0.8rem;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.6);
+        }
+        
+        .elegant-quote::before {
+            left: -15px;
+        }
+        
+        .elegant-quote::after {
+            right: -15px;
+        }
+
+        /* ============================================
+           Loading Screen
+           ============================================ */
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--dark-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            transition: opacity 0.5s ease;
+        }
+        
+        .loading-content {
+            text-align: center;
+            max-width: 400px;
+        }
+        
+        .loading-title {
+            font-family: var(--font-title);
+            font-size: 2rem;
+            color: var(--gold);
+            margin-bottom: 30px;
+            font-weight: 300;
+            letter-spacing: 3px;
+        }
+        
+        .loading-bar {
+            width: 100%;
+            height: 4px;
+            background: var(--dark-panel);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        
+        .loading-progress {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, var(--gold-dark), var(--gold), var(--gold-light));
+            animation: loading-pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes loading-pulse {
+            0%, 100% { width: 0%; }
+            50% { width: 100%; }
+        }
+        
+        .loading-text {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* ============================================
+           Responsive
+           ============================================ */
+        @media (max-width: 768px) {
+            .page-header h1 { font-size: 2.5rem; }
+            .image-grid-2 { grid-template-columns: 1fr; }
+            .comparison-grid { grid-template-columns: 1fr; }
+            .control-panel { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loading-screen">
+        <div class="loading-content">
+            <div class="loading-title">Loading Gallery</div>
+            <div class="loading-bar">
+                <div class="loading-progress"></div>
+            </div>
+            <div class="loading-text">Preparing photon primitives...</div>
+        </div>
+    </div>
+
+    <!-- ========================================
+         LAYER 0: Background (WebGL)
+         ======================================== -->
+    <div id="bg-layer">
+        <canvas id="bg-canvas"></canvas>
+    </div>
+
+    <!-- ========================================
+         LAYER 1: Foreground Decorations (WebGL)
+         ======================================== -->
+    <div id="fg-layer">
+        <canvas id="fg-canvas"></canvas>
+    </div>
+
+    <!-- ========================================
+         LAYER 2: Main Content
+         ======================================== -->
+    <div id="content-layer">
+        <a href="../../index.html" class="back-button">Back to Portfolio</a>
+
+        <!-- Side Navigator -->
+        <nav class="side-nav">
+            <a href="#gallery" class="nav-item active" data-section="gallery"><strong style="font-weight: 800; /* bold, but not shouting */
+    color: #ffcc55; /* muted gold */
+    text-shadow:
+        0 0 4px rgba(252, 201, 152, 0.55),
+        0 0 8px rgba(214, 178, 94, 0.35);">Gallery</strong></a>
+            <a href="#what-are-these" class="nav-item" data-section="what-are-these"><strong>What Are We Seeing?</strong></a>
+            <a href="#core-idea" class="nav-item" data-section="core-idea"><strong>Core Idea</strong></a>
+            <a href="#primitives" class="nav-item" data-section="primitives"><strong>Space of Primitives</strong></a>
+            <a href="#combining" class="nav-item" data-section="combining"><strong>Combination</strong></a>
+            <a href="#live-demos" class="nav-item" data-section="live-demos"><strong style="font-weight: 800; /* bold, but not shouting */
+    color: #fff6e1; /* muted gold */
+    text-shadow:
+        0 0 4px rgba(252, 201, 152, 0.55),
+        0 0 8px rgba(214, 178, 94, 0.35);">Live Demos</strong></a>
+            <a href="#transient" class="nav-item" data-section="transient"><strong>Extension: Transient</strong></a>
+            <a href="#art" class="nav-item" data-section="art"><strong>Beyond Performance</strong></a>
+        </nav>
+
+        <!-- Control Panel -->
+        <div class="control-panel" hidden="hidden">
+            <h4>Visual Controls</h4>
+            <div class="control-group">
+                <label>Background Effect</label>
+                <select id="bg-effect">
+                    <option value="fluid">Fluid / Spacetime</option>
+                    <option value="none">None</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label>Primitives</label>
+                <select id="fg-primitives">
+                    <option value="mixed">Mixed (All Types)</option>
+                    <option value="spheres">Spheres Only</option>
+                    <option value="cones">Cones Only</option>
+                    <option value="cylinders">Cylinders Only</option>
+                    <option value="tori">Tori Only</option>
+                    <option value="none">None</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label>Jacobian Terms</label>
+                <select id="jacobian-mode">
+                    <option value="fresnel">Fresnel (1/N·V)</option>
+                    <option value="geo">Geometric (1/R², 1/R)</option>
+                    <option value="combined">Combined 1/(x+y)</option>
+                    <option value="all">All Terms</option>
+                    <option value="none">No Extra Terms</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label>Primitive Count</label>
+                <input type="range" id="primitive-count" min="5" max="50" value="20">
+            </div>
+            <div class="control-group">
+                <label>Sphere Falloff</label>
+                <select id="sphere-falloff">
+                    <option value="sqrt">Sqrt (Density)</option>
+                    <option value="linear">Linear</option>
+                    <option value="quadratic">Quadratic</option>
+                    <option value="none">Flat</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label>Solid Alpha: <span id="solid-alpha-val">0.5</span></label>
+                <input type="range" id="solid-alpha" min="0" max="100" value="50">
+            </div>
+            <div class="control-group">
+                <label>Wireframe Alpha: <span id="wire-alpha-val">0.6</span></label>
+                <input type="range" id="wire-alpha" min="0" max="100" value="60">
+            </div>
+            <div class="control-group">
+                <label>Rim Glow (Fresnel): <span id="rim-alpha-val">0.8</span></label>
+                <input type="range" id="rim-alpha" min="0" max="100" value="80">
+            </div>
+            <div class="control-group">
+                <label>Rim Glow 2 (Border): <span id="rim2-alpha-val">0.5</span></label>
+                <input type="range" id="rim2-alpha" min="0" max="100" value="50">
+            </div>
+            <div class="control-group">
+                <label class="control-toggle">
+                    <input type="checkbox" id="toggle-glow" checked>
+                    Card Glow Effects
+                </label>
+            </div>
+            <div class="control-group">
+                <label class="control-toggle">
+                    <input type="checkbox" id="toggle-warp">
+                    Space Warp Effect
+                </label>
+            </div>
+            <div class="control-group" id="warp-brightness-group" style="display: none;">
+                <label>Warp Brightness: <span id="warp-brightness-val">0.5</span></label>
+                <input type="range" id="warp-brightness" min="0" max="100" value="50">
+            </div>
+        </div>
+
+        <div class="main-container">
+            <!-- Header -->
+            <header class="page-header">
+                <h1>Photon Primitives <span class="language-badge">C++</span></h1>
+                <p class="subtitle">When Path Sampling Becomes Art</p>
+                <p class="intro-text" style="margin-bottom: 10px;">
+This work grew out of research on difficult light transport paths in physically-based rendering. What began as an effort to reason about complex estimators gradually revealed something unexpected: the intermediate geometric structures themselves possess a striking visual presence.
+                </p>
+                <p class="intro-text" style="margin-bottom: 10px;">
+As the system matured, its value became clear beyond its original research motivation. It provides a <strong>unified geometric language</strong> capable of expressing both new and existing rendering techniques, making estimator design feel less like ad-hoc engineering and more like <strong>structured exploration</strong>.
+                </p>
+                <p class="intro-text">
+                    <strong>
+                        This gallery presents those intermediate forms — not as byproducts, but as natural visualizations of the mathematics underlying light transport. 
+                        <!-- This gallery explores those forms as natural visualizations of the underlying mathematics.</strong> -->
+                </p>
+
+
+                <p class="note">
+                    Note: This is a specialized topic in rendering research. I won't dive too deep into technical details — 
+                    the focus here is on visual and <strong class="gold-text">high-level intuition</strong> as well as the artistic side of what these estimators produce. 
+                        I also included some <strong class="gold-text">interactive demos</strong> to give a better intuition of how the primitives work in action. 
+                </p>
+            </header>
+
+            <!-- Gallery Section -->
+            <section id="gallery" class="content-section">
+                <div class="gallery-wrapper">
+                    <div id="gallery-3d">
+                        <canvas id="gallery-canvas"></canvas>
+                        <div class="view-controls">
+                            <button class="view-btn active" data-mode="3d">Flying Gallery</button>
+                            <button class="view-btn" data-mode="grid">Grid View</button>
+                        </div>
+                    </div>
+
+                    <div id="grid-view" class="hidden">
+                        <button class="back-to-3d" id="back-to-3d">◄ Back to Flying Gallery</button>
+                        <div class="grid-container" id="grid-container">
+                            <!-- Images populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- What Are These Images? -->
+            <section id="what-are-these" class="content-section">
+                <div class="glow-card">
+                    <h2>What Are These Images?</h2>
+                    
+<p>
+    These images are intermediate states generated by different 
+    <span class="gold-text">photon primitive estimators</span> —
+    snapshots of how various rendering techniques within the photon primitive family 
+    traverse <span class="gold-text">light-transport space</span>. 
+    Images with stronger artifacts were generated using fewer samples, while those that 
+    begin to resemble a <span class="gold-text">conventional rendered image</span> used more samples; 
+    in practice, this simply means more time, more intermediate results, and an average 
+    closer to <span class="gold-text">convergence</span>.
+</p>
+
+<p>
+    Most images use scenes with 
+    <span class="gold-text">participating media</span> 
+    (e.g., fog or smoke), though some demonstrate that the approach also applies to scenes without 
+    volumetric effects. Many scenes are intentionally simple: some images show the same 
+    setup at different <span class="gold-text">sample counts</span>, while others compare 
+    different <span class="gold-text">estimators</span> applied to the same scene. 
+    The visual variety arises from the choice of 
+    <span class="gold-text">photon primitive types</span> 
+    and how they are combined.
+</p>
+
+<p>
+    Some images exhibit clear 
+    <span class="gold-text">geometric structure</span>, 
+    while others appear dominated by noise. Certain examples use 
+    <span class="gold-text">transient (time-resolved)</span> extensions, and others explore 
+    <span class="gold-text">differential variants</span> (experimental), where red and blue 
+    indicate positive and negative contributions, respectively.
+</p>
+
+<p>
+    Although many of these images may appear abstract or chaotic, each represents an 
+    <span class="gold-text">unbiased statistical estimator</span>. 
+    Given sufficient samples, all will converge to the same 
+    <span class="gold-text">physically meaningful result</span> — 
+    the image that would be observed in that scene under the specified 
+    <span class="gold-text">light transport model</span>. 
+    That convergence, in itself, is <span class="gold-text">fascinating</span>.
+</p>
+
+                </div>
+            </section>
+
+            <!-- Two Aesthetics -->
+            <!-- <section class="content-section">
+                <h2 class="section-title">Two Flavors, Two Aesthetics</h2>
+                
+                <div class="comparison-grid">
+                    <div class="comparison-item">
+                        <div class="comparison-header">Uncorrelated</div>
+                        <img src="images/UT.png" alt="Uncorrelated Example">
+                        <p>Each sample creates a fresh primitive. Discard, regenerate, repeat.</p>
+                        <p class="result">→ Subtle artifacts as higher noise in specific regions</p>
+                    </div>
+                    
+                    <div class="comparison-item">
+                        <div class="comparison-header">Correlated</div>
+                        <img src="images/Sxx715.png" alt="Correlated Example">
+                        <p>Reuse the same batch of primitives across the entire image.</p>
+                        <p class="result">→ Bold artifacts: specular-looking primitives, coherent streaks</p>
+                    </div>
+                </div>
+
+                <div class="highlight-box">
+                    Each creates its own aesthetic. Correlated versions are even rasterizable—like a library of rendering styles.
+                </div>
+            </section> -->
+
+            <!-- Core Idea -->
+            <section id="core-idea" class="content-section">
+                <div class="glow-card">
+                    <h2>The Core Idea</h2>
+                    
+                    <h3>From Points to Primitives</h3>
+                    <p>
+                        Here, we give a highly simplified overview of how rendering works in general. 
+                        Rendering problem is the question of "for a given pixel, what's the color of the light that goes through it towards the eye?". We ask the same question to all the pixels, then we get a complete render.
+                    </p>
+
+                                        <p>
+                    To know that color, we need to all the possible light that can come from that direction, so this is a problem of integration: solving this analytically - which in general is impractical - would mean integrating over all the possible ways light can end up on that ray towards the eye. 
+                    </p>
+                    <p>
+                    Instead, we rely on sampling: The exact terms we need to sample depends on the setup: without participating media, we only need to sample all the directions: 
+                    at each step we make a choice: which direction to bounce, then we shoot a new ray and continue (with media, it's more complex, since now the light doesn't guarantee to reach the next surface: it can interact with the media anywhere, so we also need to sample a distance).  
+                    This process can happen from both directions: from the light source or from the eye.
+                    </p>
+
+                    <h3>The Connection Problem</h3>
+                    <p>
+                        Light paths can be sampled from both the camera and the light source, but they need to <strong>meet somewhere</strong>.
+                        Since a point has zero measure, we traditionally either:
+                    </p>
+                    <ul class="styled-list">
+                        <li><strong>Connect:</strong> Force the subpaths to go towards endpoint of the subpath from opposite site (<span class="red-text">fails for specular surfaces</span>, since any incoming direction can only be bounced towards one specific outgoing direction)</li>
+                        <li><strong>Blur:</strong> Treat points close enough as if they concided, allowing endpoints to not coincide exactly (<span class="red-text">biased</span>, meaning the end result will be different from the true solution, which sometimes matters a lot)</li>
+                    </ul>
+
+                    <div class="image-wide">
+                        <img src="tech_images/full-light-path.png" alt="Full Light Path">
+                        <p>Paths sampled from both directions need to meet. Primitives give us a third option beyond direct connection or blurring.</p>
+                    </div>
+                    <p>
+                        Now consider: instead of making a choice at some step, you sample the <strong>whole domain</strong> of possibilities. 
+                        This creates an (infinite) bundle of paths, forming a <strong>geometric primitive</strong> — a sphere, plane, cone, or other shape 
+                        that represents all the paths passing through that region. The benefit is that now it has a non-zero measure and you are guaranteed a connection as long as you sample enough. 
+                    </p>
+
+                    <p>
+                        <strong>Our approach does exactly that and more:</strong> The basic setup lets at least one side sweep a whole domain of one or more dimensions that are normally sampled — now the endpoint isn't a point anymore, 
+                        it's a primitive. All we need is to find ways to make the other subpath <strong>intersect</strong> it. 
+                    </p>
+
+                    <p>
+                        The flexibility comes from the choice of what dimensions we choose to sweep: to create an intersectable setup, there are countless ways: 
+                         a ray-surface setup is the most common, which includes sweeping one side on at least two dimensions and the other one dimension: the last distance;
+                    </p>
+
+                                        <div class="image-wide">
+                        <img src="tech_images/common.png" alt="Common_Primitive">
+                        <p>Paths sampled from both directions need to meet. Primitives give us a third option beyond direct connection or blurring. 
+                            Here are two examples:
+                        By sweeping two distance terms, we form a plane; and by sweeping a whole directional term which is also 2D, we form a sphere. Above are the illustrations, and below are what the artifacts would look like.
+                        <img src="tech_images/common2.png" alt="Common_Primitive2">
+                    </p>
+                    </div>
+
+
+                </div>
+            </section>
+
+            <!-- Primitive Types -->
+            <section id="primitives" class="content-section">
+
+                <div class="glow-card">
+                    <h2>Primitive Types & Flexibility</h2>
+
+                                        <h3>Flexibility: Any Choice Can Become a Primitive</h3>
+                    <p>
+                        You can basically do <strong>anything you want</strong>, as long as you follow some simple rules: 
+                        any choice made during path construction can be turned into a sampling domain, including the light source it self, or the aperture sample from the camera.
+                    </p>
+
+                    <div class="image-wide">
+                        <p>Here's an example of using all the sampling dimensions on the light source to form a primitive: this in practice will be placing copies of the light source everywhere (more specifically, placed on the sampled endpoints, and extra terms will appear).</p>
+                        <img src="tech_images/lightsource_matched_primitive.png" alt="Light-source matched primitives">
+                        <p>How well does this work? Well, that depends on the setup. One deciding factor is how large the light source is. Here's a quick comparison of this light source estimator (right) vs the photon sphere (left), with the same sample count:</p>
+                        <img src="tech_images/LS.png" alt="LS_SPH">
+                        <p>In this setup, since the light source is tiny, this works poorly.</p>
+                    </div>
+
+                    <p>
+                        This example above shows another benefit of the framework: <span class="gold-text">geometric reasoning</span> alone can already tell you a lot about how an estimator performs under specific situations.
+                    </p>
+
+                    
+                    <h3>Basic Geometric Primitives</h3>
+                    <p>
+                         
+                        Each primitive type captures different spatial coherence in light transport. What we use more commonly are primitives constructed using samples we get outside the lightsource.</p>
+                    
+                    <div class="image-grid-2">
+                        <div class="image-item">
+                            <img src="tech_images/sphere.png" alt="Sphere Primitive">
+                            <p>Sphere: two angles</p>
+                        </div>
+                        <div class="image-item">
+                            <img src="tech_images/plane.png" alt="Plane Primitive">
+                            <p>Plane: two distances</p>
+                        </div>
+                        <div class="image-item">
+                            <img src="tech_images/cone'.png" alt="Cone Primitive">
+                            <p>Cone: one angle, one distance</p>
+                        </div>
+                        <div class="image-item">
+                            <img src="tech_images/cylinder.png" alt="Cylinder Primitive">
+                            <p>Cylinder: also one angle, one distance</p>
+                        </div>
+                    </div>
+
+                    <h3>Combining Primitives</h3>
+                    <p>
+                        We can <strong>combine any two</strong> primitives. We can even combine a <strong>continuum</strong> of primitives 
+                        and analytically create a combined estimator (we will cover how combinations works in detail later):
+                    </p>
+
+                    <div class="image-wide">
+                        <img src="tech_images/arbitrarily_oritented_plane.png" alt="Arbitrarily oriented planes">
+                        <p>Arbitrarily oriented planes, analytically MISed—demonstrating the framework's compositional flexibility.</p>
+                    </div>
+
+                    <h3>Higher Dimensional Primitives</h3>
+                    <p>
+                        As you might notice, even two dimensions of the same type can produce different primitives, and we're also not limited to two dimensions either: we can create 3D or even 4D and higher-dimensional primitives.                         
+                    </p>
+                    <div class="image-wide">
+                        <img src="tech_images/3D.png" alt="3D_PP">
+                        <p>Examples of 3D primitives. In general, higher dimensional primitives have much better per-primitive performance, but each primitive is also much more expensive to evaluate computation-wise. </p>
+                    </div>
+                    <p>
+                        High-dimensional primitives are easy to construct, but the evaluation can become hard: since now the interesection is not on finite number of points anymore, instead, it's a line segment or more complex geometric shape, which would by itself require extra samples to evaluate stoahastically, since analytically integrating that is impractical. 
+                    </p>
+                    <p>
+                        A 2D-2D connection is non-trivial due to the same reason, and implementation wise, 2D+1D from the photon/sensor subpaths is the simplest.
+                    </p>
+                    
+
+                            <section class="tech-section">
+            <h3>Two Flavors, Two Aesthetics</h2>
+
+            <p class="highlight-text">
+                Another important point is that any primitive can also be used in two ways: correlated and uncorrelated. The difference is in how the sampling peocedure works: do you store subpath and reuse them or not. 
+                The results are statistically equivalent: they will have the same variance-over-time profile, if one is bad at handling specific light transport, so will the other.  
+                But before they converge, the appearance will be completely different.
+            </p>
+
+            <div class="comparison-grid">
+                <div class="comparison-item">
+                    <div class="comparison-header">Uncorrelated</div>
+                    <img src="tech_images/DISK.png" alt="Uncorrelated Example" class="example-image">
+                    <p>Each sample creates a fresh primitive. Discard, regenerate, repeat.</p>
+                    <p class="result">→ Subtle artifacts as higher noise in specific regions.</p>
+                </div>
+                
+                <div class="comparison-item">
+                    <div class="comparison-header">Correlated</div>
+                    <img src="tech_images/disk_unbiased.png" alt="Correlated Example" class="example-image">
+                    <p>Reuse the same batch of primitives across the entire image. And they are the exact same region where the other will also perform poorly.</p>
+                    <p class="result">→ Bold artifacts: specular-looking primitives, coherent streaks, structured patterns. </p>
+                </div>
+            </div>
+
+            <p class="highlight-text">Each creates its own aesthetic. A lot of correlated estimators are easily <span class="gold-text">rasterizable</span>.</p>
+        </section>
+
+                    <!-- <h3>Different Combinations = Different Algorithms</h3>
+                    <div class="image-wide">
+                        <img src="tech_images/prim.png" alt="Primitive Compositions">
+                        <p>Different primitive combinations yield different algorithms (point photons, beams, planes, volumes). 
+                        <em>Note: This visualization is from the transient (time-resolved) context.</em></p>
+                    </div> -->
+                </div>
+            </section>
+
+
+            <!-- Combination -->
+            <section id="combining" class="content-section">
+                <div class="glow-card">
+                    <h2>Combination</h2>
+
+                    <p>
+                        To cover full light transport, we often need to combine multiple primitives in multiple ways:
+                        they can cover a wider range of paths, and from a sampling perspective, each primitive is a 
+                        <strong>strategy</strong> — combining their decision processes can improve performance. 
+                    </p>
+
+                    <p>
+                        Intuitively, assuming we have 2 strategies to look for something, 
+                        as long as one of them has a decent chance, 
+                        using both together will have a decent chance. 
+                    </p>
+                    <p>
+                        The important thing is how to combine them properly: a simple combination of different primitives won't work, instead, we need 
+                        to introduce a concept called "<strong class="gold-text">re-evaluation</strong>": a primitive needs to "pretend" it's another one and re-estimate what a shading point should look like.
+                    </p>
+
+                    <div class="image-wide" style="max-width: 900px;">
+                        <img src="images/LR_all.png" alt="Strategy Comparison">
+                        <p>Different ways to combine primitive strategies. Some are more effective at reducing artifacts and speeding convergence.</p>
+                    </div>
+
+                    <h3>MIS: Multiple Importance Sampling</h3>
+                    <div class="image-wide" style="max-width: 800px;">
+                        <img src="tech_images/triplane-mis123.png" alt="MIS with Multiple Primitives">
+                        <p>Multiple Importance Sampling (MIS) combining different primitive strategies for robust rendering.</p>
+                    </div>
+                        <p>
+Multiple Importance Sampling (MIS) is an important concept in rendering: from traditional perspective, it's a way to probabilistically combine multiple 
+technique without introducing bias and will require knowing the sampling pdf from each strategy. 
+In our framework, it has a different interpretation: as we already mentioned, "<strong class="gold-text">re-evaluating</strong>" the shading points and combine the 
+evaluations given by each primitive.
+                        </p>
+                        <p>
+For MIS to work well, we want the stragegies to complemenent each other, meaning if one is bad at specific type of paths, the other should be good at those paths. 
+From the perspective of photon primitives, that translates to "<strong class="gold-text">the primitives that behaves the most differently when we change the viewing angle</strong>". 
+For instance, a photon sphere will always have a bright rim, while a photon plane's brightness depends on its facing angle, so we have one that never changes and one that always changes as we change the direction of our samples segment, so this combination is guaranteed to work well.                             
+                        </p>
+                    </div>
+            </section>
+
+            <!-- Live Demos Section -->
+            <section id="live-demos" class="content-section">
+                <div class="glow-card">
+                    <h2>Live Demos</h2>
+                    
+                    <p style="font-style: italic; color: var(--text-secondary); margin-bottom: 20px;">
+                        Normally I put live demos right at the top, but for this project, I feel it's more important to first clarify the core ideas.
+                        These interactive demonstrations should now make more sense with the context established above.
+                    </p>
+
+                    <!-- Embedded card for High-Level Intuitions -->
+                    <div style="background: rgba(20, 20, 25, 0.8); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 12px; padding: 20px; margin: 20px 0; box-shadow: 0 0 20px rgba(212, 175, 55, 0.1), inset 0 0 30px rgba(0,0,0,0.3);">
+                        <h3 style="color: var(--gold); margin-bottom: 15px;margin-top: -10px; text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);">High-Level Intuitions Recap</h3>
+                        
+                        <h4 style="color: var(--gold-light); margin-top: 15px; font-size: 0.95rem;">Subpath Bundles → Primitives</h4>
+                        <p style="font-size: 0.9rem;">
+                            Each <strong>subpath bundle</strong> in path tracing corresponds to a geometric primitive.
+                            When we sample a direction and trace a ray, the set of all possible endpoints forms a primitive shape —
+                            a sphere for uniform angular sampling, a cone for constrained solid angles, a disc for planar intersections.
+                        </p>
+                        
+                        <h4 style="color: var(--gold-light); font-size: 0.95rem;">The Jacobian: Local Density</h4>
+                        <p style="font-size: 0.9rem;">
+                            The <strong>Jacobian</strong> intuitively accounts for <em>local density</em> or <em>overlapping</em> of samples.
+                            Consider throwing points uniformly on a sphere: at glancing angles where the surface curves away from the view,
+                            points become exceedingly denser in screen space. This is the <code>1/|N·V|</code> term.
+                        </p>
+                        
+                        <p style="font-size: 0.9rem;">
+                            For other surfaces, the same principle applies. The disc, for example, is uniform w.r.t. both R and cos(θ),
+                            giving a weighted primitive even <em>without</em> the normal term <code>(V·N)</code>.
+                            The key insight: <strong>the Jacobian must match the actual sampling process</strong>, or even validation will be wrong.
+                        </p>
+                        
+                        <div style="padding: 12px; background: rgba(255, 100, 100, 0.1); border: 1px solid rgba(255, 100, 100, 0.3); border-radius: 6px; margin-top: 15px;">
+                            <strong style="color: #ff8888; font-size: 0.85rem;">⚠ Warning:</strong> 
+                            <span style="color: var(--text-secondary); font-size: 0.85rem;">
+                                Setting up these correspondences requires extreme care. If the Jacobian doesn't match the sampling distribution,
+                                even seemingly correct validations will produce wrong results.
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Cross-Primitive Evaluation + 3 Planes MIS Demo -->
+                    <div style="margin-top: 30px; display: flex; gap: 25px; flex-wrap: wrap; justify-content: center;">
+                        <!-- Cross-Primitive Sphere (NOW FIRST) -->
+                        <div style="flex: 1; min-width: 320px; max-width: 450px;">
+                            <h4 style="color: var(--gold); margin-bottom: 10px;">Cross-Primitive Evaluation</h4>
+                            <canvas id="mis-canvas" class="demo-canvas" width="400" height="280" style="width: 100%;"></canvas>
+                            <div style="margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; font-size: 0.9rem;">
+                                <button class="glow-btn mis-btn" data-mis="sphere">Sphere</button>
+                                <button class="glow-btn mis-btn" data-mis="cone">Cone</button>
+                                <button class="glow-btn mis-btn" data-mis="disc">Disc</button>
+                                <button class="glow-btn mis-btn active" data-mis="mis">MIS</button>
+                                <input type="range" id="mis-exposure" min="-20" max="20" value="0" style="width: 80px;" title="Exposure">
+                            </div>
+                            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 8px;">
+                                Photon Sphere, <strong class="gold-text">re-evaluated</strong> as selected primitive. Drag to rotate.
+                            </p>
+                            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 6px; line-height: 1.5;">
+                                This demo shows what a sphere will look like after re-evaluation as a different primitive: the shape won't change but the shading will.
+                                Although cone and disc re-evaluations give seemingly worse results individually, once combined via MIS, they increase efficiency:
+                                we eliminated the super bright regions, and yes, <strong>this is still unbiased</strong>.
+                            </p>
+                        </div>
+                        
+                        <!-- Three Planes (NOW SECOND) -->
+                        <div style="flex: 1; min-width: 320px; max-width: 450px;">
+                            <h4 style="color: var(--gold); margin-bottom: 10px;">3 Planes: MIS Demo</h4>
+                            <canvas id="planes-canvas" class="demo-canvas" width="400" height="280" style="width: 100%;"></canvas>
+                            <div style="margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap;">
+                                <button class="glow-btn planes-btn active" data-planes="individual">Individual</button>
+                                <button class="glow-btn planes-btn" data-planes="mis">MIS</button>
+                                <input type="range" id="planes-exposure" min="-20" max="20" value="0" style="width: 80px;" title="Exposure">
+                            </div>
+                            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 8px;">
+                                <span style="color: #ff6666;">■</span> <span style="color: #66ff66;">■</span> <span style="color: #6666ff;">■</span> 
+                                Thinner = Brighter (1/|N·V|). Drag to rotate.
+                            </p>
+                            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 6px; line-height: 1.5;">
+                                Even the <strong>same type</strong> of primitives can be combined! These planes differ in which specific distance dimensions they sweep.
+                                Using 3 different pairs of segments to form planes means their facing directions will likely differ.
+                                From any viewing angle, at least one plane will have good performance (parallel to image plane is optimal).
+                                Once combined, the result is much more <strong>robust and efficient</strong>.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 1-Bounce Primitive Estimators -->
+                    <div style="margin-top: 40px;">
+                        <h3 style="color: var(--gold); margin-bottom: 15px;">1-Bounce Primitive Estimators</h3>
+                    
+                    <p>
+                        Each primitive has a characteristic <strong>Jacobian</strong> that determines how brightness varies across its surface.
+                        The key factor is <code>1/|N·V|</code> — the inverse of the dot product between surface normal and view direction.
+                    </p>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0; font-size: 0.85rem;">
+                        <div style="padding: 12px; background: rgba(255,100,100,0.1); border-radius: 8px; border-left: 3px solid #ff6666;">
+                            <strong style="color: #ff6666;">Sphere</strong>: J = 1/|N·V| / R²<br>
+                            <span style="color: var(--text-secondary);">Bright rim where rays are tangent</span>
+                        </div>
+                        <div style="padding: 12px; background: rgba(100,255,100,0.1); border-radius: 8px; border-left: 3px solid #66ff66;">
+                            <strong style="color: #66ff66;">Cone</strong>: J = 1/|N·V| / (r sin0)<br>
+                            <span style="color: var(--text-secondary);">Both front + back contribute</span>
+                        </div>
+                        <div style="padding: 12px; background: rgba(100,100,255,0.1); border-radius: 8px; border-left: 3px solid #6666ff;">
+                            <strong style="color: #6666ff;">Disc</strong>: J = 1/|N·V| / (r sin0)<br>
+                            <span style="color: var(--text-secondary);">Looks the same as the cone, but N has a different meaning here.</span>
+                        </div>
+                        <div style="padding: 12px; background: rgba(255,200,100,0.1); border-radius: 8px; border-left: 3px solid #ffcc66;">
+                            <strong style="color: #ffcc66;">Ball</strong>: J = 1<br>
+                            <span style="color: var(--text-secondary);">Needs to integrate over the whole interesection segment</span>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; margin: 20px 0;">
+                        <div style="flex: 1; min-width: 450px; max-width: 600px;">
+                            <canvas id="angle-canvas" class="demo-canvas" width="500" height="400" style="width: 100%; max-width: 550px; transform: scale(1.15); transform-origin: center; margin-bottom: 30px;margin-top: 30px"></canvas>
+                            <div style="margin-top: 12px;">
+                                <!-- Primitive selector: glowing buttons -->
+                                <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px;">
+                                    <span style="color: var(--text-secondary); font-size: 0.8rem; align-self: center;">Primitive:</span>
+                                    <button class="glow-btn active" data-primitive="sphere">Sphere</button>
+                                    <button class="glow-btn" data-primitive="cone">Cone</button>
+                                    <button class="glow-btn" data-primitive="disc">Disc</button>
+                                    <button class="glow-btn" data-primitive="ball">Ball</button>
+                                </div>
+                                <!-- Mode selector: glowing buttons -->
+                                <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px;">
+                                    <span style="color: var(--text-secondary); font-size: 0.8rem; align-self: center;">Mode:</span>
+                                    <button class="glow-btn mode-btn active" data-mode="points">Point Approximation</button>
+                                    <button class="glow-btn mode-btn" data-mode="frag">Direct Jacobian Evaluation</button>
+                                </div>
+                                <!-- Jacobian mode (only for frag shader) -->
+                                <div id="jac-mode-row" style="display: none; gap: 8px; flex-wrap: wrap; margin-bottom: 10px;">
+                                    <span style="color: var(--text-secondary); font-size: 0.8rem; align-self: center;">Jacobian:</span>
+                                    <button class="glow-btn jac-btn active" data-jac="default">1/|N·V|</button>
+                                    <button class="glow-btn jac-btn" data-jac="none">None</button>
+                                    <button class="glow-btn jac-btn inverse" data-jac="inverse">|N·V|</button>
+                                </div>
+                                <!-- Exposure -->
+                                <div style="display: flex; gap: 8px; align-items: center;">
+                                    <span style="color: var(--text-secondary); font-size: 0.8rem;">Exposure:</span>
+                                    <input type="range" id="angle-exposure" min="-20" max="20" value="0" style="width: 120px;">
+                                </div>
+                            </div>
+                            <p style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 8px;">
+                                <span style="color: #ffaa00;">●</span> Origin &nbsp;
+                                <span style="color: #66ff66;">→</span> Seg1 &nbsp;
+                                <span style="color: #ff6666;">→</span> Seg2 (radius R). Drag to rotate.
+                            </p>
+                            <p style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 12px; line-height: 1.5;">
+                                Another way to see a primitive is from the viewpoint of <strong>progressive photon mapping</strong>: 
+                                we add more and more photon points, while also shrinking the blur radius to infinitesimal. 
+                                In the end, this gives the analytical primitive. As we can see in <strong>"Point Approximation"</strong> mode, these already look similar to 
+                                the <strong>"Direct Jacobian Evaluation"</strong> result (the minor difference is exactly the bias caused by the blur) — if we continue that operation (expensive but doable), it will converge to the primitive.
+                            </p>
+                        </div>
+                    </div>
+                    </div>
+                    
+                    <!-- 3-Bounce Estimators: Volume -->
+                    <div style="margin-top: 30px;">
+                        <h3 style="color: var(--gold); margin-bottom: 12px;">3-Bounce Primitive: Photon Parallelepiped</h3>
+                        <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 15px;">
+                            With 3 sampled segments, we get a parallelepiped. The Jacobian is 1/|a×b·c| (triple product of segment directions).
+                            When segments become coplanar, the volume collapses and brightness explodes.
+                        </p>
+                        <div style="display: flex; gap: 15px; flex-wrap: wrap; justify-content: center;">
+                            <canvas id="volume-canvas" class="demo-canvas" width="450" height="350"></canvas>
+                            <div style="min-width: 150px; font-size: 0.85rem;">
+                                <div style="margin-bottom: 10px;">
+                                    <button class="glow-btn" id="volume-animate-btn">▶ Animate</button>
+                                </div>
+                                <div style="margin-bottom: 8px;">
+                                    <label style="color: var(--text-secondary);">
+                                        Exp: <input type="range" id="volume-exposure" min="-20" max="20" value="0" style="width: 80px; vertical-align: middle;">
+                                    </label>
+                                </div>
+                                <div style="color: var(--text-secondary); line-height: 1.6;">
+                                    <div><span style="color: #ffaa00;">●</span> Origin</div>
+                                    <div><span style="color: #66ff66;">→</span> Seg1 (a)</div>
+                                    <div><span style="color: #ff6666;">→</span> Seg2 (b)</div>
+                                    <div><span style="color: #6666ff;">→</span> Seg3 (c)</div>
+                                    <div style="margin-top: 6px; color: var(--gold-dim);" id="volume-jacobian">J = 1/|a×b·c|</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+                        <!-- Transient Extension -->
+            <section id="transient" class="content-section">
+                <div class="glow-card">
+                    <h2>Transient (Time-Resolved) Extension</h2>
+                    <p>
+                        Among all the extensions, transient render is the most interesting one. The idea is simple: if we condition on the optical length of a path when we render, then will can keep only light transport within a small time window, allowing visualization of light propagation. 
+                        We can also shrink the time gate to infinitesimal, which in traditional transient render isn't possible.
+                        Now we are in the same situation: creating connections for zero-measure points. 
+                        Again, we utilize the photon primitve framework to make things intersectable.
+                    </p>
+                    <p>
+                        As we mentioned, higher dimensional primitives are hard to evaluate, another interesting thing transient render allows is to reduce the dimensionality of primitives that were previously overly complex to evaluate, for example, the 4D photon hyper-volume.
+                    </p>
+
+                    <h3>Time-Gating Slices Dimensions</h3>
+                    <p>
+                        In <strong>transient rendering</strong>, we simulate light transport over time—capturing ultrafast phenomena 
+                        at femtosecond scales. The key insight: <strong>time gating slices a high-dimensional primitive and reduces 
+                        its dimension by 1</strong>.
+                    </p>
+
+
+                    
+            <div class="comparison-grid">
+                <div class="comparison-item">
+                    <div class="comparison-header">Time-Gated Volume</div>
+                     <img src="tech_images/prim.png" alt="Correlated Example" class="example-image">
+                    <p>Three distance terms produces a volume; time gating reduces the dimensionality to two.</p>
+                    <p class="result">→ 2D primitives are in general much easier to handle.</p>
+                </div>
+                
+                <div class="comparison-item">
+                    <div class="comparison-header">Time-Gated Hyper-Volume</div>
+                    <img src="tech_images/hyper_prim.png" alt="Hyper Primitive" class="example-image">
+                    <p>Four distance terms produces a hyper-volume; time gating reduces the dimensionality to three.</p>
+                    <p class="result">→ 4D → 3D turns the computational-wise impractical primitive into one that's much more practical (tested during research). </p>
+                </div>
+            </div>
+
+                    <!-- <div class="image-wide">
+                        <img src="tech_images/hyper_prim.png" alt="Hyper Primitive">
+                        <p>In time-resolved rendering, extra time gating slices a high-dimensional primitive, reducing its dimension by one.</p>
+                    </div> -->
+
+                    <h3>More Time-Sliced Primitives</h3>
+                    <!-- <p>This enables applications in time-of-flight imaging, non-line-of-sight imaging, and scientific visualization:</p> -->
+                    
+                    <div class="image-grid-2">
+                        <div class="image-item">
+                            <img src="tech_images/time_sliced_ball.png" alt="Time-sliced ball">
+                            <p>Time-sliced sphere</p>
+                        </div>
+                        <div class="image-item">
+                            <img src="tech_images/time_sliced_vol.png" alt="Time-sliced volume">
+                            <p>Time-sliced volume</p>
+                        </div>
+                        <div class="image-item">
+                            <img src="tech_images/transient_ellipsoid.png" alt="Transient photon ellipsoid">
+                            <p>Transient photon ellipsoid</p>
+                        </div>
+                        <div class="image-item">
+                            <img src="tech_images/transient_plane.png" alt="Transient plane">
+                            <p>Transient plane</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- Beyond Performance -->
+            <section id="art" class="content-section">
+                <div class="glow-card">
+                    <h2>Beyond Performance</h2>
+                    
+                    <h3 style="color: var(--gold-light);">A New Geometric Perspective</h3>
+                    <p>
+                        Beyond efficiency gains, this framework introduces an <strong>intuitive geometric viewpoint</strong> for reasoning about light transport.
+                        Concepts that were once abstract become visual and tangible:
+                    </p>
+                    
+                    <ul style="color: var(--text-secondary); margin: 15px 0; padding-left: 20px; line-height: 1.8;">
+                        <li><strong>Sampling strategies</strong> become geometric shapes you can see and manipulate</li>
+                        <li><strong>Combining strategies</strong> becomes combining primitives with complementary behaviors under change of viewpoint</li>
+                        <li><strong>When something works well/badly</strong> becomes visible through Jacobian shading</li>
+                        <li><strong>Developing new strategies</strong> becomes systematic: imagine a shape, implement it, then reason about what strategy it corresponds to</li>
+                    </ul>
+                    
+                    <p>
+                        This also bridges <strong>rasterization and ray tracing</strong> conceptually — both can be understood through the lens of geometric primitives 
+                        and their intersections with scene geometry.
+                    </p>
+
+                    <p>
+The project is intuitive and visual, rendering complex theory accessible without misrepresenting it. While Jacobians often remain nontrivial and we can't assume the estimator we create is easy to evaluate, the system reaches the furthest point at which the theory can be simplified without losing fidelity.
+                    </p>
+
+                    <h3 style="color: var(--gold-light); margin-top: 25px;">From the Perspective of Art</h3>
+                    <p>
+                        While the research goal is efficiency and correctness, these intermediate states have <strong>aesthetic value</strong> 
+                        independent of their convergence properties. Correlated estimators give rise to <strong>distinctive visual styles</strong> — 
+                        structured patterns, specular-like artifacts, coherent streaks; whereas uncorrelated estimators yield subtler, less intrusive forms of stylization.
+                    </p>
+                    <p>
+                        Future work includes exploring the potential of this framework in non-photorealistic rendering (NPR) and stylized interactive systems.
+                    </p>
+                    
+
+                    <!-- <p class="elegant-quote">
+                        "Sometimes the structure revealed along the way is as beautiful as the final solution."
+                    </p> -->
+                </div>
+            </section>
+
+            <!-- Paper Link -->
+            <div class="paper-link">
+                <p>For full technical details, see the paper: 
+                    <a href="https://cs.dartmouth.edu/~wjarosz/publications/deng19photon.html" target="_blank">
+                        Photon Surfaces for Robust, Unbiased Volumetric Density Estimation (SIGGRAPH 2019)
+                    </a>
+                    and the follow-up: 
+                    <a href="https://cs.dartmouth.edu/~wjarosz/publications/liu22temporally.html" target="_blank">
+                        Photon Surfaces for Robust, Unbiased Volumetric Density Estimation (EGSR 2022)
+                    </a>
+                </p>
+            </div>
+
+            <!-- Footer -->
+            <footer>
+                <p>Crafted from a research project and reimagined as an exploratory visual gallery.</p>
+                <p class="elegant-quote">"Sometimes the structure revealed along the way is as beautiful as the final solution."</p>
+            </footer>
+        </div>
+    </div>
+
+    <!-- ========================================
+         Scripts
+         ======================================== -->
+    <script>
+        // ============================================
+        // Global State
+        // ============================================
+        const state = {
+            bgEnabled: true,
+            primitiveType: 'mixed',
+            jacobianMode: 'jacobian',  // 1/(N.V)
+            primitiveCount: 15,         // ~2/3 of 20
+            primitives: [],
+            time: 0,
+            sphereFalloff: 'sqrt',
+            solidAlpha: 0.85,
+            wireAlpha: 0.85,
+            rimAlpha: 0.75,             // rim glow (fresnel)
+            rim2Alpha: 1.0,             // rim glow 2 (border)
+            warpEnabled: false,
+            warpBrightness: 0.5
+        };
+
+        // ============================================
+        // 3D Math Utilities
+        // ============================================
+        class Vec3 {
+            constructor(x = 0, y = 0, z = 0) {
+                this.x = x; this.y = y; this.z = z;
+            }
+            add(v) { return new Vec3(this.x + v.x, this.y + v.y, this.z + v.z); }
+            sub(v) { return new Vec3(this.x - v.x, this.y - v.y, this.z - v.z); }
+            mul(s) { return new Vec3(this.x * s, this.y * s, this.z * s); }
+            dot(v) { return this.x * v.x + this.y * v.y + this.z * v.z; }
+            cross(v) { return new Vec3(this.y * v.z - this.z * v.y, this.z * v.x - this.x * v.z, this.x * v.y - this.y * v.x); }
+            length() { return Math.sqrt(this.dot(this)); }
+            normalize() { const l = this.length(); return l > 0 ? this.mul(1/l) : new Vec3(0,0,1); }
+            static random() { return new Vec3(Math.random()-0.5, Math.random()-0.5, Math.random()-0.5).normalize(); }
+        }
+
+        // Rotation matrix from axis-angle
+        function rotateAroundAxis(p, axis, angle) {
+            const c = Math.cos(angle), s = Math.sin(angle);
+            const k = axis.normalize();
+            const dot = k.dot(p);
+            const cross = k.cross(p);
+            return p.mul(c).add(cross.mul(s)).add(k.mul(dot * (1 - c)));
+        }
+
+        // Project 3D to 2D (simple perspective)
+        function project(p, cx, cy, fov = 400) {
+            const z = p.z + 200; // offset to avoid division issues
+            const scale = fov / (z + fov);
+            return { x: cx + p.x * scale, y: cy + p.y * scale, scale };
+        }
+
+        // ============================================
+        // Smooth Scroll Navigation
+        // ============================================
+        document.querySelectorAll('.side-nav .nav-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href').substring(1);
+                const targetEl = document.getElementById(targetId);
+                if (targetEl) {
+                    targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+
+        const sections = document.querySelectorAll('section[id]');
+        const navItems = document.querySelectorAll('.side-nav .nav-item');
+
+        function updateActiveNav() {
+            const scrollPos = window.scrollY + 200;
+            sections.forEach(section => {
+                const top = section.offsetTop;
+                const height = section.offsetHeight;
+                const id = section.getAttribute('id');
+                if (scrollPos >= top && scrollPos < top + height) {
+                    navItems.forEach(item => {
+                        item.classList.remove('active');
+                        if (item.getAttribute('href') === '#' + id) {
+                            item.classList.add('active');
+                        }
+                    });
+                }
+            });
+        }
+        window.addEventListener('scroll', updateActiveNav);
+        updateActiveNav();
+
+        // ============================================
+        // Background Shader (Enhanced Fluid/Spacetime)
+        // ============================================
+        const bgCanvas = document.getElementById('bg-canvas');
+        const bgCtx = bgCanvas.getContext('2d');
+        
+        function resizeBgCanvas() {
+            bgCanvas.width = window.innerWidth;
+            bgCanvas.height = window.innerHeight;
+        }
+        resizeBgCanvas();
+        window.addEventListener('resize', resizeBgCanvas);
+
+        let bgTime = 0;
+        
+        function drawFluidBackground() {
+            const w = bgCanvas.width;
+            const h = bgCanvas.height;
+            
+            // Create gradient background
+            const gradient = bgCtx.createRadialGradient(w/2, h/2, 0, w/2, h/2, Math.max(w, h));
+            gradient.addColorStop(0, 'rgba(15, 15, 25, 1)');
+            gradient.addColorStop(1, 'rgba(5, 5, 10, 1)');
+            bgCtx.fillStyle = gradient;
+            bgCtx.fillRect(0, 0, w, h);
+
+            if (!state.bgEnabled) {
+                requestAnimationFrame(drawFluidBackground);
+                return;
+            }
+
+            // Enhanced flowing lines with stronger glow and color variation
+            const curveCount = (window.perfSettings && window.perfSettings.bgCurves) || 25;
+            for (let i = 0; i < curveCount; i++) {
+                const hue = 40 + Math.sin(bgTime * 0.5 + i * 0.3) * 15; // Gold to yellow variation
+                const lightness = 55 + Math.sin(bgTime + i) * 12;
+                const alpha = 0.12 + Math.sin(bgTime * 0.3 + i * 0.5) * 0.06;
+                
+                // Glow now handled by CSS filter on canvas (GPU-accelerated)
+                bgCtx.strokeStyle = `hsla(${hue}, 85%, ${lightness + 20}%, ${alpha * 1.8})`;
+                bgCtx.lineWidth = 3;
+                
+                bgCtx.beginPath();
+                const startY = (i / curveCount) * h;
+                
+                for (let x = 0; x < w; x += 4) {
+                    const waveOffset = Math.sin((x * 0.004) + bgTime * 0.8 + i * 0.5) * 60;
+                    const waveOffset2 = Math.sin((x * 0.008) + bgTime * 0.4 + i * 0.3) * 30;
+                    const y = startY + waveOffset + waveOffset2;
+                    
+                    if (x === 0) bgCtx.moveTo(x, y);
+                    else bgCtx.lineTo(x, y);
+                }
+                bgCtx.stroke();
+            }
+            
+            bgCtx.shadowBlur = 0;
+
+            // Enhanced glow spots
+            for (let i = 0; i < 7; i++) {
+                const x = (Math.sin(bgTime * 0.25 + i * 1.3) * 0.35 + 0.5) * w;
+                const y = (Math.cos(bgTime * 0.18 + i * 1.7) * 0.35 + 0.5) * h;
+                const radius = 120 + Math.sin(bgTime * 0.7 + i) * 40;
+                const hue = 42 + Math.sin(bgTime * 0.3 + i) * 8;
+                
+                const glowGradient = bgCtx.createRadialGradient(x, y, 0, x, y, radius);
+                glowGradient.addColorStop(0, `hsla(${hue}, 80%, 60%, 0.12)`);
+                glowGradient.addColorStop(0.5, `hsla(${hue}, 70%, 50%, 0.05)`);
+                glowGradient.addColorStop(1, 'transparent');
+                bgCtx.fillStyle = glowGradient;
+                bgCtx.fillRect(x - radius, y - radius, radius * 2, radius * 2);
+            }
+
+            // Space warp/refraction effect - isocurves only
+            if (state.warpEnabled) {
+                const warpBrightness = state.warpBrightness || 0.5;
+                
+                // Draw warped concentric rings around moving focal points
+                for (let f = 0; f < 3; f++) {
+                    const focalX = w * (0.3 + f * 0.2) + Math.sin(bgTime * 0.4 + f * 2) * 100;
+                    const focalY = h * 0.5 + Math.cos(bgTime * 0.3 + f * 1.5) * 150;
+                    
+                    // Draw distortion rings (isocurves)
+                    for (let ring = 0; ring < 12; ring++) {
+                        const baseRadius = 40 + ring * 25;
+                        const warpAmount = 12 * Math.sin(bgTime * 0.6 + ring * 0.5 + f);
+                        
+                        bgCtx.beginPath();
+                        for (let a = 0; a <= 72; a++) {
+                            const angle = (a / 72) * Math.PI * 2;
+                            const distort = 1 + 0.12 * Math.sin(angle * 4 + bgTime * 0.8 + ring * 0.4);
+                            const r = (baseRadius + warpAmount) * distort;
+                            const px = focalX + Math.cos(angle) * r;
+                            const py = focalY + Math.sin(angle) * r;
+                            
+                            if (a === 0) bgCtx.moveTo(px, py);
+                            else bgCtx.lineTo(px, py);
+                        }
+                        bgCtx.closePath();
+                        
+                        const ringAlpha = 0.05 * (1 - ring / 12) * warpBrightness;
+                        bgCtx.strokeStyle = `rgba(212, 175, 55, ${ringAlpha})`;
+                        bgCtx.lineWidth = 1.2;
+                        bgCtx.stroke();
+                    }
+                    
+                    // Central bright point
+                    const coreGrad = bgCtx.createRadialGradient(focalX, focalY, 0, focalX, focalY, 50);
+                    coreGrad.addColorStop(0, `rgba(255, 220, 100, ${0.2 * warpBrightness})`);
+                    coreGrad.addColorStop(0.5, `rgba(212, 175, 55, ${0.08 * warpBrightness})`);
+                    coreGrad.addColorStop(1, 'transparent');
+                    bgCtx.fillStyle = coreGrad;
+                    bgCtx.fillRect(focalX - 50, focalY - 50, 100, 100);
+                }
+            }
+
+            bgTime += 0.015;
+            requestAnimationFrame(drawFluidBackground);
+        }
+
+        drawFluidBackground();
+
+        // ============================================
+        // Foreground 3D Primitives with Jacobian Terms
+        // ============================================
+        const fgCanvas = document.getElementById('fg-canvas');
+        const fgCtx = fgCanvas.getContext('2d');
+        
+        function resizeFgCanvas() {
+            fgCanvas.width = window.innerWidth;
+            fgCanvas.height = window.innerHeight;
+        }
+        resizeFgCanvas();
+        window.addEventListener('resize', resizeFgCanvas);
+
+        const viewDir = new Vec3(0, 0, -1); // Camera looking into screen
+
+        // Base Primitive class with 3D rotation
+        class Primitive3D {
+            constructor(x, y, z) {
+                this.pos = new Vec3(x, y, z);
+                this.vel = new Vec3((Math.random()-0.5)*0.4, (Math.random()-0.5)*0.4, 0);
+                this.rotAxis = Vec3.random();
+                this.rotSpeed = (Math.random() - 0.5) * 0.02;
+                this.rotAngle = Math.random() * Math.PI * 2;
+                this.baseColor = { r: 212, g: 175, b: 55 };
+            }
+
+            update(w, h) {
+                this.pos = this.pos.add(this.vel);
+                this.rotAngle += this.rotSpeed;
+                
+                const margin = 120;
+                if (this.pos.x < -margin) this.pos.x = w + margin;
+                if (this.pos.x > w + margin) this.pos.x = -margin;
+                if (this.pos.y < -margin) this.pos.y = h + margin;
+                if (this.pos.y > h + margin) this.pos.y = -margin;
+            }
+
+            getFresnel(dotNV) {
+                if (state.jacobianMode === 'none') return 1;
+                if (state.jacobianMode === 'geo') return 1;
+                const f = 1 / (Math.abs(dotNV) + 0.02);
+                return Math.min(f, 20);
+            }
+
+            getGeoTerm(R) {
+                if (state.jacobianMode === 'none' || state.jacobianMode === 'fresnel') return 1;
+                return 1;
+            }
+
+            getCombinedTerm(fresnel, geo) {
+                if (state.jacobianMode === 'combined') return 1 / (fresnel + geo + 0.1);
+                if (state.jacobianMode === 'all') return fresnel * geo;
+                return fresnel * geo;
+            }
+
+            rgba(intensity) {
+                return `rgba(${this.baseColor.r}, ${this.baseColor.g}, ${this.baseColor.b}, ${Math.min(intensity, 0.8)})`;
+            }
+        }
+
+        // Sphere with density falloff + glowing rim
+        class FresnelSphere extends Primitive3D {
+            constructor(x, y, z, radius) {
+                super(x, y, z);
+                this.radius = radius;
+                this.type = 'sphere';
+            }
+
+            getGeoTerm() {
+                if (state.jacobianMode === 'none' || state.jacobianMode === 'fresnel') return 1;
+                return 1 / (this.radius * this.radius * 0.0008 + 1);
+            }
+
+            // Density falloff: how much material ray passes through at distance t from center
+            getDensityFalloff(t) {
+                // t=0 is center, t=1 is edge
+                // At center, ray passes through full diameter (max density)
+                // At edge, ray passes through almost nothing
+                const density = Math.sqrt(1 - t * t); // chord length normalized
+                
+                switch (state.sphereFalloff) {
+                    case 'sqrt': return density;
+                    case 'linear': return 1 - t;
+                    case 'quadratic': return (1 - t) * (1 - t);
+                    case 'none': return 1;
+                    default: return density;
+                }
+            }
+
+            draw(ctx) {
+                const cx = this.pos.x, cy = this.pos.y;
+                const steps = (window.perfSettings && window.perfSettings.discsPerPrim) || 24;
+                const exposure = ((window.perfSettings && window.perfSettings.expSphere) || 1.0) * 3.0; // 2.5x brightness boost for spheres
+                const geo = this.getGeoTerm() * exposure;
+                
+                // Part 1: Density-based solid fill (center brighter, edge dimmer)
+                if (state.solidAlpha > 0.01) {
+                    for (let i = steps; i >= 0; i--) {
+                        const t = i / steps;
+                        const r = this.radius * t;
+                        const density = this.getDensityFalloff(t);
+                        const intensity = density * state.solidAlpha * geo * 0.15;
+                        
+                        ctx.beginPath();
+                        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+                        ctx.fillStyle = this.rgba(intensity);
+                        ctx.fill();
+                    }
+                }
+                
+                // Part 2: Glowing rim (Fresnel effect - edge brighter)
+                if (state.rimAlpha > 0.01) {
+                    for (let i = steps; i >= 0; i--) {
+                        const t = i / steps;
+                        const r = this.radius * t;
+                        const dotNV = Math.sqrt(1 - t * t);
+                        const fresnel = this.getFresnel(dotNV);
+                        const rimIntensity = fresnel * state.rimAlpha * geo * 0.04;
+                        
+                        ctx.beginPath();
+                        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+                        ctx.fillStyle = this.rgba(rimIntensity);
+                        ctx.fill();
+                    }
+                }
+                
+                // Part 3: Simple circle border (rim glow 2)
+                if (state.rim2Alpha > 0.01) {
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, this.radius, 0, Math.PI * 2);
+                    ctx.strokeStyle = this.rgba(state.rim2Alpha * geo * 0.8);
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                }
+            }
+        }
+
+        // Helper: draw a 3D disc as a filled polygon (correct projection)
+        function drawDisc3D(ctx, center3D, localAxisX, localAxisZ, radius, screenCx, screenCy, fillStyle, segments = 16) {
+            ctx.beginPath();
+            for (let i = 0; i <= segments; i++) {
+                const angle = (i / segments) * Math.PI * 2;
+                const localPoint = center3D
+                    .add(localAxisX.mul(Math.cos(angle) * radius))
+                    .add(localAxisZ.mul(Math.sin(angle) * radius));
+                const proj = project(localPoint, screenCx, screenCy);
+                if (i === 0) ctx.moveTo(proj.x, proj.y);
+                else ctx.lineTo(proj.x, proj.y);
+            }
+            ctx.closePath();
+            ctx.fillStyle = fillStyle;
+            ctx.fill();
+        }
+
+        // 3D Rotating Cone with disc + wireframe rendering
+        class FresnelCone extends Primitive3D {
+            constructor(x, y, z, radius, height) {
+                super(x, y, z);
+                this.radius = radius;
+                this.height = height;
+                this.type = 'cone';
+            }
+
+            getGeoTerm() {
+                if (state.jacobianMode === 'none' || state.jacobianMode === 'fresnel') return 1;
+                return 1 / (this.radius * 0.015 + 1);
+            }
+
+            draw(ctx) {
+                const cx = this.pos.x, cy = this.pos.y;
+                const segments = 20;
+                const rings = (window.perfSettings && window.perfSettings.discsPerPrim) || 24;
+                const exposure = (window.perfSettings && window.perfSettings.expCone) || 1.0;
+                const geo = this.getGeoTerm() * exposure;
+                
+                // Generate cone vertices in local space, then rotate
+                const points = [];
+                for (let r = 0; r <= rings; r++) {
+                    const t = r / rings;
+                    const y = (t - 0.5) * this.height;
+                    const rad = this.radius * (1 - t);
+                    
+                    const ring = [];
+                    for (let s = 0; s < segments; s++) {
+                        const theta = (s / segments) * Math.PI * 2;
+                        let p = new Vec3(Math.cos(theta) * rad, y, Math.sin(theta) * rad);
+                        p = rotateAroundAxis(p, this.rotAxis, this.rotAngle);
+                        ring.push(p);
+                    }
+                    points.push(ring);
+                }
+
+                // Part 1: Semi-transparent discs with proper 3D orientation
+                if (state.solidAlpha > 0.01) {
+                    // Local disc axes (perpendicular to Y axis in local space)
+                    let localAxisX = new Vec3(1, 0, 0);
+                    let localAxisZ = new Vec3(0, 0, 1);
+                    // Rotate to world space
+                    localAxisX = rotateAroundAxis(localAxisX, this.rotAxis, this.rotAngle);
+                    localAxisZ = rotateAroundAxis(localAxisZ, this.rotAxis, this.rotAngle);
+                    
+                    // Disc normal (Y axis rotated)
+                    let discNormal = new Vec3(0, 1, 0);
+                    discNormal = rotateAroundAxis(discNormal, this.rotAxis, this.rotAngle);
+                    const dotNV = Math.abs(discNormal.dot(viewDir));
+                    
+                    for (let r = 0; r < rings; r++) {
+                        const t = r / rings;
+                        const rad = this.radius * (1 - t);
+                        if (rad < 1) continue;
+                        
+                        // Ring center in world space
+                        let ringCenter = new Vec3(0, (t - 0.5) * this.height, 0);
+                        ringCenter = rotateAroundAxis(ringCenter, this.rotAxis, this.rotAngle);
+                        
+                        const fresnel = this.getFresnel(dotNV);
+                        const intensity = this.getCombinedTerm(fresnel, geo) * state.solidAlpha * 0.08;
+                        
+                        drawDisc3D(ctx, ringCenter, localAxisX, localAxisZ, rad, cx, cy, this.rgba(intensity));
+                    }
+                }
+
+                // Part 2: Wireframe lines along the cone
+                if (state.wireAlpha > 0.01) {
+                    ctx.lineWidth = 1.5;
+                    for (let s = 0; s < segments; s += 2) {
+                        ctx.beginPath();
+                        for (let r = 0; r <= rings; r++) {
+                            const p = points[r][s];
+                            const proj = project(p, cx, cy);
+                            
+                            const normalAngle = Math.atan2(this.radius, this.height);
+                            const theta = (s / segments) * Math.PI * 2;
+                            let normal = new Vec3(Math.cos(theta) * Math.cos(normalAngle), Math.sin(normalAngle), Math.sin(theta) * Math.cos(normalAngle));
+                            normal = rotateAroundAxis(normal, this.rotAxis, this.rotAngle);
+                            
+                            const dotNV = Math.abs(normal.dot(viewDir));
+                            const fresnel = this.getFresnel(dotNV);
+                            const intensity = this.getCombinedTerm(fresnel, geo) * state.wireAlpha * 0.1;
+                            
+                            ctx.strokeStyle = this.rgba(intensity);
+                            
+                            if (r === 0) ctx.moveTo(proj.x, proj.y);
+                            else ctx.lineTo(proj.x, proj.y);
+                        }
+                        ctx.stroke();
+                    }
+
+                    // Draw ring wireframes
+                    for (let r = 0; r <= rings; r += 3) {
+                        ctx.beginPath();
+                        for (let s = 0; s <= segments; s++) {
+                            const p = points[r][s % segments];
+                            const proj = project(p, cx, cy);
+                            if (s === 0) ctx.moveTo(proj.x, proj.y);
+                            else ctx.lineTo(proj.x, proj.y);
+                        }
+                        let discNormal = new Vec3(0, 1, 0);
+                        discNormal = rotateAroundAxis(discNormal, this.rotAxis, this.rotAngle);
+                        const dotNV = Math.abs(discNormal.dot(viewDir));
+                        const fresnel = this.getFresnel(dotNV);
+                        const intensity = fresnel * state.wireAlpha * 0.06;
+                        ctx.strokeStyle = this.rgba(intensity);
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+
+        // 3D Rotating Cylinder with disc + wireframe rendering
+        class FresnelCylinder extends Primitive3D {
+            constructor(x, y, z, radius, height) {
+                super(x, y, z);
+                this.radius = radius;
+                this.height = height;
+                this.type = 'cylinder';
+            }
+
+            getGeoTerm() {
+                if (state.jacobianMode === 'none' || state.jacobianMode === 'fresnel') return 1;
+                return 1 / (this.radius * 0.02 + 1);
+            }
+
+            draw(ctx) {
+                const cx = this.pos.x, cy = this.pos.y;
+                const segments = 24;
+                const rings = (window.perfSettings && window.perfSettings.discsPerPrim) || 24;
+                const exposure = (window.perfSettings && window.perfSettings.expCylinder) || 1.0;
+                const geo = this.getGeoTerm() * exposure;
+                
+                // Local disc axes (perpendicular to Y axis in local space)
+                let localAxisX = new Vec3(1, 0, 0);
+                let localAxisZ = new Vec3(0, 0, 1);
+                // Rotate to world space
+                localAxisX = rotateAroundAxis(localAxisX, this.rotAxis, this.rotAngle);
+                localAxisZ = rotateAroundAxis(localAxisZ, this.rotAxis, this.rotAngle);
+                
+                // Disc normal (Y axis rotated)
+                let discNormal = new Vec3(0, 1, 0);
+                discNormal = rotateAroundAxis(discNormal, this.rotAxis, this.rotAngle);
+                const dotNV = Math.abs(discNormal.dot(viewDir));
+                
+                // Generate cylinder vertices
+                const allRings = [];
+                for (let r = 0; r <= rings; r++) {
+                    const t = r / rings;
+                    const y = (t - 0.5) * this.height;
+                    const ring = [];
+                    for (let s = 0; s < segments; s++) {
+                        const theta = (s / segments) * Math.PI * 2;
+                        let p = new Vec3(Math.cos(theta) * this.radius, y, Math.sin(theta) * this.radius);
+                        p = rotateAroundAxis(p, this.rotAxis, this.rotAngle);
+                        ring.push(p);
+                    }
+                    allRings.push(ring);
+                }
+
+                // Part 1: Semi-transparent discs with proper 3D orientation
+                if (state.solidAlpha > 0.01) {
+                    for (let r = 0; r <= rings; r++) {
+                        const t = r / rings;
+                        let ringCenter = new Vec3(0, (t - 0.5) * this.height, 0);
+                        ringCenter = rotateAroundAxis(ringCenter, this.rotAxis, this.rotAngle);
+                        
+                        const fresnel = this.getFresnel(dotNV);
+                        const intensity = this.getCombinedTerm(fresnel, geo) * state.solidAlpha * 0.06;
+                        
+                        drawDisc3D(ctx, ringCenter, localAxisX, localAxisZ, this.radius, cx, cy, this.rgba(intensity));
+                    }
+                }
+
+                // Part 2: Wireframe
+                if (state.wireAlpha > 0.01) {
+                    ctx.lineWidth = 1.5;
+
+                    // Vertical lines
+                    for (let s = 0; s < segments; s++) {
+                        const theta = (s / segments) * Math.PI * 2;
+                        let normal = new Vec3(Math.cos(theta), 0, Math.sin(theta));
+                        normal = rotateAroundAxis(normal, this.rotAxis, this.rotAngle);
+                        
+                        const dotNV = Math.abs(normal.dot(viewDir));
+                        const fresnel = this.getFresnel(dotNV);
+                        const intensity = this.getCombinedTerm(fresnel, geo) * state.wireAlpha * 0.08;
+                        
+                        const projTop = project(allRings[0][s], cx, cy);
+                        const projBot = project(allRings[rings][s], cx, cy);
+                        
+                        ctx.beginPath();
+                        ctx.moveTo(projTop.x, projTop.y);
+                        ctx.lineTo(projBot.x, projBot.y);
+                        ctx.strokeStyle = this.rgba(intensity);
+                        ctx.stroke();
+                    }
+
+                    // Top cap wireframe
+                    ctx.beginPath();
+                    for (let s = 0; s <= segments; s++) {
+                        const proj = project(allRings[0][s % segments], cx, cy);
+                        if (s === 0) ctx.moveTo(proj.x, proj.y);
+                        else ctx.lineTo(proj.x, proj.y);
+                    }
+                    let capFresnel = this.getFresnel(dotNV);
+                    let capIntensity = capFresnel * state.wireAlpha * 0.06;
+                    ctx.strokeStyle = this.rgba(capIntensity);
+                    ctx.stroke();
+
+                    // Bottom cap wireframe
+                    ctx.beginPath();
+                    for (let s = 0; s <= segments; s++) {
+                        const proj = project(allRings[rings][s % segments], cx, cy);
+                        if (s === 0) ctx.moveTo(proj.x, proj.y);
+                        else ctx.lineTo(proj.x, proj.y);
+                    }
+                    ctx.strokeStyle = this.rgba(capIntensity);
+                    ctx.stroke();
+                }
+            }
+        }
+
+        // 3D Rotating Torus with disc + wireframe rendering
+        class FresnelTorus extends Primitive3D {
+            constructor(x, y, z, majorR, minorR) {
+                super(x, y, z);
+                this.majorR = majorR;
+                this.minorR = minorR;
+                this.type = 'torus';
+            }
+
+            getGeoTerm() {
+                if (state.jacobianMode === 'none' || state.jacobianMode === 'fresnel') return 1;
+                return 1 / (this.majorR * 0.01 + 1);
+            }
+
+            draw(ctx) {
+                const cx = this.pos.x, cy = this.pos.y;
+                const majorSegs = (window.perfSettings && window.perfSettings.discsPerTorus) || 48;
+                const minorSegs = Math.max(8, Math.floor(majorSegs / 2));
+                const exposure = (window.perfSettings && window.perfSettings.expTorus) || 1.0;
+                const geo = this.getGeoTerm() * exposure;
+
+                // Part 1: Semi-transparent discs (minor circles of the torus tube)
+                if (state.solidAlpha > 0.01) {
+                    for (let i = 0; i < majorSegs; i += 2) {
+                        const phi = (i / majorSegs) * Math.PI * 2;
+                        const cosPhi = Math.cos(phi), sinPhi = Math.sin(phi);
+                        
+                        // Center of this tube cross-section on major circle
+                        let tubeCenter = new Vec3(this.majorR * cosPhi, 0, this.majorR * sinPhi);
+                        tubeCenter = rotateAroundAxis(tubeCenter, this.rotAxis, this.rotAngle);
+                        
+                        // Disc plane: minor circle lies in plane spanned by radial and Y
+                        // Radial direction (from torus center to tube center)
+                        let radialAxis = new Vec3(cosPhi, 0, sinPhi);
+                        let localAxisY = new Vec3(0, 1, 0);
+                        radialAxis = rotateAroundAxis(radialAxis, this.rotAxis, this.rotAngle);
+                        localAxisY = rotateAroundAxis(localAxisY, this.rotAxis, this.rotAngle);
+                        
+                        // Disc normal is tangent to major circle (perpendicular to radial and Y)
+                        let discNormal = new Vec3(-sinPhi, 0, cosPhi);
+                        discNormal = rotateAroundAxis(discNormal, this.rotAxis, this.rotAngle);
+                        const dotNV = Math.abs(discNormal.dot(viewDir));
+                        
+                        const fresnel = this.getFresnel(dotNV);
+                        const intensity = this.getCombinedTerm(fresnel, geo) * state.solidAlpha * 0.07;
+                        
+                        // Draw minor circle disc (in plane of radial and Y axes)
+                        drawDisc3D(ctx, tubeCenter, radialAxis, localAxisY, this.minorR, cx, cy, this.rgba(intensity));
+                    }
+                }
+
+                // Part 2: Wireframe
+                if (state.wireAlpha > 0.01) {
+                    ctx.lineWidth = 1.2;
+
+                    // Minor circles (around the tube)
+                    for (let i = 0; i < majorSegs; i += 3) {
+                        const phi = (i / majorSegs) * Math.PI * 2;
+                        const cosPhi = Math.cos(phi), sinPhi = Math.sin(phi);
+                        
+                        ctx.beginPath();
+                        for (let j = 0; j <= minorSegs; j++) {
+                            const theta = (j / minorSegs) * Math.PI * 2;
+                            const cosTheta = Math.cos(theta), sinTheta = Math.sin(theta);
+                            
+                            let p = new Vec3(
+                                (this.majorR + this.minorR * cosTheta) * cosPhi,
+                                this.minorR * sinTheta,
+                                (this.majorR + this.minorR * cosTheta) * sinPhi
+                            );
+                            p = rotateAroundAxis(p, this.rotAxis, this.rotAngle);
+                            
+                            let normal = new Vec3(cosTheta * cosPhi, sinTheta, cosTheta * sinPhi);
+                            normal = rotateAroundAxis(normal, this.rotAxis, this.rotAngle);
+                            
+                            const dotNV = Math.abs(normal.dot(viewDir));
+                            const fresnel = this.getFresnel(dotNV);
+                            const intensity = this.getCombinedTerm(fresnel, geo) * state.wireAlpha * 0.08;
+                            
+                            const proj = project(p, cx, cy);
+                            ctx.strokeStyle = this.rgba(intensity);
+                            
+                            if (j === 0) ctx.moveTo(proj.x, proj.y);
+                            else ctx.lineTo(proj.x, proj.y);
+                        }
+                        ctx.stroke();
+                    }
+
+                    // Major circles (along the ring)
+                    for (let j = 0; j < minorSegs; j += 3) {
+                        const theta = (j / minorSegs) * Math.PI * 2;
+                        const cosTheta = Math.cos(theta), sinTheta = Math.sin(theta);
+                        
+                        ctx.beginPath();
+                        for (let i = 0; i <= majorSegs; i++) {
+                            const phi = (i / majorSegs) * Math.PI * 2;
+                            const cosPhi = Math.cos(phi), sinPhi = Math.sin(phi);
+                            
+                            let p = new Vec3(
+                                (this.majorR + this.minorR * cosTheta) * cosPhi,
+                                this.minorR * sinTheta,
+                                (this.majorR + this.minorR * cosTheta) * sinPhi
+                            );
+                            p = rotateAroundAxis(p, this.rotAxis, this.rotAngle);
+                            
+                            let normal = new Vec3(cosTheta * cosPhi, sinTheta, cosTheta * sinPhi);
+                            normal = rotateAroundAxis(normal, this.rotAxis, this.rotAngle);
+                            
+                            const dotNV = Math.abs(normal.dot(viewDir));
+                            const fresnel = this.getFresnel(dotNV);
+                            const intensity = fresnel * state.wireAlpha * 0.06;
+                            
+                            const proj = project(p, cx, cy);
+                            ctx.strokeStyle = this.rgba(intensity);
+                            
+                            if (i === 0) ctx.moveTo(proj.x, proj.y);
+                            else ctx.lineTo(proj.x, proj.y);
+                        }
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+
+        // Initialize primitives
+        function initPrimitives() {
+            state.primitives = [];
+            const count = state.primitiveCount;
+            const w = window.innerWidth;
+            const h = window.innerHeight;
+
+            for (let i = 0; i < count; i++) {
+                const x = Math.random() * w;
+                const y = Math.random() * h;
+                const z = (Math.random() - 0.5) * 100;
+
+                let prim;
+                const type = state.primitiveType;
+                
+                if (type === 'mixed') {
+                    const r = Math.random();
+                    if (r < 0.25) {
+                        prim = new FresnelSphere(x, y, z, 40 + Math.random() * 70);
+                    } else if (r < 0.5) {
+                        prim = new FresnelCone(x, y, z, 30 + Math.random() * 40, 60 + Math.random() * 60);
+                    } else if (r < 0.75) {
+                        prim = new FresnelCylinder(x, y, z, 25 + Math.random() * 35, 70 + Math.random() * 60);
+                    } else {
+                        prim = new FresnelTorus(x, y, z, 45 + Math.random() * 35, 12 + Math.random() * 12);
+                    }
+                } else if (type === 'spheres') {
+                    prim = new FresnelSphere(x, y, z, 40 + Math.random() * 80);
+                } else if (type === 'cones') {
+                    prim = new FresnelCone(x, y, z, 30 + Math.random() * 45, 65 + Math.random() * 70);
+                } else if (type === 'cylinders') {
+                    prim = new FresnelCylinder(x, y, z, 25 + Math.random() * 40, 70 + Math.random() * 80);
+                } else if (type === 'tori') {
+                    prim = new FresnelTorus(x, y, z, 50 + Math.random() * 40, 14 + Math.random() * 16);
+                }
+
+                if (prim) state.primitives.push(prim);
+            }
+        }
+
+        initPrimitives();
+
+        function drawForeground() {
+            const w = fgCanvas.width;
+            const h = fgCanvas.height;
+            fgCtx.clearRect(0, 0, w, h);
+            
+            state.time += 0.016;
+            
+            if (state.primitiveType !== 'none') {
+                // Sort by z for proper depth ordering
+                state.primitives.sort((a, b) => b.pos.z - a.pos.z);
+                
+                state.primitives.forEach(prim => {
+                    prim.update(w, h);
+                    prim.draw(fgCtx);
+                });
+            }
+            
+            requestAnimationFrame(drawForeground);
+        }
+
+        drawForeground();
+
+        // ============================================
+        // Control Panel Handlers
+        // ============================================
+        document.getElementById('bg-effect').addEventListener('change', function(e) {
+            state.bgEnabled = e.target.value !== 'none';
+        });
+
+        document.getElementById('fg-primitives').addEventListener('change', function(e) {
+            state.primitiveType = e.target.value;
+            initPrimitives();
+        });
+
+        document.getElementById('jacobian-mode').addEventListener('change', function(e) {
+            state.jacobianMode = e.target.value;
+        });
+
+        document.getElementById('primitive-count').addEventListener('input', function(e) {
+            state.primitiveCount = parseInt(e.target.value);
+            initPrimitives();
+        });
+
+        document.getElementById('sphere-falloff').addEventListener('change', function(e) {
+            state.sphereFalloff = e.target.value;
+        });
+
+        document.getElementById('solid-alpha').addEventListener('input', function(e) {
+            state.solidAlpha = parseInt(e.target.value) / 100;
+            document.getElementById('solid-alpha-val').textContent = state.solidAlpha.toFixed(2);
+        });
+
+        document.getElementById('wire-alpha').addEventListener('input', function(e) {
+            state.wireAlpha = parseInt(e.target.value) / 100;
+            document.getElementById('wire-alpha-val').textContent = state.wireAlpha.toFixed(2);
+        });
+
+        document.getElementById('rim-alpha').addEventListener('input', function(e) {
+            state.rimAlpha = parseInt(e.target.value) / 100;
+            document.getElementById('rim-alpha-val').textContent = state.rimAlpha.toFixed(2);
+        });
+
+        document.getElementById('rim2-alpha')?.addEventListener('input', function(e) {
+            state.rim2Alpha = parseInt(e.target.value) / 100;
+            document.getElementById('rim2-alpha-val').textContent = state.rim2Alpha.toFixed(2);
+        });
+
+        document.getElementById('toggle-glow').addEventListener('change', function(e) {
+            document.querySelectorAll('.glow-card').forEach(card => {
+                if (e.target.checked) {
+                    card.style.boxShadow = '';
+                } else {
+                    card.style.boxShadow = 'none';
+                }
+            });
+        });
+
+        document.getElementById('toggle-warp').addEventListener('change', function(e) {
+            state.warpEnabled = e.target.checked;
+            document.getElementById('warp-brightness-group').style.display = e.target.checked ? 'block' : 'none';
+        });
+
+        document.getElementById('warp-brightness').addEventListener('input', function(e) {
+            state.warpBrightness = e.target.value / 100;
+            document.getElementById('warp-brightness-val').textContent = state.warpBrightness.toFixed(2);
+        });
+
+        // ============================================
+        // Live Estimator Demo with Proper Photon Sampling
+        // ============================================
+        const estCanvas = document.getElementById('estimator-canvas');
+        const estCtx = estCanvas ? estCanvas.getContext('2d') : null;
+        const angleCanvas = document.getElementById('angle-canvas');
+        const angleCtx = angleCanvas ? angleCanvas.getContext('2d') : null;
+        
+        const estimatorState = {
+            primitiveType: 'sphere',
+            pathCount: 0,
+            accumBuffer: null,
+            running: false  // Don't auto-run
+        };
+
+        const angleState = {
+            primitiveType: 'sphere',
+            mode: 'points',  // 'points' or 'frag'
+            evalAs: 'self',  // MIS evaluation (only for frag mode)
+            jacMode: 'default',  // 'default', 'none', 'inverse'
+            exposure: 0,     // exposure adjustment
+            viewTheta: 0,
+            viewPhi: 0,
+            dragging: false,
+            lastX: 0,
+            lastY: 0
+        };
+
+        function initEstimatorBuffer() {
+            if (!estCanvas) return;
+            const w = estCanvas.width, h = estCanvas.height;
+            estimatorState.accumBuffer = new Float32Array(w * h * 3);
+            estimatorState.pathCount = 0;
+        }
+
+        initEstimatorBuffer();
+
+        // Random utilities
+        function rand() { return Math.random(); }
+        function randGauss() { return Math.sqrt(-2 * Math.log(rand() + 0.0001)) * Math.cos(2 * Math.PI * rand()); }
+        
+        // Sample distance from transmittance: p(t) ~ e^(-σt*t)
+        function sampleTransmittance(sigmaT) {
+            return -Math.log(1 - rand()) / sigmaT;
+        }
+        
+        // Sample uniform direction on sphere (2D projection)
+        function sampleUniformDir() {
+            const theta = rand() * Math.PI * 2;
+            return { x: Math.cos(theta), y: Math.sin(theta) };
+        }
+
+        // Trace photon path with proper sampling
+        function tracePhotonPath() {
+            if (!estCanvas || !estimatorState.running) return;
+            
+            const w = estCanvas.width, h = estCanvas.height;
+            const sigmaT = 3.0;
+            const sigmaS = 2.5;
+            const lightPower = 0.12;
+            
+            // 1. Sample point on quad light (top of canvas)
+            const lightX = w * 0.3 + rand() * w * 0.4;
+            const lightY = 5;
+            
+            // 2. Sample initial direction (downward biased)
+            let dir = sampleUniformDir();
+            if (dir.y < 0) dir.y = -dir.y; // bias downward
+            dir.y = dir.y * 0.8 + 0.2; // mix with downward
+            const dirLen = Math.sqrt(dir.x * dir.x + dir.y * dir.y);
+            dir.x /= dirLen; dir.y /= dirLen;
+            
+            // 3. Sample first distance (transmittance)
+            const dist1 = sampleTransmittance(sigmaT);
+            const vertex1X = lightX + dir.x * dist1 * 40;
+            const vertex1Y = lightY + dir.y * dist1 * 40;
+            
+            if (vertex1X < 0 || vertex1X >= w || vertex1Y < 0 || vertex1Y >= h) {
+                estimatorState.pathCount++;
+                return;
+            }
+            
+            // 4. Sample scatter direction (uniform random)
+            const scatterDir = sampleUniformDir();
+            
+            // 5. Sample second distance - this becomes primitive radius
+            const dist2 = sampleTransmittance(sigmaT);
+            const radius = Math.min(35, Math.max(5, dist2 * 15));
+            
+            // Throughput includes scattering albedo
+            const throughput = lightPower * (sigmaS / sigmaT);
+            
+            // Draw primitive at vertex1 with radius from dist2
+            const primType = estimatorState.primitiveType;
+            
+            if (primType === 'combined') {
+                // Draw both sphere and cone with harmonic average
+                drawPhotonPrimitive(vertex1X, vertex1Y, radius, throughput, 'sphere', scatterDir, true);
+                drawPhotonPrimitive(vertex1X, vertex1Y, radius, throughput, 'cone', scatterDir, true);
+            } else {
+                drawPhotonPrimitive(vertex1X, vertex1Y, radius, throughput, primType, scatterDir, false);
+            }
+            estimatorState.pathCount++;
+        }
+
+        function drawPhotonPrimitive(cx, cy, radius, power, type, scatterDir, useCombined) {
+            if (!estCtx) return;
+            const w = estCanvas.width, h = estCanvas.height;
+            const buf = estimatorState.accumBuffer;
+            
+            const r2 = radius * radius;
+            const minX = Math.max(0, Math.floor(cx - radius));
+            const maxX = Math.min(w - 1, Math.ceil(cx + radius));
+            const minY = Math.max(0, Math.floor(cy - radius));
+            const maxY = Math.min(h - 1, Math.ceil(cy + radius));
+            
+            // Geometric Jacobian: 1/r² for sphere, 1/r for cone/cylinder
+            const geoSphere = 1 / (radius * radius * 0.01 + 1);
+            const geoCone = 1 / (radius * 0.1 + 1);
+            const geoJacobian = type === 'sphere' ? geoSphere : geoCone;
+            
+            for (let py = minY; py <= maxY; py++) {
+                for (let px = minX; px <= maxX; px++) {
+                    const dx = px - cx, dy = py - cy;
+                    const d2 = dx * dx + dy * dy;
+                    if (d2 > r2) continue;
+                    
+                    const dist = Math.sqrt(d2);
+                    const t = dist / radius;
+                    
+                    let intensity = 0;
+                    let dotNV = 1;
+                    
+                    if (type === 'sphere') {
+                        dotNV = Math.sqrt(1 - t * t);
+                        const fresnel = 1 / (dotNV + 0.05);
+                        const density = dotNV;
+                        
+                        if (useCombined) {
+                            // Harmonic average: 2/(J_sphere + J_cone)
+                            const jSphere = fresnel * geoSphere;
+                            const jCone = 1 / (Math.cos(0.5) * (1 - t * 0.5) + 0.1) * geoCone;
+                            const harmonicWeight = 2 / (jSphere + jCone + 0.01);
+                            intensity = (density * 0.3 + fresnel * 0.08) * power * harmonicWeight * 0.5;
+                        } else {
+                            intensity = (density * 0.5 + fresnel * 0.1) * power * geoJacobian;
+                        }
+                    } else if (type === 'cone') {
+                        const coneAngle = 0.5;
+                        dotNV = Math.cos(coneAngle) * (1 - t * 0.5);
+                        const fresnel = 1 / (Math.abs(dotNV) + 0.1);
+                        
+                        if (useCombined) {
+                            const jSphere = 1 / (Math.sqrt(1 - t * t) + 0.05) * geoSphere;
+                            const jCone = fresnel * geoCone;
+                            const harmonicWeight = 2 / (jSphere + jCone + 0.01);
+                            intensity = (1 - t) * fresnel * power * harmonicWeight * 0.15;
+                        } else {
+                            intensity = (1 - t) * fresnel * power * geoJacobian * 0.3;
+                        }
+                    } else if (type === 'cylinder') {
+                        const angle = Math.atan2(dy, dx);
+                        dotNV = Math.abs(Math.cos(angle - Math.atan2(scatterDir.y, scatterDir.x)));
+                        const fresnel = 1 / (dotNV + 0.1);
+                        const falloff = t < 0.8 ? 1 : (1 - t) / 0.2;
+                        intensity = falloff * fresnel * power * geoJacobian * 0.25;
+                    }
+                    
+                    const idx = (py * w + px) * 3;
+                    buf[idx] += intensity * 0.95;
+                    buf[idx + 1] += intensity * 0.75;
+                    buf[idx + 2] += intensity * 0.25;
+                }
+            }
+        }
+
+        function renderEstimator() {
+            if (!estCtx || !estimatorState.accumBuffer) return;
+            
+            const w = estCanvas.width, h = estCanvas.height;
+            const buf = estimatorState.accumBuffer;
+            const imageData = estCtx.createImageData(w, h);
+            const data = imageData.data;
+            
+            const exposure = 1.0 / Math.max(1, estimatorState.pathCount * 0.008);
+            
+            for (let i = 0; i < w * h; i++) {
+                const idx = i * 3;
+                const pidx = i * 4;
+                
+                let r = buf[idx] * exposure;
+                let g = buf[idx + 1] * exposure;
+                let b = buf[idx + 2] * exposure;
+                
+                // Reinhard tone mapping
+                r = r / (1 + r);
+                g = g / (1 + g);
+                b = b / (1 + b);
+                
+                data[pidx] = Math.min(255, Math.pow(r, 0.45) * 255);
+                data[pidx + 1] = Math.min(255, Math.pow(g, 0.45) * 255);
+                data[pidx + 2] = Math.min(255, Math.pow(b, 0.45) * 255);
+                data[pidx + 3] = 255;
+            }
+            
+            estCtx.putImageData(imageData, 0, 0);
+            
+            const countEl = document.getElementById('est-count');
+            if (countEl) countEl.textContent = `Paths: ${estimatorState.pathCount}`;
+        }
+
+        // ============================================
+        // Single Primitive View - Point Array & Frag Shader Modes
+        // ============================================
+        // 
+        // 1-bounce: sphere, cone, disc (R = length of red segment)
+        // 2-bounce: volume (uses triple product |a×b·c|)
+        //
+        // Jacobian = cross product of 2 sample dimension derivatives, dot V
+        //   - Sphere: 1/|N·V|
+        //   - Cone: (r/R) / |N·V| where r is distance from apex on surface
+        //   - Disc: sin(angle) / |N·V|
+        
+        function renderAngleDemo() {
+            if (!angleCtx) return;
+            
+            const w = angleCanvas.width, h = angleCanvas.height;
+            angleCtx.fillStyle = '#000';
+            angleCtx.fillRect(0, 0, w, h);
+            
+            const cx = w / 2, cy = h / 2;
+            const R = 90;  // R = length of red segment (determines primitive size)
+            const drawType = angleState.primitiveType;
+            const mode = angleState.mode;
+            const evalAs = angleState.evalAs === 'self' ? drawType : angleState.evalAs;
+            const exposureMult = Math.pow(2, angleState.exposure / 10);
+            
+            // View rotation
+            const vt = angleState.viewTheta * Math.PI / 180;
+            const vp = angleState.viewPhi * Math.PI / 180;
+            
+            function primitiveToView(px, py, pz) {
+                let y1 = py * Math.cos(vt) - pz * Math.sin(vt);
+                let z1 = py * Math.sin(vt) + pz * Math.cos(vt);
+                let x1 = px * Math.cos(vp) + z1 * Math.sin(vp);
+                let z2 = -px * Math.sin(vp) + z1 * Math.cos(vp);
+                return { x: x1, y: y1, z: z2 };
+            }
+            
+            // Inverse: view space to primitive space
+            function viewToPrimitive(vx, vy, vz) {
+                // Inverse of primitiveToView
+                let x1 = vx * Math.cos(vp) - vz * Math.sin(vp);
+                let z1 = vx * Math.sin(vp) + vz * Math.cos(vp);
+                let py = vy * Math.cos(vt) + z1 * Math.sin(vt);
+                let pz = -vy * Math.sin(vt) + z1 * Math.cos(vt);
+                return { x: x1, y: py, z: pz };
+            }
+            
+            // Cone angle (angle between seg1 and seg2)
+            const coneTheta = 0.5;  // ~29 degrees
+            
+            // Path segments:
+            // Origin at (0, -R, 0) in primitive space
+            // Green seg1 goes from origin toward (0, 0, 0) - pointing +Y
+            // Red seg2 goes from (0, 0, 0) in OPPOSITE direction (for intuition)
+            //   so it points toward negative of the sampling direction
+            const origin = { x: 0, y: -R, z: 0 };
+            const seg1End = { x: 0, y: 0, z: 0 };  // vertex between segments
+            // Red segment continues forward from green (slight angle change)
+            // Green points +Y, red continues but deflected by coneTheta
+            const seg2Dir = { x: Math.sin(coneTheta), y: Math.cos(coneTheta), z: 0 };
+            const seg2End = { x: seg2Dir.x * R, y: seg2Dir.y * R, z: 0 };
+            
+            // Accumulation buffer
+            const accum = new Float32Array(w * h);
+            
+            if (mode === 'points') {
+                // ========== POINT ARRAY MODE ==========
+                // Uniform samples on surface, NO Jacobian - overlap shows density
+                const gridPhi = 150;
+                const gridOther = 80;
+                const pointSize = 2;
+                const baseIntensity = 0.025 * exposureMult;
+                
+                for (let i = 0; i < gridOther; i++) {
+                    for (let j = 0; j < gridPhi; j++) {
+                        let px, py, pz;
+                        const phi = (j / gridPhi) * Math.PI * 2;
+                        
+                        if (drawType === 'sphere') {
+                            // Uniform on sphere: uniform φ, uniform cos(θ)
+                            const cosTheta = 1 - 2 * (i + 0.5) / gridOther;
+                            const sinTheta = Math.sqrt(1 - cosTheta * cosTheta);
+                            px = R * sinTheta * Math.cos(phi);
+                            py = R * cosTheta;
+                            pz = R * sinTheta * Math.sin(phi);
+                        } else if (drawType === 'cone') {
+                            // Cone: uniform φ, uniform r² for area (use full R)
+                            const r = Math.sqrt((i + 1) / gridOther) * R;
+                            const rxy = r * Math.sin(coneTheta);
+                            py = r * Math.cos(coneTheta);
+                            px = rxy * Math.cos(phi);
+                            pz = rxy * Math.sin(phi);
+                        } else if (drawType === 'disc') {
+                            // Disc: uniform r, uniform cos(theta) -> center brighter
+                            // r is uniform (not r²), cos(theta) is uniform
+                            const rDisc = (i + 0.5) / gridOther * R;  // uniform r
+                            px = rDisc * Math.cos(phi);
+                            py = rDisc * Math.sin(phi);
+                            pz = 0;
+                        } else if (drawType === 'ball') {
+                            // Ball: uniform inside 3D ball
+                            // uniform R³ (cube root), uniform φ, uniform cos(θ)
+                            const rBall = Math.pow((i + 0.5) / gridOther, 1/3) * R;
+                            const cosTheta3 = 1 - 2 * ((i * 7 + j) % gridOther) / gridOther;
+                            const sinTheta3 = Math.sqrt(1 - cosTheta3 * cosTheta3);
+                            px = rBall * sinTheta3 * Math.cos(phi);
+                            py = rBall * cosTheta3;
+                            pz = rBall * sinTheta3 * Math.sin(phi);
+                        } else if (drawType === 'volume') {
+                            // Volume: fill 3D space (for 2-bounce)
+                            const rnd1 = (i + 0.5) / gridOther;
+                            const rnd2 = (j + 0.5) / gridPhi;
+                            const rnd3 = ((i * 7 + j * 13) % gridOther) / gridOther;
+                            px = (rnd1 * 2 - 1) * R * 0.8;
+                            py = (rnd2 * 2 - 1) * R * 0.8;
+                            pz = (rnd3 * 2 - 1) * R * 0.8;
+                        }
+                        
+                        const v = primitiveToView(px, py, pz);
+                        // No backface culling - all points face camera (billboard style)
+                        
+                        const sx = Math.floor(cx + v.x);
+                        const sy = Math.floor(cy - v.y);
+                        
+                        for (let dy = -pointSize; dy <= pointSize; dy++) {
+                            for (let dx = -pointSize; dx <= pointSize; dx++) {
+                                const px2 = sx + dx, py2 = sy + dy;
+                                if (px2 >= 0 && px2 < w && py2 >= 0 && py2 < h) {
+                                    accum[py2 * w + px2] += baseIntensity;
+                                }
+                            }
+                        }
+                    }
+                }
+            } else {
+                // ========== FRAG SHADER MODE ==========
+                // Ray-surface intersection per pixel, then apply Jacobian
+                
+                for (let py2 = 0; py2 < h; py2++) {
+                    for (let px2 = 0; px2 < w; px2++) {
+                        // Screen position relative to center
+                        const sx = px2 - cx;
+                        const sy = cy - py2;
+                        
+                        // Ray in view space: origin at (sx, sy, -500), direction (0, 0, 1)
+                        // Transform ray to primitive space
+                        const rayOrigin = viewToPrimitive(sx, sy, -500);
+                        const rayDir = viewToPrimitive(0, 0, 1);
+                        // Normalize rayDir
+                        const rdLen = Math.sqrt(rayDir.x**2 + rayDir.y**2 + rayDir.z**2);
+                        rayDir.x /= rdLen; rayDir.y /= rdLen; rayDir.z /= rdLen;
+                        
+                        let hit = false;
+                        let hitPoint = { x: 0, y: 0, z: 0 };
+                        let normal = { x: 0, y: 0, z: 0 };
+                        let r = 0;  // distance from center/apex
+                        
+                        if (drawType === 'sphere') {
+                            // Ray-sphere intersection: |o + t*d|² = R²
+                            const a = rayDir.x**2 + rayDir.y**2 + rayDir.z**2;
+                            const b = 2 * (rayOrigin.x * rayDir.x + rayOrigin.y * rayDir.y + rayOrigin.z * rayDir.z);
+                            const c = rayOrigin.x**2 + rayOrigin.y**2 + rayOrigin.z**2 - R * R;
+                            const disc = b * b - 4 * a * c;
+                            
+                            if (disc >= 0) {
+                                const t = (-b - Math.sqrt(disc)) / (2 * a);
+                                if (t > 0) {
+                                    hit = true;
+                                    hitPoint.x = rayOrigin.x + t * rayDir.x;
+                                    hitPoint.y = rayOrigin.y + t * rayDir.y;
+                                    hitPoint.z = rayOrigin.z + t * rayDir.z;
+                                    // Normal = normalized position (outward)
+                                    normal = { x: hitPoint.x / R, y: hitPoint.y / R, z: hitPoint.z / R };
+                                    r = R;
+                                }
+                            }
+                        } else if (drawType === 'cone') {
+                            // Ray-cone intersection - accumulate BOTH front and back
+                            // Cone: x² + z² = (y * tan(θ))², y > 0
+                            const tanT = Math.tan(coneTheta);
+                            const tan2 = tanT * tanT;
+                            
+                            const a = rayDir.x**2 + rayDir.z**2 - tan2 * rayDir.y**2;
+                            const b = 2 * (rayOrigin.x * rayDir.x + rayOrigin.z * rayDir.z - tan2 * rayOrigin.y * rayDir.y);
+                            const c = rayOrigin.x**2 + rayOrigin.z**2 - tan2 * rayOrigin.y**2;
+                            const disc = b * b - 4 * a * c;
+                            
+                            if (disc >= 0 && Math.abs(a) > 0.0001) {
+                                let t1 = (-b - Math.sqrt(disc)) / (2 * a);
+                                let t2 = (-b + Math.sqrt(disc)) / (2 * a);
+                                
+                                // Apply Jacobian mode
+                                const jacMode = angleState.jacMode || 'default';
+                                
+                                // Accumulate BOTH intersections (front + back)
+                                let totalJacobian = 0;
+                                for (const t of [t1, t2]) {
+                                    if (t > 0) {
+                                        const hx = rayOrigin.x + t * rayDir.x;
+                                        const hy = rayOrigin.y + t * rayDir.y;
+                                        const hz = rayOrigin.z + t * rayDir.z;
+                                        const hr = Math.sqrt(hx*hx + hy*hy + hz*hz);
+                                        if (hy > 0 && hr <= R * 1.1) {
+                                            // Cone normal
+                                            const rxy = Math.sqrt(hx*hx + hz*hz) + 0.001;
+                                            const nx = hy * hx;
+                                            const ny = -rxy * rxy;
+                                            const nz = hy * hz;
+                                            const nlen = Math.sqrt(nx*nx + ny*ny + nz*nz) + 0.001;
+                                            const nrm = { x: nx/nlen, y: ny/nlen, z: nz/nlen };
+                                            
+                                            // Calculate default Jacobian
+                                            const dotNV = -(nrm.x * rayDir.x + nrm.y * rayDir.y + nrm.z * rayDir.z);
+                                            const absDot = Math.abs(dotNV) + 0.02;
+                                            const defaultJ = 1 / absDot / R * 5000/3.14159265358978/2;
+                                            
+                                            // Apply mode
+                                            if (jacMode === 'none') {
+                                                totalJacobian += 1.0;
+                                            } else if (jacMode === 'inverse') {
+                                                totalJacobian += 1.0 / (defaultJ + 0.000001);
+                                            } else {
+                                                totalJacobian += defaultJ;
+                                            }
+                                        }
+                                    }
+                                }
+                                if (totalJacobian > 0) {
+                                    const intensity = Math.min(2, totalJacobian * 0.08 * exposureMult);
+                                    accum[py2 * w + px2] = intensity;
+                                    continue;
+                                }
+                            }
+                        } else if (drawType === 'disc') {
+                            // Ray-plane intersection (z = 0 plane)
+                            if (Math.abs(rayDir.z) > 0.0001) {
+                                const t = -rayOrigin.z / rayDir.z;
+                                if (t > 0) {
+                                    const hx = rayOrigin.x + t * rayDir.x;
+                                    const hy = rayOrigin.y + t * rayDir.y;
+                                    r = Math.sqrt(hx * hx + hy * hy);
+                                    if (r <= R) {
+                                        hit = true;
+                                        hitPoint = { x: hx, y: hy, z: 0 };
+                                        normal = { x: 0, y: 0, z: rayDir.z > 0 ? -1 : 1 };
+                                    }
+                                }
+                            }
+                        } else if (drawType === 'ball') {
+                            // Ball: ray marching through solid ball
+                            // Similar to sphere intersection but we care about depth
+                            // Use slightly larger radius for symmetric coverage
+                            const ballR = R * 1.02;
+                            const a = rayDir.x**2 + rayDir.y**2 + rayDir.z**2;
+                            const b = 2 * (rayOrigin.x * rayDir.x + rayOrigin.y * rayDir.y + rayOrigin.z * rayDir.z);
+                            const c = rayOrigin.x**2 + rayOrigin.y**2 + rayOrigin.z**2 - ballR * ballR;
+                            const disc = b * b - 4 * a * c;
+                            
+                            if (disc >= 0) {
+                                const sqrtDisc = Math.sqrt(disc);
+                                const t1 = (-b - sqrtDisc) / (2 * a);
+                                const t2 = (-b + sqrtDisc) / (2 * a);
+                                if (t2 > 0) {
+                                    hit = true;
+                                    const tEntry = Math.max(0, t1);
+                                    const depth = t2 - tEntry;
+                                    r = depth;
+                                    // Use midpoint for more symmetric shading
+                                    const tMid = (tEntry + t2) / 2;
+                                    hitPoint.x = rayOrigin.x + tMid * rayDir.x;
+                                    hitPoint.y = rayOrigin.y + tMid * rayDir.y;
+                                    hitPoint.z = rayOrigin.z + tMid * rayDir.z;
+                                    const hr = Math.sqrt(hitPoint.x**2 + hitPoint.y**2 + hitPoint.z**2) + 0.001;
+                                    normal = { x: hitPoint.x/hr, y: hitPoint.y/hr, z: hitPoint.z/hr };
+                                }
+                            }
+                        } else if (drawType === 'volume') {
+                            // Volume: ray marching through a cube
+                            // Brightness proportional to depth traversed
+                            const boxR = R * 0.8;
+                            // Simple box intersection
+                            let tmin = -1000, tmax = 1000;
+                            for (let axis = 0; axis < 3; axis++) {
+                                const o = [rayOrigin.x, rayOrigin.y, rayOrigin.z][axis];
+                                const d = [rayDir.x, rayDir.y, rayDir.z][axis];
+                                if (Math.abs(d) > 0.0001) {
+                                    const t1 = (-boxR - o) / d;
+                                    const t2 = (boxR - o) / d;
+                                    tmin = Math.max(tmin, Math.min(t1, t2));
+                                    tmax = Math.min(tmax, Math.max(t1, t2));
+                                }
+                            }
+                            if (tmax > tmin && tmax > 0) {
+                                hit = true;
+                                const depth = tmax - Math.max(0, tmin);
+                                r = depth;
+                                hitPoint = { x: 0, y: 0, z: 0 };  // doesn't matter for volume
+                                normal = { x: 0, y: 0, z: 1 };
+                            }
+                        }
+                        
+                        if (hit) {
+                            // N·V (view direction is rayDir, but we want camera-to-surface)
+                            const dotNV = -(normal.x * rayDir.x + normal.y * rayDir.y + normal.z * rayDir.z);
+                            const eps = 0.02;
+                            const absDot = Math.abs(dotNV) + eps;
+                            
+                            // r and sin(theta) for disc Jacobian
+                            const rDist = Math.sqrt(hitPoint.x**2 + hitPoint.y**2 + hitPoint.z**2) + 0.01;
+                            
+                            // Calculate default Jacobian with all geometric terms
+                            let defaultJacobian;
+                            if (drawType === 'sphere') {
+                                // Sphere: 1/|N·V| / R²
+                                defaultJacobian = 1 / absDot / (R * R) * 5000 * 4;
+                            } else if (drawType === 'cone') {
+                                // Cone: 1/|N·V| / R
+                                defaultJacobian = 1 / absDot / R * 5000;
+                            } else if (drawType === 'disc') {
+                                // Disc: 1/|N·V| / r
+                                defaultJacobian = 1 / absDot / (rDist + 1) * R * 2;
+                            } else if (drawType === 'ball') {
+                                // Ball: depth-based
+                                defaultJacobian = r * 0.015 * 2;
+                            } else {
+                                defaultJacobian = 1 / absDot;
+                            }
+                            
+                            // Apply Jacobian mode
+                            const jacMode = angleState.jacMode || 'default';
+                            let jacobian;
+                            if (jacMode === 'none') {
+                                // Plain color - no Jacobian at all
+                                jacobian = 1.0;
+                            } else if (jacMode === 'inverse') {
+                                // Inverse of default Jacobian
+                                jacobian = 1.0 / (defaultJacobian + 0.001);
+                            } else {
+                                // Default: use full Jacobian
+                                jacobian = defaultJacobian;
+                            }
+                            
+                            const intensity = Math.min(2, jacobian * 0.08 * exposureMult);
+                            accum[py2 * w + px2] = intensity;
+                        }
+                    }
+                }
+            }
+            
+            // Convert to image with tone mapping
+            const imageData = angleCtx.createImageData(w, h);
+            const data = imageData.data;
+            const jacMode = angleState.jacMode || 'default';
+            for (let i = 0; i < w * h; i++) {
+                const v = Math.min(1, accum[i]);
+                if (jacMode === 'inverse') {
+                    // Reddish color for inverse (non-physical)
+                    data[i*4] = Math.pow(v * 0.95, 0.45) * 255;
+                    data[i*4+1] = Math.pow(v * 0.35, 0.45) * 255;
+                    data[i*4+2] = Math.pow(v * 0.45, 0.45) * 255;
+                } else if (jacMode === 'none') {
+                    // Bluish for no Jacobian (flat)
+                    data[i*4] = Math.pow(v * 0.5, 0.45) * 255;
+                    data[i*4+1] = Math.pow(v * 0.7, 0.45) * 255;
+                    data[i*4+2] = Math.pow(v * 0.95, 0.45) * 255;
+                } else {
+                    // Default golden
+                    data[i*4] = Math.pow(v * 0.95, 0.45) * 255;
+                    data[i*4+1] = Math.pow(v * 0.75, 0.45) * 255;
+                    data[i*4+2] = Math.pow(v * 0.25, 0.45) * 255;
+                }
+                data[i*4+3] = 255;
+            }
+            angleCtx.putImageData(imageData, 0, 0);
+            
+            // Draw path segments
+            // Orange dot = origin (path start)
+            const originView = primitiveToView(origin.x, origin.y, origin.z);
+            angleCtx.fillStyle = 'rgba(255, 170, 0, 0.9)';
+            angleCtx.beginPath();
+            angleCtx.arc(cx + originView.x, cy - originView.y, 5, 0, Math.PI * 2);
+            angleCtx.fill();
+            
+            // Green = seg1 (from origin to vertex)
+            const vertexView = primitiveToView(seg1End.x, seg1End.y, seg1End.z);
+            angleCtx.strokeStyle = 'rgba(100, 255, 100, 0.8)';
+            angleCtx.lineWidth = 2;
+            angleCtx.beginPath();
+            angleCtx.moveTo(cx + originView.x, cy - originView.y);
+            angleCtx.lineTo(cx + vertexView.x, cy - vertexView.y);
+            angleCtx.stroke();
+            
+            // Red = seg2 (from vertex, pointing opposite direction)
+            const seg2View = primitiveToView(seg2End.x, seg2End.y, seg2End.z);
+            angleCtx.strokeStyle = 'rgba(255, 100, 100, 0.8)';
+            angleCtx.lineWidth = 2;
+            angleCtx.beginPath();
+            angleCtx.moveTo(cx + vertexView.x, cy - vertexView.y);
+            angleCtx.lineTo(cx + seg2View.x, cy - seg2View.y);
+            angleCtx.stroke();
+            
+            // Small markers at segment endpoints
+            angleCtx.fillStyle = 'rgba(100, 255, 100, 0.9)';
+            angleCtx.beginPath();
+            angleCtx.arc(cx + vertexView.x, cy - vertexView.y, 3, 0, Math.PI * 2);
+            angleCtx.fill();
+            
+            angleCtx.fillStyle = 'rgba(255, 100, 100, 0.9)';
+            angleCtx.beginPath();
+            angleCtx.arc(cx + seg2View.x, cy - seg2View.y, 3, 0, Math.PI * 2);
+            angleCtx.fill();
+            
+            // Labels
+            angleCtx.fillStyle = 'rgba(212, 175, 55, 0.9)';
+            angleCtx.font = '11px monospace';
+            const bounceLabel = drawType === 'volume' ? '2-bounce' : '1-bounce';
+            if (mode === 'points') {
+                angleCtx.fillText(`${drawType} (${bounceLabel}) - Point Array`, 6, 16);
+            } else {
+                const evalLabel = angleState.evalAs === 'self' ? drawType : `${drawType}→${evalAs}`;
+                angleCtx.fillText(`${evalLabel} (${bounceLabel}) - Frag Shader`, 6, 16);
+            }
+            angleCtx.fillStyle = 'rgba(180, 180, 180, 0.7)';
+            angleCtx.fillText(mode === 'points' ? 'Overlap = density' : 'Ray intersection + Jacobian', 6, 30);
+        }
+
+        // Visibility tracking for performance (observer setup deferred until all canvases defined)
+        const demoVisibility = {
+            estimator: true,  // Start true so demos work immediately
+            angle: true,
+            volume: true,
+            mis: true,
+            planes: true
+        };
+
+        // Main loops (only render when visible)
+        function estimatorLoop() {
+            if (demoVisibility.estimator) {
+                const pathsPerFrame = (window.perfSettings && window.perfSettings.pathsPerFrame) || 15;
+                for (let i = 0; i < pathsPerFrame; i++) {
+                    tracePhotonPath();
+                }
+                renderEstimator();
+            }
+            requestAnimationFrame(estimatorLoop);
+        }
+
+        function angleLoop() {
+            if (demoVisibility.angle) {
+                renderAngleDemo();
+            }
+            requestAnimationFrame(angleLoop);
+        }
+
+        // ============================================
+        // 2-Bounce Volume Visualization
+        // ============================================
+        const volumeCanvas = document.getElementById('volume-canvas');
+        const volumeCtx = volumeCanvas ? volumeCanvas.getContext('2d') : null;
+        
+        const volumeState = {
+            exposure: 0,
+            viewTheta: 25,
+            viewPhi: 35,
+            dragging: false,
+            lastX: 0,
+            lastY: 0,
+            animate: false,
+            animTime: 0
+        };
+        
+        function renderVolume() {
+            if (!volumeCtx) return;
+            
+            const w = volumeCanvas.width, h = volumeCanvas.height;
+            volumeCtx.fillStyle = '#000';
+            volumeCtx.fillRect(0, 0, w, h);
+            
+            const cx = w / 2, cy = h / 2;
+            const R = 80;  // segment length (longer)
+            const exposureMult = Math.pow(2, volumeState.exposure / 10);
+            
+            // Update animation time
+            if (volumeState.animate) {
+                volumeState.animTime += 0.02;
+            }
+            const t = volumeState.animTime;
+            
+            // View rotation
+            const vt = volumeState.viewTheta * Math.PI / 180;
+            const vp = volumeState.viewPhi * Math.PI / 180;
+            
+            function toView(px, py, pz) {
+                let y1 = py * Math.cos(vt) - pz * Math.sin(vt);
+                let z1 = py * Math.sin(vt) + pz * Math.cos(vt);
+                let x1 = px * Math.cos(vp) + z1 * Math.sin(vp);
+                let z2 = -px * Math.sin(vp) + z1 * Math.cos(vp);
+                return { x: x1, y: y1, z: z2 };
+            }
+            
+            // 3 segment directions - animate when toggle is on
+            // Both seg2 and seg3 rotate to create dramatic coplanarity changes
+            const angle1 = 0.7 * Math.sin(t);      // larger oscillation
+            const angle2 = 0.6 * Math.sin(t * 1.3 + 1);  // different phase
+            const seg1 = { x: Math.sin(angle1 * 0.3), y: 1, z: 0 };         // green: mostly +Y, slight wobble
+            const seg2 = { x: Math.cos(angle1), y: Math.sin(angle1), z: 0.2 * Math.sin(t * 0.7) };  // red: rotates in XY
+            const seg3 = { x: angle2 * 0.4, y: Math.sin(angle2 * 0.5), z: -1 + 0.3 * Math.cos(t) }; // blue: rotates
+            
+            // Normalize
+            function normalize(v) {
+                const len = Math.sqrt(v.x*v.x + v.y*v.y + v.z*v.z);
+                return { x: v.x/len, y: v.y/len, z: v.z/len };
+            }
+            const a = normalize(seg1);
+            const b = normalize(seg2);
+            const c = normalize(seg3);
+            
+            // Triple product |a × b · c|
+            const cross = {
+                x: a.y * b.z - a.z * b.y,
+                y: a.z * b.x - a.x * b.z,
+                z: a.x * b.y - a.y * b.x
+            };
+            const tripleProduct = Math.abs(cross.x * c.x + cross.y * c.y + cross.z * c.z);
+            const jacobian = 1 / (tripleProduct + 0.01);  // avoid div by 0
+            
+            // Origin and segment endpoints
+            const origin = { x: 0, y: -R, z: 0 };
+            const p1 = { x: origin.x + a.x * R, y: origin.y + a.y * R, z: origin.z + a.z * R };
+            const p2 = { x: p1.x + b.x * R, y: p1.y + b.y * R, z: p1.z + b.z * R };
+            const p3 = { x: p2.x + c.x * R, y: p2.y + c.y * R, z: p2.z + c.z * R };
+            
+            // Accumulation buffer
+            const accum = new Float32Array(w * h);
+            
+            {
+                // Fill parallelepiped with uniform points
+                // Parallelepiped is defined by origin + u*a*R + v*b*R + w*c*R
+                const gridSize = 25;
+                const pointSize = 2;
+                const baseIntensity = jacobian * 0.002 * exposureMult;
+                
+                for (let i = 0; i < gridSize; i++) {
+                    for (let j = 0; j < gridSize; j++) {
+                        for (let k = 0; k < gridSize; k++) {
+                            const u = (i + 0.5) / gridSize;
+                            const v = (j + 0.5) / gridSize;
+                            const tw = (k + 0.5) / gridSize;
+                            
+                            // Point in parallelepiped: origin + u*a*R + v*b*R + w*c*R
+                            const px = origin.x + u * a.x * R + v * b.x * R + tw * c.x * R;
+                            const py = origin.y + u * a.y * R + v * b.y * R + tw * c.y * R;
+                            const pz = origin.z + u * a.z * R + v * b.z * R + tw * c.z * R;
+                            
+                            const vw = toView(px, py, pz);
+                            const sx = Math.floor(cx + vw.x);
+                            const sy = Math.floor(cy - vw.y);
+                            
+                            for (let dy = -pointSize; dy <= pointSize; dy++) {
+                                for (let dx = -pointSize; dx <= pointSize; dx++) {
+                                    const px2 = sx + dx, py2 = sy + dy;
+                                    if (px2 >= 0 && px2 < w && py2 >= 0 && py2 < h) {
+                                        accum[py2 * w + px2] += baseIntensity;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // Convert to image
+            const imageData = volumeCtx.createImageData(w, h);
+            const data = imageData.data;
+            for (let i = 0; i < w * h; i++) {
+                const v = Math.min(1, accum[i]);
+                data[i*4] = Math.pow(v * 0.95, 0.45) * 255;
+                data[i*4+1] = Math.pow(v * 0.75, 0.45) * 255;
+                data[i*4+2] = Math.pow(v * 0.25, 0.45) * 255;
+                data[i*4+3] = 255;
+            }
+            volumeCtx.putImageData(imageData, 0, 0);
+            
+            // Draw segments
+            const ov = toView(origin.x, origin.y, origin.z);
+            const p1v = toView(p1.x, p1.y, p1.z);
+            const p2v = toView(p2.x, p2.y, p2.z);
+            const p3v = toView(p3.x, p3.y, p3.z);
+            
+            // Origin marker
+            volumeCtx.fillStyle = 'rgba(255, 170, 0, 0.9)';
+            volumeCtx.beginPath();
+            volumeCtx.arc(cx + ov.x, cy - ov.y, 5, 0, Math.PI * 2);
+            volumeCtx.fill();
+            
+            // Green = seg1
+            volumeCtx.strokeStyle = 'rgba(100, 255, 100, 0.9)';
+            volumeCtx.lineWidth = 2;
+            volumeCtx.beginPath();
+            volumeCtx.moveTo(cx + ov.x, cy - ov.y);
+            volumeCtx.lineTo(cx + p1v.x, cy - p1v.y);
+            volumeCtx.stroke();
+            
+            // Red = seg2
+            volumeCtx.strokeStyle = 'rgba(255, 100, 100, 0.9)';
+            volumeCtx.beginPath();
+            volumeCtx.moveTo(cx + p1v.x, cy - p1v.y);
+            volumeCtx.lineTo(cx + p2v.x, cy - p2v.y);
+            volumeCtx.stroke();
+            
+            // Blue = seg3
+            volumeCtx.strokeStyle = 'rgba(100, 100, 255, 0.9)';
+            volumeCtx.beginPath();
+            volumeCtx.moveTo(cx + p2v.x, cy - p2v.y);
+            volumeCtx.lineTo(cx + p3v.x, cy - p3v.y);
+            volumeCtx.stroke();
+            
+            // Endpoint markers
+            volumeCtx.fillStyle = 'rgba(100, 255, 100, 0.9)';
+            volumeCtx.beginPath();
+            volumeCtx.arc(cx + p1v.x, cy - p1v.y, 3, 0, Math.PI * 2);
+            volumeCtx.fill();
+            
+            volumeCtx.fillStyle = 'rgba(255, 100, 100, 0.9)';
+            volumeCtx.beginPath();
+            volumeCtx.arc(cx + p2v.x, cy - p2v.y, 3, 0, Math.PI * 2);
+            volumeCtx.fill();
+            
+            volumeCtx.fillStyle = 'rgba(100, 100, 255, 0.9)';
+            volumeCtx.beginPath();
+            volumeCtx.arc(cx + p3v.x, cy - p3v.y, 3, 0, Math.PI * 2);
+            volumeCtx.fill();
+            
+            // Labels
+            volumeCtx.fillStyle = 'rgba(212, 175, 55, 0.9)';
+            volumeCtx.font = '11px monospace';
+            volumeCtx.fillText(`Volume (2-bounce)`, 6, 16);
+            volumeCtx.fillStyle = 'rgba(180, 180, 180, 0.7)';
+            volumeCtx.fillText(`|a×b·c| = ${tripleProduct.toFixed(3)}, J = ${jacobian.toFixed(1)}`, 6, 30);
+            
+            // Update Jacobian display in UI
+            const jacEl = document.getElementById('volume-jacobian');
+            if (jacEl) {
+                jacEl.textContent = `J = ${jacobian.toFixed(1)} (|a×b·c| = ${tripleProduct.toFixed(2)})`;
+            }
+        }
+        
+        function volumeLoop() {
+            if (demoVisibility.volume) {
+                renderVolume();
+            }
+            requestAnimationFrame(volumeLoop);
+        }
+        
+        // Volume controls
+        if (volumeCanvas) {
+            volumeCanvas.addEventListener('mousedown', (e) => {
+                volumeState.dragging = true;
+                volumeState.lastX = e.clientX;
+                volumeState.lastY = e.clientY;
+            });
+            
+            volumeCanvas.addEventListener('mousemove', (e) => {
+                if (!volumeState.dragging) return;
+                const dx = e.clientX - volumeState.lastX;
+                const dy = e.clientY - volumeState.lastY;
+                volumeState.viewPhi += dx * 0.5;
+                volumeState.viewTheta += dy * 0.5;
+                volumeState.viewTheta = Math.max(-89, Math.min(89, volumeState.viewTheta));
+                volumeState.lastX = e.clientX;
+                volumeState.lastY = e.clientY;
+            });
+            
+            volumeCanvas.addEventListener('mouseup', () => volumeState.dragging = false);
+            volumeCanvas.addEventListener('mouseleave', () => volumeState.dragging = false);
+            
+            const volumeRotateEl = document.getElementById('volume-rotate');
+            if (volumeRotateEl) {
+                volumeRotateEl.addEventListener('change', (e) => {
+                    volumeState.animate = e.target.checked;
+                });
+            }
+            
+            const volumeExpEl = document.getElementById('volume-exposure');
+            if (volumeExpEl) {
+                volumeExpEl.addEventListener('input', (e) => {
+                    volumeState.exposure = parseFloat(e.target.value);
+                });
+            }
+            
+            volumeLoop();
+        }
+
+        // ============================================
+        // MIS 3-Plane Visualization
+        // ============================================
+        const misCanvas = document.getElementById('mis-canvas');
+        const misCtx = misCanvas ? misCanvas.getContext('2d') : null;
+        
+        const misState = {
+            mode: 'mis',  // 'sphere', 'cone', 'disc', 'mis'
+            exposure: 0,
+            viewTheta: 20,
+            viewPhi: 30,
+            camTheta: 30,   // Camera ray direction (decoupled from view)
+            camPhi: 45,
+            dragging: false,
+            lastX: 0,
+            lastY: 0
+        };
+        
+        function renderMIS() {
+            if (!misCtx) return;
+            
+            const w = misCanvas.width, h = misCanvas.height;
+            const cx = w / 2, cy = h / 2;
+            const R = 100;
+            const exposureMult = Math.pow(2, misState.exposure / 10);
+            const mode = misState.mode;
+            
+            // View rotation
+            const vt = misState.viewTheta * Math.PI / 180;
+            const vp = misState.viewPhi * Math.PI / 180;
+            
+            function toView(px, py, pz) {
+                let y1 = py * Math.cos(vt) - pz * Math.sin(vt);
+                let z1 = py * Math.sin(vt) + pz * Math.cos(vt);
+                let x1 = px * Math.cos(vp) + z1 * Math.sin(vp);
+                let z2 = -px * Math.sin(vp) + z1 * Math.cos(vp);
+                return { x: x1, y: y1, z: z2 };
+            }
+            
+            // Camera ray direction - follows view rotation so colors change as sphere rotates
+            // View direction is (0,0,1) in view space, transform to world space
+            const cosVt = Math.cos(-vt), sinVt = Math.sin(-vt);
+            const cosVp = Math.cos(-vp), sinVp = Math.sin(-vp);
+            // Transform (0,0,1) from view to world
+            let cdx = sinVp;
+            let cdy = -sinVt * cosVp;
+            let cdz = cosVt * cosVp;
+            const camDir = { x: cdx, y: cdy, z: cdz };
+            
+            // Accumulation buffer
+            const accum = new Float32Array(w * h);
+            
+            // Frag shader style: for each pixel, check if it hits sphere in screen space
+            for (let sy = 0; sy < h; sy++) {
+                for (let sx = 0; sx < w; sx++) {
+                    const screenX = sx - cx;
+                    const screenY = cy - sy;
+                    
+                    // Check if pixel is inside sphere circle (orthographic projection)
+                    const dist2 = screenX * screenX + screenY * screenY;
+                    if (dist2 > R * R) continue;
+                    
+                    // Z coordinate on sphere surface (front face)
+                    const screenZ = Math.sqrt(R * R - dist2);
+                    
+                    // This is the view-space hit point; transform back to world space
+                    // For orthographic, view-space point is directly on sphere
+                    // We need to find the world-space point that projects to (screenX, screenY)
+                    
+                    // Inverse rotation to get world position
+                    // First undo phi rotation, then theta
+                    const cosVt = Math.cos(-vt), sinVt = Math.sin(-vt);
+                    const cosVp = Math.cos(-vp), sinVp = Math.sin(-vp);
+                    
+                    // Undo phi (around Y)
+                    let x1 = screenX * cosVp + screenZ * sinVp;
+                    let z1 = -screenX * sinVp + screenZ * cosVp;
+                    // Undo theta (around X)  
+                    let y1 = screenY * cosVt - z1 * sinVt;
+                    let z2 = screenY * sinVt + z1 * cosVt;
+                    
+                    const hitX = x1, hitY = y1, hitZ = z2;
+                    
+                    // Sphere normal (radial, outward)
+                    const sphereN = { x: hitX/R, y: hitY/R, z: hitZ/R };
+                    
+                    // Cone normal (as if point were on cone with apex at origin, axis +Y)
+                    const rxy = Math.sqrt(hitX*hitX + hitZ*hitZ) + 0.001;
+                    const coneNx = hitY * hitX / rxy;
+                    const coneNy = -rxy;
+                    const coneNz = hitY * hitZ / rxy;
+                    const coneNlen = Math.sqrt(coneNx*coneNx + coneNy*coneNy + coneNz*coneNz) + 0.001;
+                    const coneN = { x: coneNx/coneNlen, y: coneNy/coneNlen, z: coneNz/coneNlen };
+                    
+                    // Disc normal (constant +Y)
+                    const discN = { x: 0, y: 1, z: 0 };
+                    const discR = Math.sqrt(hitX*hitX + hitZ*hitZ) / R + 0.1;
+                    
+                    // N·V for each primitive (dot with camera direction)
+                    const sphereDot = Math.abs(sphereN.x*camDir.x + sphereN.y*camDir.y + sphereN.z*camDir.z) + 0.02;
+                    const coneDot = Math.abs(coneN.x*camDir.x + coneN.y*camDir.y + coneN.z*camDir.z) + 0.02;
+                    const discDot = Math.abs(discN.x*camDir.x + discN.y*camDir.y + discN.z*camDir.z) + 0.02;
+                    
+                    // Jacobians
+                    const sphereJ = 1 / sphereDot;
+                    const coneJ = 1 / coneDot;
+                    const discJ = 1 / (discDot * discR);
+                    
+                    let jacobian;
+                    if (mode === 'sphere') {
+                        jacobian = sphereJ;
+                    } else if (mode === 'cone') {
+                        jacobian = coneJ;
+                    } else if (mode === 'disc') {
+                        jacobian = discJ;
+                    } else {
+                        // MIS: 3 / (J1 + J2 + J3) - harmonic average scaled
+                        jacobian = 9 / (sphereJ + coneJ + discJ);
+                    }
+                    
+                    const intensity = Math.min(2, jacobian * 0.08 * exposureMult);
+                    accum[sy * w + sx] = intensity;
+                }
+            }
+            
+            // Convert to image
+            const imageData = misCtx.createImageData(w, h);
+            const data = imageData.data;
+            for (let i = 0; i < w * h; i++) {
+                const v = Math.min(1, accum[i]);
+                if (mode === 'sphere') {
+                    data[i*4] = Math.pow(v, 0.45) * 255;
+                    data[i*4+1] = Math.pow(v * 0.4, 0.45) * 255;
+                    data[i*4+2] = Math.pow(v * 0.4, 0.45) * 255;
+                } else if (mode === 'cone') {
+                    data[i*4] = Math.pow(v * 0.4, 0.45) * 255;
+                    data[i*4+1] = Math.pow(v, 0.45) * 255;
+                    data[i*4+2] = Math.pow(v * 0.4, 0.45) * 255;
+                } else if (mode === 'disc') {
+                    data[i*4] = Math.pow(v * 0.4, 0.45) * 255;
+                    data[i*4+1] = Math.pow(v * 0.4, 0.45) * 255;
+                    data[i*4+2] = Math.pow(v, 0.45) * 255;
+                } else {
+                    data[i*4] = Math.pow(v * 0.95, 0.45) * 255;
+                    data[i*4+1] = Math.pow(v * 0.75, 0.45) * 255;
+                    data[i*4+2] = Math.pow(v * 0.25, 0.45) * 255;
+                }
+                data[i*4+3] = 255;
+            }
+            misCtx.putImageData(imageData, 0, 0);
+            
+            // Sparse shaded point overlay
+            const gridTheta = 15, gridPhi = 24;
+            for (let i = 0; i < gridTheta; i++) {
+                for (let j = 0; j < gridPhi; j++) {
+                    const cosTheta = 1 - 2 * (i + 0.5) / gridTheta;
+                    const sinTheta = Math.sqrt(1 - cosTheta * cosTheta);
+                    const phi = (j / gridPhi) * Math.PI * 2;
+                    
+                    const px = R * sinTheta * Math.cos(phi);
+                    const py = R * cosTheta;
+                    const pz = R * sinTheta * Math.sin(phi);
+                    
+                    const v = toView(px, py, pz);
+                    if (v.z < 0) continue;
+                    
+                    // Calculate Jacobian for this point (same as above)
+                    const sphereN = { x: px/R, y: py/R, z: pz/R };
+                    const rxy = Math.sqrt(px*px + pz*pz) + 0.001;
+                    const coneNx = py * px / rxy;
+                    const coneNy = -rxy;
+                    const coneNz = py * pz / rxy;
+                    const coneNlen = Math.sqrt(coneNx*coneNx + coneNy*coneNy + coneNz*coneNz) + 0.001;
+                    const coneN = { x: coneNx/coneNlen, y: coneNy/coneNlen, z: coneNz/coneNlen };
+                    const discN = { x: 0, y: 1, z: 0 };
+                    const discR = Math.sqrt(px*px + pz*pz) / R + 0.1;
+                    
+                    const sphereDot = Math.abs(sphereN.x*camDir.x + sphereN.y*camDir.y + sphereN.z*camDir.z) + 0.02;
+                    const coneDot = Math.abs(coneN.x*camDir.x + coneN.y*camDir.y + coneN.z*camDir.z) + 0.02;
+                    const discDot = Math.abs(discN.x*camDir.x + discN.y*camDir.y + discN.z*camDir.z) + 0.02;
+                    
+                    let ptJacobian;
+                    if (mode === 'sphere') ptJacobian = 1.0 / sphereDot;
+                    else if (mode === 'cone') ptJacobian = 1.0 / coneDot;
+                    else if (mode === 'disc') ptJacobian = 1.0 / (discDot * discR);
+                    else ptJacobian = 1.0 / (1.0/sphereDot + 1.0/coneDot + 1.0/(discDot * discR)) * 3;
+                    
+                    const ptIntensity = Math.min(1, ptJacobian * 0.06 * exposureMult);
+                    
+                    const sx = cx + v.x;
+                    const sy = cy - v.y;
+                    
+                    const alpha = 0.3 + ptIntensity * 0.5;
+                    misCtx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+                    misCtx.beginPath();
+                    misCtx.arc(sx, sy, 2, 0, Math.PI * 2);
+                    misCtx.fill();
+                }
+            }
+            
+            // Draw info
+            misCtx.fillStyle = 'rgba(212, 175, 55, 0.9)';
+            misCtx.font = '11px monospace';
+            const modeNames = { sphere: 'Sphere J', cone: 'Cone J', disc: 'Disc J', mis: 'MIS' };
+            misCtx.fillText(`Eval: ${modeNames[mode]}`, 8, 18);
+        }
+        
+        function misLoop() {
+            if (demoVisibility.mis && (!window.perfSettings || window.perfSettings.misEnabled !== false)) {
+                renderMIS();
+            }
+            requestAnimationFrame(misLoop);
+        }
+        
+        // ============================================
+        // Three-Plane MIS Demo
+        // ============================================
+        const planesCanvas = document.getElementById('planes-canvas');
+        const planesCtx = planesCanvas ? planesCanvas.getContext('2d') : null;
+        
+        const planesState = {
+            mode: 'individual',
+            exposure: 0,
+            viewTheta: 20,
+            viewPhi: 30,
+            dragging: false,
+            lastX: 0,
+            lastY: 0
+        };
+        
+        function renderPlanes() {
+            if (!planesCtx) return;
+            
+            const w = planesCanvas.width, h = planesCanvas.height;
+            planesCtx.fillStyle = '#000';
+            planesCtx.fillRect(0, 0, w, h);
+            
+            const cx = w / 2, cy = h / 2;
+            const planeSize = 80;
+            const exposureMult = Math.pow(2, planesState.exposure / 10);
+            
+            const vt = planesState.viewTheta * Math.PI / 180;
+            const vp = planesState.viewPhi * Math.PI / 180;
+            
+            function toView(px, py, pz) {
+                let y1 = py * Math.cos(vt) - pz * Math.sin(vt);
+                let z1 = py * Math.sin(vt) + pz * Math.cos(vt);
+                let x1 = px * Math.cos(vp) + z1 * Math.sin(vp);
+                let z2 = -px * Math.sin(vp) + z1 * Math.cos(vp);
+                return { x: x1, y: y1, z: z2 };
+            }
+            
+            // Three planes with different normals
+            const planes = [
+                { normal: { x: 0, y: 1, z: 0 }, color: [255, 100, 100] },
+                { normal: { x: 0.7, y: 0.3, z: 0.65 }, color: [100, 255, 100] },
+                { normal: { x: -0.5, y: 0.5, z: 0.7 }, color: [100, 100, 255] }
+            ];
+            
+            // Normalize normals
+            planes.forEach(p => {
+                const len = Math.sqrt(p.normal.x**2 + p.normal.y**2 + p.normal.z**2);
+                p.normal.x /= len; p.normal.y /= len; p.normal.z /= len;
+            });
+            
+            // Calculate N·V for each plane (view direction is +Z in view space)
+            planes.forEach(p => {
+                const nv = toView(p.normal.x, p.normal.y, p.normal.z);
+                p.dotNV = nv.z;  // dot with view direction (0,0,1)
+                // THINNER = BRIGHTER: when |N·V| is small, Jacobian is large
+                p.jacobian = 1 / (Math.abs(p.dotNV) + 0.02);
+            });
+            
+            // MIS weight
+            const totalJ = planes.reduce((sum, p) => sum + p.jacobian, 0);
+            const misWeight = 3 / totalJ;
+            
+            // Create plane quads
+            planes.forEach(p => {
+                const n = p.normal;
+                let u, v;
+                if (Math.abs(n.y) < 0.9) {
+                    u = { x: -n.z, y: 0, z: n.x };
+                } else {
+                    u = { x: 1, y: 0, z: 0 };
+                }
+                const uLen = Math.sqrt(u.x**2 + u.y**2 + u.z**2);
+                u.x /= uLen; u.y /= uLen; u.z /= uLen;
+                v = { x: n.y*u.z - n.z*u.y, y: n.z*u.x - n.x*u.z, z: n.x*u.y - n.y*u.x };
+                
+                let intensity;
+                if (planesState.mode === 'individual') {
+                    intensity = p.jacobian * 0.1 * exposureMult;
+                } else {
+                    intensity = misWeight * 0.4 * exposureMult;
+                }
+                intensity = Math.min(1, intensity);
+                
+                const corners = [];
+                for (let ci = 0; ci < 4; ci++) {
+                    const cu = (ci === 0 || ci === 3) ? -planeSize : planeSize;
+                    const cv = (ci < 2) ? -planeSize : planeSize;
+                    const pw = toView(u.x*cu + v.x*cv, u.y*cu + v.y*cv, u.z*cu + v.z*cv);
+                    corners.push({ x: cx + pw.x, y: cy - pw.y, z: pw.z });
+                }
+                
+                p.corners = corners;
+                p.avgZ = corners.reduce((s, c) => s + c.z, 0) / 4;
+                p.intensity = intensity;
+            });
+            
+            // Sort by depth
+            planes.sort((a, b) => a.avgZ - b.avgZ);
+            
+            // Draw planes
+            planes.forEach(p => {
+                const [r, g, b] = p.color;
+                planesCtx.beginPath();
+                planesCtx.moveTo(p.corners[0].x, p.corners[0].y);
+                for (let i = 1; i < 4; i++) planesCtx.lineTo(p.corners[i].x, p.corners[i].y);
+                planesCtx.closePath();
+                planesCtx.fillStyle = `rgba(${r}, ${g}, ${b}, ${Math.min(0.7, p.intensity * 0.8)})`;
+                planesCtx.fill();
+                planesCtx.strokeStyle = `rgba(${r}, ${g}, ${b}, 0.9)`;
+                planesCtx.lineWidth = 2;
+                planesCtx.stroke();
+            });
+            
+            // Info
+            planesCtx.fillStyle = 'rgba(212, 175, 55, 0.9)';
+            planesCtx.font = '10px monospace';
+            planesCtx.fillText(planesState.mode === 'individual' ? 'Individual 1/|N·V|' : 'MIS: 3/(J₁+J₂+J₃)', 6, 14);
+            let yOff = 30;
+            planes.forEach((p, i) => {
+                planesCtx.fillStyle = `rgb(${p.color[0]}, ${p.color[1]}, ${p.color[2]})`;
+                planesCtx.fillText(`J${i+1}: ${p.jacobian.toFixed(1)}`, 6, yOff);
+                yOff += 12;
+            });
+        }
+        
+        function planesLoop() {
+            if (demoVisibility.planes) {
+                renderPlanes();
+            }
+            requestAnimationFrame(planesLoop);
+        }
+        
+        if (planesCanvas) {
+            planesLoop();
+            document.getElementById('planes-mode')?.addEventListener('change', e => planesState.mode = e.target.value);
+            document.getElementById('planes-exposure')?.addEventListener('input', e => planesState.exposure = parseInt(e.target.value));
+            planesCanvas.addEventListener('mousedown', e => {
+                planesState.dragging = true;
+                planesState.lastX = e.clientX;
+                planesState.lastY = e.clientY;
+            });
+            window.addEventListener('mousemove', e => {
+                if (!planesState.dragging) return;
+                planesState.viewPhi += (e.clientX - planesState.lastX) * 0.5;
+                planesState.viewTheta += (e.clientY - planesState.lastY) * 0.5;
+                planesState.viewTheta = Math.max(-89, Math.min(89, planesState.viewTheta));
+                planesState.lastX = e.clientX;
+                planesState.lastY = e.clientY;
+            });
+            window.addEventListener('mouseup', () => planesState.dragging = false);
+        }
+
+        // MIS controls
+        if (misCanvas) {
+            misLoop();
+            
+            document.getElementById('mis-mode')?.addEventListener('change', function(e) {
+                misState.mode = e.target.value;
+            });
+            
+            document.getElementById('mis-exposure')?.addEventListener('input', function(e) {
+                misState.exposure = parseInt(e.target.value);
+            });
+            
+            misCanvas.addEventListener('mousedown', function(e) {
+                misState.dragging = true;
+                misState.lastX = e.clientX;
+                misState.lastY = e.clientY;
+                misCanvas.style.cursor = 'grabbing';
+            });
+            
+            window.addEventListener('mousemove', function(e) {
+                if (!misState.dragging) return;
+                const dx = e.clientX - misState.lastX;
+                const dy = e.clientY - misState.lastY;
+                misState.viewPhi += dx * 0.5;
+                misState.viewTheta += dy * 0.5;
+                misState.viewTheta = Math.max(-89, Math.min(89, misState.viewTheta));
+                misState.lastX = e.clientX;
+                misState.lastY = e.clientY;
+            });
+            
+            window.addEventListener('mouseup', function() {
+                misState.dragging = false;
+                if (misCanvas) misCanvas.style.cursor = 'grab';
+            });
+        }
+
+        // Estimator controls
+        if (estCanvas) {
+            // Don't auto-start - wait for user to click Start
+            function runEstimatorFrame() {
+                if (estimatorState.running) {
+                    const pathsPerFrame = (window.perfSettings && window.perfSettings.pathsPerFrame) || 15;
+                    for (let i = 0; i < pathsPerFrame; i++) {
+                        tracePhotonPath();
+                    }
+                    renderEstimator();
+                }
+                requestAnimationFrame(runEstimatorFrame);
+            }
+            runEstimatorFrame();
+            
+            document.getElementById('est-primitive')?.addEventListener('change', function(e) {
+                estimatorState.primitiveType = e.target.value;
+            });
+            
+            document.getElementById('est-start')?.addEventListener('click', function() {
+                estimatorState.running = !estimatorState.running;
+                this.textContent = estimatorState.running ? 'Pause' : 'Start';
+                this.style.background = estimatorState.running ? '#a44' : '#4a4';
+            });
+            
+            document.getElementById('est-reset')?.addEventListener('click', function() {
+                initEstimatorBuffer();
+                renderEstimator();
+            });
+        }
+
+        // Single primitive view controls
+        if (angleCanvas) {
+            angleLoop();
+            
+            // Primitive selector buttons
+            document.querySelectorAll('.glow-btn[data-primitive]').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.glow-btn[data-primitive]').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    angleState.primitiveType = this.dataset.primitive;
+                });
+            });
+            
+            // Mode selector buttons
+            document.querySelectorAll('.glow-btn.mode-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.glow-btn.mode-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    angleState.mode = this.dataset.mode;
+                    // Show/hide Jacobian mode row
+                    const jacRow = document.getElementById('jac-mode-row');
+                    if (jacRow) {
+                        jacRow.style.display = this.dataset.mode === 'frag' ? 'flex' : 'none';
+                    }
+                });
+            });
+            
+            // Jacobian mode buttons (for frag shader)
+            document.querySelectorAll('.glow-btn.jac-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.glow-btn.jac-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    angleState.jacMode = this.dataset.jac;  // 'default', 'none', 'inverse'
+                });
+            });
+            
+            document.getElementById('angle-exposure')?.addEventListener('input', function(e) {
+                angleState.exposure = parseInt(e.target.value);
+            });
+            
+            // Drag to rotate view
+            angleCanvas.addEventListener('mousedown', function(e) {
+                angleState.dragging = true;
+                angleState.lastX = e.clientX;
+                angleState.lastY = e.clientY;
+                angleCanvas.style.cursor = 'grabbing';
+            });
+            
+            window.addEventListener('mousemove', function(e) {
+                if (!angleState.dragging) return;
+                const dx = e.clientX - angleState.lastX;
+                const dy = e.clientY - angleState.lastY;
+                angleState.viewPhi += dx * 0.5;
+                angleState.viewTheta += dy * 0.5;
+                angleState.viewTheta = Math.max(-90, Math.min(90, angleState.viewTheta));
+                angleState.lastX = e.clientX;
+                angleState.lastY = e.clientY;
+            });
+            
+            window.addEventListener('mouseup', function() {
+                angleState.dragging = false;
+                if (angleCanvas) angleCanvas.style.cursor = 'grab';
+            });
+        }
+        
+        // Planes MIS buttons
+        document.querySelectorAll('.glow-btn.planes-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.glow-btn.planes-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                planesState.mode = this.dataset.planes;
+            });
+        });
+        
+        // MIS cross-primitive buttons
+        document.querySelectorAll('.glow-btn.mis-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.glow-btn.mis-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                misState.mode = this.dataset.mis;
+            });
+        });
+        
+        // Volume animate button
+        document.getElementById('volume-animate-btn')?.addEventListener('click', function() {
+            volumeState.animate = !volumeState.animate;
+            this.textContent = volumeState.animate ? '⏸ Pause' : '▶ Animate';
+            this.classList.toggle('active', volumeState.animate);
+        });
+
+        // ============================================
+        // KaTeX Rendering
+        // ============================================
+        document.addEventListener("DOMContentLoaded", function() {
+            if (typeof renderMathInElement !== 'undefined') {
+                renderMathInElement(document.body, {
+                    delimiters: [
+                        {left: "$$", right: "$$", display: true},
+                        {left: "$", right: "$", display: false}
+                    ]
+                });
+            }
+        });
+
+        // ============================================
+        // Loading Screen
+        // ============================================
+        window.addEventListener('load', function() {
+            const loadingScreen = document.getElementById('loading-screen');
+            if (loadingScreen) {
+                setTimeout(() => {
+                    loadingScreen.style.opacity = '0';
+                    setTimeout(() => {
+                        loadingScreen.style.display = 'none';
+                    }, 500);
+                }, 800);
+            }
+            
+            // Set up IntersectionObserver for demo canvases (after all defined)
+            const demoObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    const id = entry.target.id;
+                    if (id === 'est-canvas') demoVisibility.estimator = entry.isIntersecting;
+                    else if (id === 'angle-canvas') demoVisibility.angle = entry.isIntersecting;
+                    else if (id === 'volume-canvas') demoVisibility.volume = entry.isIntersecting;
+                    else if (id === 'mis-canvas') demoVisibility.mis = entry.isIntersecting;
+                    else if (id === 'planes-canvas') demoVisibility.planes = entry.isIntersecting;
+                });
+            }, { threshold: 0.1 });
+            
+            // Observe all demo canvases
+            ['est-canvas', 'angle-canvas', 'volume-canvas', 'mis-canvas', 'planes-canvas'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) demoObserver.observe(el);
+            });
+        });
+    </script>
+
+    <!-- Gallery Scripts (load existing) -->
+    <script src="image-list.js"></script>
+    <script src="gallery-data.js"></script>
+    <script src="gallery-3d.js"></script>
+
+    <!-- Performance Settings (no UI panel) -->
+    <script>
+        window.perfSettings = {
+            bgCurves: 25,
+            bgBlur: 3,
+            fgEnabled: true,
+            fgBlur: 1,
+            primCount: 14,
+            discsPerPrim: 24,
+            discsPerTorus: 48,
+            misResScale: 1.0,
+            misEnabled: true,
+            expSphere: 0.5,
+            expCone: 1.0,
+            expCylinder: 1.0,
+            expTorus: 1.5
+        };
+    </script>
+</body>
+</html>

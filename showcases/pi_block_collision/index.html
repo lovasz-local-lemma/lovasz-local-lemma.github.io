@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>π from Block Collisions - 3Blue1Brown Phenomenon</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../symbolic_math_showcase/styles.css">
+    <style>
+        .hero-card {
+            background: linear-gradient(135deg, 
+                rgba(15, 15, 32, 0.7) 0%, 
+                rgba(10, 10, 24, 0.5) 100%);
+            border: 1px solid rgba(212, 175, 55, 0.25);
+            border-radius: 16px;
+            padding: 3rem;
+            margin-bottom: 3rem;
+            box-shadow: 
+                0 8px 32px rgba(212, 175, 55, 0.1), 
+                0 0 40px rgba(212, 175, 55, 0.15),
+                inset 0 1px 0 rgba(212, 175, 55, 0.05);
+        }
+        
+        .hero-card p {
+            font-size: 1.15rem;
+            line-height: 1.8;
+            color: var(--text-secondary);
+        }
+        
+        .video-showcase {
+            background: linear-gradient(135deg, 
+                rgba(15, 15, 32, 0.7) 0%, 
+                rgba(10, 10, 24, 0.5) 100%);
+            border: 1px solid rgba(212, 175, 55, 0.25);
+            border-radius: 16px;
+            padding: 2.5rem;
+            margin: 3rem 0;
+            box-shadow: 
+                0 8px 32px rgba(212, 175, 55, 0.1), 
+                0 0 40px rgba(212, 175, 55, 0.15);
+            transition: all 0.4s ease;
+        }
+        
+        .video-showcase:hover {
+            transform: translateY(-4px);
+            box-shadow: 
+                0 12px 40px rgba(212, 175, 55, 0.2), 
+                0 0 50px rgba(212, 175, 55, 0.25);
+            border-color: rgba(212, 175, 55, 0.4);
+        }
+        
+        .video-showcase h3 {
+            font-family: 'Playfair Display', serif;
+            color: var(--gold-light);
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+        
+        video {
+            width: 100%;
+            border-radius: 12px;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .theory-section {
+            margin: 4rem 0;
+        }
+        
+        .theory-section > h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            background: linear-gradient(135deg, var(--gold-primary), var(--gold-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .theory-card {
+            background: linear-gradient(135deg, 
+                rgba(15, 15, 32, 0.6) 0%, 
+                rgba(10, 10, 24, 0.4) 100%);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 12px;
+            padding: 2.5rem;
+            margin: 2rem 0;
+            box-shadow: 0 4px 20px rgba(212, 175, 55, 0.15);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .theory-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(212, 175, 55, 0.1) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+        
+        .theory-card:hover::before {
+            opacity: 1;
+        }
+        
+        .theory-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(212, 175, 55, 0.4);
+            box-shadow: 0 8px 30px rgba(212, 175, 55, 0.25);
+        }
+        
+        .theory-card h3 {
+            font-family: 'Playfair Display', serif;
+            color: var(--gold-light);
+            margin-bottom: 1.5rem;
+            font-size: 1.6rem;
+            position: relative;
+        }
+        
+        .highlight-box {
+            background: rgba(212, 175, 55, 0.08);
+            border-left: 3px solid var(--gold-primary);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        /* Styled Page Header */
+        .page-header {
+            background: linear-gradient(135deg, 
+                rgba(15, 15, 32, 0.8) 0%, 
+                rgba(10, 10, 24, 0.6) 100%);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 16px;
+            padding: 2.5rem 3rem;
+            margin-bottom: 3rem;
+            box-shadow: 
+                0 8px 32px rgba(212, 175, 55, 0.15),
+                0 0 60px rgba(212, 175, 55, 0.1);
+            text-align: center;
+        }
+
+        .page-header .header-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 1rem;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            color: var(--gold-light);
+            margin-bottom: 1.5rem;
+            text-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
+        }
+
+        .page-header .language-badge {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.2), rgba(212, 175, 55, 0.1));
+            border: 1px solid rgba(212, 175, 55, 0.4);
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-family: 'Source Code Pro', monospace;
+            font-size: 0.85rem;
+            color: var(--gold-primary);
+        }
+
+        .page-header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--gold-primary), var(--gold-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 40px rgba(212, 175, 55, 0.3);
+        }
+
+        .page-header .subtitle {
+            font-size: 1.15rem;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        /* Content sections with plain text need cards */
+        .content-section {
+            margin: 3rem 0;
+        }
+
+        .content-section > h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, var(--gold-primary), var(--gold-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .content-section > h3 {
+            font-family: 'Playfair Display', serif;
+            color: var(--gold-light);
+            font-size: 1.4rem;
+            margin: 1.5rem 0 1rem;
+        }
+
+        .content-section > p,
+        .content-section > ul {
+            background: linear-gradient(135deg, 
+                rgba(15, 15, 32, 0.5) 0%, 
+                rgba(10, 10, 24, 0.3) 100%);
+            border: 1px solid rgba(212, 175, 55, 0.15);
+            border-radius: 12px;
+            padding: 1.5rem 2rem;
+            margin: 1rem 0;
+            color: var(--text-secondary);
+            line-height: 1.8;
+        }
+
+        .content-section > ul {
+            padding-left: 3rem;
+        }
+        
+        .content-section ul li {
+            margin-bottom: 0.8rem;
+            line-height: 1.7;
+        }
+
+        .section-note {
+            background: rgba(212, 175, 55, 0.08);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-left: 3px solid var(--gold-primary);
+            border-radius: 8px;
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .footnote {
+            background: linear-gradient(135deg, 
+                rgba(15, 15, 32, 0.6) 0%, 
+                rgba(10, 10, 24, 0.4) 100%);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 12px;
+            padding: 1.5rem 2rem;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+    </style>
+</head>
+<body>
+    <a href="../../index.html" class="back-button">Back to Portfolio</a>
+    <div class="background-gradient"></div>
+    
+    <main class="container">
+        <header class="page-header">
+            <div class="header-badge">Experimental / Exploratory <span class="language-badge">Ruby</span></div>
+            <h1>Mechanical Computing: π from Physical Systems</h1>
+            <p class="subtitle">Exploring how continuous dynamics encode discrete numerical invariants</p>
+        </header>
+
+        <div class="hero-card" style="margin-top: 20px;">
+            <h2>Beyond the Classic Construction</h2>
+            <p>
+                Building on <strong>3Blue1Brown's</strong> famous collision-based construction of π—where elastic 
+                collisions between blocks with mass ratio 100^n produce the first n+1 digits of π—this project 
+                treats physical motion as a <strong>computational medium</strong>.
+            </p>
+            
+            <p>
+                The question: how far can this idea be pushed? What other mechanical systems can encode π or 
+                other mathematical invariants? And what does this tell us about the relationship between 
+                <strong>continuous dynamics</strong> and <strong>discrete numerical structure</strong>?
+            </p>
+        </div>
+        
+        <div class="video-showcase">
+            <h3>Simulation Demonstration</h3>
+
+            <div class="section-note">
+                <strong>Note:</strong> These are pre-rendered videos from the original implementation. 
+                The full interactive simulation requires a native environment and has not yet been ported to the web.
+            </div>
+
+            <div class="video-grid">
+
+                                <div class="video-card">
+                    <h3>2-Block System (less digits)</h3>
+                    <video controls preload="metadata">
+                        <source src="../../live_demos/visualizations/to_be_ported/3B1B2.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                    <p style="margin-top: 1rem; color: var(--text-secondary);">
+                        Additional visualization angles and collision counting. The circular arc in phase space 
+                        becomes more apparent as the mass ratio increases.
+                    </p>
+                </div>
+
+
+                <div class="video-card">
+                    <h3>2-Block System (more digits)</h3>
+                    <video controls preload="metadata">
+                        <source src="../../live_demos/visualizations/to_be_ported/3B1B1.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                    <p style="margin-top: 1rem; color: var(--text-secondary);">
+                        Standard two-block collision with phase space visualization. Watch how each collision 
+                        in physical space corresponds to a reflection in velocity space.
+                    </p>
+                </div>
+
+
+                <div class="video-card">
+                    <h3>3-Block 3D Phase Space</h3>
+                    <video controls preload="metadata">
+                        <source src="../../live_demos/visualizations/to_be_ported/3B1B_3d.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                    <p style="margin-top: 1rem; color: var(--text-secondary);">
+                        Three-block extension with full 3D phase space visualization. The trajectory now lives 
+                        on a sphere, and reflections occur across planes rather than lines. This one requires more sophisticated way to connect the two quantities.
+                    </p>
+                </div>
+
+
+            </div>
+            <!-- <video controls preload="metadata">
+                <source src="./demo.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video> -->
+        </div>
+        
+        <!-- Phase Space Geometry - Core Insight FIRST -->
+        <section class="theory-section">
+            <h2>Phase Space Geometry: The Core Insight</h2>
+            
+            <div class="hero-card">
+                <h3>Why Circles?</h3>
+            <p>
+                The key insight comes from viewing the system in <strong>phase space</strong>—a space where 
+                each axis represents a velocity. When you plot the velocities of both blocks (v₁, v₂), 
+                the system's trajectory draws a circle!
+            </p>
+            
+            <p>
+                Each collision corresponds to a reflection across a line in this phase space. The mass ratio 
+                determines the angle of these reflection lines, and with mass ratio 100^n, the angle becomes 
+                arctan(√(100^n)) = arctan(10^n).
+            </p>
+            
+            <p>
+                As n grows, this angle approaches 90°, and counting the reflections becomes equivalent to 
+                measuring the arc length of a quarter circle—which is π/2 radians. The discrete reflections 
+                approximate this continuous angle, giving us digits of π.
+            </p>
+            </div>
+
+            <div class="theory-card">
+                <h3>Conservation Laws and Rescaling</h3>
+                <p>
+                    The circular trajectory emerges from two fundamental conservation laws:
+                </p>
+                <ul>
+                    <li><strong>Energy Conservation:</strong> m₁v₁²/2 + m₂v₂²/2 = E (kinetic energy)</li>
+                    <li><strong>Momentum Conservation:</strong> m₁v₁ + m₂v₂ = p (total momentum)</li>
+                </ul>
+            
+            <p>
+                <strong>Why do we need rescaling?</strong> If we plot raw velocities (v₁, v₂), the energy 
+                equation forms an <em>ellipse</em>, not a circle:
+            </p>
+            <div class="code-block">
+                <pre><code>m₁v₁²/2 + m₂v₂²/2 = E
+(v₁²/a²) + (v₂²/b²) = 1  (ellipse with different axes)</code></pre>
+            </div>
+
+            <p>
+                To make the geometry clean, we <strong>rescale coordinates</strong> by defining:
+            </p>
+            <div class="code-block">
+                <pre><code>x = √m₁ · v₁
+y = √m₂ · v₂</code></pre>
+            </div>
+
+            <p>
+                Now the energy equation becomes a perfect circle:
+            </p>
+            <div class="code-block">
+                <pre><code>E = m₁v₁²/2 + m₂v₂²/2
+  = (√m₁ · v₁)²/2 + (√m₂ · v₂)²/2
+  = x²/2 + y²/2
+
+Therefore: x² + y² = 2E (circle with radius √(2E))</code></pre>
+            </div>
+
+            <p>
+                The momentum constraint becomes a straight line in this rescaled space:
+            </p>
+            <div class="code-block">
+                <pre><code>p = m₁v₁ + m₂v₂ = √m₁ · x + √m₂ · y</code></pre>
+            </div>
+            </div>
+
+            <div class="theory-card">
+                <h3>The Dead Zone: Physical Boundary</h3>
+            <p>
+                Not all points on the circle are physically accessible. There's a <strong>"dead zone"</strong> 
+                corresponding to states where the large block moves <em>faster</em> than the small block 
+                (v₂ > v₁).
+            </p>
+
+            <p>
+                <strong>Why is this impossible?</strong> Once v₂ > v₁, the blocks are separating and will 
+                never collide again - the large block is moving away from the wall faster than the small 
+                block can catch up. The system has "escaped" and no more collisions can occur.
+            </p>
+
+            <p>
+                In the rescaled coordinates, this boundary condition v₂ = v₁ becomes:
+            </p>
+            <div class="code-block">
+                <pre><code>v₁ = v₂
+√m₁ · v₁ = √m₂ · v₂
+x = y · √(m₂/m₁)
+
+For m₂/m₁ = 100ⁿ:
+x = y · 10ⁿ (dead zone boundary line)</code></pre>
+            </div>
+
+            <p>
+                This line has a steep slope (10ⁿ). On the circle, this corresponds to a <strong>thin slice</strong> 
+                near the top where the trajectory cannot enter. The accessible region is the arc from the 
+                positive x-axis (where both blocks move right initially) to just before this dead zone line.
+            </p>
+
+            <div class="code-block">
+                <pre><code>// Accessible arc on circle (radius R = √(2E)):
+From:  (R, 0)     → Both blocks moving, large block slower
+To:    x = y·10ⁿ  → Blocks about to separate forever
+
+Angular span ≈ π/2 - arctan(1/10ⁿ) ≈ π/2 (as n → ∞)</code></pre>
+            </div>
+
+            <p>
+                Each collision reflects the point across a line at angle θ = arctan(√(m₂/m₁)). The number 
+                of reflections needed to traverse this arc is:
+            </p>
+            <div class="code-block">
+                <pre><code>N = (accessible arc) / (angle per reflection)
+  ≈ (π/2) / arctan(1/10ⁿ)
+  ≈ π · 10ⁿ</code></pre>
+            </div>
+
+            <p>
+                This is why we get digits of π! The dead zone creates the π/2 arc, and the reflection 
+                angle (determined by mass ratio) determines how many discrete steps are needed to cross it.
+            </p>
+            </div>
+        </section>
+
+        <!-- Linear vs Angular Momentum - AFTER phase space is explained -->
+        <section class="theory-section">
+            <h2>Linear vs Angular Momentum</h2>
+            
+            <div class="hero-card">
+                <h3>Pure Angular: A Trivial Transformation</h3>
+                <p>
+                    One might ask: does the phenomenon persist if we reformulate the system in terms of 
+                    <strong>angular momentum</strong> instead of linear momentum? The answer is yes—but 
+                    this is largely a <strong>trivial transformation</strong>.
+                </p>
+                <p>
+                    Both formulations preserve the same <strong>circular phase-space geometry</strong>. 
+                    The collision dynamics produce equivalent behavior up to reparameterization.
+                </p>
+            </div>
+
+            <div class="theory-card">
+                <h3>Combined Linear + Angular: More Interesting?</h3>
+                <p>
+                    A more interesting variation: what if we have <strong>both</strong> linear and angular 
+                    momentum in the same system? For example, spinning blocks that can also translate. 
+                    This couples two types of dynamics and initially seems more complex.
+                </p>
+                <p>
+                    However, the same rescaling trick applies. With appropriate coordinate transformations 
+                    (scaling by √I for angular components, √m for linear), the combined energy conservation 
+                    still yields a <strong>circular/spherical constraint</strong> in the rescaled space. 
+                    The phase space geometry remains fundamentally the same.
+                </p>
+            </div>
+
+            <div class="hero-card">
+                <img src="../../live_demos/visualizations/to_be_ported/angular.png" 
+                     alt="Angular momentum formulation" 
+                     style="width: 100%; border-radius: 12px; border: 1px solid rgba(212, 175, 55, 0.3); margin-bottom: 1rem;">
+                <p style="text-align: center; color: var(--text-secondary);">
+                    Angular momentum formulation produces the same circular phase-space trajectory—the 
+                    geometry is preserved under coordinate transformation.
+                </p>
+            </div>
+
+            <div class="hero-card">
+                <h3>Spinning + Sliding: Combined Dynamics</h3>
+                <img src="../../live_demos/visualizations/to_be_ported/pi_collision/exploring/ang+lin.png" 
+                     alt="Combined angular and linear momentum" 
+                     style="width: 100%; border-radius: 12px; border: 1px solid rgba(212, 175, 55, 0.3); margin-bottom: 1rem;">
+                <p style="text-align: center; color: var(--text-secondary);">
+                    Blocks that both spin and slide—combining angular and linear momentum in a single system.
+                    After appropriate rescaling, the phase-space geometry remains circular.
+                </p>
+            </div>
+
+            <div class="theory-card">
+                <h3>The Rescaling Principle</h3>
+                <p>
+                    This reveals a deeper pattern: <strong>many setups that seem interesting on paper 
+                    collapse to the same phase-space geometry after proper rescaling</strong>.
+                </p>
+                <p>
+                    The π-counting phenomenon emerges from:
+                </p>
+                <ul>
+                    <li>Quadratic energy conservation → circular/spherical phase space</li>
+                    <li>Linear momentum conservation → straight-line constraints</li>
+                    <li>Collision = reflection across constraint surface</li>
+                </ul>
+                <p>
+                    Any system with these ingredients, regardless of whether the underlying variables are 
+                    positions, velocities, angles, or angular velocities, will produce equivalent geometry 
+                    in appropriately scaled coordinates. The "interesting" variations often reduce to 
+                    cosmetic differences once you apply the right transformation.
+                </p>
+            </div>
+        </section>
+
+        <section class="theory-section">
+            <h2>Higher-Dimensional Extensions</h2>
+            
+            <div class="hero-card">
+                <h3>Three-Body Systems: Spherical Phase Space</h3>
+                <p>
+                    Generalizing to <strong>three interacting blocks</strong> introduces a higher-dimensional 
+                    phase space. Circular trajectories become <strong>spherical</strong>—the trajectory now 
+                    lives on a 2-sphere, and collisions are reflections across planes rather than lines.
+                </p>
+                <p>
+                    While not conceptually novel, this serves as a <strong>robustness test</strong>: does the 
+                    emergence of π persist under increased geometric and dynamical complexity?
+                </p>
+            </div>
+
+            <div class="video-card">
+                <h3>3-Block 3D Phase Space</h3>
+                <video controls preload="metadata">
+                    <source src="../../live_demos/visualizations/to_be_ported/3B1B_3d.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                <p style="margin-top: 1rem; color: var(--text-secondary);">
+                    Three-block extension with full 3D phase space visualization. The trajectory lives 
+                    on a sphere, with reflections across planes. Connecting collision count to π requires 
+                    more sophisticated analysis in this higher-dimensional setting.
+                </p>
+            </div>
+
+            <div class="theory-card">
+                <h3>4D Phase Space: Hyperspherical Trajectories</h3>
+                <p>
+                    Further extensions explore <strong>coupled linear–angular dynamics</strong> and 
+                    <strong>4D phase-space trajectories</strong> evolving on hyperspherical manifolds. 
+                    These probe which geometric features are essential to the invariant—is it the 
+                    circular/spherical geometry? The conservation laws? The reflection structure?
+                </p>
+            </div>
+
+            <div class="hero-card">
+                <h3>Four-Block System</h3>
+                <img src="../../live_demos/visualizations/to_be_ported/pi_collision/exploring/Pi_from_four_blocks.png" 
+                     alt="Four-block phase space" 
+                     style="width: 100%; border-radius: 12px; border: 1px solid rgba(212, 175, 55, 0.3); margin-bottom: 1rem;">
+                <p style="text-align: center; color: var(--text-secondary);">
+                    Four-block extension: the phase space becomes 4-dimensional, with trajectories constrained 
+                    to a 3-sphere. Visualization shows a projection of this higher-dimensional structure.
+                </p>
+            </div>
+
+            <div class="theory-card">
+                <h3>Multi-Block Complications</h3>
+                <p>
+                    One complication in multi-block systems: beyond simply counting collisions, there are now 
+                    <strong>non-trivial conversions</strong> between different collision types (block-block vs 
+                    block-wall, different block pairs). Even after rescaling coordinates to transform the 
+                    energy ellipsoid into a sphere, the collision geometry becomes more intricate.
+                </p>
+                <p>
+                    This raises the question: does the clean π-counting property survive when the reflection 
+                    structure itself becomes more complex? Initial exploration suggests the core phenomenon 
+                    persists, but the analysis requires more care.
+                </p>
+            </div>
+        </section>
+
+        <!-- Mechanical Wave Dynamics Section -->
+        <section class="theory-section">
+            <h2>Mechanical Wave Dynamics</h2>
+            
+            <div class="hero-card">
+                <h3>From Discrete Collisions to Continuous Waves</h3>
+                <p>
+                    A complementary formulation replaces discrete collisions with <strong>mechanical wave 
+                    dynamics</strong>. Instead of counting collision events, the same invariant emerges 
+                    through continuous field propagation.
+                </p>
+                <p>
+                    This connects the construction to familiar <strong>Fourier and spectral viewpoints</strong>, 
+                    but realizes them through physical time evolution rather than algebraic decomposition.
+                </p>
+            </div>
+
+            <div class="hero-card">
+                <img src="../../live_demos/visualizations/to_be_ported/vibration.png" 
+                     alt="Mechanical wave dynamics" 
+                     style="width: 100%; border-radius: 12px; border: 1px solid rgba(212, 175, 55, 0.3); margin-bottom: 1rem;">
+                <p style="text-align: center; color: var(--text-secondary);">
+                    Wave-based formulation: the same numerical invariant expressed through continuous 
+                    propagation rather than discrete collision counting.
+                </p>
+            </div>
+        </section>
+
+        <!-- <section class="content-section">
+            <h2>Visualizations</h2>
+            <div class="section-note">
+                <strong>Note:</strong> These are pre-rendered videos from the original implementation. 
+                The full interactive simulation requires a native environment and has not yet been ported to the web.
+            </div>
+
+
+        </section> -->
+
+        <!-- Experimental Phase Spaces -->
+        <section class="theory-section">
+            <h2>Exploring Other Phase Spaces</h2>
+            
+            <div class="hero-card">
+                <p>
+                    Beyond the clean cases above, we can ask: <strong>what other mechanical systems produce 
+                    interesting phase-space structures?</strong> Not all of these yield π in an obvious way—
+                    some are just explorations of what different dynamics look like when projected into 
+                    phase space.
+                </p>
+                <p style="color: var(--text-secondary); font-style: italic;">
+                    Important caveat: unlike the original construction where π emerges directly from collision 
+                    counting, many of these more exotic systems would require <strong>additional computation</strong> 
+                    to extract numerical invariants—the elegance of "just count collisions" is lost. We're still 
+                    exploring what works and what doesn't, both theoretically and in practice.
+                </p>
+            </div>
+
+            <div class="theory-card">
+                <h3>Spinning Rectangles: When Shape Matters</h3>
+                <p>
+                    What happens with <strong>angular + linear momentum</strong> when collision geometry 
+                    depends on the objects' shapes? Unlike point masses or circles, rectangles introduce 
+                    orientation-dependent collision normals.
+                </p>
+                <img src="../../live_demos/visualizations/to_be_ported/pi_collision/exploring/angular2.png" 
+                     alt="Spinning rectangles phase space" 
+                     style="width: 100%; border-radius: 12px; border: 1px solid rgba(212, 175, 55, 0.3); margin: 1rem 0;">
+                <p style="color: var(--text-secondary);">
+                    The phase-space trajectory is <strong>no longer exactly circular</strong>—this is expected, 
+                    not a scaling issue. The exact collision geometry now matters, introducing deviations from 
+                    the ideal circular/spherical structure that made the original construction so elegant.
+                </p>
+            </div>
+
+            <div class="theory-card">
+                <h3>Generalized Mechanical Systems</h3>
+                <img src="../../live_demos/visualizations/to_be_ported/pi_collision/exploring/systems.png" 
+                     alt="Generalized mechanical systems" 
+                     style="width: 100%; border-radius: 12px; border: 1px solid rgba(212, 175, 55, 0.3); margin: 1rem 0;">
+                <p style="color: var(--text-secondary);">
+                    Various mechanical configurations and their phase-space representations. 
+                    <em>Note: proper normalization still needed for some of these visualizations.</em>
+                </p>
+            </div>
+
+            <div class="theory-card">
+                <h3>Other Dynamical Systems</h3>
+                <p>
+                    These examples step further from the collision-counting paradigm—they're included to show 
+                    what phase-space trajectories look like for <strong>qualitatively different</strong> mechanical 
+                    systems, not because they necessarily encode π.
+                </p>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+                    <div>
+                        <img src="../../live_demos/visualizations/to_be_ported/pi_collision/exploring/double_pendulum.png" 
+                             alt="Double pendulum phase space" 
+                             style="width: 100%; border-radius: 12px; border: 1px solid rgba(212, 175, 55, 0.3);">
+                        <p style="text-align: center; color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.5rem;">
+                            Double Pendulum
+                        </p>
+                    </div>
+                    <div>
+                        <img src="../../live_demos/visualizations/to_be_ported/pi_collision/exploring/bowl.png" 
+                             alt="Spheres on bowl phase space" 
+                             style="width: 100%; border-radius: 12px; border: 1px solid rgba(212, 175, 55, 0.3);">
+                        <p style="text-align: center; color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.5rem;">
+                            Two Spheres in a Bowl
+                        </p>
+                    </div>
+                </div>
+                <p style="margin-top: 1rem; color: var(--text-secondary);">
+                    These systems have rich phase-space structure but lack the clean reflection geometry that 
+                    makes collision counting meaningful. They're included as examples of the broader landscape 
+                    of mechanical phase spaces.
+                </p>
+            </div>
+
+            <div class="theory-card" style="background: linear-gradient(135deg, rgba(212, 175, 55, 0.08), rgba(212, 175, 55, 0.02));">
+                <h3>On Elegance and Practicality</h3>
+                <p>
+                    The original 3Blue1Brown construction is remarkable because π emerges from <strong>pure 
+                    collision counting</strong> — no additional computation needed. Most generalizations sacrifice 
+                    this elegance:
+                </p>
+                <ul>
+                    <li><strong>Rescaling required:</strong> Even "equivalent" formulations need coordinate 
+                        transforms to reveal the circular geometry</li>
+                    <li><strong>Non-circular phase spaces:</strong> When shapes or collision geometry break 
+                        symmetry, trajectories deviate from circles/spheres</li>
+                    <li><strong>Extraction complexity:</strong> Getting "first few digits of π" from more 
+                        exotic systems likely requires significant post-processing, not simple counting</li>
+                </ul>
+                <p style="margin-top: 1rem;">
+                    This ongoing exploration is as much about understanding <strong>what doesn't work</strong> 
+                    as what does—mapping the boundaries of where mechanical computation remains elegant.
+                </p>
+            </div>
+        </section>
+
+        <section class="content-section">
+            <h2>Mathematical Details</h2>
+            
+            <h3>The Collision Formula</h3>
+            <p>For elastic collision between blocks with masses m₁ and m₂:</p>
+            <div class="code-block">
+                <pre><code>v₁' = ((m₁ - m₂)v₁ + 2m₂v₂) / (m₁ + m₂)
+v₂' = ((m₂ - m₁)v₂ + 2m₁v₁) / (m₁ + m₂)</code></pre>
+            </div>
+
+            <h3>Phase Space Transform</h3>
+            <p>By scaling velocities as x = √m₁·v₁ and y = √m₂·v₂, the energy equation becomes:</p>
+            <div class="code-block">
+                <pre><code>x² + y² = 2E (constant circle)</code></pre>
+            </div>
+            
+            <p>Each collision reflects the velocity vector across a line at angle θ = arctan(√(m₂/m₁)).</p>
+
+            <h3>Counting Collisions</h3>
+            <p>With mass ratio m₂/m₁ = 100^n, the reflection angle approaches π/2, and the number of 
+            reflections to traverse a quarter circle approaches:</p>
+            <div class="code-block">
+                <pre><code>N ≈ (π/2) / arctan(1/10ⁿ) ≈ π · 10ⁿ</code></pre>
+            </div>
+        </section>
+
+        <!-- Future Directions -->
+        <section class="content-section">
+            <h2>Future Directions</h2>
+            <div class="theory-card">
+                <h3>Exotic Mechanical Encodings</h3>
+                <p>
+                    Ongoing exploration asks how far mechanical computation can be pushed:
+                </p>
+                <ul>
+                    <li><strong>Non-elastic interactions:</strong> What happens with friction or inelastic collisions?</li>
+                    <li><strong>Curved geometries:</strong> Does π emerge on non-Euclidean surfaces?</li>
+                    <li><strong>Quantum extensions:</strong> Wave function dynamics as mechanical computation</li>
+                    <li><strong>Other invariants:</strong> Can e, √2, or other constants be mechanically encoded?</li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="content-section" style="margin-top: 4rem;">
+            <div class="footnote">
+                <strong>Project Status:</strong> This is an experimental/exploratory project investigating 
+                mechanical computation and the emergence of numerical invariants from physical dynamics. 
+                The visualizations shown are from the native Ruby implementation; web port is planned for 
+                future development.
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p><a href="../../index.html" style="color: var(--gold-primary);">← Back to Portfolio</a></p>
+    </footer>
+</body>
+</html>

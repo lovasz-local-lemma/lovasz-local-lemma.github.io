@@ -1,0 +1,1874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ray Tracer in Flatland - Interactive Light Transport Visualization</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <!-- KaTeX for LaTeX rendering -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        :root {
+            --gold: #D4AF37;
+            --gold-light: #F0E68C;
+            --gold-dark: #B8941F;
+            --ruby-red: #CC342D;
+            --ruby-light: #E25555;
+            --ruby-dark: #9B2423;
+            --bg-dark: #0A0A0A;
+            --bg-darker: #050505;
+            --bg-card: #0F0F0F;
+            --text-primary: #E8E8E8;
+            --text-secondary: #A0A0A0;
+            --text-dim: #707070;
+            --spotlight-color: rgba(212, 175, 55, 0.15);
+        }
+
+        body {
+            font-family: 'Source Code Pro', 'Consolas', 'Monaco', monospace;
+            background: var(--bg-darker);
+            color: var(--text-primary);
+            line-height: 1.7;
+            overflow-x: hidden;
+            position: relative;
+            padding-left: 280px;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Playfair Display', Georgia, serif;
+        }
+
+        /* Titles on dark background - stronger glow */
+        .hero-title,
+        .section-title,
+        h1 {
+            text-shadow: 
+                0 0 20px rgba(212, 175, 55, 0.4),
+                0 0 40px rgba(212, 175, 55, 0.2),
+                0 4px 8px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Titles on cards - subtler glow */
+        .card h3,
+        .card h4,
+        .theory-card h3,
+        .info-card h3,
+        .content-card h3 {
+            text-shadow: 
+                0 0 10px rgba(212, 175, 55, 0.25),
+                0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        code, pre, .code-block, .mono {
+            font-family: 'Source Code Pro', 'Consolas', 'Monaco', monospace;
+        }
+
+        .back-button {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            z-index: 1001;
+            background: linear-gradient(135deg, 
+                rgba(15, 15, 32, 0.9) 0%, 
+                rgba(10, 10, 24, 0.85) 100%);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 12px;
+            padding: 0.8rem 1.5rem;
+            color: var(--gold-light);
+            text-decoration: none;
+            font-size: 1rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .back-button:hover {
+            border-color: rgba(212, 175, 55, 0.6);
+            box-shadow: 0 6px 25px rgba(212, 175, 55, 0.25);
+            transform: translateX(-4px);
+            color: var(--gold);
+        }
+
+        .back-button::before {
+            content: '←';
+            font-size: 1.2rem;
+        }
+
+        .language-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, 
+                rgba(212, 175, 55, 0.2) 0%, 
+                rgba(212, 175, 55, 0.1) 100%);
+            border: 1px solid rgba(212, 175, 55, 0.4);
+            border-radius: 8px;
+            padding: 0.4rem 1rem;
+            color: var(--gold-light);
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-left: 1rem;
+            box-shadow: 0 2px 8px rgba(212, 175, 55, 0.15);
+        }
+
+        /* Cinema-inspired animated background with subtle Ruby hints */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(ellipse at 50% 20%, rgba(212, 175, 55, 0.08) 0%, transparent 40%),
+                radial-gradient(ellipse at 20% 80%, rgba(204, 52, 45, 0.04) 0%, transparent 40%),
+                radial-gradient(ellipse at 80% 60%, rgba(212, 175, 55, 0.04) 0%, transparent 40%),
+                radial-gradient(ellipse at 40% 50%, rgba(204, 52, 45, 0.03) 0%, transparent 35%);
+            z-index: -2;
+            animation: ambientPulse 20s ease-in-out infinite;
+        }
+
+        /* Floating light particles */
+        body::after {
+            content: '';
+            position: fixed;
+            top: -100%;
+            left: -100%;
+            width: 300%;
+            height: 300%;
+            background-image: 
+                radial-gradient(2px 2px at 20% 30%, rgba(212, 175, 55, 0.3), transparent),
+                radial-gradient(2px 2px at 60% 70%, rgba(212, 175, 55, 0.25), transparent),
+                radial-gradient(1px 1px at 50% 50%, rgba(212, 175, 55, 0.2), transparent),
+                radial-gradient(1px 1px at 80% 10%, rgba(212, 175, 55, 0.25), transparent),
+                radial-gradient(2px 2px at 90% 60%, rgba(212, 175, 55, 0.2), transparent),
+                radial-gradient(1px 1px at 33% 50%, rgba(212, 175, 55, 0.15), transparent),
+                radial-gradient(1px 1px at 75% 85%, rgba(212, 175, 55, 0.2), transparent);
+            background-size: 200% 200%, 180% 180%, 150% 150%, 220% 220%, 190% 190%, 170% 170%, 160% 160%;
+            background-position: 0% 0%, 50% 50%, 100% 0%, 0% 100%, 50% 0%, 100% 100%, 25% 75%;
+            z-index: -1;
+            animation: particleFloat 120s linear infinite;
+            opacity: 0.4;
+        }
+
+        @keyframes ambientPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        @keyframes particleFloat {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            100% { transform: translate(-33%, -33%) rotate(360deg); }
+        }
+
+        /* Spotlight rays (cinema effect) */
+        .spotlight-rays {
+            position: fixed;
+            top: -50%;
+            left: 50%;
+            width: 120%;
+            height: 120%;
+            transform: translateX(-50%);
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.6;
+        }
+
+        .ray {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 2px;
+            height: 100%;
+            background: linear-gradient(to bottom, 
+                rgba(212, 175, 55, 0.15) 0%, 
+                rgba(212, 175, 55, 0.05) 50%,
+                transparent 100%);
+            transform-origin: top center;
+            animation: rayPulse 8s ease-in-out infinite;
+        }
+
+        .ray:nth-child(1) { transform: translateX(-50%) rotate(-15deg); animation-delay: 0s; }
+        .ray:nth-child(2) { transform: translateX(-50%) rotate(-8deg); animation-delay: 1s; }
+        .ray:nth-child(3) { transform: translateX(-50%) rotate(0deg); animation-delay: 0.5s; }
+        .ray:nth-child(4) { transform: translateX(-50%) rotate(8deg); animation-delay: 1.5s; }
+        .ray:nth-child(5) { transform: translateX(-50%) rotate(15deg); animation-delay: 0.8s; }
+
+        @keyframes rayPulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.6; }
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 60px 40px;
+            position: relative;
+        }
+
+        /* Header - Cinema style */
+        header {
+            text-align: center;
+            padding: 120px 40px 80px;
+            margin-bottom: 80px;
+            position: relative;
+        }
+
+        h1 {
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            margin-bottom: 24px;
+            background: linear-gradient(135deg, 
+                var(--gold) 0%, 
+                var(--gold-light) 40%, 
+                var(--gold) 80%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            background-size: 200% auto;
+            animation: shimmerTitle 6s ease-in-out infinite;
+            position: relative;
+            text-shadow: 0 0 60px rgba(212, 175, 55, 0.3);
+        }
+
+        @keyframes shimmerTitle {
+            0%, 100% { background-position: 0% center; }
+            50% { background-position: 100% center; }
+        }
+
+        .subtitle {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+            letter-spacing: 0.05em;
+            margin-bottom: 16px;
+        }
+
+        .tagline {
+            font-size: 1rem;
+            color: var(--text-dim);
+            font-style: italic;
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.8;
+        }
+
+        /* Section styling */
+        section {
+            margin-bottom: 100px;
+            position: relative;
+        }
+
+        section h2 {
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin-bottom: 40px;
+            color: var(--gold);
+            position: relative;
+            display: inline-block;
+        }
+
+        section h2::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 60%;
+            height: 2px;
+            background: linear-gradient(to right, var(--gold), var(--ruby-red), transparent);
+            animation: expandLine 1s ease-out forwards;
+        }
+
+        /* Ruby gem accent on special sections */
+        .ruby-accent::before {
+            content: '\1F48E';  /* Ruby emoji */
+            position: absolute;
+            top: -10px;
+            right: 20px;
+            font-size: 2rem;
+            opacity: 0.15;
+            animation: gemPulse 4s ease-in-out infinite;
+        }
+
+        @keyframes gemPulse {
+            0%, 100% { 
+                opacity: 0.15;
+                transform: scale(1);
+            }
+            50% { 
+                opacity: 0.25;
+                transform: scale(1.1);
+            }
+        }
+
+        @keyframes expandLine {
+            from { width: 0; }
+            to { width: 60%; }
+        }
+
+        section h3 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin: 48px 0 24px;
+            color: var(--gold-light);
+        }
+
+        /* Theory boxes */
+        .theory-section {
+            background: linear-gradient(135deg, 
+                rgba(212, 175, 55, 0.05) 0%, 
+                rgba(212, 175, 55, 0.02) 100%);
+            border: 1px solid rgba(212, 175, 55, 0.15);
+            border-radius: 16px;
+            padding: 48px;
+            margin-bottom: 48px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .theory-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 200%;
+            height: 2px;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                var(--gold) 50%, 
+                transparent 100%);
+            animation: scanLine 8s linear infinite;
+        }
+
+        @keyframes scanLine {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(50%); }
+        }
+
+        .equation-box {
+            background: rgba(0, 0, 0, 0.4);
+            border-left: 4px solid var(--gold);
+            border-radius: 8px;
+            padding: 32px;
+            margin: 32px 0;
+            font-family: 'JetBrains Mono', monospace;
+            position: relative;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(212, 175, 55, 0.1);
+        }
+
+        .equation-box .label {
+            font-size: 0.9rem;
+            color: var(--gold);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 16px;
+        }
+
+        .equation-box .math {
+            overflow-x: auto;
+            padding: 8px 0;
+        }
+
+        .equation-box .description {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            margin-top: 16px;
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+        }
+
+        /* Video showcase - Cinema style */
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 48px;
+            margin: 48px 0;
+        }
+
+        .video-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(212, 175, 55, 0.12);
+            position: relative;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.6),
+                inset 0 1px 0 rgba(212, 175, 55, 0.05);
+        }
+
+        .video-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 16px;
+            padding: 2px;
+            background: linear-gradient(135deg, 
+                transparent, 
+                rgba(212, 175, 55, 0.3), 
+                transparent);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask-composite: exclude;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .video-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(212, 175, 55, 0.3);
+            box-shadow: 
+                0 16px 48px rgba(212, 175, 55, 0.15),
+                0 0 60px rgba(212, 175, 55, 0.1),
+                inset 0 1px 0 rgba(212, 175, 55, 0.15);
+        }
+
+        .video-card:hover::before {
+            opacity: 1;
+        }
+
+        .video-card video {
+            width: 100%;
+            display: block;
+            background: #000;
+        }
+
+        .video-card .info {
+            padding: 28px;
+        }
+
+        .video-card .info h3 {
+            font-size: 1.4rem;
+            margin: 0 0 12px;
+            color: var(--gold-light);
+        }
+
+        .video-card .info p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+
+        /* Highlight box */
+        .highlight-box {
+            background: linear-gradient(135deg, 
+                rgba(212, 175, 55, 0.1) 0%, 
+                rgba(204, 52, 45, 0.05) 50%,
+                rgba(212, 175, 55, 0.05) 100%);
+            border: 2px solid var(--gold);
+            border-radius: 12px;
+            padding: 36px;
+            margin: 48px 0;
+            position: relative;
+            box-shadow: 
+                0 12px 40px rgba(212, 175, 55, 0.15),
+                0 0 30px rgba(204, 52, 45, 0.08),
+                inset 0 1px 0 rgba(212, 175, 55, 0.2);
+        }
+
+        .highlight-box h3 {
+            margin-top: 0;
+            font-size: 1.6rem;
+        }
+
+        .highlight-box ul {
+            list-style: none;
+            padding: 0;
+            margin: 24px 0;
+        }
+
+        .highlight-box ul li {
+            padding: 12px 0 12px 32px;
+            position: relative;
+            color: var(--text-primary);
+            font-size: 1.05rem;
+        }
+
+        .highlight-box ul li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: var(--gold);
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        /* Technical list */
+        .tech-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin: 32px 0;
+        }
+
+        .tech-item {
+            background: rgba(15, 15, 15, 0.6);
+            border: 1px solid rgba(212, 175, 55, 0.15);
+            border-radius: 12px;
+            padding: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .tech-item:hover {
+            border-color: var(--gold);
+            background: rgba(212, 175, 55, 0.05);
+            transform: translateX(8px);
+        }
+
+        /* Ruby-themed tech items */
+        .tech-item.ruby-tech {
+            border-color: rgba(204, 52, 45, 0.2);
+            background: rgba(204, 52, 45, 0.02);
+        }
+
+        .tech-item.ruby-tech:hover {
+            border-color: var(--ruby-light);
+            background: rgba(204, 52, 45, 0.08);
+            box-shadow: 0 4px 20px rgba(204, 52, 45, 0.15);
+        }
+
+        .tech-item.ruby-tech h4 {
+            color: var(--ruby-light);
+        }
+
+        .tech-item h4 {
+            color: var(--gold-light);
+            font-size: 1.2rem;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .tech-item p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .tech-item p strong {
+            color: var(--ruby-light);
+            font-weight: 600;
+        }
+
+        .tech-item p code {
+            background: rgba(204, 52, 45, 0.1);
+            color: var(--ruby-light);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9em;
+        }
+
+        /* Estimator comparison */
+        .estimator-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 32px;
+            margin: 48px 0;
+        }
+
+        .estimator-card {
+            background: linear-gradient(135deg, 
+                rgba(10, 10, 10, 0.9) 0%, 
+                rgba(15, 15, 15, 0.9) 100%);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 12px;
+            padding: 28px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .estimator-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                var(--gold) 50%, 
+                transparent 100%);
+            transform: translateX(-100%);
+            transition: transform 0.6s ease;
+        }
+
+        .estimator-card:hover::before {
+            transform: translateX(100%);
+        }
+
+        .estimator-card:hover {
+            border-color: var(--gold);
+            box-shadow: 0 8px 32px rgba(212, 175, 55, 0.2);
+        }
+
+        .estimator-card h4 {
+            color: var(--gold);
+            font-size: 1.3rem;
+            margin-bottom: 16px;
+            font-weight: 600;
+        }
+
+        .estimator-card .status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 12px;
+        }
+
+        .estimator-card .status.implemented {
+            background: rgba(76, 175, 80, 0.2);
+            color: #81C784;
+            border: 1px solid rgba(76, 175, 80, 0.3);
+        }
+
+        .estimator-card .status.in-progress {
+            background: rgba(255, 193, 7, 0.2);
+            color: #FFD54F;
+            border: 1px solid rgba(255, 193, 7, 0.3);
+        }
+
+        .estimator-card p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+
+        /* Fixed Navigation Sidebar */
+        nav.side-nav {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 260px;
+            height: 100vh;
+            background: linear-gradient(180deg, rgba(10, 10, 10, 0.98) 0%, rgba(15, 15, 15, 0.98) 100%);
+            border-right: 2px solid rgba(212, 175, 55, 0.2);
+            padding: 40px 20px;
+            overflow-y: auto;
+            box-shadow: 8px 0 32px rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        nav.side-nav h3 {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--gold);
+            font-size: 0.85rem;
+            margin: 0 0 24px 0;
+            text-align: center;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(204, 52, 45, 0.2);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        nav.side-nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        nav.side-nav li {
+            margin-bottom: 4px;
+        }
+
+        nav.side-nav a {
+            display: block;
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            border-left: 2px solid transparent;
+        }
+
+        nav.side-nav a:hover {
+            background: rgba(212, 175, 55, 0.08);
+            color: var(--gold-light);
+            border-left-color: var(--gold);
+            transform: translateX(4px);
+        }
+
+        nav.side-nav a.active {
+            background: linear-gradient(90deg, rgba(204, 52, 45, 0.15), rgba(212, 175, 55, 0.1));
+            color: var(--ruby-light);
+            border-left-color: var(--ruby-red);
+            font-weight: 500;
+            box-shadow: 0 0 12px rgba(204, 52, 45, 0.2);
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 60px 40px;
+            margin-top: 100px;
+            border-top: 1px solid rgba(212, 175, 55, 0.15);
+            color: var(--text-dim);
+            font-size: 0.9rem;
+        }
+
+        /* Hero showcase section */
+        .hero-showcase {
+            margin: 60px 0 80px;
+            text-align: center;
+        }
+
+        .hero-image {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto 24px;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 2px solid rgba(212, 175, 55, 0.2);
+            box-shadow: 
+                0 16px 48px rgba(0, 0, 0, 0.6),
+                0 0 60px rgba(212, 175, 55, 0.1);
+        }
+
+        .hero-image img {
+            width: 100%;
+            display: block;
+        }
+
+        .hero-video {
+            width: 100%;
+            max-width: 1200px;
+            margin: 48px auto 24px;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 2px solid rgba(204, 52, 45, 0.2);
+            box-shadow: 
+                0 16px 48px rgba(0, 0, 0, 0.6),
+                0 0 60px rgba(204, 52, 45, 0.08);
+        }
+
+        .hero-video video {
+            width: 100%;
+            display: block;
+            background: #000;
+        }
+
+        .hero-caption {
+            max-width: 900px;
+            margin: 24px auto;
+            color: var(--text-secondary);
+            font-size: 1.05rem;
+            line-height: 1.8;
+        }
+
+        .hero-caption strong {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .hero-caption em {
+            color: var(--ruby-light);
+            font-style: normal;
+            font-weight: 500;
+        }
+
+        /* Feature showcase grid */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 80px;
+            margin: 60px 0;
+        }
+
+        .feature-item {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 48px;
+            align-items: center;
+        }
+
+        .feature-item:nth-child(even) {
+            direction: rtl;
+        }
+
+        .feature-item:nth-child(even) > * {
+            direction: ltr;
+        }
+
+        .feature-image {
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+            transition: all 0.4s ease;
+        }
+
+        .feature-image:hover {
+            transform: translateY(-8px);
+            box-shadow: 
+                0 20px 48px rgba(212, 175, 55, 0.2),
+                0 0 40px rgba(212, 175, 55, 0.1);
+            border-color: rgba(212, 175, 55, 0.4);
+        }
+
+        .feature-image img {
+            width: 100%;
+            display: block;
+        }
+
+        .feature-content h3 {
+            font-size: 1.8rem;
+            color: var(--gold);
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .feature-content p {
+            color: var(--text-secondary);
+            font-size: 1.05rem;
+            line-height: 1.8;
+            margin-bottom: 16px;
+        }
+
+        .feature-content p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            body {
+                padding-left: 0;
+            }
+
+            nav.side-nav {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .feature-item {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+
+            .feature-item:nth-child(even) {
+                direction: ltr;
+            }
+            .container {
+                padding: 40px 24px;
+            }
+
+            header {
+                padding: 80px 24px 60px;
+            }
+
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            section h2 {
+                font-size: 2rem;
+            }
+
+            .video-grid {
+                grid-template-columns: 1fr;
+                gap: 32px;
+            }
+
+            .theory-section, .equation-box {
+                padding: 28px 20px;
+            }
+
+            .hero-caption {
+                font-size: 1rem;
+                padding: 0 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="../../index.html" class="back-button">Back to Portfolio</a>
+    <!-- Cinema spotlight rays -->
+    <div class="spotlight-rays">
+        <div class="ray"></div>
+        <div class="ray"></div>
+        <div class="ray"></div>
+        <div class="ray"></div>
+        <div class="ray"></div>
+    </div>
+
+    <!-- Side Navigation -->
+    <nav class="side-nav">
+        <h3>💎 Navigation</h3>
+        <ul>
+            <li><a href="#features">Technical Features</a></li>
+            <li><a href="#convergence">MC Convergence</a></li>
+            <li><a href="#materials">Material Diversity</a></li>
+            <li><a href="#theory">Theory & Algorithms</a></li>
+            <li><a href="#efficiency">Algorithm Efficiency</a></li>
+            <li><a href="#videos">Video Demos</a></li>
+            <li><a href="#distinctions">Technical Distinctions</a></li>
+            <li><a href="#estimators">MC Estimators</a></li>
+            <li><a href="#implementation">Implementation</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <header>
+            <h1>Ray Tracer in Flatland <span class="language-badge">Ruby</span></h1>
+            <p class="subtitle">Interactive Visualization of Light Transport Algorithms</p>
+            <p class="tagline">
+                A 2D implementation revealing the mathematical structures and sampling strategies 
+                underlying physically-based rendering—from path integration to BSDF visualization.
+            </p>
+        </header>
+
+        <!-- Hero Showcase -->
+        <div class="hero-showcase">
+            <div class="hero-image">
+                <img src="central.png" alt="Ray Tracer in Flatland - Feature Showcase">
+            </div>
+            <div class="hero-caption">
+                <strong>A comprehensive 2D ray tracing system</strong> that goes far beyond typical educational demos. 
+                Features <em>full participating media</em> with proper transmittance and phase functions, 
+                <em>physically-based BSDFs</em> including dielectrics with Fresnel terms, 
+                <em>bidirectional algorithms</em> (both path and light tracing), 
+                <em>Next Event Estimation</em> for variance reduction, 
+                <em>real-time BSDF/phase function visualization</em>, 
+                and <em>arbitrary camera parameters</em> with thin-lens depth of field. 
+                Most educational implementations stop at simplified path tracing—this one implements 
+                the full mathematical framework used in production renderers.
+            </div>
+
+            <div class="hero-video">
+                <video controls loop>
+                    <source src="central.mp4" type="video/mp4">
+                </video>
+            </div>
+            <div class="hero-caption">
+                <strong>Step-by-step visualization for building intuition.</strong> 
+                Unlike black-box renderers, this system animates every stage of light transport: 
+                ray generation, surface/medium interactions, BSDF sampling, shadow tests, and accumulation. 
+                By breaking down each algorithm into discrete, observable steps, it transforms abstract 
+                mathematical concepts into concrete visual understanding. You can see <em>exactly</em> why 
+                certain paths contribute more than others, why some paths are hard to sample using specific technique, 
+                why certain technique works poorly for certain scenario, how importance sampling shapes the distribution, 
+                and where variance comes from — intuitions that are impossible to develop from final images alone.
+            </div>
+        </div>
+
+        <!-- Feature Showcase -->
+        <section id="features">
+            <h2>Technical Features</h2>
+            
+            <div class="feature-grid">
+                <div class="feature-item">
+                    <div class="feature-image">
+                        <img src="features/Tracing_paths.png" alt="Interactive Path Tracing">
+                    </div>
+                    <div class="feature-content">
+                        <h3>Interactive Path Construction</h3>
+                        <p>
+                            Watch paths being built vertex by vertex with full control over execution. 
+                            Each bounce shows the BSDF/phase function distribution, the sampled direction, 
+                            and the accumulated throughput. Russian Roulette termination is visualized 
+                            with adjustable parameters for minimum bounces and survival probability.
+                        </p>
+                        <p>
+                            <strong>Step through with SPACE</strong>, generate new samples with <strong>R</strong>, 
+                            and observe how different materials and media affect path construction in real-time.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feature-image">
+                        <img src="features/BSDF_phase_function_viewer.png" alt="BSDF and Phase Function Visualization">
+                    </div>
+                    <div class="feature-content">
+                        <h3>BSDF & Phase Function Viewer</h3>
+                        <p>
+                            Click any surface or volume to inspect its scattering properties. The system 
+                            draws the actual probability distribution used for importance sampling—Lambertian 
+                            cosine lobes for diffuse, delta peaks for mirrors, Fresnel-modulated transmission/reflection 
+                            for dielectrics, and Henyey-Greenstein distributions for participating media.
+                        </p>
+                        <p>
+                            This direct visualization reveals the connection between material properties and 
+                            Monte Carlo sampling strategies, making abstract BSDFs tangible and understandable.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feature-image">
+                        <img src="features/Dielectric.png" alt="Dielectric Materials with Fresnel">
+                    </div>
+                    <div class="feature-content">
+                        <h3>Dielectric Materials</h3>
+                        <p>
+                            Proper implementation of refractive materials with Snell's law and Fresnel equations. 
+                            The system handles total internal reflection, automatically switches between 
+                            refraction and reflection based on Fresnel terms, and maintains correct IOR ratios 
+                            when entering/exiting materials.
+                        </p>
+                        <p>
+                            Watch light paths split at dielectric interfaces, with the BSDF viewer showing 
+                            the view-dependent nature of glass: more reflection at grazing angles, more 
+                            transmission when perpendicular.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feature-image">
+                        <img src="features/NEE_for_path_tracer.png" alt="Next Event Estimation for Path Tracing">
+                    </div>
+                    <div class="feature-content">
+                        <h3>Next Event Estimation (Path Tracer)</h3>
+                        <p>
+                            At each path vertex, explicitly sample the light source to estimate direct illumination. 
+                            Shadow rays test visibility, and contributions are weighted by the BSDF and geometric terms. 
+                            This dramatically reduces variance compared to naive path tracing, especially for small light sources.
+                        </p>
+                        <p>
+                            The visualization shows both the random walk <em>and</em> the explicit light connections, 
+                            making it clear why NEE is essential for efficient rendering when lights are hard to hit randomly.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feature-image">
+                        <img src="features/Light_Tracer.png" alt="Light Tracing Algorithm">
+                    </div>
+                    <div class="feature-content">
+                        <h3>Light Tracing (Bidirectional)</h3>
+                        <p>
+                            Dual to path tracing: originate rays from light sources and connect to the camera sensor. 
+                            This algorithm excels when the camera is easy to hit but lights are difficult to reach 
+                            from the camera (e.g., caustics through refractive objects, small apertures).
+                        </p>
+                        <p>
+                            Light tracing demonstrates the <strong>reciprocity</strong> of light transport: 
+                            paths are valid in both directions. The efficiency depends on sensor visibility 
+                            and aperture size—larger apertures make sensor connections easier.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feature-image">
+                        <img src="features/NEE_for_Light_Tracer.png" alt="Next Event Estimation for Light Tracing">
+                    </div>
+                    <div class="feature-content">
+                        <h3>Next Event Estimation (Light Tracer)</h3>
+                        <p>
+                            Just as path tracing benefits from explicit light sampling, light tracing benefits 
+                            from explicit <em>sensor</em> sampling. At each scattering event, attempt a direct 
+                            connection to the camera by sampling points on the sensor and testing if the ray 
+                            passes through the aperture.
+                        </p>
+                        <p>
+                            This is particularly powerful for scenes with large light sources but challenging 
+                            sensor visibility—the exact opposite case where path tracing with NEE excels.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feature-image">
+                        <img src="features/Pinhole_Mode.png" alt="Camera Models: Pinhole and Thin-Lens">
+                    </div>
+                    <div class="feature-content">
+                        <h3>Camera Models & Depth of Field</h3>
+                        <p>
+                            Adjustable thin-lens camera with arbitrary sensor width and aperture radius. 
+                            Pinhole mode (zero aperture) provides infinite depth of field, while larger 
+                            apertures create focal blur. The system visualizes <strong>lens sampling</strong>: 
+                            rays from a pixel must pass through a random point on the aperture disk.
+                        </p>
+                        <p>
+                            This is rarely seen in educational demos—most use fixed pinhole cameras. Here, 
+                            you can continuously adjust parameters and observe how aperture size affects 
+                            both visual appearance and algorithmic efficiency (especially for light tracing).
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Monte Carlo Convergence & Sensor Inspector -->
+        <section id="convergence">
+            <h2>Monte Carlo Convergence Visualization</h2>
+            
+            <div class="theory-section">
+                <h3>From Noise to Smooth Estimation</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 32px;">
+                    Monte Carlo path tracing is an <strong>unbiased estimator</strong>: with infinite samples, 
+                    it converges to the correct solution. But in practice, we work with finite samples, and the 
+                    visualization makes this convergence process explicit and observable.
+                </p>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin: 32px 0;">
+                    <div style="text-align: center;">
+                        <img src="sensor/less.png" alt="Few samples - noisy image" style="width: 100%; border-radius: 8px; border: 1px solid rgba(212, 175, 55, 0.2);">
+                        <p style="margin-top: 12px; color: var(--text-secondary); font-size: 0.95rem;">
+                            <strong>Few samples:</strong> High variance, noisy estimate
+                        </p>
+                    </div>
+                    <div style="text-align: center;">
+                        <img src="sensor/more.png" alt="Many samples - smooth image" style="width: 100%; border-radius: 8px; border: 1px solid rgba(212, 175, 55, 0.2);">
+                        <p style="margin-top: 12px; color: var(--text-secondary); font-size: 0.95rem;">
+                            <strong>Many samples:</strong> Variance decreases as O(1/√N)
+                        </p>
+                    </div>
+                </div>
+
+                <div class="highlight-box" style="margin: 32px 0;">
+                    <h3 style="margin-top: 0;">Path Color Evolution</h3>
+                    <p>
+                        <strong>Paths start white</strong> and accumulate color as they interact with surfaces and media. 
+                        Each interaction multiplies the path's throughput by the BSDF or phase function value and the 
+                        surface/medium color. This <em>throughput accumulation</em> is the physical basis of light transport: 
+                        energy is absorbed and scattered at each bounce.
+                    </p>
+                    <p style="margin-top: 12px;">
+                        Watch paths gradually shift from white → colored as they bounce through the scene. A path 
+                        hitting a red surface becomes red-tinted, then if it bounces off a blue surface, becomes purple. 
+                        This multiplicative color mixing reveals how light carries information about every surface it touches.
+                    </p>
+                </div>
+
+                <div class="highlight-box" style="margin: 32px 0;">
+                    <h3 style="margin-top: 0;">Sensor Inspector: Per-Pixel Path History</h3>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin: 24px 0; align-items: center;">
+                        <div>
+                            <video controls loop style="width: 100%; border-radius: 8px; border: 1px solid rgba(204, 52, 45, 0.2);">
+                                <source src="sensor_inspector.mp4" type="video/mp4">
+                            </video>
+                        </div>
+                        <div>
+                            <p style="color: var(--text-secondary); margin-bottom: 16px;">
+                                <strong>Click any pixel to inspect its sample history.</strong> The sensor inspector 
+                                shows every path contribution that hit that pixel—not just the final average, but the 
+                                individual random samples.
+                            </p>
+                            <p style="color: var(--text-secondary);">
+                                Watch new samples accumulate in real-time. Each path contributes a different radiance 
+                                value (some bright, some dim, some zero). The displayed pixel color is the <strong>average 
+                                over all samples</strong>—the Monte Carlo estimator in action. As more samples arrive, 
+                                the variance decreases and the estimate stabilizes.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin: 32px 0;">
+                        <div style="text-align: center;">
+                            <img src="sensor/less_sensor.png" alt="Sensor inspector with few samples" style="width: 100%; border-radius: 8px; border: 1px solid rgba(212, 175, 55, 0.2);">
+                            <p style="margin-top: 12px; color: var(--text-secondary); font-size: 0.95rem;">
+                                <strong>Early stage:</strong> Sparse samples, high variance per pixel
+                            </p>
+                        </div>
+                        <div style="text-align: center;">
+                            <img src="sensor/more_sensor.png" alt="Sensor inspector with many samples" style="width: 100%; border-radius: 8px; border: 1px solid rgba(212, 175, 55, 0.2);">
+                            <p style="margin-top: 12px; color: var(--text-secondary); font-size: 0.95rem;">
+                                <strong>Converged:</strong> Dense sample history, stable average
+                            </p>
+                        </div>
+                    </div>
+
+                    <p style="margin-top: 16px; color: var(--ruby-light);">
+                        <strong>Pedagogical insight:</strong> Most renderers only show the final image. Here, you can 
+                        see the <em>raw Monte Carlo samples</em> that produce it—understanding that pixel values aren't 
+                        "computed" but rather <em>estimated statistically</em> through random sampling.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Material & Phase Function Variety -->
+        <section id="materials">
+            <h2>Material & Phase Function Diversity</h2>
+            
+            <div class="theory-section">
+                <h3>Beyond Simple Diffuse: A Production Material Library</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 24px;">
+                    While the final rendered image is 1D (a line of pixels), the <strong>material interactions are 
+                    fully 2D</strong> with rich BSDF and phase function implementations. This diversity is crucial for 
+                    understanding how different scattering behaviors affect light transport algorithms.
+                </p>
+
+                <div class="highlight-box" style="margin: 32px 0;">
+                    <h3 style="margin-top: 0;">Incoming-Direction Dependence</h3>
+                    <p>
+                        A critical material property: <strong>does the outgoing distribution change based on where 
+                        light came from?</strong> This distinction profoundly affects both physical appearance and 
+                        algorithmic complexity.
+                    </p>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin: 24px 0;">
+                        <div>
+                            <h4 style="color: var(--gold); margin-bottom: 12px;">📍 Incoming-Independent</h4>
+                            <p style="color: var(--text-secondary); font-size: 0.95rem;">
+                                <strong>Diffuse (Lambertian):</strong> Outgoing distribution is always a cosine lobe 
+                                around the normal, regardless of incoming direction. Click a diffuse surface from any 
+                                angle—the BSDF viewer shows the same pattern.
+                            </p>
+                            <img src="BSDF_phase/diffuse.png" alt="Diffuse BSDF" style="width: 50%; margin-top: 12px; border-radius: 6px; border: 1px solid rgba(212, 175, 55, 0.2);">
+                        </div>
+                        <div>
+                            <h4 style="color: var(--ruby-light); margin-bottom: 12px;">🔄 Incoming-Dependent</h4>
+                            <p style="color: var(--text-secondary); font-size: 0.95rem;">
+                                <strong>Mirrors, Glass, Glossy, Microfacets:</strong> Outgoing distribution rotates 
+                                and changes shape based on view direction. The BSDF viewer updates dynamically as you 
+                                change the incoming ray angle—revealing view-dependent reflections and refractions.
+                            </p>
+                            <img src="BSDF_phase/glass.png" alt="Glass BSDF with Fresnel" style="width: 50%; margin-top: 12px; border-radius: 6px; border: 1px solid rgba(212, 175, 55, 0.2);">
+                        </div>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 48px;">Implemented Material Types</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 24px; margin: 32px 0;">
+                    <div style="text-align: center;">
+                            <img src="BSDF_phase/specular.png" alt="Specular/Mirror" style="max-width: 180px; width: 100%; border-radius: 6px; border: 1px solid rgba(212, 175, 55, 0.2);">
+                        <h4 style="margin-top: 12px; color: var(--gold); font-size: 1rem;">Perfect Specular</h4>
+                        <p style="color: var(--text-secondary); font-size: 0.85rem;">Delta BSDF, mirror reflection</p>
+                    </div>
+                    <div style="text-align: center;">
+                            <img src="BSDF_phase/glossy.png" alt="Glossy/Phong" style="max-width: 180px; width: 100%; border-radius: 6px; border: 1px solid rgba(212, 175, 55, 0.2);">
+                        <h4 style="margin-top: 12px; color: var(--gold); font-size: 1rem;">Glossy (Phong)</h4>
+                        <p style="color: var(--text-secondary); font-size: 0.85rem;">Diffuse + specular lobe</p>
+                    </div>
+                    <div style="text-align: center;">
+                            <img src="BSDF_phase/microfacet.png" alt="Microfacet/GGX" style="max-width: 180px; width: 100%; border-radius: 6px; border: 1px solid rgba(212, 175, 55, 0.2);">
+                        <h4 style="margin-top: 12px; color: var(--gold); font-size: 1rem;">Microfacet (GGX)</h4>
+                        <p style="color: var(--text-secondary); font-size: 0.85rem;">Physically-based roughness</p>
+                    </div>
+                    <div style="text-align: center;">
+                            <img src="BSDF_phase/multi_lobe.png" alt="Multi-lobe coated" style="max-width: 180px; width: 100%; border-radius: 6px; border: 1px solid rgba(212, 175, 55, 0.2);">
+                        <h4 style="margin-top: 12px; color: var(--gold); font-size: 1rem;">Coated Diffuse</h4>
+                        <p style="color: var(--text-secondary); font-size: 0.85rem;">Two-lobe material (paint-like)</p>
+                    </div>
+                    <div style="text-align: center;">
+                            <img src="BSDF_phase/media.png" alt="Participating media phase function" style="max-width: 180px; width: 100%; border-radius: 6px; border: 1px solid rgba(204, 52, 45, 0.2);">
+                        <h4 style="margin-top: 12px; color: var(--ruby-light); font-size: 1rem;">Phase Function</h4>
+                        <p style="color: var(--text-secondary); font-size: 0.85rem;">Henyey-Greenstein for volumes</p>
+                    </div>
+                </div>
+
+                <div class="highlight-box" style="margin: 32px 0;">
+                    <h3 style="margin-top: 0;">Complete Material List (10+ Types)</h3>
+                    <ul style="columns: 2; column-gap: 32px; color: var(--text-secondary);">
+                        <li style="margin-bottom: 8px;"><strong>Diffuse</strong> – Lambertian, incoming-independent</li>
+                        <li style="margin-bottom: 8px;"><strong>Mirror</strong> – Perfect specular reflection</li>
+                        <li style="margin-bottom: 8px;"><strong>Glass</strong> – Dielectric with Fresnel & Snell's law</li>
+                        <li style="margin-bottom: 8px;"><strong>Glossy</strong> – Phong model (diffuse + specular)</li>
+                        <li style="margin-bottom: 8px;"><strong>Microfacet</strong> – GGX/Trowbridge-Reitz NDF</li>
+                        <li style="margin-bottom: 8px;"><strong>Anisotropic</strong> – Directional roughness (brushed metal)</li>
+                        <li style="margin-bottom: 8px;"><strong>Coated Diffuse</strong> – Two-lobe BSDF (clear coat)</li>
+                        <li style="margin-bottom: 8px;"><strong>Retroreflective</strong> – Back-scattering (road signs)</li>
+                        <li style="margin-bottom: 8px;"><strong>Emissive</strong> – Light sources with directionality</li>
+                        <li style="margin-bottom: 8px;"><strong>Participating Media</strong> – Henyey-Greenstein phase function</li>
+                    </ul>
+                </div>
+
+                <div class="highlight-box" style="margin: 32px 0;">
+                    <h3 style="margin-top: 0;">Why Material Variety Matters (Even in 2D)</h3>
+                    <p>
+                        The final render is a 1D image, so visually it's <strong>hard to distinguish</strong> between 
+                        a glossy lobe and a microfacet BSDF. But that's precisely why this demo is valuable: it reveals 
+                        the <em>underlying scattering behavior</em> that you can't see in the final pixels.
+                    </p>
+                    <p style="margin-top: 12px;">
+                        <strong>Educational goal:</strong> Understand that materials aren't defined by their appearance, 
+                        but by their <em>scattering distributions</em>. A Phong lobe and GGX lobe might produce similar 
+                        1D renders, but their BSDF shapes are different—and that difference affects importance sampling 
+                        efficiency, variance, and convergence rates.
+                    </p>
+                    <p style="margin-top: 12px; color: var(--ruby-light);">
+                        By implementing a production-grade material library, this demo shows that physically-based 
+                        rendering isn't about pretty pictures—it's about <strong>mathematically correct scattering 
+                        models</strong> that respect energy conservation, reciprocity, and Helmholtz reciprocity.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Core Theory Section -->
+        <section id="theory">
+            <h2>Theoretical Foundation & Algorithms</h2>
+            
+            <div class="theory-section">
+                <h3>The Rendering Equation</h3>
+                <div class="equation-box">
+                    <div class="label">Surface Radiance Transport</div>
+                    <div class="math">
+                        $$L_o(\mathbf{x}, \omega_o) = L_e(\mathbf{x}, \omega_o) + \int_{\Omega} f_r(\mathbf{x}, \omega_i, \omega_o) \, L_i(\mathbf{x}, \omega_i) \, (\omega_i \cdot \mathbf{n}) \, d\omega_i$$
+                    </div>
+                    <div class="description">
+                        The rendering equation describes how light reflects from surfaces: 
+                        outgoing radiance equals emitted light plus the integral of incoming radiance 
+                        weighted by the BSDF and cosine term over all incident directions.
+                    </div>
+                </div>
+
+                <h3>The Radiative Transfer Equation</h3>
+                <div class="equation-box">
+                    <div class="label">Volumetric Radiance Transport</div>
+                    <div class="math">
+                        $$(\omega \cdot \nabla) L(\mathbf{x}, \omega) = -\sigma_t(\mathbf{x}) L(\mathbf{x}, \omega) + \sigma_s(\mathbf{x}) \int_{S^2} f_p(\omega' \to \omega) L(\mathbf{x}, \omega') \, d\omega' + Q(\mathbf{x}, \omega)$$
+                    </div>
+                    <div class="description">
+                        The RTE governs light transport through participating media (fog, smoke, clouds). 
+                        It accounts for absorption (σₜ), in-scattering from all directions weighted by 
+                        the phase function (fₚ), and volumetric emission (Q).
+                    </div>
+                </div>
+
+                <h3>Path Tracing</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 24px;">
+                    Path tracing traces rays from the camera through each pixel, building light paths by 
+                    randomly sampling BSDF directions at surface interactions. At each bounce, the path 
+                    can terminate (Russian roulette) or continue, accumulating radiance contributions. 
+                    <strong>Next Event Estimation (NEE)</strong> explicitly samples light sources at each 
+                    vertex to reduce variance for direct illumination.
+                </p>
+
+                <h3>Light Tracing</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 24px;">
+                    Light tracing inverts the process: rays originate from light sources and trace 
+                    outward, connecting to the camera via lens sampling. This approach excels when 
+                    illumination is dominated by small, bright sources or caustics. Like path tracing, 
+                    it benefits from <strong>NEE</strong> by explicitly connecting to the sensor.
+                </p>
+
+                <h3>Participating Media</h3>
+                <p style="color: var(--text-secondary);">
+                    Within volumes, rays undergo scattering events sampled according to the medium's 
+                    extinction coefficient (σₜ). At each interaction, the phase function determines 
+                    the new direction. Volume rendering requires careful handling of transmittance 
+                    and multiple scattering events to capture phenomena like fog, subsurface scattering, 
+                    and volumetric caustics.
+                </p>
+            </div>
+        </section>
+
+        <!-- Algorithm Efficiency & Video Demonstrations -->
+        <section id="efficiency">
+            <h2>Algorithm Efficiency Analysis</h2>
+            
+            <div class="theory-section">
+                <h3>Understanding Algorithmic Trade-offs</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 24px;">
+                    The efficiency of rendering algorithms is highly scene-dependent. There is no universally 
+                    "best" algorithm—each excels under different conditions based on the geometry of light transport.
+                </p>
+
+                <div class="highlight-box" style="margin: 32px 0;">
+                    <h3 style="margin-top: 0;">Path Tracing Efficiency</h3>
+                    <p>
+                        <strong>Challenge:</strong> When light sources are small, randomly hitting them is difficult. 
+                        Paths that fail to reach the light contribute zero, leading to high variance and slow convergence.
+                    </p>
+                    <p style="margin-top: 12px;">
+                        <strong>Solution:</strong> <em>Next Event Estimation (NEE)</em> explicitly samples the light 
+                        at each vertex. Instead of hoping to randomly hit the light, we deterministically test 
+                        visibility with shadow rays. This dramatically improves efficiency—but only when the shadow 
+                        rays aren't blocked. In scenes with heavy occlusion, many paths still contribute zero.
+                    </p>
+                </div>
+
+                <div class="highlight-box" style="margin: 32px 0;">
+                    <h3 style="margin-top: 0;">Light Tracing Efficiency</h3>
+                    <p>
+                        <strong>Challenge:</strong> Light must pass through the camera aperture <em>and</em> hit the 
+                        sensor to register a contribution. The efficiency depends directly on aperture size: larger 
+                        apertures are easier to hit, while tiny apertures (approaching pinhole) make connections 
+                        vanishingly rare.
+                    </p>
+                    <p style="margin-top: 12px;">
+                        <strong>Solution:</strong> <em>Next Event Estimation for the sensor</em>—explicitly sample 
+                        the camera at each vertex. Test if a ray from the scattering point passes through the aperture 
+                        and hits the sensor. This is the dual of light sampling in path tracing.
+                    </p>
+                    <p style="margin-top: 12px; color: var(--ruby-light);">
+                        <strong>Key insight:</strong> Light tracing with large apertures can be more efficient than 
+                        path tracing when lights are large but finding them from the camera is hard (e.g., behind 
+                        refractive caustics).
+                    </p>
+                </div>
+
+                <div class="highlight-box" style="margin: 32px 0;">
+                    <h3 style="margin-top: 0;">NEE Limitations</h3>
+                    <p>
+                        Next Event Estimation is not a panacea. While it eliminates the randomness of hitting 
+                        lights/sensors, it introduces a new problem: <strong>occlusion</strong>. Every explicit 
+                        connection requires a visibility test—if there's an occluder in the way, the contribution 
+                        is zero.
+                    </p>
+                    <p style="margin-top: 12px;">
+                        In scenes with complex geometry and many occluders, a significant fraction of shadow rays 
+                        are blocked, leading to wasted computation. The optimal strategy often involves combining 
+                        multiple techniques (e.g., BDPT, which builds paths from both ends and connects all pairs).
+                    </p>
+                </div>
+            </div>
+
+            <h3 id="videos" style="margin-top: 48px; margin-bottom: 32px;">Video Demonstrations</h3>
+            
+            <div class="video-grid">
+                <div class="video-card">
+                    <video controls loop>
+                        <source src="Overview.mp4" type="video/mp4">
+                    </video>
+                    <div class="info">
+                        <h3>System Overview</h3>
+                        <p>
+                            Real-time visualization of light paths, surface interactions, and BSDF sampling. 
+                            The interface allows arbitrary modification of camera parameters (sensor width, 
+                            aperture size) and switching between rendering algorithms on the fly.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="video-card">
+                    <video controls loop>
+                        <source src="change_aperture.mp4" type="video/mp4">
+                    </video>
+                    <div class="info">
+                        <h3>Dynamic Aperture Control</h3>
+                        <p>
+                            Interactive aperture adjustment demonstrates depth of field effects in real-time. 
+                            Larger apertures produce shallower depth of field with visible lens sampling, 
+                            while smaller apertures approach pinhole behavior with extended focus.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="video-card">
+                    <video controls loop>
+                        <source src="NEE.mp4" type="video/mp4">
+                    </video>
+                    <div class="info">
+                        <h3>Path Tracing with NEE</h3>
+                        <p>
+                            Path tracing enhanced with Next Event Estimation: at each surface interaction, 
+                            shadow rays explicitly sample the light source, significantly reducing variance 
+                            for direct illumination. Most effective when lights are small but visible from 
+                            most surface points.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="video-card">
+                    <video controls loop>
+                        <source src="light_tracer_large_aperture.mp4" type="video/mp4">
+                    </video>
+                    <div class="info">
+                        <h3>Light Tracing - Large Aperture</h3>
+                        <p>
+                            <strong>Large apertures make light tracing efficient:</strong> rays from the light have 
+                            a good chance of passing through the aperture and hitting the sensor. The wider opening 
+                            increases the geometric probability of successful connections, leading to faster convergence 
+                            than path tracing when lights are hard to sample from the camera.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="video-card">
+                    <video controls loop>
+                        <source src="light_tracer_small_aperture.mp4" type="video/mp4">
+                    </video>
+                    <div class="info">
+                        <h3>Light Tracing - Small Aperture</h3>
+                        <p>
+                            <strong>Small apertures challenge light tracing:</strong> the tiny opening is difficult 
+                            to hit from random light paths. Most rays miss the aperture entirely, contributing zero. 
+                            This demonstrates why aperture size is critical to light tracing efficiency—pinhole 
+                            cameras make this algorithm impractical without NEE.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="video-card">
+                    <video controls loop>
+                        <source src="light_tracer_NEE.mp4" type="video/mp4">
+                    </video>
+                    <div class="info">
+                        <h3>Light Tracing with NEE</h3>
+                        <p>
+                            Light tracing combined with Next Event Estimation for the sensor: explicitly sample 
+                            the camera at each vertex, testing if rays pass through the aperture. This eliminates 
+                            the randomness of hitting the sensor, making light tracing practical even with small 
+                            apertures—though occlusion can still limit efficiency.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- What Makes This Different -->
+        <section id="distinctions">
+            <h2>Technical Distinctions</h2>
+            
+            <div class="highlight-box ruby-accent">
+                <h3>Beyond Traditional Educational Demos</h3>
+                <p style="margin-bottom: 20px; color: var(--text-primary);">
+                    Most ray tracing visualizations focus on final rendered images. This implementation 
+                    exposes the underlying mathematical machinery in ways typically reserved for 
+                    production rendering systems:
+                </p>
+                <ul>
+                    <li><strong>Real-time BSDF visualization:</strong> Click any surface to view its bidirectional scattering distribution function. The system draws the actual probability distribution used for importance sampling, revealing the connection between material properties and Monte Carlo sampling strategies.</li>
+                    
+                    <li><strong>Interactive sampling visualization:</strong> Every surface and medium interaction displays the outgoing direction distribution based on the BSDF or phase function. This makes importance sampling—often an abstract concept—immediately tangible.</li>
+                    
+                    <li><strong>Arbitrary camera parameters:</strong> Unlike fixed-lens demonstrations, this allows continuous modification of sensor dimensions and aperture size, revealing how camera design affects sampling patterns and depth of field.</li>
+                    
+                    <li><strong>Algorithm switching without scene reload:</strong> Toggle between path tracing, light tracing, and NEE variants instantly, comparing convergence characteristics and sampling patterns in real-time.</li>
+                    
+                    <li><strong>Full participating media support:</strong> Volume rendering with proper transmittance evaluation, multiple scattering, and phase function sampling—typically omitted from 2D demonstrations due to complexity.</li>
+                    
+                    <li><strong>Production-quality path construction:</strong> Implements the same mathematical framework used in professional renderers (Veach's path integral formulation), just reduced to 2D for pedagogical clarity.</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Monte Carlo Estimators -->
+        <section id="estimators">
+            <h2>Monte Carlo Estimators</h2>
+            <h3>More on the way</h3>
+            
+            <div class="estimator-grid">
+                <div class="estimator-card">
+                    <h4>Path Tracing</h4>
+                    <span class="status implemented">Implemented</span>
+                    <p>
+                        Unidirectional sampling from camera: traces random walks through the scene, 
+                        building light paths vertex by vertex via BSDF importance sampling.
+                    </p>
+                </div>
+
+                <div class="estimator-card">
+                    <h4>Light Tracing</h4>
+                    <span class="status implemented">Implemented</span>
+                    <p>
+                        Dual to path tracing: originates paths from light sources and connects to the 
+                        sensor, efficient for scenes with difficult indirect visibility.
+                    </p>
+                </div>
+
+                <div class="estimator-card">
+                    <h4>Next Event Estimation</h4>
+                    <span class="status implemented">Implemented</span>
+                    <p>
+                        Explicit light sampling at each path vertex: drastically reduces variance for 
+                        direct illumination by replacing random walks with deterministic connections.
+                    </p>
+                </div>
+
+                <div class="estimator-card">
+                    <h4>Bidirectional Path Tracing</h4>
+                    <span class="status in-progress">In Progress</span>
+                    <p>
+                        Constructs paths from both camera and light, connecting all possible vertex pairs. 
+                        Combines strengths of PT and LT via Multiple Importance Sampling (MIS).
+                    </p>
+                </div>
+
+                <div class="estimator-card">
+                    <h4>Photon Mapping</h4>
+                    <span class="status in-progress">In Progress</span>
+                    <p>
+                        Two-pass algorithm: photons traced from lights build a spatial data structure, 
+                        then camera rays query nearby photons for indirect illumination estimates.
+                    </p>
+                </div>
+
+                <div class="estimator-card">
+                    <h4>Vertex Connection & Merging</h4>
+                    <span class="status in-progress">In Progress</span>
+                    <p>
+                        Unified framework combining BDPT and photon mapping: connects path vertices 
+                        (BDPT) and merges nearby vertices in path space (progressive photon mapping).
+                    </p>
+                </div>
+
+                <div class="estimator-card">
+                    <h4>Metropolis Light Transport</h4>
+                    <span class="status in-progress">In Progress</span>
+                    <p>
+                        Markov Chain Monte Carlo approach: mutates successful light paths to explore 
+                        nearby paths in path space, concentrating samples where light transport is significant.
+                    </p>
+                </div>
+
+                <div class="estimator-card" style="border: 2px solid rgba(204, 52, 45, 0.3);">
+                    <h4>Photon Primitives 💎</h4>
+                    <span class="status in-progress">In Progress</span>
+                    <p>
+                        Unbiased photon mapping with progressive refinement using <strong>1D primitives</strong> 
+                        instead of point photons.                    
+                    <span style="margin-top: 12px; color: var(--ruby-light);">
+                        <!-- <strong>Why this makes sense:</strong>  -->
+                        Point photons in 2D have zero measure (like in 3D), 
+                        but a line segment has measure 1. This is both <em>intuitive</em> (sweeping a 1D primitive 
+                        through 2D space) and <em>inspirational</em>. 
+                    </span>
+                    </p>
+                    
+                </div>
+            </div>
+        </section>
+
+        <!-- Technical Implementation -->
+        <section id="implementation">
+            <h2>Implementation Details</h2>
+            
+            <div class="tech-list">
+                <div class="tech-item ruby-tech">
+                    <h4>💎 Language & Platform</h4>
+                    <p>
+                        Implemented in <strong>Ruby</strong> using <code>raylib-bindings</code> for graphics. 
+                        Leverages Ruby's expressiveness for clean algorithm implementations while maintaining 
+                        real-time interactivity through efficient C bindings.
+                    </p>
+                </div>
+
+                <div class="tech-item">
+                    <h4>Sampling Framework</h4>
+                    <p>
+                        Implements importance sampling for BSDFs, area lights, and phase functions. 
+                        Proper Multiple Importance Sampling (MIS) with balance heuristic for combining strategies.
+                    </p>
+                </div>
+
+                <div class="tech-item">
+                    <h4>Camera Model</h4>
+                    <p>
+                        Thin-lens camera with adjustable aperture and sensor width. Supports arbitrary 
+                        focal distances and lens sampling for depth of field effects.
+                    </p>
+                </div>
+
+                <div class="tech-item">
+                    <h4>Material System</h4>
+                    <p>
+                        Supports diffuse, specular, glossy, and dielectric BSDFs with Fresnel terms. 
+                        Each material provides PDF evaluation and importance sampling routines.
+                    </p>
+                </div>
+
+                <div class="tech-item">
+                    <h4>Participating Media</h4>
+                    <p>
+                        Homogeneous and heterogeneous media with proper transmittance evaluation. 
+                        Implements delta tracking for unbiased distance sampling in participating media.
+                    </p>
+                </div>
+
+                <div class="tech-item">
+                    <h4>Visualization Engine</h4>
+                    <p>
+                        Real-time overlay system using Raylib's immediate-mode API. Draws probability 
+                        distributions, ray paths, and BSDF lobes with interactive selection for per-object 
+                        property inspection. Step-through animation for pedagogical clarity.
+                    </p>
+                </div>
+
+                <div class="tech-item ruby-tech">
+                    <h4>💎 Interactive Controls</h4>
+                    <p>
+                        Keyboard-driven interface with step-by-step execution: SPACE to advance paths, 
+                        R for new samples, adjustable Russian Roulette parameters, and real-time algorithm 
+                        switching. Emphasizes understanding over raw speed.
+                    </p>
+                </div>
+
+                <div class="tech-item ruby-tech">
+                    <h4>💎 Scene System</h4>
+                    <p>
+                        Modular scene definitions with 8+ presets: Cornell box, caustics, multi-light RGB, 
+                        ball arrays, and laser shows. Each scene demonstrates different light transport 
+                        phenomena and algorithm strengths.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <p>
+                Ray Tracer in Flatland—an educational exploration of light transport algorithms 
+                through interactive 2D visualization. 💎 Implemented in Ruby.
+            </p>
+            <p style="margin-top: 12px; font-size: 0.85rem;">
+                Theoretical foundations based on Veach's thesis on robust Monte Carlo methods 
+                and Kajiya's rendering equation formulation.
+            </p>
+            <p style="margin-top: 8px; font-size: 0.85rem; color: var(--ruby-light);">
+                Step-by-step visualization prioritizes understanding over raw speed—making 
+                the mathematics of light transport transparent and interactive.
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        // Initialize KaTeX rendering
+        document.addEventListener("DOMContentLoaded", function() {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: "$$", right: "$$", display: true},
+                    {left: "$", right: "$", display: false}
+                ],
+                throwOnError: false,
+                trust: true
+            });
+        });
+
+        // Section visibility and animation handler
+        const sections = document.querySelectorAll('section[id]');
+        const navLinks = document.querySelectorAll('nav.side-nav a');
+        const animatedElements = document.querySelectorAll('section, .video-card, .tech-item, .estimator-card');
+        
+        // Initialize all elements as invisible
+        animatedElements.forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(30px)';
+            el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        });
+
+        // Intersection Observer for scroll-based animations
+        const observerOptions = {
+            threshold: 0.15,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                } else {
+                    // Fade out when scrolling away
+                    const rect = entry.target.getBoundingClientRect();
+                    if (rect.top < 0) { // Scrolled past
+                        entry.target.style.opacity = '0.3';
+                        entry.target.style.transform = 'translateY(-20px)';
+                    }
+                }
+            });
+        }, observerOptions);
+
+        animatedElements.forEach(el => observer.observe(el));
+
+        // Active navigation highlighting
+        const highlightNav = () => {
+            let current = '';
+            let minDistance = Infinity;
+            
+            sections.forEach(section => {
+                const rect = section.getBoundingClientRect();
+                const distance = Math.abs(rect.top - 100);
+                
+                if (rect.top <= 300 && distance < minDistance) {
+                    minDistance = distance;
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                const href = link.getAttribute('href');
+                if (href === `#${current}`) {
+                    link.classList.add('active');
+                }
+            });
+        };
+
+        // Smooth scroll with animation trigger on navigation click
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').substring(1);
+                const targetSection = document.getElementById(targetId);
+                
+                if (targetSection) {
+                    // Fade out current sections
+                    sections.forEach(section => {
+                        if (section !== targetSection) {
+                            section.style.opacity = '0.3';
+                            section.style.transform = 'translateY(-20px)';
+                        }
+                    });
+                    
+                    // Scroll to target
+                    targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    
+                    // Trigger fade-in for target section after scroll starts
+                    setTimeout(() => {
+                        targetSection.style.opacity = '1';
+                        targetSection.style.transform = 'translateY(0)';
+                        
+                        // Also animate child elements
+                        const children = targetSection.querySelectorAll('.video-card, .tech-item, .estimator-card');
+                        children.forEach((child, idx) => {
+                            setTimeout(() => {
+                                child.style.opacity = '1';
+                                child.style.transform = 'translateY(0)';
+                            }, idx * 100);
+                        });
+                    }, 300);
+                }
+            });
+        });
+
+        // Update on scroll
+        let scrollTimeout;
+        window.addEventListener('scroll', () => {
+            highlightNav();
+            
+            // Re-trigger animations after manual scroll stops
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(() => {
+                animatedElements.forEach(el => {
+                    const rect = el.getBoundingClientRect();
+                    if (rect.top >= -100 && rect.top <= window.innerHeight - 100) {
+                        el.style.opacity = '1';
+                        el.style.transform = 'translateY(0)';
+                    }
+                });
+            }, 150);
+        });
+
+        highlightNav(); // Initial call
+    </script>
+</body>
+</html>

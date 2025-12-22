@@ -1,0 +1,1762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio - Technical Projects & Visualizations</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:wght@300;400;600;700&family=Crimson+Text:wght@400;600;700&family=EB+Garamond:wght@400;600;700&family=Italiana&family=Libre+Baskerville:wght@400;700&family=Lora:wght@400;600;700&family=Marcellus&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Source+Code+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="portfolio.js"></script>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="side-nav">
+        <a href="#hero" class="nav-item active" data-section="hero">
+            <span class="nav-icon">🏠</span>
+            <span class="nav-label">Home</span>
+        </a>
+        <a href="#signature" class="nav-item" data-section="signature">
+            <span class="nav-icon">⭐</span>
+            <span class="nav-label">Featured</span>
+        </a>
+        <a href="#interactive" class="nav-item" data-section="interactive">
+            <span class="nav-icon">🌈</span>
+            <span class="nav-label">Visualization</span>
+        </a>
+        <a href="#prototypes" class="nav-item" data-section="prototypes">
+            <span class="nav-icon">🔬</span>
+            <span class="nav-label">Experimental</span>
+        </a>
+        <a href="#topics" class="nav-item" data-section="topics">
+            <span class="nav-icon">☁️</span>
+            <span class="nav-label">Keywords</span>
+        </a>
+    </nav>
+
+    <!-- Beauty Shots Gallery Panel -->
+    <div class="gallery-panel" id="galleryPanel">
+        <div class="gallery-content">
+            <div class="gallery-images"></div>
+            <div class="gallery-placeholder">
+                <span class="placeholder-icon">🖼️</span>
+                <span class="placeholder-text">Preview coming soon</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Background Effects -->
+    <div class="background-gradient"></div>
+    <div class="orbs">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <!-- Hero Section -->
+    <header class="hero-section" id="hero">
+        <div class="hero-content">
+            <div class="hero-badge" style="font-size: x-large;">Shaojie Jiao's Technical Portfolio</div>
+            <h1 class="hero-title" data-text="Technical Projects & Visualizations">Technical Projects & Visualizations</h1>
+
+            <p class="hero-subtitle">Where mathematics becomes graphics, and elegance becomes engineering</p>
+
+            <!-- <p class="hero-subtitle">Exploring the intersection of mathematics, computer graphics, and elegant code</p> -->
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container">
+
+        <!-- Professional Bio Section -->
+        <section class="content-section bio-section">
+
+
+<div class="bio-content" style="margin-bottom:20px">
+    <h1 style="  margin-bottom:10px;
+    font-size: 2.5rem;          /* adjust: 2.0–2.5rem */
+  font-weight: 600;           /* confident, not headline-heavy */
+  color: #f5f3ee;
+  letter-spacing: 0.04em;     /* subtle elegance */
+  text-shadow:
+    0 0 8px  rgba(245, 243, 238, 0.3),
+    0 0 18px rgba(245, 243, 238, 0.15);">About Me</h1>
+                <p class="bio-text" style="hyphens: auto;-webkit-hyphens: auto;-ms-hyphens: auto; font-size: 1.2rem">
+  I am a <strong>research-driven</strong> software engineer specializing in 
+  <strong>computer graphics</strong> 
+  and GPU-based simulation, 
+  with over seven years of experience in 
+  physically based rendering, shader development, 
+  and GPU pipeline architecture. 
+My work spans both 
+<strong>offline renderers</strong>
+and 
+<strong>real-time systems</strong>, integrating academic techniques with high-performance, practical implementations across graphics, simulation, mathematics, and interactive visualization.
+</p>
+
+<p class="bio-text">
+    I see no rigid boundary between <strong>research, engineering, and art</strong>. Advanced techniques become meaningful to me only when they are transformed into concrete, interactive systems; and when rigorous internal design is paired with equally thoughtful visual presentation. I enjoy translating research ideas into robust, well-engineered implementations, <strong>repurposing techniques</strong> across domains to create expressive visual effects, and designing interfaces that make complex behavior intuitive rather than opaque.
+</p>
+
+<p class="bio-text" style="hyphens: auto;-webkit-hyphens: auto;-ms-hyphens: auto;">
+Below is a curated selection of projects. 
+They are organized by intent rather than difficulty alone, distinguishing between fully realized systems, experimental work, and projects that use visualization to build intuition and deepen understanding.
+</p>
+
+
+                        </div>
+
+
+
+
+
+
+            </div>
+        </section>
+
+        <!-- Featured Projects Section -->
+        <section class="content-section" id="signature">
+            <div class="section-header">
+                <h2 class="section-title" data-text="Featured Projects">Featured Projects</h2>
+                <div class="section-divider"></div>
+                <p class="section-description">
+                    My flagship projects where research ideas and engineering concepts are carried through to complete, working systems.
+                    <!-- Major technical projects combining research, engineering, and visualization</p> -->
+            </div>
+
+            <div class="project-grid">
+                <!-- Aperture: Real-time Path-Traced Photography Simulator -->
+                <a href="live_demos/aperture/index.html" class="project-card signature-card" data-project="aperture">
+                    <div class="language-badge js">JS</div>
+                    <div class="live-badge">LIVE DEMO</div>
+                    <div class="project-image-placeholder">
+                        <!-- <div class="project-icon">📷</div> -->
+                        <img src="thumbs2/aperture.png" alt="Aperture" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+                    <div class="project-content">
+                        <h3 class="project-title" data-text="Advanced Photography Simulator: Real-time Path Tracing with Tilt-Shift Photography, Time-Gated Imaging, & Holography">Advanced Photography Simulator: Real-time Path Tracing with Tilt-Shift Photography, Time-Gated Imaging, & Holography</h3>
+                        <!-- <p class="project-description">
+                            Real-time web-based path tracer demonstrating advanced photographic optics. Implements depth-of-field, tilt-shift lens mechanics, time-of-flight depth sensing, and holographic reconstruction—all running at interactive framerates in the browser. Showcases the translation of offline rendering knowledge to real-time constraints.
+                        </p>
+
+<p class="project-description">
+    A real-time, web-based path tracing system for interactive computational optics and imaging.
+    The framework supports depth of field and full camera internals, tilt-shift optics with an arbitrary focal plane,
+    time-of-flight sensing with adjustable temporal gating, and an end-to-end holographic pipeline—
+    demonstrating how traditionally offline rendering and imaging techniques translate to real-time constraints.
+</p> -->
+
+<p class="project-description">
+    A 
+        <span class="HL">real-time</span>
+    , WebGL-based 
+        <span class="HL">path tracing</span>
+    system pushing advanced offline optics and imaging techniques into interactive execution.
+    The system integrates 
+        <span class="HL">tilt-shift</span> optics with an arbitrary focal plane, 
+    full camera internals, 
+        <span class="HL">time-of-flight</span> sensing with temporal gating, 
+    end-to-end     <span class="HL">holography</span> with depth reconstruction pipelines, 
+     <span class="HL">spectrum render</span>, and more. All effects are modeled within a unified light transport and sensing pipeline.
+</p>
+<p class="project-description">
+    <strong>Note: </strong> First-time shader compilation can take up to 
+        <span class="HL">40 seconds</span>; 
+    subsequent runs are instant.
+</p>
+                        <div class="project-tags">
+                            <span class="tag">Ray Tracing</span>
+                            <span class="tag">Camera Models</span>
+                            <span class="tag">Holography</span>
+                            <span class="tag">Global Illumination</span>
+                            <span class="tag">Time-of-Flight Imaging</span>
+                            <span class="tag">Tilt-Shift Photography</span>
+                        </div>
+                        <ul class="project-keywords" hidden>
+                            <li>JavaScript</li>
+                            <li>Physically Based Rendering</li>
+                            <li>Monte Carlo Integration</li>
+                            <li>Tilt-Shift Optics</li>
+                            <li>Depth of Field</li>
+                            <li>Spectral Rendering</li>
+                            <li>Time-of-Flight Imaging</li>
+                            <li>Transient Rendering</li>
+                            <li>Holography</li>
+                            <li>Computational Imaging</li>
+                            <li>WebGL</li>
+                            <li>GLSL</li>
+                            <li>JavaScript</li>
+                            <li>Shader Compilation</li>
+                        </ul>
+                    </div>
+                    <div class="project-arrow">→</div>
+                </a>
+
+                <!-- TOF Render Deep Dive -->
+                <a href="showcases/TOF_render_deep_dive/TOF.html" class="project-card research-card" data-project="tof_render">
+                    <div class="language-badge cpp">C++</div>
+                    <div class="project-image-placeholder">
+                        <!-- <div class="project-icon">📊</div> -->
+                        <img src="thumbs2/TOF.png" alt="TOF" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+                    <div class="project-content">
+                        <h3 class="project-title" data-text="Off-Axis Holography & Depth Reconstruction in a Physically Based Path Tracer">Off-Axis Holography & Depth Reconstruction in a Physically Based Path Tracer</h3>
+
+
+                        <p class="project-description">
+    A rendering-driven rethinking of
+    <span class="HL">
+        off-axis holography</span>.
+    While off-axis setups are traditionally enforced through
+<span class="HL">
+        optical geometry</span>,
+    this project shows how equivalent holographic 
+<span class="HL">
+        depth reconstruction
+    </span>
+    can emerge from a physically based
+<span class="HL">
+        path tracer</span>,
+    enabling both multi-shot (traditional CW-Tof) and more importantly, 
+    <span class="HL">single-shot</span> reconstruction and extending naturally to advanced scattering control. In theory, this setup can also work in real life.
+</p>
+<p class="project-description">
+Beyond its research value, the resulting effects are difficult to match with synthetic
+approximations in
+<span class="HL">games and interactive graphics</span>, illustrating how 
+directly modeling the underlying mechanism can yield richer and more varied
+visuals than handcrafted <span class="HL">post-processing</span>.
+</p>
+                        <div class="project-tags">
+                            <span class="tag">Rendering</span>
+                            <span class="tag">Depth Sensing</span>
+                            <span class="tag">Time-of-Flight Imaging</span>
+                            <span class="tag">Holography</span>
+                            <span class="tag">Global Illumination</span>
+                        </div>
+                        <ul class="project-keywords" hidden>
+                            <li>C++</li>
+                            <li>Time-of-Flight Imaging</li>
+                            <li>Off-Axis Holography</li>
+                            <li>Computational Imaging</li>
+                            <li>Phase Reconstruction</li>
+                            <li>Modulated Light Sources</li>
+                            <li>Modulated Sensors</li>
+                            <li>Monte Carlo Light Transport</li>
+                            <li>Path Tracing</li>
+                            <li>Multi-Scattering Suppression</li>
+                            <li>Inverse Problems</li>
+                            <li>Physically Based Rendering</li>
+                            <li>C++</li>
+                        </ul>
+                    </div>
+                    <div class="project-arrow">→</div>
+                </a>
+
+                <!-- ShaderWeave -->
+                <a href="showcases/ShaderWeave/index.html" class="project-card signature-card" data-project="shaderweave">
+                    <div class="language-badge cpp">C++</div>
+                    <div class="video-badge">VIDEO</div>
+                    <div class="project-image-placeholder">
+                        <!-- <div class="project-icon">🎨</div> -->
+                        <img src="thumbs2/shaderweave.png" alt="ShaderWeave" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+                    <div class="project-content">
+                        <h3 class="project-title" data-text="ShaderWeave: A Node-Based GPU Programming System">ShaderWeave: A Node-Based GPU Programming System</h3>
+
+<p class="project-description">
+    A fully C++ node-based <span class="HL">GPU</span> programming system with a polished interactive UI and
+    <span class="HL">live, hot-pluggable execution</span>.
+    It supports the full modern GPU pipeline including
+    <span class="HL">compute shaders</span> and all programmable stages, 
+    as well as <span class="HL">CUDA JIT</span> and
+<span class="HL">Optix</span>, all under a unified framework, enabling complex feedback circuits and simulation workflows with arbitrary topology. 
+</p>
+<p class="project-description">
+    The system is designed for frictionless extensibility: shaders and resources become <span class="HL">nodes</span> automatically, requiring no manual integration or boilerplate. 
+    It also provides <span class="HL">automatic code injection</span>,
+allowing a shader to be written once in a familiar style (e.g. ShaderToy)
+then both executed immediately and expanded into a second version with all built-ins
+made explicit for inspection and easy porting.
+</p>
+
+                        <!-- <p class="project-description">
+                            Polished visual shader editor with real-time GLSL/HLSL compilation, Compute Shader integration, and CUDA backend support. Complete system design encompassing graph traversal, dependency resolution, code generation, and live preview. Engineering-focused: handles complex edge cases, optimization passes, and extensible node architecture.
+                        </p> -->
+                        <div class="project-tags">
+                            <span class="tag">Visual Programming</span>
+                            <span class="tag">Node-Based System</span>
+                            <span class="tag">Shaders</span>
+                            <span class="tag">GPU Pipelines</span>
+                            <span class="tag">CUDA</span>
+                            <span class="tag">OptiX</span>
+                        </div>
+                        <ul class="project-keywords" hidden>
+                            <li>C++</li>
+                            <li>Shader Systems</li>
+                            <li>GPU Pipelines</li>
+                            <li>GLSL</li>
+                            <li>Compute Shaders</li>
+                            <li>CUDA Interop</li>
+                            <li>Code Generation</li>
+                            <li>Graph Compilation</li>
+                            <li>Dependency Resolution</li>
+                            <li>Hot Reloading</li>
+                            <li>Rendering Architecture</li>
+                            <li>ImGui</li>
+                            <li>C++</li>
+                        </ul>
+                    </div>
+                    <div class="project-arrow">→</div>
+                </a>
+
+                <!-- Photon Primitives Gallery -->
+                <a href="showcases/photon_primitive/index_v2.html" class="project-card research-card" data-project="photon_primitive">
+                    <div class="language-badge cpp">C++</div>
+                    <div class="live-badge">LIVE DEMO</div>
+                    <div class="project-image-placeholder">
+                        <!-- <div class="project-icon">💡</div> -->
+                        <img src="thumbs2/photon_primitive.png" alt="Photon Primitives" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+                    <div class="project-content">
+<h3 class="project-title" data-text="Photon Primitives: A Unified Framework for Unbiased Photon Mapping">Photon Primitives: A Unified Framework for Unbiased Photon Mapping</h3>
+<p class="project-description">
+A long-running line of work rethinking light transport as the decomposition of illumination into
+<span class="HL">weighted primitives</span>.
+By establishing a duality between
+<span class="HL">sampling strategies</span> and <span class="HL">primitives</span>,
+the framework bridges rasterization and ray tracing, naturally handling hard transport phenomena
+such as <span class="HL">caustics</span>, while allowing bias to be introduced deliberately for efficiency.
+</p>
+<p class="project-description" style="margin-top: -10px;">
+This reframing opens a visually rich and largely unexplored space, particularly for expressive and
+<span class="HL">non-photorealistic rendering</span>.
+Different choices of primitives and estimation modes (analytic or stochastic, correlated or uncorrelated)
+produce distinct intermediate structures: ranging from coherent visible primitives to fully uncorrelated
+Monte Carlo estimates, while converging to the same final result.
+</p>
+                        <div class="project-tags">
+                            <span class="tag">Rendering</span>
+                            <span class="tag">Photon Mapping</span>
+                            <span class="tag">Sampling</span>
+                            <span class="tag">Participating Media</span>
+                            <span class="tag">Rasterization</span>
+                            <span class="tag">Global Illumination</span>
+                        </div>
+                        <ul class="project-keywords" hidden>
+                            <li>Photon Mapping</li>
+                            <li>Light Transport</li>
+                            <li>Sampling Theory</li>
+                            <li>Rendering Primitives</li>
+                            <li>Unbiased Rendering</li>
+                            <li>Biased Rendering</li>
+                            <li>Participating Media</li>
+                            <li>Caustics</li>
+                            <li>Stylized Rendering</li>
+                            <li>Ray Tracing</li>
+                            <li>Rasterization-Ray Tracing Hybrid</li>
+                            <li>Monte Carlo Methods</li>
+                            <li>Rendering Research</li>
+                            <li>C++</li>
+                        </ul>
+                    </div>
+                    <div class="project-arrow">→</div>
+                </a>
+
+                <!-- Symbolic Math Engine -->
+                <a href="showcases/symbolic_math_showcase/index.html" class="project-card" data-project="symbolic_math">
+                    <div class="language-badge ruby">Ruby</div>
+                    <div class="video-badge">VIDEO</div>
+                    <div class="project-image-placeholder">
+                        <!-- <div class="project-icon">∫</div> -->
+                        <img src="thumbs2/symbolic.png" alt="Symbolic" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+                    <div class="project-content">
+                        <h3 class="project-title" data-text="Rule-Based Symbolic Math Engine Built from Scratch">Rule-Based Symbolic Math Engine Built from Scratch</h3>
+
+<p class="project-description">
+A symbolic mathematics engine built from scratch in <span class="HL">Ruby</span>, developed incrementally from a symbolic differentiation tool into a system capable of performing non-trivial <span class="HL">symbolic integration</span> on multivariate expressions.
+Expressions are represented as structured trees, enabling precise algebraic manipulation and controlled transformation.
+</p>
+
+<p class="project-description">
+    Rather than relying on closed-form guarantees like <span class="HL">Risch’s algorithm</span>, 
+the engine approaches integration as a <span class="HL">heuristic-guided, search-driven process</span> (similar in spirit to Monte Carlo rendering & game-tree search), exploring the solution space through <span class="HL">rule-based algebraic transformations</span> such as integration by parts, rational integration, substitution, and simplification.
+</p>
+
+                        <div class="project-tags">
+                            <span class="tag">Symbolic Mathematics</span>
+                            <span class="tag">Computer Algebra</span>
+                            <span class="tag">Term Rewriting</span>
+                            <span class="tag">Heuristic-Guided Exploration</span>
+                        </div>
+                        <ul class="project-keywords" hidden>
+                            <li>Ruby</li>
+                            <li>Symbolic Computation</li>
+                            <li>Computer Algebra Systems</li>
+                            <li>Expression Trees</li>
+                            <li>Rule-Based Systems</li>
+                            <li>Symbolic Differentiation</li>
+                            <li>Symbolic Integration</li>
+                            <li>Integration by Parts</li>
+                            <li>Rational Integration</li>
+                            <li>Algebraic Simplification</li>
+                            <li>Abstract Syntax Trees</li>
+                        </ul>
+                    </div>
+                    <div class="project-arrow">→</div>
+                </a>
+
+                <!-- Fortune in Crystal -->
+                <a href="showcases/Fortune_in_Crystal/index.html" class="project-card" data-project="fortune_crystal">
+                    <div class="language-badge crystal">Crystal</div>
+                    <div class="video-badge">VIDEO</div>
+                    <div class="project-image-placeholder">
+                        <img src="thumbs2/fortune.png" alt="Fortune" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+                    <div class="project-content">
+<h3 class="project-title">Fortune's Algorithm in Crystal: Implemented Without Compromise</h3>
+<p class="project-description">
+A complete, unsimplified implementation of <span class="HL">Fortune's sweep-line algorithm</span> for <span class="HL">Voronoi diagram</span> construction, preserving full geometric and structural complexity.
+This includes exact event handling, degeneracy resolution, and <span class="HL-t">balanced beachline</span> maintenance.
+</p>
+<p class="project-description">
+Code duplication is eliminated through deliberate exploitation of <span class="HL-t">algorithmic symmetries</span>.
+An introspective visualization exposes the full sweep-line event lifecycle, keeping circle events inspectable after invalidation, with color-coded temporal ordering and explicit geometric interpretation.
+</p>
+                        <div class="project-tags">
+                            <span class="tag">Computational Geometry</span>
+                            <span class="tag">Voronoi Diagram</span>
+                            <span class="tag">Visualization</span>
+                            <span class="tag">Invariant-Driven Design</span>
+                        </div>
+                        <ul class="project-keywords" hidden>
+                            <li>Computational Geometry</li>
+                            <li>Voronoi Diagrams</li>
+                            <li>Sweep-Line Algorithms</li>
+                            <li>Event-Based Algorithms</li>
+                            <li>Balanced Trees</li>
+                            <li>Geometric Degeneracy</li>
+                            <li>Exact Arithmetic</li>
+                            <li>Algorithm Visualization</li>
+                            <li>Beach Line Data Structures</li>
+                            <li>Crystal Language</li>
+                        </ul>
+                    </div>
+                    <div class="project-arrow">→</div>
+                </a>
+
+                <!-- Tracer in Flatland -->
+                <a href="showcases/Tracer_in_Flatland/index.html" class="project-card" data-project="tracer_flatland">
+                    <div class="language-badge ruby">Ruby</div>
+                    <div class="video-badge">VIDEO</div>
+                    <div class="project-image-placeholder">
+                        <!-- <div class="project-icon">🌅</div> -->
+                        <img src="thumbs2/flatland.png" alt="Flatland" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+                    <div class="project-content">
+                        <h3 class="project-title" data-text="Tracer in Flatland: An Introspective 2D Path and Light Tracer">Tracer in Flatland: An Introspective 2D Path and Light Tracer</h3>
+                        <!-- <p class="project-description">
+A fully functional 2D path and light tracer implementing <span class="HL-t">Monte Carlo light transport</span> with
+next-event estimation.
+Unlike typical 2D visualizations, the system produces an actual <span class="HL-t">1D rendered image</span> while
+exposing every stage of the light transport process.
+The reduced dimensionality is a deliberate design choice that enables complete, non-overlapping
+visualization of light path construction in action, including BSDF sampling, shadow connections,
+and path contributions (including sensor importance), making internal behavior observable and inspectable for debugging and
+educational use.
+                        </p> -->
+<p class="project-description">
+A fully functional 2D path and light tracer implementing <span class="HL-t">Monte Carlo light transport</span> with
+next-event estimation and <span class="HL-t">participating media</span> support.
+Unlike typical 2D visualizations, the system produces an actual <span class="HL-t">1D rendered image</span> while
+exposing every stage of the light transport process.
+The reduced dimensionality is a deliberate design choice, enabling complete and non-overlapping
+visualization of light path construction in action, including BSDF sampling, geometric sampling, shadow connections,
+and path contributions (including sensor importance), and a per-sample breakdown of sensor accumulation, 
+ making internal behavior fully observable
+for debugging and educational use.
+</p>
+
+                        <div class="project-tags">
+                            <span class="tag">Ray Tracing</span>
+                            <span class="tag">Geometric Optics</span>
+                            <span class="tag">Low-Dimensional Rendering</span>
+                            <span class="tag">Visualization</span>
+                        </div>
+                        <ul class="project-keywords" hidden>
+                            <li>Path Tracing</li>
+                            <li>Light Transport</li>
+                            <li>Monte Carlo Methods</li>
+                            <li>Next-Event Estimation</li>
+                            <li>BSDF Sampling</li>
+                            <li>Sensor Importance</li>
+                            <li>Debug Visualization</li>
+                            <li>Dimensional Reduction</li>
+                            <li>Educational Rendering</li>
+                            <li>Ruby</li>
+                        </ul>
+                    </div>
+                    <div class="project-arrow">→</div>
+                </a>
+            </div>
+        </section>
+
+        <!-- Other Projects Section -->
+        <section class="content-section" id="interactive">
+            <div class="section-header">
+                <h2 class="section-title" data-text="Algorithmic & Mathematical Visualizations">Algorithmic & Mathematical Visualizations <br/> Live & Interactive</h2>
+                <div class="section-divider"></div>
+
+                <p class="section-description" style="margin-bottom: 1.2em;">
+I approach abstraction as something to be navigated rather than avoided.
+This section is about making complex ideas — algorithms, mathematical structures, and related systems — feel intuitive by turning their structure or behavior into something you can directly interact with.
+</p>
+
+                <p class="section-description" style="margin-bottom: 1.2em;">
+Teaching and mentoring experience shaped this belief: when what’s happening underneath is presented clearly and interactively, understanding follows naturally, without requiring prior specialization.
+</p>
+
+<p class="section-description">
+    This section consists entirely of live, interactive projects. Some pieces focus on revealing internal mechanics; others explore alternative representations or perspectives on the same mathematical object.
+Together, they reflect a broader goal: to design visualizations that are clear and expressive enough that learning feels effortless, where curiosity is all that matters.
+</p>
+
+<!-- <p class="section-description">
+I approach abstraction as something to be navigated rather than avoided. 
+This section is about making complex ideas — algorithms, mathematical structures, and related systems — feel intuitive by turning their structure or behavior into something you can directly interact with.
+</p>
+
+<p class="section-description">
+All of the work here is built for the web using JavaScript and React for immediacy and responsiveness. 
+Teaching and mentoring experience shaped my belief: when the mehanism is presented clearly and interactively, understanding follows naturally without requiring prior specialization.
+</p>
+
+<p class="section-description">
+Some pieces focus on internal mechanics, others explore alternative representations, comparisons, or visual viewpoints, such as different ways of seeing the same mathematical object. Together, they reflect a broader goal: to design visualizations that are clear and expressive enough that learning feels effortless: curiosity should be all that matters.
+</p> -->
+                <!-- <p class="section-description">
+I approach abstraction as something to be navigated rather than avoided. The work collected here uses interaction to make algorithms, mathematical structures, and related systems easier to grasp by making their internal structure visible.
+</p>
+
+<p class="section-description">
+These visualizations are built for the web using JavaScript and React, enabling fine-grained interaction, rapid feedback, and responsive exploration. This choice reflects a belief reinforced through teaching and mentoring: intuition forms most naturally when state, decisions, and transformations can be inspected directly, rather than hidden behind polished outcomes.
+</p>
+
+<p class="section-description">
+Some pieces focus on clarifying internal mechanics, others on revealing connections or tradeoffs, and others on enabling direct comparison. Across all of them, interaction is treated as a tool for reasoning—turning black-box behavior into understanding that develops step by step.
+</p> -->
+
+                <!-- <p class="section-description">Building educational tools is my hobby—I always aim to go at least one step further than typical online demos. These projects range from highly polished visualizations to experimental explorations, all designed to make complex concepts more accessible.</p> -->
+<!-- <p class="section-description">I approach abstraction as something to be navigated rather than avoided. The work collected here uses interaction to make algorithms, mathematical structures, and related systems easier to grasp by making their internal structure visible.</p>
+
+<p class="section-description">Built primarily for the web, these visualizations emphasize clarity and responsiveness—letting you inspect evolving state, see why decisions are made, and explore how behavior changes under different choices. My teaching and mentoring experience reinforced this approach: intuition forms most naturally when structure is exposed directly, not when complexity is hidden behind polished outcomes.</p>
+
+<p class="section-description">Some pieces focus on clarifying internal mechanics, others on revealing connections or tradeoffs, and others on enabling direct comparison. Across all of them, interaction is treated as a tool for reasoning—turning black-box behavior into understanding you can build step by step.</p> -->
+
+                <!-- <p class="section-description">
+                    These projects focused on making algorithms and mathematical structures tangible through interaction. Built primarily for the web, these emphasize clarity, responsiveness, and introspection—revealing internal state, decision paths, and invariants rather than treating algorithms as black boxes. -->
+                    <!-- These projects focus on designing clear, intuitive visualizations for algorithms and
+mathematical concepts. Informed by extensive teaching and mentoring experience, they
+emphasize making internal structure and reasoning explicit—often going beyond typical
+online demonstrations through careful design, interactivity, and depth of exposition. -->
+<!-- </p> -->
+<!-- <p class="section-description">
+    Through teaching and mentoring, I developed a strong conviction that even the most abstract algorithms and mathematical concepts admit intuitive representations when their internal structure is made visible. These projects focus on interactive designs that surface state, invariants, and decision processes—replacing black-box demonstrations with systems meant to be explored and reasoned about.
+</p> -->
+            </div>
+
+            <div class="project-grid">
+                <!-- Fenwick -->
+                <a href="live_demos/fenwick/index.html" class="project-card" data-project="fenwick">
+                    <div class="language-badge react">React</div>
+                    <div class="live-badge">LIVE DEMO</div>
+                    <div class="project-image-placeholder">
+                        <!-- <div class="project-icon">🌳</div> -->
+                        <img src="thumbs2/Fenwick.png" alt="Fenwick" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+                    <div class="project-content">
+                        <h3 class="project-title" data-text="Fenwick Tree Visualizer">Fenwick Tree Visualizer</h3>
+                        <!-- <p class="project-description">
+                            Polished visualization with meticulous attention to UI/UX. Demonstrates <span class="HL-t">range queries</span>, <span class="HL-t">prefix sums</span>, and tree structure with smooth animations and intuitive controls. Significant effort invested in perfecting the visual presentation and interaction flow.
+                        </p> -->
+                        <p class="project-description">
+A comprehensive, step-by-step visualization of Fenwick trees, covering basic queries, range updates, <span class="HL">range-update–range-query</span> formulations, and 2D extensions. 
+The system exposes <span class="HL">prefix-sum invariants</span> and tree structure directly, allowing every update and query to be observed as it executes, highlighting the structure and elegance of the underlying algorithms.
+</p>
+
+<p class="project-description">
+Beyond surface-level demonstrations, the visualization makes the underlying <span class="HL">bitwise and gradient-domain structure</span> explicit, using <span class="HL">Gray-code adjacency</span> to explain how updates and queries propagate through the tree. 
+</p>
+
+                        <div class="project-tags">
+                            <span class="tag">Data Structure</span>
+                            <span class="tag">Binary Indexed Trees</span>
+                            <span class="tag">Gradient Domain</span>
+                            <span class="tag">Visualization</span>
+                        </div>
+                        <ul class="project-keywords" hidden>
+                            <li>React</li>
+                            <li>Fenwick Trees</li>
+                            <li>Prefix Sums</li>
+                            <li>Range Queries</li>
+                            <li>Data Structures</li>
+                            <li>Algorithm Visualization</li>
+                            <li>UI Design</li>
+                            <li>React</li>
+                        </ul>
+                    </div>
+                    <div class="project-arrow">→</div>
+                </a>
+
+                <!-- Prism Optics -->
+                <a href="live_demos/visualizations/prism/index.html" class="project-card" data-project="prism_optics">
+                    <div class="language-badge js">JS</div>
+                    <div class="live-badge">LIVE DEMO</div>
+                    <div class="project-image-placeholder">
+                        <!-- <div class="project-icon">🌈</div> -->
+                        <img src="thumbs2/prism.png" alt="Prism" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+                    <div class="project-content">
+<!-- <h3 class="project-title">Geometric Optics: Path Tracing for Rendering Education</h3> -->
+<h3 class="project-title" data-text="Particle-Based Geometric Optics with Wavelength-Resolved Light">Particle-Based Geometric Optics with Wavelength-Resolved Light</h3>
+
+<!-- <p class="project-description">
+Developed in the context of my teaching assistant experience, this physically based prism demonstration visualizes 
+<span class="HL-t">probabilistic ray splitting</span>, 
+<span class="HL-t">Fresnel reflection and transmission</span>, 
+and <span class="HL-t">wavelength-dependent dispersion</span> 
+within a path-traced light transport model.
+</p> -->
+<p class="project-description">
+Developed from teaching assistant experience, this prism light-transport visualization adopts a <span class="HL-t">Newtonian particle-based optics</span> model, where <span class="HL-t">probabilistic ray splitting</span> enforces energy conservation at material interfaces.
+The system exposes <span class="HL-t">Fresnel reflection and transmission</span> and <span class="HL-t">wavelength-dependent dispersion</span> through wavelength-specific indices of refraction.
+</p>
+
+<p class="project-description">
+By isolating wavelength dependence at interfaces, the visualization demonstrates how many phenomena often attributed to wave optics can be explained using geometric and probabilistic optics alone.
+</p>
+<!-- <p class="project-description">
+Developed from teaching assistant experience, this prism light transport visualization uses a <span class="HL-t">Newtonian particle-based optics</span> model in which light transport is governed by <span class="HL-t">probabilistic ray splitting</span> that conserves energy across interfaces.
+The system visualizes <span class="HL-t">Fresnel reflection and transmission</span> and <span class="HL-t">wavelength-dependent dispersion</span> by assigning wavelength-specific indices of refraction during boundary interactions.
+</p>
+<p class="project-description">
+By isolating wavelength dependence at material interfaces, the system shows how many wave-optics phenomena can be explained through geometric and probabilistic optics, making the underlying mechanisms transparent without unnecessary model complexity.
+</p> -->
+
+<!-- <p class="project-description">
+The visualization emphasizes clear communication of light transport by making energy partitioning and refraction behavior directly observable at each interaction.
+</p> -->
+
+<!-- <p class="project-description">
+    Motivated by my experience as a teaching assistant, this project addresses common conceptual gaps in understanding refraction and light transport. It visualizes <span class="HL-t">probabilistic ray splitting</span>, <span class="HL-t">Fresnel effects</span>, and <span class="HL-t">wavelength-dependent dispersion</span> using a physically accurate path tracing model, with an emphasis on making underlying mechanisms explicit rather than implicit.
+</p> -->
+                        <!-- <h3 class="project-title">Geometric Optics: Path Tracing for Rendering Education</h3>
+                        <p class="project-description">
+                            Educational and beautiful. Motivated by my TA experience—students struggle with refraction despite it being fundamental. Demonstrates probabilistic ray splitting, Fresnel equations, and wavelength-dependent dispersion. Combines technical accuracy with aesthetic appeal.
+                        </p> -->
+                        <div class="project-tags">
+                            <span class="tag">Geometric Optics</span>
+                            <span class="tag">Light Transport</span>
+                            <span class="tag">Simulation</span>
+                            <span class="tag">Visualization</span>
+                        </div>
+                        <ul class="project-keywords" hidden>
+                            <li>JS</li>
+                            <li>Geometric Optics</li>
+                            <li>Refraction</li>
+                            <li>Dispersion</li>
+                            <li>Ray Splitting</li>
+                            <li>Educational Visualization</li>
+                        </ul>
+                    </div>
+                    <div class="project-arrow">→</div>
+                </a>
+
+                
+                                <a href="live_demos/visualizations/DFT_DCT/index.html" class="project-card" data-project="dft_dct">
+                    <div class="language-badge js">JS</div>
+                    <div class="live-badge">LIVE DEMO</div>
+                    <div class="project-image-placeholder">
+                        <!-- <div class="project-icon">📈</div> -->
+                        <img src="thumbs2/dft_dct.png" alt="DFT DCT" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+                    <div class="project-content">
+                        <h3 class="project-title">Drawing with Harmonics: DFT, DCT, HHT, and STFT</h3>
+
+                        <p class="project-description">
+
+                            A visually driven system for constructing and reconstructing motion from <span class="HL-t">harmonic components</span>. The project combines global <span class="HL-t">discrete Fourier and cosine</span> representations with time-local
+analysis (<span class="HL-t">STFT</span>, capturing not only the curve but also the speed) and adaptive, data-driven decomposition (<span class="HL-t">HHT</span>), allowing both geometric
+structure and temporal behavior to be observed directly through motion.
+                        </p>
+                        <!-- <p class="project-description">
+                            <!-- Interactive Discrete Fourier and Cosine Transform visualizations. -->
+<!-- A polished geometric visualization of Fourier decomposition inspired by well-known
+circle-based interpretations, with an added focus on smooth animation, visual design,
+and clarity. The project also includes discrete cosine transforms and is intended as a
+clean, extensible foundation for further visual exploration rather than a technical
+contribution to the theory itself. -->
+    <!-- A visually driven exploration of discrete Fourier and cosine transforms, focusing on motion,
+    geometry, and smooth animation to create a clear representation of spectral structure. -->
+                        </p>
+<!-- <p class="project-description">
+    Deliberately minimal and polished, 
+    designed as a clean, extensible foundation for further visual exploration: STFT (short-time Fourier transform), CWT (continuous wavelet transform), and HHT (Hilbert–Huang transform).
+</p> -->
+                        <div class="project-tags">
+                            <span class="tag">Signal Processing</span>
+                            <span class="tag">Spectral Analysis</span>
+                            <span class="tag">Visualization</span>
+                        </div>
+                        <ul class="project-keywords" hidden>
+                            <li>JS</li>
+                            <li>Discrete Fourier Transform</li>
+                            <li>Discrete Cosine Transform</li>
+                            <li>STFT</li>
+                            <li>Hilbert-Huang Transform</li>
+                            <li>Motion Reconstruction</li>
+                        </ul>
+                    </div>
+                    <div class="project-arrow">→</div>
+                </a>
+
+
+                                                <a href="live_demos/visualizations/complex_function/index1.html" class="project-card" data-project="complex_function">
+                    <div class="language-badge js">JS</div>
+                    <div class="live-badge">LIVE DEMO</div>
+                    <div class="project-image-placeholder">
+                        <!-- <div class="project-icon">🌊</div> -->
+                        <img src="thumbs2/complex.png" alt="Complex" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+                    <div class="project-content">
+                        <h3 class="project-title">Two-Mode Complex Function Visualizer</h3>
+                        <p class="project-description">
+An interactive system for exploring <span class="HL-t">multivalued complex functions</span> through two complementary representations: a traditional <span class="HL-t">Riemann surface</span> view that makes sheet structure explicit, and a <span class="HL-t">plane-to-plane mapping</span> view enabled by direct interaction. While plane-to-plane visualizations are often dismissed as impractical in static settings, <span class="HL-t">interactivity</span> makes them effective for understanding bifurcation, branch splitting, and local shape distortion. 
+</p>
+                        <!-- <p class="project-description">
+Core representations are stable; interaction design and presentation continue to evolve.
+                        </p> -->
+                        <div class="project-tags">
+                            <span class="tag">Complex Analysis</span>
+                            <span class="tag">Riemann Surfaces</span>
+                            <span class="tag">Visualization</span>
+                        </div>
+                        <ul class="project-keywords" hidden>
+                            <li>JavaScript</li>
+                            <li>Multivalued Functions</li>
+                            <li>Branch Points</li>
+                            <li>Bifurcation</li>
+                            <li>Domain Coloring</li>
+                            <li>Complex Mapping</li>
+                            <li>Interactive Visualization</li>
+                            <li>JavaScript</li>
+                        </ul>
+                    </div>
+                    <div class="project-arrow">→</div>
+                </a>
+
+
+
+                <a href="live_demos/visualizations/image_processing/index.html" class="project-card" data-project="image_processing">
+                    <div class="language-badge js">JS</div>
+                    <div class="live-badge">LIVE DEMO</div>
+                    <div class="project-image-placeholder">
+                        <!-- <div class="project-icon">🌊</div> -->
+                        <img src="thumbs2/image_processing.png" alt="Image Processing" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+                    <div class="project-content">
+<h3 class="project-title">Image Processing Suite</h3>
+<p class="project-description">
+    A visualization-driven exploration of image processing algorithms, 
+    featuring a 3D visualization of <span class="HL-t">bilateral grid filtering</span>, exposing how
+    edge-aware behavior emerges from its augmented spatial–range representation.
+    It also includes a <span class="HL-t">generalized Hough transform</span> with custom templates, making 
+    parameter-space voting visible by projecting it back into the image domain, along
+    with additional filters for context.
+</p>
+
+
+                        <div class="project-tags">
+                            <span class="tag">Computational Photography</span>
+                            <span class="tag">Computer Vision</span>
+                            <span class="tag">Visualization</span>
+                            <!-- <span class="tag">Bilateral Filtering</span>
+                            <span class="tag">Hough Transform</span> -->
+                        </div>
+                        <ul class="project-keywords" hidden>
+                            <li>JS</li>
+                            <li>Convolution</li>
+                            <li>Canvas API</li>
+                            <li>Image Processing</li>
+                            <li>Edge Detection</li>
+                        </ul>
+                    </div>
+                    <div class="project-arrow">→</div>
+                </a>
+
+                <a href="live_demos/catalan/index.html" class="project-card" data-project="catalan">
+                    <div class="language-badge react">React</div>
+                    <div class="live-badge">LIVE DEMO</div>
+                    <div class="project-image-placeholder">
+                        <!-- <div class="project-icon">📈</div> -->
+                        <img src="thumbs2/catalan.png" alt="Catalan" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+                    <div class="project-content">
+                        <h3 class="project-title">Catalan Numbers Explorer</h3>
+                        <p class="project-description">
+   A clean visual exploration of <span class="HL-t">Catalan-number structures</span>, emphasizing the shared
+    combinatorial constraints behind seemingly different objects such as mountain
+    ranges, binary trees, balanced parentheses, polygon triangulations, and more. 
+</p>
+                            <p class="project-description">
+    The focus
+    is on showing intuitively how the value can be derived and what other quantities it relates to, while 
+    making the <span class="HL-t">equivalences between representations</span> explicit.
+                        </p>
+                        <div class="project-tags">
+                            <span class="tag">Combinatorics</span>
+                            <span class="tag">Visualization</span>
+                        </div>
+                        <ul class="project-keywords" hidden>
+                            <li>React</li>
+                            <li>Combinatorial Structures</li>
+                            <li>Binary Trees</li>
+                            <li>Polygon Triangulation</li>
+                        </ul>
+                    </div>
+                    <div class="project-arrow">→</div>
+                </a>
+
+
+                <a href="live_demos/visualizations/trees/index.html" class="project-card" data-project="trees">
+    <div class="language-badge js">JS</div>
+    <div class="live-badge">LIVE DEMO</div>
+
+    <div class="project-image-placeholder">
+        <!-- <div class="project-icon">🌲</div> -->
+        <img src="thumbs2/trees.png" alt="Trees" style="width: 100%; height: 100%; object-fit: cover;">
+    </div>
+
+    <div class="project-content">
+        <h3 class="project-title">Seven Search Trees, Side by Side</h3>
+
+        <p class="project-description">
+Side-by-side visualizations of sorting algorithms are ubiquitous, but <span class="HL-t">search trees</span> — despite their equally ubiquitous use and algorithmic elegance — rarely receive the same treatment.
+This demo applies a comparative lens to
+<strong style="color:#F6D860; text-shadow:0 0 6px rgba(255,215,0,0.6);">seven search trees</strong>,
+making their <span class="HL-t">balancing behavior and structural evolution</span> directly observable.
+</p>
+
+<p class="project-description">
+By visualizing rotations, rebalancing, and structural mutations in parallel, the system reveals how different invariants shape runtime behavior beyond asymptotic bounds.
+Some trees enforce <span class="HL-t">strict balance</span>, offering strong worst-case guarantees but higher maintenance cost;
+others deliberately relax balance, trading theoretical guarantees for <span class="HL-t">lower constant factors</span> and faster behavior in common scenarios.
+</p>
+
+        <!-- <p class="project-description">
+    Side-by-side visualizations of sorting algorithms are ubiquitous, while search trees rarely receive the same treatment.
+    This demo applies that comparative lens to
+    <strong style="color:#F6D860; text-shadow:0 0 6px rgba(255,215,0,0.6);">seven search trees</strong>,
+    revealing how different balancing strategies perform in action.
+        </p>
+        <p class="project-description">
+            Different trees have different focuses: some try to be strictly balanced, which can in practice be overkill for common scenarios; the others try to loosen it and reduce the number of operations in general: slower in worst case, but faster in most cases (the difference in the constant factor of time complexity). 
+        </p> -->
+
+        <div class="project-tags">
+            <span class="tag">Data Structure</span>
+            <span class="tag">Balanced Search Trees</span>
+            <!-- <span class="tag">AVL Tree</span>
+            <span class="tag">Red-Black Tree</span> -->
+        </div>
+        <ul class="project-keywords" hidden>
+            <li>JS</li>
+            <li>Data Structures</li>
+            <li>Binary Search Tree</li>
+            <li>Size-Balanced Tree</li>
+            <li>Treap</li>
+            <li>Splay Tree</li>
+            <li>2-3-4 Tree</li>
+            <li>Visualization</li>
+        </ul>
+    </div>
+
+    <div class="project-arrow">→</div>
+</a>
+
+
+                <!-- Graph Algorithms -->
+                <a href="live_demos/visualizations/graph/index.html" class="project-card" data-project="graph_algorithms">
+                    <div class="language-badge js">JS</div>
+                    <div class="live-badge">LIVE DEMO</div>
+                    <div class="project-image-placeholder">
+                        <!-- <div class="project-icon">🎯</div> -->
+                        <img src="thumbs2/graph.png" alt="Graph" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+                    <div class="project-content">
+                        <h3 class="project-title">Graph Theory: A Comprehensive, In-Depth Visualization of Every Detail</h3>
+<p class="project-description">
+A fully <span class="HL-t">implementation-faithful visualization</span> of graph algorithms, exposing the exact operations required for <span class="HL-t">algorithmic correctness</span> and <span class="HL-t">asymptotic guarantees</span>.
+</p>
+
+<p class="project-description">
+Where most demos collapse complex behavior into “magic” steps, this project makes <span class="HL-t">priority queues</span>, <span class="HL-t">relaxations</span>, and <span class="HL-t">failure modes</span> explicitly visible: revealing what must actually happen for stated complexity bounds to hold.
+Core algorithms are shown in <span class="HL-t">multiple concrete variants</span> (e.g. <span class="HL-t">Bellman–Ford vs. SPFA</span>), with <span class="HL-t">step-accurate, color-coded structure</span> that exposes both correct operation and known limitations.
+</p>
+
+<p class="project-description">
+The goal is <span class="HL-t">exhaustive transparency</span>: a <span class="HL-t">reference-level demonstration</span> of how graph algorithms actually work.
+</p>
+
+
+                        <!-- <p class="project-description">
+A comprehensive, <span class="HL-t"></span>implementation-level visualization</span> that exposes the operations required
+    for algorithmic correctness and time-complexity guarantees.
+    Rather than omitting internal steps for simplicity, it shows the concrete
+    data-structure behavior and variant-specific operations, including naive
+    and optimized forms (e.g. different versions of <span class="HL-t">Prim</span>, <span class="HL-t">Bellman–Ford vs SPFA</span>).
+                            <!-- More informative than typical graph visualizers. Shows what algorithms actually do to ensure efficiency—not just magic: explicit re-sorting vs. priority queue structures, how Dijkstra handles stale records, actual data structure operations. Focuses on the implementation details that textbooks gloss over. -->
+                        <!-- </p> -->
+                        <div class="project-tags">
+                            <span class="tag">Graph Theory</span>
+                            <span class="tag">Visualization</span>
+
+                            <!-- <span class="tag">Dijkstra</span>
+                            <span class="tag">BFS/DFS</span> -->
+                        </div>
+                        <ul class="project-keywords" hidden>
+                            <li>JS</li>
+                            <li>Graph Algorithms</li>
+                            <li>Priority Queues</li>
+                            <li>Shortest Path</li>
+                            <li>MST</li>
+                            <li>Bellman-Ford</li>
+                        </ul>
+                    </div>
+                    <div class="project-arrow">→</div>
+                </a>
+
+                <!-- <a href="live_demos/visualizations/trees/index.html" class="project-card">
+                    <div class="live-badge">LIVE DEMO</div>
+                    <div class="project-image-placeholder">
+                        <div class="project-icon">🌲</div>
+                    </div>
+                    <div class="project-content">
+                        <h3 class="project-title">Search Trees, Side by Side</h3>
+                        <p class="project-description">
+                            Sorting algorithm competition visualizers are everywhere—but no one does this for tree structures. Side-by-side comparison of BST, AVL, and Red-Black tree performance with detailed operation breakdowns. Explanatory cards detail how each balancing mechanism works.
+                        </p>
+                        <div class="project-tags">
+                            <span class="tag">JavaScript</span>
+                            <span class="tag">Data Structures</span>
+                            <span class="tag">BST</span>
+                            <span class="tag">AVL</span>
+                            <span class="tag">Red-Black</span>
+                        </div>
+                    </div>
+                    <div class="project-arrow">→</div>
+                </a> -->
+
+
+
+            </div>
+        </section>
+
+
+
+                <section class="content-section" id="prototypes">
+            <div class="section-header">
+                <h2 class="section-title">Experimental / Exploratory</h2>
+                <div class="section-divider"></div>
+                <p class="section-description" style="margin-bottom: 1.2em;">
+These projects are open-ended investigations where the direction is more important than the destination.
+They explore new ideas, probe theoretical questions, and experiment with representations—treating development itself as a form of inquiry. 
+</p>
+                <p class="section-description" style="margin-bottom: 1.2em;">
+Implementations and theory may both be in early stages, with an emphasis on curiosity, play, and discovering what is interesting before deciding what is useful.
+                </p>
+
+<p class="section-description" >
+    <strong style="    color: #ff6b6b;            /* soft red */
+    font-weight: 700;          /* keep bold */
+    text-shadow:
+        0 0 6px rgba(255, 80, 80, 0.45),
+        0 0 12px rgba(255, 80, 80, 0.25);">Note:</strong> These experimental projects are intentionally exploratory.
+    The implementations and explanations are works in progress, reflecting ideas
+    that are still being tested, refined, and restructured.
+</p>
+                <!-- <p class="section-description">Open-ended investigations where the direction is more important than the destination. These projects explore new ideas, probe theoretical questions, and experiment with representations—treating development itself as a form of inquiry.</p> -->
+            </div>
+
+            <div class="project-grid">
+
+
+                                <!-- 5D Fractal Viewer -->
+                <a href="showcases/5D/index.html" class="project-card ongoing-card" data-project="5D">
+                    <div class="language-badge python">Python</div>
+                    <div class="video-badge">VIDEO</div>
+                    <div class="project-image-placeholder">
+                        <!-- <div class="project-icon">🔢</div> -->
+                        <img src="thumbs2/5D.png" alt="5D" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+                    <div class="project-content">
+                        <!-- <h3 class="project-title">High-Dimensional Procedural Volume Explorer</h3> -->
+<h3 class="project-title">Exploring Representation and Evolution in Five Dimensions</h3>
+
+<p class="project-description">
+The project explores how <span class="HL">high-dimensional data</span> can evolve through changes in representation. It begins with a <span class="HL">procedural five-dimensional field</span>, where spatial, temporal, and latent axes are treated symmetrically and mapped to color.
+Distinct views are formed through slicing and projection, and visualized via <span class="HL">ray marching</span>.
+</p>
+
+<p class="project-description">
+Fixing temporal and latent dimensions yields a concrete 3D field, but the act of viewing introduces new degrees of freedom. In this sense, representation shifts from <span class="HL">xyzwt → RGBA</span> to <span class="HL">xyz + view direction → RGBA</span>, effectively trading latent dimensions for angular ones.
+</p>
+
+<p class="project-description">
+<span class="HL">NeRF-style neural representations</span> are used here as a <span class="HL">resampling mechanism</span>, providing continuous values over the resulting domain. This allows representation changes themselves to be treated as a mechanism for evolution and iteration in high-dimensional spaces. In parallel, <span class="HL">Taichi-based diffusion dynamics</span> are explored as another path for introducing evolution and feedback.
+</p>
+
+
+<!-- <p class="project-description">
+This project explores how <span class="HL">five-dimensional volumetric data</span> might evolve through a duality between <span class="HL">explicit procedural structure</span> and <span class="HL">neural implicit representations</span>. Rather than treating representation as a terminal step, the work asks whether moving between representations can itself be used as a mechanism for evolution. The starting point is a <span class="HL">procedural five-dimensional volume</span> with symmetric axes (3 spatial, 1 latent, 1 temporal, all interchangeable), from which many distinct views can be obtained by slicing and projection, visualized via <span class="HL">Ray marching</span>.
+</p>
+
+<p class="project-description">
+One direction investigates <span class="HL">NeRF-style neural representations</span>: fixing auxiliary dimensions yields a concrete 3D field that can be observed and learned, producing a learned representation that can in turn be reinterpreted as a new high-dimensional volume. The challenge is how such representation can be shaped into a <span class="HL">continuous, structured process</span> rather than collapsing into noise.
+</p>
+
+<p class="project-description">
+In parallel, <span class="HL">Taichi-based diffusion dynamics</span> are explored as another way to introduce evolution and feedback. Together, these directions treat the project as an <span class="HL">open-ended exploration</span> of new ways for <span class="HL">high-dimensional volumes</span> to transform, interact, and persist over time.
+</p> -->
+
+<!-- <p class="project-description">
+This project explores how <span class="HL">five-dimensional volumetric data</span> can evolve through a duality between <span class="HL">explicit procedural structure</span> and <span class="HL">learned implicit representations</span>. At its core is a question: can a high-dimensional volume be transformed, projected, and learned in a way that allows it to evolve continuously, rather than collapsing into noise or losing its identity?
+</p>
+
+<p class="project-description">
+Starting from a <span class="HL">procedural 5D field</span>, fixing temporal and latent dimensions yields a concrete <span class="HL">three-dimensional volume</span> that can be observed from many directions. These views are used to train a <span class="HL">NeRF-style representation</span>, which itself can be interpreted as a five-dimensional object. This creates a dual description of the same structure—one explicit and procedural, the other implicit and learned—raising the possibility of treating the process as an <span class="HL">iterative transformation</span> rather than a one-way conversion.
+</p>
+
+<p class="project-description">
+A central challenge is that naïvely learned representations often diverge from the original field, producing incoherent or noisy structure. The project therefore explores whether operations such as <span class="HL">projection</span>, <span class="HL">alignment</span>, or <span class="HL">attraction</span> between representations can turn this into a <span class="HL">smooth evolutionary process</span>, where structure is preserved or reshaped rather than destroyed.
+</p>
+
+<p class="project-description">
+Alongside this, <span class="HL">Taichi-based diffusion dynamics</span> are explored as an alternative mechanism for evolving slices of the field, offering another path for introducing change and feedback into high-dimensional data. Together, these directions treat evolution itself as the subject of inquiry—investigating new ways for <span class="HL">high-dimensional volumes</span> to transform, learn, and persist over time.
+</p> -->
+
+<!-- <p class="project-description">
+This project explores how <span class="HL">high-dimensional structure</span> can be observed, transformed, and evolved across different <span class="HL">representational forms</span>. Starting from a <span class="HL">procedural five-dimensional field</span>, it asks how explicit structure behaves when viewed, learned, and iterated upon rather than treated as a static object.
+</p>
+
+<p class="project-description">
+All five dimensions are treated symmetrically and can be reinterpreted as spatial, temporal, or latent axes, allowing the same underlying field to be observed through many distinct but related <span class="HL">views</span> generated via <span class="HL">slicing and projection</span>. Fixing auxiliary dimensions yields evolving three-dimensional volumes, while changing the interpretation produces radically different visual and structural behavior from the same source.
+</p>
+
+<p class="project-description">
+To probe how such structure changes over time, simple <span class="HL">diffusion-style dynamics</span> are applied to derived views, and the results are used to train <span class="HL">NeRF-style implicit representations</span>. Rather than forming a fixed pipeline, the interaction between procedural and learned representations is treated as an <span class="HL">open question</span>: how they align, diverge, or influence one another when iterated or coupled.
+</p> -->
+
+<!-- <p class="project-description">
+This project explores how <span class="HL">high-dimensional structure</span> behaves when represented, transformed, and evolved through both <span class="HL">procedural</span> and <span class="HL">learned models</span>. It begins with a <span class="HL">five-dimensional field</span> whose dimensions are treated symmetrically and can be reinterpreted as spatial, temporal, or latent axes, producing many distinct yet related views through slicing and projection.
+</p>
+
+<p class="project-description">
+Local <span class="HL">diffusion-style dynamics</span> are applied to lower-dimensional slices using <span class="HL">Taichi</span>, not to overwrite the original field directly, but to study how <span class="HL">deviations</span> emerge relative to the underlying procedural structure. These evolving slices are then used to train <span class="HL">NeRF-style implicit representations</span>, introducing a learned counterpart to the same high-dimensional object.
+</p>
+
+<p class="project-description">
+Rather than treating this as a one-way pipeline, the project frames the interaction itself as an <span class="HL">open question</span>: can procedural and learned representations be <span class="HL">iteratively aligned</span>, transformed, or coupled? What happens if a learned model is reinterpreted as a new field and evolved again, or if an <span class="HL">attraction</span> between representations is introduced to encourage visual similarity under selected projections?
+</p>
+
+<p class="project-description">
+The work serves as an <span class="HL">exploratory space</span> for investigating how <span class="HL">high-dimensional volumetric data</span> can evolve across <span class="HL">representations. -->
+
+                        <!-- <p class="project-description"> -->
+<!-- A fully exploratory visualization tool for investigating higher-dimensional fractal structures. Designed for real-time navigation through hyperdimensional parameter spaces, with GPU acceleration via Taichi to support smooth, interactive exploration. -->
+                            <!-- Less educational, more exploratory. Built to investigate higher-dimensional fractal structures with potential for future interactive projects or games. GPU-accelerated with Taichi for smooth real-time navigation through hyperdimensional parameter space. -->
+                            <!-- An exploratory real-time system for constructing and navigating higher-dimensional procedural structures. Rather than visualizing precomputed data, the scene is generated analytically via an iterated nonlinear mapping embedded in higher dimensions, with controlled temporal and dimensional slicing to preserve coherence under motion. GPU-accelerated ray marching enables smooth volumetric exploration across changing 4D and 5D parameter spaces.
+                            At present, the system generates procedural structure in five dimensions and examines it through a limited family of orthogonal slices. The next step—slicing along arbitrary directions—removes this restriction and reframes the problem entirely, turning navigation through high-dimensional structure into a continuous, geometry-driven process. -->
+<!-- An exploratory real-time system for constructing and navigating higher-dimensional procedural structures. The scene is generated analytically by iterating a nonlinear rule defined directly in higher-dimensional space, with controlled temporal and dimensional slicing to preserve coherence under motion. GPU-accelerated ray marching enables smooth volumetric exploration across evolving 4D and 5D parameter spaces.
+
+At present, the system generates procedural structure in five dimensions and examines it through a limited family of orthogonal slices. The next step—slicing along arbitrary directions—removes this restriction and reframes the problem entirely, turning navigation through high-dimensional structure into a continuous, geometry-driven process. -->
+<!-- An exploratory real-time system for constructing and navigating higher-dimensional procedural structures. A nonlinear rule defined in 4D and 5D space is iterated and evaluated on demand during GPU-accelerated ray marching, with temporal and dimensional slicing used to maintain coherence under motion. 
+It's a bit similar to NerF network, but instead of (x,y,z,theta,pho), we do (x,y,z,t,w). 
+Like neural volumetric methods, the system reasons about global structure through partial views, but replaces data-driven learning with explicit procedural constraints that promote consistency across unseen perspectives. Taichi is used as a flexible GPU compute backend to support rapid experimentation with high-dimensional evaluation, evolution, and slice-based processing.
+The current implementation examines five-dimensional structure through orthogonal slices; ongoing work removes this constraint by enabling slicing along arbitrary directions, reframing navigation as a continuous, geometry-driven process.  -->
+<!-- A nonlinear rule defined in <span class="HL-t">4D–5D space</span> is evaluated on demand during <span class="HL-t">GPU-accelerated ray marching</span>, with temporal and dimensional slicing used to maintain coherence under motion.
+Inspired by neural volumetric methods (NeRF), the system favors explicit <span class="HL-t">procedural constraints</span> over learned representations, with ongoing work extending slicing to arbitrary directions for continuous, geometry-driven navigation.
+Implemented using Taichi as a flexible GPU compute backend for rapid high-dimensional experimentation.
+</p> -->
+                        <div class="project-tags">
+                            <span class="tag">Ray Marching</span>
+                            <span class="tag">Procedural Volumes</span>
+                            <span class="tag">High-Dimensional Data</span>
+                            <span class="tag">Reaction-Diffusion System</span>      
+                            <span class="tag">Neural Representations</span>                      
+                            <span class="tag">Taichi</span>                            
+                        </div>
+                        <ul class="project-keywords" hidden>
+                            <li>Python</li>
+                            <li>Taichi</li>
+                            <li>High-Dimensional Fields</li>
+                            <li>Procedural Volumes</li>
+                            <li>Implicit Functions</li>
+                            <li>Ray Marching</li>
+                            <li>GPU Compute</li>
+                            <li>Taichi</li>
+                            <li>Python</li>
+                            <li>Non-ML Volumetric Methods</li>
+                            <li>NeRF-Inspired Representations</li>
+                            <li>Slice-Based Visualization</li>
+                            <li>Exploratory Rendering</li>
+                        </ul>
+                    </div>
+                    <div class="project-arrow">→</div>
+                </a>
+
+                                <!-- Pi Block Collision -->
+                <a href="showcases/pi_block_collision/index.html" class="project-card ongoing-card" data-project="pi_collision">
+                    <div class="language-badge ruby">Ruby</div>
+                    <div class="video-badge">VIDEO</div>
+                    <div class="project-image-placeholder">
+                                                <img src="thumbs2/pi.png" alt="5D" style="width: 100%; height: 100%; object-fit: cover;">
+
+                        <!-- <div class="project-icon">🖼️</div> -->
+                    </div>
+                    <div class="project-content">
+
+                                                <h3 class="project-title">Mechanical Computing: How π Can Emerge from Physical Systems
+</h3>
+<p class="project-description">
+    Building on the core insight of <span class="b1b-blue">3Blue1Brown’s</span> collision-based construction of π — where a
+simple elastic system encodes π through collision counting — this project treats physical motion as a
+<span class="HL-t">computational medium</span> and explores
+<span class="HL-t">increasingly general and sophisticated forms</span>
+of mechanically encoded numerical invariants.
+</p>
+
+
+<p class="project-description">
+Simple variations — such as switching between <span class="HL-t">linear</span> and
+<span class="HL-t">angular momentum</span> — produce equivalent behavior by preserving the same
+<span class="HL-t">circular phase-space geometry</span>.
+More complex setups extend this idea to <span class="HL-t">three-body systems</span>,
+<span class="HL-t">coupled linear–angular dynamics</span>, and even
+<span class="HL-t">4D phase spaces</span> with hyperspherical trajectories, testing how robust the phenomenon remains
+under added geometric and dynamical complexity.
+</p>
+
+<p class="project-description">
+A complementary formulation replaces discrete collisions with
+<span class="HL-t">mechanical wave dynamics</span>, expressing the same structure through continuous propagation and
+connecting the system to familiar <span class="HL-t">Fourier and spectral</span> viewpoints.
+Ongoing experiments explore more <span class="HL-t">exotic mechanical encodings</span> to probe the limits of
+mechanical computation.
+</p>
+
+                        <div class="project-tags">
+                            <span class="tag">Analog Computing</span>
+                            <span class="tag">Visualization</span>
+                        </div>
+                        <ul class="project-keywords" hidden>
+                            <li>Classical Mechanics</li>
+                            <li>Elastic Collisions</li>
+                            <li>Phase Space</li>
+                            <li>Invariant Quantities</li>
+                            <li>Mechanical Computation</li>
+                            <li>Dynamical Systems</li>
+                            <li>Visualization</li>
+                        </ul>
+                    </div>
+                    <div class="project-arrow">→</div>
+                </a>
+
+                                                <!-- Laplacian Visualizer -->
+                <a href="showcases/laplacian_visualizer/index.html" class="project-card ongoing-card" data-project="laplacian">
+                    <div class="language-badge python">Python</div>
+                    <div class="video-badge">VIDEO</div>
+                    <div class="project-image-placeholder">
+                                                <img src="thumbs2/laplace.png" alt="5D" style="width: 100%; height: 100%; object-fit: cover;">
+                        <!-- <div class="project-icon">🔮</div> -->
+                    </div>
+                    <div class="project-content">
+                        <h3 class="project-title">Laplace Transform Visualizer: Filling the Intuition Gap</h3>
+<p class="project-description">
+An exploratory visualization project aimed at building <span class="HL-t">geometric intuition</span> for the
+<span class="HL-t">Laplace transform</span>, which becomes less intuitive than Fourier analysis
+as dimensionality increases.
+</p>
+
+<p class="project-description">
+While Fourier transforms admit natural interpretations through rotating vectors and periodic motion,
+Laplace transforms introduce <span class="HL-t">growth, decay, and complex scaling</span> that are harder to visualize.
+This project experiments with interactive visual mappings to reveal how structure in the
+<span class="HL-t">time domain</span> is reflected in the <span class="HL-t">s-domain</span>,
+beyond standard contour or pole–zero plots.
+</p>
+
+<p class="project-description">
+In addition to existing approaches, the system explores interpretations such as treating Laplace
+as a <span class="HL-t">Fourier scanline</span> across the complex plane, and generalizing the familiar
+<span class="HL-t">rotating-vector (“spinner”)</span> model to <span class="HL-t">arbitrary complex scaling</span>.
+This perspective hints at connections to <span class="HL-t">polarization-like behavior</span>, offering a more continuous
+and physical intuition for Laplace-domain structure.
+The visualization also presents a <span class="HL-t">global operator view</span>, evaluating the transform over
+a grid of <span class="HL-t">complex s-domain parameters</span> to reveal the combined effects of oscillation,
+decay, and amplification in a single view.
+</p>
+
+                        <div class="project-tags">
+                            <span class="tag">Visualization</span>
+                            <span class="tag">Differential Equations</span>
+                        </div>
+                        <ul class="project-keywords" hidden>
+                            <li>Python</li>
+                            <li>Integral Transforms</li>
+                            <li>Differential Equations</li>
+                            <li>Frequency Domain</li>
+                            <li>Complex Analysis</li>
+                            <li>Mathematical Visualization</li>
+                            <li>Exploratory Interfaces</li>
+                            <li>Ruby</li>
+                        </ul>
+                    </div>
+                    <div class="project-arrow">→</div>
+                </a>
+            </div>
+        </section>
+
+<!-- Color Scheme Playground (TEMP) -->
+        <!-- <section class="content-section" id="playground">
+            <div class="section-header">
+                <h2 class="section-title">🎨 Color Scheme Playground</h2>
+                <div class="section-divider"></div>
+                <p class="section-description">Temporary section to preview text styles. Delete when done.</p>
+            </div>
+
+            <div class="project-grid">
+                <div class="project-card" style="pointer-events: none;">
+                    <div class="project-content">
+                        <h3 class="project-title">Negative Glow Variants</h3>
+                        <p class="project-description" style="font-size: 1.1rem; line-height: 2.2;">
+                            <span class="glow-neg-white">White with dark halo</span> · 
+                            <span class="glow-neg-gold">Gold with dark halo</span> · 
+                            <span class="glow-neg-cyan">Cyan with dark halo</span> · 
+                            <span class="glow-neg-pink">Pink with dark halo</span> · 
+                            <span class="glow-neg-green">Green with dark halo</span>
+                        </p>
+                        <p class="project-description" style="font-size: 1.1rem; line-height: 2.2;">
+                            Your style: <span class="b1b-blue">3Blue1Brown Blue</span>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="project-card" style="pointer-events: none;">
+                    <div class="project-content">
+                        <h3 class="project-title">Gradient & Rainbow Text</h3>
+                        <p class="project-description" style="font-size: 1.1rem; line-height: 2.2;">
+                            <span class="rainbow-text">Rainbow animated text</span><br>
+                            <span class="rainbow-glow">Rainbow with glow</span><br>
+                            <span class="shimmer-gold">Gold shimmer effect</span><br>
+                            <span class="fire-text">Fire gradient</span> · 
+                            <span class="ice-text">Ice gradient</span>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="project-card" style="pointer-events: none;">
+                    <div class="project-content">
+                        <h3 class="project-title">Neon & Outline Effects</h3>
+                        <p class="project-description" style="font-size: 1.1rem; line-height: 2.2;">
+                            <span class="neon-pink">Neon Pink</span> · 
+                            <span class="neon-cyan">Neon Cyan</span><br>
+                            <span class="outline-glow-gold">Outlined Gold Glow</span>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="project-card" style="pointer-events: none;">
+                    <div class="project-content">
+                        <h3 class="project-title">3D & Emboss Effects</h3>
+                        <p class="project-description" style="font-size: 1.1rem; line-height: 2.2;">
+                            <span class="embossed">Embossed (raised)</span> · 
+                            <span class="engraved">Engraved (pressed)</span><br>
+                            <span class="shadow-3d">3D Drop Shadow</span>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="project-card" style="pointer-events: none;">
+                    <div class="project-content">
+                        <h3 class="project-title">Dual Color Glow</h3>
+                        <p class="project-description" style="font-size: 1.1rem; line-height: 2.2;">
+                            <span class="dual-gold-blue">Gold core, blue outer</span><br>
+                            <span class="dual-white-gold">White core, gold outer</span><br>
+                            <span class="dual-pink-cyan">Pink core, cyan outer</span>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="project-card" style="pointer-events: none;">
+                    <div class="project-content">
+                        <h3 class="project-title">Animated / Pulsing</h3>
+                        <p class="project-description" style="font-size: 1.1rem; line-height: 2.2;">
+                            <span class="pulse-gold">Pulsing Gold Glow</span><br>
+                            <span class="pulse-rainbow">Pulsing Rainbow Color</span>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="project-card" style="pointer-events: none;">
+                    <div class="project-content">
+                        <h3 class="project-title">Subtle / Muted Colors</h3>
+                        <p class="project-description" style="font-size: 1.1rem; line-height: 2.2;">
+                            <span class="subtle-gold">Muted Gold</span> · 
+                            <span class="subtle-white">Muted White</span> · 
+                            <span class="subtle-cyan">Dim Cyan</span><br>
+                            <span class="subtle-rose">Dusty Rose</span> · 
+                            <span class="subtle-sage">Sage Green</span> · 
+                            <span class="subtle-slate">Slate Blue</span><br>
+                            <span class="subtle-amber">Warm Amber</span> · 
+                            <span class="subtle-lavender">Muted Lavender</span>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="project-card" style="pointer-events: none;">
+                    <div class="project-content">
+                        <h3 class="project-title">Dark Halo Effects</h3>
+                        <p class="project-description" style="font-size: 1.1rem; line-height: 2.2;">
+                            <span class="dark-halo-white">White with dark surround</span><br>
+                            <span class="dark-halo-gold">Gold with dark surround</span>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="project-card" style="pointer-events: none;">
+                    <div class="project-content">
+                        <h3 class="project-title">Muted Gradients</h3>
+                        <p class="project-description" style="font-size: 1.1rem; line-height: 2.2;">
+                            <span class="gradient-sunset-muted">Muted Sunset</span><br>
+                            <span class="gradient-ocean-muted">Muted Ocean</span><br>
+                            <span class="gradient-forest-muted">Muted Forest</span>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="project-card" style="pointer-events: none;">
+                    <div class="project-content">
+                        <h3 class="project-title">Soft Glow & Vintage</h3>
+                        <p class="project-description" style="font-size: 1.1rem; line-height: 2.2;">
+                            <span class="soft-glow-gold">Soft Gold Glow</span> · 
+                            <span class="soft-glow-blue">Soft Blue Glow</span><br>
+                            <span class="vintage-sepia">Vintage Sepia</span> · 
+                            <span class="vintage-cream">Vintage Cream</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+        </section> -->
+
+<!-- Tag Cloud Section -->
+        <section class="content-section" id="topics">
+            <div class="section-header">
+                <h2 class="section-title">Techniques & Topics</h2>
+                <div class="section-divider"></div>
+                <p class="section-description">A visual summary of techniques and concepts demonstrated across the <strong>projects shown on this page</strong>.</p>
+            </div>
+
+            <div class="tag-cloud">
+                <!-- Row 1: outer rim (small) -->
+                <!-- <span class="cloud-tag size-sm">Sweep Line</span>
+                <span class="cloud-tag size-sm">MST</span>
+                <span class="cloud-tag size-sm">Dijkstra</span>
+                <span class="cloud-tag size-sm">BSDF</span>
+                <span class="cloud-tag size-sm">ImGui</span> -->
+                
+                <!-- Row 2: near-rim (small/medium mix) -->
+                <!-- <span class="cloud-tag size-sm">Phase Space</span>
+                <span class="cloud-tag size-md">Crystal</span>
+                <span class="cloud-tag size-md">Holography</span>
+                <span class="cloud-tag size-md">React</span>
+                <span class="cloud-tag size-md">AST</span>
+                <span class="cloud-tag size-sm">Risch Algorithm</span>
+                <span class="cloud-tag size-sm">Time-of-Flight</span> -->
+                
+                <!-- Row 3: middle-outer (medium) -->
+                <!-- <span class="cloud-tag size-sm">Depth Sensing</span>
+                <span class="cloud-tag size-md">Python</span>
+                <span class="cloud-tag size-md">Voronoi Diagrams</span>
+                <span class="cloud-tag size-lg">Optics</span>
+                <span class="cloud-tag size-lg">WebGL</span>
+                <span class="cloud-tag size-md">Graph Theory</span>
+                <span class="cloud-tag size-md">Balanced Trees</span>
+                <span class="cloud-tag size-sm">Differential Operators</span> -->
+
+                <!-- Row 4: middle (large) -->
+                <!-- <span class="cloud-tag size-md">Participating Media</span>
+                <span class="cloud-tag size-lg">Ray Tracing</span>
+                <span class="cloud-tag size-xl">Rendering</span>
+                <span class="cloud-tag size-xl">C++</span>
+                <span class="cloud-tag size-xl">Ruby</span>
+                <span class="cloud-tag size-lg">Path Tracing</span>
+                <span class="cloud-tag size-md">Classical Mechanics</span> -->
+
+                <!-- Row 5: center core (xl/lg) -->
+                <!-- <span class="cloud-tag size-lg">Photon Mapping</span>
+                <span class="cloud-tag size-lg">JavaScript</span>
+                <span class="cloud-tag size-lg">Mathematics</span>
+                <span class="cloud-tag size-lg">Physics</span>
+                <span class="cloud-tag size-lg">Visualization</span>
+                <span class="cloud-tag size-lg">Algorithms</span>
+                <span class="cloud-tag size-lg">Computational Geometry</span> -->
+
+                <!-- Row 6: middle (large) -->
+                <!-- <span class="cloud-tag size-md">Symbolic Computation</span>
+                <span class="cloud-tag size-lg">Data Structures</span>
+                <span class="cloud-tag size-lg">Calculus</span>
+                <span class="cloud-tag size-lg">GPU</span>
+                <span class="cloud-tag size-md">Monte Carlo</span>
+                <span class="cloud-tag size-md">GLSL</span>
+                <span class="cloud-tag size-md">PDEs</span> -->
+
+                <!-- Row 7: middle-outer (medium) -->
+                <!-- <span class="cloud-tag size-sm">Binary Indexed Tree</span>
+                <span class="cloud-tag size-md">Vector Calculus</span>
+                <span class="cloud-tag size-md">Computer Vision</span>
+                <span class="cloud-tag size-md">Signal Processing</span>
+                <span class="cloud-tag size-md">Combinatorics</span>
+                <span class="cloud-tag size-md">Fractals</span>
+                <span class="cloud-tag size-sm">Range Queries</span> -->
+
+                <!-- Row 8: near-rim (small/medium mix) -->
+                <!-- <span class="cloud-tag size-sm">Convolution</span>
+                <span class="cloud-tag size-md">Node Editor</span>
+                <span class="cloud-tag size-md">Tilt-Shift</span>
+                <span class="cloud-tag size-md">Depth of Field</span>
+                <span class="cloud-tag size-md">Complex Analysis</span>
+                <span class="cloud-tag size-md">Research</span>
+                <span class="cloud-tag size-sm">Domain Coloring</span> -->
+
+                <!-- Row 9: near-rim -->
+                <!-- <span class="cloud-tag size-sm">Dispersion</span>
+                <span class="cloud-tag size-md">Taichi</span>
+                <span class="cloud-tag size-md">Higher Dimensions</span>
+                <span class="cloud-tag size-md">Geometric Optics</span>
+                <span class="cloud-tag size-sm">FFT</span>
+                <span class="cloud-tag size-sm">Transforms</span> -->
+
+                <!-- Row 10: outer rim (small) -->
+                <!-- <span class="cloud-tag size-sm">BST</span>
+                <span class="cloud-tag size-sm">AVL</span>
+                <span class="cloud-tag size-sm">Red-Black</span> -->
+            </div>
+        </section>
+
+                <!-- More Coming Section -->
+        <section class="content-section">
+            <div class="coming-soon-card">
+                <div class="coming-soon-icon">🚀</div>
+                <h3>More Projects Coming Soon</h3>
+                <!-- <p>Additional visualizations, research projects, and interactive demos are in development.</p> -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p class="footer-note">
+                Built with care • Mathematics • Graphics • Code
+            </p>
+        </div>
+    </footer>
+
+    <!-- Visual Effects Overlays -->
+    <div class="particles-bg" id="particlesBg"></div>
+    <div class="vignette-overlay"></div>
+    <div class="grain-overlay"></div>
+    <div class="light-leak"></div>
+    <div class="scanline-overlay"></div>
+    <div class="ambient-spotlight"></div>
+    <div class="cursor-glow"></div>
+    <div class="cursor-dot"></div>
+
+
+    <script>
+        // Apply finalized styles on load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Navigator: Large, Gold+Plasma 30%
+            document.body.classList.add('nav-size-large', 'nav-style-gold-plasma', 'panel-style-fade-holo');
+            document.documentElement.style.setProperty('--plasma-blend', '0.3');
+            
+            // Anchor glow: breath animation
+            document.body.classList.add('navglow-anim-breath');
+            
+            // Golden rim: fast fade-in, quick fade-out, warm intensity
+            document.body.classList.add('rim-fadein-fast', 'rim-fadeout-quick', 'rim-intense-warm');
+
+            // Enable particles by default
+            document.body.classList.add('fx-particles');
+            
+            // Title gradient disabled for performance testing
+            // document.body.classList.add('fx-shimmer');
+
+            // Initialize Visual Effects System
+            initVisualEffects();
+        });
+
+        function initVisualEffects() {
+            // TWEAKABLE SETTINGS (edit these values directly in code):
+            // Particle density: 40 (range: 15-100)
+            // Particle speed multiplier: 1.0 (range: 0.5-2.0, lower = faster)
+            // Title gradient split position: 33% (range: 10-70%)
+            // Title gradient white intensity: 40% (range: 5-40%)
+            // Title gradient direction: 135deg (diagonal down-right)
+            // Navigator font: default (options: cinzel, cormorant, italiana, marcellus, crimson, lora, garamond, libre, mono)
+
+            // Generate particles (default density 40)
+            generateParticles(40);
+
+            // Mouse tracking disabled for performance (spotlight/cursor effects not in use)
+            // To re-enable: uncomment below and add 'fx-spotlight' or 'fx-cursorglow' to body classes
+            // document.addEventListener('mousemove', handleMouseMove);
+        }
+
+        function generateParticles(count) {
+            const bgContainer = document.getElementById('particlesBg');
+            const speedMult = parseFloat(document.documentElement.style.getPropertyValue('--particle-speed-mult')) || 1;
+            
+            // Clear existing particles
+            bgContainer.innerHTML = '';
+            
+            // Move former foreground particles to background (crisp layer)
+            for (let i = 0; i < Math.floor(count * 0.6); i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle-bg particle-bg-crisp';
+                particle.style.left = Math.random() * 100 + '%';
+                const duration = (12 + Math.random() * 8) * speedMult;
+                particle.style.animationDuration = duration + 's';
+                particle.style.animationDelay = -(Math.random() * duration) + 's';
+                const size = 3 + Math.random() * 4;
+                particle.style.width = size + 'px';
+                particle.style.height = size + 'px';
+                particle.style.filter = 'blur(0.5px)'; // Slight blur to keep behind content
+                particle.style.opacity = 0.8;
+                // Color variation: whiter (bright) to more yellow (warm)
+                const hue = 35 + Math.random() * 15; // 35-50 (gold to yellow)
+                const lightness = 60 + Math.random() * 30; // 60-90%
+                const saturation = 80 + Math.random() * 20;
+                particle.style.setProperty('--particle-color', `hsl(${hue}, ${saturation}%, ${lightness}%)`);
+                bgContainer.appendChild(particle);
+            }
+
+            // Multi-layer background particles with parallax
+            const layers = [
+                { count: 0.5, size: [4, 5], speed: [14, 8], blur: 1, opacity: 0.6, drift: 10, depth: 'near' },
+                { count: 0.4, size: [5, 6], speed: [18, 10], blur: 2, opacity: 0.4, drift: 18, depth: 'mid' },
+                { count: 0.3, size: [6, 8], speed: [24, 12], blur: 3, opacity: 0.25, drift: 28, depth: 'far' }
+            ];
+
+            layers.forEach(layer => {
+                for (let i = 0; i < Math.floor(count * layer.count); i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle-bg particle-bg-' + layer.depth;
+                    particle.style.left = Math.random() * 100 + '%';
+                    const duration = (layer.speed[0] + Math.random() * layer.speed[1]) * speedMult;
+                    particle.style.animationDuration = duration + 's';
+                    // Pre-fill: negative delay
+                    particle.style.animationDelay = -(Math.random() * duration) + 's';
+                    const size = layer.size[0] + Math.random() * layer.size[1];
+                    particle.style.width = size + 'px';
+                    particle.style.height = size + 'px';
+                    particle.style.filter = `blur(${layer.blur}px)`;
+                    particle.style.opacity = layer.opacity * (0.7 + Math.random() * 0.3);
+                    particle.style.setProperty('--drift', (Math.random() * layer.drift * 2 - layer.drift) + 'px');
+                    // Color variation for BG too
+                    const hue = 30 + Math.random() * 20;
+                    const lightness = 55 + Math.random() * 25;
+                    particle.style.setProperty('--particle-color', `hsl(${hue}, 85%, ${lightness}%)`);
+                    bgContainer.appendChild(particle);
+                }
+            });
+        }
+
+        function handleMouseMove(e) {
+            // Spotlight
+            document.documentElement.style.setProperty('--mouse-x', e.clientX + 'px');
+            document.documentElement.style.setProperty('--mouse-y', e.clientY + 'px');
+
+            // Custom cursor
+            const cursorGlow = document.querySelector('.cursor-glow');
+            const cursorDot = document.querySelector('.cursor-dot');
+            if (cursorGlow) {
+                cursorGlow.style.left = e.clientX + 'px';
+                cursorGlow.style.top = e.clientY + 'px';
+            }
+            if (cursorDot) {
+                cursorDot.style.left = e.clientX + 'px';
+                cursorDot.style.top = e.clientY + 'px';
+            }
+        }
+    </script>
+
+    <script src="script.js"></script>
+
+    <!-- Visual Effects Control Panel -->
+    <!-- <div id="effectsPanel" class="style-selector-panel" style="display: none; max-height: 85vh;">
+        <button class="close-btn" onclick="document.getElementById('effectsPanel').style.display='none'">×</button>
+        <h4>🎨 Visual Effects Lab</h4>
+        
+        <div class="section-label">Visual Effects</div>
+        <label><input type="checkbox" id="fx-particles"> Floating Particles</label>
+        <label><input type="checkbox" id="fx-vignette"> Vignette</label>
+        <label><input type="checkbox" id="fx-grain"> Film Grain</label>
+        <label><input type="checkbox" id="fx-shimmer"> Title Shimmer</label>
+        <label><input type="checkbox" id="fx-spotlight"> Mouse Spotlight</label>
+        <label><input type="checkbox" id="fx-lightleak"> Light Leak</label>
+        <label><input type="checkbox" id="fx-scanlines"> Scanlines</label>
+        <label><input type="checkbox" id="fx-cursorglow"> Custom Cursor</label>
+        <label><input type="checkbox" id="fx-dividers"> Section Dividers</label>
+        
+        <hr>
+        <div class="section-label">Navigator Style</div>
+        <label><input type="radio" name="navStyle" value="default" checked> Default Gold</label>
+        <label><input type="radio" name="navStyle" value="cyber"> Cyber</label>
+        <label><input type="radio" name="navStyle" value="organic"> Organic</label>
+        <label><input type="radio" name="navStyle" value="minimal"> Minimal Glass</label>
+        <label><input type="radio" name="navStyle" value="aurora"> Aurora</label>
+        <label><input type="radio" name="navStyle" value="victorian"> Victorian Gilt</label>
+        <label><input type="radio" name="navStyle" value="deco"> Art Deco</label>
+        <label><input type="radio" name="navStyle" value="royal"> Royal Velvet</label>
+        
+        <hr>
+        <div class="section-label">Orb Animation</div>
+        <label><input type="radio" name="orbAnim" value="default" checked> Default Float</label>
+        <label><input type="radio" name="orbAnim" value="pulse"> Pulse</label>
+        <label><input type="radio" name="orbAnim" value="drift"> Drift</label>
+        <label><input type="radio" name="orbAnim" value="morph"> Morph</label>
+        <label><input type="radio" name="orbAnim" value="hueshift"> Hue Shift</label>
+        <label><input type="radio" name="orbAnim" value="twinkle"> Twinkle</label>
+        
+        <hr>
+        <div class="section-label">Orb Colors</div>
+        <label><input type="radio" name="orbColor" value="default" checked> Gold</label>
+        <label><input type="radio" name="orbColor" value="spectrum"> Spectrum</label>
+        <label><input type="radio" name="orbColor" value="victorian"> Victorian Warm</label>
+        
+        <hr>
+        <div class="section-label">Nav Glow Animation</div>
+        <label><input type="radio" name="navglowAnim" value="default" checked> Default</label>
+        <label><input type="radio" name="navglowAnim" value="pulse"> Pulse</label>
+        <label><input type="radio" name="navglowAnim" value="breath"> Breath</label>
+        <label><input type="radio" name="navglowAnim" value="shimmer"> Shimmer</label>
+        <label><input type="radio" name="navglowAnim" value="flicker"> Flicker</label>
+        <label><input type="radio" name="navglowAnim" value="wave"> Wave</label>
+        
+        <hr>
+        <div class="section-label">Nav Glow Color</div>
+        <label><input type="radio" name="navglowColor" value="default" checked> Gold</label>
+        <label><input type="radio" name="navglowColor" value="warm"> Warm</label>
+        <label><input type="radio" name="navglowColor" value="cool"> Cool</label>
+        <label><input type="radio" name="navglowColor" value="rose"> Rose</label>
+        <label><input type="radio" name="navglowColor" value="emerald"> Emerald</label>
+        <label><input type="radio" name="navglowColor" value="plasma"> Plasma</label>
+        <label><input type="radio" name="navglowColor" value="sunset"> Sunset</label>
+        
+        <hr>
+        <div class="section-label">Rim Passing Style</div>
+        <label><input type="radio" name="rimStyle" value="default" checked> Default Gold</label>
+        <label><input type="radio" name="rimStyle" value="neon"> Neon Cyan</label>
+        <label><input type="radio" name="rimStyle" value="rosegold"> Rose Gold</label>
+        <label><input type="radio" name="rimStyle" value="electric"> Electric Purple</label>
+        <label><input type="radio" name="rimStyle" value="ember"> Ember</label>
+        <label><input type="radio" name="rimStyle" value="arctic"> Arctic</label>
+        <label><input type="radio" name="rimStyle" value="holo"> Hologram</label>
+        <label><input type="radio" name="rimStyle" value="luxe"> Luxe</label>
+        <label><input type="radio" name="rimStyle" value="ghost"> Ghost</label>
+        <label><input type="radio" name="rimStyle" value="pulse"> Pulse</label>
+        
+        <hr>
+        <div class="section-label">Title Glow</div>
+        <label><input type="radio" name="titleGlow" value="default" checked> Default</label>
+        <label><input type="radio" name="titleGlow" value="neon"> Neon</label>
+        <label><input type="radio" name="titleGlow" value="bloom"> Soft Bloom</label>
+        <label><input type="radio" name="titleGlow" value="pulse"> Pulse</label>
+        <label><input type="radio" name="titleGlow" value="ember"> Ember</label>
+        <label><input type="radio" name="titleGlow" value="holo"> Holographic</label>
+        <label><input type="radio" name="titleGlow" value="underline"> Underline</label>
+        
+        <hr>
+        <div class="section-label">Title Font</div>
+        <label><input type="radio" name="titleFont" value="default" checked> Playfair Display</label>
+        <label><input type="radio" name="titleFont" value="cinzel"> Cinzel</label>
+        <label><input type="radio" name="titleFont" value="cormorant"> Cormorant</label>
+        <label><input type="radio" name="titleFont" value="italiana"> Italiana</label>
+        <label><input type="radio" name="titleFont" value="marcellus"> Marcellus</label>
+        
+    </div> -->
+    
+    <!-- Toggle button for panel -->
+    <!-- <button id="effectsToggle" style="position: fixed; bottom: 20px; right: 20px; z-index: 10000; background: rgba(212, 175, 55, 0.2); border: 1px solid rgba(212, 175, 55, 0.5); color: #F4D03F; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-size: 1.2rem;" onclick="document.getElementById('effectsPanel').style.display = document.getElementById('effectsPanel').style.display === 'none' ? 'block' : 'none'">🎨</button> -->
+
+    <script>
+        // Effects Control Panel Logic
+        (function() {
+            const body = document.body;
+            
+            // Visual effects checkboxes
+            const fxCheckboxes = [
+                'fx-particles', 'fx-vignette', 'fx-grain', 'fx-shimmer', 
+                'fx-spotlight', 'fx-lightleak', 'fx-scanlines', 'fx-cursorglow', 'fx-dividers'
+            ];
+            
+            fxCheckboxes.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.addEventListener('change', () => {
+                        body.classList.toggle(id, el.checked);
+                        if (id === 'fx-particles' && el.checked && typeof generateParticles === 'function') {
+                            generateParticles(30);
+                        }
+                    });
+                }
+            });
+            
+            // Radio button groups
+            const radioGroups = {
+                navStyle: { prefix: 'nav-style-', values: ['default', 'cyber', 'organic', 'minimal', 'aurora', 'victorian', 'deco', 'royal'] },
+                orbAnim: { prefix: 'orb-anim-', values: ['default', 'pulse', 'drift', 'morph', 'hueshift', 'twinkle'] },
+                orbColor: { prefix: 'orb-color-', values: ['default', 'spectrum', 'victorian'] },
+                navglowAnim: { prefix: 'navglow-anim-', values: ['default', 'pulse', 'breath', 'shimmer', 'flicker', 'wave'] },
+                navglowColor: { prefix: 'navglow-color-', values: ['default', 'gold', 'warm', 'cool', 'rose', 'emerald', 'plasma', 'sunset'] },
+                rimStyle: { prefix: 'rim-style-', values: ['default', 'neon', 'rosegold', 'electric', 'ember', 'arctic', 'holo', 'luxe', 'ghost', 'pulse'] },
+                titleGlow: { prefix: 'title-glow-', values: ['default', 'neon', 'bloom', 'pulse', 'ember', 'holo', 'underline'] },
+                titleFont: { prefix: 'font-', values: ['default', 'cinzel', 'cormorant', 'italiana', 'marcellus'] }
+            };
+            
+            Object.entries(radioGroups).forEach(([name, config]) => {
+                document.querySelectorAll(`input[name="${name}"]`).forEach(radio => {
+                    radio.addEventListener('change', () => {
+                        // Remove all classes for this group
+                        config.values.forEach(val => {
+                            if (val !== 'default') {
+                                body.classList.remove(config.prefix + val);
+                            }
+                        });
+                        // Add selected class (unless default)
+                        if (radio.value !== 'default') {
+                            body.classList.add(config.prefix + radio.value);
+                        }
+                    });
+                });
+            });
+        })();
+    </script>
+</body>
+</html>
