@@ -1,996 +1,555 @@
+/* A timed stroke is a signal, not just an ordered list of points. */
 class FourierVisualizer {
     constructor() {
         this.canvas = document.getElementById('epicycles-canvas');
         this.ctx = this.canvas.getContext('2d');
-        this.resizeCanvas();
-        
-        // State
-        this.numCircles = 10;
+        this.inspector = document.getElementById('motion-inspector');
+        this.inspectCtx = this.inspector.getContext('2d');
+        this.numCircles = 16;
+        this.coefficientSelection = 'contiguous';
+        this.showReconstruction = true;
+        this.showTrace = true;
+        this.clearTrace();
+        this.reconstructionOpacity = .4;
+        this.compareFourier = true;
         this.speed = 1;
         this.time = 0;
-        this.isPlaying = true;
-        this.transformType = 'fourier';
+        this.clock = 6000;
+        this.inputPhase = 1;
+        this.isPlaying = !matchMedia('(prefers-reduced-motion: reduce)').matches;
+        this.transformType = 'stft';
         this.drawingMode = 'preset';
-        this.currentPreset = 'circle';
-        
-        // STFT specific
-        this.windowSize = 0.3; // Window size as fraction of total signal
-        this.stftWindow = []; // Current windowed segment
-        this.stftRingBuffer = []; // Ring buffer for continuous drawing
-        this.stftMaxBufferSize = 2000; // Maximum points to keep (increased for longer windows)
-        this.previousDrawingMode = 'preset'; // Remember mode before STFT
-        this.stftPointTimestamps = []; // Track timestamp of each point in ring buffer
-        this.stftLastDrawTime = Date.now(); // Track when last point was added
-        this.stftStationary = false; // Whether we're currently stationary
-        this.stftWindowDuration = 2000; // Window duration in milliseconds (2 seconds)
-        this.stftLastPosition = null; // Last drawn position for clamping
-        this.stftClampInterval = null; // Interval for adding clamped position
-        
-        // Drawing
-        this.path = [];
-        this.drawnPath = [];
-        this.isDrawing = false;
-        
-        // Fourier coefficients
+        this.currentPreset = 'trefoil';
+        this.motionProfile = 'expressive';
+        this.stftWindowDuration = 3000;
+        this.stftReconstruction = 'analysis';
+        this.stftRingBuffer = [];
+        this.stftPointTimestamps = [];
+        this.stftWindow = [];
         this.fourierCoeffs = [];
-        
-        // Initialize
-        this.loadPresetCurve('circle');
+        this.workspace = FrequencyMath.motionWorkspace(128);
+        this.drawnPath = [];
+        this.drawnTimes = [];
+        this.isDrawing = false;
+        this.pointerStroke = [];
+        this.pointerPath = null;
+        this.visible = true;
+        this.dirty = true;
+        this.lastAnalysis = -Infinity;
+        this.lastReadout = -Infinity;
+        this.analysisMs = 0;
         this.setupControls();
         this.setupDrawing();
-        this.animate();
-        
-        window.addEventListener('resize', () => this.resizeCanvas());
+        this.loadPresetCurve('trefoil');
+        this.resizeCanvas();
+        this.updateMode();
+        this.frame = this.animate.bind(this);
+        this.observer = new IntersectionObserver(entries => {
+            this.visible = entries.some(entry => entry.isIntersecting);
+            this.lastFrame = 0;
+            if (this.visible) this.wake();
+        }, { rootMargin: '80px' });
+        this.observer.observe(document.getElementById('motion-lab'));
+        new ResizeObserver(() => this.resizeCanvas()).observe(this.canvas.parentElement);
+        document.addEventListener('visibilitychange', () => { this.lastFrame = 0; if (!document.hidden) this.wake(); });
+        this.wake();
     }
-    
+
+    wake() {
+        this.dirty = true;
+        if (!this.request && this.frame && this.visible && !document.hidden) this.request = requestAnimationFrame(this.frame);
+    }
+
     resizeCanvas() {
-        this.canvas.width = this.canvas.offsetWidth;
-        this.canvas.height = this.canvas.offsetHeight;
-        this.centerX = this.canvas.width / 2;
-        this.centerY = this.canvas.height / 2;
+        const rect = this.canvas.getBoundingClientRect();
+        this.width = rect.width || 900; this.height = rect.height || 440;
+        this.ratio = Math.min(window.devicePixelRatio || 1, 1.5);
+        this.canvas.width = Math.round(this.width * this.ratio);
+        this.canvas.height = Math.round(this.height * this.ratio);
+        this.centerX = this.width / 2; this.centerY = this.height / 2;
+        this.viewScale = Math.min(this.width / 440, this.height / 390, 1.5);
+        const iw = this.inspector.getBoundingClientRect().width || 1000;
+        this.inspectorWidth = iw;
+        this.inspectorHeight = iw < 700 ? 610 : 210;
+        this.inspector.style.height = `${this.inspectorHeight}px`;
+        this.inspector.height = Math.round(this.inspectorHeight * this.ratio);
+        this.inspector.width = Math.round(iw * this.ratio);
+        this.drawInspector(); this.wake();
     }
-    
+
     setupControls() {
-        // Number of circles
-        document.getElementById('num-circles').addEventListener('input', (e) => {
-            this.numCircles = parseInt(e.target.value);
-            document.getElementById('circles-value').textContent = this.numCircles;
-            // Reset path when changing circle count to avoid chaos
-            this.time = 0;
-            this.path = [];
-            this.computeTransform();
+        const el = id => document.getElementById(id);
+        el('num-circles').addEventListener('input', e => {
+            this.numCircles = +e.target.value; el('circles-value').textContent = this.numCircles;
+            this.computeTransform(); this.wake();
         });
-        
-        // Speed
-        document.getElementById('speed').addEventListener('input', (e) => {
-            this.speed = parseFloat(e.target.value);
-            document.getElementById('speed-value').textContent = this.speed.toFixed(1) + 'x';
+        el('coefficient-selection').addEventListener('change', e => {
+            this.coefficientSelection = e.target.value; this.computeTransform(); this.wake();
         });
-        
-        // STFT window size
-        document.getElementById('stft-window-size').addEventListener('input', (e) => {
-            this.stftWindowDuration = parseInt(e.target.value);
-            const seconds = (this.stftWindowDuration / 1000).toFixed(1);
-            document.getElementById('stft-window-value').textContent = seconds + 's';
+        el('show-reconstruction').addEventListener('change', e => { this.showReconstruction = e.target.checked; this.wake(); });
+        el('show-trace').addEventListener('change', e => { this.showTrace = e.target.checked; this.wake(); });
+        el('stft-reconstruction').addEventListener('change', e => {
+            this.stftReconstruction = e.target.value; this.clearTrace();
+            this.updateMode(); this.computeTransform(); this.updateReadout(); this.wake();
         });
-        
-        // Transform type
-        document.getElementById('transform-type').addEventListener('change', (e) => {
-            const oldType = this.transformType;
-            this.transformType = e.target.value;
-            this.time = 0;
-            this.path = [];
-            
-            // STFT requires draw mode
-            if (this.transformType === 'stft') {
-                this.previousDrawingMode = this.drawingMode;
-                if (this.drawingMode !== 'draw') {
-                    this.drawingMode = 'draw';
-                    document.getElementById('drawing-mode').value = 'draw';
-                    document.getElementById('preset-group').style.display = 'none';
-                    document.getElementById('clear-draw').style.display = 'block';
-                    this.drawnPath = [];
-                    this.stftRingBuffer = [];
-                    this.stftPointTimestamps = [];
-                }
-                // Disable drawing mode dropdown in STFT
-                document.getElementById('drawing-mode').disabled = true;
-                document.getElementById('drawing-mode').style.opacity = '0.5';
-                document.getElementById('drawing-mode').style.cursor = 'not-allowed';
-                // Show STFT window size control
-                document.getElementById('stft-window-control').style.display = 'block';
-            } else if (oldType === 'stft') {
-                // Restore previous mode when leaving STFT
-                this.drawingMode = this.previousDrawingMode;
-                document.getElementById('drawing-mode').value = this.previousDrawingMode;
-                document.getElementById('drawing-mode').disabled = false;
-                document.getElementById('drawing-mode').style.opacity = '1';
-                document.getElementById('drawing-mode').style.cursor = 'pointer';
-                // Hide STFT window size control
-                document.getElementById('stft-window-control').style.display = 'none';
-                if (this.previousDrawingMode === 'preset') {
-                    document.getElementById('preset-group').style.display = 'block';
-                    document.getElementById('clear-draw').style.display = 'none';
-                    this.loadPresetCurve(this.currentPreset);
-                }
-            }
-            
-            this.computeTransform();
+        el('reconstruction-opacity').addEventListener('input', e => { this.reconstructionOpacity = +e.target.value; this.wake(); });
+        el('compare-fourier').addEventListener('change', e => { this.compareFourier = e.target.checked; this.wake(); });
+        el('speed').addEventListener('input', e => {
+            this.speed = +e.target.value; el('speed-value').textContent = this.speed.toFixed(1) + '×';
+            this.publishPath(); this.wake();
         });
-        
-        // Drawing mode
-        document.getElementById('drawing-mode').addEventListener('change', (e) => {
+        el('stft-window-size').addEventListener('input', e => {
+            this.stftWindowDuration = +e.target.value;
+            el('stft-window-value').textContent = (this.stftWindowDuration / 1000).toFixed(1) + ' s';
+            this.computeTransform(); this.wake();
+        });
+        el('transform-type').addEventListener('change', e => {
+            this.transformType = e.target.value; this.time = 0;
+            if (this.drawingMode === 'preset') this.seedMotion();
+            this.updateMode(); this.computeTransform(); this.publishPath(); this.wake();
+        });
+        el('drawing-mode').addEventListener('change', e => {
             this.drawingMode = e.target.value;
-            const presetGroup = document.getElementById('preset-group');
-            const clearBtn = document.getElementById('clear-draw');
-            
-            if (this.drawingMode === 'draw') {
-                presetGroup.style.display = 'none';
-                clearBtn.style.display = 'block';
-                this.drawnPath = [];
-            } else {
-                presetGroup.style.display = 'block';
-                clearBtn.style.display = 'none';
-                this.loadPresetCurve(this.currentPreset);
-            }
+            if (this.drawingMode === 'preset') this.loadPresetCurve(this.currentPreset);
+            else this.clearDrawing();
+            this.updateMode(); this.wake();
         });
-        
-        // Preset curve
-        document.getElementById('preset-curve').addEventListener('change', (e) => {
-            this.currentPreset = e.target.value;
-            this.loadPresetCurve(this.currentPreset);
+        el('preset-curve').addEventListener('change', e => this.loadPresetCurve(e.target.value));
+        el('motion-profile').addEventListener('change', e => {
+            this.motionProfile = e.target.value;
+            this.drawnPath = Array.from({ length: 256 }, (_, i) => this.timedPoint(i / 256));
+            this.seedMotion(); this.computeTransform(); this.updateTimingCopy(); this.publishPath(); this.wake();
         });
-        
-        // Play/Pause
-        document.getElementById('play-pause').addEventListener('click', () => {
-            this.isPlaying = !this.isPlaying;
-            document.getElementById('play-pause').textContent = this.isPlaying ? '⏸ Pause' : '▶ Play';
+        el('play-pause').addEventListener('click', () => {
+            this.isPlaying = !this.isPlaying; this.lastFrame = 0; this.updatePlay(); this.wake();
         });
-        
-        // Reset
-        document.getElementById('reset').addEventListener('click', () => {
-            this.time = 0;
-            this.path = [];
+        el('reset').addEventListener('click', () => {
+            this.time = 0; this.inputPhase = 1;
+            if (this.drawingMode === 'preset') this.seedMotion();
+            this.computeTransform(); this.wake();
         });
-        
-        // Clear drawing
-        document.getElementById('clear-draw').addEventListener('click', () => {
-            this.stopSTFTClamping();
-            this.drawnPath = [];
-            this.path = [];
-            this.stftRingBuffer = [];
-            this.stftPointTimestamps = [];
-            this.stftLastPosition = null;
-            this.fourierCoeffs = [];
-            this.computeTransform();
+        el('clear-draw').addEventListener('click', () => this.clearDrawing());
+        el('draw-now').addEventListener('click', () => {
+            this.drawingMode = 'draw'; el('drawing-mode').value = 'draw';
+            this.clearDrawing(); this.updateMode(); this.canvas.focus();
         });
+        el('sine-example').addEventListener('click', () => {
+            this.drawingMode = 'preset'; el('drawing-mode').value = 'preset'; el('preset-curve').value = 'flourish';
+            this.loadPresetCurve('flourish'); this.updateMode(); this.wake();
+        });
+        this.updatePlay();
     }
-    
+
+    updatePlay() { document.getElementById('play-pause').textContent = this.isPlaying ? '⏸ Pause' : '▶ Play'; }
+
+    updateMode() {
+        const captions = {
+            stft: 'STFT measures recent motion at uniform time intervals. This sketch reconstructs the Hann-tapered target, not the original path. Choose Match sampled path to undo the windowing with inverse STFT.',
+            fourier: 'Fourier analyzes the whole gesture at once. Timed presets retain speed too; coefficient selection decides which global frequencies survive.',
+            dct: 'Cosine uses an even extension — paired frequencies make the reconstructed motion go out and return symmetrically in time.',
+            sine: 'Sine modes preserve both endpoints — subtract their straight baseline, reconstruct the interior, then add the baseline back.'
+        };
+        document.getElementById('mode-caption').textContent = captions[this.transformType];
+        document.getElementById('stft-window-control').hidden = this.transformType !== 'stft';
+        const recovering = this.transformType === 'stft' && this.stftReconstruction === 'recover';
+        document.getElementById('stft-reconstruction-control').hidden = this.transformType !== 'stft';
+        document.getElementById('num-circles').disabled = recovering;
+        if (recovering) document.getElementById('mode-caption').textContent = 'Inverse STFT recovers all 128 recent time samples. Overlapping Hann windows cancel through weighted overlap-add; all bins are retained. Gold rotors decompose that recovered buffer and their tip follows its latest sample, one sampling interval behind the input.';
+        document.getElementById('timing-control').hidden = this.drawingMode !== 'preset';
+        document.getElementById('preset-group').hidden = this.drawingMode !== 'preset';
+        document.getElementById('clear-draw').hidden = this.drawingMode !== 'draw';
+        document.getElementById('draw-now').hidden = this.drawingMode === 'draw';
+        document.getElementById('sine-example').hidden = this.transformType !== 'sine';
+        document.getElementById('inspector-panel').hidden = this.transformType !== 'stft';
+        document.getElementById('selection-control').hidden = this.transformType !== 'fourier';
+        document.getElementById('compare-option').hidden = this.transformType !== 'fourier';
+        document.getElementById('fourier-comparison').hidden = this.transformType !== 'fourier';
+        document.getElementById('snapshot-option').hidden = this.transformType !== 'stft';
+        document.getElementById('snapshot-opacity-option').hidden = this.transformType !== 'stft';
+        document.querySelector('.legend-reconstruction').hidden = this.transformType !== 'stft';
+        const maximum = this.transformType === 'sine' ? 255 : recovering ? 128 : 100;
+        this.numCircles = Math.min(this.numCircles, maximum);
+        document.getElementById('num-circles').max = maximum;
+        document.getElementById('num-circles').value = recovering ? 128 : this.numCircles;
+        document.getElementById('circles-value').textContent = this.numCircles;
+        if (recovering) document.getElementById('circles-value').textContent = '128 · all bins';
+        document.getElementById('budget-title').textContent = this.transformType === 'sine' ? 'Sine-mode budget' : 'Vector budget';
+        document.querySelector('.legend-window').hidden = this.transformType !== 'stft' || recovering;
+        document.querySelector('.legend-reconstruction').textContent = recovering ? 'Recovered time samples' : 'Current STFT curve';
+        document.getElementById('motion-error-label').textContent = recovering ? 'RMS error against original time samples' : 'RMS error against windowed target';
+        document.querySelector('.legend-vector').textContent = this.transformType === 'sine' ? 'Sine contributions' : 'Rotating vectors';
+        document.getElementById('input-hint').textContent = this.drawingMode === 'draw'
+            ? 'Draw anywhere here. Change speed. Release to hold your last position.'
+            : this.transformType === 'stft' ? 'Green dot: actual motion · burst through the path, then linger.' : 'Compare how the basis and its boundary assumptions reconstruct this path.';
+        document.getElementById('motion-lab').dataset.mode = this.transformType;
+        this.updateTimingCopy();
+        this.resizeCanvas();
+    }
+
+    updateTimingCopy() {
+        document.getElementById('timing-explanation').textContent = this.motionProfile === 'expressive'
+            ? 'The same path rushes through one part and lingers through another. Parameter speed varies about 152×; geometric speed also depends on the curve.'
+            : 'The curve parameter advances steadily. Geometric speed can still vary: equal changes of parameter need not travel equal distances.';
+    }
+
     setupDrawing() {
-        let drawing = false;
-        
-        this.canvas.addEventListener('mousedown', (e) => {
-            if (this.drawingMode === 'draw') {
-                drawing = true;
-                if (this.transformType !== 'stft') {
-                    // For non-STFT, clear on new draw
-                    this.drawnPath = [];
-                    this.path = [];
-                }
-                const rect = this.canvas.getBoundingClientRect();
-                const x = e.clientX - rect.left - this.centerX;
-                const y = e.clientY - rect.top - this.centerY;
-                
-                if (this.transformType === 'stft') {
-                    // Stop clamping when new drawing starts
-                    this.stopSTFTClamping();
-                    // Add to ring buffer
-                    const now = Date.now();
-                    this.stftRingBuffer.push({ x, y });
-                    this.stftPointTimestamps.push(now);
-                    this.stftLastDrawTime = now;
-                    this.stftLastPosition = { x, y };
-                    if (this.stftRingBuffer.length > this.stftMaxBufferSize) {
-                        this.stftRingBuffer.shift();
-                        this.stftPointTimestamps.shift();
-                    }
-                } else {
-                    this.drawnPath.push({ x, y });
-                }
+        this.canvas.addEventListener('pointerdown', e => {
+            if (this.drawingMode !== 'draw') return;
+            e.preventDefault(); this.canvas.setPointerCapture(e.pointerId);
+            if (this.transformType !== 'stft') this.clearDrawing();
+            this.isDrawing = true;
+            this.pointerStroke = []; this.pointerPath = null;
+            if (!this.isPlaying) this.lastFrame = performance.now();
+            this.isPlaying = true; this.updatePlay();
+            if (this.transformType === 'stft' && this.stftRingBuffer.length) {
+                // Hold until the new stroke starts; do not interpolate across the pause.
+                this.stftRingBuffer.push({ ...this.stftRingBuffer.at(-1) });
+                this.stftPointTimestamps.push(this.inputTimestamp(e));
             }
+            this.recordPointer(e); this.wake();
         });
-        
-        this.canvas.addEventListener('mousemove', (e) => {
-            if (drawing && this.drawingMode === 'draw') {
-                const rect = this.canvas.getBoundingClientRect();
-                const x = e.clientX - rect.left - this.centerX;
-                const y = e.clientY - rect.top - this.centerY;
-                
-                if (this.transformType === 'stft') {
-                    const now = Date.now();
-                    this.stftRingBuffer.push({ x, y });
-                    this.stftPointTimestamps.push(now);
-                    this.stftLastDrawTime = now;
-                    this.stftLastPosition = { x, y };
-                    if (this.stftRingBuffer.length > this.stftMaxBufferSize) {
-                        this.stftRingBuffer.shift();
-                        this.stftPointTimestamps.shift();
-                    }
-                } else {
-                    this.drawnPath.push({ x, y });
-                }
-            }
+        this.canvas.addEventListener('pointermove', e => {
+            if (this.isDrawing) { this.recordPointer(e); this.wake(); }
         });
-        
-        this.canvas.addEventListener('mouseup', () => {
-            if (drawing) {
-                drawing = false;
-                if (this.transformType === 'stft') {
-                    // STFT: start clamping behavior - keep adding last position
-                    if (this.stftRingBuffer.length > 10) {
-                        this.computeTransform();
-                        this.startSTFTClamping();
-                    }
-                } else {
-                    if (this.drawnPath.length > 10) {
-                        this.computeTransform();
-                        this.time = 0;
-                    }
-                }
-            }
-        });
-        
-        // Touch support
-        this.canvas.addEventListener('touchstart', (e) => {
-            if (this.drawingMode === 'draw') {
-                e.preventDefault();
-                drawing = true;
-                if (this.transformType !== 'stft') {
-                    this.drawnPath = [];
-                    this.path = [];
-                }
-                const rect = this.canvas.getBoundingClientRect();
-                const x = e.touches[0].clientX - rect.left - this.centerX;
-                const y = e.touches[0].clientY - rect.top - this.centerY;
-                
-                if (this.transformType === 'stft') {
-                    this.stopSTFTClamping();
-                    const now = Date.now();
-                    this.stftRingBuffer.push({ x, y });
-                    this.stftPointTimestamps.push(now);
-                    this.stftLastDrawTime = now;
-                    this.stftLastPosition = { x, y };
-                    if (this.stftRingBuffer.length > this.stftMaxBufferSize) {
-                        this.stftRingBuffer.shift();
-                        this.stftPointTimestamps.shift();
-                    }
-                } else {
-                    this.drawnPath.push({ x, y });
-                }
-            }
-        });
-        
-        this.canvas.addEventListener('touchmove', (e) => {
-            if (drawing && this.drawingMode === 'draw') {
-                e.preventDefault();
-                const rect = this.canvas.getBoundingClientRect();
-                const x = e.touches[0].clientX - rect.left - this.centerX;
-                const y = e.touches[0].clientY - rect.top - this.centerY;
-                
-                if (this.transformType === 'stft') {
-                    const now = Date.now();
-                    this.stftRingBuffer.push({ x, y });
-                    this.stftPointTimestamps.push(now);
-                    this.stftLastDrawTime = now;
-                    this.stftLastPosition = { x, y };
-                    if (this.stftRingBuffer.length > this.stftMaxBufferSize) {
-                        this.stftRingBuffer.shift();
-                        this.stftPointTimestamps.shift();
-                    }
-                } else {
-                    this.drawnPath.push({ x, y });
-                }
-            }
-        });
-        
-        this.canvas.addEventListener('touchend', () => {
-            if (drawing) {
-                drawing = false;
-                if (this.transformType === 'stft') {
-                    if (this.stftRingBuffer.length > 10) {
-                        this.computeTransform();
-                        this.startSTFTClamping();
-                    }
-                } else {
-                    if (this.drawnPath.length > 10) {
-                        this.computeTransform();
-                        this.time = 0;
-                    }
-                }
-            }
-        });
+        const finish = () => {
+            if (!this.isDrawing) return;
+            this.isDrawing = false;
+            this.pointerStroke = []; this.pointerPath = null;
+            this.computeTransform(this.transformType !== 'stft'); this.publishPath(); this.wake();
+        };
+        this.canvas.addEventListener('pointerup', finish);
+        this.canvas.addEventListener('pointercancel', finish);
     }
-    
-    startSTFTClamping() {
-        // Stop any existing clamping
-        this.stopSTFTClamping();
-        
-        if (!this.stftLastPosition) return;
-        
-        // Add the last position repeatedly at ~60fps to simulate staying at that point
-        this.stftClampInterval = setInterval(() => {
-            if (this.transformType !== 'stft' || !this.stftLastPosition) {
-                this.stopSTFTClamping();
-                return;
-            }
-            
-            const now = Date.now();
-            this.stftRingBuffer.push({ ...this.stftLastPosition });
-            this.stftPointTimestamps.push(now);
-            // Don't update stftLastDrawTime during clamping - let glow detect stationary state
-            
-            if (this.stftRingBuffer.length > this.stftMaxBufferSize) {
-                this.stftRingBuffer.shift();
-                this.stftPointTimestamps.shift();
-            }
-        }, 16); // ~60fps
+
+    recordPointer(e) {
+        const rect = this.canvas.getBoundingClientRect();
+        const p = { x: (e.clientX - rect.left - this.centerX) / this.viewScale,
+            y: (e.clientY - rect.top - this.centerY) / this.viewScale };
+        const timestamp = this.inputTimestamp(e);
+        // Drawing feedback is independent of the selected transform and its cadence.
+        this.pointerStroke.push(p);
+        if (this.pointerStroke.length > 2048) this.pointerStroke.shift();
+        this.pointerPath = null;
+        this.drawnPath.push(p); this.drawnTimes.push(timestamp);
+        if (this.drawnPath.length > 2048) { this.drawnPath.shift(); this.drawnTimes.shift(); }
+        this.stftRingBuffer.push(p); this.stftPointTimestamps.push(timestamp);
+        this.pruneMotion();
     }
-    
-    stopSTFTClamping() {
-        if (this.stftClampInterval) {
-            clearInterval(this.stftClampInterval);
-            this.stftClampInterval = null;
+
+    inputTimestamp(e) {
+        // Pointer timestamps resolve motion between animation frames, even on a busy frame.
+        return this.clock + (this.lastFrame ? Math.max(0, e.timeStamp - this.lastFrame) : 0);
+    }
+
+    clearDrawing() {
+        this.isDrawing = false; this.pointerStroke = []; this.pointerPath = null;
+        this.drawnPath = []; this.drawnTimes = []; this.stftRingBuffer = []; this.stftPointTimestamps = [];
+        this.fourierCoeffs = []; this.retained = []; this.stftWindow = []; this.reconstruction = []; this.inputPath = null;
+        this.agePaths = []; this.windowedPath = null; this.reconstructedPath = null;
+        this.comparisonPath = null; this.sineAnalysis = null;
+        this.clearTrace();
+        this.time = 0; this.drawInspector(); this.wake();
+    }
+
+    presetPoint(preset, u) {
+        const t = u * Math.PI * 2;
+        switch (preset) {
+            case 'circle': return { x: 100 * Math.cos(t), y: 100 * Math.sin(t) };
+            case 'heart': return { x: 100 * Math.sin(t) ** 3, y: -6.25 * (13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t)) };
+            case 'star': { const r = 100 * (1 + .5 * Math.cos(5*t)); return { x: r * Math.cos(t), y: r * Math.sin(t) }; }
+            case 'spiral': { const r = 50 + 50 * (u % 1); return { x: r * Math.cos(t), y: r * Math.sin(t) }; }
+            case 'infinity': return { x: 100 * Math.cos(t) / (1 + Math.sin(t)**2), y: 100 * Math.sin(t) * Math.cos(t) / (1 + Math.sin(t)**2) };
+            case 'flourish': { const q = ((u % 1) + 1) % 1; return { x: 200 * (q - .5), y: 58 * Math.sin(2 * Math.PI * q) + 24 * Math.sin(5 * Math.PI * q) + 45 * q }; }
+            default: return { x: 80 * Math.cos(t) * (1 + Math.cos(3*t)), y: 80 * Math.sin(t) * (1 + Math.cos(3*t)) };
         }
     }
-    
+
+    timedPoint(phase) {
+        const u = FrequencyMath.motionPhase(phase, this.motionProfile);
+        return this.presetPoint(this.currentPreset, u);
+    }
+
     loadPresetCurve(preset) {
-        const numPoints = 200;
-        this.drawnPath = [];
-        
-        for (let i = 0; i < numPoints; i++) {
-            const t = (i / numPoints) * 2 * Math.PI;
-            let x, y;
-            
-            switch(preset) {
-                case 'circle':
-                    x = 100 * Math.cos(t);
-                    y = 100 * Math.sin(t);
-                    break;
-                case 'heart':
-                    x = 100 * 16 * Math.pow(Math.sin(t), 3) / 16;
-                    y = -100 * (13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t)) / 16;
-                    break;
-                case 'star':
-                    const r = 100 * (1 + 0.5 * Math.cos(5 * t));
-                    x = r * Math.cos(t);
-                    y = r * Math.sin(t);
-                    break;
-                case 'spiral':
-                    const radius = 50 + 50 * (t / (2 * Math.PI));
-                    x = radius * Math.cos(t);
-                    y = radius * Math.sin(t);
-                    break;
-                case 'infinity':
-                    const scale = 80;
-                    x = scale * Math.cos(t) / (1 + Math.sin(t) * Math.sin(t));
-                    y = scale * Math.sin(t) * Math.cos(t) / (1 + Math.sin(t) * Math.sin(t));
-                    break;
-                case 'trefoil':
-                    x = 80 * Math.cos(t) * (1 + Math.cos(3*t));
-                    y = 80 * Math.sin(t) * (1 + Math.cos(3*t));
-                    break;
-            }
-            
-            this.drawnPath.push({ x, y });
-        }
-        
-        this.computeTransform();
-        this.time = 0;
-        this.path = [];
+        this.isDrawing = false; this.pointerStroke = []; this.pointerPath = null;
+        this.currentPreset = preset;
+        this.drawnPath = Array.from({ length: 256 }, (_, i) => this.timedPoint(i / 256));
+        this.drawnTimes = Array.from({ length: 256 }, (_, i) => i * 6000 / 256);
+        this.seedMotion(); this.computeTransform(); this.time = 0; this.publishPath(); this.wake();
     }
-    
-    computeTransform() {
-        if (this.drawnPath.length === 0) return;
-        
-        switch(this.transformType) {
-            case 'fourier':
-                this.computeDFT();
-                break;
-            case 'dct':
-                this.computeDCT();
-                break;
-            case 'wavelet':
-                this.computeWavelet();
-                break;
-            case 'polynomial':
-                this.computePolynomial();
-                break;
-            case 'stft':
-                this.computeSTFT();
-                break;
-            case 'hht':
-                this.computeHHT();
-                break;
+
+    seedMotion() {
+        this.stftRingBuffer = []; this.stftPointTimestamps = [];
+        for (let i = 0; i <= 384; i++) {
+            const ago = 6000 - i * 6000 / 384;
+            this.stftRingBuffer.push(this.timedPoint(this.inputPhase - ago * this.speed / 6000));
+            this.stftPointTimestamps.push(this.clock - ago);
         }
     }
-    
-    computeDFT() {
-        const N = this.drawnPath.length;
-        this.fourierCoeffs = [];
-        
-        // Compute DFT
-        for (let k = -this.numCircles; k <= this.numCircles; k++) {
-            let re = 0;
-            let im = 0;
-            
-            for (let n = 0; n < N; n++) {
-                const phi = (2 * Math.PI * k * n) / N;
-                const x = this.drawnPath[n].x;
-                const y = this.drawnPath[n].y;
-                
-                re += x * Math.cos(phi) + y * Math.sin(phi);
-                im += y * Math.cos(phi) - x * Math.sin(phi);
-            }
-            
-            re /= N;
-            im /= N;
-            
-            const freq = k;
-            const amp = Math.sqrt(re * re + im * im);
-            const phase = Math.atan2(im, re);
-            
-            this.fourierCoeffs.push({ freq, amp, phase, re, im });
-        }
-        
-        // Sort by amplitude (largest first for better visualization)
-        this.fourierCoeffs.sort((a, b) => b.amp - a.amp);
+
+    pruneMotion() {
+        // Retain one predecessor so interpolation at the left window edge stays correct.
+        let cut = 0;
+        while (cut + 1 < this.stftPointTimestamps.length && this.stftPointTimestamps[cut + 1] < this.clock - 5500) cut++;
+        cut = Math.max(cut, this.stftRingBuffer.length - 2048);
+        if (cut > 0) { this.stftRingBuffer.splice(0, cut); this.stftPointTimestamps.splice(0, cut); }
     }
-    
-    computeDCT() {
-        const N = this.drawnPath.length;
-        this.fourierCoeffs = [];
-        
-        // Compute DFT first, then convert using DCT relationship
-        // DCT can be computed via DFT by extending signal symmetrically
-        const extended = [];
-        
-        // Mirror the signal for DCT via DFT
-        for (let i = 0; i < N; i++) {
-            extended.push(this.drawnPath[i]);
-        }
-        for (let i = N - 1; i >= 0; i--) {
-            extended.push(this.drawnPath[i]);
-        }
-        
-        const M = extended.length;
-        
-        // Compute DFT on extended signal
-        for (let k = -this.numCircles; k <= this.numCircles; k++) {
-            let re = 0;
-            let im = 0;
-            
-            for (let n = 0; n < M; n++) {
-                const phi = (2 * Math.PI * k * n) / M;
-                const x = extended[n].x;
-                const y = extended[n].y;
-                
-                re += x * Math.cos(phi) + y * Math.sin(phi);
-                im += y * Math.cos(phi) - x * Math.sin(phi);
-            }
-            
-            re /= M;
-            im /= M;
-            
-            const freq = k;
-            const amp = Math.sqrt(re * re + im * im);
-            const phase = Math.atan2(im, re);
-            
-            this.fourierCoeffs.push({ freq, amp, phase, re, im });
-        }
-        
-        this.fourierCoeffs.sort((a, b) => b.amp - a.amp);
+
+    publishPath() {
+        const timedPreset = this.drawingMode === 'preset' && this.transformType === 'stft';
+        const points = timedPreset ? Array.from({ length: 257 }, (_, i) => this.timedPoint(i / 256)) : this.drawnPath.map(p => ({ ...p }));
+        const timestamps = timedPreset ? Array.from({ length: 257 }, (_, i) => i * 6000 / (256 * this.speed)) : this.drawnTimes.slice();
+        document.dispatchEvent(new CustomEvent('harmonics:path', { detail: {
+            points, timestamps
+        } }));
     }
-    
-    computeWavelet() {
-        // Wavelet removed - not suitable for epicycles
-        this.computeDFT();
-    }
-    
-    computeSTFT() {
-        // STFT operates on ring buffer with temporal windowing
-        if (this.stftRingBuffer.length === 0) {
-            this.fourierCoeffs = [];
-            this.stftWindow = [];
-            return;
-        }
-        
-        const now = Date.now();
-        const windowStartTime = now - this.stftWindowDuration;
-        const timeSinceLastDraw = now - this.stftLastDrawTime;
-        const isActivelyDrawing = timeSinceLastDraw < 200;
-        
-        // Filter points within temporal window
-        this.stftWindow = [];
-        const windowed = [];
-        const windowedIndices = [];
-        
-        for (let i = 0; i < this.stftRingBuffer.length; i++) {
-            if (this.stftPointTimestamps[i] >= windowStartTime) {
-                windowedIndices.push(i);
-                this.stftWindow.push(this.stftRingBuffer[i]);
-            }
-        }
-        
-        if (this.stftWindow.length < 2) {
-            this.fourierCoeffs = [];
-            return;
-        }
-        
-        const M = this.stftWindow.length;
-        let totalWeight = 0;
-        
-        // Apply windowing
-        for (let i = 0; i < M; i++) {
-            const idx = windowedIndices[i];
-            const age = now - this.stftPointTimestamps[idx];
-            
-            // During active drawing: use Hann window for smooth transitions
-            // When stationary: use rectangular window to preserve endpoint
-            let weight;
-            if (isActivelyDrawing) {
-                // Hann window for smooth spectral characteristics
-                const n = i;
-                weight = 0.5 * (1 - Math.cos(2 * Math.PI * n / M));
+
+    computeTransform(resetTrace = true) {
+        if (resetTrace) this.clearTrace();
+        if (this.transformType === 'stft') { this.computeSTFT(); return; }
+        if (!this.drawnPath.length) return;
+        const count = Math.max(256, 2 ** Math.ceil(Math.log2(this.drawnPath.length)));
+        this.staticSamples = FrequencyMath.indexSamples(this.drawnPath, count, this.transformType !== 'sine');
+        this.comparisonPath = null;
+        if (this.transformType === 'sine') {
+            this.sineAnalysis = FrequencyMath.sineAnalysis(this.drawnPath);
+            this.fourierCoeffs = this.sineAnalysis.coefficients;
+            this.retained = this.fourierCoeffs.slice(0, this.numCircles);
+            this.reconstruction = FrequencyMath.reconstructSine(this.sineAnalysis, this.numCircles);
+        } else {
+            const samples = this.transformType === 'dct' ? [...this.staticSamples, ...this.staticSamples.slice().reverse()] : this.staticSamples;
+            this.fourierCoeffs = FrequencyMath.pathCoefficients(samples);
+            if (this.transformType === 'dct') {
+                const pairs = Math.floor((this.numCircles - 1) / 2);
+                this.retained = this.fourierCoeffs.filter(c => Math.abs(c.freq) <= pairs);
             } else {
-                // Rectangular window when stationary to preserve full amplitude at endpoint
-                // But apply temporal decay for visualization
-                weight = 1.0;
+                const contiguous = FrequencyMath.selectPathCoefficients(this.fourierCoeffs, this.numCircles, 'contiguous');
+                const largest = FrequencyMath.selectPathCoefficients(this.fourierCoeffs, this.numCircles, 'largest');
+                this.retained = this.coefficientSelection === 'largest' ? largest : contiguous;
+                const other = this.coefficientSelection === 'largest' ? contiguous : largest;
+                this.comparisonPath = this.pathFrom(FrequencyMath.reconstruct(other, count), true);
+                const lowError = FrequencyMath.spectralRms(this.fourierCoeffs, contiguous), bestError = FrequencyMath.spectralRms(this.fourierCoeffs, largest);
+                document.getElementById('contiguous-error').textContent = `${lowError.toFixed(2)} units`;
+                document.getElementById('largest-error').textContent = `${bestError.toFixed(2)} units`;
+                const gain = lowError > 1e-9 ? 100 * (1 - bestError / lowError) : 0;
+                document.getElementById('selection-explanation').textContent = `Both keep ${this.retained.length} of ${count} coefficients, including the mean. ${gain > .01 ? `Automatic selection lowers RMS error by ${gain.toFixed(1)}%.` : 'These policies tie at this budget.'} Glowing trace: ${this.coefficientSelection === 'largest' ? 'largest coefficients' : 'contiguous frequencies'}. Dotted amber: the other policy’s full curve.`;
             }
-            
-            totalWeight += weight;
-            
-            windowed.push({
-                x: this.stftWindow[i].x * weight,
-                y: this.stftWindow[i].y * weight
-            });
+            this.retained.sort((a, b) => b.amp - a.amp);
+            this.reconstruction = FrequencyMath.reconstruct(this.retained, Math.max(512, samples.length));
         }
-        
-        // Compute DFT on windowed segment
-        this.fourierCoeffs = [];
-        
-        for (let k = -this.numCircles; k <= this.numCircles; k++) {
-            let re = 0;
-            let im = 0;
-            
-            for (let n = 0; n < M; n++) {
-                const phi = (2 * Math.PI * k * n) / M;
-                const x = windowed[n].x;
-                const y = windowed[n].y;
-                
-                re += x * Math.cos(phi) + y * Math.sin(phi);
-                im += y * Math.cos(phi) - x * Math.sin(phi);
-            }
-            
-            // Standard DFT normalization
-            re /= M;
-            im /= M;
-            
-            const freq = k;
-            const amp = Math.sqrt(re * re + im * im);
-            const phase = Math.atan2(im, re);
-            
-            this.fourierCoeffs.push({ freq, amp, phase, re, im });
-        }
-        
-        this.fourierCoeffs.sort((a, b) => b.amp - a.amp);
+        this.inputPath = this.pathFrom(this.drawnPath);
+        this.reconstructedPath = this.pathFrom(this.reconstruction, this.transformType !== 'sine');
     }
-    
-    computeHHT() {
-        // HHT via simplified EMD - but EMD is complex, so use simpler adaptive approach
-        // Extract dominant oscillatory modes by iterative frequency filtering
-        const N = this.drawnPath.length;
-        
-        // Just do DFT but group coefficients by similar frequencies (simplified "modes")
-        this.fourierCoeffs = [];
-        
-        // First compute all DFT coefficients
-        const allCoeffs = [];
-        for (let k = -this.numCircles * 2; k <= this.numCircles * 2; k++) {
-            let re = 0;
-            let im = 0;
-            
-            for (let n = 0; n < N; n++) {
-                const phi = (2 * Math.PI * k * n) / N;
-                const x = this.drawnPath[n].x;
-                const y = this.drawnPath[n].y;
-                
-                re += x * Math.cos(phi) + y * Math.sin(phi);
-                im += y * Math.cos(phi) - x * Math.sin(phi);
-            }
-            
-            re /= N;
-            im /= N;
-            
-            const amp = Math.sqrt(re * re + im * im);
-            allCoeffs.push({ freq: k, amp, phase: Math.atan2(im, re), re, im });
+
+    computeSTFT() {
+        const started = performance.now();
+        this.stftWindow = FrequencyMath.resample(this.stftRingBuffer, this.stftPointTimestamps,
+            this.clock, this.stftWindowDuration, 128, this.stftWindow);
+        this.fourierCoeffs = FrequencyMath.motionCoefficients(this.stftWindow, 63, this.workspace);
+        this.retained = this.fourierCoeffs.slice(0, this.numCircles);
+        this.reconstruction = FrequencyMath.reconstruct(this.retained);
+        const recovering = this.stftReconstruction === 'recover';
+        if (recovering) {
+            this.reconstruction = FrequencyMath.recoverMotion(this.stftWindow);
+            this.fourierCoeffs = FrequencyMath.pathCoefficients(this.reconstruction).sort((a,b)=>b.amp-a.amp);
+            this.retained = this.fourierCoeffs;
         }
-        
-        // Sort by amplitude and take top ones (this is the "adaptive" part)
-        allCoeffs.sort((a, b) => b.amp - a.amp);
-        this.fourierCoeffs = allCoeffs.slice(0, this.numCircles * 2 + 1);
-        
-        // Re-sort by frequency for visualization
-        this.fourierCoeffs.sort((a, b) => b.amp - a.amp);
+        this.reconstructedPath = this.pathFrom(this.reconstruction, !recovering);
+        this.windowedPath = recovering ? null : this.pathFrom(this.stftWindow.length ? this.workspace.windowed : [], true);
+        this.agePaths = [];
+        // Eight strokes replace thousands of per-event draw calls and color allocations.
+        for (let j = 0; j < 8; j++) this.agePaths.push(this.pathFrom(this.stftWindow.slice(j * 16, Math.min(128, (j + 1) * 16 + 1))));
+        this.analysisMs = .8 * this.analysisMs + .2 * (performance.now() - started);
+        this.drawInspector();
     }
-    
-    // EMD helper functions removed - HHT now uses simplified adaptive approach
-    
-    computePolynomial() {
-        // Taylor/Power series approximation
-        // Fit x(t) and y(t) as polynomials, then sample to create epicycles
-        const N = this.drawnPath.length;
-        this.fourierCoeffs = [];
-        
-        // Fit polynomial coefficients using least squares
-        const degree = Math.min(this.numCircles, 20);
-        
-        // Build Vandermonde matrix and fit
-        const coeffsX = this.fitPolynomial(this.drawnPath.map(p => p.x), degree);
-        const coeffsY = this.fitPolynomial(this.drawnPath.map(p => p.y), degree);
-        
-        // Sample the polynomial at N points to reconstruct path
-        const reconstructed = [];
-        for (let i = 0; i < N; i++) {
-            const t = i / N;
-            let x = 0, y = 0;
-            for (let d = 0; d <= degree; d++) {
-                const pow = Math.pow(t, d);
-                x += coeffsX[d] * pow;
-                y += coeffsY[d] * pow;
-            }
-            reconstructed.push({ x, y });
-        }
-        
-        // Now compute DFT of the polynomial reconstruction
-        for (let k = -this.numCircles; k <= this.numCircles; k++) {
-            let re = 0;
-            let im = 0;
-            
-            for (let n = 0; n < N; n++) {
-                const phi = (2 * Math.PI * k * n) / N;
-                const x = reconstructed[n].x;
-                const y = reconstructed[n].y;
-                
-                re += x * Math.cos(phi) + y * Math.sin(phi);
-                im += y * Math.cos(phi) - x * Math.sin(phi);
-            }
-            
-            re /= N;
-            im /= N;
-            
-            const freq = k;
-            const amp = Math.sqrt(re * re + im * im);
-            const phase = Math.atan2(im, re);
-            
-            this.fourierCoeffs.push({ freq, amp, phase, re, im });
-        }
-        
-        this.fourierCoeffs.sort((a, b) => b.amp - a.amp);
+
+    pathFrom(points, closed = false) {
+        const path = new Path2D();
+        points.forEach((p, i) => i ? path.lineTo(p.x, p.y) : path.moveTo(p.x, p.y));
+        if (closed && points.length) path.closePath();
+        return path;
     }
-    
-    fitPolynomial(values, degree) {
-        // Simple polynomial fitting using normal equations
-        const N = values.length;
-        const coeffs = new Array(degree + 1).fill(0);
-        
-        // Use least squares to fit polynomial
-        // Simplified approach: use moments
-        for (let d = 0; d <= degree; d++) {
-            let sum = 0;
-            for (let i = 0; i < N; i++) {
-                const t = i / N;
-                sum += values[i] * Math.pow(t, d);
-            }
-            coeffs[d] = sum / N;
-        }
-        
-        return coeffs;
+
+    clearTrace() {
+        this.tracedPoints = [];
+        this.tracedPath = null;
+        this.lastTraceClock = -Infinity;
     }
-    
-    drawEpicycles() {
-        let x = this.centerX;
-        let y = this.centerY;
-        
-        const coeffsToUse = this.fourierCoeffs.slice(0, this.numCircles);
-        
-        for (let i = 0; i < coeffsToUse.length; i++) {
-            const coeff = coeffsToUse[i];
-            const radius = coeff.amp;
-            const freq = coeff.freq;
-            const phase = coeff.phase;
-            
-            const angle = freq * this.time + phase;
-            
-            // Draw circle
-            this.ctx.beginPath();
-            this.ctx.arc(x, y, radius, 0, 2 * Math.PI);
-            this.ctx.strokeStyle = `rgba(212, 175, 55, ${0.3 - i * 0.003})`;
-            this.ctx.lineWidth = 1;
-            this.ctx.stroke();
-            
-            // Draw radius line
-            const nextX = x + radius * Math.cos(angle);
-            const nextY = y + radius * Math.sin(angle);
-            
-            this.ctx.beginPath();
-            this.ctx.moveTo(x, y);
-            this.ctx.lineTo(nextX, nextY);
-            this.ctx.strokeStyle = `rgba(244, 208, 63, ${0.6 - i * 0.005})`;
-            this.ctx.lineWidth = 2;
-            this.ctx.stroke();
-            
-            // Draw point at end
-            this.ctx.beginPath();
-            this.ctx.arc(nextX, nextY, 3, 0, 2 * Math.PI);
-            this.ctx.fillStyle = '#F4D03F';
-            this.ctx.fill();
-            
-            x = nextX;
-            y = nextY;
-        }
-        
-        // Add current point to path
-        this.path.unshift({ x: x - this.centerX, y: y - this.centerY });
-        if (this.path.length > 500) {
-            this.path.pop();
-        }
-        
-        return { x, y };
+
+    recordTrace(x, y) {
+        // Keep the original moving-tip history, never an ever-growing full path.
+        // Sample at most 60 Hz; cached geometry is reused by faster display frames.
+        if (this.tracedPoints.length && (!this.isPlaying || this.clock - this.lastTraceClock < 1000 / 60)) return;
+        this.tracedPoints.push({ x, y });
+        if (this.tracedPoints.length > 500) this.tracedPoints.shift();
+        this.lastTraceClock = Number.isFinite(this.lastTraceClock)
+            ? this.clock - (this.clock - this.lastTraceClock) % (1000 / 60) : this.clock;
+        this.tracedPath = this.pathFrom(this.tracedPoints);
     }
-    
-    drawPath() {
-        if (this.path.length < 2) return;
-        
-        this.ctx.beginPath();
-        this.ctx.moveTo(
-            this.path[0].x + this.centerX, 
-            this.path[0].y + this.centerY
-        );
-        
-        for (let i = 1; i < this.path.length; i++) {
-            const alpha = 1 - i / this.path.length;
-            this.ctx.lineTo(
-                this.path[i].x + this.centerX, 
-                this.path[i].y + this.centerY
-            );
-        }
-        
-        this.ctx.strokeStyle = '#4A9EFF';
-        this.ctx.lineWidth = 3;
-        this.ctx.shadowColor = '#4A9EFF';
-        this.ctx.shadowBlur = 10;
-        this.ctx.stroke();
-        this.ctx.shadowBlur = 0;
+
+    drawTrace() {
+        if (!this.showTrace || this.tracedPoints.length < 2) return;
+        const c = this.ctx;
+        c.lineWidth = 2.6; c.strokeStyle = '#6cb2ff';
+        c.shadowColor = '#4a9eff'; c.shadowBlur = 10;
+        c.stroke(this.tracedPath); c.shadowBlur = 0;
     }
-    
-    drawOriginalCurve() {
-        // For STFT, draw ring buffer with temporal age-based fading
-        if (this.transformType === 'stft' && this.stftRingBuffer.length > 0) {
-            const now = Date.now();
-            const windowStartTime = now - this.stftWindowDuration;
-            
-            for (let i = 1; i < this.stftRingBuffer.length; i++) {
-                this.ctx.beginPath();
-                this.ctx.moveTo(
-                    this.stftRingBuffer[i-1].x + this.centerX,
-                    this.stftRingBuffer[i-1].y + this.centerY
-                );
-                this.ctx.lineTo(
-                    this.stftRingBuffer[i].x + this.centerX,
-                    this.stftRingBuffer[i].y + this.centerY
-                );
-                
-                const timestamp = this.stftPointTimestamps[i];
-                const age = now - timestamp;
-                
-                // Points in temporal window are green with temporal fade
-                if (timestamp >= windowStartTime) {
-                    const temporalProgress = 1 - (age / this.stftWindowDuration);
-                    const alpha = 0.2 + 0.7 * temporalProgress; // Fade from 0.2 to 0.9
-                    this.ctx.strokeStyle = `rgba(76, 175, 80, ${alpha})`;
-                    this.ctx.lineWidth = 1 + temporalProgress * 1.5;
-                } else {
-                    // Old points fade to gray rapidly
-                    const beyondWindow = age - this.stftWindowDuration;
-                    const fadeTime = 1000; // Fade out over 1 second
-                    const alpha = Math.max(0.05, 0.15 * (1 - Math.min(beyondWindow / fadeTime, 1)));
-                    this.ctx.strokeStyle = `rgba(150, 150, 150, ${alpha})`;
-                    this.ctx.lineWidth = 0.5;
-                }
-                this.ctx.stroke();
-            }
-            return;
+
+    drawInspector() {
+        if (!this.inspectCtx || !this.inspectorWidth) return;
+        const c = this.inspectCtx, W = this.inspectorWidth, H = this.inspectorHeight, gap = 18;
+        const stacked = W < 700, col = stacked ? W - gap * 2 : (W - gap * 4) / 3;
+        const ox = p => stacked ? gap : gap + p * (col + gap);
+        const oy = p => stacked ? p * 200 : 0;
+        c.setTransform(this.ratio, 0, 0, this.ratio, 0, 0);
+        c.fillStyle = '#101010'; c.fillRect(0, 0, W, H);
+        c.font = `11px "Source Code Pro", monospace`;
+        const labels = ['01  TIME SAMPLES + HANN', this.stftReconstruction === 'recover' ? '02  RECOVERED BUFFER SPECTRUM' : '02  SIGNED LOCAL SPECTRUM', '03  SPEED THROUGH THE WINDOW'];
+        const pts = this.stftWindow, n = pts.length;
+        for (let p = 0; p < 3; p++) {
+            const x = ox(p), y = oy(p);
+            c.fillStyle = '#e4c45d'; c.fillText(labels[p], x, y + 22);
+            c.strokeStyle = '#ffffff17'; c.strokeRect(x, y + 37, col, 127);
+            c.fillStyle = '#96968e'; c.fillText(p === 1 ? '− frequency     0     + frequency' : `−${(this.stftWindowDuration / 1000).toFixed(1)} s                         now`, x, y + 180);
         }
-        
-        // Regular drawing for other modes
-        if (this.drawnPath.length === 0) return;
-        
-        this.ctx.beginPath();
-        this.ctx.moveTo(
-            this.drawnPath[0].x + this.centerX,
-            this.drawnPath[0].y + this.centerY
-        );
-        
-        for (let i = 1; i < this.drawnPath.length; i++) {
-            this.ctx.lineTo(
-                this.drawnPath[i].x + this.centerX,
-                this.drawnPath[i].y + this.centerY
-            );
+        if (!n) return;
+        const amplitude = Math.max(30, ...pts.map(p => Math.max(Math.abs(p.x), Math.abs(p.y))));
+        const trace = (values, panel, color, low, high) => {
+            c.beginPath(); values.forEach((v, i) => {
+                const x = ox(panel) + i / (values.length - 1) * col, y = oy(panel) + 160 - (v - low) / (high - low) * 119;
+                i ? c.lineTo(x, y) : c.moveTo(x, y);
+            }); c.strokeStyle = color; c.lineWidth = 1.4; c.stroke();
+        };
+        trace(Array.from(this.workspace.hann), 0, '#a5945077', 0, 1);
+        trace(pts.map(p => p.x), 0, '#4a9eff', -amplitude, amplitude);
+        trace(pts.map(p => p.y), 0, '#57cf78', -amplitude, amplitude);
+        c.fillStyle = '#4a9eff'; c.fillText('x(t)', gap + 4, 196);
+        c.fillStyle = '#57cf78'; c.fillText('y(t)', gap + 48, 196);
+        c.fillStyle = '#d4af37'; c.fillText('window', gap + 94, 196);
+        const off = ox(1), maxFreq = Math.min(24, Math.max(8, Math.ceil(this.numCircles / 2)));
+        const peak = Math.max(.001, ...this.fourierCoeffs.filter(v => v.freq !== 0).map(v => v.amp));
+        const selected = new Set(this.retained.map(v => v.freq));
+        for (const v of this.fourierCoeffs) {
+            if (Math.abs(v.freq) > maxFreq) continue;
+            const x = off + (v.freq + maxFreq) / (2 * maxFreq + 1) * col;
+            const height = Math.min(1, v.amp / peak) * 116;
+            c.fillStyle = selected.has(v.freq) ? '#f4d03f' : '#686a72';
+            c.fillRect(x, oy(1) + 160 - height, Math.max(1.5, col / (2 * maxFreq + 1) - 1.5), height);
         }
-        
-        this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
-        this.ctx.lineWidth = 1;
-        this.ctx.stroke();
+        c.fillStyle = '#b0b0a8'; c.fillText(`Gold retained · ±${(maxFreq * 1000 / this.stftWindowDuration).toFixed(1)} Hz shown`, off, oy(1) + 196);
+        const speeds = pts.slice(1).map((p, i) => Math.hypot(p.x - pts[i].x, p.y - pts[i].y) * n * 1000 / this.stftWindowDuration);
+        trace(speeds, 2, '#e58f60', 0, Math.max(20, ...speeds));
+        c.fillStyle = '#b0b0a8'; c.fillText('Same geometry ≠ same timing', ox(2), oy(2) + 196);
     }
-    
-    drawSTFTWindow() {
-        if (this.stftWindow.length === 0) return;
-        
-        // Check if stationary (no new points in last 200ms)
-        const now = Date.now();
-        const timeSinceLastDraw = now - this.stftLastDrawTime;
-        this.stftStationary = timeSinceLastDraw > 200;
-        
-        // If stationary, add intensifying glow effect at the last point
-        if (this.stftStationary && this.stftRingBuffer.length > 0) {
-            const lastPoint = this.stftRingBuffer[this.stftRingBuffer.length - 1];
-            
-            // Intensity grows over time when stationary (accumulating importance)
-            const stationaryDuration = Math.min(timeSinceLastDraw / 1000, 3); // Cap at 3 seconds
-            const baseIntensity = 0.3 + 0.4 * (stationaryDuration / 3); // Grows from 0.3 to 0.7
-            const pulseIntensity = baseIntensity + 0.3 * Math.sin(now / 150); // Pulse on top
-            
-            // Draw multiple glow circles that grow with time
-            const numRings = Math.floor(3 + stationaryDuration * 2); // More rings over time
-            for (let r = 1; r <= numRings; r++) {
-                this.ctx.beginPath();
-                this.ctx.arc(
-                    lastPoint.x + this.centerX,
-                    lastPoint.y + this.centerY,
-                    3 * r + stationaryDuration * 5,
-                    0,
-                    2 * Math.PI
-                );
-                this.ctx.strokeStyle = `rgba(76, 175, 80, ${pulseIntensity / r})`;
-                this.ctx.lineWidth = 2;
-                this.ctx.stroke();
-            }
-            
-            // Center dot that pulses brighter over time
-            this.ctx.beginPath();
-            this.ctx.arc(
-                lastPoint.x + this.centerX,
-                lastPoint.y + this.centerY,
-                2 + stationaryDuration,
-                0,
-                2 * Math.PI
-            );
-            this.ctx.fillStyle = `rgba(76, 175, 80, ${Math.min(pulseIntensity + 0.3, 1)})`;
-            this.ctx.fill();
-            
-            // Add outer glow
-            this.ctx.shadowColor = 'rgba(76, 175, 80, 0.8)';
-            this.ctx.shadowBlur = 10 + stationaryDuration * 10;
-            this.ctx.fill();
-            this.ctx.shadowBlur = 0;
+
+    updateReadout() {
+        const n = this.stftWindow.length;
+        if (!n) return;
+        const energy = this.fourierCoeffs.filter(c => c.freq).reduce((sum, c) => sum + c.amp ** 2, 0);
+        const kept = this.retained.filter(c => c.freq).reduce((sum, c) => sum + c.amp ** 2, 0);
+        let squared = 0;
+        const target = this.stftReconstruction === 'recover' ? this.stftWindow : this.workspace.windowed;
+        for (let i = 0; i < n; i++) {
+            squared += (this.reconstruction[i].x - target[i].x) ** 2 + (this.reconstruction[i].y - target[i].y) ** 2;
         }
+        document.getElementById('stft-sampling').textContent = `128 uniform samples · Δf ${(1000 / this.stftWindowDuration).toFixed(2)} Hz · Nyquist ${(64000 / this.stftWindowDuration).toFixed(1)} Hz · latest sample ${(this.stftWindowDuration / 128).toFixed(1)} ms behind now`;
+        document.getElementById('motion-energy').textContent = `${(energy > 1e-10 ? 100 * kept / energy : 100).toFixed(1)}%`;
+        document.getElementById('motion-error').textContent = `${Math.sqrt(squared / n).toFixed(2)} units`;
+        document.getElementById('motion-cost').textContent = `${this.analysisMs.toFixed(2)} ms`;
     }
-    
-    animate() {
-        // Clear canvas
-        this.ctx.fillStyle = '#0A0A0A';
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-        
-        // Draw original curve faintly
-        this.drawOriginalCurve();
-        
-        // For STFT, recompute on each frame to update window
+
+    render() {
+        const c = this.ctx;
+        c.setTransform(this.ratio, 0, 0, this.ratio, 0, 0);
+        c.fillStyle = '#0a0a0a'; c.fillRect(0, 0, this.width, this.height);
+        c.translate(this.centerX, this.centerY); c.scale(this.viewScale, this.viewScale);
+        c.lineWidth = .5; c.strokeStyle = '#d4af370d'; c.beginPath();
+        for (let x = -360; x <= 360; x += 40) { c.moveTo(x, -260); c.lineTo(x, 260); }
+        for (let y = -240; y <= 240; y += 40) { c.moveTo(-380, y); c.lineTo(380, y); } c.stroke();
         if (this.transformType === 'stft') {
-            this.computeSTFT();
-            // Draw the current window segment in green
-            this.drawSTFTWindow();
+            (this.agePaths || []).forEach((path, i) => { c.strokeStyle = `rgba(76, 200, 110, ${.14 + i * .10})`; c.lineWidth = 1.4; c.stroke(path); });
+            if (this.windowedPath) { c.strokeStyle = '#aaa58b5a'; c.setLineDash([3, 4]); c.lineWidth = 1; c.stroke(this.windowedPath); c.setLineDash([]); }
+        } else if (this.inputPath) { c.strokeStyle = '#ffffff44'; c.lineWidth = 1; c.stroke(this.inputPath); }
+        if (this.comparisonPath && this.compareFourier && this.transformType === 'fourier') {
+            c.lineWidth = 1.6; c.strokeStyle = 'rgba(229,155,91,0.45)'; c.setLineDash([3, 4]); c.stroke(this.comparisonPath); c.setLineDash([]);
         }
-        
-        // Draw epicycles and get final point
-        if (this.fourierCoeffs.length > 0) {
-            const finalPoint = this.drawEpicycles();
-            
-            // Draw connection line to path
-            if (this.path.length > 0) {
-                this.ctx.beginPath();
-                this.ctx.moveTo(finalPoint.x, finalPoint.y);
-                this.ctx.lineTo(
-                    this.path[0].x + this.centerX,
-                    this.path[0].y + this.centerY
-                );
-                this.ctx.strokeStyle = 'rgba(74, 158, 255, 0.5)';
-                this.ctx.lineWidth = 1;
-                this.ctx.setLineDash([5, 5]);
-                this.ctx.stroke();
-                this.ctx.setLineDash([]);
+        if (this.transformType === 'stft' && this.showReconstruction && this.reconstructedPath) {
+            c.lineWidth = 2; c.strokeStyle = `rgba(74,158,255,${this.reconstructionOpacity})`; c.stroke(this.reconstructedPath);
+        }
+        if (this.transformType === 'stft' && this.stftRingBuffer.length) {
+            const p = this.stftRingBuffer.at(-1); c.beginPath(); c.arc(p.x, p.y, 4.3, 0, 2 * Math.PI); c.fillStyle = '#78e995'; c.fill();
+            c.beginPath(); c.arc(p.x, p.y, 8, 0, 2 * Math.PI); c.strokeStyle = '#57cf7870'; c.lineWidth = 1; c.stroke();
+        }
+        let x = 0, y = 0;
+        if (this.transformType === 'sine' && this.sineAnalysis) {
+            const t = .5 - .5 * Math.cos(this.time), { first, last } = this.sineAnalysis;
+            x = first.x * (1 - t) + last.x * t; y = first.y * (1 - t) + last.y * t;
+            c.strokeStyle = '#c7b27460'; c.lineWidth = 1; c.setLineDash([4, 4]); c.beginPath(); c.moveTo(first.x, first.y); c.lineTo(last.x, last.y); c.stroke(); c.setLineDash([]);
+            for (const p of [first, last]) { c.beginPath(); c.arc(p.x, p.y, 5, 0, 2 * Math.PI); c.strokeStyle = '#e4c978'; c.stroke(); }
+            for (const coefficient of this.retained || []) {
+                const s = Math.sin(Math.PI * coefficient.freq * t), nx = x + coefficient.re * s, ny = y + coefficient.im * s;
+                c.beginPath(); c.moveTo(x - coefficient.re, y - coefficient.im); c.lineTo(x + coefficient.re, y + coefficient.im); c.strokeStyle = '#d4af3720'; c.lineWidth = .7; c.stroke();
+                c.beginPath(); c.moveTo(x, y); c.lineTo(nx, ny); c.strokeStyle = '#f4d03fb0'; c.lineWidth = 1.2; c.stroke(); x = nx; y = ny;
             }
+        } else {
+        // Recovered motion follows the latest available time sample. The
+        // analysis sketch instead tours its current periodic window freely.
+        const phaseTime = this.transformType === 'stft' && this.stftReconstruction === 'recover'
+            ? 2 * Math.PI * (this.stftWindow.length - 1) / this.stftWindow.length : this.time;
+        for (const coefficient of this.retained || []) {
+            const phase = coefficient.freq * phaseTime + coefficient.phase;
+            const nx = x + coefficient.amp * Math.cos(phase), ny = y + coefficient.amp * Math.sin(phase);
+            if (coefficient.amp < .15) { x = nx; y = ny; continue; }
+            c.beginPath(); c.arc(x, y, coefficient.amp, 0, 2 * Math.PI);
+            c.strokeStyle = '#d4af374c'; c.lineWidth = .8; c.stroke();
+            c.beginPath(); c.moveTo(x, y); c.lineTo(nx, ny); c.strokeStyle = '#f4d03fb0'; c.lineWidth = 1.2; c.stroke();
+            x = nx; y = ny;
         }
-        
-        // Draw traced path (blue reconstruction)
-        this.drawPath();
-        
-        // Update time
+        }
+        if (this.retained?.length) {
+            this.recordTrace(x, y); this.drawTrace();
+            c.beginPath(); c.arc(x, y, 4, 0, Math.PI * 2); c.fillStyle = '#fff1a1'; c.fill();
+            c.beginPath(); c.arc(x, y, 8, 0, Math.PI * 2); c.strokeStyle = '#f4d03f80'; c.stroke();
+        }
+        if (this.isDrawing && this.pointerStroke.length) {
+            // Cache one bounded path per display frame; never analyze a global
+            // Fourier/cosine/sine transform for each incoming pointer event.
+            this.pointerPath ||= this.pathFrom(this.pointerStroke);
+            c.save(); c.lineCap = 'round'; c.lineJoin = 'round';
+            c.lineWidth = 2.2; c.strokeStyle = '#78e995';
+            c.shadowColor = '#57cf78'; c.shadowBlur = 6;
+            c.stroke(this.pointerPath);
+            const tip = this.pointerStroke.at(-1);
+            c.beginPath(); c.arc(tip.x, tip.y, 3.6, 0, 2 * Math.PI);
+            c.fillStyle = '#b1ffc6'; c.fill(); c.restore();
+        }
+    }
+
+    animate(stamp) {
+        this.request = 0;
+        if (!this.visible || document.hidden) { this.lastFrame = 0; return; }
+        const dt = this.lastFrame ? Math.max(0, stamp - this.lastFrame) : 0;
+        this.lastFrame = stamp;
         if (this.isPlaying) {
-            const dt = 0.01 * this.speed;
-            this.time += dt;
-            
-            // Reset after one period (except for STFT which is continuous)
-            if (this.transformType !== 'stft' && this.time > 2 * Math.PI) {
-                this.time = 0;
-                this.path = [];
+            this.clock += dt;
+            const nextTime = this.time + dt * .001 * this.speed * Math.PI / 2;
+            if (nextTime >= 2 * Math.PI && this.transformType !== 'stft') this.clearTrace();
+            this.time = nextTime % (2 * Math.PI);
+            if (this.drawingMode === 'preset' && this.transformType === 'stft') {
+                this.inputPhase += dt * this.speed / 6000;
+                this.stftRingBuffer.push(this.timedPoint(this.inputPhase));
+                this.stftPointTimestamps.push(this.clock); this.pruneMotion();
             }
         }
-        
-        requestAnimationFrame(() => this.animate());
+        if (this.transformType === 'stft' && (this.dirty || (this.isPlaying && stamp - this.lastAnalysis >= 33))) {
+            this.computeSTFT(); this.lastAnalysis = stamp;
+        }
+        if (this.transformType === 'stft' && (this.dirty || stamp - this.lastReadout >= 250)) { this.updateReadout(); this.lastReadout = stamp; }
+        this.render(); this.dirty = false;
+        if (this.isPlaying) this.request = requestAnimationFrame(this.frame);
     }
 }
 
-// Particle background
-class ParticleBackground {
-    constructor() {
-        this.canvas = document.getElementById('particles');
-        this.ctx = this.canvas.getContext('2d');
-        this.particles = [];
-        this.resize();
-        
-        // Create particles
-        for (let i = 0; i < 50; i++) {
-            this.particles.push({
-                x: Math.random() * this.canvas.width,
-                y: Math.random() * this.canvas.height,
-                vx: (Math.random() - 0.5) * 0.5,
-                vy: (Math.random() - 0.5) * 0.5,
-                size: Math.random() * 2 + 1
-            });
-        }
-        
-        this.animate();
-        window.addEventListener('resize', () => this.resize());
-    }
-    
-    resize() {
-        this.canvas.width = window.innerWidth;
-        this.canvas.height = window.innerHeight;
-    }
-    
-    animate() {
-        this.ctx.fillStyle = 'rgba(10, 10, 10, 0.1)';
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-        
-        for (let particle of this.particles) {
-            particle.x += particle.vx;
-            particle.y += particle.vy;
-            
-            if (particle.x < 0 || particle.x > this.canvas.width) particle.vx *= -1;
-            if (particle.y < 0 || particle.y > this.canvas.height) particle.vy *= -1;
-            
-            this.ctx.beginPath();
-            this.ctx.arc(particle.x, particle.y, particle.size, 0, 2 * Math.PI);
-            this.ctx.fillStyle = 'rgba(212, 175, 55, 0.3)';
-            this.ctx.fill();
-        }
-        
-        requestAnimationFrame(() => this.animate());
-    }
-}
-
-// Initialize
 document.addEventListener('DOMContentLoaded', () => {
-    new FourierVisualizer();
-    new ParticleBackground();
+    if (window.parent !== window) document.querySelectorAll('.back-button').forEach(link => { link.hidden = true; });
+    window.fourierVisualizer = new FourierVisualizer();
 });

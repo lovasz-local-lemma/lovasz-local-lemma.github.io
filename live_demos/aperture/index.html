@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+<head><style id="portfolio-early-paint">html{background:#0b0d0c;color-scheme:dark}html.portfolio-booting body{opacity:0}</style><script src="../../portfolio-navigation.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Optical Simulator - Camera & Lens Design</title>
@@ -32,8 +32,8 @@
         #container {
             display: grid;
             grid-template-columns: 300px 1fr 350px;
-            grid-template-rows: 60px 1fr;
-            height: 100vh;
+            grid-template-rows: var(--aperture-header-height, 60px) minmax(0, 1fr);
+            height: var(--aperture-app-height, 100dvh);
             gap: 0;
         }
         
@@ -101,6 +101,9 @@
             flex: 1;
             gap: 0;
             background: #000;
+            min-height: 0;
+            min-width: 0;
+            overflow: hidden;
         }
         
         #resize-handle {
@@ -110,6 +113,8 @@
             cursor: ns-resize; /* North-South resize cursor */
             flex-shrink: 0;
             transition: background 0.2s;
+            touch-action: none;
+            outline-offset: -2px;
         }
         
         #resize-handle:hover {
@@ -128,15 +133,28 @@
         
         #scene-viewport {
             flex: 1 1 auto;
-            min-height: 200px;
+            min-height: 80px;
             position: relative;
         }
         
         #camera-viewport {
-            flex: 0 0 300px; /* Fixed height of 300px */
+            flex: 0 0 var(--aperture-schematic-height, 220px);
+            min-height: 0;
             position: relative;
             border-top: 2px solid #333;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
         }
+        #camera-viewport[hidden] { display: none; }
+        #camera-canvas { min-height: 0; flex: 1 1 auto; height: 0; }
+        .optics-tools { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; padding: 4px 8px; background: #192226; font-size: 10px; }
+        #camera-viewport .optics-tools select, #camera-viewport .optics-tools button { width: auto; margin: 0; font: inherit; color: #e6d8b4; background: #243135; border: 1px solid #55615a; border-radius: 4px; padding: 3px 6px; }
+        .optics-tools { flex: 0 0 auto; }
+        #schematic-explainer { padding: 7px 10px; max-height: 110px; overflow: auto; font: 11px/1.5 system-ui,sans-serif; background: #182123; color: #b8c8c4; }
+        #schematic-explainer[hidden] { display: none; }
+        #schematic-explainer a { color: #e0c783; }
+        #schematic-toggle { position: absolute; right: 9px; bottom: 9px; z-index: 5; padding: 5px 9px; border: 1px solid #b7a365; border-radius: 5px; background: #152021dd; color: #ead6a1; font: 11px system-ui,sans-serif; cursor: pointer; }
         
         canvas {
             width: 100%;
@@ -495,7 +513,15 @@
             font-weight: 600 !important;
         }
     </style>
-</head>
+<link rel="stylesheet" href="../../portfolio-controls.css"><link rel="stylesheet" href="../../portfolio-demo-return.css"><script defer src="../../portfolio-demo-return.js" data-project="aperture" data-title="Aperture" data-overview="projects/aperture/overview.html" data-group="signature" data-thumbnail="media/thumbs/aperture.webp" data-routes="[{&quot;project&quot;:&quot;aperture&quot;,&quot;title&quot;:&quot;Aperture&quot;,&quot;group&quot;:&quot;signature&quot;,&quot;thumbnail&quot;:&quot;media/thumbs/aperture.webp&quot;,&quot;overview&quot;:&quot;projects/aperture/overview.html&quot;,&quot;path&quot;:&quot;live_demos/aperture/index.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:2},{&quot;project&quot;:&quot;aperture&quot;,&quot;title&quot;:&quot;Aperture&quot;,&quot;group&quot;:&quot;signature&quot;,&quot;thumbnail&quot;:&quot;media/thumbs/aperture.webp&quot;,&quot;overview&quot;:&quot;projects/aperture/overview.html&quot;,&quot;path&quot;:&quot;live_demos/aperture/index.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:1},{&quot;project&quot;:&quot;aperture&quot;,&quot;title&quot;:&quot;Aperture&quot;,&quot;group&quot;:&quot;signature&quot;,&quot;thumbnail&quot;:&quot;media/thumbs/aperture.webp&quot;,&quot;overview&quot;:&quot;projects/aperture/overview.html&quot;,&quot;path&quot;:&quot;live_demos/aperture/&quot;,&quot;query&quot;:{},&quot;priority&quot;:-1}]"></script><!-- universal-navigation:start --><link rel="stylesheet" href="../../portfolio-location.css?v=054b6b462c"><script defer src="../../portfolio-location.js?v=054b6b462c"></script><script defer src="../../portfolio-routes.js?v=054b6b462c"></script><script defer src="../../portfolio-universal-navigation.js?v=054b6b462c"></script><!-- universal-navigation:end --><style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head>
 <body>
     <div id="loading">
         <div class="spinner"></div>
@@ -509,7 +535,7 @@
     
     <div id="container">
         <div id="header">
-            <a href="../../../index.html" id="back-button">← Back to Portfolio</a>
+            <a href="../../index.html" id="back-button">← Back to Portfolio</a>
             <h1 style="font-family: 'Playfair Display', serif; font-weight: 600; font-size: 30px; background: linear-gradient(135deg, #D4AF37, #F4D03F, #FFE55C); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-shadow: none; filter: drop-shadow(0 0 20px rgba(212, 175, 55, 0.6)) drop-shadow(0 0 40px rgba(212, 175, 55, 0.3));">💡 Advanced Photography Simulator</h1>
             <div class="stats" style="display: flex; align-items: center; gap: 15px;">
                 <label style="color: #aaa; font-size: 12px;">Font:</label>
@@ -759,10 +785,18 @@
                     </div>
                 </div>
             </div>
-            <div id="resize-handle"></div>
+            <div id="resize-handle" role="separator" tabindex="0" aria-label="Resize camera schematic" aria-orientation="horizontal" title="Drag to resize camera schematic; arrow keys resize; double-click restores height."></div>
             <div id="camera-viewport">
+                <div class="optics-tools">
+                    <strong>Camera optics</strong>
+                    <select id="schematic-mode" aria-label="Schematic interpretation"><option value="camera">Camera rays</option><option value="lesson">Thin-lens lesson</option></select>
+                    <select id="schematic-axis" aria-label="Schematic section"><option value="y">Side · Y/Z</option><option value="x">Top · X/Z</option></select>
+                    <button id="schematic-pupil" type="button" aria-pressed="false" title="Show normalized pupil and sensor shapes without enlarging the schematic. Hidden at the smallest panel height.">Pupil</button>
+                    <button id="schematic-help" type="button" aria-expanded="false">What are the dots?</button>
+                    <button id="schematic-collapse" type="button">Hide</button>
+                </div>
                 <canvas id="camera-canvas"></canvas>
-                <div class="viewport-label">Camera Internal View (Bottom)</div>
+                <div id="schematic-explainer" hidden>Each colored dot on the right is the object-side focus of the same-colored image sample on the left, shown at a separate scale. They are neither scene lights nor a blur image. A smaller F-number widens the pupil and defocus cone; it does not move ideal focus. Camera rays follow the selected planar focus (including the three-point tilt gizmo); the image points are equivalent thin-lens conjugates. Thin-lens lesson instead traces from the physical sensor controls: the center ray remains straight, and a ray parallel to the lens axis passes through its focal point. Pupil shows a normalized front-view shape guide, with the current f/N diameter below it; it does not show the sampling density. The sensor icon gives nominal dimensions, and its curvature stroke is decorative: the lesson uses a flat sensor. These rules use an ideal paraxial lens, not an aberrated compound lens. Legacy film-tilt blur, distortion and chromatic effects are not reconstructed here. <a href="https://www.pbr-book.org/4ed/Cameras_and_Film/Projective_Camera_Models" target="_blank" rel="noopener">Thin-lens model</a> · <a href="https://www.realtimerendering.com/raytracinggems/rtg2/index.html" target="_blank" rel="noopener">Tilt-shift geometry (chapter 31)</a>.</div>
             </div>
         </div>
         
@@ -1049,7 +1083,7 @@
                     <label for="enable-new-tiltshift">Enable Physically Based Tilt-Shift</label>
                 </div>
                 <div style="font-size: 11px; color: #888; margin-top: -5px; margin-bottom: 10px;">
-                    Proper Scheimpflug implementation from RTG II Ch.31. Define focal plane by 3 points. When the intended focal plane is about perpendicular to the image plane, we see expected artifacts, due to the geometry setup causing intersection extremely far.
+                    Three-point focus-plane model inspired by RTG II Ch.31. The diagram follows the gizmo and derives a tilted pupil. Near-parallel view rays can have no finite forward intersection; this experimental renderer uses a bounded fallback there, rather than modeling a real lens system.
                 </div>
                 
                 <div class="checkbox-group" style="margin-top: 10px;">
@@ -1067,7 +1101,7 @@
                     • Hold LMB on the center of the triangle to translate it in XY-plane (parallel to the image plane);<br>
                     • Hold RMB on the center of the triangle to translate it in XZ-plane (perpendicular to the image plane);<br>
                     • First increase the aperture size (smaller F-stop), then play with the gizmo and see how the depth of field changes in action.<br>
-                    • The artifact you see when the focal plane is perpendicular to the image plane: this is expected behavior, since this case involves intersection at infinitely far.                    
+                    • Near a parallel ray/plane configuration, focus can move arbitrarily far or behind the camera. Treat the fallback as a limitation of this model.                    
                 </div>
                 
             </div>

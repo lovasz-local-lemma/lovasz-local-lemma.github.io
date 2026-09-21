@@ -1,0 +1,81 @@
+/* Punchlines with an authored explanation glow; other copy retains its existing style. */
+.claim-trigger{display:inline-flex;flex-direction:column;align-items:flex-start;gap:5px;max-width:100%;margin:0;padding:0;border:0;border-radius:4px;background:transparent;text-align:left;font:inherit;line-height:inherit;letter-spacing:inherit;color:#f5dd9b;cursor:pointer}
+.claim-trigger .claim-copy{color:inherit;text-shadow:0 0 8px #f4c65d66,0 0 23px #e5bf572d;line-height:1.65}
+.claim-trigger .claim-cue{font:500 10px/1.5 var(--sans,system-ui,sans-serif);letter-spacing:.02em;text-transform:none;color:#abd4d7;text-shadow:0 0 12px #8bdcd733;opacity:.88}
+.claim-trigger:hover:not(:disabled),.claim-trigger:focus-visible{color:#fff0bf}
+.claim-trigger:hover:not(:disabled) .claim-cue{color:#d0f6f4;opacity:1}
+.claim-trigger:focus-visible{outline:2px solid #f5cf72;outline-offset:6px}
+.claim-trigger:disabled{cursor:default;color:inherit}
+.claim-trigger:disabled .claim-copy{text-shadow:none}
+.claim-trigger .overview-punchline{margin:0;font-size:.95rem}
+.variant-full .project-content>.claim-trigger{margin-bottom:12px}
+.variant-full .claim-trigger .variant-kicker{margin:0}
+.overview-intro>.claim-trigger,.overview-intro>div>.claim-trigger{margin:12px 0}
+.project-hero .claim-trigger{max-width:850px}
+.claim-evidence-open .gallery-panel{visibility:hidden!important;pointer-events:none!important}
+.claim-evidence-dialog{width:min(900px,calc(100vw - 40px));max-width:none;max-height:calc(100dvh - 40px);box-sizing:border-box;margin:auto;padding:26px 32px 32px;overflow:auto;overscroll-behavior:contain;color:#e9e9df;background:radial-gradient(ellipse at 0 0,#b3893c19,transparent 55%),linear-gradient(140deg,#202927,#111917 76%);border:1px solid #d0b16d;border-radius:24px;box-shadow:inset 0 1px #ffffff1a,0 0 48px #e6bd5020,0 28px 100px #000b;font:15px/1.7 var(--sans,system-ui,sans-serif);scrollbar-color:#a58c54 #15201d;color-scheme:dark}
+.claim-evidence-dialog::backdrop{background:#040806bc;backdrop-filter:blur(6px)}
+.claim-evidence-dialog *{box-sizing:border-box}
+.claim-evidence-heading{position:sticky;top:-26px;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:22px;padding:9px 0;background:#202a25fa}
+.claim-assessment-label{color:#c8d9d0;letter-spacing:.12em;text-transform:uppercase;font-size:10px}
+.claim-evidence-close{flex-shrink:0;min-height:42px;padding:8px 13px;color:#f0d498;border:1px solid #c2a36366;border-radius:10px;background:#14201de6;font:inherit;cursor:pointer}
+.claim-evidence-close:hover{background:#3c3626;border-color:#f1cd79}
+.claim-evidence-dialog :is(a,button):focus-visible{outline:2px solid #f6d07f;outline-offset:4px}
+.claim-evidence-dialog h2{margin:0 0 18px;font:500 26px/1.3 var(--serif,Georgia,serif);color:#ebdfbe}
+.claim-evidence-quote{margin:0 0 20px;padding:0;font:500 clamp(24px,2.5vw,31px)/1.45 var(--serif,Georgia,serif);color:#fff0ba;text-shadow:0 0 16px #eac16830}
+.claim-evidence-intro{color:#ccd8d2;margin:0 0 24px}
+.claim-evidence-dialog h3{margin:0 0 10px;font:600 13px/1.5 var(--sans,system-ui,sans-serif);color:#c5e5e3}
+.claim-evidence-criteria{padding:17px 20px;border-left:2px solid #bfc780;background:#b8d8c907;border-radius:0 12px 12px 0;margin:0 0 22px}
+.claim-evidence-criteria ul{margin:0;padding-left:19px;display:grid;gap:7px;color:#d2ded4}
+.claim-evidence-criteria li::marker{color:#e6c46a}
+.claim-project-evidence{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:26px}
+.claim-project-evidence h3{width:100%;margin-bottom:1px}
+.claim-project-evidence a{max-width:100%;padding:7px 12px;border:1px solid #8cb8ae57;border-radius:8px;background:#76d5c108;color:#bee7df;font-size:12px;text-decoration:none}
+.claim-project-evidence a:hover{border-color:#b6e3c8;color:#eeffe4}
+.claim-comparisons{display:grid;gap:12px}
+.claim-comparisons>h3{margin-bottom:0}
+.claim-comparison{min-width:0;padding:19px 21px;border:1px solid #c5b7753b;border-radius:15px;background:linear-gradient(125deg,#b99b400b,#24383120)}
+.claim-comparison h4{margin:0 0 13px;font:600 17px/1.4 var(--serif,Georgia,serif);color:#ebd59b}
+.claim-comparison h4 a{color:inherit;text-decoration:none;border-bottom:1px solid #e3c87255}
+.claim-comparison h4 a:hover{color:#fff0b6;border-color:#fff0b6}
+.claim-comparison-pair{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.claim-comparison-pair>div{min-width:0}
+.claim-comparison-label{display:block;margin-bottom:5px;font-size:10px;letter-spacing:.025em;color:#b5c7c0}
+.claim-comparison-pair>div:last-child .claim-comparison-label{color:#a9d9d5}
+.claim-comparison p{margin:0;color:#cdd3c7;font-size:13px;line-height:1.7;overflow-wrap:anywhere}
+.claim-evidence-scope{margin-top:24px;padding-top:20px;border-top:1px solid #c6b6753b;color:#becbc6;font-size:13px}
+.claim-evidence-scope p{margin:0 0 12px}
+.claim-reviewed-at{color:#94aaa1;font-size:11px}
+.claim-editor-toolbar{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:7px;min-width:0}
+.claim-editor-button{min-height:38px;padding:7px 11px;border:1px solid #c2a36366;border-radius:9px;background:#14201de6;color:#e7d29a;font:500 12px/1.4 var(--sans,system-ui,sans-serif);cursor:pointer}
+.claim-editor-button:hover:not(:disabled){border-color:#e8c575;background:#3c3626}
+.claim-editor-button:disabled{opacity:.42;cursor:default}
+.claim-editor-toolbar [data-claim-edit],.claim-editor-toolbar [data-claim-preview]{border-color:#a2c7ba80;color:#d0ece5}
+.claim-editor-status{margin:0 0 9px;color:#a6d2d8;font-size:12px;line-height:1.6}
+.claim-editor-status.has-warning{color:#f0c783}
+.claim-editor-reset{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:23px;color:#d7b99d;font-size:12px}
+.claim-editor-reset>[data-claim-reset]{padding:0;min-height:26px;border:0;background:none;color:#a9bcb2;text-decoration:underline;text-underline-offset:4px}
+.claim-editor-drafts{margin:-10px 0 23px;color:#afcbc4;font-size:12px}
+.claim-editor-drafts summary{cursor:pointer}
+.claim-editor-drafts ul{display:flex;flex-wrap:wrap;gap:7px;list-style:none;padding:0;margin:10px 0 0}
+.claim-editor-drafts a{color:#c1e1df;display:inline-block;padding:7px 10px}
+.claim-editor-form{display:grid;gap:27px}
+.claim-editor-form>section{min-width:0;scroll-margin-top:100px}
+.claim-editor-help,.claim-editor-empty{color:#aac5bd;font-size:12px;line-height:1.7;margin:0}
+.claim-editor-form h3{font-size:16px;color:#e5d4a7}
+.claim-editor-input{display:grid;gap:6px;margin:0 0 14px;min-width:0;text-transform:none;letter-spacing:normal}
+.claim-editor-input>span{font:500 11px/1.4 var(--sans,system-ui,sans-serif);color:#b3cec6}
+.claim-editor-input :is(textarea,input){display:block;width:100%;min-width:0;max-width:100%;padding:11px 12px;border:1px solid #91b3a659;border-radius:9px;background:#0b1413c9;color:#d9ebf0;font:14px/1.65 var(--sans,system-ui,sans-serif);letter-spacing:normal;text-transform:none;box-shadow:inset 0 1px 5px #0004}
+.claim-editor-input textarea{min-height:80px;resize:vertical;white-space:pre-wrap}
+.claim-editor-input :is(textarea,input):focus-visible{outline:2px solid #daba78;outline-offset:2px;border-color:#daba78}
+.claim-editor-input input[name$=".url"]{font-size:12px;color:#b9d8d6}
+.claim-editor-list{display:grid;gap:14px;margin-bottom:12px}
+.claim-editor-row{min-width:0;margin:0;padding:16px 17px;border:1px solid #c5b7753b;border-radius:15px;background:linear-gradient(125deg,#b99b400b,#24383120)}
+.claim-editor-row legend{padding:0 7px;color:#d9c496;font-size:12px}
+.claim-editor-row-actions{display:flex;gap:7px;flex-wrap:wrap}
+.claim-editor-row-actions [data-explanation-remove]{margin-left:auto;color:#dcc0a9}
+.claim-editor-form .claim-comparison-pair{gap:15px}
+.claim-evidence-intro,.claim-evidence-scope p,.claim-comparison p,.claim-evidence-criteria li{white-space:pre-wrap}
+@media(max-width:620px){.claim-evidence-heading{flex-wrap:wrap;gap:5px}.claim-evidence-heading>.claim-assessment-label{width:100%}.claim-editor-toolbar{justify-content:flex-start;flex:1}.claim-editor-toolbar .claim-evidence-close{margin-left:auto;font-size:12px;min-height:38px}.claim-editor-button{padding:8px 9px}.claim-editor-row{padding:12px}.claim-editor-input :is(input,textarea){font-size:16px}}
+@media(max-width:620px){.claim-evidence-dialog{width:calc(100vw - 16px);max-height:calc(100dvh - 16px);padding:19px 18px 24px;border-radius:17px}.claim-evidence-heading{top:-19px;gap:12px;margin-bottom:18px}.claim-evidence-dialog h2{font-size:22px}.claim-evidence-quote{font-size:25px}.claim-comparison-pair{grid-template-columns:1fr;gap:14px}.claim-comparison{padding:16px}.claim-evidence-criteria{padding:14px 16px}}
+@media(prefers-reduced-motion:no-preference){.claim-trigger,.claim-trigger .claim-cue{transition:color .16s ease,opacity .16s ease}.claim-evidence-dialog[open]{animation:claim-evidence-appear .16s ease-out}@keyframes claim-evidence-appear{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}}

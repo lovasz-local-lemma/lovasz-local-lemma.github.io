@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RIVE+ — Rendering &amp; Non-Photorealistic Research Engine</title>
+<style>
+  :root{
+    --bg:#0a0c12; --bg2:#0e111b; --panel:#121627; --panel2:#161b30;
+    --ink:#e9edf6; --soft:#b8c0d4; --muted:#7c8499; --faint:#525a70;
+    --line:#222842; --line2:#2c3454;
+    --cy:#46e6e0;     /* phosphor cyan */
+    --vi:#9a7bff;     /* spacetime violet */
+    --am:#ffce5c;     /* beam amber */
+    --gr:#6cf09a;     /* CRT green */
+    --rd:#ff7a8a;
+    --code:#0c0f1a;
+    --maxw:880px;
+    --r:14px;
+    font-synthesis:none;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth; scroll-padding-top:24px}
+  body{
+    margin:0; background:
+      radial-gradient(1200px 700px at 78% -8%, rgba(154,123,255,.10), transparent 60%),
+      radial-gradient(900px 600px at -6% 12%, rgba(70,230,224,.07), transparent 55%),
+      var(--bg);
+    color:var(--ink);
+    font-family:"Inter",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    font-size:16px; line-height:1.65; letter-spacing:.005em;
+    -webkit-font-smoothing:antialiased;
+  }
+  code,pre,.mono{font-family:ui-monospace,"JetBrains Mono","SFMono-Regular",Menlo,Consolas,monospace}
+
+  /* reading progress */
+  #prog{position:fixed; top:0; left:0; height:3px; width:0;
+    background:linear-gradient(90deg,var(--cy),var(--vi),var(--am)); z-index:99; transition:width .1s linear}
+
+  /* layout */
+  .wrap{display:grid; grid-template-columns:288px minmax(0,1fr); gap:0; align-items:start}
+  nav.toc{position:sticky; top:0; height:100vh; overflow:auto; padding:30px 18px 60px 28px;
+    border-right:1px solid var(--line); background:linear-gradient(180deg,rgba(18,22,39,.5),rgba(10,12,18,.2))}
+  nav.toc .brand{font-weight:800; letter-spacing:.02em; font-size:15px; margin-bottom:2px}
+  nav.toc .brand b{background:linear-gradient(90deg,var(--cy),var(--vi)); -webkit-background-clip:text; background-clip:text; color:transparent}
+  nav.toc .tag{color:var(--muted); font-size:11.5px; margin-bottom:22px; text-transform:uppercase; letter-spacing:.16em}
+  nav.toc a{display:block; color:var(--soft); text-decoration:none; font-size:13.5px; padding:5px 11px; border-radius:8px;
+    border-left:2px solid transparent; margin:1px 0; transition:.15s}
+  nav.toc a .n{color:var(--faint); font-variant-numeric:tabular-nums; margin-right:8px; font-size:12px}
+  nav.toc a:hover{color:var(--ink); background:rgba(255,255,255,.03)}
+  nav.toc a.on{color:var(--ink); background:rgba(70,230,224,.08); border-left-color:var(--cy)}
+  nav.toc a.sub{padding-left:26px; font-size:12.5px; color:var(--muted)}
+  nav.toc a.sub.on{color:var(--ink)}
+
+  main{padding:0 0 120px}
+  .pad{max-width:var(--maxw); margin:0 auto; padding:0 34px}
+
+  /* hero */
+  header.hero{padding:78px 0 46px; border-bottom:1px solid var(--line); position:relative; overflow:hidden}
+  header.hero::before{content:""; position:absolute; inset:0;
+    background-image:linear-gradient(rgba(255,255,255,.022) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.022) 1px,transparent 1px);
+    background-size:30px 30px; mask:radial-gradient(680px 360px at 60% 0%, #000, transparent 75%); pointer-events:none}
+  .eyebrow{color:var(--cy); font-size:12px; letter-spacing:.32em; text-transform:uppercase; font-weight:600}
+  h1{font-size:46px; line-height:1.05; margin:14px 0 8px; letter-spacing:-.02em; font-weight:800}
+  h1 .grad{background:linear-gradient(100deg,var(--cy),var(--vi) 55%,var(--am)); -webkit-background-clip:text; background-clip:text; color:transparent}
+  .lede{color:var(--soft); font-size:18px; max-width:680px}
+  .chips{display:flex; flex-wrap:wrap; gap:10px; margin-top:26px}
+  .chip{display:flex; flex-direction:column; gap:1px; padding:11px 15px; border:1px solid var(--line2);
+    border-radius:11px; background:rgba(20,25,45,.55); min-width:104px}
+  .chip b{font-size:20px; font-weight:800; letter-spacing:-.01em}
+  .chip b.cy{color:var(--cy)} .chip b.vi{color:var(--vi)} .chip b.am{color:var(--am)} .chip b.gr{color:var(--gr)}
+  .chip span{font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.1em}
+
+  /* sections */
+  section{padding:54px 0 6px; border-top:1px solid var(--line)}
+  section:first-of-type{border-top:none}
+  h2{font-size:29px; letter-spacing:-.01em; margin:0 0 6px; font-weight:800; display:flex; align-items:baseline; gap:13px}
+  h2 .num{font-size:14px; color:var(--cy); border:1px solid var(--line2); border-radius:8px; padding:3px 9px;
+    font-family:ui-monospace,monospace; background:rgba(70,230,224,.06); flex:none}
+  h3{font-size:19.5px; margin:34px 0 6px; letter-spacing:-.01em; font-weight:700; color:#f3f6fd}
+  h4{font-size:15px; margin:22px 0 4px; color:var(--cy); font-weight:700; letter-spacing:.01em}
+  p{margin:11px 0; color:var(--soft)}
+  .sub{color:var(--muted); font-size:14.5px; margin-top:-2px}
+  a.x{color:var(--cy); text-decoration:none; border-bottom:1px solid rgba(70,230,224,.3)}
+  a.x:hover{border-color:var(--cy)}
+  strong{color:var(--ink); font-weight:650}
+  em{color:var(--am); font-style:normal}
+  ul,ol{color:var(--soft); padding-left:22px}
+  li{margin:6px 0}
+  li::marker{color:var(--faint)}
+  kbd{font-family:ui-monospace,monospace; font-size:.85em; background:#1b2138; border:1px solid var(--line2);
+    border-bottom-width:2px; border-radius:5px; padding:1px 6px; color:var(--cy)}
+
+  /* code + math */
+  pre{background:var(--code); border:1px solid var(--line); border-left:3px solid var(--vi); border-radius:10px;
+    padding:15px 17px; overflow:auto; font-size:13px; line-height:1.6; color:#cdd6ee; margin:14px 0}
+  pre .c{color:var(--faint)}        /* comment */
+  pre .k{color:var(--vi)}           /* keyword */
+  pre .f{color:var(--cy)}           /* function */
+  pre .s{color:var(--gr)}           /* string/num */
+  pre.tag{position:relative}
+  pre.tag::after{content:attr(data-l); position:absolute; top:8px; right:10px; font-size:10px; letter-spacing:.12em;
+    text-transform:uppercase; color:var(--faint)}
+  .eq{background:linear-gradient(180deg,rgba(154,123,255,.06),rgba(154,123,255,.02)); border:1px solid var(--line2);
+    border-radius:10px; padding:12px 16px; font-family:ui-monospace,monospace; font-size:13.5px; color:#dfe5fb; margin:14px 0;
+    overflow:auto}
+  .eq .lbl{display:block; color:var(--vi); font-family:inherit; font-size:11px; letter-spacing:.14em; text-transform:uppercase; margin-bottom:5px; font-weight:600}
+
+  /* cards / callouts */
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:16px 0}
+  .card{border:1px solid var(--line); border-radius:var(--r); padding:16px 18px; background:linear-gradient(180deg,var(--panel),var(--bg2))}
+  .card h4{margin-top:2px}
+  .note{border:1px solid var(--line2); border-left:3px solid var(--am); background:rgba(255,206,92,.05);
+    border-radius:10px; padding:12px 16px; margin:16px 0; color:var(--soft); font-size:14.5px}
+  .note b{color:var(--am)}
+
+  /* deep-dive algorithm accordions */
+  details.algo{border:1px solid var(--line); border-radius:12px; margin:12px 0; overflow:hidden;
+    background:linear-gradient(180deg,var(--panel),var(--bg2))}
+  details.algo[open]{border-color:var(--line2); box-shadow:0 0 0 1px rgba(154,123,255,.08), 0 18px 40px -28px rgba(0,0,0,.8)}
+  details.algo>summary{list-style:none; cursor:pointer; padding:15px 18px; display:flex; align-items:center; gap:13px;
+    font-weight:700; font-size:15.5px; color:#f3f6fd}
+  details.algo>summary::-webkit-details-marker{display:none}
+  details.algo>summary .pill{font-size:10.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+    padding:3px 8px; border-radius:20px; flex:none}
+  .pill.research{color:#0a0c12; background:linear-gradient(90deg,var(--vi),var(--cy))}
+  .pill.core{color:var(--cy); border:1px solid var(--line2); background:rgba(70,230,224,.06)}
+  details.algo>summary .chev{margin-left:auto; color:var(--faint); transition:.2s; flex:none}
+  details.algo[open]>summary .chev{transform:rotate(90deg); color:var(--cy)}
+  details.algo>summary .lin{color:var(--muted); font-weight:500; font-size:12.5px; margin-left:2px}
+  .algo .body{padding:2px 18px 18px; border-top:1px solid var(--line)}
+  .algo .body .row{margin:13px 0}
+  .algo .body .row .h{color:var(--cy); font-size:11.5px; letter-spacing:.13em; text-transform:uppercase; font-weight:700; margin-bottom:3px}
+  .algo .body .row p{margin:0}
+
+  /* tables */
+  .tbl{width:100%; border-collapse:collapse; margin:16px 0; font-size:13.5px; overflow:hidden; border-radius:10px}
+  .tbl th,.tbl td{text-align:left; padding:9px 13px; border-bottom:1px solid var(--line); vertical-align:top}
+  .tbl th{color:var(--cy); font-size:11.5px; letter-spacing:.08em; text-transform:uppercase; background:rgba(70,230,224,.04); font-weight:700}
+  .tbl td{color:var(--soft)}
+  .tbl tr:last-child td{border-bottom:none}
+  .tbl td b{color:var(--ink)}
+  .tbl .mono{font-size:12.5px; color:var(--vi)}
+
+  /* diagrams */
+  figure{margin:22px 0; border:1px solid var(--line); border-radius:var(--r); overflow:hidden; background:radial-gradient(700px 240px at 50% -40%,rgba(154,123,255,.06),transparent),var(--bg2)}
+  figure svg{display:block; width:100%; height:auto}
+  figcaption{padding:10px 16px; border-top:1px solid var(--line); color:var(--muted); font-size:12.5px}
+  figcaption b{color:var(--soft)}
+  .sv-box{fill:var(--panel2); stroke:var(--line2)}
+  .sv-box-cy{fill:rgba(70,230,224,.08); stroke:var(--cy)}
+  .sv-box-vi{fill:rgba(154,123,255,.10); stroke:var(--vi)}
+  .sv-box-am{fill:rgba(255,206,92,.10); stroke:var(--am)}
+  .sv-box-gr{fill:rgba(108,240,154,.10); stroke:var(--gr)}
+  .sv-t{fill:var(--ink); font:600 13px ui-sans-serif,system-ui}
+  .sv-s{fill:var(--muted); font:11px ui-monospace,monospace}
+  .sv-lbl{fill:var(--cy); font:600 11px ui-monospace,monospace}
+  .sv-line{stroke:var(--line2); stroke-width:1.5; fill:none}
+  .sv-flow{stroke:var(--cy); stroke-width:1.6; fill:none}
+  .sv-flow-vi{stroke:var(--vi); stroke-width:1.6; fill:none}
+
+  hr.soft{border:none; border-top:1px solid var(--line); margin:34px 0}
+  footer{max-width:var(--maxw); margin:0 auto; padding:30px 34px 60px; color:var(--muted); font-size:13px; border-top:1px solid var(--line)}
+  footer b{color:var(--soft)}
+
+  @media (max-width:1000px){
+    .wrap{grid-template-columns:1fr}
+    nav.toc{display:none}
+    .grid2{grid-template-columns:1fr}
+    h1{font-size:36px}
+  }
+</style>
+</head>
+<body>
+<div id="prog"></div>
+<div class="wrap">
+
+<!-- ================= TABLE OF CONTENTS ================= -->
+<nav class="toc" id="toc">
+  <div class="brand"><b>RIVE+</b> Engine</div>
+  <div class="tag">Technical Overview</div>
+  <a href="#intro"><span class="n">00</span>What this is</a>
+  <a href="#backends"><span class="n">01</span>Two backends</a>
+  <a href="#pipeline"><span class="n">02</span>The frame pipeline</a>
+  <a href="#replicate"><span class="n">03</span>Replicating the official renderer</a>
+  <a href="#feather" class="sub">Analytic erf feather</a>
+  <a href="#writer" class="sub">Reverse-engineered .riv writer</a>
+  <a href="#npr"><span class="n">04</span>The NPR effects engine</a>
+  <a href="#aux"><span class="n">05</span>Aux buffers &amp; the vectorizer</a>
+  <a href="#hard"><span class="n">06</span>Research-level algorithms</a>
+  <a href="#spacetime"><span class="n">07</span>The spacetime volume</a>
+  <a href="#beam"><span class="n">08</span>The vector beam</a>
+  <a href="#curves"><span class="n">09</span>The curve system</a>
+  <a href="#rivx"><span class="n">10</span>The .rivx format</a>
+  <a href="#results"><span class="n">11</span>Results &amp; capabilities</a>
+</nav>
+
+<main>
+<!-- ================= HERO ================= -->
+<header class="hero">
+  <div class="pad">
+    <div class="eyebrow">Rendering · NPR · Temporal Imaging</div>
+    <h1>A <span class="grad">rendering &amp; non&#8209;photorealistic</span><br>research engine, built on Rive</h1>
+    <p class="lede">A C++/OpenGL <code>.riv</code> player that grew into an experimentation surface: a from-scratch GPU vector
+      renderer that mirrors the official Rive runtime, a data-driven engine of <strong>122 painterly / simulation effects</strong>,
+      a volumetric "spacetime" raymarcher, an oscilloscope beam tracer, six curve families, and an append-only document format.
+      This document explains how each part works — and dwells on the algorithms that are genuinely hard.</p>
+    <div class="chips">
+      <div class="chip"><b class="cy">2</b><span>Backends</span></div>
+      <div class="chip"><b class="vi">122</b><span>NPR effects</span></div>
+      <div class="chip"><b class="am">~80</b><span>GLSL shaders</span></div>
+      <div class="chip"><b class="gr">11</b><span>Aux buffers</span></div>
+      <div class="chip"><b class="cy">6</b><span>Curve families</span></div>
+      <div class="chip"><b class="vi">RIVX1–6</b><span>Doc format</span></div>
+    </div>
+  </div>
+</header>
+
+<div class="pad">
+
+<!-- ================= 00 INTRO ================= -->
+<section id="intro">
+  <h2><span class="num">00</span>What this is</h2>
+  <p>At its root the project is an offline player for Rive's <code>.riv</code> vector-animation files. But almost everything
+    interesting sits <em>downstream</em> of the rendered frame: once the scene is in a texture, the engine treats it as raw
+    material for stylization, simulation, vectorization, and temporal stacking. Two questions organize the whole codebase:</p>
+  <ul>
+    <li><strong>Can we reproduce what the official, closed-source tooling does?</strong> — leading to a hand-written GPU
+      stencil renderer and a reverse-engineered <code>.riv</code> <em>writer</em>.</li>
+    <li><strong>What can we build on top that the official runtime has no concept of?</strong> — leading to the NPR engine,
+      the spacetime volume, the vector beam, spline curves, and an effects-aware document format.</li>
+  </ul>
+  <p>The sections below follow that arc: the pipeline, the replication work, then each extension, with deep-dive cards for
+    the research-level pieces.</p>
+</section>
+
+<!-- ================= 01 BACKENDS ================= -->
+<section id="backends">
+  <h2><span class="num">01</span>Two backends, side by side</h2>
+  <p>A frame can be drawn two ways, and they run in parallel so they can be compared pixel-for-pixel and FPS-for-FPS.</p>
+
+  <div class="grid2">
+    <div class="card">
+      <h4>Official — the Rive runtime + PLS renderer</h4>
+      <p class="sub">We <strong>link, don't fork.</strong> <code>rive.lib</code> (runtime core) + <code>rive_pls_renderer.lib</code>
+        (the Pixel-Local-Storage GPU path renderer) are driven through <code>rive::Factory</code> + <code>rive::Renderer</code>
+        via <code>makeBackend(BackendKind::gl)</code>. It is the production renderer — the full feature set: text, state
+        machines, IK, clipping, blend modes, variable fonts — and far more complex than ours. We consume it as a library.</p>
+    </div>
+    <div class="card">
+      <h4>Ours — <code>GlShapePipeline</code> (~2.3k LOC)</h4>
+      <p class="sub">A small custom GL renderer that exists only to do the things our experiments need that the official
+        path can't easily expose: <strong>feathered fills</strong>, <strong>spline curves</strong>, and the
+        <strong>auxiliary geometry buffers</strong> the NPR effects read. It is not "better" — it is optimal for that
+        narrow surface, and a sandbox we fully control.</p>
+    </div>
+  </div>
+
+  <p>A live split-pane panel renders both into 360&#8202;px targets and reports a rolling-average FPS via <code>glFinish</code>
+    timing; on typical scenes the two land within <strong>0.5–2×</strong> of each other. The point of "ours" is not to win
+    that race — it is to be a renderer we can instrument and extend.</p>
+</section>
+
+<!-- ================= 02 PIPELINE ================= -->
+<section id="pipeline">
+  <h2><span class="num">02</span>The frame pipeline</h2>
+  <p>The scene is drawn <em>once</em> into <code>sceneTex</code> (already including any <code>.rivx</code> editor geometry).
+    Everything after operates on textures, which is what makes the stack composable.</p>
+
+  <figure>
+    <svg viewBox="0 0 980 300" role="img" aria-label="Frame pipeline diagram">
+      <!-- input -->
+      <rect class="sv-box" x="14" y="120" width="96" height="58" rx="9"/>
+      <text class="sv-t" x="62" y="146" text-anchor="middle">.riv / .rivx</text>
+      <text class="sv-s" x="62" y="162" text-anchor="middle">source</text>
+      <!-- scene render -->
+      <rect class="sv-box-cy" x="150" y="120" width="118" height="58" rx="9"/>
+      <text class="sv-t" x="209" y="145" text-anchor="middle">scene render</text>
+      <text class="sv-s" x="209" y="161" text-anchor="middle">→ sceneTex</text>
+      <path class="sv-flow" d="M110 149 H150" marker-end="url(#ar)"/>
+      <!-- aux producer -->
+      <rect class="sv-box-gr" x="150" y="22" width="200" height="56" rx="9"/>
+      <text class="sv-t" x="250" y="44" text-anchor="middle">ours aux producer</text>
+      <text class="sv-s" x="250" y="62" text-anchor="middle">id·edge·vel·depth·sdf·etf·height…</text>
+      <path class="sv-flow" d="M209 120 V78" marker-end="url(#ar)"/>
+      <!-- stages column -->
+      <g>
+        <rect class="sv-box-vi" x="430" y="34" width="190" height="44" rx="9"/>
+        <text class="sv-t" x="525" y="61" text-anchor="middle">NPR effect chain</text>
+        <rect class="sv-box-am" x="430" y="92" width="190" height="44" rx="9"/>
+        <text class="sv-t" x="525" y="119" text-anchor="middle">vector beam</text>
+        <rect class="sv-box-vi" x="430" y="150" width="190" height="44" rx="9"/>
+        <text class="sv-t" x="525" y="177" text-anchor="middle">spacetime volume</text>
+      </g>
+      <path class="sv-flow" d="M268 149 C 360 149, 360 56, 430 56" marker-end="url(#ar)"/>
+      <path class="sv-flow" d="M268 149 H430" marker-end="url(#ar)"/>
+      <path class="sv-flow" d="M268 149 C 360 149, 360 172, 430 172" marker-end="url(#ar)"/>
+      <path class="sv-flow-vi" d="M350 50 C 400 50, 400 110, 430 113" opacity=".6"/>
+      <text class="sv-lbl" x="372" y="34">aux feeds</text>
+      <!-- custom pipeline -->
+      <rect class="sv-box" x="690" y="92" width="118" height="58" rx="9"/>
+      <text class="sv-t" x="749" y="117" text-anchor="middle">custom</text>
+      <text class="sv-t" x="749" y="134" text-anchor="middle">pipeline</text>
+      <text class="sv-s" x="749" y="150" text-anchor="middle" dy="-2"></text>
+      <path class="sv-flow" d="M620 56 C 660 56, 660 110, 690 113" marker-end="url(#ar)"/>
+      <path class="sv-flow" d="M620 114 H690" marker-end="url(#ar)"/>
+      <path class="sv-flow" d="M620 172 C 660 172, 660 132, 690 130" marker-end="url(#ar)"/>
+      <!-- viewport -->
+      <rect class="sv-box-cy" x="862" y="92" width="104" height="58" rx="9"/>
+      <text class="sv-t" x="914" y="117" text-anchor="middle">viewport</text>
+      <text class="sv-s" x="914" y="134" text-anchor="middle">picks tex</text>
+      <path class="sv-flow" d="M808 121 H862" marker-end="url(#ar)"/>
+      <text class="sv-lbl" x="700" y="210">priority: custom › beam › spacetime › NPR › raw  ·  Raw/Final toggle forces sceneTex</text>
+      <defs>
+        <marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+          <path d="M0,0 L9,4.5 L0,9 Z" fill="#46e6e0"/>
+        </marker>
+      </defs>
+    </svg>
+    <figcaption><b>The frame graph.</b> One scene render fans out to the aux producer and the three stage families; a stackable
+      custom pipeline composes them; the viewport selects the display texture by priority (a global <b>Raw/Final</b> toggle can
+      bypass the whole stack).</figcaption>
+  </figure>
+
+  <p>Each stage is a texture-to-texture operation, so they nest: the custom pipeline lets you put effects after a beam, a beam
+    after a spacetime volume, and so on. Aux buffers are recomputed per stage — exact for scene-aligned stages, approximate
+    after a spacetime warp.</p>
+</section>
+
+<!-- ================= 03 REPLICATE ================= -->
+<section id="replicate">
+  <h2><span class="num">03</span>Replicating the official renderer</h2>
+  <p>"Ours" is a <strong>stencil-then-cover</strong> vector renderer — the same family the official Rive GPU renderer uses.
+    A path is flattened to device-space polylines, its winding is accumulated into the stencil buffer, then a bounding quad is
+    drawn gated to the stencil test. Everything is composited in a <strong>4× MSAA</strong> framebuffer and resolved at 1×.</p>
+
+  <h3>The core mechanics</h3>
+  <ul>
+    <li><strong>Stencil-then-cover.</strong> The winding pass accumulates signed edge crossings into stencil bits 0–6 via
+      <code>GL_INCR_WRAP/GL_DECR_WRAP</code> on front/back triangle fans; the cover quad tests <em>even-odd</em>
+      (<code>EQUAL 0x01</code>) or <em>non-zero</em> (<code>NOTEQUAL 0x00</code>).</li>
+    <li><strong>Non-convex clipping</strong> packs an intersection bit (bit 7) alongside the 7 winding bits, so an arbitrary
+      multi-layer clip mask is built once and AND-tested in the same cover pass — no redundant multipass compositing.</li>
+    <li><strong>Scale-aware flattening.</strong> Cubics subdivide to keep each chord ≤ <kbd>3 px</kbd> on-screen; the step count
+      comes from the control-polygon arc-length estimate, clamped to [1, 256]. Quadratics are degree-elevated to cubic first;
+      near-duplicate points (&lt; 0.05 px) are culled to avoid degenerate stroke normals.</li>
+    <li><strong>Strokes</strong> are the Minkowski sum of the path with a disc of radius <code>thickness/2</code>: a band quad per
+      segment plus an 8-triangle radial fan per vertex, unioned via stencil so overlaps never double-blend.</li>
+    <li><strong>Gradients</strong> are evaluated per-fragment in object space (inverse 2×2 + translation), so radial gradients
+      stay elliptical under non-uniform transforms.</li>
+    <li><strong>Blend modes</strong> (multiply/screen/darken/lighten) are approximated by snapshotting the destination into a
+      background texture and seeding the MSAA buffer with it, then using non-standard blend equations.</li>
+  </ul>
+
+  <!-- FEATHER DEEP DIVE -->
+  <h3 id="feather">The hard one — analytic feather via jump-flood SDF + erf</h3>
+  <p>Feathering a hard-edged <em>fill</em> is the part the official renderer keeps proprietary, and the part that's genuinely
+    difficult. Blurring the binary coverage mask works for small radii but loses crispness and develops radius-dependent
+    artifacts. We instead compute, <strong>per fragment, the exact Gaussian integral of coverage to the nearest edge.</strong></p>
+  <p>The trick is getting a signed distance field cheaply. A naïve transform is O(N) per pixel; instead we use the
+    <strong>Jump Flood Algorithm</strong> (Rong &amp; Tan 2006), which propagates nearest-seed coordinates in
+    <code>O(log&#8202;N)</code> ping-pong passes with a halving step. Crucially the cost scales with <em>shape size</em>, not
+    screen size — every feather pass is scissored to a padded bounding box, and the scratch is explicitly cleared after each
+    shape to maintain a zero-outside invariant (the subtle bug: JFA's ±1-texel seed kernel reads stale white from a prior shape
+    otherwise).</p>
+
+  <figure>
+    <svg viewBox="0 0 980 210" role="img" aria-label="Analytic feather pipeline">
+      <rect class="sv-box-cy" x="16" y="74" width="120" height="58" rx="9"/>
+      <text class="sv-t" x="76" y="99" text-anchor="middle">coverage</text>
+      <text class="sv-s" x="76" y="115" text-anchor="middle">white fill</text>
+      <rect class="sv-box" x="176" y="74" width="138" height="58" rx="9"/>
+      <text class="sv-t" x="245" y="95" text-anchor="middle">seed 0.5-isoline</text>
+      <text class="sv-s" x="245" y="112" text-anchor="middle">sub-pixel crossings</text>
+      <rect class="sv-box-vi" x="354" y="74" width="170" height="58" rx="9"/>
+      <text class="sv-t" x="439" y="95" text-anchor="middle">JFA ping-pong</text>
+      <text class="sv-s" x="439" y="112" text-anchor="middle">step max/2 → 1  ·  O(log N)</text>
+      <rect class="sv-box" x="564" y="74" width="120" height="58" rx="9"/>
+      <text class="sv-t" x="624" y="95" text-anchor="middle">signed dist</text>
+      <text class="sv-s" x="624" y="112" text-anchor="middle">sd, dir</text>
+      <rect class="sv-box-am" x="724" y="74" width="138" height="58" rx="9"/>
+      <text class="sv-t" x="793" y="95" text-anchor="middle">erf composite</text>
+      <text class="sv-s" x="793" y="112" text-anchor="middle">soft coverage</text>
+      <!-- erf curve glyph -->
+      <rect class="sv-box" x="902" y="64" width="62" height="78" rx="9"/>
+      <path d="M912 128 C 928 128, 930 80, 954 78" stroke="#ffce5c" stroke-width="2" fill="none"/>
+      <line x1="912" y1="103" x2="954" y2="103" stroke="#2c3454" stroke-width="1"/>
+      <text class="sv-s" x="933" y="138" text-anchor="middle" font-size="9">erf(sd·k)</text>
+      <g>
+        <path class="sv-flow" d="M136 103 H176" marker-end="url(#ar2)"/>
+        <path class="sv-flow" d="M314 103 H354" marker-end="url(#ar2)"/>
+        <path class="sv-flow" d="M524 103 H564" marker-end="url(#ar2)"/>
+        <path class="sv-flow" d="M684 103 H724" marker-end="url(#ar2)"/>
+        <path class="sv-flow" d="M862 103 H902" marker-end="url(#ar2)"/>
+      </g>
+      <defs><marker id="ar2" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 Z" fill="#46e6e0"/></marker></defs>
+    </svg>
+    <figcaption><b>Per-fragment exact feather.</b> A jump-flood distance field feeds a Gaussian erf integral. For fills the band
+      half-width is infinite; for strokes two erf terms combine the two edges so thin strokes correctly dim.</figcaption>
+  </figure>
+
+  <div class="eq"><span class="lbl">Fill coverage (infinite band)</span>cov = 0.5 · (1 + erf(sd · k))      with  k = 3 / (R·√2),  σ = R/3,  R = 1.5·featherPx</div>
+  <div class="eq"><span class="lbl">Stroke coverage (finite half-width hw)</span>cov = 0.5 · ( erf((2·hw − sd)·k) + erf(sd·k) )</div>
+  <p class="sub">The <code>erf</code> itself is the Abramowitz–Stegun 7.1.26 rational approximation evaluated inline — a 512-entry
+    CPU reference table exists in the feather lab for validation (sub-0.5% delta).</p>
+
+  <!-- WRITER DEEP DIVE -->
+  <h3 id="writer">The reverse-engineered <code>.riv</code> writer</h3>
+  <p>The official runtime is open — but it only shows how to <em>read</em> a <code>.riv</code>. The editor that <em>writes</em>
+    them is closed, with no published binary spec. <code>writeSplatRiv()</code> reverse-engineers the format well enough to emit
+    valid <strong>RIVE v7.0</strong> containers: a <code>'RIVE'</code> magic, varuint version, a property table-of-contents with a
+    2-bit field-type bitmap, then a stream of core objects (Backboard, Artboard, then per-shape Shape + Ellipse/Rectangle + Fill +
+    SolidColor / Linear&amp;RadialGradient + GradientStop + Feather + Stroke), parented by artboard-local indices and emitted in
+    <em>reverse</em> order so late shapes draw on top.</p>
+
+  <div class="note"><b>The fillRule=clockwise discovery.</b> Feathered fills <em>silently drop</em> in the official renderer unless
+    the fill carries <code>fillRule = clockwise</code> (property key 40 = 2). The editor always emitted clockwise, masking the bug
+    for years; our writer originally defaulted to non-zero and produced blank feathers. Setting property 40 = 2 — and
+    winding-correcting cubic paths to CW — was the fix.</p>
+
+  <details class="algo">
+    <summary><span class="pill research">Research-level</span> Anisotropic Gaussian → feathered-ellipse fit <span class="lin">least-squares on a convolution profile</span><span class="chev">▸</span></summary>
+    <div class="body">
+      <div class="row"><div class="h">Problem</div><p>Rive's feather is <em>isotropic</em> (one scalar), but the source splats are anisotropic 2D Gaussians (σx ≠ σy). Scaling the feather by max(σx, σy) obliterates the short axis (a 100×4 splat blurs its 4&#8202;px axis by ~65&#8202;px).</p></div>
+      <div class="row"><div class="h">Approach</div><p>Model the rendered profile along each principal axis as <code>amp · C(u)</code>, where C is the exact 1-D centre slice of an <em>ellipse convolved with a Gaussian</em> (not erf-of-SDF, which over-estimates curved boundaries by up to 2.14×). Evaluate it by midpoint integration at 25 samples per axis spanning 4σ, then fit four free variables — Rx, Ry, σ<sub>feather</sub>, amp — by greedy coordinate descent in log-space (multiplicative 1.22× steps, halving on a plateau), with amp solved in closed form per probe via Σ(C·T)/Σ(C²).</p></div>
+      <div class="row"><div class="h">Why it's hard</div><p>The anisotropic→isotropic map has no closed form; it couples ellipse chord-mass theory with numerical integration of an error surface in (Rx, Ry, σ). Tailored to match Rive's internal feather semantics rather than any textbook filter.</p></div>
+    </div>
+  </details>
+
+  <details class="algo">
+    <summary><span class="pill research">Research-level</span> Disk-convolved-Gaussian coverage LUT <span class="lin">Bessel-weighted, RMS &lt; 0.0007</span><span class="chev">▸</span></summary>
+    <div class="body">
+      <div class="row"><div class="h">Problem</div><p>The official feather is the 2-D Gaussian convolution of the shape indicator. For a disk of radius R there is no closed form, and erf-of-SDF deviates significantly on curved edges — so the preview wouldn't match the runtime.</p></div>
+      <div class="row"><div class="h">Approach</div><p>Precompute a 224×160 LUT over u′=(r−R)/σ ∈ [−8,+6] and v=R/σ ∈ [0,16]. Each entry is the 1-D integral <code>∫₀ᴿ ρ·exp(−(ρ−r)²/2)·I₀e(rρ) dρ</code> using the exponentially-scaled Bessel I₀ (to keep exponents bounded), midpoint rule with n = min(2048, ceil(16R)). Bilinear-sampled at runtime; v &gt; 16 falls back to erf.</p></div>
+      <div class="row"><div class="h">Why it's hard</div><p>Reverse-engineered by grid search against official output and validated to <strong>RMS &lt; 0.0007</strong>. A Bessel-weighted convolution is not a standard GPU primitive — it encodes the exact disk-blur profile the proprietary renderer uses.</p></div>
+    </div>
+  </details>
+</section>
+
+<!-- ================= 04 NPR ENGINE ================= -->
+<section id="npr">
+  <h2><span class="num">04</span>The NPR effects engine</h2>
+  <p>The stylization engine cleanly separates <strong>what an effect is</strong> (pure C++ data) from <strong>how it runs</strong>
+    (a generic GL executor). An effect is a list of passes; the executor compiles shaders on demand and wires up the texture flow.</p>
+
+  <pre class="tag" data-l="data model"><span class="k">struct</span> Effect   { id; label; <span class="f">params</span>[]; <span class="f">passes</span>[]; }
+<span class="k">struct</span> Pass     { shaderId; <span class="f">inputs</span>[]; constUniforms[]; output; scratchSlot; prim; vertexRows; }
+<span class="k">enum</span> Src       { Prev, Original, Noise, Self, Aux, History, State }   <span class="c">// where a pass reads</span>
+<span class="k">enum</span> Dst       { Scratch, Result, State }                            <span class="c">// where it writes</span>
+<span class="k">enum</span> Prim      { FullscreenTri, LineStrip }                          <span class="c">// fragment vs. ribbon geometry</span>
+<span class="k">struct</span> ChainEntry { effectIndex; enabled; <span class="f">params</span>[]; }              <span class="c">// a live instance</span></pre>
+
+  <figure>
+    <svg viewBox="0 0 980 250" role="img" aria-label="NPR executor diagram">
+      <rect class="sv-box" x="14" y="100" width="120" height="50" rx="9"/>
+      <text class="sv-t" x="74" y="122" text-anchor="middle">ChainEntry[]</text>
+      <text class="sv-s" x="74" y="138" text-anchor="middle">idx+params</text>
+      <!-- src resolve -->
+      <rect class="sv-box-gr" x="172" y="20" width="170" height="120" rx="9"/>
+      <text class="sv-lbl" x="257" y="40" text-anchor="middle">Src resolve</text>
+      <text class="sv-s" x="257" y="60" text-anchor="middle">Prev · Original · Noise</text>
+      <text class="sv-s" x="257" y="78" text-anchor="middle">Self · History</text>
+      <text class="sv-s" x="257" y="96" text-anchor="middle">Aux (geometry)</text>
+      <text class="sv-s" x="257" y="114" text-anchor="middle">State (sim)</text>
+      <path class="sv-flow" d="M134 119 C 155 119, 155 96, 172 96" marker-end="url(#ar3)"/>
+      <!-- shader -->
+      <rect class="sv-box-vi" x="384" y="92" width="150" height="66" rx="9"/>
+      <text class="sv-t" x="459" y="118" text-anchor="middle">shader</text>
+      <text class="sv-s" x="459" y="135" text-anchor="middle">kNprFragTable[id]</text>
+      <path class="sv-flow" d="M342 100 C 365 100, 365 118, 384 122" marker-end="url(#ar3)"/>
+      <!-- prim -->
+      <rect class="sv-box" x="384" y="174" width="150" height="42" rx="9"/>
+      <text class="sv-s" x="459" y="200" text-anchor="middle">Tri (3 verts) · or ribbon strip</text>
+      <!-- dst -->
+      <rect class="sv-box-cy" x="586" y="36" width="160" height="44" rx="9"/>
+      <text class="sv-t" x="666" y="63" text-anchor="middle">Result ping-pong</text>
+      <rect class="sv-box-cy" x="586" y="92" width="160" height="44" rx="9"/>
+      <text class="sv-t" x="666" y="119" text-anchor="middle">Scratch ×4</text>
+      <rect class="sv-box-am" x="586" y="148" width="160" height="44" rx="9"/>
+      <text class="sv-t" x="666" y="171" text-anchor="middle">State ping-pong</text>
+      <text class="sv-s" x="666" y="186" text-anchor="middle">RGBA16F · sims</text>
+      <path class="sv-flow" d="M534 116 C 560 116, 560 58, 586 58" marker-end="url(#ar3)"/>
+      <path class="sv-flow" d="M534 124 C 560 124, 560 114, 586 114" marker-end="url(#ar3)"/>
+      <path class="sv-flow-vi" d="M534 140 C 560 150, 560 170, 586 170" marker-end="url(#ar3)"/>
+      <!-- out -->
+      <rect class="sv-box-cy" x="800" y="92" width="120" height="44" rx="9"/>
+      <text class="sv-t" x="860" y="119" text-anchor="middle">outTex</text>
+      <path class="sv-flow" d="M746 58 C 778 58, 778 112, 800 114" marker-end="url(#ar3)"/>
+      <path class="sv-flow-vi" d="M666 192 C 666 230, 459 230, 459 216" opacity=".5"/>
+      <text class="sv-lbl" x="500" y="244">State feeds next substep (6–8 / frame for sims)</text>
+      <defs><marker id="ar3" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 Z" fill="#46e6e0"/></marker></defs>
+    </svg>
+    <figcaption><b>The generic executor.</b> For each pass it resolves inputs, compiles/binds the shader, draws a fullscreen
+      triangle (or a ribbon strip), and routes output to a Result/Scratch/State target. State is a persistent RGBA16F ping-pong
+      that lets simulations carry across frames.</figcaption>
+  </figure>
+
+  <p>Two details make the engine expressive:</p>
+  <ul>
+    <li><strong>Persistent State</strong> — a 16-bit-float ping-pong buffer turns the post-processor into a substrate for
+      multi-frame PDE and particle simulations. Ownership is per-effect; taking over mid-chain forces a re-seed so a new sim never
+      reads another's garbage.</li>
+    <li><strong>The line-primitive ribbon pass</strong> — a particle chain stored <em>in</em> the State texture is drawn as
+      geometry via vertex-texture-fetch (<code>gl_VertexID</code> indexes particles), emitting two verts per Catmull-Rom sample as
+      a variable-width <code>GL_TRIANGLE_STRIP</code>. That's how the "one-line drawing" becomes a real, antialiased stroke instead
+      of hardware lines.</li>
+  </ul>
+  <p>The registry holds <strong>122 effects</strong> across ~80 shaders, grouped for the UI into painterly (Kuwahara, oil,
+    watercolor, painterly strokes), ink &amp; line (ballpoint, Ciallo, sumi-e, crosshatch, <em>FDoG</em>, engraving), halftone
+    &amp; stipple, abstraction (toon, bilateral, comic), light (bloom, neon, iridescent, hologram, prism, matcap, tendrils), and
+    <em>temporal &amp; sim</em> — the research-level batch below.</p>
+</section>
+
+<!-- ================= 05 AUX ================= -->
+<section id="aux">
+  <h2><span class="num">05</span>Auxiliary buffers &amp; the silhouette vectorizer</h2>
+  <p>Content-aware effects need to know about the geometry, not just the pixels. The aux producer re-renders the scene through the
+    custom pipeline to manufacture eleven buffers, each lazily computed (a per-frame <code>Done</code> flag) and cached/deduped by
+    name across the effect chain. A <code>uHasAux</code> executor signal lets every consumer fall back to a luma approximation when
+    no producer is present (e.g. on the official backend).</p>
+
+  <table class="tbl">
+    <tr><th>Buffer</th><th>Channels</th><th>Made from / consumed by</th></tr>
+    <tr><td><b>id</b></td><td class="mono">hashed RGB</td><td>per-shape flat colour; occupancy for sdf/depth</td></tr>
+    <tr><td><b>edge</b></td><td class="mono">R</td><td>id-discontinuity ∪ luma Sobel; seeds sdf/etf/height</td></tr>
+    <tr><td><b>velocity</b></td><td class="mono">rg (0.5=still)</td><td>per-draw transform delta across frames</td></tr>
+    <tr><td><b>depth</b></td><td class="mono">R</td><td>normalized paint order (background→front)</td></tr>
+    <tr><td><b>sdf</b></td><td class="mono">r=dist, gb=dir, a=occ</td><td>jump-flood distance field; 2D lighting</td></tr>
+    <tr><td><b>curvature</b></td><td class="mono">r=bend, g=prox</td><td>divergence of the sdf direction field</td></tr>
+    <tr><td><b>age</b></td><td class="mono">r=activity</td><td>EWMA of luma change (recently-moved glows)</td></tr>
+    <tr><td><b>etf</b></td><td class="mono">rg=tangent, b=coherence</td><td>smoothed structure tensor; hatching/flow effects</td></tr>
+    <tr><td><b>height</b></td><td class="mono">r=height, gb=normal, a=|∇|</td><td>denoised reference normal; matcap/STM/prism</td></tr>
+    <tr><td><b>structure</b></td><td class="mono">rg=grad dir, b=mag</td><td>off the etf tensor; tendrils, edge-stopping</td></tr>
+    <tr><td><b>curvepts</b></td><td class="mono">256×1, rg=xy</td><td>vectorized silhouette polyline</td></tr>
+  </table>
+
+  <h3>The vectorizer — turning a silhouette into a parametric curve</h3>
+  <p>The <code>curvepts</code> buffer is the hard one: it converts the rendered scene into an <em>ordered, resampled polyline</em>
+    that effects can trace. It's a CPU pass (the only GPU→CPU readback, throttled to every 20 frames) running a five-stage classic
+    computer-vision pipeline, run at <em>both</em> polarities (bright subject and dark subject) with the larger valid bounding box
+    winning.</p>
+
+  <figure>
+    <svg viewBox="0 0 980 132" role="img" aria-label="Vectorizer stages">
+      <g font-family="ui-monospace,monospace">
+        <rect class="sv-box-cy" x="12" y="40" width="150" height="52" rx="9"/>
+        <text class="sv-t" x="87" y="62" text-anchor="middle">binarize</text>
+        <text class="sv-s" x="87" y="79" text-anchor="middle">field ≥ τ</text>
+        <rect class="sv-box" x="190" y="40" width="186" height="52" rx="9"/>
+        <text class="sv-t" x="283" y="62" text-anchor="middle">largest interior</text>
+        <text class="sv-s" x="283" y="79" text-anchor="middle">component (no border)</text>
+        <rect class="sv-box-vi" x="404" y="40" width="180" height="52" rx="9"/>
+        <text class="sv-t" x="494" y="62" text-anchor="middle">Moore trace</text>
+        <text class="sv-s" x="494" y="79" text-anchor="middle">8-nbr CW + Jacob stop</text>
+        <rect class="sv-box-am" x="612" y="40" width="186" height="52" rx="9"/>
+        <text class="sv-t" x="705" y="62" text-anchor="middle">Douglas–Peucker</text>
+        <text class="sv-s" x="705" y="79" text-anchor="middle">closed-loop simplify</text>
+        <rect class="sv-box-gr" x="826" y="40" width="142" height="52" rx="9"/>
+        <text class="sv-t" x="897" y="62" text-anchor="middle">resample</text>
+        <text class="sv-s" x="897" y="79" text-anchor="middle">N=256 by arc-len</text>
+      </g>
+      <g class="sv-flow">
+        <path d="M162 66 H190" marker-end="url(#ar4)"/><path d="M376 66 H404" marker-end="url(#ar4)"/>
+        <path d="M584 66 H612" marker-end="url(#ar4)"/><path d="M798 66 H826" marker-end="url(#ar4)"/>
+      </g>
+      <defs><marker id="ar4" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 Z" fill="#46e6e0"/></marker></defs>
+    </svg>
+    <figcaption><b>Silhouette → polyline.</b> Stack-based flood fill prefers the largest <b>non-border-touching</b> component (so a
+      full-frame background never wins); Moore boundary tracing with Jacob's stopping criterion handles thin spurs; closed-loop
+      Douglas–Peucker avoids the start/end collapse; arc-length resampling yields a fixed, evenly-spaced 256-point loop.</figcaption>
+  </figure>
+</section>
+
+<!-- ================= 06 HARD ALGORITHMS ================= -->
+<section id="hard">
+  <h2><span class="num">06</span>Research-level algorithms</h2>
+  <p class="sub">Each card states the problem, the technique as actually implemented (with the governing math), and the lineage.
+    These are the pieces where the complexity lives — coherent line drawing, structure-tensor filtering, and a shelf of
+    GPU PDE / agent simulations running entirely in fragment shaders on a 16-bit-float state buffer.</p>
+
+  <h3>Line art &amp; structure</h3>
+
+  <details class="algo" open>
+    <summary><span class="pill research">Research-level</span> Edge Tangent Flow + FDoG <span class="lin">Kang · Lee · Chui, SIGGRAPH 2007</span><span class="chev">▸</span></summary>
+    <div class="body">
+      <div class="row"><div class="h">Problem</div><p>Raw gradients are noisy and sign-ambiguous; a line extractor built on them speckles. Real structure has a <em>direction</em> — lines should be crisp across the flow and continuous along it.</p></div>
+      <div class="row"><div class="h">ETF — the flow field</div><p>Build the structure tensor from Sobel gradients of <code>luma + 0.75·edge</code>, store [g<sub>x</sub>², g<sub>y</sub>², g<sub>x</sub>g<sub>y</sub>], Gaussian-smooth it over a 9×9 window, then eigen-decompose. The minor eigenvector (perpendicular to the gradient) is the edge tangent; <code>coherence = (λ₁−λ₂)/(λ₁+λ₂)</code> gauges how much the neighbourhood agrees, gated by trace magnitude to kill flat-region noise. Encoded as <code>rg=tangent·0.5+0.5, b=coherence</code>.</p></div>
+      <div class="row"><div class="h">FDoG — the line extractor</div><p>Filter a Difference-of-Gaussians <em>across</em> the flow (σ<sub>s</sub>=1.6·σ<sub>c</sub>, ρ≈0.99), then integrate the response <em>along</em> the streamline maintaining tangent sign-continuity, and threshold with Kang's tanh rule: <code>e = ½(1+tanh(60·H)); ink = 1 − smoothstep(τ±0.04, e)</code>.</p></div>
+      <div class="row"><div class="h">Complexity</div><p>O(W·H·81) for the tensor smooth; O(W·H·36) per FDoG pass (the along-flow streamline tracing dominates). The same ETF flow drives hatching, LIC smear, and the fluid swirl force.</p></div>
+    </div>
+  </details>
+
+  <details class="algo">
+    <summary><span class="pill research">Research-level</span> Anisotropic Kuwahara <span class="lin">Kyprianidis et al. 2008</span><span class="chev">▸</span></summary>
+    <div class="body">
+      <div class="row"><div class="h">Problem</div><p>Classic Kuwahara (4 axis-aligned quadrants, pick the lowest-variance mean) preserves edges but is isotropic — it can't follow structure, so it smears across diagonal features.</p></div>
+      <div class="row"><div class="h">Approach</div><p>Compute the local structure tensor; form an <em>elliptical</em> kernel with axes <code>a = R(1+A)</code>, <code>b = R(1−A)</code> from the anisotropy <code>A = (λ₁−λ₂)/(λ₁+λ₂)</code>, rotated to the edge tangent. Sample 8 angular sectors (Gaussian-weighted), compute mean + variance per sector, output the mean of the lowest-variance sector. All loops are unrolled (no dynamic branching).</p></div>
+      <div class="row"><div class="h">Why it's hard</div><p>Per-pixel eigen-analysis + elliptical rotation + sector statistics, ~128 taps per pixel, every frame. The kernel stretches <em>along</em> edges and shrinks across them, which is what produces the painterly-but-sharp look.</p></div>
+    </div>
+  </details>
+
+  <details class="algo">
+    <summary><span class="pill core">Core technique</span> Jump Flood distance transform <span class="lin">Rong &amp; Tan 2006</span><span class="chev">▸</span></summary>
+    <div class="body">
+      <div class="row"><div class="h">Problem</div><p>Exact distance to the nearest contour at every pixel, fast enough for interactive use. Scan-based transforms are O(N); we need sub-millisecond.</p></div>
+      <div class="row"><div class="h">Approach</div><p>Seed edge pixels with their own coordinates; then for step k = max(W,H)/2, /4, … , 1, each pixel checks 8 neighbours at offset ±k and adopts the nearest valid seed. After <code>⌈log₂ max(W,H)⌉</code> passes every pixel knows its nearest seed to ≤ 0.5&#8202;px. Finalize to <code>r=distance, gb=direction, a=occupancy</code>.</p></div>
+      <div class="row"><div class="h">Where it shows up</div><p>Three places: the feather SDF (§03), the <code>sdf</code> aux buffer, and — remarkably — <em>inside</em> the love level-set shader as a per-frame interior fill (next card).</p></div>
+    </div>
+  </details>
+
+  <details class="algo">
+    <summary><span class="pill research">Research-level</span> Geodesic active-contour "love" <span class="lin">Caselles 1997 + Sussman reinit + in-shader JFA</span><span class="chev">▸</span></summary>
+    <div class="body">
+      <div class="row"><div class="h">Problem</div><p>Evolve a contour that flows onto the artwork, sticks to structure, and fills its interior every frame so it doesn't leave phantom bands as it moves — all on a fragment-shader state buffer.</p></div>
+      <div class="row"><div class="h">Approach</div><p>Store the level-set φ in State.r, an edge-stopping field <code>g = 1/(1+λ|∇I|²)</code> in State.g, and a jump-flood distance in State.b. Evolve the geodesic active-contour PDE, then a Sussman reinitialization term to keep |∇φ|≈1:</p>
+        <div class="eq">φₜ = μ·g·κ·|∇φ|  +  ν·g·|∇φ|  +  β·(∇g·∇φ)        <span style="color:var(--faint)">(curvature smoothing · balloon · edge advection)</span>
+φ  −= dt·α·s·(|∇φ| − 1)                       <span style="color:var(--faint)">(reinit, s = φ/√(φ²+1))</span></div>
+        <p>The same pass runs a 4-scale in-shader JFA (64/16/4/1&#8202;px jumps, 8 neighbours each) seeded at sign-flips and grown +2&#8202;px/frame, so the distance field recovers as the contour moves. The colour pass renders nested bands tiled off that distance, with a bright accent at the zero level-set.</p></div>
+      <div class="row"><div class="h">Why it's hard</div><p>Three research threads in one ~130-line shader: geodesic active contours, a live-moving distance transform (most JFA implementations are static), and level-set reinitialization for numerical stability.</p></div>
+    </div>
+  </details>
+
+  <details class="algo">
+    <summary><span class="pill research">Research-level</span> One-line Lagrangian snake <span class="lin">tone-weighted relaxation + Catmull-Rom ribbon</span><span class="chev">▸</span></summary>
+    <div class="body">
+      <div class="row"><div class="h">Problem</div><p>A single connected polyline of K = W·rows particles must relax onto the artwork — tracing contours, packing tighter in dark regions — and render as a smooth variable-width ribbon.</p></div>
+      <div class="row"><div class="h">Approach</div><p>Particles live in the State texture (.xy clip pos, .zw velocity). Forces: a spring with a <em>tone-weighted rest length</em> (L shrinks where the image is dark, so the line packs), a magnitude-clamped image-gradient pull toward edges, neighbour separation, and Laplacian smoothing. Seeded as an Archimedean spiral (<code>r=√(1−i)</code> for even area coverage). Rendering fetches 4 surrounding particles per vertex, evaluates Catmull-Rom, and emits a 2-vertex-wide triangle strip — sidestepping hardware line limits.</p></div>
+      <div class="row"><div class="h">Why it's hard</div><p>The tone-weighted spring is the load-bearing mechanic — it makes one continuous line <em>describe</em> a subject non-uniformly. (An experiment to additionally pull it toward the SDF contour de-noised but <em>collapsed</em> the composition: the noise was structurally necessary.)</p></div>
+    </div>
+  </details>
+
+  <h3>State-buffer simulations</h3>
+  <p>Each runs 1–8 fragment-shader substeps per frame on the persistent RGBA16F state, seeding from the artwork and biasing
+    toward its geometry (edges, tangent flow, curvature) so the simulation <em>describes</em> the picture rather than ignoring it.</p>
+
+  <table class="tbl">
+    <tr><th>Simulation</th><th>State channels</th><th>Governing idea</th><th>steps/frame</th></tr>
+    <tr><td><b>Gray-Scott RD</b></td><td class="mono">r,g = U,V</td><td>Turing reaction-diffusion; luma modulates feed/kill</td><td>6</td></tr>
+    <tr><td><b>Flow-advected RD</b></td><td class="mono">r,g = U,V</td><td>same, but back-traced along the etf flow + seeded at curvature corners</td><td>6</td></tr>
+    <tr><td><b>BZ chemistry</b></td><td class="mono">r,g = a,b</td><td>Brusselator / Oregonator spirals &amp; target waves</td><td>6</td></tr>
+    <tr><td><b>FitzHugh-Nagumo</b></td><td class="mono">rgba</td><td>excitable medium, spiral-defect turbulence</td><td>4</td></tr>
+    <tr><td><b>Ginzburg-Landau</b></td><td class="mono">r,g = Re,Im</td><td>complex field, 9-tap Laplacian, spiral chaos</td><td>2</td></tr>
+    <tr><td><b>SmoothLife</b></td><td class="mono">r = density</td><td>continuous-space Life via disk/ring integrals + sigmoid</td><td>1</td></tr>
+    <tr><td><b>Multiscale Turing</b></td><td class="mono">r = morphogen</td><td>McCabe — smallest-variation scale sets the step</td><td>1</td></tr>
+    <tr><td><b>Stable fluids</b></td><td class="mono">rg=vel, ba=flow-map</td><td>Stam advection + vorticity confinement + etf buoyancy</td><td>6</td></tr>
+    <tr><td><b>Falling sand</b></td><td class="mono">rgb=col, a=mass</td><td>conservative gather + diagonal angle-of-repose</td><td>8</td></tr>
+    <tr><td><b>Hydraulic erosion</b></td><td class="mono">H,W,S,H₀</td><td>virtual-pipe shallow water + capacity-driven sediment</td><td>6</td></tr>
+    <tr><td><b>Physarum</b></td><td class="mono">T,θ,EWMA</td><td>Eulerian slime mould — sense/steer/deposit with feedback</td><td>8</td></tr>
+  </table>
+
+  <details class="algo">
+    <summary><span class="pill research">Research-level</span> Semi-Lagrangian stable fluids + vorticity confinement <span class="lin">Stam 1999 · Fedkiw 2001</span><span class="chev">▸</span></summary>
+    <div class="body">
+      <div class="row"><div class="h">Problem</div><p>A stable fluid solver normally needs an iterative Poisson pressure projection — impossible in a single fragment pass — yet we want large timesteps without checkerboard blow-up, and the artwork to flow like liquid paint.</p></div>
+      <div class="row"><div class="h">Approach</div><p>Pack velocity in State.rg and a <em>flow-map</em> (the UV each pixel reads the artwork from) in State.ba. Advect via backward characteristics: <code>v = velAt(uv − v·dt)</code> — self-consistent, no iteration. Reinject the small-scale swirl lost to coarse advection with <strong>vorticity confinement</strong> (curl gradient ascent), and use the etf tangent as a zero-mean circulation force. The colour pass samples the artwork through the back-advected flow-map, so the picture "flows" by texture indirection.</p></div>
+      <div class="row"><div class="h">Why it's hard</div><p>It composes three ideas — semi-Lagrangian advection, post-hoc vortex amplification, and structure-tensor-driven buoyancy — into incompressible-<em>looking</em> motion without ever solving div(v)=0.</p></div>
+    </div>
+  </details>
+
+  <details class="algo">
+    <summary><span class="pill research">Research-level</span> Conservative flux gather (sand &amp; erosion) <span class="lin">discrete-conservative single-pass CA</span><span class="chev">▸</span></summary>
+    <div class="body">
+      <div class="row"><div class="h">Problem</div><p>Redistribute a conserved quantity (mass, sediment) so out-flux exactly equals in-flux — in one pass, where a receiving cell can't "know" its total incoming until all senders are computed.</p></div>
+      <div class="row"><div class="h">Approach</div><p>Use a single symmetric, bounded flow function <code>flow(src,dst) = clamp(min(srcAmount, 1−dstCapacity)) · rate</code>. Because both (A→B) and (B→A) call the <em>same</em> function, A's out-flux to B provably equals B's in-flux from A; the gather pass nets <code>me − Σout + Σin</code>. Sand adds an angle-of-repose conditional (grains slump diagonally only if straight-down is full); erosion adds capacity-driven erode/deposit (erode when flow speed exceeds capacity, deposit otherwise), conserving H+S.</p></div>
+      <div class="row"><div class="h">Why it's hard</div><p>Maintaining <em>discrete</em> conservation without a global solve or iteration is a careful discretization — the bounded symmetric flux is what prevents oscillation and matter creation.</p></div>
+    </div>
+  </details>
+
+  <details class="algo">
+    <summary><span class="pill research">Research-level</span> Eulerian physarum with positive-feedback deposit <span class="lin">Jones 2010, gridded</span><span class="chev">▸</span></summary>
+    <div class="body">
+      <div class="row"><div class="h">Problem</div><p>Classic slime-mould models track thousands of discrete agents. A dense-grid (Eulerian) version avoids per-agent cost but, without autocatalysis, the trail field just diffuses into uniform background — filaments don't self-sustain.</p></div>
+      <div class="row"><div class="h">Approach</div><p>Each pixel stores trail T and heading θ. Per substep: sense T at 3 points ahead (front, ±sensor angle), steer toward the strongest (Jones rule), bias the heading toward the etf tangent, transport semi-Lagrangian, diffuse weakly (~12%). The key is a <strong>positive-feedback deposit</strong>: <code>fb = 0.25 + 0.75·smoothstep(0.2,1.4,T)</code> so cells with existing trail deposit more, and <code>ridge = clamp(sF − max(sL,sR))</code> only rewards directed confidence — emulating agent autocatalysis as a field equation.</p></div>
+      <div class="row"><div class="h">Why it's hard</div><p>Reproducing the directed filament topology of a particle system without particles, and tuning diffusion low enough that networks stay crisp instead of collapsing into glow.</p></div>
+    </div>
+  </details>
+</section>
+
+<!-- ================= 07 SPACETIME ================= -->
+<section id="spacetime">
+  <h2><span class="num">07</span>The spacetime volume</h2>
+  <p>The spacetime stage stacks recent frames into a <strong>3D texture ring buffer</strong> (R×R×N, with
+    <code>GL_TEXTURE_WRAP_R</code> for a seamless time axis) and raymarches it. A parallel R8 volume tracks paint-order depth so
+    foreground strokes can be emphasized. At 512²×128 the ring is ~80&#8202;MiB and the orbit marches 192 steps per pixel.</p>
+
+  <figure>
+    <svg viewBox="0 0 980 250" role="img" aria-label="Spacetime ring buffer + raymarch">
+      <!-- the volume box (isometric stack) -->
+      <g transform="translate(60,40)">
+        <g stroke="#9a7bff" fill="rgba(154,123,255,.07)" stroke-width="1.3">
+          <path d="M0 60 L120 20 L240 60 L120 100 Z"/>
+          <path d="M0 60 L0 150 L120 190 L120 100 Z"/>
+          <path d="M120 100 L120 190 L240 150 L240 60 Z"/>
+        </g>
+        <g stroke="#2c3454" stroke-width="1" opacity=".7">
+          <path d="M30 50 L150 90" fill="none"/><path d="M60 40 L180 80" fill="none"/>
+          <path d="M90 30 L210 70" fill="none"/>
+        </g>
+        <text class="sv-lbl" x="250" y="48">z = time</text>
+        <text class="sv-s" x="250" y="64">head pointer →</text>
+        <text class="sv-s" x="6" y="178">N slices (ring, wrapped)</text>
+      </g>
+      <!-- ray -->
+      <g transform="translate(60,40)">
+        <circle cx="350" cy="20" r="5" fill="#46e6e0"/>
+        <text class="sv-s" x="362" y="24">eye (orbit)</text>
+        <path d="M350 20 L150 110" stroke="#46e6e0" stroke-width="1.6" stroke-dasharray="4 3"/>
+        <circle cx="150" cy="110" r="3" fill="#ffce5c"/>
+      </g>
+      <!-- modes -->
+      <g transform="translate(560,30)">
+        <text class="sv-lbl" x="0" y="6">render modes</text>
+        <rect class="sv-box-cy" x="0" y="16" width="180" height="32" rx="8"/><text class="sv-t" x="90" y="37" text-anchor="middle">0 · orbit timespace</text>
+        <rect class="sv-box" x="0" y="54" width="180" height="32" rx="8"/><text class="sv-t" x="90" y="75" text-anchor="middle">1 · slit-scan</text>
+        <rect class="sv-box-am" x="0" y="92" width="180" height="32" rx="8"/><text class="sv-t" x="90" y="113" text-anchor="middle">2 · Real STM heightfield</text>
+        <rect class="sv-box-gr" x="0" y="130" width="180" height="32" rx="8"/><text class="sv-t" x="90" y="151" text-anchor="middle">iso · contour sheets</text>
+        <text class="sv-lbl" x="230" y="6">sources</text>
+        <text class="sv-s" x="230" y="28">time stack</text>
+        <text class="sv-s" x="230" y="46">bilateral luma slices</text>
+        <text class="sv-s" x="230" y="64">bilateral highlight</text>
+        <text class="sv-s" x="230" y="82">2.5D extrusion (aux+scalar)</text>
+        <text class="sv-lbl" x="230" y="116">HDR / grade</text>
+        <text class="sv-s" x="230" y="136">Reinhard · ACES filmic</text>
+        <text class="sv-s" x="230" y="154">contrast · vibrance · sat</text>
+      </g>
+    </svg>
+    <figcaption><b>Time as a third dimension.</b> The same ring is interpreted three ways — z as time, as luminance (bilateral), or
+      as height/paint-order — via a single layer-remap branch, then raymarched with step-count-independent opacity
+      <code>1−exp(−σΔt)</code>, motion, age-fade, and depth weighting.</figcaption>
+  </figure>
+
+  <p>The volume captures one slice per frame (with motion stored in alpha) or rebuilds all N layers for the bilateral and extrusion
+    sources. Four modes share the marcher:</p>
+  <ul>
+    <li><strong>Orbit</strong> — a camera flies through the time box; front-to-back accumulation with early-out.</li>
+    <li><strong>Slit-scan</strong> — screen-aligned, no camera: each pixel reads a per-pixel <em>time layer</em> driven by depth or
+      age, so foreground reads "now" and laggy regions read older frames (the strange-time look).</li>
+    <li><strong>Real STM</strong> — a volumetric heightfield of the <em>current</em> frame with five gather modes (fill, soft shell,
+      growable metaball spheres, iso-bands, point cloud), morphological dilation, and 14 scientific palettes.</li>
+    <li><strong>Isolines</strong> — keep only voxels near a luminance level, rendering topographic contour <em>sheets</em> that sweep
+      through time.</li>
+  </ul>
+
+  <details class="algo">
+    <summary><span class="pill research">Research-level</span> Ring-buffer layer remap across time / luma / height <span class="lin">one branch, three dimensions</span><span class="chev">▸</span></summary>
+    <div class="body">
+      <div class="row"><div class="h">Problem</div><p>The z-axis means different things per mode (time, luminance, or paint-order height), and time modes have a moving head pointer that must wrap seamlessly mid-ray.</p></div>
+      <div class="row"><div class="h">Approach</div><p>A boolean <code>bilAxis</code> splits the cases. Axis-aligned modes map directly: <code>layer = zWorld·(N−1)</code>. Time modes preserve causality: <code>layer = (head−1) − zWorld·(N−1)</code>, so the front of the box is the newest capture and the back wraps around the ring via <code>(layer+0.5)/N</code> with hardware <code>GL_REPEAT</code> — a true circular sampler at no per-voxel cost.</p></div>
+      <div class="row"><div class="h">Why it's hard</div><p>Mapping a 3-D ray coordinate onto a 1-D circular buffer while switching the <em>meaning</em> of that axis — and keeping the wrap seamless — is the non-obvious bit that makes all four modes share one marcher.</p></div>
+    </div>
+  </details>
+</section>
+
+<!-- ================= 08 BEAM ================= -->
+<section id="beam">
+  <h2><span class="num">08</span>The vector beam</h2>
+  <p>The beam stage renders the scene the way an <strong>oscilloscope</strong> would: it chains all the scene's contours into one
+    continuous XY path and traces an electron beam onto a persistent phosphor buffer. The signature is the
+    <strong>analytic beam integral</strong> — each segment is shaded by the <em>exact</em> intensity of a Gaussian spot sweeping
+    along it, not a heuristic glow.</p>
+
+  <div class="eq"><span class="lbl">Per-segment energy (separable erf × Gaussian)</span>along(x) = erf(x/√2σ) − erf((x−len)/√2σ)
+across(y) = exp(−y² / 2σ²)
+energy   = along · across · intensity · 2σ / max(len, σ)        <span style="color:var(--faint)">→ brightness ∝ 1/len</span></div>
+
+  <p>Because energy is inversely proportional to segment length, <strong>slow strokes burn bright</strong> and the fast jumps
+    between disconnected shapes leave the authentic faint connector lines — all of it falling straight out of the physics, with no
+    special-casing. The quad is inflated by 4σ to capture the Gaussian tails, and the <code>erf</code> is a fast 4th-order
+    polynomial approximation.</p>
+
+  <figure>
+    <svg viewBox="0 0 980 170" role="img" aria-label="Beam pipeline">
+      <!-- contour chaining -->
+      <rect class="sv-box" x="14" y="56" width="180" height="58" rx="9"/>
+      <text class="sv-t" x="104" y="80" text-anchor="middle">chain contours</text>
+      <text class="sv-s" x="104" y="97" text-anchor="middle">greedy nearest-endpoint</text>
+      <!-- segment shading -->
+      <rect class="sv-box-am" x="232" y="56" width="190" height="58" rx="9"/>
+      <text class="sv-t" x="327" y="80" text-anchor="middle">analytic segment</text>
+      <text class="sv-s" x="327" y="97" text-anchor="middle">erf × Gaussian → energy</text>
+      <!-- phosphor -->
+      <rect class="sv-box-gr" x="460" y="36" width="190" height="44" rx="9"/>
+      <text class="sv-t" x="555" y="63" text-anchor="middle">phosphor (RGBA16F)</text>
+      <rect class="sv-box" x="460" y="92" width="190" height="44" rx="9"/>
+      <text class="sv-t" x="555" y="114" text-anchor="middle">decay ×persist · ping-pong</text>
+      <!-- composite -->
+      <rect class="sv-box-cy" x="688" y="56" width="180" height="58" rx="9"/>
+      <text class="sv-t" x="778" y="80" text-anchor="middle">tone-ramp + halo</text>
+      <text class="sv-s" x="778" y="97" text-anchor="middle">P31 · amber · cyan · white</text>
+      <g class="sv-flow">
+        <path d="M194 85 H232" marker-end="url(#ar5)"/>
+        <path d="M422 80 C 442 80, 442 58, 460 58" marker-end="url(#ar5)"/>
+        <path d="M422 90 C 442 90, 442 112, 460 114" marker-end="url(#ar5)"/>
+        <path d="M650 85 H688" marker-end="url(#ar5)"/>
+      </g>
+      <defs><marker id="ar5" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 Z" fill="#46e6e0"/></marker></defs>
+    </svg>
+    <figcaption><b>CRT in a shader.</b> Contours chain into one path; each segment deposits exact Gaussian energy additively into a
+      16-bit-float phosphor buffer that decays by a persistence factor each frame; the composite tone-ramps energy through a tint
+      with halo bloom. Float storage is what keeps faint traces glowing for many frames after the beam passes.</figcaption>
+  </figure>
+</section>
+
+<!-- ================= 09 CURVES ================= -->
+<section id="curves">
+  <h2><span class="num">09</span>The curve system</h2>
+  <p>Official Rive has no spline primitive of any kind, so the editor grows its own. Six families are evaluable as dense polylines,
+    all <strong>C²-continuous</strong> where it matters, and each is unit-tested for continuity via finite differences.</p>
+
+  <table class="tbl">
+    <tr><th>Family</th><th>Evaluator</th><th>Note</th></tr>
+    <tr><td><b>Bézier</b> (any degree)</td><td>de Casteljau</td><td>repeated lerp — convex, numerically stable to degree 9</td></tr>
+    <tr><td><b>B-spline</b></td><td>de Boor</td><td>clamped uniform (interpolates endpoints) or periodic</td></tr>
+    <tr><td><b>Yuksel · Circular</b></td><td>circumcircle</td><td>quadratic-Lagrange on <em>unwrapped</em> angle; parabola fallback when collinear</td></tr>
+    <tr><td><b>Yuksel · Elliptical</b></td><td>conjugate diameters</td><td>E(s) = m + e₁·sin φ + e₂·cos φ</td></tr>
+    <tr><td><b>Yuksel · Hybrid</b></td><td>asymmetry blend</td><td>w·ellipse + (1−w)·circle, w from apex projection</td></tr>
+    <tr><td><b>Yuksel · Parabolic</b></td><td>quadratic Lagrange</td><td>the C² fallback base</td></tr>
+    <tr><td><b>Cubic-pen</b></td><td>cubic Bézier chain</td><td>Rive's native model — per-vertex handles (Mirrored/Asymmetric/Detached)</td></tr>
+  </table>
+
+  <p>The Yuksel interpolating splines (Cem Yuksel, ACM TOG 2020) pass through every control point with C² continuity and no degree
+    elevation — each segment blends two overlapping local interpolants with trigonometric <code>cos²/sin²</code> weights whose value
+    and first two derivatives vanish at the joins:</p>
+  <div class="eq"><span class="lbl">Yuksel blend</span>C(t) = cos²(πt/2)·Lⱼ(½ + t/2)  +  sin²(πt/2)·Lⱼ₊₁(t/2)</div>
+  <p>Only the cubic-pen exports as <em>exact</em> cubics to native <code>.riv</code>; every other family flattens losslessly to a
+    polyline on save but stays fully editable in <code>.rivx</code>.</p>
+</section>
+
+<!-- ================= 10 RIVX ================= -->
+<section id="rivx">
+  <h2><span class="num">10</span>The <code>.rivx</code> format</h2>
+  <p>Since <code>.riv</code> can't hold splines or our runtime look, the editor has its own append-only container. Each version adds
+    a section; older readers stop cleanly at the boundary.</p>
+
+  <table class="tbl">
+    <tr><th>Version</th><th>Adds</th></tr>
+    <tr><td><b>RIVX1</b></td><td>shapes + curves (every kind, with control points)</td></tr>
+    <tr><td><b>RIVX2</b></td><td>per-object paint style (fill kind, gradient stops, stroke, feather)</td></tr>
+    <tr><td><b>RIVX3</b></td><td>cubic-pen handles (in/out offsets + coupling type)</td></tr>
+    <tr><td><b>RIVX4</b></td><td>fillOn / stroke-only flag</td></tr>
+    <tr><td><b>RIVX5</b></td><td>the runtime <em>look</em>: NPR chain (by effect <b>string-id</b>) + enable flags + <code>SpaceTimeParams</code> &amp; <code>VectorBeamParams</code> as sizeof-tagged POD blobs</td></tr>
+    <tr><td><b>RIVX6</b></td><td>the multi-stage <em>custom pipeline</em>: stage stack + per-slot chains + per-kind param vectors</td></tr>
+  </table>
+
+  <p>Keying the chain by string-id (not registry index) keeps files robust to reordering; the POD blobs carry a <code>sizeof</code>
+    tag so a struct that gains a field is skipped gracefully on old files. The loader is hardened against corrupt and truncated
+    input — short reads are rejected via <code>gcount()</code> (not <code>eof()</code>, which is set together with the fail bit on a
+    partial read), an over-cap length is consumed to stay aligned, and the v6 pipeline applies <strong>all-or-nothing</strong>: a
+    corrupt count, size mismatch, or out-of-range stage slot drops the whole stack rather than restoring something the frame loop
+    would index out of bounds. A GL-free self-test (<code>--rivx-fx-test</code>) round-trips a populated config plus seven crafted
+    corruption cases.</p>
+  <p>The runtime GL objects are never serialized — on load the parallel vectors are resized to null pointers and the frame loop
+    rebuilds each stage lazily (every <code>Impl</code> destructor is <code>=default</code> with no <code>glDelete*</code>, so this
+    is safe with or without a current context).</p>
+</section>
+
+<!-- ================= 11 RESULTS ================= -->
+<section id="results">
+  <h2><span class="num">11</span>Results &amp; capabilities</h2>
+
+  <h3>Official vs. ours</h3>
+  <table class="tbl">
+    <tr><th></th><th>Official (rive-runtime + PLS)</th><th>Ours (GlShapePipeline)</th></tr>
+    <tr><td><b>Scope</b></td><td>full <code>.riv</code>: text, state machines, IK, fonts</td><td>fills, strokes, gradients, feather, clipping</td></tr>
+    <tr><td><b>Feathered fills</b></td><td>yes (proprietary)</td><td>yes — analytic JFA + erf, any radius</td></tr>
+    <tr><td><b>Spline curves</b></td><td>none</td><td>6 families incl. Yuksel C²</td></tr>
+    <tr><td><b>Aux geometry buffers</b></td><td>none</td><td>11 (id…curvepts)</td></tr>
+    <tr><td><b>Code size</b></td><td>large library we consume</td><td>~2.3k LOC we maintain</td></tr>
+    <tr><td><b>Relative perf</b></td><td>baseline</td><td>0.5–2× on typical scenes</td></tr>
+  </table>
+
+  <h3>What we added on top</h3>
+  <div class="grid2">
+    <div class="card"><h4>Effects</h4><p class="sub">122 effects / ~80 shaders: painterly, ink &amp; line (incl. coherent FDoG), halftone, abstraction, light, and 11 State-buffer simulations — all geometry-aware via the aux buffers and the <code>uHasAux</code> fallback.</p></div>
+    <div class="card"><h4>Spacetime</h4><p class="sub">A 3D ring-buffer raymarcher with four render modes and four volume sources, full HDR tonemap + colour grade, and a volumetric Real-STM heightfield with metaball growth.</p></div>
+    <div class="card"><h4>Beam</h4><p class="sub">An oscilloscope tracer with a physically-exact analytic beam integral and float-precision phosphor persistence — slow strokes bright, fast jumps faint, for free.</p></div>
+    <div class="card"><h4>Authoring</h4><p class="sub">A shape/curve editor, a reverse-engineered native <code>.riv</code> writer (with the fillRule discovery), six spline families, and an effects-aware <code>.rivx</code> document format.</p></div>
+  </div>
+
+  <h3>Honest limits</h3>
+  <ul>
+    <li>Blend modes are approximated by background seeding, not a true framebuffer-fetch feedback loop.</li>
+    <li>Aux effects fall back to screen-space luma on the official backend (no geometry re-render available).</li>
+    <li>Only one State-owning simulation per chain (two back-to-back re-seed each other).</li>
+    <li>The silhouette vectorizer's figure/ground split grabs the frame on full-background-rect scenes.</li>
+    <li>Spacetime trades resolution against history (512²×128 typical); bilateral slicing has a luma bandwidth.</li>
+    <li>The greedy contour chain is O(n²) — fine for typical scenes, suboptimal for tangled paths.</li>
+  </ul>
+</section>
+
+</div><!-- /pad -->
+
+<footer>
+  <p><b>RIVE+ engine</b> — a living technical overview. Generated from a deep read of the source; update as the engine evolves.
+  Companion to <code>docs/ARCHITECTURE.md</code>. Algorithm lineages cited inline (Rong &amp; Tan; Kang/Lee/Chui; Kyprianidis;
+  Caselles; Stam; Fedkiw; Jones; Rafler; McCabe; Yuksel).</p>
+</footer>
+
+</main>
+</div><!-- /wrap -->
+
+<script>
+(function(){
+  // reading progress
+  var prog = document.getElementById('prog');
+  function onScroll(){
+    var h = document.documentElement;
+    var max = h.scrollHeight - h.clientHeight;
+    prog.style.width = (max>0 ? (h.scrollTop/max*100) : 0) + '%';
+  }
+  document.addEventListener('scroll', onScroll, {passive:true}); onScroll();
+
+  // scroll-spy
+  var links = Array.prototype.slice.call(document.querySelectorAll('nav.toc a'));
+  var map = {};
+  links.forEach(function(a){ var id=a.getAttribute('href').slice(1); map[id]=a; });
+  var ids = links.map(function(a){ return a.getAttribute('href').slice(1); });
+  var targets = ids.map(function(id){ return document.getElementById(id); }).filter(Boolean);
+
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){
+        links.forEach(function(a){ a.classList.remove('on'); });
+        var a = map[e.target.id];
+        if(a){ a.classList.add('on'); }
+      }
+    });
+  }, {rootMargin:'-8% 0px -82% 0px', threshold:0});
+  targets.forEach(function(t){ io.observe(t); });
+})();
+</script>
+</body>
+</html>

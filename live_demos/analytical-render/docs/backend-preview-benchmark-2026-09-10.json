@@ -1,0 +1,378 @@
+{
+  "schema": 1,
+  "date": "2026-09-10T18:42:25.104Z",
+  "sourceRef": "8d39dd2",
+  "sourceHash": "4b5c4bdd854639fc4c6e9e3fb1df2584df07285c864d1cd1dac95f922294e9f5",
+  "wasmHash": "1f4ec19d6064403c33807ce0169b9bab7441381b12b821d1f63ed591523329a7",
+  "environment": {
+    "node": "v24.15.0",
+    "v8": "13.6.233.17-node.48",
+    "platform": "win32",
+    "arch": "x64",
+    "cpu": "13th Gen Intel(R) Core(TM) i9-13980HX",
+    "logicalCpuCount": 32
+  },
+  "method": {
+    "warmupFrames": 5,
+    "repetitions": 11,
+    "order": "alternating JS/WASM and WASM/JS",
+    "scenePhase": 0.5,
+    "timing": "Actual CPU frame production only; excludes scene setup, WASM parameter upload, module compilation, browser scheduling, texture upload and presentation. Production JS includes its extra row/difference diagnostic statistics; this is a comparison of current implementations, not a language/SIMD isolation study.",
+    "precision": "JS double, compiled C float + shipped optimizations. Analytic RGB difference measured; MC sample streams differ, so MC pixel differences are not a parity test.",
+    "gpu": "Not timed. CPU submission cost cannot be compared with CPU frame-production times."
+  },
+  "results": [
+    {
+      "scene": "trio",
+      "width": 192,
+      "height": 100,
+      "mode": "split",
+      "samples": 2,
+      "phase": 0.5,
+      "objects": 3,
+      "lights": 1,
+      "settings": {
+        "sceneId": "trio",
+        "mode": "split",
+        "backend": "js",
+        "width": 192,
+        "height": 100,
+        "lightWidth": 2.6,
+        "lightDepth": 1.7,
+        "lightHeight": 2.9,
+        "samples": 2,
+        "exposure": 1.15,
+        "aaSamples": 1,
+        "renderScale": 1,
+        "aperture": 0,
+        "focusDistance": 5.2,
+        "targetFps": 30,
+        "animate": false,
+        "bounceFill": false,
+        "horizonClip": true,
+        "showFalseColor": false,
+        "materialView": 0,
+        "normalStrength": 1,
+        "coatWeight": 1,
+        "blendStrength": 1,
+        "textureScale": 1,
+        "floorRoughness": 0.28
+      },
+      "js": {
+        "medianMs": 25.88549999999998,
+        "p10Ms": 23.183500000000095,
+        "p90Ms": 29.69990000000007,
+        "rawMs": [
+          25.88549999999998,
+          29.562999999999988,
+          31.239800000000002,
+          20.898300000000006,
+          27.079500000000053,
+          25.68960000000004,
+          29.179399999999987,
+          23.183500000000095,
+          23.981699999999933,
+          29.69990000000007,
+          24.375599999999963
+        ]
+      },
+      "wasm": {
+        "medianMs": 4.496100000000013,
+        "p10Ms": 4.232400000000098,
+        "p90Ms": 5.8571000000000595,
+        "rawMs": [
+          4.424500000000023,
+          4.496100000000013,
+          4.288099999999986,
+          4.538700000000006,
+          4.53449999999998,
+          4.1539000000000215,
+          6.038900000000012,
+          4.754199999999969,
+          4.256500000000074,
+          4.232400000000098,
+          5.8571000000000595
+        ]
+      },
+      "ratioJsToWasm": 5.757323013278153,
+      "images": {
+        "rgbMAE255": 1.791076388888889,
+        "maxChannelError": 125,
+        "p99ChannelError": 23,
+        "changedChannelFraction": 0.2071875
+      },
+      "hits": {
+        "js": 17030,
+        "wasm": 17030
+      },
+      "lightEvals": {
+        "js": 51090,
+        "wasm": 51090
+      }
+    },
+    {
+      "scene": "trio",
+      "width": 400,
+      "height": 200,
+      "mode": "split",
+      "samples": 2,
+      "phase": 0.5,
+      "objects": 3,
+      "lights": 1,
+      "settings": {
+        "sceneId": "trio",
+        "mode": "split",
+        "backend": "js",
+        "width": 400,
+        "height": 200,
+        "lightWidth": 2.6,
+        "lightDepth": 1.7,
+        "lightHeight": 2.9,
+        "samples": 2,
+        "exposure": 1.15,
+        "aaSamples": 1,
+        "renderScale": 1,
+        "aperture": 0,
+        "focusDistance": 5.2,
+        "targetFps": 30,
+        "animate": false,
+        "bounceFill": false,
+        "horizonClip": true,
+        "showFalseColor": false,
+        "materialView": 0,
+        "normalStrength": 1,
+        "coatWeight": 1,
+        "blendStrength": 1,
+        "textureScale": 1,
+        "floorRoughness": 0.28
+      },
+      "js": {
+        "medianMs": 98.65949999999975,
+        "p10Ms": 96.36570000000029,
+        "p90Ms": 115.98170000000005,
+        "rawMs": [
+          100.58529999999996,
+          107.60640000000012,
+          97.25549999999998,
+          120.65280000000007,
+          115.98170000000005,
+          96.36570000000029,
+          95.23349999999982,
+          97.5333999999998,
+          97.82650000000012,
+          99.08300000000008,
+          98.65949999999975
+        ]
+      },
+      "wasm": {
+        "medianMs": 22.325399999999718,
+        "p10Ms": 19.055899999999838,
+        "p90Ms": 26.21279999999979,
+        "rawMs": [
+          26.21279999999979,
+          17.70510000000013,
+          36.13709999999992,
+          24.120299999999816,
+          19.98369999999977,
+          22.2792000000004,
+          23.7487000000001,
+          19.994900000000143,
+          22.325399999999718,
+          22.677900000000136,
+          19.055899999999838
+        ]
+      },
+      "ratioJsToWasm": 4.419159343169708,
+      "images": {
+        "rgbMAE255": 1.7888625,
+        "maxChannelError": 168,
+        "p99ChannelError": 23,
+        "changedChannelFraction": 0.20397083333333332
+      },
+      "hits": {
+        "js": 69358,
+        "wasm": 69358
+      },
+      "lightEvals": {
+        "js": 208074,
+        "wasm": 208074
+      }
+    },
+    {
+      "scene": "trio",
+      "width": 192,
+      "height": 100,
+      "mode": "analytic",
+      "samples": 2,
+      "phase": 0.5,
+      "objects": 3,
+      "lights": 1,
+      "settings": {
+        "sceneId": "trio",
+        "mode": "analytic",
+        "backend": "js",
+        "width": 192,
+        "height": 100,
+        "lightWidth": 2.6,
+        "lightDepth": 1.7,
+        "lightHeight": 2.9,
+        "samples": 2,
+        "exposure": 1.15,
+        "aaSamples": 1,
+        "renderScale": 1,
+        "aperture": 0,
+        "focusDistance": 5.2,
+        "targetFps": 30,
+        "animate": false,
+        "bounceFill": false,
+        "horizonClip": true,
+        "showFalseColor": false,
+        "materialView": 0,
+        "normalStrength": 1,
+        "coatWeight": 1,
+        "blendStrength": 1,
+        "textureScale": 1,
+        "floorRoughness": 0.28
+      },
+      "js": {
+        "medianMs": 26.30709999999999,
+        "p10Ms": 21.65819999999985,
+        "p90Ms": 31.119000000000142,
+        "rawMs": [
+          20.338599999999587,
+          32.76150000000007,
+          21.90689999999995,
+          31.085199999999986,
+          26.30709999999999,
+          31.119000000000142,
+          21.65819999999985,
+          27.53749999999991,
+          27.90059999999994,
+          23.633699999999862,
+          24.164200000000164
+        ]
+      },
+      "wasm": {
+        "medianMs": 4.231499999999869,
+        "p10Ms": 3.749699999999848,
+        "p90Ms": 5.6229000000003,
+        "rawMs": [
+          10.355800000000272,
+          3.958799999999883,
+          4.231499999999869,
+          5.6229000000003,
+          4.36850000000004,
+          4.556599999999889,
+          3.749699999999848,
+          3.867800000000443,
+          4.064800000000105,
+          4.822799999999916,
+          3.6255999999998494
+        ]
+      },
+      "ratioJsToWasm": 6.2169679782584915,
+      "images": {
+        "rgbMAE255": 0.00005208333333333334,
+        "maxChannelError": 1,
+        "p99ChannelError": 0,
+        "changedChannelFraction": 0.00005208333333333334
+      },
+      "hits": {
+        "js": 17030,
+        "wasm": 17030
+      },
+      "lightEvals": {
+        "js": 17030,
+        "wasm": 17030
+      }
+    },
+    {
+      "scene": "trio",
+      "width": 400,
+      "height": 200,
+      "mode": "analytic",
+      "samples": 2,
+      "phase": 0.5,
+      "objects": 3,
+      "lights": 1,
+      "settings": {
+        "sceneId": "trio",
+        "mode": "analytic",
+        "backend": "js",
+        "width": 400,
+        "height": 200,
+        "lightWidth": 2.6,
+        "lightDepth": 1.7,
+        "lightHeight": 2.9,
+        "samples": 2,
+        "exposure": 1.15,
+        "aaSamples": 1,
+        "renderScale": 1,
+        "aperture": 0,
+        "focusDistance": 5.2,
+        "targetFps": 30,
+        "animate": false,
+        "bounceFill": false,
+        "horizonClip": true,
+        "showFalseColor": false,
+        "materialView": 0,
+        "normalStrength": 1,
+        "coatWeight": 1,
+        "blendStrength": 1,
+        "textureScale": 1,
+        "floorRoughness": 0.28
+      },
+      "js": {
+        "medianMs": 92.79849999999988,
+        "p10Ms": 86.8114000000005,
+        "p90Ms": 97.03560000000016,
+        "rawMs": [
+          89.16460000000006,
+          98.70010000000002,
+          93.46210000000065,
+          90.76320000000032,
+          97.03560000000016,
+          95.73139999999967,
+          93.54929999999968,
+          85.17889999999989,
+          92.79849999999988,
+          89.8153000000002,
+          86.8114000000005
+        ]
+      },
+      "wasm": {
+        "medianMs": 18.135199999999713,
+        "p10Ms": 15.414300000000367,
+        "p90Ms": 21.060100000000148,
+        "rawMs": [
+          21.060100000000148,
+          17.751700000000255,
+          15.5007999999998,
+          18.647299999999632,
+          18.135199999999713,
+          22.09100000000035,
+          16.029099999999744,
+          19.96770000000015,
+          20.583299999999326,
+          15.148099999999431,
+          15.414300000000367
+        ]
+      },
+      "ratioJsToWasm": 5.117037584366389,
+      "images": {
+        "rgbMAE255": 0.000029166666666666666,
+        "maxChannelError": 1,
+        "p99ChannelError": 0,
+        "changedChannelFraction": 0.000029166666666666666
+      },
+      "hits": {
+        "js": 69358,
+        "wasm": 69358
+      },
+      "lightEvals": {
+        "js": 69358,
+        "wasm": 69358
+      }
+    }
+  ]
+}

@@ -1,0 +1,370 @@
+{
+  "experiment": "Conditional one-leg weighted visibility on a rotational hyperboloid sheet",
+  "scope": "Numerical research probe; not a renderer feature, full light-transport solution, or GPU benchmark.",
+  "target": "Integral of smooth_weight(phi,u)*visibility(sheet(phi,u), endpoint) dphi du",
+  "correction": "V_tilde + Bernoulli(p)/p * (V_exact - V_tilde); signed values are not clamped",
+  "sheet": {
+    "q": [
+      0.58,
+      0,
+      0
+    ],
+    "generatrix": [
+      0,
+      0.5,
+      0.9
+    ],
+    "z_translation": 1.6,
+    "phi_range": [
+      0,
+      6.283185307179586
+    ],
+    "u_range": [
+      -1.35,
+      1.35
+    ]
+  },
+  "endpoint": [
+    3.8,
+    -3.5,
+    3.7
+  ],
+  "opaque_boxes": [
+    {
+      "min": [
+        0.85,
+        -1.35,
+        1.1
+      ],
+      "max": [
+        1.2,
+        -0.75,
+        3.0
+      ]
+    },
+    {
+      "min": [
+        1.55,
+        -0.42,
+        1.7
+      ],
+      "max": [
+        1.69,
+        0.12,
+        3.15
+      ]
+    }
+  ],
+  "configuration": {
+    "samples_per_run": 16384,
+    "independent_runs": 32,
+    "total_samples_per_method": 524288,
+    "seed_policy": "fixed independent deterministic seeds"
+  },
+  "software": {
+    "python": "3.11.5",
+    "numpy": "2.2.6"
+  },
+  "reference": {
+    "independent_face_tests": true,
+    "fine_resolution": 2048,
+    "coarse_resolution": 1024,
+    "fine_integral": 0.0053493890043771666,
+    "coarse_integral": 0.005349387891962035,
+    "relative_refinement_change": 2.079518110300264e-07,
+    "seconds": 1.9278137000073912,
+    "caveat": "Grid refinement difference is a diagnostic, not a rigorous error bound."
+  },
+  "baseline": {
+    "mean": 0.005349102256403399,
+    "ci95": [
+      0.0053318457984113075,
+      0.005366358714395491
+    ],
+    "standard_error_across_independent_runs": 8.340482354804873e-06,
+    "relative_error_against_quadrature": -5.360387392520434e-05,
+    "quadrature_inside_ci95": true,
+    "exact_shadow_rays": 524288,
+    "negative_corrected_samples": 0,
+    "cold_cache_build_seconds": 0.0,
+    "total_seconds_including_cold_cache": 0.0876731999887852,
+    "median_run_seconds": 0.00273725000442937,
+    "independent_run_estimates": [
+      0.005333954363136686,
+      0.005354055729718766,
+      0.005345442022411558,
+      0.005304287889714158,
+      0.005249267860871954,
+      0.005288403420639841,
+      0.005334921056138316,
+      0.005360020392778096,
+      0.005422633274411192,
+      0.0053124072567752164,
+      0.005248888871613293,
+      0.005350289780189386,
+      0.0053305213113952025,
+      0.00536605446643587,
+      0.005371171908713988,
+      0.0054056519833233195,
+      0.005256549747053276,
+      0.005422798313373317,
+      0.005389422941379768,
+      0.005292908871553974,
+      0.005381923100211094,
+      0.005382737309197276,
+      0.0054067586975892505,
+      0.005339184055235696,
+      0.005313623069128052,
+      0.005372021669822861,
+      0.005383144301633144,
+      0.005389661981702153,
+      0.005379956979184754,
+      0.005380818642098432,
+      0.005332446572375161,
+      0.005369344365103714
+    ],
+    "exact_shadow_ray_fraction_including_build": 1.0
+  },
+  "presets": [
+    {
+      "name": "coarse_atlas",
+      "atlas_cells": [
+        12,
+        8
+      ],
+      "correction_probability": 0.12,
+      "cache_only_quadrature": 0.005542219093052077,
+      "cache_only_relative_bias": 0.036047123983155044,
+      "cache_quadrature_method": "8x8 Gauss-Legendre per atlas cell; compared with 4x4",
+      "cache_quadrature_refinement_change": 6.117771389048011e-11,
+      "cache_only": {
+        "mean": 0.005548684666320018,
+        "ci95": [
+          0.005530176198442672,
+          0.005567193134197364
+        ],
+        "standard_error_across_independent_runs": 8.94561038054397e-06,
+        "relative_error_against_quadrature": 0.037255780385344356,
+        "quadrature_inside_ci95": false,
+        "exact_shadow_rays": 96,
+        "negative_corrected_samples": 0,
+        "cold_cache_build_seconds": 0.00016660000255797058,
+        "total_seconds_including_cold_cache": 0.06272239999088924,
+        "median_run_seconds": 0.00190610000572633,
+        "independent_run_estimates": [
+          0.005514926345754767,
+          0.005533328329355373,
+          0.0055230381808471,
+          0.005596618533318538,
+          0.005520099333933034,
+          0.005577386486621819,
+          0.005639536873184982,
+          0.00559685307729378,
+          0.0055730289643206215,
+          0.0055685734695368186,
+          0.0055364300985043255,
+          0.0055626905635377845,
+          0.005618796768197482,
+          0.005578310241442772,
+          0.005602181436713621,
+          0.005625247789844036,
+          0.00556847150151524,
+          0.00549801022678827,
+          0.005556783282706243,
+          0.005442283030777564,
+          0.005515021948102472,
+          0.005514435142285224,
+          0.005546555181758321,
+          0.005570191473242168,
+          0.005558662938875245,
+          0.005426222039270931,
+          0.0055051017134879485,
+          0.005453196761350321,
+          0.00553497904316646,
+          0.005566132099493483,
+          0.005531639113841889,
+          0.0056031773331719536
+        ],
+        "exact_shadow_ray_fraction_including_build": 0.0001830719472752792,
+        "wall_time_speedup_vs_exact": 1.397797278189613,
+        "time_variance_ratio_vs_exact": 0.8229878648223776
+      },
+      "corrected": {
+        "mean": 0.005347343584005344,
+        "ci95": [
+          0.005322829026389409,
+          0.005371858141621279
+        ],
+        "standard_error_across_independent_runs": 1.1848505372612525e-05,
+        "relative_error_against_quadrature": -0.00038236523276746987,
+        "quadrature_inside_ci95": true,
+        "exact_shadow_rays": 63192,
+        "negative_corrected_samples": 3418,
+        "cold_cache_build_seconds": 0.00016660000255797058,
+        "total_seconds_including_cold_cache": 0.07258739997632802,
+        "median_run_seconds": 0.0022485500085167587,
+        "independent_run_estimates": [
+          0.005320968261614435,
+          0.005426937133285239,
+          0.0053725296332996185,
+          0.005429610454581194,
+          0.0052593638421366325,
+          0.00535522812111096,
+          0.0052873738488719785,
+          0.005365970151762643,
+          0.005362545680247455,
+          0.005335007093488928,
+          0.005389759408225837,
+          0.005346665311973559,
+          0.005279311672346681,
+          0.005474300847151876,
+          0.005292858382675938,
+          0.005410433113223188,
+          0.005271123420481724,
+          0.00542292344996232,
+          0.005358113391173581,
+          0.005284326677277396,
+          0.005376068798628294,
+          0.005437121316757047,
+          0.0053280562543447695,
+          0.005391297596657485,
+          0.005412479677292249,
+          0.00526147806113498,
+          0.005390062874604807,
+          0.005221892921178782,
+          0.005333229143291381,
+          0.0051857306140095285,
+          0.005376305208879275,
+          0.0053559223265012175
+        ],
+        "exact_shadow_ray_fraction_including_build": 0.12050710929395253,
+        "wall_time_speedup_vs_exact": 1.2078294582445015,
+        "time_variance_ratio_vs_exact": 1.6708566297464125
+      }
+    },
+    {
+      "name": "refined_atlas",
+      "atlas_cells": [
+        48,
+        32
+      ],
+      "correction_probability": 0.12,
+      "cache_only_quadrature": 0.005366148657224262,
+      "cache_only_relative_bias": 0.00313300319595042,
+      "cache_quadrature_method": "8x8 Gauss-Legendre per atlas cell; compared with 4x4",
+      "cache_quadrature_refinement_change": 6.485688270407556e-16,
+      "cache_only": {
+        "mean": 0.005360295605441344,
+        "ci95": [
+          0.005344585794916443,
+          0.005376005415966245
+        ],
+        "standard_error_across_independent_runs": 7.592948537893055e-06,
+        "relative_error_against_quadrature": 0.0020388498677611543,
+        "quadrature_inside_ci95": true,
+        "exact_shadow_rays": 1536,
+        "negative_corrected_samples": 0,
+        "cold_cache_build_seconds": 0.00020290000247769058,
+        "total_seconds_including_cold_cache": 0.062109299935400486,
+        "median_run_seconds": 0.0018784999920171686,
+        "independent_run_estimates": [
+          0.0053331316294106005,
+          0.005398991695105203,
+          0.0054094338779657495,
+          0.005369566215760581,
+          0.005331068140621548,
+          0.005426771672275223,
+          0.005355954164423622,
+          0.0053386046618199585,
+          0.00534746119346737,
+          0.005429999024555498,
+          0.005369088246940787,
+          0.0053222022143143335,
+          0.005311122466194858,
+          0.0053179902878833256,
+          0.005402586873896406,
+          0.005357544869700209,
+          0.00529909917098401,
+          0.005313074255131787,
+          0.005406615555601478,
+          0.005327582771126452,
+          0.0053969315450972406,
+          0.0053094024339614704,
+          0.005353710988642314,
+          0.005345121190656262,
+          0.005410333509164833,
+          0.005440040064610925,
+          0.005292549861834192,
+          0.005394011921321657,
+          0.005393060005817125,
+          0.005327775976979233,
+          0.005305843310359153,
+          0.0053927895784995905
+        ],
+        "exact_shadow_ray_fraction_including_build": 0.0029211295034079843,
+        "wall_time_speedup_vs_exact": 1.4115953662329728,
+        "time_variance_ratio_vs_exact": 0.5871219984579646
+      },
+      "corrected": {
+        "mean": 0.005350149166662252,
+        "ci95": [
+          0.005332744408264236,
+          0.005367553925060268
+        ],
+        "standard_error_across_independent_runs": 8.41215968971269e-06,
+        "relative_error_against_quadrature": 0.00014210263722891714,
+        "quadrature_inside_ci95": true,
+        "exact_shadow_rays": 64472,
+        "negative_corrected_samples": 780,
+        "cold_cache_build_seconds": 0.00020290000247769058,
+        "total_seconds_including_cold_cache": 0.07527279993519187,
+        "median_run_seconds": 0.0023412000009557232,
+        "independent_run_estimates": [
+          0.005393091734354562,
+          0.005292450329243651,
+          0.005409680387540318,
+          0.005365070166153268,
+          0.005330172818006916,
+          0.00528180602206942,
+          0.00545312152173714,
+          0.005346306960414757,
+          0.005388494201016423,
+          0.005300712682896028,
+          0.0053312536455750095,
+          0.0053727765215473445,
+          0.005355323051012976,
+          0.005289932259458663,
+          0.005322178055054499,
+          0.005360469280950893,
+          0.005397010004222881,
+          0.005321761554701316,
+          0.0053182825922289,
+          0.005319736996457175,
+          0.005286494063936713,
+          0.005303003831925252,
+          0.005405313415665296,
+          0.005448205142924572,
+          0.005330484902322148,
+          0.005323563291421525,
+          0.005352449052697675,
+          0.005356703714305808,
+          0.005401330678186447,
+          0.005282784398678415,
+          0.005413952019485467,
+          0.005350858037000596
+        ],
+        "exact_shadow_ray_fraction_including_build": 0.12261136806231743,
+        "wall_time_speedup_vs_exact": 1.16473945521184,
+        "time_variance_ratio_vs_exact": 0.8733813093966998
+      }
+    }
+  ],
+  "interpretation": [
+    "The cache is frozen; p is positive and chosen independently of the exact answer.",
+    "The corrected estimator is unbiased for the declared integral; finite-sample confidence intervals are empirical.",
+    "Cache-only bias is measured with dense quadrature, independently of its Monte Carlo sampling noise.",
+    "Shadow-ray fraction counts one visibility segment query even though each query tests two boxes.",
+    "Costs are NumPy CPU prototype wall times including sample generation, weighting, lookup, correction and one cold atlas build.",
+    "A faster batch with higher variance is not automatically a better estimator; use time-times-variance as well."
+  ]
+}

@@ -1,0 +1,201 @@
+<!doctype html><html lang="en"><head><style data-portfolio-paint>html{background:#0b0d0c;color-scheme:dark}html.portfolio-booting body{opacity:0}</style><script src="../../../portfolio-navigation.js?v=688f1905bc"></script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Realtime Graphics on CPU · Rendering and dynamics in WebAssembly</title><meta name="description" content="CPU rendering, fluid and cloth simulation, image treatments, SIMD and worker execution."><meta name="color-scheme" content="dark"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="../../../portfolio.css?v=b7ed8602e5"><link rel="stylesheet" href="../../../portfolio-effects.css?v=62be30dafa"><link rel="stylesheet" href="../../../portfolio-atmospheres.css?v=4b74c57939"><link rel="stylesheet" href="../../../portfolio-motion.css?v=4b098d8184"><link rel="stylesheet" href="../../../portfolio-case-studies.css?v=243caf2b0d"><link rel="stylesheet" href="../../../portfolio-brochures.css?v=a1e5e16132"><link rel="stylesheet" href="../../../portfolio-project-themes.css?v=a898c35e78"><link rel="stylesheet" href="../../../portfolio-location.css?v=9c4c1ad84f"><link rel="stylesheet" href="../../../portfolio-controls.css?v=9376de7761"><link rel="stylesheet" href="../../../portfolio-media.css?v=c51f7712ea"><link rel="stylesheet" href="../../../portfolio-overviews.css?v=8612c4ee0a"><link rel="stylesheet" href="../../../portfolio-motivations.css?v=ccc1c1d866"><link rel="stylesheet" href="../../../portfolio-claims.css?v=058dbd00ef"><link rel="stylesheet" href="../../../portfolio-feature-atlas.css?v=e73f02cb31"><script type="application/json" id="media-framing">{"media/brochures/physics-2d/thermal-furnace-magnetic-field-probe.png":{"width":1602,"height":940,"top":39},"media/brochures/physics-2d/magnetic-field-direction-appearance-controls.png":{"width":1602,"height":940,"top":39},"media/brochures/physics-2d/time-bomb-blast-particle-plume.png":{"width":1602,"height":940,"top":39}}</script><script defer src="../../../portfolio-claims.js?v=ed914a4d3a"></script><script defer src="../../../portfolio-visual-defaults.js?v=eecfd5c771"></script><script defer src="../../../portfolio-motion.js?v=a642c710f9"></script><script defer src="../../../portfolio-fire-studies.js?v=7717e15582"></script><script defer src="../../../portfolio-embers.js?v=8a8be5569d"></script><script defer src="../../../portfolio-atmospheres.js?v=021b2f100e"></script><script defer src="../../../portfolio-effects.js?v=03a6c89d6c"></script><script defer src="../../../portfolio-brochures.js?v=055cad29d6"></script><script defer src="../../../portfolio-location.js?v=3846586893"></script><script defer src="../../../portfolio-media.js?v=d2d555a888"></script><script defer src="../../../portfolio-articles.js?v=acb89575ce"></script><script defer src="../../../portfolio-labs.js?v=a0b86a3809"></script><link rel="stylesheet" href="../../../portfolio-technical.css?v=0ecb3a48c7"><!-- universal-navigation:start --><script defer src="../../../portfolio-routes.js?v=054b6b462c"></script><script defer src="../../../portfolio-universal-navigation.js?v=054b6b462c"></script><!-- universal-navigation:end --><style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head><body data-page="technical" data-project-theme="geometry" data-project-id="cpu-atelier" data-default-atmosphere="energy"><a class="skip-link" href="#main">Skip to content</a><nav class="site-nav portfolio-route" data-route-group="visualizations" aria-label="Portfolio location"><div class="route-path"><a class="route-node route-home" href="../../../index.html#project-cpu-atelier" aria-label="Portfolio"><img class="route-mark" src="../../../media/identity/portfolio-mark.svg" alt="" width="52" height="52"><span class="route-copy"><small>Work / ideas</small><strong>Portfolio</strong></span></a><span class="route-wire" aria-hidden="true"><i></i><b></b></span><div class="route-node route-group"><span class="route-glyph" aria-hidden="true">∿</span><span class="route-copy"><small>Collection</small><strong>Viz</strong></span></div><span class="route-wire" aria-hidden="true"><i></i><b></b></span><div class="route-node route-project"><span class="route-glyph" hidden aria-hidden="true">◈</span><img class="route-thumb" src="../../../media/previews/cpu-atelier/native-cloth-canopy-render-and-execution-controls.png" width="42" height="42" alt=""><span class="route-copy"><small>Project</small><strong>Realtime Graphics on CPU</strong></span></div></div><div class="route-end"><span class="route-meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><a class="route-back" href="../../../index.html#project-cpu-atelier">← Back to portfolio</a></div></nav><main id="main" class="project-page technical-page"><header class="technical-hero"><span class="eyebrow">Realtime Graphics on CPU · technical notes</span><h1>Rendering and dynamics in WebAssembly</h1><p>CPU rendering, fluid and cloth simulation, image treatments, SIMD and worker execution.</p><div class="technical-actions"><a href="../index.html">← Realtime Graphics on CPU brochure</a><a href="../../../live_demos/cpu-atelier/index.html">Open interactive study ↗</a></div></header><article class="technical-document"><p><strong>Rendering, simulation and image-processing kernels run on the CPU.</strong> C++ compiled to WebAssembly computes each ray, pressure update, cloth constraint and brush stroke. WebGL2 uploads and displays the finished RGBA image; the project uses GPU presentation, but no GPU simulation or shading computation beyond that texture copy.</p>
+<p>Ray tracing, participating media and grid solvers are natural GPU workloads. This project moves their computation to WebAssembly to investigate <strong>where SIMD and threads help, where they do not, and how the result changes with the workload</strong>:</p>
+<ul>
+<li>the <strong>renderer</strong> — a progressive Monte Carlo path tracer with single-scattering participating media, a BVH over deforming geometry, and several BSDFs;</li>
+<li>the <strong>physics</strong> — a 48³ Eulerian smoke solver and position-based cloth with structural, shear and bend distance constraints, coupled through drag and moving grid obstacles.</li>
+</ul>
+<p>The interface keeps the scene, image treatments and execution choices separate. The live stage diagram exposes dynamics, geometry/BVH updates, path tracing and image finishing. Timings come from the running engine; benchmark ratios are measured on the current device rather than presented as universal speedup claims.</p>
+<h2 id="explore-the-experiment">Explore the experiment</h2><p>Start with the coupled canopy, then compare the dense plume, raised fire source, windy flag or painterly pass. Scene presets choose their associated cloth arrangement and camera; the Scene tab exposes individual switches. <strong>Pause &amp; converge</strong> stops dynamics while the progressive renderer accumulates samples. The pixel-scale image and its vintage treatment are intentional. <strong>Motion &amp; detail</strong> defaults to Rich: the original 448×336 image, 32 volume samples and 45² canopy. It retains that resolution even when the computer is busy; sustained slow rendering produces a dismissible quality suggestion. Balanced reduces the budget, while Smooth explicitly adapts its image width between 160 and 256 pixels. The 48³ fluid and fixed timestep do not adapt. Voxel motion keeps the Rich image and cloth detail with a finer 28³ support grid. Changing a quality preset rebuilds the cloth, while the fluid keeps evolving.</p>
+<p>The <strong>Looks</strong> tab controls sampling, surface-history reconstruction, spatial denoising, color and CPU image effects. <strong>Surface history</strong> maintains a validated running surface average while compositing the current smoke and fire. Each new sample retains at least one eighth of the blend weight. Its diagnostic view exposes history acceptance, capped mean age and CPU cost. It is distinct from paused full-image progressive sampling; <a href="image-reconstruction.html">reconstruction notes</a> explain the scope and rejection rules. The <strong>Execution</strong> tab controls SIMD and thread count, with runtime checks and optional detailed timings/benchmarks. All engine control IDs and console automation hooks are preserved.</p>
+<p><strong>Voxel splats</strong>, an optional plume treatment in Looks, replace the smooth volume march with CPU traversal through a coarse world-space grid. Each cell contains a compact ellipsoidal support whose density and temperature come from the existing fluid. The supports rotate with the scene, integrate emission and extinction over their ray intersections, and stop at foreground surfaces. The same 48³ simulation continues underneath; surface geometry and its path tracing are unchanged. Coarser sampling and small gaps deliberately alter the image and its optical coverage. This is a rendering tradeoff, not an equivalent transport solution or a faster fluid solver. See <a href="voxel-performance.html">the implementation and measured comparison</a>.</p>
+<p>The live bars show each stage&#39;s share of the measured C++ substage sum, not processor utilization. <strong>C++ render + finish</strong> excludes simulation and presentation. <strong>Worker compute</strong> measures simulation, rendering, metric collection and the completed framebuffer copy inside the engine worker. It excludes message transport, UI work and GPU presentation. Fresh images per second counts completed frames, not synthetic/interpolated updates. The throughput formerly called <code>Mrays/s</code> counts primary pixel samples, not every secondary or shadow ray. Pausing replaces stale simulation counters with zero in the presentation.</p>
+<p>The renderer and simulation now run in a dedicated browser worker. Their C++ parallel passes reuse a persistent worker team. Commands apply in order before the next engine operation, and camera updates are coalesced while a frame is busy. Only one normal frame request is in flight. The UI can respond while the engine computes; the GPU still only presents the completed RGBA image with the existing WebGL2 texture copy. No frames are interpolated. The <a href="smooth-playback.html">frame-budget report</a> separates measured quality savings from dispatch overhead and documents the remaining limits.</p>
+<p>Numeric diagnostics update at most about six times per second while the simulation and canvas keep their normal frame cadence. The detailed panel reports the JavaScript time spent formatting and writing these readouts; that measurement excludes layout, paint and GPU completion. <code>demo.setDiagnostics(false)</code> temporarily suspends readouts for inspection, and <code>demo.getUiTiming()</code> exposes their accumulated timing and scope.</p>
+<h2 id="what-39-s-in-the-scene">What&#39;s in the scene</h2><p>A smoke plume and a cloth, two-way coupled: the fluid drags the cloth, and the cloth is a moving solid the smoke flows around.</p>
+<ul>
+<li><strong>Cloth layouts</strong> — flag on a pole, canopy over the plume (the default), draped through a ring, or a raised &quot;canopy high&quot; that the flame reaches. Resolution is a live slider (9–81 columns).</li>
+<li><strong>The brass ring is an independent toggle</strong>, not part of a layout, so it can sit under the canopy as well as through the sheet. It moves out of the flag&#39;s way automatically.</li>
+<li><strong>Sealed cloth</strong> (default on) — the sheet is watertight in the grid. Verified from the grid, not the picture: mean smoke density above the canopy is 0.063 with no cloth, 0.00005 with it, and 0.00008 with a ring added — i.e. ~99.9% blocked, and the ring does not break the seal.</li>
+<li><strong>Materials</strong> on the sphere — diffuse, rough metal, glass, and car paint (clearcoat over a diffuse base), which is the default.</li>
+<li><strong>Fire</strong> — volumetric emission driven by the fluid&#39;s own temperature field. See the note below; it was silently ~100× too dark for a whole phase.</li>
+<li><strong>Noise reduction</strong> — an edge-aware à-trous filter (spatial only, so it cannot ghost) and low-discrepancy sampling.</li>
+<li><strong>Looks</strong> — an oil-paint NPR ported from GLSL, and a vintage chain (bloom, chromatic aberration, scanlines, ordered dither), every effect individually toggleable.</li>
+</ul>
+<h3 id="the-fire-bug-because-it-is-the-instructive-one">The fire bug, because it is the instructive one</h3><p>Fire shipped looking like nothing at all, and the reason is worth writing down: <strong>a source term was attenuated by the very slab that emitted it.</strong></p>
+<p>The march accumulates two source terms per step. In-scatter used the transmittance at the step&#39;s <em>entry</em>, which is right. Emission was written after the line that updates <code>T</code>, so it used the transmittance at the step&#39;s <em>exit</em> — the light was dimmed by the extinction of the cell it was born in. That is a small ordering slip and normally a small error, but this march is coarse: 10 steps across the box at <code>sigma_t</code> 16–20 gives an optical depth of about 6 <em>per step</em>, so <code>exp(-6) ≈ 0.0025</code>. The single brightest sample in the frame was being multiplied by 1/400.</p>
+<p>Two things made it hard to see. The emission is cubic in normalised temperature, so it stayed faintly non-zero rather than vanishing — it looked like a tuning problem, not a bug. And the default emitter row (<code>n/9</code>) puts the hot core <em>inside</em> the opaque sphere, where primary rays stop at the surface hit, so the flame that did survive was not on screen. Chasing it by eye cost far more than it should have; what settled it was compiling the real <code>fluid.cpp</code> and <code>volume_march.cpp</code> natively and printing the per-step transmittance.</p>
+<p>The fix applies extinction after both source terms and increases the march to 32 steps to reduce the coarse-slab error. This improves the image, although a fixed sample count is not a convergence guarantee. The early-out moved to the loop tail at the same time — it had been nested inside the emission branch. An earlier trace measurement reported a <strong>×1.4</strong> cost increase; that was workload-specific. The <a href="voxel-performance.html">later frozen-volume comparison</a> measures a larger increase in its smoke and fire cases.</p>
+<p>There is now a <code>test_volume_emission</code> regression test because the earlier tests never enabled emission. Its brightness checks target this discretization failure; they are not a general physical law that emission must remain constant as extinction grows. For a fixed homogeneous source, the exact integral depends on extinction. The optional voxel path tests that analytic integral separately. <code>engine_get_temp_max</code> also exists alongside <code>engine_get_density_above</code>, so the temperature field can be inspected independently of the rendered sphere and smoke.</p>
+<h3 id="on-the-vintage-look">On the vintage look</h3><p>The vintage presentation retains the low-resolution image: a Reinhard curve, a selectable low-resolution internal buffer, and a coarse single-scattering volume march with heuristic ambient fill. Bloom, chromatic aberration, scanlines and dither build on that presentation. The volume is illustrative transport, not a reference multiple-scattering solution.</p>
+<h2 id="prerequisites">Prerequisites</h2><ul>
+<li><strong>Emscripten 3.1.44</strong> (newer will very likely work). <code>build.mjs</code> and <code>test.mjs</code> locate it themselves, trying <code>$EMSDK</code>, then <code>C:/emsdk</code>, then <code>~/emsdk</code>, and invoke the emsdk&#39;s own Python on <code>emcc.py</code> directly — no <code>emsdk_env</code>, no <code>emcc</code> on <code>PATH</code>.<pre><code class="language-bash">git clone https://github.com/emscripten-core/emsdk C:/emsdk
+C:/emsdk/emsdk install 3.1.44 &amp;&amp; C:/emsdk/emsdk activate 3.1.44
+</code></pre>
+</li>
+<li><strong>Node 18+</strong>. No npm dependencies.</li>
+</ul>
+<h2 id="build-and-run">Build and run</h2><pre><code class="language-bash">npm run build       # SIMD module only (fast path while developing)
+npm run build:all   # SIMD + scalar modules; needed for the ?scalar comparison
+npm run serve       # static server WITH the COOP/COEP headers pthreads require
+npm test            # C++ unit tests, run twice: scalar-f4 and real wasm SIMD
+npm run still       # offline render -&gt; build/still_{plain,oil}.png
+npm run bench:volume # frozen one-thread legacy/smooth/voxel comparison
+npm run bench:frames # pthread parity contracts + matched frame-budget timings
+</code></pre>
+<p>Open the URL <code>npm run serve</code> prints. The page must report <strong>Cross-origin isolated: true</strong> — without COOP/COEP there is no <code>SharedArrayBuffer</code>, and therefore no pthreads. Opening <code>index.html</code> from disk will not work.</p>
+<h2 id="where-simd-lives">Where SIMD lives</h2><p>Hot kernels are written once and dispatched at runtime through the <code>f4</code> abstraction in <code>src/core/f4.h</code>, which compiles either to <code>wasm_simd128</code> intrinsics or to a scalar struct — so the same source is both the shipped SIMD path and a host-testable reference.</p>
+<div class="case-table-wrap technical-table" tabindex="0" role="region" aria-label="Technical comparison"><table>
+<thead>
+<tr>
+<th>Kernel</th>
+<th>Where</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Ray packets (2×2 quads)</td>
+<td><code>render/trace_simd.cpp</code> → <code>trace_radiance_p</code></td>
+<td><strong>SIMD</strong></td>
+</tr>
+<tr>
+<td>Primary-ray generation</td>
+<td><code>engine.cpp</code> → <code>render_row_simd</code></td>
+<td><strong>SIMD</strong></td>
+</tr>
+<tr>
+<td>Jacobi pressure stencil</td>
+<td><code>sim/fluid.cpp</code> → <code>jacobi_iter_simd</code> (solid-aware)</td>
+<td><strong>SIMD</strong></td>
+</tr>
+<tr>
+<td>Buoyancy / dissipation / velocity clamp</td>
+<td><code>sim/fluid.cpp</code></td>
+<td><strong>SIMD</strong></td>
+</tr>
+<tr>
+<td>BVH traversal (cloth, ring)</td>
+<td><code>render/bvh.h</code></td>
+<td>scalar <strong>per lane</strong> in this implementation; no packet or wavefront traversal</td>
+</tr>
+<tr>
+<td>Volume ray-march + fire emission</td>
+<td><code>render/volume_march.cpp</code></td>
+<td>scalar <strong>per lane</strong> — density lookup is a gather, and wasm SIMD has no gather</td>
+</tr>
+<tr>
+<td>BSDF sampling (metal/glass/coat)</td>
+<td><code>render/bsdf.h</code></td>
+<td>scalar <strong>per lane</strong> — stochastic lobe choice diverges</td>
+</tr>
+<tr>
+<td>Semi-Lagrangian advection, vorticity</td>
+<td><code>sim/fluid.cpp</code></td>
+<td>scalar — gather-bound, no SIMD counterpart</td>
+</tr>
+<tr>
+<td>Cloth solve, coupling</td>
+<td><code>sim/cloth.cpp</code>, <code>sim/coupling.cpp</code></td>
+<td>scalar <strong>and serial</strong> — see below</td>
+</tr>
+<tr>
+<td>à-trous denoise, vintage chain, oil paint</td>
+<td><code>render/denoise.h</code>, <code>npr/</code></td>
+<td>scalar (threaded)</td>
+</tr>
+</tbody></table></div>
+<h2 id="what-the-toggles-actually-measure">What the toggles actually measure</h2><p>Four things keep the numbers from flattering themselves.</p>
+<ol>
+<li><strong>The scalar arm is genuinely scalar.</strong> Every kernel with a SIMD counterpart carries <code>#pragma clang loop vectorize(disable)</code> on its scalar arm. Without it, <code>-O3</code> autovectorises the &quot;SIMD off&quot; path and the toggle silently compares hand-SIMD against compiler-SIMD. Kernels with <em>no</em> SIMD counterpart are deliberately left alone.</li>
+<li><strong>The benchmark times the path tracer alone</strong>, with NPR forced off (it has no SIMD path) and <strong>the simulation frozen</strong> — otherwise the plume grows denser between configurations and whichever arm runs last looks slower. That bug once made SIMD read ×0.86, i.e. slower than scalar.</li>
+<li><strong>Combined is not SIMD × threads</strong>, and that is real rather than an error: at 1 thread the tracer is compute-bound, at N threads it is memory-bound, so the two do not compose. SIMD is therefore reported at <em>both</em> thread counts.</li>
+<li><strong>There is a real end-to-end baseline.</strong> <code>npm run build:all</code> also emits a whole-module <code>-mno-simd128</code> build. Load it with <strong><code>?scalar</code></strong>.</li>
+</ol>
+<p><code>engine_simd_verified</code> performs startup spot checks: one color channel of lane zero over a renderer tile, and fluid density after a seeded update through each path. These checks detect useful regressions but do not prove complete numerical equivalence. <code>npm test</code> runs the C++ suite twice, with scalar-emulated <code>f4</code> and real SIMD intrinsics; its timing assertions remain device-sensitive.</p>
+<h2 id="what-we-actually-learned-about-simd">What we actually learned about SIMD</h2><p>The measurements below are historical development observations from the original test environment. They are not expected scores for another machine or browser. The current UI computes fresh ratios. Cache/bandwidth explanations are interpretations consistent with those observations; no hardware performance-counter study was recorded.</p>
+<p>The same technique, across seven workloads, gives wildly different answers. This is the most interesting result in the project:</p>
+<div class="case-table-wrap technical-table" tabindex="0" role="region" aria-label="Technical comparison"><table>
+<thead>
+<tr>
+<th>Workload</th>
+<th>SIMD</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Mandelbrot (Phase 0)</td>
+<td>≈ ×3.6</td>
+<td>coherent, compute-bound, no memory pressure</td>
+</tr>
+<tr>
+<td>Fluid Jacobi stencil, 32³ (unit bench)</td>
+<td>≈ ×1.6–1.9</td>
+<td>coherent and gather-free — the case SIMD is built for</td>
+</tr>
+<tr>
+<td>Path tracer, surfaces only</td>
+<td>≈ ×1.2</td>
+<td>divergent rays; lanes do work for inactive rays</td>
+</tr>
+<tr>
+<td>Path tracer + metal / car paint</td>
+<td>≈ ×1.1–1.2</td>
+<td><strong>no better</strong> — see below</td>
+</tr>
+<tr>
+<td>Whole fluid step, 48³ (shipped)</td>
+<td>≈ ×1.05</td>
+<td>a larger working set and more non-stencil work; memory effects are a possible explanation</td>
+</tr>
+<tr>
+<td>Volume march (and fire)</td>
+<td>≈ ×1.0</td>
+<td>gather-bound; wasm SIMD has no gather instruction</td>
+</tr>
+<tr>
+<td>Path tracer + glass</td>
+<td>≈ ×0.99</td>
+<td><em>slightly worse</em> — stochastic branching diverges lanes</td>
+</tr>
+</tbody></table></div>
+<p><strong>The material comparison tests coherence as well as arithmetic.</strong> Adding rough metal or clearcoat did not produce a large SIMD improvement in these measurements. Stochastic reflection/refraction and coating decisions can send adjacent lanes down different paths. The rough-metal implementation uses a perturbed reflected direction and a Blinn-style direct lobe; clearcoat uses a Schlick branch over a diffuse base. These are illustrative material models, not matched GGX sampling/evaluation or reference-grade BSDFs. Branch divergence is a plausible interpretation of the timings, rather than an independently measured causal result.</p>
+<p><strong>A fast kernel does not imply the same improvement for a full solver.</strong> The gather-free 32³ Jacobi unit benchmark historically measured ×1.6–1.9, while a whole 48³ fluid step measured approximately ×1.05 (76.7 ms → 73.0 ms at one thread). Those are different workloads. The larger grid spans several megabytes across its fields and the full update contains more than the pressure stencil. Cache behavior and memory bandwidth may contribute to the smaller overall improvement, but these tests did not measure cache misses, bandwidth saturation or ALU utilization directly.</p>
+<p>These results motivate measuring lane coherence, irregular memory access, working-set size and threading overhead together. Increasing arithmetic throughput alone does not guarantee a faster end-to-end workload.</p>
+<p>Threading has its own limits, and they cut the other way too. The same clean run put the fluid at ≈×7 on 32 threads (76.7 ms → 11.0 ms) — well short of linear, for the same bandwidth reason, and notably the <em>only</em> configuration where SIMD is a net loss (14.2 ms with SIMD against 11.0 without, once 32 threads are already saturating memory). And the <strong>cloth is deliberately single-threaded</strong>: at ~475 particles across 64 constraint passes, spawning a thread set per pass cost <strong>36 ms versus 4.5 ms serial</strong>. More parallelism is not automatically faster.</p>
+<h3 id="a-caveat-about-absolute-numbers">A caveat about absolute numbers</h3><p><strong>Absolute milliseconds are not comparable across sessions</strong>, and <em>thread-scaling</em> ratios are not either — they degrade under CPU contention, which is exactly what a long working session produces. SIMD ratios at a fixed thread count are the stable ones. A long working session with servers and browser thread pools left this machine ~2.5× slower than it started, and repeated page reloads (each spawning a 32-thread pool) can oversubscribe the CPU badly enough that the in-page benchmark reports threading as <em>slower</em> than serial. If the panel&#39;s numbers look implausible, restart the browser before believing them.</p>
+<h2 id="repo-map">Repo map</h2><pre><code>src/core/      vec3, ray, rng, torus, f4 (SIMD abstraction), parallel_for
+src/render/    camera, scene, mesh + BVH, path tracer (scalar + packet),
+               BSDFs, volume march + fire, tonemap, à-trous denoise
+src/sim/       fluid (Eulerian smoke), cloth (projected distance constraints), coupling
+src/npr/       oil-paint port, vintage chain
+src/engine.cpp the C API, frame orchestration, per-stage timers
+js/main.js     module load, WebGL2 blit, controls, benchmarks and live timing display
+index.html    study presets, Scene / Looks / Execution inspector, CPU stage diagram
+styles.css    responsive glass-panel interface and fixed-aspect image presentation
+tools/         offline still renderer (+ a dependency-free PNG encoder)
+test/          C++ unit tests
+docs/superpowers/  design spec and one implementation plan per phase
+</code></pre>
+<h2 id="known-gaps">Known gaps</h2><p>Deliberate, not forgotten:</p>
+<ul>
+<li>The persistent team assumes synchronous, non-nested engine passes. The frame harness exercises varying work/thread counts and bit-for-bit simulation parity against the retained spawn/join reference. This is targeted concurrency coverage, not a general-purpose task scheduler.</li>
+<li>Engine controls now cross a dedicated-worker boundary. Console rendering/stepping queries are awaitable; ordinary UI setters are queued until the next operation. A slow worker frame can delay the visible response even though the controls remain responsive.</li>
+<li>Bloom blurs at full resolution; half-res would be ~4× cheaper and visually identical.</li>
+<li>Adaptive quality changes only the image size. It cannot remove fluid/cloth costs, and reduces fine visual detail when the machine is busy.</li>
+<li>The oil-paint rasteriser and the vintage chain have no SIMD path, though both are the coherent stencil work that would benefit most.</li>
+<li>Sealed cloth stamps a 4×4 bilinear sample pattern per quad into solid grid cells; the unsealed mode stamps particles. Neither represents fractional-cell solidity or a fully momentum-conserving fluid/cloth solve.</li>
+<li>No golden-image regression test.</li>
+<li><code>npm run build</code> refreshes only the SIMD module, so <code>build/engine-scalar.*</code> goes stale silently. It had drifted a full feature behind — the scalar module predated fire entirely and did not even export <code>engine_set_fire</code>, so on <code>?scalar</code> (or any browser without SIMD) <code>cwrap</code> returned <code>undefined</code> and the slider was wired to nothing, with no assertion to say so. Run <code>npm run build:all</code> before trusting any <code>?scalar</code> comparison.</li>
+<li>The canopy is a rubber sheet, honestly. Four pinned corners with a Jacobi projection cannot hold a 45×45 grid taut, so it sags 1.2–1.5 world units whatever you pin it at, and constraints stretch several times past rest length. Raising the iteration count makes it worse, not better. The layouts are positioned around the measured sag rather than the nominal geometry, which is why the canopy is pinned at 3.10 to sit at ~1.6.</li>
+</ul>
+<h2 id="credits-and-licence">Credits and licence</h2><p>The oil-paint NPR is a C++ port of <strong>&quot;oil paint brush drawing&quot; by Florian Berger (flockaroo), 2018</strong> — <code>REF/oilA.glsl</code> and <code>REF/oilB.glsl</code>, original at <a href="https://shaderoo.org/?shader=N6DFZT" rel="noopener">https://shaderoo.org/?shader=N6DFZT</a>. Those files and the port in <code>src/npr/oil_paint.{h,cpp}</code> are licensed <strong>CC BY-NC-SA 3.0</strong>; use here is non-commercial. See <code>REF/LICENSE</code>.</p>
+<p>The panel&#39;s visual design is adapted from <code>REF/CC_membrane</code>.</p>
+<p>Everything else is MIT — see <code>LICENSE</code>. Because of the CC BY-NC-SA components, <strong>the repository as a whole is not MIT and is not for commercial use.</strong></p>
+</article><footer class="technical-footer"><div class="technical-actions"><a href="../index.html">← Realtime Graphics on CPU brochure</a><a href="../../../live_demos/cpu-atelier/index.html">Open interactive study ↗</a></div></footer></main></body></html>

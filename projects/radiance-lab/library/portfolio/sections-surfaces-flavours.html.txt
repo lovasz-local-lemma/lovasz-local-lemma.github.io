@@ -1,0 +1,58 @@
+<!-- ================= HOURGLASS FLAVOURS (new section, slots after #hourglass) ================= -->
+<section id="flavours" style="--secc:var(--l600, #EDA457)" data-nav="Flavours">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">05b — The hourglass as a system</p>
+      <h2>One member exists. The family is finite.</h2>
+      <p class="lead">The refraction chain through a glass sphere has exactly three free parameters, and a camera ray consumes exactly two of them. That single fact enumerates every analytic hourglass there can be.</p>
+      <p>Write the chain as <code>y → x₁ → x₂ → x</code>: a light point, an entry point on the sphere, an exit point, a scatter point in fog. Given the emitted direction — polar angle <code>ψ</code> about the axis <code>a = normalize(C − y)</code> and azimuth <code>φ</code> — both refractions are deterministic, and the exit ray is one line. Add the exit distance <code>r</code> and the whole chain is a map <code>(ψ, φ, r) → x</code>. A camera ray is a 1-manifold in R³, so meeting it costs two parameters. Therefore:</p>
+    </div>
+    <div class="formula">
+      <div class="f">sample <span class="hl">one</span> of { ψ, φ, r } · sweep the other <span class="hl">two</span> · intersect the camera ray</div>
+      <div class="n">Every analytic member has this shape. The stochastic members (18, 19) sample more and pay with a kernel.</div>
+    </div>
+    <figure>
+      {{SVG:f20b-flavours.svg}}
+      <figcaption><b>Flavours</b><span>Rows are members, columns are the three chain parameters. A red dot is <em>sampled</em>, a yellow arc is <em>swept</em>, a grey square is a kernel. Only two rows are in the engine; the fixed-apex form that the derivation started from exists in Python only.</span></figcaption>
+    </figure>
+    <div class="narrow">
+      <p>The member that ships samples <code>cos ψ</code> uniformly on the cap and sweeps the revolution <code>φ</code> and the exit distance <code>r</code> — <em>"φ is never sampled; the revolution is consumed by the incidence."</em> Its density is <code>p = p_c · |J| / |det3|</code> per branch, and its <code>ior → 1</code> limit collapses onto the photon cone, which is how the measure was pinned.</p>
+      <p>What makes the family worth building rather than admiring is the same thing that made the three-plane and direction-trio mixtures work: <strong>every row has a different singular locus on the same transport.</strong> The revolution form folds at the caustic waist; the meridian form folds along its own half-plane; the exit-distance shell is singular where the camera ray grazes a closed surface; the fixed-apex cone is singular at its own tangency. Under a balance heuristic the member about to misbehave is the member that down-weights itself. And each missing member arrives with its acceptance test already written — its <code>ior → 1</code> collapse lands on a primitive that is already validated (the meridian sheet onto the disk, the shell onto the photon sphere).</p>
+      <p class="note"><b>On the word "tridirectional".</b> For the shipped member alone it overclaims: the dielectric vertex is <em>derived</em> from the light-side sample by Snell's law, not seeded, so the honest count is two subpaths joined at a derived vertex. It becomes literally accurate for the surface-seeded member — sample a coordinate of the entry point on the sphere and hang the light connection and the swept exit off it: <em>three independently parameterised pieces — light, the two-segment dielectric chain, sensor — joined at two constraints.</em> Used for the family, and defined on first use, it is a definition rather than a misuse.</p>
+    </div>
+  </div>
+</section>
+
+{{SECTION:sections-two-hourglasses.html}}
+
+<!-- ================= SURFACES (new section, slots before #proof) ================= -->
+<section id="surfaces" style="--secc:var(--l500)" data-nav="Surfaces">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">05c — Surfaces</p>
+      <h2>The reference denominator comes first</h2>
+      <p class="lead">Every primitive above was certified by one number: its median ratio against an independent estimator of the same integral, converging to 1.000. Surfaces had no such estimator to divide by. So the first surface code in the integrator is not an estimator — it is the thing estimators will be divided against.</p>
+      <p>At an opaque, non-emissive hit in the camera walk, make <strong>one</strong> Lambertian light connection using exactly the light set and sampling densities the medium estimators use, and stop. No continuation bounce. Mirrors and glass are untouched; the walk still terminates where it did. It is a reference, deliberately, and it is switched off by default so that every previously validated number remains bit-for-bit reproducible.</p>
+    </div>
+    <figure>
+      {{SVG:fs1-surface-nee.svg}}
+      <figcaption><b>Surface NEE</b><span>One connection from the surface vertex; the continuation is drawn and crossed out because it does not happen. <code>f = ρ/π · cos_s · L_e · cos_y / r²</code>, with the emitter's own directional profile and the transmittance through any fog on the connection.</span></figcaption>
+    </figure>
+    <div class="narrow">
+      <div class="readout">
+        <div class="row"><span class="lbl">Off — six films vs the checkpoint binary</span><span class="val" style="color:var(--good)">byte-identical</span></div>
+        <div class="row hi"><span class="lbl">On — vs the GPU path tracer, one surface bounce, sky zeroed</span><span class="val">{{SNEE_RESULT}}</span></div>
+      </div>
+      <p style="margin-top:20px">The comparison needed a small piece of plumbing that did not exist: a headless control for the environment light. The test scene is an open-fronted Cornell box, and sky light reaching its walls is a path class the integrator has no emitter for — so it had to be zero on both sides, or the ratio would have measured the sky rather than the estimator.</p>
+      <h3>What the footprint idea actually requires</h3>
+      <p>The obvious surface primitive — intersect the swept photon sheet with a wall, get a footprint, evaluate where the camera ray lands — cannot be an estimator. Count dimensions: three unknowns, four equations. A 2-manifold sheet meets a 2-manifold receiver in a <em>curve</em>, and the camera's hit point is almost surely not on it. That missing dimension is exactly what a photon-map radius has always been buying.</p>
+    </div>
+    <figure>
+      {{SVG:fs2-footprint.svg}}
+      <figcaption><b>Footprint</b><span>Left: sheet ∩ receiver is a curve; the camera hit is off it, so no gather exists. Right: give the camera a sheet too, and curve ∩ curve is a point. The co-area factor is the triple product of the two sheet normals and the receiver normal — the surface analogue of <code>|N·d|</code>.</span></figcaption>
+    </figure>
+    <div class="narrow">
+      <p>The repair is symmetric: give the camera a sheet as well. Two curves in a 2-manifold meet in isolated points, and the Jacobian is <code>det[N_p, N_c, n_S]</code>. Both incidence cosines land in the <em>numerator</em>, so grazing drives the weight to zero rather than infinity — the opposite of the medium primitives' failure mode. It also has a closed-form density in both directions, which is the admission ticket to the MIS network. That is the next estimator; the reference above is what it will be divided by.</p>
+    </div>
+  </div>
+</section>

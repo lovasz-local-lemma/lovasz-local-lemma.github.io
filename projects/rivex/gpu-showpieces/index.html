@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Studies in light — two Rive delivery formats</title>
+<meta name="description" content="Five interactive Rive instruments: materials, dispersion, playable resonant modes, a liquid lens and a prismatic fractal garden.">
+<link rel="stylesheet" href="showpieces.css?v=20260921-finish">
+<link rel="icon" type="image/webp" href="../../../media/thumbs/rivex.webp">
+<script src="../../../portfolio-lab-frame.js"></script>
+<!-- universal-navigation:start --><link rel="stylesheet" href="../../../portfolio-location.css?v=054b6b462c"><script defer src="../../../portfolio-location.js?v=054b6b462c"></script><script defer src="../../../portfolio-routes.js?v=054b6b462c"></script><script defer src="../../../portfolio-universal-navigation.js?v=054b6b462c"></script><!-- universal-navigation:end --><style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head>
+<body>
+<header class="page-heading"><a href="../index.html">← RIVX</a><span>STUDIES IN LIGHT</span><span class="runtime">GPU Canvas .riv · Rive + GPU host</span></header>
+<main>
+<nav class="studies" aria-label="Choose an interactive study">
+<button id="material-nocturne" data-piece="material-nocturne" aria-pressed="true"><small>01 / SURFACE</small>Material nocturne</button>
+<button id="spectral-observatory" data-piece="spectral-observatory" aria-pressed="false"><small>02 / WAVELENGTH</small>Spectral observatory</button>
+<button id="resonant-membrane" data-piece="resonant-membrane" aria-pressed="false"><small>03 / MOTION</small>Resonant membrane</button>
+<button id="interactive-optics" data-piece="interactive-optics" aria-pressed="false"><small>04 / TOUCH</small>Liquid optics</button>
+<button id="fractal-prism" data-piece="fractal-prism" aria-pressed="false"><small>05 / JULIA GARDEN</small>Prismatic garden</button>
+</nav>
+<section class="player" aria-label="Interactive Rive instrument">
+<canvas id="riveCanvas" aria-label="Rive document. Use its native material, lighting and motion buttons."></canvas>
+<div id="loading" role="status">Opening the Rive document…</div>
+</section>
+<div class="filebar"><span id="status" role="status">Loading official runtime</span><div><button id="crisp-details" aria-pressed="true" hidden>Crisp details · on</button><button id="restart">Restart</button><button id="fullscreen">Full screen</button></div></div>
+<p id="audio-status" class="muted" role="status" hidden></p>
+<section class="explanation">
+<div><p class="eyebrow" id="format-label">GPU CANVAS .RIV</p><h1>More than a shader in a rectangle.</h1><p id="description"></p></div>
+<div><p id="format-description">The text, buttons, listeners, data bindings, animation and vector diagrams are Rive content. Embedded shaders draw the scene and expressive control materials through official GPU Canvas. The membrane also exposes its modal parameters to an optional browser audio synthesizer, enabled through its native Listen button.</p><p class="muted" id="format-note">Original studies authored with the official Rive CLI. These are standalone visual .riv experiments, separate from the desktop RIVX exporter. The signed CLI exports retain Rive’s watermark.</p></div>
+</section>
+<section class="anatomy"><h2>Two formats, different strengths</h2><p>This project demonstrates both a packaged GPU Canvas .riv and an ordinary .riv interface delivered with a GPU host. The first keeps visual logic and shaders in the document. The second keeps the interface portable while the host supplies rendering, buffers and integrations. Material, spectral, membrane and liquid studies have both versions; Prismatic Garden uses the host format here.</p><p><a id="compare-route" href="comparison/index.html">Compare the four paired instruments side by side ↗</a> — linked controls feed the same scene equations and shader, so the difference is where the rendering and logic live.</p><h2>What to try</h2><p id="try"></p><p id="modal-links"><a href="../../modal2d/index.html#manual-excitation">Explore Modal’s excitation and decay studies ↗</a> · <a href="../../modal2d/labs/membrane-modes.html">Compare membrane eigenmodes and nodal patterns ↗</a></p><h2>What is being approximated</h2><p id="limits"></p><p><a href="../technical-notes/gpu-showpieces.html">Rendering notes ↗</a> · <a href="https://rive.app/docs/scripting/wgsl-shaders">Official GPU Canvas documentation ↗</a></p></section>
+</main>
+<script src="vendor/rive.js"></script><script type="module" src="showpieces.js?v=20260921-finish"></script>
+</body></html>

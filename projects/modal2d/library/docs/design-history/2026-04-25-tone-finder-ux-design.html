@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="../../../../../portfolio-lab-frame.js"></script><script defer src="../../../../../portfolio-document-frame.js"></script><script defer src="../../../../../portfolio-media.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tone-finder UX — Design Spec</title>
+<style>
+  
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: rgba(255,255,255,0.03);
+    --glass: rgba(255,255,255,0.06);
+    --glass-border: rgba(255,255,255,0.1);
+    --text: #e0e0e8;
+    --text-dim: #8888a0;
+    --accent: #4ecdc4;
+    --accent2: #ff6b6b;
+    --accent3: #a78bfa;
+    --warn: #f5a623;
+    --good: #6dd47e;
+    --code-bg: rgba(0,0,0,0.35);
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.65;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 20% 50%, rgba(78,205,196,0.06) 0%, transparent 55%),
+      radial-gradient(ellipse at 80% 20%, rgba(167,139,250,0.05) 0%, transparent 55%),
+      radial-gradient(ellipse at 50% 90%, rgba(255,107,107,0.04) 0%, transparent 55%);
+    z-index: -1;
+  }
+
+  .container { max-width: 980px; margin: 0 auto; padding: 2rem 2rem 6rem; }
+
+  header {
+    padding: 3rem 0 2rem;
+    border-bottom: 1px solid var(--glass-border);
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--accent), var(--accent3));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.6rem;
+    letter-spacing: -0.01em;
+  }
+  header .subtitle {
+    color: var(--text-dim);
+    font-size: 0.95rem;
+  }
+  header .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 1.2rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+  }
+  header .meta span {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    padding: 0.3rem 0.75rem;
+    border-radius: 6px;
+    color: var(--text-dim);
+  }
+  header .meta span b { color: var(--accent); font-weight: 600; }
+
+  h2 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 2.5rem 0 1rem;
+    color: var(--accent);
+    letter-spacing: -0.005em;
+  }
+  h2 .num {
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85em;
+    margin-right: 0.5rem;
+  }
+  h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 1.5rem 0 0.6rem;
+    color: var(--text);
+  }
+
+  p { margin: 0.8rem 0; }
+  p, li { color: var(--text); }
+
+  ul, ol { margin: 0.6rem 0 1rem 1.5rem; }
+  li { margin: 0.3rem 0; }
+
+  strong { color: var(--accent); font-weight: 600; }
+  em { color: var(--accent3); font-style: italic; }
+
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.88em;
+    background: var(--code-bg);
+    color: var(--accent);
+    padding: 0.1rem 0.4rem;
+    border-radius: 4px;
+    border: 1px solid var(--glass-border);
+  }
+
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    padding: 1rem 1.2rem;
+    overflow-x: auto;
+    margin: 1rem 0;
+    font-size: 0.85rem;
+    line-height: 1.55;
+  }
+  pre code {
+    background: none;
+    padding: 0;
+    border: none;
+    color: var(--text);
+    font-size: inherit;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+    font-size: 0.92rem;
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  thead { background: rgba(78,205,196,0.07); }
+  th {
+    text-align: left;
+    padding: 0.7rem 0.9rem;
+    font-weight: 600;
+    color: var(--accent);
+    border-bottom: 1px solid var(--glass-border);
+  }
+  td {
+    padding: 0.6rem 0.9rem;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    color: var(--text);
+  }
+  tr:last-child td { border-bottom: none; }
+
+  .card {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 1.4rem 1.6rem;
+    margin: 1.2rem 0;
+    backdrop-filter: blur(18px);
+  }
+  .card.component { border-left: 3px solid var(--accent); }
+  .card.warn { border-left: 3px solid var(--warn); }
+  .card h3 { margin-top: 0; }
+
+  .pill {
+    display: inline-block;
+    padding: 0.15rem 0.55rem;
+    border-radius: 999px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-left: 0.5rem;
+    vertical-align: middle;
+  }
+  .pill.proposed { background: rgba(245,166,35,0.15); color: var(--warn); border: 1px solid rgba(245,166,35,0.3); }
+
+  .swatch {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    margin-right: 0.4rem;
+    vertical-align: middle;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  .swatch.green  { background: rgb(51, 153, 51); }
+  .swatch.orange { background: rgb(230, 128, 26); }
+  .swatch.yellow { background: rgb(230, 179, 26); }
+
+  .ascii-toolbar {
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--code-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    padding: 1rem 1.2rem;
+    color: var(--text-dim);
+    overflow-x: auto;
+    line-height: 1.4;
+    font-size: 0.82rem;
+  }
+  .ascii-toolbar b { color: var(--accent); font-weight: 600; }
+  .ascii-toolbar i { color: var(--accent3); font-style: normal; }
+
+  hr {
+    border: none;
+    height: 1px;
+    background: var(--glass-border);
+    margin: 2rem 0;
+  }
+
+  footer {
+    margin-top: 4rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--glass-border);
+    color: var(--text-dim);
+    font-size: 0.85rem;
+    text-align: center;
+  }
+</style>
+<style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head>
+<body><style>.portfolio-document-return{position:relative;z-index:100;display:flex;flex-wrap:wrap;gap:10px;padding:16px 24px;background:#111d25;border-bottom:1px solid #b3ceb74d;font:12px/1.5 Arial,sans-serif}.portfolio-document-return a{color:#cbded2;text-decoration:none;padding:8px 12px;border:1px solid #b3ceb733;border-radius:8px;transition:color .5s,box-shadow .5s,border-color .5s}.portfolio-document-return a:hover{color:#fff;border-color:#d9c18488;box-shadow:0 0 16px #d9c18422}@media(prefers-reduced-motion:reduce){.portfolio-document-return a{transition:none}}</style><link rel="stylesheet" href="../../../../../portfolio-controls.css"><aside class="portfolio-document-return"><a href="../../../index.html#html-library">← Modal2D brochure</a><a href="../../index.html">Document library</a><a href="../../../../../index.html">← Back to portfolio</a><a href="2026-04-25-tone-finder-ux-design.html.txt" download>Original HTML ↓</a></aside>
+<div class="container">
+
+<header>
+  <h1>Tone-finder UX <span class="pill proposed">Proposed</span></h1>
+  <div class="subtitle">Best-so-far indicator, iteration cap, Auto mode, suboptimal marking.</div>
+  <div class="meta">
+    <span>Date: <b>2026-04-25</b></span>
+    <span>Scope: <b>modal_viewer/{app,ui}</b></span>
+    <span>Item: <b>#6</b></span>
+    <span>Plan: <b>4 commits</b></span>
+  </div>
+</header>
+
+<h2><span class="num">¶</span>Goal</h2>
+<p>Make the existing binary-search auto-tuner usable as a hands-off batch worker rather than a click-per-iteration tool. Specifically: surface the <em>best-so-far</em> result so the user can accept "good enough" without waiting for the threshold to be met, cap runaway searches, and add an <em>Auto</em> mode that re-fires strikes and advances notes without manual intervention.</p>
+<p>This spec covers UX and control-flow improvements only. The deeper algorithmic rewrite (parameter-history-aware exploration, "add a degree of freedom" suggestion, anti-circling detection) is item <strong>#10</strong>, scheduled separately.</p>
+
+<h2><span class="num">¶</span>Design</h2>
+<p>Four coordinated components. Each is independent enough to commit on its own.</p>
+
+<div class="card component">
+<h3>A. Best-so-far indicator</h3>
+<p>A compact toolbar widget showing the closest <code>tune_history</code> entry to the target frequency. Visible whenever <code>tune_history</code> is non-empty, regardless of whether fine-tuning is currently active.</p>
+<ul>
+  <li><strong>Location:</strong> Row 3 of the Create-mode toolbar, between the threshold display and the Chart toggle.</li>
+  <li><strong>Display:</strong> <code>Best: -3.2c [Apply]</code>. The cents value is colour-coded with the same thresholds the existing threshold-display uses (≤1c green, ≤5c plain, ≤25c orange, otherwise red).</li>
+  <li><strong>Apply button:</strong> copies <code>tune_history[best_idx]</code>'s width/height into <code>tuning_width_/height_</code>, then fires <code>tuning_state.apply_clicked = true</code> to flow through the existing apply-and-advance pipeline.</li>
+  <li><strong>Lifetime:</strong> persists between fine-tune runs and across reloads of <code>target_note</code>; cleared by Reset and by the start of a fresh fine-tune.</li>
+</ul>
+</div>
+
+<div class="card component">
+<h3>B. Iteration cap</h3>
+<p>A hard upper bound on how many iterations a single fine-tune session may consume before forcibly stopping.</p>
+<ul>
+  <li><strong>Configuration:</strong> new private member <code>int fine_max_iters_ = 40000;</code> on <code>App</code>.</li>
+  <li><strong>Enforcement:</strong> at every site that pushes onto <code>tune_history_</code> (the convergence-check block near <code>app.cpp:1620</code>), add:</li>
+</ul>
+<pre><code>if ((int)tune_history_.size() &gt;= fine_max_iters_) {
+    fine_mode_ = 0;
+    fine_phase_ = 0;
+    // best-so-far survives in tune_history_; toolbar A surfaces it
+}</code></pre>
+<p>The cap counts <strong>total</strong> iterations across all internal jitter-restarts within a single Fine-* invocation. The existing jitter-retry behaviour is unchanged — the cap simply guarantees the session ends.</p>
+</div>
+
+<div class="card component">
+<h3>C. Auto mode</h3>
+<p>A sticky toggle (<code>fine_auto_</code>, persists across fine-tune sessions, reset on Reset) that automates two manual steps: striking between iterations and advancing notes.</p>
+
+<p><strong>Toggle UI:</strong> new <code>[Auto]</code> button in Row 3, immediately to the right of <code>[Fine-WH]</code>. When on, the button uses a distinct highlight colour (matches the existing "selected toggle" styling — bright accent).</p>
+
+<p><strong>Behaviour while on:</strong></p>
+<ul>
+  <li><strong>Auto-strike.</strong> In the existing fine-tune state machine, Phase 1 currently waits for a user strike. When <code>fine_auto_</code> is true and <code>tune_history_</code> is non-empty (i.e. we already recorded <code>fine_strike_rel_x_/y_</code> from the first strike), Phase 1 fires <code>modal_strike()</code> at the recorded relative position immediately and advances to Phase 2 without waiting for input. The <em>first</em> strike of a fresh session still requires user input — the auto-strike position is captured from it.</li>
+  <li><strong>Auto-advance on convergence.</strong> When fine_mode goes 0 because the convergence check fired (<code>|best_cents| &le; threshold</code>): apply best, advance <code>target_note</code>, re-arm fine-tune in the same mode (Fine-W / Fine-Size / Fine-WH). If <code>target_note == 8</code>, Auto stops; user clicks Save.</li>
+  <li><strong>Auto-advance on cap or natural give-up.</strong> When fine_mode goes 0 <em>without</em> convergence (iter cap hit, or mode-3's <code>fine_wh_round_ &gt; 6</code>): same Apply pipeline as the convergence path, but <code>saved_notes_[target_note].suboptimal = true</code> is set first.</li>
+</ul>
+<p><strong>Behaviour while off:</strong> identical to current code. Auto mode is purely additive.</p>
+</div>
+
+<div class="card component">
+<h3>D. Suboptimal note marking</h3>
+<p>Visual indication that a saved note didn't meet the user's threshold.</p>
+
+<p><strong>Struct change.</strong> <code>App::saved_notes_[i]</code> gains:</p>
+<pre><code>bool suboptimal = false;</code></pre>
+<p>Default false. Set true only by Auto mode when accepting a non-converged result. Reset whenever a note is overwritten with a converged result.</p>
+
+<p><strong>UI change.</strong> Note-button colour rules in <code>ui_manager.cpp:381–384</code>:</p>
+<table>
+  <thead><tr><th>State</th><th>Colour</th></tr></thead>
+  <tbody>
+    <tr><td>Saved &amp; converged</td><td><span class="swatch green"></span>Green <code>(0.2, 0.6, 0.2)</code> <em>(current)</em></td></tr>
+    <tr><td>Saved &amp; <strong>suboptimal</strong></td><td><span class="swatch orange"></span>Orange <code>(0.9, 0.5, 0.1)</code> <em>(new)</em></td></tr>
+    <tr><td>Currently selected target (unsaved)</td><td><span class="swatch yellow"></span>Yellow/orange <code>(0.9, 0.7, 0.1)</code> <em>(current)</em></td></tr>
+    <tr><td>Default</td><td>Plain <em>(current)</em></td></tr>
+  </tbody>
+</table>
+<p>Tooltip on suboptimal buttons reads: <em>"Best result was N cents off — re-tune for tighter accuracy."</em></p>
+
+<p><strong>Persistence.</strong> The <code>suboptimal</code> flag is saved/restored in the Export/Import file format. Existing files (without the field) load with <code>suboptimal = false</code>.</p>
+</div>
+
+<h2><span class="num">¶</span>New state summary</h2>
+<table>
+  <thead><tr><th>Variable</th><th>Type</th><th>Owner</th><th>Default</th><th>Reset by</th></tr></thead>
+  <tbody>
+    <tr><td><code>fine_max_iters_</code></td><td><code>int</code></td><td><code>App</code> (private)</td><td><code>40000</code></td><td>n/a (config-only)</td></tr>
+    <tr><td><code>fine_auto_</code></td><td><code>bool</code></td><td><code>App</code> (private)</td><td><code>false</code></td><td>Reset button</td></tr>
+    <tr><td><code>saved_notes_[i].suboptimal</code></td><td><code>bool</code></td><td><code>App::SavedNote</code></td><td><code>false</code></td><td>Reset; save-with-converged-result</td></tr>
+  </tbody>
+</table>
+
+<h2><span class="num">¶</span>Toolbar layout (Row 3, Create mode)</h2>
+<div class="ascii-toolbar">
+[<b>Fine-W</b>][<b>Fine-Size</b>][<b>Fine-WH</b>][<i>Auto</i>] | [Threshold slider][3c]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| [<i>Best: -3.2c (Apply)</i>]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| [Chart]
+</div>
+<p>Adaptive wrapping (Phase B of #1) is already in place; no new wrap rules required.</p>
+
+<h2><span class="num">¶</span>Failure modes &amp; edge cases</h2>
+<div class="card warn">
+<ul>
+  <li><strong>tune_history empty when Apply fires.</strong> Cannot happen — the indicator is only visible when history is non-empty. Defensive guard: <code>!tune_history_.empty()</code>.</li>
+  <li><strong>Auto mode + manual Cancel.</strong> Cancel stops the current session; <code>fine_auto_</code> stays on. Re-clicking a Fine-* button resumes auto behaviour for that note.</li>
+  <li><strong>Auto mode + note-button click during search.</strong> Does NOT stop the search; <code>target_note</code> simply changes. On next convergence/cap event, Apply writes to the current <code>target_note</code>. Predictable.</li>
+  <li><strong>40,000 iterations × ~10 ms ≈ 7 minutes per note.</strong> Acceptable — Auto is intended for unattended runs. Perf work (#8) lowers this proportionally.</li>
+  <li><strong>Stale fine_strike_rel_x_/y_.</strong> Cleared on Reset. On a fresh session start, the first manual strike captures it; Auto kicks in from iteration 2 onwards.</li>
+  <li><strong>All 8 notes finalised.</strong> Auto stops cleanly. User clicks Save to build the instrument.</li>
+</ul>
+</div>
+
+<h2><span class="num">¶</span>Out of scope</h2>
+<ul>
+  <li>"Running in circles" detection via parameter-history analysis (<strong>#10</strong>).</li>
+  <li>Suggesting an additional DOF when one-axis search is insufficient (<strong>#10</strong>).</li>
+  <li>Replacing or augmenting the binary-search algorithm itself (<strong>#10</strong>).</li>
+  <li>Adaptive threshold relaxation as a function of attempt count (could be folded into B later if useful, not required for V1).</li>
+</ul>
+
+<h2><span class="num">¶</span>Acceptance criteria</h2>
+<ol>
+  <li>Clicking <code>[Apply]</code> on the best-so-far indicator produces the same end state as clicking the existing Apply button when the best iteration happened to be current.</li>
+  <li>With <code>fine_max_iters_ = 40000</code>, a non-converging fine-tune session stops after exactly 40,000 history entries (modulo the +1 for the entry that triggered the check).</li>
+  <li>With Auto mode on, a successful tuning of all 8 notes proceeds end-to-end without user clicks beyond the initial Fine-* + first strike.</li>
+  <li>Suboptimal-marked notes show as orange in the toolbar; converged notes show as green.</li>
+  <li>Export/Import round-trips the <code>suboptimal</code> flag.</li>
+  <li>With Auto mode off, behaviour is byte-identical to before this change for the manual flow.</li>
+</ol>
+
+<h2><span class="num">¶</span>Implementation plan</h2>
+<p>Four commits, each independently reviewable:</p>
+<ol>
+  <li><strong>A</strong>: Best-so-far indicator + <code>[Apply]</code> button in toolbar.</li>
+  <li><strong>B</strong>: Iteration cap (<code>fine_max_iters_</code>, enforce in convergence-check sites).</li>
+  <li><strong>D</strong>: <code>saved_notes_[i].suboptimal</code> field + orange button colour + tooltip + Export/Import round-trip. <em>(Done before C so C has somewhere to store its result.)</em></li>
+  <li><strong>C</strong>: <code>fine_auto_</code> toggle, auto-strike, auto-advance on convergence, auto-advance + suboptimal mark on cap/exhaust.</li>
+</ol>
+<p>Total estimate: ~150–250 LOC across the four commits. No new files; all changes within existing <code>app.cpp</code>, <code>app.h</code>, <code>ui_manager.cpp</code>, <code>ui_manager.h</code>.</p>
+
+<footer>
+  Modal2D / ModalSynth — design spec for item #6 of Phase 2.
+</footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,1591 @@
+<meta charset="utf-8">
+<title>Modal2D — How It Works</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0e1116; --bg2:#141a22; --card:#161d27; --inline:#1c2530;
+  --bd:#243140; --bd2:#1c2632;
+  --tx:#c9d4e0; --dim:#8a99ab; --faint:#5e6e80; --hd:#e8eef5;
+  --ac:#34d3c4; --ac2:#4fd6e8; --acd:#1e3a3a;
+  --warm:#f0a35e; --warmd:#3a2a18; --rose:#ff8a6a; --blue:#5aa9ff;
+  --mono:'JetBrains Mono',ui-monospace,Consolas,monospace;
+  --sans:'Inter',system-ui,'Segoe UI',Roboto,sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:var(--sans);
+  font-size:16px;line-height:1.75;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto;padding:0 26px}
+
+/* hero */
+header.hero{padding:70px 0 40px;border-bottom:1px solid var(--bd2);
+  background:radial-gradient(1200px 400px at 50% -120px,rgba(52,211,196,.11),transparent 70%)}
+h1{margin:0;font-size:44px;line-height:1.15;letter-spacing:-.02em;color:var(--hd);font-weight:700}
+h1 .g{background:linear-gradient(92deg,var(--ac),var(--blue));-webkit-background-clip:text;
+  background-clip:text;-webkit-text-fill-color:transparent}
+.tag{margin:14px 0 0;font-size:19px;color:var(--dim);max-width:760px}
+.chips{margin-top:22px;display:flex;gap:9px;flex-wrap:wrap}
+.chip{font-family:var(--mono);font-size:11.5px;padding:5px 11px;border-radius:20px;
+  background:var(--inline);border:1px solid var(--bd);color:var(--dim)}
+.chip b{color:var(--ac);font-weight:600}
+
+/* nav */
+nav.top{position:sticky;top:0;z-index:50;background:rgba(14,17,22,.92);
+  backdrop-filter:blur(10px);border-bottom:1px solid var(--bd2)}
+nav.top .wrap{display:flex;gap:4px;flex-wrap:wrap;padding-top:9px;padding-bottom:9px}
+nav.top a{font-size:13px;color:var(--dim);text-decoration:none;padding:6px 11px;border-radius:7px}
+nav.top a:hover{color:var(--ac2);background:var(--inline)}
+
+section{padding:52px 0;border-bottom:1px solid var(--bd2)}
+h2{font-size:29px;margin:0 0 6px;color:var(--hd);letter-spacing:-.01em}
+h2 .n{font-family:var(--mono);font-size:14px;color:var(--ac);margin-right:11px;font-weight:600}
+.lede{font-size:17.5px;color:var(--dim);max-width:820px;margin:0 0 26px}
+h3{font-size:19px;color:var(--hd);margin:34px 0 8px}
+p{max-width:830px}
+code{font-family:var(--mono);font-size:.88em;background:var(--inline);
+  padding:2px 6px;border-radius:4px;color:var(--ac2)}
+.eq{background:var(--bg2);border:1px solid var(--bd);border-left:3px solid var(--ac);
+  border-radius:8px;padding:15px 19px;margin:19px 0;font-family:var(--mono);
+  font-size:14.5px;color:var(--hd);overflow-x:auto;max-width:830px}
+.eq .c{color:var(--faint);font-size:12.5px;font-family:var(--sans);display:block;margin-top:7px}
+.note{background:var(--card);border:1px solid var(--bd);border-left:3px solid var(--warm);
+  border-radius:8px;padding:14px 18px;margin:20px 0;max-width:830px;color:var(--dim);font-size:15px}
+.note b{color:var(--warm)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:18px;margin:24px 0}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:11px;padding:19px}
+.card h4{margin:0 0 7px;font-size:15.5px;color:var(--ac2)}
+.card p{margin:0;font-size:14.5px;color:var(--dim)}
+
+/* demos */
+.demo{background:var(--card);border:1px solid var(--bd);border-radius:13px;
+  margin:26px 0;overflow:hidden}
+.demo .hd{display:flex;align-items:center;gap:11px;padding:13px 18px;
+  background:linear-gradient(180deg,rgba(52,211,196,.09),transparent);
+  border-bottom:1px solid var(--bd)}
+.demo .hd .k{font-family:var(--mono);font-size:11px;color:var(--bg);background:var(--ac);
+  padding:2px 8px;border-radius:5px;font-weight:700}
+.demo .hd h4{margin:0;font-size:16px;color:var(--hd);flex:1}
+.demo .body{padding:18px}
+.demo .exp{font-size:14.5px;color:var(--dim);margin:0 0 15px;max-width:840px}
+.ctl{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin:14px 0 4px;
+  font-size:13px;color:var(--dim)}
+.ctl label{display:flex;align-items:center;gap:7px}
+.ctl input[type=range]{width:132px;accent-color:var(--ac)}
+button.b{font-family:var(--sans);font-size:13px;font-weight:600;color:var(--bg);
+  background:var(--ac);border:0;padding:7px 15px;border-radius:7px;cursor:pointer}
+button.b:hover{background:var(--ac2)}
+button.b.alt{background:var(--inline);color:var(--ac2);border:1px solid var(--bd)}
+button.b.alt:hover{border-color:var(--ac)}
+canvas{display:block;max-width:100%;border-radius:8px;background:#0b0f14}
+.row{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start}
+.val{font-family:var(--mono);color:var(--ac2);font-size:12.5px}
+.hint{font-size:12.5px;color:var(--faint);margin-top:9px;font-style:italic}
+.modegal{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.modegal .m{border:1px solid var(--bd);border-radius:8px;padding:5px;cursor:pointer;background:var(--bg2)}
+.modegal .m.sel{border-color:var(--ac);box-shadow:0 0 0 1px var(--ac)}
+.modegal .m div{font-family:var(--mono);font-size:10px;color:var(--dim);text-align:center;margin-top:3px}
+footer{padding:40px 0 70px;color:var(--faint);font-size:13.5px}
+
+/* ---- learn-more chips + floating panel ---- */
+button.lm{font-family:var(--sans);font-size:11.5px;font-weight:600;letter-spacing:.02em;
+  color:var(--ac2);background:rgba(52,211,196,.09);border:1px solid var(--bd);
+  padding:3px 10px;border-radius:20px;cursor:pointer;margin:8px 0 0;
+  transition:background .15s,border-color .15s,color .15s}
+button.lm:hover{background:rgba(52,211,196,.19);border-color:var(--ac);color:var(--hd)}
+button.lm::before{content:"?";display:inline-block;margin-right:6px;font-weight:700;
+  color:var(--ac)}
+#lmBack{position:fixed;inset:0;background:rgba(6,9,13,.72);backdrop-filter:blur(3px);
+  opacity:0;pointer-events:none;transition:opacity .22s ease;z-index:200}
+#lmBack.on{opacity:1;pointer-events:auto}
+#lmPanel{position:fixed;top:50%;left:50%;width:min(660px,92vw);max-height:82vh;overflow-y:auto;
+  transform:translate(-50%,-46%) scale(.97);opacity:0;pointer-events:none;
+  background:var(--card);border:1px solid var(--bd);border-radius:14px;
+  box-shadow:0 24px 70px rgba(0,0,0,.6);padding:26px 30px 28px;z-index:201;
+  transition:opacity .22s ease,transform .22s ease}
+#lmPanel.on{opacity:1;transform:translate(-50%,-50%) scale(1);pointer-events:auto}
+#lmPanel h3{margin:0 0 4px;font-size:21px;color:var(--hd)}
+#lmPanel .sub{font-family:var(--mono);font-size:11.5px;color:var(--ac);
+  text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px}
+#lmPanel p{font-size:15px;color:var(--tx);max-width:none;margin:0 0 13px}
+#lmPanel .eq{margin:15px 0;font-size:13.5px}
+#lmPanel .kk{color:var(--warm);font-weight:600}
+#lmClose{position:absolute;top:14px;right:16px;background:transparent;border:0;
+  color:var(--faint);font-size:22px;cursor:pointer;line-height:1;padding:4px 8px}
+#lmClose:hover{color:var(--ac2)}
+
+
+/* ---- interactive affordances: make it obvious what reacts to the cursor ---- */
+canvas.ia{cursor:pointer;transition:box-shadow .2s ease,filter .2s ease}
+canvas.ia:hover{box-shadow:0 0 0 1px rgba(52,211,196,.5),0 0 26px rgba(52,211,196,.18)}
+canvas.ia:active{box-shadow:0 0 0 1px rgba(52,211,196,.85),0 0 32px rgba(52,211,196,.3)}
+button.b{transition:background .16s,box-shadow .16s,transform .12s}
+button.b:hover{box-shadow:0 0 18px rgba(52,211,196,.38);transform:translateY(-1px)}
+button.b:active{transform:translateY(0)}
+button.b.alt:hover{box-shadow:0 0 16px rgba(79,214,232,.26)}
+.ctl label{transition:color .16s;border-radius:6px;padding:2px 4px}
+.ctl label:hover{color:var(--ac2)}
+.ctl input[type=range]{transition:filter .16s}
+.ctl input[type=range]:hover{filter:brightness(1.28) saturate(1.2)}
+.ctl input[type=checkbox]{accent-color:var(--ac);cursor:pointer}
+.seg{display:inline-flex;border:1px solid var(--bd);border-radius:8px;overflow:hidden}
+.seg button{background:var(--inline);color:var(--dim);border:0;padding:6px 13px;
+  font-size:12.5px;cursor:pointer;font-family:var(--sans);transition:background .16s,color .16s}
+.seg button:hover{background:rgba(52,211,196,.16);color:var(--hd)}
+.seg button.on{background:var(--ac);color:var(--bg);font-weight:600}
+.modegal .m{transition:border-color .16s,box-shadow .16s,transform .12s}
+.modegal .m:hover{border-color:var(--ac);box-shadow:0 0 16px rgba(52,211,196,.2);
+  transform:translateY(-1px)}
+
+</style>
+
+<nav class="top"><div class="wrap">
+  <a href="#idea">The big idea</a><a href="#mesh">1 · Mesh</a><a href="#matrices">2 · Matrices</a>
+  <a href="#eigen">3 · Eigenmodes</a><a href="#strike">4 · Strike</a><a href="#sound">5 · Sound</a>
+  <a href="#twod">6 · 2D &amp; Chladni</a><a href="#radiate">7 · Radiation</a><a href="#tune">8 · Tuning</a>
+  <a href="#showcase">Showcase</a>
+</div></nav>
+
+<header class="hero"><div class="wrap">
+  <h1>How Modal2D <span class="g">actually works</span></h1>
+  <p class="tag">You draw a shape. It rings like a real object. In between sits one idea —
+  every vibrating thing has a small set of favourite ways to move, and any sound it makes is
+  just those, added up and fading. This page builds that idea from scratch, and every demo on
+  it computes for real in your browser.</p>
+  <div class="chips">
+    <span class="chip"><b>intuition</b> first</span>
+    <span class="chip"><b>live</b> eigensolver in JS</span>
+    <span class="chip"><b>audible</b> — you can hear the modes</span>
+    <span class="chip">companion to the <b>technical overview</b></span>
+  </div>
+</div></header>
+<section id="idea"><div class="wrap">
+  <h2><span class="n">00</span>The big idea, in one page</h2>
+  <p class="lede">Hit a wine glass and you hear a clear note. Hit a wooden block and you hear a
+  dull thud. Same physics, same equations &mdash; the difference is entirely in the <em>shape</em>
+  and the <em>material</em>. Modal2D is a machine for turning shape + material into sound.</p>
+
+  <p>Picture the object as a mesh of tiny masses connected by springs. Push one and everything
+  wobbles in a complicated, messy way. But hidden inside that mess is a small number of
+  <strong>special motions</strong> &mdash; patterns where every point moves in step, all reaching
+  their extremes at the same instant, and the shape of the pattern never changes. It just
+  breathes in and out, faster or slower.</p>
+
+  <p>Those are the <strong>modes</strong>. Each one behaves like a single simple pendulum: one
+  frequency, one rate of dying away. Everything else the object can do is just a <em>mixture</em>
+  of them.</p>
+
+  <div class="eq">any motion  =  a1 &middot; (mode 1)  +  a2 &middot; (mode 2)  +  a3 &middot; (mode 3)  +  ...
+    <span class="c">Finding the modes is the hard part, and you only do it once per shape. After
+    that, simulating the object is just adding up decaying sine waves.</span></div>
+  <button class="lm" data-k="superpose">learn more</button>
+
+  <p>That last sentence is why this can run in real time. The expensive step &mdash; untangling
+  the mesh into its modes &mdash; happens once, when you change the shape. Producing 44,100 audio
+  samples every second afterwards is just arithmetic on a few dozen numbers.</p>
+
+  <div class="grid2">
+    <div class="card"><h4>Why a note has a pitch</h4><p>The lowest mode usually dominates what you
+      hear, and its frequency is the pitch. Stiffer or lighter means faster, which means higher.</p></div>
+    <div class="card"><h4>Why timbre changes as it rings</h4><p>High modes lose energy faster. A
+      strike starts bright and complex, then mellows toward the fundamental.</p></div>
+    <div class="card"><h4>Why <em>where</em> you hit matters</h4><p>A mode with a still point
+      exactly where you hit it cannot be excited at all. Hit elsewhere and you get a different mix.</p></div>
+    <div class="card"><h4>Why shape controls everything</h4><p>The modes come from the geometry.
+      Change the outline and every frequency moves &mdash; which is exactly what the tuner exploits.</p></div>
+  </div>
+
+  <div class="note"><b>The whole pipeline:</b> shape &rarr; chop into triangles &rarr; build two
+  big matrices for stiffness and mass &rarr; extract the modes &rarr; work out how hard your
+  strike excites each one &rarr; add up decaying sines &rarr; that is the sound. The rest of this
+  page is those steps, one at a time, each with a demo you can poke.</div>
+</div></section>
+
+<section id="mesh"><div class="wrap">
+  <h2><span class="n">01</span>Chop the shape into triangles</h2>
+  <p class="lede">A computer cannot handle a smooth continuous shape directly. So we approximate
+  it: cover it with triangles, and only track what happens at the corners (the <em>nodes</em>).</p>
+
+  <p>Inside any one triangle we simply assume the material stretches <em>linearly</em> between its
+  three corners. That is crude for a single triangle &mdash; but with a few hundred of them the
+  approximation gets good, and it keeps all the maths simple enough to be fast.</p>
+  <button class="lm" data-k="mesh">learn more</button>
+
+  <p>Each node can move in x and y, so a mesh with 300 nodes has 600 numbers describing its state
+  &mdash; 600 <strong>degrees of freedom</strong>. That number is the size of the problem.</p>
+
+  <div class="demo">
+    <div class="hd"><span class="k">DEMO</span><h4>Meshing a shape</h4></div>
+    <div class="body">
+      <p class="exp">Drag the slider to change how finely the shape is chopped. More triangles
+      means more accuracy, but the eigen-step gets much more expensive &mdash; it grows roughly
+      with the cube of the node count &mdash; so there is always a tradeoff.</p>
+      <canvas class="ia" id="cvMesh" width="860" height="290"></canvas>
+      <div class="ctl">
+        <label>resolution <input type="range" id="mshRes" min="3" max="15" value="8"></label>
+        <span class="val" id="mshInfo">&mdash;</span>
+        <label><input type="checkbox" id="mshNodes" checked> show nodes</label>
+      </div>
+      <p class="hint">Move the mouse over the shape to single out one triangle &mdash; that one
+      element is the unit everything else is built from.</p>
+    </div>
+  </div>
+</div></section>
+
+<section id="matrices"><div class="wrap">
+  <h2><span class="n">02</span>Turn geometry into two matrices</h2>
+  <p class="lede">All the physics gets packed into two big grids of numbers:
+  <strong>K</strong>, how stiff the object is, and <strong>M</strong>, how heavy it is.</p>
+
+  <p>Take one triangle. If you know how its three corners moved, you know how much it got
+  stretched and sheared &mdash; and from the material stiffness you know how much energy that
+  costs. Write that relationship down and you get a small 6&times;6 table for that triangle: its
+  <em>element stiffness matrix</em>. Do the same for its weight and you get its mass matrix.</p>
+
+  <p>Then you <strong>assemble</strong>: every triangle adds its small table into the big one, at
+  the rows and columns belonging to its own corners. Nodes shared by several triangles collect
+  contributions from all of them &mdash; that is how separate pieces become one connected object.</p>
+
+  <div class="eq">K &middot; (how far it moved)  =  (force needed)
+    <span class="c">K is mostly zeros: a node is only directly connected to its immediate
+    neighbours. That sparsity is what keeps everything tractable.</span></div>
+  <button class="lm" data-k="stiffness">learn more</button>
+
+  <div class="demo">
+    <div class="hd"><span class="k">DEMO</span><h4>Assembly: small tables into one big one</h4></div>
+    <div class="body">
+      <p class="exp">Left: a small mesh. Right: the global stiffness matrix it builds. Move over
+      an element on the left and watch exactly which entries of K it contributes to &mdash; the
+      block pattern is just "these corners are connected to each other".</p>
+      <div class="row">
+        <canvas class="ia" id="cvAsmMesh" width="335" height="290"></canvas>
+        <canvas id="cvAsmMat" width="335" height="290"></canvas>
+      </div>
+      <p class="hint">Brighter means larger. K is symmetric, and dense only near the diagonal:
+      neighbours in the mesh end up near each other in the matrix.</p>
+    </div>
+  </div>
+</div></section>
+
+<section id="eigen"><div class="wrap">
+  <h2><span class="n">03</span>Find the modes &mdash; the one expensive step</h2>
+  <p class="lede">This is the heart of it. We are looking for motions that keep their shape: push
+  the object into that pattern, and the restoring forces point <em>exactly back along the same
+  pattern</em>, so it oscillates instead of turning into something else.</p>
+
+  <div class="eq">K &middot; phi  =  omega&sup2; &middot; M &middot; phi
+    <span class="c">Read it as: "stiffness acting on this pattern gives back the same pattern,
+    scaled." phi is the mode shape, omega its frequency. Every solution is one mode.</span></div>
+  <button class="lm" data-k="eigen">learn more</button>
+
+  <p>A mesh with 600 degrees of freedom has 600 solutions &mdash; but we only want the lowest few
+  dozen. Anything above about 20 kHz is inaudible, and the low modes carry the character of the
+  sound, so the solver hunts for the smallest frequencies and stops.</p>
+
+  <p>The output is the object's complete acoustic fingerprint: a list of frequencies, and for each
+  one a picture of how the object moves at that frequency. From here on the mesh and the matrices
+  are no longer needed.</p>
+
+  <div class="demo">
+    <div class="hd"><span class="k">LIVE</span><h4>A real eigensolver, running right here</h4></div>
+    <div class="body">
+      <p class="exp">This is not an animation of a solve &mdash; it is an actual symmetric
+      eigensolver (Jacobi rotations) running in your browser, on a string chopped into segments.
+      Press solve and it finds the modes from nothing but the stiffness and mass matrices.</p>
+      <canvas id="cvEig" width="860" height="200"></canvas>
+      <div class="ctl">
+        <button class="b" id="eigGo">Solve for modes</button>
+        <label>segments <input type="range" id="eigN" min="6" max="36" value="20"></label>
+        <span class="val" id="eigInfo">press solve</span>
+      </div>
+      <div class="modegal" id="eigGal"></div>
+      <p class="hint">Click any mode to animate it. Mode <i>n</i> has <i>n</i>&minus;1 still points
+      in the middle &mdash; higher modes subdivide the string more finely, and vibrate faster.</p>
+    </div>
+  </div>
+
+  <div class="note"><b>Why this shape of answer is so useful:</b> in ordinary coordinates every
+  node is coupled to its neighbours, so you would have to solve hundreds of tangled equations at
+  every instant. In mode coordinates the tangle vanishes &mdash; each mode is independent of all
+  the others. Hundreds of coupled equations become a few dozen separate, trivial ones.</div>
+</div></section>
+<section id="strike"><div class="wrap">
+  <h2><span class="n">04</span>Hit it &mdash; which modes wake up?</h2>
+  <p class="lede">The modes are just <em>possibilities</em>. A strike decides how much of each one
+  actually happens.</p>
+
+  <p>The rule is beautifully simple: look up how much the mode shape moves at the exact point you
+  hit. That number <em>is</em> the amount of that mode you get.</p>
+
+  <div class="eq">amount of mode i  =  (how much mode i moves at the strike point)
+    <span class="c">Hit a place where a mode barely moves and you barely excite it. Hit one of its
+    still points and you get exactly zero of it.</span></div>
+  <button class="lm" data-k="strike">learn more</button>
+
+  <p>This one line explains an enormous amount of real instrument behaviour. Strike a drum dead
+  centre and it thumps, because you have picked the only spot that excites the symmetric modes and
+  misses all the lopsided ones. Move off-centre and it comes alive. Guitarists know this as
+  playing near the bridge for a bright sound and over the hole for a mellow one.</p>
+
+  <div class="demo">
+    <div class="hd"><span class="k">DEMO</span><h4>Strike position changes the recipe</h4></div>
+    <div class="body">
+      <p class="exp">Click anywhere on the string. The bars show how strongly each mode gets
+      excited. Try hitting the exact middle, then slightly off it, and watch whole modes switch
+      off and on.</p>
+      <canvas class="ia" id="cvStrike" width="860" height="270"></canvas>
+      <p class="hint">Hit the centre: every even-numbered mode collapses to nothing, because they
+      all have a still point right there. That is a real effect, not a quirk of the demo.</p>
+    </div>
+  </div>
+</div></section>
+
+<section id="sound"><div class="wrap">
+  <h2><span class="n">05</span>Add up the sines &mdash; and that is the sound</h2>
+  <p class="lede">Now the payoff. Every mode is a sine wave that fades. Add them up and you have
+  the pressure signal your speaker plays.</p>
+
+  <div class="eq">sound(t)  =  SUM over modes of   amount &middot; sin(omega &middot; t) &middot; e^(&minus;decay &middot; t)
+    <span class="c">Three numbers per mode: how much, how fast, how quickly it dies. That is the
+    entire synthesis engine.</span></div>
+  <button class="lm" data-k="synth">learn more</button>
+
+  <p>The decay is what makes it sound like a real object rather than an organ. Crucially, higher
+  modes decay <em>faster</em> &mdash; friction inside a material eats fast wiggles more greedily
+  than slow ones. So the sound starts bright and busy, and settles toward the pure fundamental.
+  That evolution is most of what your ear recognises as "wood" or "metal" or "glass".</p>
+
+  <div class="demo">
+    <div class="hd"><span class="k">AUDIO</span><h4>Hear the modes add up</h4></div>
+    <div class="body">
+      <p class="exp">The waveform below is built by summing the modes found by the live solver
+      above. Press play to actually hear it. Then pull the damping and brightness sliders around
+      &mdash; you are steering exactly the same three numbers per mode that the real engine uses.</p>
+      <canvas id="cvSound" width="860" height="180"></canvas>
+      <div class="ctl">
+        <button class="b" id="sndPlay">Play</button>
+        <label>pitch <input type="range" id="sndF0" min="80" max="600" value="220"></label>
+        <label>damping <input type="range" id="sndZ" min="1" max="60" value="12"></label>
+        <label>high-mode decay <input type="range" id="sndSlope" min="0" max="100" value="45"></label>
+        <label>modes <input type="range" id="sndN" min="1" max="16" value="10"></label>
+        <span class="val" id="sndInfo">&mdash;</span>
+      </div>
+      <p class="hint">Turn "high-mode decay" to zero and it sounds like a synthesiser. Turn it up
+      and it becomes a struck object. Same modes, only the decay rates changed.</p>
+    </div>
+  </div>
+</div></section>
+
+<section id="twod"><div class="wrap">
+  <h2><span class="n">06</span>In two dimensions: drum modes and Chladni figures</h2>
+  <p class="lede">Everything so far was a string, so the modes were easy to picture. On a real 2D
+  plate the same maths produces the famous patterns.</p>
+
+  <p>A 2D mode has still <em>lines</em> instead of still points. Sprinkle sand on a vibrating
+  plate and it bounces away from the moving areas and piles up along those lines &mdash; the sand
+  draws the mode for you. These are <strong>Chladni figures</strong>, and people have been
+  producing them since the 1780s.</p>
+
+  <p>One subtlety the app takes seriously: a real driven plate does <em>not</em> vibrate in a
+  single mode. Drive it at some frequency and every mode responds a bit, most strongly the ones
+  whose own frequency is nearby. What the sand actually draws is the still lines of that
+  <em>mixture</em>. That is why sweeping the driving frequency makes the pattern reorganise itself
+  so dramatically.</p>
+  <button class="lm" data-k="chladni">learn more</button>
+
+  <div class="demo">
+    <div class="hd"><span class="k">DEMO</span><h4>Plate modes, and the sand that finds them</h4></div>
+    <div class="body">
+      <p class="exp">Pick a plate shape. The first two have textbook formulas; the rest have none at all, so the page solves them numerically with the very eigensolver from section 3. Left: the mode shapes (red and blue are moving
+      in opposite directions; the pale boundaries between them are the still lines). Right: what
+      sand would do when the plate is driven at the frequency you choose.</p>
+      <div class="row">
+        <canvas id="cv2D" width="560" height="400"></canvas>
+        <canvas id="cvChl" width="560" height="400"></canvas>
+      </div>
+      <div class="ctl">
+        <div class="seg" id="shpSeg"></div>
+        <label>drive frequency <input type="range" id="chlF" min="0" max="1000" value="180"></label>
+        <span class="val" id="chlInfo">&mdash;</span>
+        <button class="b alt" id="chlSand">reshake sand</button>
+      </div>
+      <p class="hint">The rectangle and disc have textbook formulas (sines, and Bessel patterns of rings and diameters). The triangle, hexagon and ring have none &mdash; watch the label: those are discretised and handed to the same eigensolver from section 3, which is exactly what the real engine does for every shape. Note the disc's frequencies, and their
+      frequencies are <em>not</em> a harmonic series &mdash; which is exactly why a drum
+      sounds like a thud where a string sounds like a note. Park the drive on a mode
+      frequency and the sand snaps to it. Put it between two and you get a genuine hybrid that matches neither.</p>
+    </div>
+  </div>
+</div></section>
+
+<section id="radiate"><div class="wrap">
+  <h2><span class="n">07</span>Getting the sound out into the room</h2>
+  <p class="lede">A vibrating surface pushes air. Every little patch of the surface sends out its
+  own ripple, and those ripples add up &mdash; reinforcing in some directions, cancelling in others.</p>
+
+  <p>That is why real instruments are directional. Two patches half a wavelength apart along your
+  line of sight arrive exactly out of step and cancel, so you hear a dip. Move around the
+  instrument and the balance changes. High notes, with short wavelengths compared to the body,
+  beam much more sharply than low ones.</p>
+  <button class="lm" data-k="radiate">learn more</button>
+
+  <div class="demo">
+    <div class="hd"><span class="k">DEMO</span><h4>Where does the sound go?</h4></div>
+    <div class="body">
+      <p class="exp">A vibrating object in the middle, and the polar plot of how loud it is in
+      each direction. Raise the frequency and watch a smooth, even bubble break up into narrow
+      beams and nulls.</p>
+      <canvas id="cvDir" width="860" height="290"></canvas>
+      <div class="ctl">
+        <label>frequency <input type="range" id="dirF" min="1" max="100" value="18"></label>
+        <label>object size <input type="range" id="dirR" min="20" max="90" value="52"></label>
+        <span class="val" id="dirInfo">&mdash;</span>
+      </div>
+      <p class="hint">At long wavelengths the object is basically a point source and radiates
+      evenly. Once it is several wavelengths across, interference carves it into lobes.</p>
+    </div>
+  </div>
+</div></section>
+
+<section id="tune"><div class="wrap">
+  <h2><span class="n">08</span>Running it backwards: tuning a shape to a note</h2>
+  <p class="lede">Everything so far went forwards: shape in, sound out. The tuner runs the loop in
+  reverse &mdash; note in, shape out.</p>
+
+  <p>There is no formula for "what shape rings at 440 Hz". So the app searches: build a shape,
+  solve it, listen to what came out, adjust, repeat. Make it wider, the pitch drops; narrower, it
+  rises. Squeeze until it lands on the note.</p>
+
+  <p>The catch &mdash; and this is a genuinely subtle one &mdash; is knowing which mode you are
+  chasing. As the shape changes, mode frequencies slide around and sometimes nearly collide. When
+  two of them approach, they refuse to cross: they veer apart and <strong>swap character</strong>.
+  A search that blindly follows "the third one in the list" will, at that moment, silently hop
+  onto a completely different physical mode and start chasing the wrong thing.</p>
+  <button class="lm" data-k="avoided">learn more</button>
+
+  <div class="note"><b>This is not hypothetical.</b> It is exactly the failure that made the
+  tuner grind forever earlier in this project. The fix is to track modes by <em>continuity</em>
+  &mdash; follow the one closest to where the mode was last time &mdash; rather than by index.
+  The app has a Mode Sweep view that draws these near-collisions so you can see them happen.</div>
+
+  <div class="demo">
+    <div class="hd"><span class="k">DEMO</span><h4>Avoided crossings: why index-chasing fails</h4></div>
+    <div class="body">
+      <p class="exp">Each curve is one mode frequency as the shape is stretched. Watch the circled
+      spots: the curves rush together, then bend away without ever touching, trading roles as they
+      go.</p>
+      <canvas id="cvCross" width="860" height="300"></canvas>
+      <p class="hint">Follow one curve with your eye through a circle. What it <em>is</em> before
+      and after is not the same thing &mdash; that swap is what breaks naive tuning.</p>
+    </div>
+  </div>
+</div></section>
+
+<section id="showcase"><div class="wrap">
+  <h2><span class="n">09</span>All the modules, side by side</h2>
+  <p class="lede">The whole engine on one screen, each stage running in isolation and live. This
+  is the same pipeline the app runs, just small enough to watch.</p>
+  <div class="demo">
+    <div class="hd"><span class="k">ALL</span><h4>The pipeline, running</h4>
+      <button class="b alt" id="scRun">restart</button></div>
+    <div class="body">
+      <canvas id="cvShow" width="1100" height="470"></canvas>
+      <p class="hint">Left to right, top to bottom: the shape is meshed; its matrices are built;
+      the eigensolver extracts modes; a strike picks a recipe; the modes are summed into a
+      waveform; the sound radiates. Every panel is computed, not drawn by hand.</p>
+    </div>
+  </div>
+</div></section>
+
+<footer><div class="wrap">
+  Modal2D &middot; intuitive companion to the <a href="modal2d-technical-overview.html" style="color:#4fd6e8">technical overview</a> &middot; every demo on this page computes live in your browser.<br>Ready for more? <a href="modal2d-deep-dive.html" style="color:#b98cff">Going deeper: the air, the cavity, and higher dimensions &rarr;</a> Deliberately simplified: real meshes are unstructured, real
+  solvers are cleverer, and the audio engine runs on the GPU.
+</div></footer>
+<div id="lmBack"></div>
+<div id="lmPanel" role="dialog" aria-modal="true"><button id="lmClose" aria-label="close">&times;</button><div class="sub" id="lmSub"></div><h3 id="lmTitle"></h3><div id="lmBody"></div></div>
+<script>
+(function(){
+var P = {"superpose": ["Why you are allowed to just add modes", "superposition and orthogonality", "<p>Adding things up feels too easy to be legal. It is legal because the equations of small vibration are <span class='kk'>linear</span>: double the push and you exactly double the response, and two pushes applied together give precisely the sum of what each would do alone. Nothing interferes with anything else.</p><p>The modes are also <span class='kk'>orthogonal</span> &mdash; each one is, in the right sense, at right angles to all the others. So they form a coordinate system for motion, the same way x, y and z do for position. Any possible motion of the object has exactly one recipe in terms of modes, and you can find each ingredient without knowing the others.</p><p>This is also where the model has an edge. Hit something hard enough and it stops being linear: a drumhead stretches, a cymbal splashes energy between modes, and the neat sum breaks down. Real instruments live partly in that regime, which is why heavily struck cymbals are notoriously hard to synthesise this way.</p>"], "stiffness": ["What is actually inside K", "the stiffness matrix, entry by entry", "<p>Every entry has a plain meaning. The number in row <i>i</i>, column <i>j</i> answers: <span class='kk'>if I move degree of freedom j by one unit and hold everything else still, what force appears at degree of freedom i?</span> That is all. K is just that question answered for every pair.</p><p>Two properties fall out. It is <span class='kk'>symmetric</span> &mdash; pushing here and measuring there gives the same as pushing there and measuring here, which is a consequence of energy being conserved. And it is <span class='kk'>sparse</span>: unless two degrees of freedom share a triangle, moving one exerts no direct force on the other, so the entry is exactly zero.</p><div class='eq'>energy stored  =  1/2 &times; (displacement) &middot; K &middot; (displacement)<span class='c'>K can never return negative energy, which is why every mode frequency comes out real rather than imaginary.</span></div><p>One curiosity: if the object is floating free, you can translate or rotate the whole thing without storing any energy at all. Those motions give zero frequency &mdash; the <span class='kk'>rigid-body modes</span> &mdash; and the solver throws them away.</p>"], "eigen": ["Where the eigen-equation comes from", "guessing a solution, and being right", "<p>Start from the actual law of motion &mdash; mass times acceleration equals restoring force: <code>M &middot; (acceleration) + K &middot; (displacement) = 0</code>. Now make a guess: suppose the object moves in a fixed pattern <i>phi</i> whose size just oscillates, <code>u(t) = phi &middot; cos(omega t)</code>.</p><p>Differentiating twice turns the acceleration into <code>-omega&sup2;</code> times the same thing. Substitute, cancel the common <code>cos</code>, and the time dependence vanishes entirely:</p><div class='eq'>K &middot; phi  =  omega&sup2; &middot; M &middot; phi<span class='c'>A guess about time has become a pure question about shape.</span></div><p>That is the whole trick. We assumed the answer had a special form, and the assumption collapsed a problem that evolves in time into a static one that only involves geometry. The patterns for which the guess actually works are the modes; everything else is a mixture of them.</p><p>The <code>M</code> on the right is what makes this a <span class='kk'>generalized</span> eigenproblem rather than a textbook one. It matters because heavy regions of the object should resist acceleration more, and the mass matrix is what encodes that.</p>"], "strike": ["Why the recipe is just a lookup", "projecting a force onto the modes", "<p>In general, working out how much of each mode a force excites means projecting the force onto that mode &mdash; multiplying them together point by point and summing. For a general force spread over the whole object that is a real calculation.</p><p>But a strike is concentrated at a single point. Almost every term in that sum is multiplied by zero, and only the struck location survives. The projection collapses to <span class='kk'>reading the mode shape at one place</span>.</p><div class='eq'>amount of mode i  =  (mode i's motion at the strike point) &times; (how hard)<span class='c'>The whole excitation model is one array lookup per mode.</span></div><p>It also explains a fact players know by feel: a mode with a still point under your finger cannot be woken. Harmonics on a guitar string are exactly this &mdash; touching the string at its midpoint kills every mode that moves there, leaving only the ones that happen to have a node in that spot, and the pitch jumps an octave.</p>"], "synth": ["Where the decaying sine comes from", "one mode is one damped oscillator", "<p>Once the problem is written in mode coordinates, each mode obeys the simplest equation in physics &mdash; a mass on a spring with a bit of friction. That equation has a known solution, and it is a sine wave inside a shrinking envelope.</p><div class='eq'>q(t)  =  A &middot; e^(&minus;zeta &middot; omega &middot; t) &middot; sin(omega_d &middot; t),&nbsp;&nbsp;omega_d = omega &middot; sqrt(1 &minus; zeta&sup2;)<span class='c'>Damping does two things: it shrinks the amplitude, and it very slightly lowers the pitch.</span></div><p>The damping number <span class='kk'>zeta</span> is usually tiny &mdash; a few thousandths &mdash; so the pitch shift is inaudible, but the decay is everything. A related quantity, <span class='kk'>Q</span>, is roughly how many oscillations happen before the sound dies. A dull thud has a Q of a few; a struck wine glass has a Q in the thousands.</p><p>Crucially zeta usually <span class='kk'>grows with frequency</span>, because internal friction punishes fast wiggling more than slow. That single fact is what makes a synthesised note sound like a struck object instead of an organ pipe.</p>"], "mesh": ["What happens inside one triangle", "shape functions and why triangles", "<p>We only store the displacement at the corners, so we need a rule for everywhere else. The rule is the simplest one available: <span class='kk'>blend the three corner values linearly</span>. A point halfway between two corners moves by the average of their motions.</p><p>Triangles are chosen because this blending is unambiguous for exactly three points &mdash; three points define a plane, and there is precisely one linear function through them. Four corners would leave a choice to make.</p><p>There is a price. If displacement varies linearly, then stretch &mdash; its rate of change &mdash; is <span class='kk'>constant within each triangle</span>. A single element cannot represent a region that is being stretched more at one end than the other; it can only report an average. This is the famous <i>constant strain triangle</i>, and it is why fine detail needs many small elements rather than a few clever ones.</p><p>The compensation is that everything stays cheap and robust. Halve the element size and the error falls roughly fourfold, so accuracy is only ever a question of patience.</p>"], "chladni": ["Why the pattern reorganises as you sweep", "resonance and the response curve", "<p>Drive an object at frequency <i>omega</i> and every mode responds &mdash; but by wildly different amounts. How much each one joins in is governed by how far its own frequency is from the drive.</p><div class='eq'>response of mode i  ~  1 / ( (omega_i&sup2; &minus; omega&sup2;)  +  i &middot; 2 &middot; zeta &middot; omega_i &middot; omega )<span class='c'>Far from resonance the first term dominates and the response is small. As omega approaches omega_i it collapses toward zero, and only damping stops the response exploding.</span></div><p>So sitting exactly on a mode frequency makes that one mode enormously louder than all the others, and the plate is effectively vibrating in that single mode &mdash; the sand draws it cleanly. Sit between two, and two modes contribute comparably; the sand draws the still lines of the <span class='kk'>blend</span>, which can look like neither parent.</p><p>There is also a sign change hidden in there. Below resonance a mode moves in step with the drive; above it, it moves in opposition. Sweeping past a resonance flips that mode's contribution, which is another reason patterns rearrange so abruptly.</p>"], "radiate": ["From a wall of ripples to a beam", "the far field and why pitch changes directivity", "<p>Close to the object the sound field is a complicated mess of overlapping ripples. Far away it simplifies dramatically: every source is effectively the same distance from you, and the only thing that still matters is the <span class='kk'>small extra distance</span> caused by sources sitting at different points along your line of sight.</p><p>That extra distance turns into a phase shift that varies smoothly with direction, and adding all the sources up gives a pattern of reinforcement and cancellation &mdash; lobes and nulls. The controlling quantity is how big the object is compared to the wavelength.</p><div class='eq'>object much smaller than a wavelength  &rarr;  radiates evenly<br>object several wavelengths across  &rarr;  narrow beams and deep nulls<span class='c'>Same object, different note, completely different directional behaviour.</span></div><p>This is why a bass note seems to fill a room while a high note feels like it is pointing at you, and why moving around a violin changes its tone far more in the treble than the bass. It is also why loudspeaker designers fight endlessly with driver size.</p>"], "avoided": ["Why two frequencies refuse to collide", "level repulsion in two lines of algebra", "<p>Take two modes whose frequencies are heading toward each other as you change the shape, and let them interact even slightly &mdash; call the interaction <i>g</i>. The honest answer for the pair is no longer the two original values but the solution of a small coupled problem, and it has a closed form:</p><div class='eq'>result  =  average  &plusmn;  sqrt( (half the difference)&sup2;  +  g&sup2; )<span class='c'>At the moment the two would have crossed, the difference is zero &mdash; and the answer is average &plusmn; g. They stay 2g apart, forever.</span></div><p>They cannot touch. The gap has a floor set entirely by how strongly they interact, and no amount of tuning closes it. As you pass through, the two solutions smoothly <span class='kk'>trade identities</span>: what was the wood-dominated mode becomes the air-dominated one, and vice versa, without either curve ever jumping.</p><p>The same algebra governs coupled pendulums, quantum energy levels near a degeneracy, and the guitar body resonance splitting against its air cavity. It is one of those small results that keeps reappearing everywhere.</p>"]};
+var back=document.getElementById("lmBack"), pan=document.getElementById("lmPanel");
+var ti=document.getElementById("lmTitle"), su=document.getElementById("lmSub"), bo=document.getElementById("lmBody");
+function open(k){ var d=P[k]; if(!d) return;
+  ti.textContent=d[0]; su.textContent=d[1]; bo.innerHTML=d[2];
+  back.classList.add("on"); pan.classList.add("on"); pan.scrollTop=0; }
+function close(){ back.classList.remove("on"); pan.classList.remove("on"); }
+document.addEventListener("click", function(e){
+  var b=e.target.closest ? e.target.closest("button.lm") : null;
+  if(b){ open(b.getAttribute("data-k")); }
+});
+document.getElementById("lmClose").addEventListener("click", close);
+back.addEventListener("click", close);
+document.addEventListener("keydown", function(e){ if(e.key==="Escape") close(); });
+})();
+</script>
+
+<script>
+(function(){
+"use strict";
+var $ = function(id){ return document.getElementById(id); };
+var C = { ac:'#34d3c4', ac2:'#4fd6e8', warm:'#f0a35e', rose:'#ff6a55',
+          blue:'#5aa9ff', dim:'#8a99ab', faint:'#5e6e80', hd:'#e8eef5',
+          bg:'#0b0f14', bd:'#243140' };
+
+/* ---------- a real symmetric eigensolver (cyclic Jacobi rotations) ----------
+   This is the genuine article, not a lookup: given a symmetric matrix it
+   rotates away the off-diagonal entries until only the diagonal is left. The
+   diagonal then holds the eigenvalues and the accumulated rotations hold the
+   eigenvectors -- exactly the job the engine's solver does, just smaller.   */
+function jacobiEigen(Ain, n, sweeps){
+  var A = Float64Array.from(Ain), V = new Float64Array(n*n), i, k, p, q;
+  for(i=0;i<n;i++) V[i*n+i] = 1;
+  for(var s=0; s<(sweeps||40); s++){
+    var off = 0;
+    for(p=0;p<n;p++) for(q=p+1;q<n;q++) off += A[p*n+q]*A[p*n+q];
+    if(off < 1e-20) break;
+    for(p=0;p<n;p++) for(q=p+1;q<n;q++){
+      var apq = A[p*n+q];
+      if(Math.abs(apq) < 1e-15) continue;
+      var theta = (A[q*n+q]-A[p*n+p])/(2*apq);
+      var sgn = theta >= 0 ? 1 : -1;
+      var t = sgn/(Math.abs(theta)+Math.sqrt(theta*theta+1));
+      var c = 1/Math.sqrt(t*t+1), sn = t*c;
+      for(k=0;k<n;k++){ var akp=A[k*n+p], akq=A[k*n+q];
+        A[k*n+p]=c*akp-sn*akq; A[k*n+q]=sn*akp+c*akq; }
+      for(k=0;k<n;k++){ var apk=A[p*n+k], aqk=A[q*n+k];
+        A[p*n+k]=c*apk-sn*aqk; A[q*n+k]=sn*apk+c*aqk; }
+      for(k=0;k<n;k++){ var vkp=V[k*n+p], vkq=V[k*n+q];
+        V[k*n+p]=c*vkp-sn*vkq; V[k*n+q]=sn*vkp+c*vkq; }
+    }
+  }
+  var idx = [];
+  for(i=0;i<n;i++) idx.push({v:A[i*n+i], i:i});
+  idx.sort(function(a,b){ return a.v-b.v; });
+  return { values: idx.map(function(x){ return x.v; }),
+           vectors: idx.map(function(x){
+             var col = new Float64Array(n);
+             for(var r=0;r<n;r++) col[r] = V[r*n+x.i];
+             var mx = 0; for(r=0;r<n;r++) mx = Math.max(mx, Math.abs(col[r]));
+             if(mx>0) for(r=0;r<n;r++) col[r] /= mx;
+             return col; }) };
+}
+
+/* A string chopped into N moving points: stiffness is the classic
+   (-1, 2, -1) neighbour pattern, mass is uniform. Solved for real. */
+var stringCache = {};
+function solveString(N){
+  if(stringCache[N]) return stringCache[N];
+  var A = new Float64Array(N*N), i;
+  for(i=0;i<N;i++){ A[i*N+i] = 2;
+    if(i>0) A[i*N+i-1] = -1;
+    if(i<N-1) A[i*N+i+1] = -1; }
+  var e = jacobiEigen(A, N, 60);
+  var om = e.values.map(function(v){ return Math.sqrt(Math.max(v,0)); });
+  var r = { N:N, omega:om, phi:e.vectors };
+  stringCache[N] = r;
+  return r;
+}
+
+
+
+/* ---- frame-time meter (click the "perf" badge, or press P) ----
+   Every animation loop is routed through RAF() below, so wrapping the call
+   there gives a per-demo cost breakdown for free: instead of guessing which
+   canvas is expensive, the meter names it. Costs nothing while switched off
+   (one boolean test per frame). */
+var PERF = (function(){
+  var on=false, per={}, times=[], frameNo=0, lastUI=0;
+  var btn, box, list, spark, sctx;
+  function css(el,s){ for(var k in s) el.style[k]=s[k]; }
+  function build(){
+    btn=document.createElement('button');
+    btn.textContent='perf';
+    css(btn,{position:'fixed',left:'14px',bottom:'14px',zIndex:'300',
+      font:'11px JetBrains Mono,ui-monospace,monospace',background:'#1c2530',
+      color:'#8a99ab',border:'1px solid #243140',padding:'5px 10px',
+      borderRadius:'7px',cursor:'pointer',opacity:'0.65'});
+    btn.onmouseenter=function(){ btn.style.opacity='1'; };
+    btn.onmouseleave=function(){ btn.style.opacity=on?'1':'0.65'; };
+    btn.onclick=toggle;
+    box=document.createElement('div');
+    css(box,{position:'fixed',left:'14px',bottom:'50px',zIndex:'300',display:'none',
+      background:'rgba(11,15,20,0.95)',border:'1px solid #243140',borderRadius:'9px',
+      padding:'10px 12px',font:'11.5px JetBrains Mono,ui-monospace,monospace',
+      color:'#c9d4e0',minWidth:'216px',boxShadow:'0 10px 30px rgba(0,0,0,0.55)'});
+    list=document.createElement('div'); box.appendChild(list);
+    spark=document.createElement('canvas'); spark.width=204; spark.height=36;
+    css(spark,{marginTop:'8px',borderRadius:'4px',background:'#0b0f14',display:'block'});
+    box.appendChild(spark); sctx=spark.getContext('2d');
+    document.body.appendChild(btn); document.body.appendChild(box);
+  }
+  function toggle(){
+    on=!on;
+    box.style.display=on?'block':'none';
+    btn.style.color=on?'#4fd6e8':'#8a99ab';
+    btn.style.opacity=on?'1':'0.65';
+    per={}; times=[]; frameNo=0;
+    if(on) tick();
+  }
+  function tick(){
+    if(!on) return;
+    var t=(window.performance&&performance.now)?performance.now():Date.now();
+    times.push(t); if(times.length>150) times.shift();
+    frameNo++;
+    if(t-lastUI>250){ lastUI=t; render(); }
+    requestAnimationFrame(tick);
+  }
+  function render(){
+    var n=times.length, fps=0, total=0, i, k;
+    if(n>2) fps=1000*(n-1)/(times[n-1]-times[0]);
+    var rows=[];
+    for(k in per){ if(frameNo-per[k].seen<14) rows.push([k,per[k].ms]); }
+    rows.sort(function(a,b){ return b[1]-a[1]; });
+    var h='<div style="color:#34d3c4;font-weight:600;margin-bottom:6px">'+
+          fps.toFixed(0)+' fps  <span style="color:#5e6e80">(target 60)</span></div>';
+    if(!rows.length){
+      h+='<div style="color:#5e6e80">no demo on screen</div>';
+    } else {
+      for(i=0;i<rows.length;i++){
+        var ms=rows[i][1]; total+=ms;
+        var col = ms>4 ? '#f0a35e' : (ms>1.5 ? '#e8eef5' : '#4fd6e8');
+        h+='<div style="display:flex;justify-content:space-between;gap:16px">'+
+           '<span style="color:#8a99ab">'+rows[i][0]+'</span>'+
+           '<span style="color:'+col+'">'+ms.toFixed(2)+' ms</span></div>';
+      }
+      h+='<div style="display:flex;justify-content:space-between;gap:16px;'+
+         'margin-top:5px;border-top:1px solid #243140;padding-top:4px">'+
+         '<span style="color:#5e6e80">js total</span><span style="color:'+
+         (total>8?'#f0a35e':'#8a99ab')+'">'+total.toFixed(2)+' ms / 16.7</span></div>';
+    }
+    list.innerHTML=h;
+    sctx.fillStyle='#0b0f14'; sctx.fillRect(0,0,204,36);
+    sctx.strokeStyle='rgba(240,163,94,0.55)';
+    var y60=36-16.7*1.05;
+    sctx.beginPath(); sctx.moveTo(0,y60); sctx.lineTo(204,y60); sctx.stroke();
+    sctx.strokeStyle='#34d3c4'; sctx.lineWidth=1; sctx.beginPath();
+    for(var j=1;j<n;j++){
+      var dt=times[j]-times[j-1];
+      var px=204*(j-1)/((n-2)||1), py=36-Math.min(35,dt*1.05);
+      if(j===1) sctx.moveTo(px,py); else sctx.lineTo(px,py);
+    }
+    sctx.stroke();
+  }
+  document.addEventListener('keydown',function(e){
+    var tn=(e.target&&e.target.tagName)||'';
+    if((e.key==='p'||e.key==='P') && !/INPUT|TEXTAREA|SELECT/.test(tn)) toggle();
+  });
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',build);
+  else build();
+  return { run:function(cv,fn){
+    if(!on){ fn(); return; }
+    var t0=performance.now(); fn(); var d=performance.now()-t0;
+    var id=(cv&&cv.id)||'canvas';
+    var e=per[id]||(per[id]={ms:0,seen:0});
+    e.ms=e.ms*0.82+d*0.18; e.seen=frameNo;
+  }};
+})();
+
+/* ---- only animate what is actually on screen ----
+   Every demo used to run its animation loop forever, so scrolling past one
+   left it burning frames in the background. This gates each loop on an
+   IntersectionObserver: off-screen demos re-arm cheaply and do no work. */
+var _vis = (window.WeakMap ? new WeakMap() : null);
+var _io = (window.IntersectionObserver && _vis) ? new IntersectionObserver(function(es){
+  for(var i=0;i<es.length;i++) _vis.set(es[i].target, es[i].isIntersecting);
+}, {rootMargin:'140px'}) : null;
+function RAF(cv, fn){
+  if(_io && _vis && !_vis.has(cv)){ _vis.set(cv, true); _io.observe(cv); }
+  requestAnimationFrame(function(){
+    if(!_io || !_vis || _vis.get(cv) !== false) PERF.run(cv, fn);
+    else RAF(cv, fn);
+  });
+}
+
+function clear(ctx,w,h){ ctx.fillStyle = C.bg; ctx.fillRect(0,0,w,h); }
+function txt(ctx,s,x,y,col,size,align){
+  ctx.fillStyle = col||C.dim; ctx.font = (size||11)+'px Inter,sans-serif';
+  ctx.textAlign = align||'left'; ctx.fillText(s,x,y); ctx.textAlign='left';
+}
+/* Fit a box of a given aspect ratio inside a region, centred.
+   Every domain we draw (plate, mesh, field) lives on a SQUARE, so without this
+   a square plate renders as a wide rectangle and a disc as an ellipse. One
+   helper, used everywhere, instead of each demo inventing its own layout. */
+function fitBox(ox,oy,w,h,aspect){
+  aspect = aspect || 1;
+  var bw = w, bh = w/aspect;
+  if(bh > h){ bh = h; bw = h*aspect; }
+  return [ox+(w-bw)/2, oy+(h-bh)/2, bw, bh];
+}
+function diverge(v){ // -1..1 -> blue .. pale .. red
+  var t = Math.max(-1,Math.min(1,v));
+  if(t>0) return 'rgb('+Math.round(242-72*t)+','+Math.round(235-200*t)+','+Math.round(220-190*t)+')';
+  return 'rgb('+Math.round(242+ 216*t)+','+Math.round(235+140*t)+','+Math.round(220- 10*t)+')';
+}
+
+/* ================= 01 mesh ================= */
+(function(){
+  var cv = $('cvMesh'); if(!cv) return;
+  var ctx = cv.getContext('2d'), hover = -1, tris = [], nodes = [];
+  function inShape(x,y){ // a bell-ish blob in [-1,1]^2
+    var r = Math.sqrt(x*x+y*y*1.35);
+    var wob = 0.80 + 0.15*Math.cos(3*Math.atan2(y,x)) + 0.07*Math.cos(5*Math.atan2(y,x));
+    return r < wob;
+  }
+  function build(res){
+    nodes = []; tris = [];
+    var g = res, idx = {}, i, j;
+    for(j=-g;j<=g;j++) for(i=-g;i<=g;i++){
+      var x = i/g, y = j/g;
+      if(inShape(x,y)){ idx[i+','+j] = nodes.length; nodes.push([x,y]); }
+    }
+    for(j=-g;j<g;j++) for(i=-g;i<g;i++){
+      var a=idx[i+','+j], b=idx[(i+1)+','+j], c=idx[i+','+(j+1)], d=idx[(i+1)+','+(j+1)];
+      if(a!==undefined&&b!==undefined&&c!==undefined) tris.push([a,b,c]);
+      if(b!==undefined&&d!==undefined&&c!==undefined) tris.push([b,d,c]);
+    }
+  }
+  function P(p){ return [cv.width/2 + p[0]*115, cv.height/2 - p[1]*115]; }
+  function draw(){
+    clear(ctx,cv.width,cv.height);
+    for(var t=0;t<tris.length;t++){
+      var A=P(nodes[tris[t][0]]), B=P(nodes[tris[t][1]]), D=P(nodes[tris[t][2]]);
+      ctx.beginPath(); ctx.moveTo(A[0],A[1]); ctx.lineTo(B[0],B[1]); ctx.lineTo(D[0],D[1]); ctx.closePath();
+      ctx.fillStyle = (t===hover) ? 'rgba(240,163,94,.55)' : 'rgba(52,211,196,.10)';
+      ctx.fill();
+      ctx.strokeStyle = (t===hover) ? C.warm : 'rgba(90,169,255,.32)';
+      ctx.lineWidth = (t===hover)?2:1; ctx.stroke();
+    }
+    if($('mshNodes').checked){
+      ctx.fillStyle = C.ac2;
+      for(var i=0;i<nodes.length;i++){ var p=P(nodes[i]);
+        ctx.beginPath(); ctx.arc(p[0],p[1],1.7,0,6.284); ctx.fill(); }
+    }
+    if(hover>=0){
+      var h = tris[hover];
+      txt(ctx,'this one triangle: 3 corners x 2 directions = 6 numbers',
+          cv.width-14, 26, C.warm, 12.5,'right');
+      txt(ctx,'it contributes a 6x6 stiffness table',cv.width-14,44,C.dim,12,'right');
+      ctx.fillStyle = C.warm;
+      for(var k=0;k<3;k++){ var q=P(nodes[h[k]]);
+        ctx.beginPath(); ctx.arc(q[0],q[1],4,0,6.284); ctx.fill(); }
+    }
+    $('mshInfo').textContent = nodes.length+' nodes  ·  '+tris.length+
+      ' triangles  ·  '+(nodes.length*2)+' degrees of freedom';
+  }
+  cv.addEventListener('mousemove', function(ev){
+    var r = cv.getBoundingClientRect();
+    var mx = (ev.clientX-r.left)*cv.width/r.width, my = (ev.clientY-r.top)*cv.height/r.height;
+    hover = -1;
+    for(var t=0;t<tris.length;t++){
+      var A=P(nodes[tris[t][0]]), B=P(nodes[tris[t][1]]), D=P(nodes[tris[t][2]]);
+      var d=(B[1]-D[1])*(A[0]-D[0])+(D[0]-B[0])*(A[1]-D[1]); if(!d) continue;
+      var u=((B[1]-D[1])*(mx-D[0])+(D[0]-B[0])*(my-D[1]))/d;
+      var v=((D[1]-A[1])*(mx-D[0])+(A[0]-D[0])*(my-D[1]))/d;
+      if(u>=0&&v>=0&&u+v<=1){ hover=t; break; }
+    }
+    draw();
+  });
+  cv.addEventListener('mouseleave', function(){ hover=-1; draw(); });
+  $('mshRes').addEventListener('input', function(){ build(+$('mshRes').value); draw(); });
+  $('mshNodes').addEventListener('change', draw);
+  build(+$('mshRes').value); draw();
+})();
+
+/* ================= 02 assembly ================= */
+(function(){
+  var cvm = $('cvAsmMesh'), cva = $('cvAsmMat'); if(!cvm||!cva) return;
+  var cm = cvm.getContext('2d'), ca = cva.getContext('2d');
+  var G = 3, nodes = [], tris = [], hover = -1, i, j;
+  for(j=0;j<G;j++) for(i=0;i<G;i++) nodes.push([i/(G-1), j/(G-1)]);
+  for(j=0;j<G-1;j++) for(i=0;i<G-1;i++){
+    var a=j*G+i, b=j*G+i+1, c=(j+1)*G+i, d=(j+1)*G+i+1;
+    tris.push([a,b,c]); tris.push([b,d,c]);
+  }
+  var N = nodes.length*2, K = new Float64Array(N*N);
+  function assemble(){
+    K = new Float64Array(N*N);
+    for(var t=0;t<tris.length;t++){
+      var tr = tris[t];
+      for(var p=0;p<3;p++) for(var q=0;q<3;q++){
+        var w = (p===q)?2.0:-0.85;
+        for(var dd=0;dd<2;dd++){
+          var r = tr[p]*2+dd, c2 = tr[q]*2+dd;
+          K[r*N+c2] += w;
+        }
+      }
+    }
+  }
+  assemble();
+  var AB = fitBox(30, 26, cvm.width-60, cvm.height-58, 1);   // square domain
+  function Pm(p){ return [AB[0]+p[0]*AB[2], AB[1]+AB[3]-p[1]*AB[3]]; }
+  function drawMesh(){
+    clear(cm,cvm.width,cvm.height);
+    for(var t=0;t<tris.length;t++){
+      var A=Pm(nodes[tris[t][0]]),B=Pm(nodes[tris[t][1]]),D=Pm(nodes[tris[t][2]]);
+      cm.beginPath(); cm.moveTo(A[0],A[1]); cm.lineTo(B[0],B[1]); cm.lineTo(D[0],D[1]); cm.closePath();
+      cm.fillStyle = (t===hover)?'rgba(240,163,94,.5)':'rgba(52,211,196,.09)'; cm.fill();
+      cm.strokeStyle = (t===hover)?C.warm:'rgba(90,169,255,.35)'; cm.lineWidth=(t===hover)?2:1; cm.stroke();
+    }
+    for(var n=0;n<nodes.length;n++){ var p=Pm(nodes[n]);
+      cm.fillStyle = (hover>=0 && tris[hover].indexOf(n)>=0)?C.warm:C.ac2;
+      cm.beginPath(); cm.arc(p[0],p[1],4.5,0,6.284); cm.fill();
+      txt(cm,''+n,p[0]+7,p[1]-6,C.faint,10);
+    }
+    txt(cm,'mesh: '+nodes.length+' nodes',12,16,C.dim,12);
+  }
+  function drawMat(){
+    clear(ca,cva.width,cva.height);
+    var s = Math.min((cva.width-56)/N,(cva.height-56)/N), ox=42, oy=30, mx=0, r, c2;
+    for(r=0;r<N*N;r++) mx = Math.max(mx, Math.abs(K[r]));
+    for(r=0;r<N;r++) for(c2=0;c2<N;c2++){
+      var v = Math.abs(K[r*N+c2])/(mx||1);
+      if(v>0.001){
+        ca.fillStyle = 'rgba(79,214,232,'+(0.12+0.85*v)+')';
+        ca.fillRect(ox+c2*s, oy+r*s, s-0.6, s-0.6);
+      }
+    }
+    if(hover>=0){
+      var tr = tris[hover], dofs = [];
+      for(var p=0;p<3;p++){ dofs.push(tr[p]*2); dofs.push(tr[p]*2+1); }
+      ca.strokeStyle = C.warm; ca.lineWidth = 1.4;
+      for(var a=0;a<dofs.length;a++) for(var b=0;b<dofs.length;b++)
+        ca.strokeRect(ox+dofs[b]*s, oy+dofs[a]*s, s, s);
+      txt(ca,'this element touches these entries',ox,oy-10,C.warm,12);
+    } else {
+      txt(ca,'global stiffness K  ('+N+' x '+N+')',ox,oy-10,C.dim,12);
+    }
+    txt(ca,'dof',10,oy+N*s/2,C.faint,10);
+  }
+  cvm.addEventListener('mousemove', function(ev){
+    var r = cvm.getBoundingClientRect();
+    var mx=(ev.clientX-r.left)*cvm.width/r.width, my=(ev.clientY-r.top)*cvm.height/r.height;
+    hover=-1;
+    for(var t=0;t<tris.length;t++){
+      var A=Pm(nodes[tris[t][0]]),B=Pm(nodes[tris[t][1]]),D=Pm(nodes[tris[t][2]]);
+      var d=(B[1]-D[1])*(A[0]-D[0])+(D[0]-B[0])*(A[1]-D[1]); if(!d) continue;
+      var u=((B[1]-D[1])*(mx-D[0])+(D[0]-B[0])*(my-D[1]))/d;
+      var v=((D[1]-A[1])*(mx-D[0])+(A[0]-D[0])*(my-D[1]))/d;
+      if(u>=0&&v>=0&&u+v<=1){ hover=t; break; }
+    }
+    drawMesh(); drawMat();
+  });
+  cvm.addEventListener('mouseleave',function(){ hover=-1; drawMesh(); drawMat(); });
+  drawMesh(); drawMat();
+})();
+
+/* ================= 03 eigensolve ================= */
+var EIG = { sol:null, sel:0 };
+(function(){
+  var cv = $('cvEig'); if(!cv) return;
+  var ctx = cv.getContext('2d'), t0 = performance.now();
+  function gallery(){
+    var g = $('eigGal'); g.innerHTML = '';
+    if(!EIG.sol) return;
+    var show = Math.min(8, EIG.sol.N);
+    for(var k=0;k<show;k++){
+      (function(k){
+        var d = document.createElement('div');
+        d.className = 'm'+(k===EIG.sel?' sel':'');
+        var c = document.createElement('canvas'); c.width=86; c.height=34;
+        var x = c.getContext('2d');
+        x.fillStyle='#0b0f14'; x.fillRect(0,0,86,34);
+        x.strokeStyle=C.ac; x.lineWidth=1.5; x.beginPath();
+        var ph = EIG.sol.phi[k], N = EIG.sol.N;
+        for(var i=0;i<=N+1;i++){
+          var v = (i===0||i===N+1)?0:ph[i-1];
+          var px = 4+(78)*i/(N+1), py = 17-v*12;
+          if(i===0) x.moveTo(px,py); else x.lineTo(px,py);
+        }
+        x.stroke();
+        var lab = document.createElement('div');
+        lab.textContent = 'mode '+(k+1);
+        d.appendChild(c); d.appendChild(lab);
+        d.onclick = function(){ EIG.sel = k; gallery(); };
+        g.appendChild(d);
+      })(k);
+    }
+  }
+  function draw(){
+    clear(ctx,cv.width,cv.height);
+    var W=cv.width, H=cv.height;
+    if(!EIG.sol){
+      txt(ctx,'press "Solve for modes" - the eigensolver runs live',W/2,H/2,C.faint,14,'center');
+      RAF(cv,draw); return;
+    }
+    var s = EIG.sol, N = s.N, k = EIG.sel;
+    var t = (performance.now()-t0)/1000;
+    var anim = Math.sin(t*2.0*Math.min(1+k*0.35,4));
+    ctx.strokeStyle = 'rgba(90,169,255,.25)'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(40,H/2); ctx.lineTo(W-40,H/2); ctx.stroke();
+    ctx.strokeStyle = C.ac; ctx.lineWidth = 2.4; ctx.beginPath();
+    for(var i=0;i<=N+1;i++){
+      var v = (i===0||i===N+1)?0:s.phi[k][i-1];
+      var px = 40+(W-80)*i/(N+1), py = H/2 - v*anim*52;
+      if(i===0) ctx.moveTo(px,py); else ctx.lineTo(px,py);
+    }
+    ctx.stroke();
+    ctx.fillStyle = C.ac2;
+    for(i=1;i<=N;i++){
+      var v2 = s.phi[k][i-1];
+      var px2 = 40+(W-80)*i/(N+1), py2 = H/2 - v2*anim*52;
+      ctx.beginPath(); ctx.arc(px2,py2,2.6,0,6.284); ctx.fill();
+    }
+    // still points
+    for(i=1;i<N;i++){
+      if(s.phi[k][i-1]*s.phi[k][i] < 0){
+        var px3 = 40+(W-80)*(i+0.5)/(N+1);
+        ctx.strokeStyle='rgba(240,163,94,.75)'; ctx.setLineDash([3,3]); ctx.lineWidth=1;
+        ctx.beginPath(); ctx.moveTo(px3,H/2-58); ctx.lineTo(px3,H/2+58); ctx.stroke();
+        ctx.setLineDash([]);
+      }
+    }
+    txt(ctx,'mode '+(k+1)+'  ·  frequency ratio '+(s.omega[k]/s.omega[0]).toFixed(2)+'x the fundamental',
+        14,22,C.hd,13);
+    txt(ctx,'dashed = still points (nodes)',14,H-12,C.faint,11);
+    RAF(cv,draw);
+  }
+  $('eigGo').addEventListener('click', function(){
+    var N = +$('eigN').value;
+    var t1 = performance.now();
+    EIG.sol = solveString(N);
+    var ms = (performance.now()-t1).toFixed(1);
+    EIG.sel = 0;
+    $('eigInfo').textContent = N+'x'+N+' matrix solved in '+ms+' ms  ·  '+N+' modes found';
+    gallery();
+  });
+  $('eigN').addEventListener('input', function(){
+    $('eigInfo').textContent = 'press solve ('+$('eigN').value+' segments)';
+  });
+  draw();
+})();
+
+/* ================= 04 strike ================= */
+(function(){
+  var cv = $('cvStrike'); if(!cv) return;
+  var ctx = cv.getContext('2d'), N = 24, s = solveString(N), hit = 0.31, amps = [];
+  var drag = false, hover = false, touched = false, hx = -1;
+  function calc(){
+    amps = [];
+    var pos = hit*(N+1);
+    for(var k=0;k<10;k++){
+      var i = Math.max(0,Math.min(N-1, Math.round(pos)-1));
+      amps.push(s.phi[k][i]);
+    }
+  }
+  function px(ev){
+    var r = cv.getBoundingClientRect();
+    var cx = (ev.touches && ev.touches[0]) ? ev.touches[0].clientX : ev.clientX;
+    return (cx - r.left)*cv.width/r.width;
+  }
+  function setFrom(mx){ hit = Math.max(0.02,Math.min(0.98,(mx-40)/(cv.width-80))); calc(); }
+  cv.addEventListener('mousedown', function(ev){ drag=true; touched=true; setFrom(px(ev)); ev.preventDefault(); });
+  window.addEventListener('mousemove', function(ev){ if(drag) setFrom(px(ev)); });
+  window.addEventListener('mouseup', function(){ drag=false; });
+  cv.addEventListener('mousemove', function(ev){ hover=true; hx=px(ev); });
+  cv.addEventListener('mouseleave', function(){ hover=false; hx=-1; });
+  cv.addEventListener('touchstart', function(ev){ drag=true; touched=true; setFrom(px(ev)); ev.preventDefault(); },{passive:false});
+  cv.addEventListener('touchmove', function(ev){ if(drag){ setFrom(px(ev)); ev.preventDefault(); } },{passive:false});
+  cv.addEventListener('touchend', function(){ drag=false; });
+  function draw(){
+    clear(ctx,cv.width,cv.height);
+    var W=cv.width, t=performance.now()/1000;
+    var trackY = 58, x0 = 40, x1 = W-40;
+    // track: reads as a slider, so it looks draggable
+    ctx.strokeStyle='rgba(90,169,255,.35)'; ctx.lineWidth=7; ctx.lineCap='round';
+    ctx.beginPath(); ctx.moveTo(x0,trackY); ctx.lineTo(x1,trackY); ctx.stroke();
+    ctx.strokeStyle=C.ac; ctx.lineWidth=7;
+    ctx.beginPath(); ctx.moveTo(x0,trackY); ctx.lineTo(x0+(x1-x0)*hit,trackY); ctx.stroke();
+    ctx.lineCap='butt';
+    // ghost of where the cursor would drop the handle
+    if(hover && !drag && hx>x0-14 && hx<x1+14){
+      ctx.fillStyle='rgba(240,163,94,.30)';
+      ctx.beginPath(); ctx.arc(Math.max(x0,Math.min(x1,hx)),trackY,8,0,6.284); ctx.fill();
+    }
+    // glowing handle -- pulses until first use so it invites a drag
+    var hxp = x0+(x1-x0)*hit;
+    var pulse = touched ? (drag?1:0.55) : (0.55+0.45*Math.sin(t*3.1));
+    ctx.fillStyle='rgba(240,163,94,'+(0.13*pulse)+')';
+    ctx.beginPath(); ctx.arc(hxp,trackY,26*(drag?1.15:1),0,6.284); ctx.fill();
+    ctx.fillStyle='rgba(240,163,94,'+(0.26*pulse)+')';
+    ctx.beginPath(); ctx.arc(hxp,trackY,15,0,6.284); ctx.fill();
+    ctx.fillStyle=C.warm;
+    ctx.beginPath(); ctx.arc(hxp,trackY,drag?9:8,0,6.284); ctx.fill();
+    ctx.strokeStyle='rgba(255,235,200,.95)'; ctx.lineWidth=1.6;
+    ctx.beginPath(); ctx.arc(hxp,trackY,drag?9:8,0,6.284); ctx.stroke();
+    ctx.strokeStyle='rgba(255,220,160,.8)'; ctx.lineWidth=1.6;
+    ctx.beginPath(); ctx.moveTo(hxp,trackY-18); ctx.lineTo(hxp,trackY-11); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(hxp,trackY+11); ctx.lineTo(hxp,trackY+18); ctx.stroke();
+    txt(ctx, touched ? 'drag the handle to move the strike'
+                     : 'drag me  -  move the strike along the string',
+        40, 26, touched?C.dim:C.warm, 12.5);
+    txt(ctx, (hit*100).toFixed(0)+'%', hxp, trackY+36, C.warm, 11.5, 'center');
+    // bars
+    var bw = (W-100)/amps.length;
+    for(var k=0;k<amps.length;k++){
+      var a = Math.abs(amps[k]), h = a*118, x = 50+k*bw;
+      ctx.fillStyle = a<0.05 ? 'rgba(120,140,160,.35)' : C.ac;
+      ctx.fillRect(x, 236-h, bw-9, h);
+      txt(ctx,''+(k+1), x+(bw-9)/2, 252, a<0.05?C.faint:C.dim, 11,'center');
+      if(a<0.05) txt(ctx,'off', x+(bw-9)/2, 230, C.faint,10,'center');
+    }
+    txt(ctx,'how much of each mode you excited',50,112,C.hd,13);
+    RAF(cv,draw);
+  }
+  calc(); RAF(cv,draw);
+})();
+
+/* ================= 05 sound ================= */
+(function(){
+  var cv = $('cvSound'); if(!cv) return;
+  var ctx = cv.getContext('2d'), actx = null;
+  function params(){
+    return { f0:+$('sndF0').value, z:+$('sndZ').value/10000,
+             slope:+$('sndSlope').value/100, n:+$('sndN').value };
+  }
+  function modes(){
+    var p = params(), s = solveString(24), out = [];
+    for(var k=0;k<p.n;k++){
+      var ratio = s.omega[k]/s.omega[0];
+      var f = p.f0*ratio;
+      var zeta = p.z*(1+p.slope*ratio*3);
+      out.push({ f:f, a:Math.abs(s.phi[k][7])/(k+1), d:zeta*2*Math.PI*f });
+    }
+    return out;
+  }
+  function draw(){
+    clear(ctx,cv.width,cv.height);
+    var W=cv.width,H=cv.height, ms = modes(), i, k;
+    ctx.strokeStyle='rgba(90,169,255,.2)'; ctx.beginPath();
+    ctx.moveTo(0,H/2); ctx.lineTo(W,H/2); ctx.stroke();
+    ctx.strokeStyle=C.ac; ctx.lineWidth=1.4; ctx.beginPath();
+    var dur = 0.9;
+    for(i=0;i<W;i++){
+      var t = i/W*dur, v = 0;
+      for(k=0;k<ms.length;k++) v += ms[k].a*Math.sin(2*Math.PI*ms[k].f*t)*Math.exp(-ms[k].d*t);
+      var y = H/2 - v*46;
+      if(i===0) ctx.moveTo(i,y); else ctx.lineTo(i,y);
+    }
+    ctx.stroke();
+    // envelope
+    ctx.strokeStyle='rgba(240,163,94,.55)'; ctx.setLineDash([4,4]); ctx.lineWidth=1;
+    ctx.beginPath();
+    for(i=0;i<W;i++){
+      var t2=i/W*dur, e=0;
+      for(k=0;k<ms.length;k++) e += Math.abs(ms[k].a)*Math.exp(-ms[k].d*t2);
+      if(i===0) ctx.moveTo(i,H/2-e*46); else ctx.lineTo(i,H/2-e*46);
+    }
+    ctx.stroke(); ctx.setLineDash([]);
+    txt(ctx,ms.length+' modes summed  ·  '+ms[0].f.toFixed(0)+' Hz fundamental',12,20,C.hd,13);
+    txt(ctx,'dashed = the fading envelope',12,H-10,C.faint,11);
+    $('sndInfo').textContent = 'top mode '+ms[ms.length-1].f.toFixed(0)+' Hz';
+  }
+  $('sndPlay').addEventListener('click', function(){
+    if(!actx){ var AC = window.AudioContext||window.webkitAudioContext;
+      if(!AC){ $('sndInfo').textContent='no audio support'; return; } actx = new AC(); }
+    if(actx.state==='suspended') actx.resume();
+    var sr = actx.sampleRate, dur = 2.0, ms = modes();
+    var buf = actx.createBuffer(1, Math.floor(sr*dur), sr), d = buf.getChannelData(0);
+    var norm = 0; for(var k=0;k<ms.length;k++) norm += Math.abs(ms[k].a);
+    for(var i=0;i<d.length;i++){
+      var t = i/sr, v = 0;
+      for(k=0;k<ms.length;k++) v += ms[k].a*Math.sin(2*Math.PI*ms[k].f*t)*Math.exp(-ms[k].d*t);
+      d[i] = 0.5*v/(norm||1);
+    }
+    var src = actx.createBufferSource(); src.buffer = buf;
+    src.connect(actx.destination); src.start();
+  });
+  ['sndF0','sndZ','sndSlope','sndN'].forEach(function(id){
+    $(id).addEventListener('input', draw); });
+  draw();
+})();
+
+/* ================= 06 2D modes + Chladni (five plate shapes) ================= */
+(function(){
+  var cv2 = $('cv2D'), cvc = $('cvChl'); if(!cv2||!cvc) return;
+  var c2 = cv2.getContext('2d'), cc = cvc.getContext('2d');
+  var NG = 16, sstr = solveString(NG), GRID = 64;
+  var SHAPES = ['rectangle','disc','triangle','hexagon','ring'];
+  var ANALYTIC = [true,true,false,false,false];
+  var shape = 0, NSOLVE = 13;    // grid used for the numerical shapes
+
+  function besselJ(m,x){
+    var half=x/2, fact=1, k;
+    for(k=2;k<=m;k++) fact*=k;
+    var t=Math.pow(half,m)/fact, sum=t;
+    for(k=1;k<60;k++){ t *= -(half*half)/(k*(k+m)); sum += t;
+      if(Math.abs(t)<1e-13) break; }
+    return sum;
+  }
+  var JZ = { 0:[2.404826,5.520078,8.653728,11.791534],
+             1:[3.831706,7.015587,10.173468],
+             2:[5.135622,8.417244,11.619841],
+             3:[6.380162,9.761023],
+             4:[7.588342,11.064709], 5:[8.771484] };
+  var PROF = 129;
+
+  /* All shapes live on the unit square, so one inside() test defines them. */
+  function inside(x,y){
+    var dx=x-0.5, dy=y-0.5, r=Math.sqrt(dx*dx+dy*dy), k;
+    if(shape===0) return true;
+    if(shape===1) return r<=0.5;
+    if(shape===4) return r>=0.19 && r<=0.47;
+    if(shape===2){                                  // triangle
+      var ax=0.5,ay=0.95, bx=0.06,by=0.16, cx2=0.94,cy2=0.16;
+      var d1=(x-bx)*(ay-by)-(ax-bx)*(y-by);
+      var d2=(x-cx2)*(by-cy2)-(bx-cx2)*(y-cy2);
+      var d3=(x-ax)*(cy2-ay)-(cx2-ax)*(y-ay);
+      var neg=(d1<0)||(d2<0)||(d3<0), pos=(d1>0)||(d2>0)||(d3>0);
+      return !(neg&&pos);
+    }
+    var apo = 0.47*Math.cos(Math.PI/6);             // hexagon
+    for(k=0;k<3;k++){
+      var a=k*Math.PI/3;
+      if(Math.abs(dx*Math.cos(a)+dy*Math.sin(a)) > apo) return false;
+    }
+    return true;
+  }
+
+  var pairs = [], solveInfo = '';
+  function analyticModes(){
+    var out=[], m, n, i;
+    if(shape===0){
+      for(m=0;m<4;m++) for(n=0;n<4;n++)
+        out.push({m:m,n:n,w:Math.sqrt(sstr.omega[m]*sstr.omega[m]+sstr.omega[n]*sstr.omega[n])});
+    } else {
+      for(var mm in JZ) for(i=0;i<JZ[mm].length;i++){
+        var p={m:+mm,z:JZ[mm][i],w:JZ[mm][i],prof:new Float64Array(PROF)};
+        for(var t=0;t<PROF;t++) p.prof[t]=besselJ(p.m,p.z*t/(PROF-1));
+        out.push(p);
+      }
+    }
+    solveInfo = 'closed form';
+    return out;
+  }
+  /* No formula exists for a triangle, a hexagon or an annulus. So we do what
+     the real engine does: discretise the shape, build the matrix, and hand it
+     to the eigensolver. Same jacobiEigen() as section 3, just on a 2D grid. */
+  function numericModes(){
+    var N=NSOLVE, idx=new Int32Array(N*N), cells=[], i, j;
+    for(i=0;i<N*N;i++) idx[i]=-1;
+    for(j=0;j<N;j++) for(i=0;i<N;i++){
+      if(inside((i+0.5)/N,(j+0.5)/N)){ idx[j*N+i]=cells.length; cells.push([i,j]); }
+    }
+    var n=cells.length;
+    if(n<8){ solveInfo='too small'; return []; }
+    var A=new Float64Array(n*n);
+    for(var c=0;c<n;c++){
+      var ci=cells[c][0], cj=cells[c][1];
+      A[c*n+c]=4;
+      var nb=[[ci+1,cj],[ci-1,cj],[ci,cj+1],[ci,cj-1]];
+      for(var q=0;q<4;q++){
+        var ni=nb[q][0], nj=nb[q][1];
+        if(ni<0||nj<0||ni>=N||nj>=N) continue;      // Dirichlet: clamped edge
+        var d=idx[nj*N+ni];
+        if(d>=0) A[c*n+d]=-1;
+      }
+    }
+    var e=jacobiEigen(A,n,6);
+    var out=[], K=Math.min(14,n);
+    for(var k=0;k<K;k++){
+      var g=new Float64Array(N*N), mx=0;
+      for(var t2=0;t2<n;t2++){
+        var v=e.vectors[k][t2];
+        g[cells[t2][1]*N+cells[t2][0]]=v;
+        if(Math.abs(v)>mx) mx=Math.abs(v);
+      }
+      if(mx>0) for(t2=0;t2<N*N;t2++) g[t2]/=mx;
+      out.push({grid:g, gn:N, w:Math.sqrt(Math.max(e.values[k],1e-9))});
+    }
+    solveInfo = 'no formula - solved numerically, ' + n + ' unknowns';
+    return out;
+  }
+  function rawVal(p,x,y){
+    if(p.grid){
+      var N=p.gn, u=x*N-0.5, v=y*N-0.5;
+      var xi=Math.max(0,Math.min(N-2,Math.floor(u))), yi=Math.max(0,Math.min(N-2,Math.floor(v)));
+      var fx=Math.max(0,Math.min(1,u-xi)), fy=Math.max(0,Math.min(1,v-yi));
+      return (p.grid[yi*N+xi]*(1-fx)+p.grid[yi*N+xi+1]*fx)*(1-fy)+
+             (p.grid[(yi+1)*N+xi]*(1-fx)+p.grid[(yi+1)*N+xi+1]*fx)*fy;
+    }
+    if(shape===0){
+      var i=Math.max(0,Math.min(NG-1,Math.round(x*(NG+1))-1));
+      var j=Math.max(0,Math.min(NG-1,Math.round(y*(NG+1))-1));
+      return sstr.phi[p.m][i]*sstr.phi[p.n][j];
+    }
+    var dx=x-0.5, dy=y-0.5, r=Math.sqrt(dx*dx+dy*dy)*2;
+    if(r>1) return 0;
+    var uu=r*(PROF-1), i0=uu|0; if(i0>PROF-2) i0=PROF-2;
+    var f=uu-i0;
+    return (p.prof[i0]*(1-f)+p.prof[i0+1]*f)*Math.cos(p.m*Math.atan2(dy,dx));
+  }
+  function buildModes(){
+    pairs = ANALYTIC[shape] ? analyticModes() : numericModes();
+    pairs.sort(function(a,b){ return a.w-b.w; });
+    // resample every mode onto the field grid once, so changing the drive
+    // frequency later is nothing but multiply-adds
+    for(var q=0;q<pairs.length;q++){
+      var sm=new Float64Array(GRID*GRID);
+      for(var i=0;i<GRID;i++) for(var j=0;j<GRID;j++){
+        var x=(i+0.5)/GRID, y=(j+0.5)/GRID;
+        sm[j*GRID+i] = inside(x,y) ? rawVal(pairs[q],x,y) : 0;
+      }
+      pairs[q].samp = sm;
+    }
+  }
+
+  function drawModes(){
+    clear(c2,cv2.width,cv2.height);
+    txt(c2,SHAPES[shape]+' mode shapes (pale bands = still lines)',10,14,C.hd,12.5);
+    txt(c2,solveInfo,cv2.width-10,14,ANALYTIC[shape]?C.faint:C.warm,11,'right');
+    var cellW=cv2.width/3, rowH=(cv2.height-26)/2, sz=56;
+    for(var q=0;q<6;q++){
+      var p=pairs[q+1]; if(!p) continue;
+      var col=q%3, row=(q/3)|0;
+      var r0=fitBox(col*cellW+10, 26+row*rowH+16, cellW-20, rowH-24, 1);
+      var ox=r0[0], oy=r0[1], w=r0[2], h=r0[3];
+      for(var a=0;a<sz;a++) for(var b=0;b<sz;b++){
+        var xx=(a+0.5)/sz, yy=(b+0.5)/sz;
+        if(!inside(xx,yy)) continue;
+        c2.fillStyle=diverge(rawVal(p,xx,yy));
+        c2.fillRect(ox+a*w/sz, oy+h-(b+1)*h/sz, w/sz+0.7, h/sz+0.7);
+      }
+      c2.strokeStyle='rgba(90,169,255,.3)'; c2.lineWidth=1;
+      c2.strokeRect(ox,oy,w,h);
+      txt(c2,'f = '+(p.w/pairs[1].w).toFixed(2)+'x',ox,oy-5,C.dim,10.5);
+    }
+  }
+
+  var sand=[], fld=null, msk=null;
+  var foff=document.createElement('canvas');
+  foff.width=GRID; foff.height=GRID;
+  var foct=foff.getContext('2d'), fimg=foct.createImageData(GRID,GRID);
+  function field(fd){
+    if(!pairs.length) return;
+    var w=(fd/1000)*1.15*pairs[pairs.length-1].w, i, j, k;
+    fld=new Float64Array(GRID*GRID); msk=new Uint8Array(GRID*GRID);
+    var re=new Float64Array(GRID*GRID), im=new Float64Array(GRID*GRID);
+    for(i=0;i<GRID;i++) for(j=0;j<GRID;j++)
+      msk[j*GRID+i]=inside((i+0.5)/GRID,(j+0.5)/GRID)?1:0;
+    var dk=-1;
+    for(i=0;i<GRID&&dk<0;i++) for(j=0;j<GRID;j++)
+      if(msk[j*GRID+i]){ dk=j*GRID+i; break; }
+    for(var q=1;q<pairs.length;q++){
+      var p=pairs[q], wi=p.w, a=p.samp[dk>=0?dk:0];
+      if(Math.abs(a)<1e-9) a=0.2;
+      var dr=wi*wi-w*w, di=2*0.03*wi*w, den=dr*dr+di*di;
+      if(den<1e-12) continue;
+      var hr=a*dr/den, hi2=-a*di/den;
+      for(k=0;k<GRID*GRID;k++){
+        if(!msk[k]) continue;
+        var v=p.samp[k]; re[k]+=hr*v; im[k]+=hi2*v;
+      }
+    }
+    var mx=0;
+    for(k=0;k<GRID*GRID;k++){ fld[k]=Math.sqrt(re[k]*re[k]+im[k]*im[k]);
+      if(fld[k]>mx) mx=fld[k]; }
+    if(mx>0) for(k=0;k<GRID*GRID;k++) fld[k]/=mx;
+    for(k=0;k<GRID*GRID;k++) if(!msk[k]) fld[k]=1.8;   // repulsive wall
+  }
+  function inCell(x,y){
+    var i=Math.round(x), j=Math.round(y);
+    if(i<0||j<0||i>=GRID||j>=GRID) return false;
+    return msk && msk[j*GRID+i]===1;
+  }
+  function seed(){
+    sand=[]; var guard=0;
+    while(sand.length<1600 && guard++<60000){
+      var x=Math.random()*(GRID-1), y=Math.random()*(GRID-1);
+      if(inCell(x,y)) sand.push([x,y]);
+    }
+  }
+  function amp(x,y){
+    var xi=Math.max(0,Math.min(GRID-2,x|0)), yi=Math.max(0,Math.min(GRID-2,y|0));
+    var fx=x-xi, fy=y-yi;
+    return (fld[yi*GRID+xi]*(1-fx)+fld[yi*GRID+xi+1]*fx)*(1-fy)+
+           (fld[(yi+1)*GRID+xi]*(1-fx)+fld[(yi+1)*GRID+xi+1]*fx)*fy;
+  }
+  function step(){
+    if(!fld) return;
+    for(var i=0;i<sand.length;i++){
+      var p=sand[i];
+      if(!inCell(p[0],p[1])){
+        for(var g=0;g<8;g++){
+          var rx=Math.random()*(GRID-1), ry=Math.random()*(GRID-1);
+          if(inCell(rx,ry)){ p[0]=rx; p[1]=ry; break; }
+        }
+        continue;
+      }
+      var a=Math.min(1,amp(p[0],p[1]));
+      var gx=amp(Math.min(GRID-1.01,p[0]+0.7),p[1])-amp(Math.max(0,p[0]-0.7),p[1]);
+      var gy=amp(p[0],Math.min(GRID-1.01,p[1]+0.7))-amp(p[0],Math.max(0,p[1]-0.7));
+      var nx=p[0]-gx*3.4, ny=p[1]-gy*3.4, j2=0.09+1.35*a;
+      nx+=(Math.random()*2-1)*j2; ny+=(Math.random()*2-1)*j2;
+      nx=Math.max(0,Math.min(GRID-1.01,nx)); ny=Math.max(0,Math.min(GRID-1.01,ny));
+      if(inCell(nx,ny)){ p[0]=nx; p[1]=ny; }
+    }
+  }
+  function drawChl(){
+    clear(cc,cvc.width,cvc.height);
+    var r0=fitBox(14,28,cvc.width-28,cvc.height-48,1);
+    var ox=r0[0], oy=r0[1], w=r0[2], h=r0[3];
+    if(fld){
+      var fd2=fimg.data;
+      for(var i=0;i<GRID;i++) for(var j=0;j<GRID;j++){
+        var k=j*GRID+i, o=((GRID-1-j)*GRID+i)*4;
+        if(!msk[k]){ fd2[o+3]=0; continue; }
+        fd2[o]=52; fd2[o+1]=211; fd2[o+2]=196; fd2[o+3]=(255*(0.05+0.32*fld[k]))|0;
+      }
+      foct.putImageData(fimg,0,0);
+      cc.imageSmoothingEnabled=true;
+      cc.drawImage(foff,ox,oy,w,h);
+    }
+    cc.fillStyle='rgba(250,245,228,.95)';
+    cc.beginPath();
+    for(var k2=0;k2<sand.length;k2++){
+      var p=sand[k2];
+      cc.rect(ox+p[0]*w/(GRID-1)-1, oy+h-p[1]*h/(GRID-1)-1, 2,2);
+    }
+    cc.fill();
+    cc.strokeStyle='rgba(90,169,255,.3)'; cc.lineWidth=1;
+    cc.strokeRect(ox,oy,w,h);
+    txt(cc,'sand settles on the still lines of the driven response',14,17,C.hd,12.5);
+  }
+  function loop(){ step(); drawChl(); RAF(cvc,loop); }
+  function upd(){
+    if(!pairs.length) return;
+    var fd=+$('chlF').value;
+    field(fd);
+    var w=(fd/1000)*1.15*pairs[pairs.length-1].w;
+    var near=pairs[1]||pairs[0], bd=1e9;
+    for(var q=1;q<pairs.length;q++){ var d=Math.abs(pairs[q].w-w); if(d<bd){bd=d;near=pairs[q];} }
+    $('chlInfo').textContent='driving at '+(w/pairs[1].w).toFixed(2)+
+      'x fundamental  ·  nearest mode '+(near.w/pairs[1].w).toFixed(2)+'x';
+  }
+  function rebuild(){ buildModes(); drawModes(); upd(); seed(); }
+  var seg=$('shpSeg');
+  if(seg){
+    SHAPES.forEach(function(nm,i){
+      var b=document.createElement('button'); b.textContent=nm;
+      if(i===0) b.className='on';
+      b.onclick=function(){
+        shape=i;
+        Array.prototype.forEach.call(seg.children,function(c,j){ c.className=(j===i)?'on':''; });
+        if(ANALYTIC[i]){ rebuild(); return; }
+        clear(c2,cv2.width,cv2.height);
+        txt(c2,'no formula for a '+nm+' -',18,cv2.height/2-12,C.warm,14);
+        txt(c2,'building the matrix and solving it...',18,cv2.height/2+10,C.hd,14);
+        setTimeout(rebuild, 40);          // let that paint before we block
+      };
+      seg.appendChild(b);
+    });
+  }
+  var chlPend=false;
+  $('chlF').addEventListener('input',function(){
+    if(chlPend) return; chlPend=true;
+    requestAnimationFrame(function(){ chlPend=false; upd(); });
+  });
+  $('chlSand').addEventListener('click', seed);
+  rebuild(); loop();
+})();
+
+/* ================= 07 directivity ================= */
+(function(){
+  var cv = $('cvDir'); if(!cv) return;
+  var ctx = cv.getContext('2d');
+  function draw(){
+    clear(ctx,cv.width,cv.height);
+    var k = +$("dirF").value*0.0015, R = +$('dirR').value;
+    var NS = 64, NA = 240, mag = [], mx = 0, j, i;
+    for(j=0;j<NA;j++){
+      var th = 6.283185*j/NA, ux=Math.cos(th), uy=Math.sin(th), re=0, im=0;
+      for(i=0;i<NS;i++){
+        var a = 6.283185*i/NS, sx=Math.cos(a)*R, sy=Math.sin(a)*R;
+        var ob = ux*Math.cos(a)+uy*Math.sin(a);
+        if(ob<=0) continue;
+        var ph = -k*(ux*sx+uy*sy);
+        re += ob*Math.cos(ph); im += ob*Math.sin(ph);
+      }
+      var m = Math.sqrt(re*re+im*im); mag.push(m); mx = Math.max(mx,m);
+    }
+    var cx = cv.width*0.5, cy = cv.height*0.5, PR = 118;
+    // object
+    ctx.strokeStyle='rgba(90,169,255,.5)'; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.arc(cx,cy,R*0.42,0,6.284); ctx.stroke();
+    for(var g=1;g<=3;g++){ ctx.strokeStyle='rgba(90,110,130,.3)';
+      ctx.beginPath(); ctx.arc(cx,cy,PR*g/3,0,6.284); ctx.stroke(); }
+    ctx.beginPath(); ctx.strokeStyle=C.ac; ctx.lineWidth=2;
+    for(j=0;j<=NA;j++){
+      var jj=j%NA, th2=6.283185*jj/NA, r=(mag[jj]/(mx||1))*PR;
+      var px=cx+Math.cos(th2)*r, py=cy-Math.sin(th2)*r;
+      if(j===0) ctx.moveTo(px,py); else ctx.lineTo(px,py);
+    }
+    ctx.stroke();
+    ctx.fillStyle='rgba(52,211,196,.13)'; ctx.fill();
+    var mean=0; for(j=0;j<NA;j++) mean+=mag[j]; mean/=NA;
+    var wl = (2*Math.PI/Math.max(k,1e-6));
+    $('dirInfo').textContent = 'object is '+(2*R/wl).toFixed(2)+
+      ' wavelengths across  ·  focus '+(mx/(mean||1)).toFixed(2);
+    txt(ctx,'loudness vs direction',16,24,C.hd,13);
+    txt(ctx,(2*R/wl < 0.5) ? 'small vs wavelength: radiates evenly'
+                           : 'large vs wavelength: beams and nulls',16,cv.height-16,C.warm,12);
+  }
+  $('dirF').addEventListener('input',draw); $('dirR').addEventListener('input',draw);
+  draw();
+})();
+
+/* ================= 08 avoided crossings ================= */
+(function(){
+  var cv = $('cvCross'); if(!cv) return;
+  var ctx = cv.getContext('2d');
+  var NP = 140, NM = 5, curves = [], marks = [];
+  (function compute(){
+    var base = [1.0,1.55,1.9,2.5,2.9], slope = [1.5,0.15,-0.55,0.9,-0.2], g = 0.055;
+    for(var p=0;p<NP;p++){
+      var x = p/(NP-1);
+      var A = new Float64Array(NM*NM);
+      for(var i=0;i<NM;i++){ A[i*NM+i] = base[i]+slope[i]*x;
+        if(i<NM-1){ A[i*NM+i+1] = g; A[(i+1)*NM+i] = g; } }
+      var e = jacobiEigen(A,NM,30);
+      curves.push(e.values.slice());
+    }
+    for(var k=0;k+1<NM;k++) for(var q=1;q+1<NP;q++){
+      var d0=curves[q-1][k+1]-curves[q-1][k], d1=curves[q][k+1]-curves[q][k],
+          d2=curves[q+1][k+1]-curves[q+1][k];
+      if(d1<d0 && d1<d2 && d1<0.20) marks.push([q,k]);
+    }
+  })();
+  function draw(){
+    clear(ctx,cv.width,cv.height);
+    var W=cv.width,H=cv.height, lo=0.8, hi=3.3;
+    function PX(p){ return 46+(W-70)*p/(NP-1); }
+    function PY(v){ return H-34-(H-60)*(v-lo)/(hi-lo); }
+    ctx.strokeStyle='rgba(90,110,130,.22)';
+    for(var g2=0;g2<=4;g2++){ var y=PY(lo+(hi-lo)*g2/4);
+      ctx.beginPath(); ctx.moveTo(46,y); ctx.lineTo(W-24,y); ctx.stroke(); }
+    for(var k=0;k<NM;k++){
+      ctx.beginPath(); ctx.lineWidth=2;
+      ctx.strokeStyle='hsl('+(178+k*26)+',68%,62%)';
+      for(var p=0;p<NP;p++){
+        var x=PX(p), y=PY(curves[p][k]);
+        if(p===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+      }
+      ctx.stroke();
+    }
+    for(var m=0;m<marks.length;m++){
+      var q=marks[m][0], kk=marks[m][1];
+      var cx=PX(q), cy=(PY(curves[q][kk])+PY(curves[q][kk+1]))/2;
+      ctx.strokeStyle=C.warm; ctx.lineWidth=1.7;
+      ctx.beginPath(); ctx.arc(cx,cy,11,0,6.284); ctx.stroke();
+    }
+    txt(ctx,'mode frequency',14,26,C.dim,12);
+    txt(ctx,'shape stretched  ->',W-24,H-12,C.dim,12,'right');
+    txt(ctx,'circles: the curves nearly meet, then veer apart and swap roles',
+        46,H-12,C.warm,12);
+  }
+  draw();
+})();
+
+/* ================= 09 showcase: whole pipeline ================= */
+(function(){
+  var cv = $('cvShow'); if(!cv) return;
+  var ctx = cv.getContext('2d'), t0 = performance.now();
+  var s = solveString(20), NG=14, s2 = solveString(NG);
+  var pan = [
+    'shape  ->  mesh','mesh  ->  K, M','eigensolve  ->  modes',
+    'strike  ->  recipe','modes  ->  waveform','waveform  ->  room'];
+  function box(i){
+    var w = cv.width/3, h = cv.height/2;
+    return { x:(i%3)*w+14, y:Math.floor(i/3)*h+14, w:w-28, h:h-28 };
+  }
+  function frame(){
+    clear(ctx,cv.width,cv.height);
+    var t = (performance.now()-t0)/1000, i;
+    for(i=0;i<6;i++){
+      var b = box(i);
+      ctx.fillStyle='#131a23'; ctx.strokeStyle='rgba(90,169,255,.22)';
+      ctx.lineWidth=1;
+      ctx.beginPath(); ctx.rect(b.x,b.y,b.w,b.h); ctx.fill(); ctx.stroke();
+      txt(ctx,(i+1)+'.  '+pan[i], b.x+11, b.y+19, C.ac2, 12.5);
+    }
+    // 1 mesh
+    var b0 = box(0), g=6;
+    for(var yy=-g;yy<g;yy++) for(var xx=-g;xx<g;xx++){
+      var X=xx/g, Y=yy/g;
+      if(X*X+Y*Y*1.3 < 0.72){
+        var px=b0.x+b0.w/2+X*b0.w*0.36, py=b0.y+b0.h/2+Y*b0.h*0.34;
+        var st=b0.w*0.36/g;
+        ctx.strokeStyle='rgba(52,211,196,.42)'; ctx.lineWidth=0.8;
+        ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(px+st,py);
+        ctx.lineTo(px,py+st*0.95); ctx.closePath(); ctx.stroke();
+      }
+    }
+    // 2 matrix
+    var b1 = box(1), n=18, cs=Math.min(b1.w,b1.h-30)/n;
+    var mx0 = b1.x+(b1.w-cs*n)/2, my0 = b1.y+30;
+    for(var r=0;r<n;r++) for(var c3=0;c3<n;c3++){
+      var d = Math.abs(r-c3);
+      if(d<=2){ ctx.fillStyle='rgba(79,214,232,'+(0.75-0.25*d)+')';
+        ctx.fillRect(mx0+c3*cs,my0+r*cs,cs-0.7,cs-0.7); }
+    }
+    // 3 modes
+    var b2 = box(2), k2 = Math.floor(t*0.7)%5;
+    ctx.strokeStyle=C.ac; ctx.lineWidth=2; ctx.beginPath();
+    for(i=0;i<=s.N+1;i++){
+      var v=(i===0||i===s.N+1)?0:s.phi[k2][i-1];
+      var px2=b2.x+14+(b2.w-28)*i/(s.N+1);
+      var py2=b2.y+b2.h*0.6-v*Math.sin(t*4)*b2.h*0.22;
+      if(i===0) ctx.moveTo(px2,py2); else ctx.lineTo(px2,py2);
+    }
+    ctx.stroke();
+    txt(ctx,'mode '+(k2+1),b2.x+11,b2.y+b2.h-11,C.faint,11);
+    // 4 strike recipe
+    var b3 = box(3), hitp=0.3+0.16*Math.sin(t*0.8);
+    for(var kk=0;kk<8;kk++){
+      var idx=Math.max(0,Math.min(s.N-1,Math.round(hitp*(s.N+1))-1));
+      var a=Math.abs(s.phi[kk][idx]);
+      var bw=(b3.w-30)/8, hh=a*(b3.h-56);
+      ctx.fillStyle= a<0.06?'rgba(120,140,160,.35)':C.ac;
+      ctx.fillRect(b3.x+15+kk*bw, b3.y+b3.h-18-hh, bw-6, hh);
+    }
+    txt(ctx,'strike at '+(hitp*100).toFixed(0)+'%',b3.x+11,b3.y+b3.h-4,C.faint,11);
+    // 5 waveform
+    var b4 = box(4);
+    ctx.strokeStyle=C.ac; ctx.lineWidth=1.3; ctx.beginPath();
+    for(i=0;i<b4.w-22;i++){
+      var tt=i/(b4.w-22)*0.5, v2=0;
+      for(var m2=0;m2<6;m2++)
+        v2+=Math.sin(2*Math.PI*180*(s.omega[m2]/s.omega[0])*tt)*Math.exp(-(6+m2*9)*tt)/(m2+1);
+      var yy2=b4.y+b4.h*0.62-v2*b4.h*0.20;
+      if(i===0) ctx.moveTo(b4.x+11+i,yy2); else ctx.lineTo(b4.x+11+i,yy2);
+    }
+    ctx.stroke();
+    // 6 radiation
+    var b5 = box(5), ccx=b5.x+b5.w/2, ccy=b5.y+b5.h*0.58, PR=Math.min(b5.w,b5.h)*0.31;
+    ctx.strokeStyle=C.ac; ctx.lineWidth=1.8; ctx.beginPath();
+    for(var j2=0;j2<=120;j2++){
+      var th3=6.283185*j2/120;
+      var rr=(0.55+0.45*Math.abs(Math.cos(2.5*th3+t*0.5)))*PR;
+      var qx=ccx+Math.cos(th3)*rr, qy=ccy-Math.sin(th3)*rr;
+      if(j2===0) ctx.moveTo(qx,qy); else ctx.lineTo(qx,qy);
+    }
+    ctx.closePath(); ctx.stroke();
+    ctx.fillStyle='rgba(52,211,196,.13)'; ctx.fill();
+    // arrows between panels
+    ctx.strokeStyle='rgba(240,163,94,.5)'; ctx.lineWidth=1.4;
+    for(i=0;i<5;i++){
+      if(i===2) continue;
+      var a1=box(i), a2=box(i+1);
+      if(Math.floor(i/3)===Math.floor((i+1)/3)){
+        var ax=a1.x+a1.w+2, ay=a1.y+a1.h/2;
+        ctx.beginPath(); ctx.moveTo(ax,ay); ctx.lineTo(a2.x-2,ay); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(a2.x-2,ay); ctx.lineTo(a2.x-8,ay-4);
+        ctx.lineTo(a2.x-8,ay+4); ctx.closePath(); ctx.fillStyle='rgba(240,163,94,.6)'; ctx.fill();
+      }
+    }
+    RAF(cv,frame);
+  }
+  if($('scRun')) $('scRun').addEventListener('click', function(){ t0 = performance.now(); });
+  frame();
+})();
+
+})();
+</script>

@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="./../../../portfolio-lab-frame.js"></script><script defer src="./../../../portfolio-document-frame.js"></script><script defer src="./../../../portfolio-media.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>noita_gish - The Explosive Lab</title>
+<style>
+  :root {
+    --ink: #171a1f;
+    --muted: #5e6470;
+    --line: #d8dce1;
+    --paper: #f5f6f4;
+    --panel: #ffffff;
+    --mpm: #4067b1;
+    --sph: #0f8a84;
+    --air: #b06125;
+    --field: #6a7f32;
+    --heat: #b43d32;
+    --sdf: #6f6b74;
+    --debug: #4a7a9f;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    color: var(--ink);
+    background: var(--paper);
+    font: 14px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  main {
+    width: min(1220px, calc(100% - 40px));
+    margin: 0 auto;
+    padding: 28px 0 56px;
+  }
+  header {
+    display: grid;
+    grid-template-columns: 1.35fr 0.65fr;
+    gap: 24px;
+    align-items: end;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 18px;
+  }
+  h1 { margin: 0 0 8px; font-size: clamp(30px, 4vw, 48px); line-height: 1.05; letter-spacing: 0; }
+  h2 { margin: 36px 0 12px; font-size: 21px; line-height: 1.2; }
+  h3 { margin: 0 0 8px; font-size: 15px; line-height: 1.25; }
+  p { margin: 0 0 10px; }
+  a { color: #2454a6; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .lede { max-width: 760px; color: var(--muted); font-size: 16px; }
+  .meta {
+    color: var(--muted);
+    font-size: 12px;
+    text-align: right;
+  }
+  .toc {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+  }
+  .toc a, .tag {
+    display: inline-flex;
+    align-items: center;
+    min-height: 28px;
+    padding: 4px 9px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--panel);
+    color: #2d333b;
+    font-size: 12px;
+    font-weight: 650;
+  }
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 18px;
+  }
+  .grid-2 { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(330px, 0.9fr); gap: 18px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+  .atlas { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+  .mini {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #fbfbfa;
+    padding: 12px;
+  }
+  .mini p { color: var(--muted); font-size: 12px; margin: 0; }
+  .mini strong { display: block; margin-bottom: 4px; }
+  .colorbar { width: 100%; height: 6px; border-radius: 999px; margin: 0 0 9px; background: #999; }
+  .mpm { background: var(--mpm); }
+  .sph { background: var(--sph); }
+  .air { background: var(--air); }
+  .field { background: var(--field); }
+  .heat { background: var(--heat); }
+  .sdf { background: var(--sdf); }
+  .debug { background: var(--debug); }
+  svg { display: block; width: 100%; height: auto; }
+  .caption { color: var(--muted); font-size: 12px; margin-top: 10px; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  th, td {
+    padding: 10px 11px;
+    text-align: left;
+    vertical-align: top;
+    border-bottom: 1px solid #e9ecef;
+    font-size: 13px;
+  }
+  th {
+    color: #4f5662;
+    background: #eef1f1;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  tr:last-child td { border-bottom: 0; }
+  code {
+    padding: 1px 5px;
+    border-radius: 4px;
+    background: #eceff1;
+    font-family: ui-monospace, "SF Mono", Consolas, monospace;
+    font-size: 12px;
+  }
+  .callout {
+    border-left: 4px solid var(--field);
+    background: #fbfbf2;
+    padding: 11px 13px;
+    border-radius: 6px;
+    color: #343820;
+  }
+  .callout.warn { border-left-color: var(--heat); background: #fff4f1; color: #3d2420; }
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .legend .tag { gap: 6px; }
+  .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    background: currentColor;
+  }
+  @media (max-width: 900px) {
+    main { width: min(100% - 24px, 1220px); }
+    header, .grid-2, .grid-3, .atlas { grid-template-columns: 1fr; }
+    .meta { text-align: left; }
+  }
+</style>
+  <link rel="stylesheet" href="assets/docs-dark.css">
+<style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head>
+<body><style>.portfolio-document-return{position:relative;z-index:100;display:flex;flex-wrap:wrap;gap:10px;padding:16px 24px;background:#111d25;border-bottom:1px solid #b3ceb74d;font:12px/1.5 Arial,sans-serif}.portfolio-document-return a{color:#cbded2;text-decoration:none;padding:8px 12px;border:1px solid #b3ceb733;border-radius:8px;transition:color .5s,box-shadow .5s,border-color .5s}.portfolio-document-return a:hover{color:#fff;border-color:#d9c18488;box-shadow:0 0 16px #d9c18422}@media(prefers-reduced-motion:reduce){.portfolio-document-return a{transition:none}}</style><link rel="stylesheet" href="./../../../portfolio-controls.css"><aside class="portfolio-document-return"><a href="./../index.html#html-library">← Crucible2.5D brochure</a><a href="./index.html">Document library</a><a href="./../../../index.html">← Back to portfolio</a><a href="explosive_lab.html.txt" download>Original HTML ↓</a></aside><aside class="portfolio-document-return" style="display:block"><strong>Current scope note.</strong> This is a retained source guide. Contact Heat v2 does not establish exact whole-scene energy conservation; the fracture length scales with grid spacing, so resolution independence is not established; Thermo Metal implements heat-treatment memory rather than calibrated annealing. <a href="./../technical/model-audit.html">Read the current model audit →</a></aside>
+<main>
+  <header>
+    <div>
+      <h1>The Explosive Lab</h1>
+      <p class="lede">Three materials in this build detonate. They are not three effects &mdash; they are one
+      pressure-vessel state machine with three sets of numbers, and every visible difference between a
+      firecracker, a deflagrating charge and a buried keg comes from those numbers. This page reads the
+      machine out of the shader, stage by stage, and shows why chains propagate without a single line of
+      scripting.</p>
+      <nav class="toc">
+        <a href="#overview">The Cast</a>
+        <a href="#machine">The Machine</a>
+        <a href="#charges">Three Charges</a>
+        <a href="#ladder">Ignition Ladder</a>
+        <a href="#vent">Inside a Vent</a>
+        <a href="#downstream">Downstream</a>
+        <a href="#scenes">The Bench</a>
+        <a href="#knobs">Knobs</a>
+        <a href="#caveats">Approximations</a>
+      </nav>
+    </div>
+    <div class="meta">
+      <p><strong>Companion pages</strong><br>
+      <a href="mechanics_relationships.html">Mechanics Relationship Map</a><br>
+      <a href="mechanics_status.html">Mechanics Status Report</a><br>
+      <a href="technique_guide.html">Technique Guide</a><br><a href="solver_internals.html">Solver Internals</a><br><a href="evolution.html">Why This Version</a></p>
+      <p>Source of truth: <code>shaders/physics/mpm_p2g.comp</code><br>Updated: 2026-09-08</p>
+    </div>
+  </header>
+
+  <!-- ==================================================================== -->
+  <section id="overview">
+    <h2>The Cast</h2>
+    <div class="grid-2">
+      <div class="panel">
+        <p>Six materials matter here, and only three of them are charges. The other three are the
+        supporting cast that carries fire from one charge to the next &mdash; the reason a domino line
+        works at all.</p>
+        <table>
+          <tr><th>Material</th><th>Id</th><th>Role</th><th>Distinguishing behaviour</th></tr>
+          <tr><td><code>FIRECRACKER</code></td><td>21</td><td>charge</td>
+              <td>Fast fuse, hard shell. Wants to be well cracked <em>and</em> well pressurised before it lets go.</td></tr>
+          <tr><td><code>REACTIVE_BURN</code></td><td>25</td><td>charge</td>
+              <td>Deflagration, not detonation. Cracks earliest, pushes least, and its gas comes from pyrolysis rather than a fuse.</td></tr>
+          <tr><td><code>SEALED_CHARGE</code></td><td>62</td><td>charge</td>
+              <td>The keg. Highest pressure, fastest fragments, and the only charge whose ignition temperature is randomised per particle.</td></tr>
+          <tr><td><code>FLAMMABLE_FLUID</code></td><td>16</td><td>fuel</td>
+              <td>A spreading pool that relights itself at ~465&nbsp;K while oxygen holds. This is how fire crosses a floor.</td></tr>
+          <tr><td><code>TINDER</code> / <code>PEAT</code></td><td>&mdash;&nbsp;/&nbsp;89</td><td>fuse</td>
+              <td>Ignite at 340&nbsp;K and 360&nbsp;K. Cheap, slow-burning bridges between stations.</td></tr>
+          <tr><td><code>EMBER</code></td><td>8</td><td>residue</td>
+              <td>Burns at 350&nbsp;K and stays hot for a long time afterwards. Turns a spent station into a delayed igniter.</td></tr>
+        </table>
+      </div>
+      <div class="panel">
+        <h3>One sentence</h3>
+        <div class="callout">
+          <p>Every charge in the family vents at <strong>520&nbsp;K or hotter</strong>, and every ignition
+          threshold in the family is <strong>368&nbsp;K or cooler</strong>. Nothing here can go off without
+          putting its neighbours over the line.</p>
+        </div>
+        <p>That single inequality is the entire chain-reaction mechanism. There is no propagation code, no
+        event queue, no scripted delay. A charge heats the air around it, the air heats the next charge, and
+        the next charge crosses its own threshold whenever it happens to cross it.</p>
+        <h3>Why the timing looks organic</h3>
+        <p>Because it is not timed. Each particle carries a per-particle seed (<code>base_params.w</code>,
+        called <code>shell_seed</code> in the shader, with <code>core_seed = 1 - shell_seed</code>) and that
+        seed perturbs ignition rate, gas yield, shell strength and fragment speed independently. A sealed
+        charge goes further and seeds the ignition <em>temperature</em> itself across a 48&nbsp;K band, so a
+        single keg does not light all at once &mdash; it lights from wherever the hot side is.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================================================================== -->
+  <section id="machine">
+    <h2>The Pressure-Vessel Machine</h2>
+    <div class="panel">
+      <figure class="schem-fig">
+        <div class="schem">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img"
+             aria-label="The pressure-vessel state machine shared by all three explosive materials. Four stages run in order every substep: ignite writes the fuse lane, outgas writes the gas lane, pressurise turns gas into stress and grows the crack lane, and vent fires only when the crack gate and the pressure gate are both open. The two gate curves are drawn for all three charges. A return path shows the vent temperature floor re-entering a neighbouring charge at its ignite stage through the air grid, which is what makes chains propagate.">
+        <defs>
+          <marker id="figure-1-cmD" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#DDE3E0"/></marker>
+          <marker id="figure-1-cmG" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#9AA3A0"/></marker>
+          <marker id="figure-1-cmY" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#FFD264"/></marker>
+        </defs>
+        <g font-family="ui-monospace, 'Cascadia Mono', Consolas, monospace" font-size="12" fill="#DDE3E0" stroke-width="1.5">
+
+          <rect x="16" y="21" width="18" height="2" fill="#DDE3E0" stroke="none"/>
+          <text x="40" y="26" fill-opacity="0.75">firecracker</text>
+          <rect x="124" y="21" width="18" height="2" fill="#DDE3E0" fill-opacity="0.62" stroke="none"/>
+          <text x="148" y="26" fill-opacity="0.75">reactive burn</text>
+          <rect x="246" y="21" width="18" height="2" fill="#DDE3E0" fill-opacity="0.38" stroke="none"/>
+          <text x="270" y="26" fill-opacity="0.75">sealed charge</text>
+          <text x="624" y="26" text-anchor="end" fill="#9AA3A0">curves = the vent gate ramps</text>
+
+          <rect x="30" y="40" width="596" height="122" rx="6" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+          <text x="38" y="56" fill-opacity="0.5">the vessel</text>
+          <text x="409" y="56" text-anchor="middle" fill="#9AA3A0">crack bleeds the seal</text>
+          <path d="M 466 80 L 466 68 L 358 68 L 358 80" fill="none" stroke="#9AA3A0" stroke-width="1" stroke-dasharray="2 2" marker-end="url(#figure-1-cmG)"/>
+
+          <rect x="48" y="80" width="122" height="48" rx="4" fill="none" stroke="#78C8FF" stroke-opacity="0.55"/>
+          <text x="109" y="102" text-anchor="middle">1 ignite</text>
+          <text x="109" y="118" text-anchor="middle" fill-opacity="0.6">damage[idx]</text>
+          <text x="109" y="150" text-anchor="middle" fill="#9AA3A0">gate on temp</text>
+
+          <rect x="196" y="80" width="122" height="48" rx="4" fill="none" stroke="#78C8FF" stroke-opacity="0.55"/>
+          <text x="257" y="102" text-anchor="middle">2 outgas</text>
+          <text x="257" y="118" text-anchor="middle" fill-opacity="0.6">phase_data</text>
+          <text x="257" y="150" text-anchor="middle" fill="#9AA3A0">gate on burn</text>
+
+          <rect x="344" y="80" width="122" height="48" rx="4" fill="none" stroke="#78C8FF" stroke-opacity="0.55"/>
+          <text x="405" y="102" text-anchor="middle">3 pressurise</text>
+          <text x="405" y="118" text-anchor="middle" fill-opacity="0.6">Jp_data</text>
+          <text x="405" y="150" text-anchor="middle" fill="#9AA3A0">gas x sealed</text>
+
+          <rect x="492" y="80" width="122" height="48" rx="4" fill="none" stroke="#78C8FF"/>
+          <text x="553" y="102" text-anchor="middle">4 vent</text>
+          <text x="553" y="118" text-anchor="middle" fill-opacity="0.6">reads all 3</text>
+          <text x="553" y="150" text-anchor="middle" fill="#9AA3A0">product of two</text>
+
+          <line x1="170" y1="104" x2="190" y2="104" stroke="#DDE3E0" marker-end="url(#figure-1-cmD)"/>
+          <line x1="318" y1="104" x2="338" y2="104" stroke="#DDE3E0" marker-end="url(#figure-1-cmD)"/>
+          <line x1="466" y1="104" x2="486" y2="104" stroke="#DDE3E0" marker-end="url(#figure-1-cmD)"/>
+
+          <text x="30" y="186">inside the vent gate:  vent = smoothstep(crack) x smoothstep(pressure)</text>
+
+          <line x1="64" y1="200" x2="64" y2="272" stroke="#DDE3E0" stroke-width="1" stroke-opacity="0.35"/>
+          <line x1="64" y1="272" x2="268" y2="272" stroke="#DDE3E0" stroke-width="1" stroke-opacity="0.35"/>
+          <polyline fill="none" stroke="#DDE3E0" points="64,272 71.8,272 79.7,272 87.5,272 95.4,272 103.2,272 111.1,272 118.9,272 126.8,272 134.6,272 142.5,272 150.3,272 158.2,272 166,272 173.8,272 181.7,271.6 189.5,268.2 197.4,262 205.2,253.6 213.1,243.8 220.9,233.5 228.8,223.4 236.6,214.2 244.5,206.7 252.3,201.7 260.2,200 268,200"/>
+          <polyline fill="none" stroke="#DDE3E0" stroke-opacity="0.62" points="64,272 71.8,272 79.7,272 87.5,272 95.4,272 103.2,272 111.1,272 118.9,272 126.8,272 134.6,272 142.5,272 150.3,272 158.2,270.8 166,267.7 173.8,263.1 181.7,257.3 189.5,250.5 197.4,243.2 205.2,235.5 213.1,227.9 220.9,220.6 228.8,214 236.6,208.3 244.5,203.8 252.3,201 260.2,200 268,200"/>
+          <polyline fill="none" stroke="#DDE3E0" stroke-opacity="0.38" points="64,272 71.8,272 79.7,272 87.5,272 95.4,272 103.2,272 111.1,272 118.9,272 126.8,272 134.6,272 142.5,272 150.3,272 158.2,272 166,272 173.8,272 181.7,272 189.5,269.6 197.4,262.3 205.2,251.6 213.1,239.1 220.9,226.2 228.8,214.5 236.6,205.4 244.5,200.5 252.3,200 260.2,200 268,200"/>
+          <text x="166" y="286" text-anchor="middle" fill="#9AA3A0">crack   0 to 1</text>
+
+          <text x="302" y="240" text-anchor="middle" fill-opacity="0.6">x</text>
+
+          <line x1="336" y1="200" x2="336" y2="272" stroke="#DDE3E0" stroke-width="1" stroke-opacity="0.35"/>
+          <line x1="336" y1="272" x2="540" y2="272" stroke="#DDE3E0" stroke-width="1" stroke-opacity="0.35"/>
+          <polyline fill="none" stroke="#DDE3E0" points="336,272 343.8,272 351.7,272 359.5,272 367.4,272 375.2,272 383.1,272 390.9,272 398.8,272 406.6,272 414.5,271.6 422.3,269.8 430.2,266.5 438,262.1 445.8,256.7 453.7,250.6 461.5,244 469.4,237.1 477.2,230.2 485.1,223.5 492.9,217.2 500.8,211.6 508.6,206.8 516.5,203.1 524.3,200.8 532.2,200 540,200"/>
+          <polyline fill="none" stroke="#DDE3E0" stroke-opacity="0.62" points="336,272 343.8,272 351.7,272 359.5,272 367.4,272 375.2,272 383.1,271.9 390.9,270.9 398.8,268.7 406.6,265.5 414.5,261.4 422.3,256.6 430.2,251.2 438,245.4 445.8,239.4 453.7,233.3 461.5,227.3 469.4,221.5 477.2,216 485.1,211.2 492.9,207 500.8,203.6 508.6,201.3 516.5,200.1 524.3,200 532.2,200 540,200"/>
+          <polyline fill="none" stroke="#DDE3E0" stroke-opacity="0.38" points="336,272 343.8,272 351.7,272 359.5,272 367.4,272 375.2,271.9 383.1,270.5 390.9,267.7 398.8,263.6 406.6,258.5 414.5,252.6 422.3,246.1 430.2,239.3 438,232.4 445.8,225.6 453.7,219.2 461.5,213.3 469.4,208.2 477.2,204.2 485.1,201.4 492.9,200.1 500.8,200 508.6,200 516.5,200 524.3,200 532.2,200 540,200"/>
+          <text x="438" y="286" text-anchor="middle" fill="#9AA3A0">pressure   0 to 1</text>
+
+          <line x1="544" y1="236" x2="554" y2="236" stroke="#DDE3E0" marker-end="url(#figure-1-cmD)"/>
+          <text x="558" y="214" fill-opacity="0.6">burst v</text>
+          <text x="558" y="230" fill-opacity="0.6">gas out</text>
+          <text x="558" y="246" fill-opacity="0.6">T floor</text>
+          <text x="558" y="262" fill-opacity="0.6">damp C</text>
+
+
+          <path d="M 616 252 L 616 326 L 22 326 L 22 104 L 42 104" fill="none" stroke="#FFD264" marker-end="url(#figure-1-cmY)"/>
+          <circle cx="616" cy="252" r="3" fill="#FF4646"/>
+          <circle cx="46" cy="104" r="3" fill="#FF4646"/>
+          <text x="320" y="312" text-anchor="middle" fill="#FFD264" fill-opacity="0.85">a vent leaves 680 to 1500 K behind; every ignition threshold here is 320 to 368 K</text>
+
+          <text x="320" y="348" text-anchor="middle">one charge, one substep &#183; the chain reaction is that inequality, not a script</text>
+        </g>
+        </svg>
+        </div>
+        <div class="schem-legend">
+          <i class="part"></i><span>particle state &mdash; the three MPM-local lanes each charge owns<em>damage, phase_data, Jp_data</em></span>
+          <i class="grid"></i><span>field state &mdash; heat that leaves the particle and lands in the air grid<em>this is the return path along the bottom</em></span>
+          <i class="mark"></i><span>a sampled coupling &mdash; the two points where the loop crosses between particle and field</span>
+        </div>
+        <figcaption>All three charges run these four stages, in this order, every substep. The stages are
+        not functions; they are consecutive blocks inside one <code>else if (mat_type == ...)</code> branch
+        of <code>mpm_p2g.comp</code>.</figcaption>
+      </figure>
+    </div>
+
+    <div class="grid-2">
+      <div class="panel">
+        <h3>Three lanes, borrowed</h3>
+        <p>A charge needs three pieces of persistent per-particle state: how far the fuse has burnt, how much
+        gas is inside, and how broken the shell is. It does not get three new buffers for that. The P2G shader
+        sits at exactly sixteen <code>std430</code> blocks &mdash; the driver cap &mdash; so there is no room
+        for another one.</p>
+        <p>Instead the charges reuse three lanes that already exist for other purposes:</p>
+        <table>
+          <tr><th>Lane</th><th>Normally holds</th><th>Holds for a charge</th></tr>
+          <tr><td><code>damage[idx]</code></td><td>continuum damage / burn progress</td><td>fuse or cook progress, 0&ndash;1</td></tr>
+          <tr><td><code>phase_data[idx]</code></td><td>phase fraction</td><td>gas fraction inside the shell, 0&ndash;1</td></tr>
+          <tr><td><code>Jp_data[idx]</code></td><td>plastic volume change</td><td>crack, 0&ndash;1</td></tr>
+        </table>
+        <p>The <code>Jp</code> borrow is the one with a visible consequence. Because <code>Jp</code> no longer
+        means volume, all three charges appear in <code>material_uses_zero_jp()</code> in
+        <code>mpm_solver.cpp</code> and spawn with <code>Jp = 0</code> instead of the usual <code>1</code>.
+        A charge that spawned at <code>Jp = 1</code> would be born fully cracked and would vent on its first
+        warm frame.</p>
+        <div class="callout warn">
+          <p>These three lanes are <strong>MPM-local</strong>: they are indexed by <code>idx</code> and sized
+          to the MPM capacity. The particle's position, velocity and temperature are <strong>global</strong>
+          and indexed by <code>p = u_offset + idx</code>. Both appear within a few lines of each other in every
+          branch on this page. Mixing them is silent.</p>
+        </div>
+      </div>
+      <div class="panel">
+        <h3>The four stages</h3>
+        <div class="ledger">
+          <div class="ledger-row"><i>1</i><strong>ignite</strong>
+            <span>A temperature test opens a rate. The rate is seeded, so two neighbouring particles at the
+            same temperature burn at different speeds. Writes <code>damage</code>.</span></div>
+          <div class="ledger-row"><i>2</i><strong>outgas</strong>
+            <span>Burn progress becomes a gas target, and the gas fraction slews toward it. The slew is
+            deliberately asymmetric &mdash; gas fills fast and bleeds slowly, so a charge cannot un-arm itself
+            by cooling briefly. Writes <code>phase_data</code>.</span></div>
+          <div class="ledger-row"><i>3</i><strong>pressurise</strong>
+            <span>Pressure is <code>gas &times; sealed</code>, where <code>sealed</code> falls off as the crack
+            grows. That pressure enters the stress tensor twice: it raises the rest volume
+            <code>J_rest</code>, so the material wants to be bigger, and it adds an isotropic term directly.
+            The resulting tension and shear then drive the crack forward. Writes <code>Jp_data</code>.</span></div>
+          <div class="ledger-row"><i>4</i><strong>vent</strong>
+            <span>The product of two smoothsteps &mdash; one on crack, one on pressure. When it opens, the
+            particle is kicked in a uniformly random direction, its gas is dumped, its affine velocity field is
+            damped and its temperature is forced to a floor. Reads all three lanes.</span></div>
+        </div>
+        <h3>The loop that decides everything</h3>
+        <p>Crack reduces <code>sealed</code>, which reduces pressure, which reduces crack growth. That negative
+        feedback is drawn dashed in the figure and it is what separates a <em>bang</em> from a <em>fizzle</em>.
+        A charge that cracks slowly bleeds its pressure away through the seal term and never reaches the vent
+        gate; a charge that stays sealed until it is fully pressurised crosses both smoothsteps at once. The
+        three charges differ mostly in how fast that race runs.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================================================================== -->
+  <section id="charges">
+    <h2>Three Charges, Side By Side</h2>
+    <div class="panel">
+      <p>Every value below is read directly out of <code>shaders/physics/mpm_p2g.comp</code>.
+      <code>shell_seed</code> is the per-particle seed in <code>[0,1]</code>;
+      <code>mix(a, b, shell_seed)</code> therefore means &ldquo;<code>a</code> at one end of the population,
+      <code>b</code> at the other&rdquo;. <code>batch_heat</code>, <code>batch_cooling</code>,
+      <code>batch_outgas</code> and <code>batch_loft</code> are the four authored thermal-coupling channels
+      described under <a href="#knobs">Knobs</a>.</p>
+      <table>
+        <tr><th>Stage</th><th>FIRECRACKER (21)</th><th>REACTIVE_BURN (25)</th><th>SEALED_CHARGE (62)</th></tr>
+        <tr><td>ignition test</td>
+            <td><code>temp &gt; 340</code></td>
+            <td><code>temp &gt; 350</code> chars;<br>gas needs <code>temp &gt; 405</code></td>
+            <td><code>temp &gt; mix(320, 368, shell_seed) - 10</code></td></tr>
+        <tr><td>burn rate</td>
+            <td><code>mix(2.35, 1.05, shell_seed)</code></td>
+            <td><code>mix(0.36, 1.35, shell_seed)</code></td>
+            <td><code>mix(3.80, 0.48, shell_seed)</code></td></tr>
+        <tr><td>self-heating</td>
+            <td><code>1480 + 260&middot;heat</code>, peaking at half-burnt</td>
+            <td><code>720 + 110&middot;heat</code></td>
+            <td><code>760 + 260&middot;heat</code>, plus a sustain floor of <code>mix(660, 420, shell_seed)</code></td></tr>
+        <tr><td>gas source</td>
+            <td>fuse above <code>mix(0.10, 0.22)</code></td>
+            <td>pyrolysis, <code>clamp((T - 405)/170)</code></td>
+            <td>cook progress, scaled by <code>batch_outgas</code></td></tr>
+        <tr><td>gas slew</td>
+            <td>up 14/s, down 0.18/s</td>
+            <td>up 2.6&middot;(1&minus;gas)/s</td>
+            <td>up (4 + 2&middot;core_seed)/s, down 0.03/s</td></tr>
+        <tr><td>seal lost between</td>
+            <td>crack <code>mix(.18,.32)</code> &rarr; <code>mix(.62,.78)</code></td>
+            <td>crack <code>mix(.24,.36)</code> &rarr; <code>mix(.68,.82)</code></td>
+            <td>crack <code>mix(.50,.62)</code> &rarr; <code>mix(.92,.988)</code></td></tr>
+        <tr><td>pressure</td>
+            <td><code>gas&middot;sealed&middot;mix(1.45, 0.78, shell_seed)</code></td>
+            <td><code>gas&middot;sealed&middot;mix(1.10, 0.72, charred)</code></td>
+            <td><code>gas&middot;sealed&middot;(1.46 + enclosure)&middot;mix(2.30, 0.88, shell_seed)</code></td></tr>
+        <tr><td>vent gate</td>
+            <td>crack .56&rarr;.96 &times; pressure .36&rarr;.96</td>
+            <td>crack .42&rarr;.96 &times; pressure .22&rarr;.90</td>
+            <td>crack .58&rarr;.90 &times; pressure .18&rarr;.78</td></tr>
+        <tr><td>burst speed ceiling</td>
+            <td>14&ndash;46 m/s</td>
+            <td>6&ndash;26 m/s</td>
+            <td>28&ndash;84 m/s</td></tr>
+        <tr><td>vent temperature floor</td>
+            <td><code>680 + 220&middot;p + 120&middot;loft</code></td>
+            <td><code>520 + 180&middot;p + 100&middot;loft</code></td>
+            <td><code>760 + 260&middot;p + 120&middot;loft</code></td></tr>
+        <tr><td>temperature clamp</td><td>1400&nbsp;K</td><td>1450&nbsp;K</td><td>1500&nbsp;K</td></tr>
+      </table>
+      <p class="caption">The burst-speed row is a <em>ceiling</em>, not a delivered speed: the kick is
+      multiplied by the gate value, so a partially-open vent pushes proportionally less. It is also applied
+      per particle per substep while the gate stays open, which is why a well-sealed charge that opens
+      abruptly throws fragments so much harder than one that leaks.</p>
+    </div>
+
+    <div class="atlas">
+      <div class="mini">
+        <div class="colorbar heat"></div>
+        <strong>Firecracker</strong>
+        <p>The strictest gate in the family: it needs the crack past 0.56 <em>and</em> the pressure past 0.36.
+        Combined with a violent 1480&nbsp;K self-heating term, that produces a long quiet fuse and then a
+        single sharp pop. Its shell also stiffens with the seed
+        (<code>mix(1.0, 1.45, shell_seed)</code>), so some grains hold longer than others.</p>
+      </div>
+      <div class="mini">
+        <div class="colorbar air"></div>
+        <strong>Reactive burn</strong>
+        <p>The only charge whose gas is pure pyrolysis &mdash; it needs 405&nbsp;K before it makes any, which is
+        55&nbsp;K above its own char threshold. It also cracks the earliest (0.42) and pushes the least
+        (6&ndash;26 m/s). The result reads as a deflagration: a lot of hot gas, not much shrapnel.</p>
+      </div>
+      <div class="mini">
+        <div class="colorbar field"></div>
+        <strong>Sealed charge</strong>
+        <p>Holds its seal until crack 0.50&ndash;0.62 and vents at the lightest pressure in the family (0.18).
+        That combination &mdash; hold everything, then release on a hair trigger &mdash; is what makes it the
+        keg. It is also the only charge that reads the pseudo-2.5D enclosure knob, so burying it actually
+        raises its pressure.</p>
+      </div>
+      <div class="mini">
+        <div class="colorbar sph"></div>
+        <strong>The shell seed</strong>
+        <p>One number per particle drives ignition rate, gas yield, shell stiffness, seal thresholds and
+        fragment speed at once &mdash; and for the sealed charge, the ignition temperature too. It is why the
+        same charge never detonates the same way twice and why fragments arrive as a spread rather than a
+        shell.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================================================================== -->
+  <section id="ladder">
+    <h2>The Ignition Ladder</h2>
+    <div class="panel">
+      <figure class="schem-fig">
+        <div class="schem">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img"
+             aria-label="One linear kelvin axis from 300 to 1550 K. A magnified inset shows the ignition window between 315 and 375 K, where the sealed charge threshold is a seeded band from 320 to 368 K and flammable fluid, firecracker, peat and reactive burn sit at 338, 340, 360 and 350 K. On the main axis the vent temperature floors are far to the right at 520, 680 and 760 K, with material temperature clamps at 1400 to 1500 K. The gap between the highest ignition threshold and the lowest vent floor is 152 K.">
+        <g font-family="ui-monospace, 'Cascadia Mono', Consolas, monospace" font-size="12" fill="#DDE3E0" stroke-width="1.5">
+
+          <text x="16" y="26" fill-opacity="0.75">every number here is read from mpm_p2g.comp</text>
+          <text x="624" y="26" text-anchor="end" fill="#9AA3A0">linear in kelvin throughout</text>
+
+          <text x="90" y="44" fill-opacity="0.5">detail &#183; the ignition window, 315 to 375 K</text>
+          <rect x="90" y="52" width="480" height="118" rx="6" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+
+          <text x="322" y="62" text-anchor="middle" fill="#78C8FF">sealed charge: threshold seeded per particle</text>
+          <rect x="138.3" y="66" width="368" height="10" rx="2" fill="rgba(255,255,255,0.06)" stroke="#78C8FF" stroke-width="1"/>
+          <text x="138" y="90" text-anchor="middle" fill="#9AA3A0">320</text>
+          <text x="506" y="90" text-anchor="middle" fill="#9AA3A0">368</text>
+
+          <line x1="100" y1="124" x2="560" y2="124" stroke="#DDE3E0" stroke-width="1" stroke-opacity="0.35"/>
+
+          <line x1="368.3" y1="124" x2="368.3" y2="102" stroke="#78C8FF" stroke-width="1"/>
+          <text x="368" y="98" text-anchor="middle">reactive burn 350 K</text>
+
+          <line x1="291.7" y1="124" x2="291.7" y2="119" stroke="#78C8FF" stroke-width="1"/>
+          <text x="292" y="112" text-anchor="middle">firecracker 340 K</text>
+          <line x1="445" y1="124" x2="445" y2="119" stroke="#78C8FF" stroke-width="1"/>
+          <text x="445" y="112" text-anchor="middle">peat 360 K</text>
+
+          <line x1="276.3" y1="124" x2="276.3" y2="131" stroke="#78C8FF" stroke-width="1"/>
+          <text x="276" y="144" text-anchor="middle">flammable fluid 338 K</text>
+          <text x="292" y="162" text-anchor="middle" fill="#9AA3A0">tinder sits at 340 K too</text>
+
+          <path d="M 200 170 L 82 240" fill="none" stroke="#9AA3A0" stroke-width="1" stroke-dasharray="2 2"/>
+
+          <rect x="89" y="246" width="62.5" height="8" fill="rgba(255,255,255,0.06)" stroke="none"/>
+          <text x="120" y="240" text-anchor="middle" fill-opacity="0.6">152 K</text>
+
+          <line x1="60" y1="250" x2="580" y2="250" stroke="#DDE3E0" stroke-width="1" stroke-opacity="0.35"/>
+          <line x1="67" y1="250" x2="89" y2="250" stroke="#78C8FF"/>
+          <text x="56" y="254" text-anchor="end" fill="#9AA3A0">300 K</text>
+          <text x="586" y="254" fill="#9AA3A0">1550 K</text>
+
+          <line x1="517.6" y1="250" x2="517.6" y2="242" stroke="#DDE3E0" stroke-width="1" stroke-opacity="0.45"/>
+          <line x1="538.4" y1="250" x2="538.4" y2="242" stroke="#DDE3E0" stroke-width="1" stroke-opacity="0.45"/>
+          <line x1="559.2" y1="250" x2="559.2" y2="242" stroke="#DDE3E0" stroke-width="1" stroke-opacity="0.45"/>
+          <text x="580" y="234" text-anchor="end" fill="#9AA3A0">temp clamps 1400 to 1500 K</text>
+
+          <line x1="151.5" y1="250" x2="151.5" y2="258" stroke="#FFD264"/>
+          <line x1="218.1" y1="250" x2="218.1" y2="258" stroke="#FFD264"/>
+          <line x1="251.4" y1="250" x2="251.4" y2="258" stroke="#FFD264"/>
+
+          <path d="M 148 268 L 151.5 268 L 151.5 258" fill="none" stroke="#FFD264" stroke-width="1" stroke-opacity="0.5"/>
+          <text x="142" y="272" text-anchor="end" fill="#FFD264">reactive 520 K</text>
+          <path d="M 213 284 L 218.1 284 L 218.1 258" fill="none" stroke="#FFD264" stroke-width="1" stroke-opacity="0.5"/>
+          <text x="207" y="288" text-anchor="end" fill="#FFD264">firecracker 680 K</text>
+          <path d="M 251.4 290 L 251.4 258" fill="none" stroke="#FFD264" stroke-width="1" stroke-opacity="0.5"/>
+          <text x="251" y="304" text-anchor="middle" fill="#FFD264">sealed charge 760 K</text>
+
+          <text x="320" y="326" text-anchor="middle" fill-opacity="0.85">368 K is the highest threshold in the family; 520 K is the lowest vent floor</text>
+          <text x="320" y="348" text-anchor="middle">ignition thresholds against vent temperature floors &#183; the gap is the whole mechanism</text>
+        </g>
+        </svg>
+        </div>
+        <div class="schem-legend">
+          <i class="part"></i><span>ignition thresholds &mdash; a per-particle material property<em>everything that starts a reaction</em></span>
+          <i class="grid"></i><span>vent temperature floors &mdash; heat that lands in the air grid<em>everything a reaction leaves behind</em></span>
+        </div>
+        <figcaption>One linear kelvin axis, with the 315&ndash;375&nbsp;K window magnified. The whole story is
+        the empty stretch in the middle.</figcaption>
+      </figure>
+    </div>
+
+    <div class="grid-2">
+      <div class="panel">
+        <h3>The margin is 152&nbsp;K</h3>
+        <p>The highest ignition threshold anywhere in the family is 368&nbsp;K, at the top of the sealed
+        charge&rsquo;s seeded band. The lowest vent floor anywhere in the family is 520&nbsp;K, on reactive
+        burn. The gap between them is 152&nbsp;K, and it is one-directional: <em>every</em> vent clears
+        <em>every</em> threshold, with room to spare.</p>
+        <p>This is why chains are robust rather than fragile. A domino line does not depend on tuning each
+        station against the next one; it depends on a single inequality that holds for all nine pairs at once.
+        The only thing that varies from station to station is <em>when</em>, not <em>whether</em>.</p>
+        <h3>Where the delay comes from</h3>
+        <p>Nothing in the shader waits. The delay between stations is transport: the vent dumps heat into the
+        air grid, the air solve advects and diffuses it, and the next charge samples its own temperature some
+        number of substeps later. Move the stations further apart and the chain slows down on its own. Put a
+        draught across the line and it bends.</p>
+      </div>
+      <div class="panel">
+        <h3>Why the sealed charge&rsquo;s threshold is a band</h3>
+        <p>Every other material on the axis is a single tick. The sealed charge is a 48&nbsp;K bar, because
+        its threshold is <code>mix(320.0, 368.0, shell_seed)</code> &mdash; drawn independently for every
+        particle in the body.</p>
+        <p>The consequence is worth stating plainly, because it is the difference between a charge that reads
+        as an object and one that reads as a texture. With a single threshold, a heated keg crosses it
+        everywhere at once and the whole body converts in the same frame: a uniform, synthetic-looking
+        flash. With a seeded threshold, the particles nearest the heat cross first, their vents heat their
+        neighbours, and the conversion travels through the body as a front. The keg tears open from the hot
+        side.</p>
+        <div class="callout">
+          <p>The same trick, at a smaller scale, is why the firecracker&rsquo;s pop has a texture: its ignition
+          <em>rate</em> is seeded even though its threshold is fixed, so the body still converts unevenly &mdash;
+          just less dramatically.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================================================================== -->
+  <section id="vent">
+    <h2>Inside a Vent</h2>
+    <div class="grid-2">
+      <div class="panel">
+        <h3>Four things happen at once</h3>
+        <p>The vent block is short, and each of its four lines exists to prevent a specific failure.</p>
+        <table>
+          <tr><th>Line</th><th>What it does</th><th>What breaks without it</th></tr>
+          <tr><td><code>vel += burst_dir * burst_speed</code></td>
+              <td>Kicks the particle along a uniformly-sampled angle,
+              <code>vec2(cos(a), sin(a))</code> with <code>a = hash &times; 2&pi;</code>.</td>
+              <td>Sampling a random <em>vector</em> and normalising it clusters fragments toward the
+              diagonals. Sampling the angle is uniform on the circle by construction.</td></tr>
+          <tr><td><code>gas *= 1 - vent&middot;k</code></td>
+              <td>Dumps the gas that just did the work.</td>
+              <td>The pressure term would still be high next substep and the same particle would vent
+              again, forever.</td></tr>
+          <tr><td><code>C *= 1 - vent&middot;k</code></td>
+              <td>Damps the affine velocity matrix.</td>
+              <td>APIC would carry the pre-vent local spin into a fragment that no longer has anything to
+              spin about, and the debris would corkscrew.</td></tr>
+          <tr><td><code>temp = max(temp, floor)</code></td>
+              <td>Forces the particle to at least 520/680/760&nbsp;K.</td>
+              <td>This is the entire chain mechanism, and also the entire signal the CPU-side detector
+              watches. Without it a detonation is invisible to everything downstream.</td></tr>
+        </table>
+      </div>
+      <div class="panel">
+        <h3>And then the shell gives up</h3>
+        <p>After the vent block, all three charges run the same closing move: stress is multiplied down by
+        the crack (to as little as 2&ndash;5% of its value), and past a crack threshold the deformation
+        gradient is blended toward an isotropic <code>mat2(sqrt(J))</code>.</p>
+        <p>That second part is the one that makes fragments <em>look</em> like fragments. Blending
+        <code>F</code> toward isotropic discards the accumulated shear history &mdash; the particle forgets
+        which way it was being stretched. What is left is a lump with momentum, which is what a piece of a
+        burst casing is. Keeping the full <code>F</code> would leave every fragment still trying to satisfy
+        an elastic shape it no longer has any business having.</p>
+        <p>The blend rates differ, and they read differently on screen: the firecracker blends hardest
+        (0.22) and produces the most uniform debris; the sealed charge blends least
+        (<code>mix(0.18, 0.08, shell_seed)</code>) and keeps more structure, so its fragments stay chunkier.</p>
+        <div class="callout warn">
+          <p>Note what is <em>not</em> here: there is no explosion radius, no impulse falloff and no
+          neighbour search. Each particle only ever acts on itself. The blast wave is emergent &mdash; it is
+          what MPM does with a few hundred particles that all pushed outward in the same few substeps.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================================================================== -->
+  <section id="downstream">
+    <h2>Downstream: How a GPU Detonation Becomes an Effect</h2>
+    <div class="panel">
+      <figure class="schem-fig">
+        <div class="schem">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img"
+             aria-label="How a GPU-side detonation reaches the CPU effect stack. A chain of five stages runs from the particle vent through the air temperature grid, which is already kept on the CPU, into a slow per-bin baseline, an excursion test and finally the effect stack. Below, a measured chart shows steady fire flicker peaking at 108 to 136 kelvin of excursion and detonations peaking at 243 to 259 kelvin, with the chosen threshold of 165 kelvin sitting in the empty gap between them.">
+        <defs>
+          <marker id="figure-3-bdD" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#DDE3E0"/></marker>
+        </defs>
+        <g font-family="ui-monospace, 'Cascadia Mono', Consolas, monospace" font-size="12" fill="#DDE3E0" stroke-width="1.5">
+
+          <text x="16" y="26" fill-opacity="0.75">measured on Chain: Powder Row Dominoes, 35 s run</text>
+          <text x="624" y="26" text-anchor="end" fill="#9AA3A0">no new GPU readback</text>
+
+          <rect x="24" y="56" width="104" height="44" rx="4" fill="none" stroke="#78C8FF"/>
+          <text x="76" y="76" text-anchor="middle">vent</text>
+          <text x="76" y="92" text-anchor="middle" fill-opacity="0.6">per particle</text>
+
+          <rect x="146" y="56" width="104" height="44" rx="4" fill="none" stroke="#FFD264"/>
+          <text x="198" y="76" text-anchor="middle" fill="#FFD264">air grid T</text>
+          <text x="198" y="92" text-anchor="middle" fill-opacity="0.6">kept on CPU</text>
+
+          <rect x="268" y="56" width="104" height="44" rx="4" fill="none" stroke="#DDE3E0" stroke-opacity="0.55"/>
+          <text x="320" y="76" text-anchor="middle">baseline</text>
+          <text x="320" y="92" text-anchor="middle" fill-opacity="0.6">tau 0.85 s</text>
+
+          <rect x="390" y="56" width="104" height="44" rx="4" fill="none" stroke="#DDE3E0" stroke-opacity="0.55"/>
+          <text x="442" y="76" text-anchor="middle">excursion</text>
+          <text x="442" y="92" text-anchor="middle" fill-opacity="0.6">vs 165 K</text>
+
+          <rect x="512" y="56" width="104" height="44" rx="4" fill="none" stroke="#DDE3E0"/>
+          <text x="564" y="76" text-anchor="middle">8 effects</text>
+          <text x="564" y="92" text-anchor="middle" fill-opacity="0.6">shake, flash</text>
+
+          <line x1="128" y1="78" x2="142" y2="78" stroke="#DDE3E0" marker-end="url(#figure-3-bdD)"/>
+          <line x1="250" y1="78" x2="264" y2="78" stroke="#DDE3E0" marker-end="url(#figure-3-bdD)"/>
+          <line x1="372" y1="78" x2="386" y2="78" stroke="#DDE3E0" marker-end="url(#figure-3-bdD)"/>
+          <line x1="494" y1="78" x2="508" y2="78" stroke="#DDE3E0" marker-end="url(#figure-3-bdD)"/>
+          <circle cx="258" cy="78" r="3.5" fill="#FF4646"/>
+
+          <text x="24" y="126" fill-opacity="0.5">why one fixed threshold is enough</text>
+
+          <line x1="278.9" y1="166" x2="278.9" y2="258" stroke="#DDE3E0" stroke-width="1" stroke-dasharray="2 2" stroke-opacity="0.7"/>
+          <text x="279" y="160" text-anchor="middle" fill-opacity="0.7">165 K</text>
+
+          <text x="120" y="176">steady fire flicker</text>
+          <rect x="139.6" y="182" width="68.4" height="14" rx="2" fill="rgba(255,255,255,0.06)" stroke="#9AA3A0" stroke-width="1"/>
+          <text x="120" y="210" fill="#9AA3A0">peaks 108 to 136 K</text>
+
+          <text x="507" y="216" text-anchor="end" fill="#FFD264">detonations</text>
+          <rect x="468.5" y="222" width="39.1" height="14" rx="2" fill="rgba(255,255,255,0.06)" stroke="#FFD264" stroke-width="1"/>
+          <text x="507" y="250" text-anchor="end" fill="#FFD264">peaks 243 to 259 K</text>
+
+          <text x="340" y="270" text-anchor="middle" fill-opacity="0.6">nothing at all lands between 136 and 243 K</text>
+
+          <line x1="120" y1="282" x2="560" y2="282" stroke="#DDE3E0" stroke-width="1" stroke-opacity="0.35"/>
+          <text x="120" y="296" text-anchor="middle" fill="#9AA3A0">100</text>
+          <text x="340" y="296" text-anchor="middle" fill="#9AA3A0">excursion above the bin baseline</text>
+          <text x="560" y="296" text-anchor="end" fill="#9AA3A0">280 K</text>
+
+          <text x="320" y="326" text-anchor="middle" fill-opacity="0.85">the frame-to-frame delta is only 1 to 8 K, so differencing frames finds nothing</text>
+          <text x="320" y="348" text-anchor="middle">a detonation outruns its own baseline &#183; a fire never does</text>
+        </g>
+        </svg>
+        </div>
+        <div class="schem-legend">
+          <i class="part"></i><span>particle state &mdash; the vent, which happens entirely on the GPU</span>
+          <i class="grid"></i><span>field state &mdash; the air temperature grid, already downloaded every frame</span>
+          <i class="mark"></i><span>the one crossing &mdash; where GPU state becomes a CPU event, at no extra readback cost</span>
+        </div>
+        <figcaption>Detonation detection by baseline excursion. The measurements are from a 35-second run of
+        <em>Chain: Powder Row Dominoes</em>.</figcaption>
+      </figure>
+    </div>
+
+    <div class="grid-2">
+      <div class="panel">
+        <h3>The problem</h3>
+        <p>The blast effect stack &mdash; shockwave rings, explosion details, debris, foam, scorch and crack
+        decals, blast lights, screen shake, the detonation flash and the volumetric god rays &mdash; all hung
+        off a <code>just_ruptured</code> hook that only fires for pressure vessels, and pressure vessels were
+        only ever created by the projectile-firing path.</p>
+        <p>Scene-authored charges detonate per-particle inside the P2G vent branch, entirely on the GPU. They
+        produced no CPU event at all. The measured consequence: 35 seconds of a scene built around chained
+        explosions reported <code>blast_lights = 0</code>, <code>flash = 0.000</code>,
+        <code>trauma = 0.000</code> for the whole run. Roughly eight effects were invisible in exactly the
+        scenes authored to show explosions off.</p>
+        <h3>Why rate of change does not work</h3>
+        <p>The obvious detector &mdash; watch for a big frame-to-frame jump in air temperature &mdash; was
+        built first and found nothing. Detection runs per physics substep, and a vent&rsquo;s heat diffuses
+        into the air grid over many of them, so the per-step delta is only 1&ndash;8&nbsp;K even while the
+        grid is reaching 1000&nbsp;K. The first model measured 1.3&ndash;8.2&nbsp;K against a 220&nbsp;K
+        threshold: it never fired once.</p>
+      </div>
+      <div class="panel">
+        <h3>What does work</h3>
+        <p>What separates a detonation from a steady fire is not how fast the temperature changes but how far
+        it gets from its own recent average. A fire&rsquo;s baseline catches up with it. A detonation outruns
+        its baseline.</p>
+        <p>So each bin of the air grid keeps a slow running average (&tau; = 0.85&nbsp;s) and fires when the
+        current temperature excurses far enough above it and ends above an absolute floor. Measured on the
+        chain scene, detonations peak at 243&ndash;259&nbsp;K of excursion and steady fire flicker peaks at
+        108&ndash;136&nbsp;K. The default threshold of 165&nbsp;K sits in the empty gap with margin on both
+        sides.</p>
+        <p>The air temperature grid is already downloaded to the CPU every frame &mdash; to be re-uploaded as
+        a texture &mdash; and then discarded. Retaining that copy is the entire cost of the feature: no new
+        readback, no new GPU work, and no hook inside the physics path.</p>
+        <div class="callout">
+          <p><strong>Toggle:</strong> <em>Scene Blast Events</em>. On (the default), scene charges drive the
+          whole effect stack. Off, only fired projectiles produce blasts, exactly as before. The excursion,
+          floor, bin size and cooldown are all exposed as sliders next to it.</p>
+          <p>It is deliberately a <em>detector</em>, not a solver hook. It makes no claim to know which
+          particle vented &mdash; only that something violent happened here. That is enough to drive visual
+          effects and it keeps the whole feature outside the physics path.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>The other coupling: airtightness</h3>
+      <p>Separately from detection, three of the burning materials and both hard charges rasterise into the
+      Eulerian airtight grid (<code>euler_airtight_rasterize.comp</code> handles <code>BURNING</code>,
+      <code>EMBER</code>, <code>FIRECRACKER</code>, <code>REACTIVE_BURN</code>, <code>STONEWARE</code> and
+      <code>SEALED_CHARGE</code>). They write an occupancy channel with <code>atomicMax</code> and a source
+      channel with <code>atomicAdd</code>, which is how a charge going off inside a closed room raises the
+      room&rsquo;s pressure rather than just heating it.</p>
+      <p>Note that this coupling runs in one direction for detection purposes and the opposite direction for
+      pressure: the charge writes air <em>sources</em>, and the sealed charge alone reads an enclosure factor
+      back. See the coupling graph on the
+      <a href="mechanics_relationships.html#relationships">Mechanics Relationship Map</a> for where this sits
+      in the frame.</p>
+    </div>
+  </section>
+
+  <!-- ==================================================================== -->
+  <section id="scenes">
+    <h2>The Bench</h2>
+    <div class="panel">
+      <p>Sixteen scenes carry the <code>blast</code> tag. They fall into three groups, and the grouping is
+      worth knowing before you go looking: most of the armour scenes ship <em>without</em> a charge in them,
+      because they are targets, not demonstrations.</p>
+      <table>
+        <tr><th>Scene</th><th>Group</th><th>What it isolates</th></tr>
+        <tr><td>Pressure Pantry</td><td>vessel</td><td>Three compartments &mdash; gunpowder, pellets, popcorn &mdash; each kicking its own lid. The clearest look at pressure building against a seal.</td></tr>
+        <tr><td>Hybrid: Pressure Pottery</td><td>vessel</td><td>Sealed-charge beads cooking under glaze, stoneware and blister lids. The vent gate against three different shell strengths.</td></tr>
+        <tr><td>Fix Test: Blast Cooldown</td><td>vessel</td><td>One heated sealed charge inside a ring of six ceramic witness pebbles. Built to check that the detector fires once, not repeatedly.</td></tr>
+        <tr><td>Blast Armor Lane</td><td>target</td><td>Metal plate, stoneware tile and a layered stack with a witness sheet. No charge; you bring one.</td></tr>
+        <tr><td>Breach Chamber</td><td>target</td><td>A closed room with a freestanding blast door. The airtight coupling matters here &mdash; the room holds pressure.</td></tr>
+        <tr><td>Spall Plate Bench</td><td>target</td><td>Three armour lanes with spall liners and backers. Fragment behaviour behind a plate.</td></tr>
+        <tr><td>Open Blast Range XL</td><td>target</td><td>Twelve units wide, widely spaced targets, far catch wall. Long fragment flight.</td></tr>
+        <tr><td>Breach Hall XL</td><td>target</td><td>A long roofed hall with a tall blast door and a rear bulkhead. Pressure in a big enclosed volume.</td></tr>
+        <tr><td>Spall Gallery XL</td><td>target</td><td>Extra-long three-lane gallery. The same test as the bench, with room for the fragments to separate.</td></tr>
+        <tr><td>Hybrid: Soft HEAT Range</td><td>target</td><td>Three layered armour lanes on plinths, waiting for fired charges.</td></tr>
+        <tr><td>Huge Weapon Range</td><td>target</td><td>24&nbsp;m range with spaced walls, pillars, a ramp plateau and a soft gel witness.</td></tr>
+        <tr><td>Huge Impact Playground</td><td>chain</td><td>Bouncy balls, columns, crates, wood, paper, oil and firecrackers in one box. Unstructured, and the best place to be surprised.</td></tr>
+        <tr><td>Chain: Powder Row Dominoes</td><td>chain</td><td><strong>The reference scene.</strong> Nine stations: pops, then deflagrations, then a keg finale, with a quench tub at the right. Every measurement on this page came from it.</td></tr>
+        <tr><td>Combo: Magnet Mine</td><td>chain</td><td>A magnet drags a soft-iron-jacketed charge onto a hot anvil, and the blast demagnetises the trap above it. Magnetic and thermal in one loop.</td></tr>
+        <tr><td>Chain: Meissner Dead-Man Switch</td><td>chain</td><td>A levitating superconductor plate warms through its critical temperature, drops, and its firecracker satchel lands in a candle.</td></tr>
+        <tr><td>Showcase: Foundry Meltdown</td><td>chain</td><td>Six systems in sequence: oil fire, gantry collapse, keg, embers, shed backdraft, Curie cistern drop. The longest cascade in the build.</td></tr>
+      </table>
+      <p class="caption">The three <em>Chain</em> scenes and the <em>Showcase</em> are the ones that
+      demonstrate the propagation mechanism. Everything in the <em>target</em> group is a measuring
+      instrument: it shows what a blast does <em>to</em> something, not what a charge does on its own.</p>
+    </div>
+  </section>
+
+  <!-- ==================================================================== -->
+  <section id="knobs">
+    <h2>Knobs</h2>
+    <div class="grid-2">
+      <div class="panel">
+        <h3>The four authored thermal channels</h3>
+        <p>Every charge reads a <code>vec4</code> of thermal coupling, fetched per particle from a texture and
+        falling back to a per-material default when unauthored. The four channels are named after what they
+        do, and each charge uses a different subset:</p>
+        <table>
+          <tr><th>Channel</th><th>Name in shader</th><th>Effect</th><th>Used by</th></tr>
+          <tr><td><code>.x</code></td><td><code>batch_outgas</code></td><td>Scales the gas target directly.</td><td>sealed charge only</td></tr>
+          <tr><td><code>.y</code></td><td><code>batch_heat</code></td><td>Adds to the self-heating rate.</td><td>all three</td></tr>
+          <tr><td><code>.z</code></td><td><code>batch_cooling</code></td><td>Scales the ignition rate.</td><td>all three</td></tr>
+          <tr><td><code>.w</code></td><td><code>batch_loft</code></td><td>Adds 100&ndash;120&nbsp;K to the vent temperature floor.</td><td>all three</td></tr>
+        </table>
+        <p class="caption"><code>batch_cooling</code> is the confusingly-named one: it does not cool anything
+        in these branches, it modulates how quickly the fuse takes. It is shared with the baking materials,
+        where the name makes more sense.</p>
+      </div>
+      <div class="panel">
+        <h3>Pseudo-2.5D enclosure</h3>
+        <p>With the pseudo-2.5D system enabled, the enclosure knob produces
+        <code>pseudo_enclosure_hold = 1 + enclosure &times; (0.14 + 0.86 &times; core_seed)</code>, and the sealed
+        charge folds it straight into its cavity term:</p>
+        <p><code>cavity_hold = (1.46 + pseudo_enclosure_hold) &times; mix(2.30, 0.88, shell_seed)</code></p>
+        <p>With pseudo-2.5D off that resolves to <code>2.46 &times; mix(2.30, 0.88, shell_seed)</code> &mdash;
+        between 2.16 and 5.66 depending on the seed. Turning enclosure up raises the whole band, so a buried
+        keg genuinely holds more pressure before it lets go, and lets go harder when it does.</p>
+        <p>Of the three charges, only the sealed charge reads this. The firecracker and reactive burn ignore
+        it entirely, which is intentional: a firecracker is a small thing in open air and burying it should
+        not turn it into a bomb.</p>
+        <h3>Where to look in the app</h3>
+        <p>The <em>Scene Blast Events</em> checkbox and its four sliders live in the effects section. The
+        blast-model selector (<em>Legacy per-frame push</em> versus <em>Sedov Front</em>) is a separate,
+        independent toggle that governs how the shockwave is <em>drawn</em>, not how the charge behaves.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================================================================== -->
+  <section id="caveats">
+    <h2>What Is Approximate</h2>
+    <div class="grid-2">
+      <div class="panel">
+        <h3>Honest limitations</h3>
+        <ul>
+          <li><strong>There is no detonation physics.</strong> Nothing here models a reaction front, a
+          Chapman&ndash;Jouguet state or an equation of state for hot product gas. What exists is a scalar
+          gas fraction that inflates a hyperelastic solid until it tears. It is a pressure vessel, and it is
+          honest about being one.</li>
+          <li><strong>The burst direction is uniformly random, not radial.</strong> Fragments do not fly
+          outward from a centre &mdash; each particle picks its own angle. The outward appearance comes from
+          the fact that the outside of the charge vents first and the inside is still solid. A charge that
+          vents from its middle outward will look wrong.</li>
+          <li><strong>Fragment speed is applied per substep while the gate is open</strong>, so total
+          delivered impulse depends on how long the gate stays open, which depends on how fast gas bleeds.
+          The quoted 28&ndash;84 m/s is a per-substep ceiling, not a muzzle velocity.</li>
+          <li><strong>The detector cannot distinguish two charges in the same bin.</strong> Bins are 8 grid
+          cells on a side with a 0.45&nbsp;s cooldown, so a tight cluster reports one event, not five.</li>
+          <li><strong>Terrain never moves.</strong> The SDF pushes on particles; particles never push back.
+          A charge against a wall cannot crater it. See the coupling graph on the
+          <a href="mechanics_relationships.html">Relationship Map</a> &mdash; that missing return edge is
+          drawn there explicitly.</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h3>Things that look like bugs and are not</h3>
+        <ul>
+          <li><strong>A charge that heats slowly may never go off.</strong> That is the seal-bleed feedback
+          working as designed: crack grows, <code>sealed</code> falls, pressure never reaches the gate. Heat
+          it faster and it detonates.</li>
+          <li><strong>A sealed charge tears open asymmetrically.</strong> Intended &mdash; the ignition
+          threshold is seeded per particle across 48&nbsp;K, so the hot side converts first.</li>
+          <li><strong>Reactive burn makes a lot of noise and little shrapnel.</strong> Also intended: it
+          cracks earliest and pushes least of the three. It is the deflagration in the family.</li>
+          <li><strong>Nothing happens below 405&nbsp;K with reactive burn even though it is visibly
+          charring.</strong> Charring starts at 350&nbsp;K but gas generation does not begin until
+          405&nbsp;K. There is a 55&nbsp;K window where it looks like it is doing something and physically
+          is not.</li>
+        </ul>
+        <div class="callout">
+          <p>If a chain stalls, the first thing to check is not the charges &mdash; it is the air. The
+          propagation path runs entirely through the air temperature grid, so a scene with strong ventilation,
+          a large cell size, or an oxygen-starved pocket can break a chain that is otherwise correctly
+          spaced.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+</body>
+</html>

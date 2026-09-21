@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="660" viewBox="0 0 1200 660" role="img" aria-labelledby="title desc">
+  <title id="title">Modal2D — geometry, eigenmodes, sound and tuned instruments</title>
+  <desc id="desc">System schematic. A meshed shape produces vibration modes through K phi equals lambda M phi. A strike selects modal amplitudes, damped modes form a spectrum, and target notes drive new geometry solves. Curves and spectral bars are conceptual illustrations, not measured output.</desc>
+  <defs>
+    <linearGradient id="bg" x2="1" y2="1"><stop stop-color="#0a1520"/><stop offset="1" stop-color="#171223"/></linearGradient>
+    <linearGradient id="glass" x2=".8" y2="1"><stop stop-color="#28313f" stop-opacity=".68"/><stop offset="1" stop-color="#121a26" stop-opacity=".9"/></linearGradient>
+    <linearGradient id="gold" x2="0" y2="1"><stop stop-color="#e9c994"/><stop offset="1" stop-color="#6c5941"/></linearGradient>
+    <linearGradient id="mint" x2="0" y2="1"><stop stop-color="#8ce8d5"/><stop offset="1" stop-color="#376d6d"/></linearGradient>
+    <linearGradient id="purple" x2="0" y2="1"><stop stop-color="#c0a5f2"/><stop offset="1" stop-color="#514466"/></linearGradient>
+    <radialGradient id="halo"><stop stop-color="#b797e8" stop-opacity=".13"/><stop offset="1" stop-color="#b797e8" stop-opacity="0"/></radialGradient>
+    <pattern id="dots" width="42" height="42" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="1" fill="#8fabb9" opacity=".1"/></pattern>
+    <filter id="glow" x="-70%" y="-70%" width="240%" height="240%"><feGaussianBlur stdDeviation="5"/></filter>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M1 1L6 4L1 7" fill="none" stroke="#d9bd83" stroke-width="1.4"/></marker>
+    <clipPath id="shape"><path d="M95 282L143 251L226 281L258 338L226 400L142 414L93 369Z"/></clipPath>
+  </defs>
+  <rect width="1200" height="660" rx="28" fill="url(#bg)"/>
+  <rect x="1" y="1" width="1198" height="658" rx="27" fill="url(#dots)" stroke="#77808f" stroke-opacity=".26"/>
+  <ellipse cx="757" cy="304" rx="430" ry="330" fill="url(#halo)"/>
+  <g font-family="Segoe UI,Arial,sans-serif">
+    <text x="48" y="49" font-size="20" letter-spacing="3" fill="#aeb0e6">MODAL2D</text>
+    <text x="48" y="101" font-size="42" font-weight="600" fill="#f3eee2">Design the shape. Hear the structure.</text>
+    <text x="49" y="132" font-size="21" fill="#a9bdc8">Geometry determines the modes. Excitation selects the sound. Tuning closes the loop.</text>
+    <rect x="938" y="24" width="213" height="38" rx="19" fill="#ddbb78" fill-opacity=".07" stroke="#ddbb78" stroke-opacity=".4"/>
+    <text x="1044" y="50" text-anchor="middle" font-size="20" fill="#dec89b">System schematic</text>
+    <path d="M48 149H1152" stroke="#9cb1be" stroke-opacity=".17"/>
+    <rect x="48" y="184" width="250" height="318" rx="22" fill="url(#glass)" stroke="#e1bd76" stroke-opacity=".5"/>
+    <rect x="333" y="184" width="250" height="318" rx="22" fill="url(#glass)" stroke="#79dcca" stroke-opacity=".5"/>
+    <rect x="618" y="184" width="250" height="318" rx="22" fill="url(#glass)" stroke="#ac96e5" stroke-opacity=".5"/>
+    <rect x="903" y="184" width="250" height="318" rx="22" fill="url(#glass)" stroke="#e1bd76" stroke-opacity=".5"/>
+    <text x="73" y="222" font-size="22" font-weight="600" fill="#e8c78b">Physical geometry</text>
+    <text x="358" y="222" font-size="22" font-weight="600" fill="#8ee5d3">Eigenmodes</text>
+    <text x="643" y="222" font-size="22" font-weight="600" fill="#c4b2f1">Excited spectrum</text>
+    <text x="928" y="222" font-size="22" font-weight="600" fill="#e8c78b">Tuned instruments</text>
+    <text x="173" y="474" font-size="20" text-anchor="middle" fill="#c8c0b2">Material + supports</text>
+    <text x="458" y="474" font-size="22" text-anchor="middle" fill="#b4dfd5">Kφ = λMφ</text>
+    <text x="743" y="474" font-size="20" text-anchor="middle" fill="#c9bedc">Strike → amplitudes</text>
+    <text x="1028" y="474" font-size="20" text-anchor="middle" fill="#c8c0b2">Target notes → sizes</text>
+  </g>
+
+  <!-- Meshed object: stylized topology, not a claimed numerical result. -->
+  <path d="M95 282L143 251L226 281L258 338L226 400L142 414L93 369Z" fill="#d6b779" fill-opacity=".08" stroke="#e6c992" stroke-width="2"/>
+  <g clip-path="url(#shape)" stroke="#d8bb7e" stroke-opacity=".38" stroke-width="1.2">
+    <path d="M65 280H280M65 316H280M65 352H280M65 388H280M100 230L220 450M143 230L263 450M186 230L306 450M57 230L177 450M20 230L140 450M107 230L-13 450M150 230L30 450M193 230L73 450M236 230L116 450M279 230L159 450M322 230L202 450"/>
+  </g>
+  <g fill="#eed3a2"><circle cx="95" cy="282" r="4"/><circle cx="143" cy="251" r="4"/><circle cx="226" cy="281" r="4"/><circle cx="258" cy="338" r="4"/><circle cx="226" cy="400" r="4"/><circle cx="142" cy="414" r="4"/><circle cx="93" cy="369" r="4"/></g>
+  <path d="M78 373L94 369L85 389M126 424L142 414L138 437" fill="none" stroke="#9caab9" stroke-width="2"/>
+
+  <!-- Three sign-changing mode illustrations with their nodal locations. -->
+  <g stroke="#728e9b" stroke-opacity=".3" stroke-dasharray="4 5"><path d="M365 296H555M365 353H555M365 410H555"/></g>
+  <path d="M369 296Q459 232 549 296" fill="none" stroke="#86e1cf" stroke-width="16" opacity=".15" filter="url(#glow)"/>
+  <path d="M369 296Q459 232 549 296" fill="none" stroke="#86e1cf" stroke-width="3.5"/>
+  <path d="M369 353Q414 297 459 353Q504 409 549 353" fill="none" stroke="#e5c288" stroke-width="3.5"/>
+  <path d="M369 410Q399 366 429 410Q459 454 489 410Q519 366 549 410" fill="none" stroke="#bda4ec" stroke-width="3.5"/>
+  <g fill="#17222d" stroke="#c4d4d8" stroke-width="1.5"><circle cx="369" cy="296" r="4"/><circle cx="549" cy="296" r="4"/><circle cx="369" cy="353" r="4"/><circle cx="459" cy="353" r="4"/><circle cx="549" cy="353" r="4"/><circle cx="369" cy="410" r="4"/><circle cx="429" cy="410" r="4"/><circle cx="489" cy="410" r="4"/><circle cx="549" cy="410" r="4"/></g>
+
+  <!-- Relative modal weights: conceptual spectrum, no quantitative units claimed. -->
+  <g fill="none" stroke="#96a8bb" stroke-opacity=".18"><path d="M650 296H839M650 350H839M650 405H839"/><path d="M650 266V418H839"/></g>
+  <path d="M681 405V286" stroke="#89e5d4" stroke-width="14" opacity=".23" filter="url(#glow)"/>
+  <rect x="677" y="286" width="8" height="119" rx="3" fill="url(#mint)"/>
+  <rect x="715" y="327" width="8" height="78" rx="3" fill="url(#gold)"/>
+  <rect x="754" y="350" width="8" height="55" rx="3" fill="url(#purple)"/>
+  <rect x="795" y="377" width="6" height="28" rx="2" fill="url(#gold)"/>
+  <rect x="821.5" y="390" width="5" height="15" rx="2" fill="url(#mint)"/>
+  <g fill="#eef2e9"><circle cx="681" cy="286" r="4"/><circle cx="719" cy="327" r="4"/><circle cx="758" cy="350" r="4"/></g>
+  <g font-family="Segoe UI,Arial,sans-serif" font-size="20" fill="#9cb1c0"><text x="650" y="260">Weight</text><text x="839" y="445" text-anchor="end">Frequency →</text></g>
+
+  <!-- Different solved geometries become a note set. -->
+  <path d="M927 303H1129M927 319H1129M927 335H1129M927 351H1129" stroke="#b9a981" stroke-opacity=".14"/>
+  <g stroke-width="1.5">
+    <rect x="934" y="269" width="30" height="151" rx="9" fill="url(#gold)" fill-opacity=".6" stroke="#e2c38d"/>
+    <rect x="983" y="286" width="30" height="117" rx="9" fill="url(#mint)" fill-opacity=".6" stroke="#86ddce"/>
+    <rect x="1032" y="301" width="30" height="87" rx="9" fill="url(#purple)" fill-opacity=".65" stroke="#bea5ed"/>
+    <rect x="1081" y="314" width="30" height="61" rx="9" fill="url(#gold)" fill-opacity=".6" stroke="#e2c38d"/>
+  </g>
+  <g fill="#f1e7d3"><circle cx="949" cy="300" r="3"/><circle cx="949" cy="389" r="3"/><circle cx="998" cy="310" r="3"/><circle cx="998" cy="379" r="3"/><circle cx="1047" cy="319" r="3"/><circle cx="1047" cy="370" r="3"/><circle cx="1096" cy="327" r="3"/><circle cx="1096" cy="362" r="3"/></g>
+  <g font-family="Segoe UI,Arial,sans-serif" font-size="20" text-anchor="middle" fill="#ddd6c8"><text x="949" y="447">C4</text><text x="998" y="447">D4</text><text x="1047" y="447">E4</text><text x="1096" y="447">G4</text></g>
+  <g fill="none" stroke="#d9bd83" stroke-width="1.8" marker-end="url(#arrow)"><path d="M305 341H324"/><path d="M590 341H609"/><path d="M875 341H894"/></g>
+
+  <path d="M1028 516V548Q1028 565 1011 565H190Q173 565 173 548V518" fill="none" stroke="#d9bd83" stroke-opacity=".7" stroke-width="1.7" marker-end="url(#arrow)"/>
+  <rect x="333" y="536" width="535" height="52" rx="22" fill="#111b28" stroke="#d9bd83" stroke-opacity=".15"/>
+  <g font-family="Segoe UI,Arial,sans-serif">
+    <text x="600" y="568" text-anchor="middle" font-size="22" fill="#e1c896">Inverse design: resize → solve → verify pitch</text>
+    <circle cx="59" cy="617" r="5" fill="#84decb"/><text x="76" y="624" font-size="20" fill="#acbfc9">Damped modal synthesis</text>
+    <circle cx="412" cy="617" r="5" fill="#b69eea"/><text x="429" y="624" font-size="20" fill="#acbfc9">Cavity + radiation studies</text>
+    <text x="1152" y="624" text-anchor="end" font-size="20" fill="#d7c39b">Scores · MIDI · saved instrument sets</text>
+  </g>
+</svg>

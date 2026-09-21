@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><script src="../../portfolio-lab-frame.js"></script><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark"><title>How a renderer finds a path</title><link rel="stylesheet" href="../../media/brochures/radiance-lab/lab-transport.css"><link rel="stylesheet" href="../../portfolio-controls.css"><!-- universal-navigation:start --><link rel="stylesheet" href="../../portfolio-location.css?v=054b6b462c"><script defer src="../../portfolio-location.js?v=054b6b462c"></script><script defer src="../../portfolio-routes.js?v=054b6b462c"></script><script defer src="../../portfolio-universal-navigation.js?v=054b6b462c"></script><!-- universal-navigation:end --><style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head>
+<body>
+<header><div><span class="eyebrow">Interactive schematic · transport strategies</span><h1>How a renderer finds a path</h1><p id="intro">Construct the same light path from different endpoints, then inspect how multiple importance sampling shares its contribution.</p></div><span class="badge">Computed teaching models</span></header>
+<nav class="tabs" aria-label="Transport method"><button type="button" data-mode="bdpt" aria-pressed="true">BDPT + MIS</button><button type="button" data-mode="vcm" aria-pressed="false">VCM</button><button type="button" data-mode="upbp" aria-pressed="false">UPBP</button><button type="button" data-mode="guiding" aria-pressed="false">Path guiding</button><button type="button" data-mode="manifold" aria-pressed="false">Manifold exploration</button></nav>
+<div class="controls" id="controls"></div>
+<section class="stage"><canvas id="diagram" role="img" aria-label="Transport strategy construction"></canvas><div class="metrics" aria-live="polite"><div><b id="metric-a"></b><span id="label-a"></span></div><div><b id="metric-b"></b><span id="label-b"></span></div><div><b id="metric-c"></b><span id="label-c"></span></div></div></section>
+<div id="strategy-list" class="strategy-list" aria-label="All BDPT path splits"></div>
+<section class="notes"><div><h2 id="note-title"></h2><p id="note"></p><p class="formula" id="formula"></p></div><aside><h2>Inside RadianceLab</h2><p id="implementation"></p></aside></section>
+<footer><button type="button" id="reset">Reset this view ↺</button><span id="scope"></span><a id="paper" target="_blank" rel="noopener">Method reference ↗</a></footer>
+<script src="../../media/brochures/radiance-lab/transport-models.js"></script><script src="../../media/brochures/radiance-lab/lab-transport.js"></script>
+</body></html>

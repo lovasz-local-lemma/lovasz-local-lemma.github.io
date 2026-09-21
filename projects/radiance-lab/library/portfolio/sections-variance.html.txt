@@ -1,0 +1,52 @@
+<!-- ================= VARIANCE (slots after #surfaces, before #proof) ================= -->
+<section id="variance" style="--secc:var(--l460)" data-nav="Variance">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">05d — When does an estimator work well</p>
+      <h2>The variance has exactly three sources</h2>
+      <p class="lead">"Planes work when they face you" is true and useless. The systematic version is a closed-form Monte Carlo of every primitive's weight over the crossings a camera actually sees — 22 estimators, four parameter families, every number cited to a run.</p>
+      <p>Each analytic primitive samples some photon dimensions with a density <code>p</code>, sweeps two more into a sheet, and meets the camera ray at a crossing with weight</p>
+    </div>
+    <div class="formula">
+      <div class="f">W = f / ( p · J ),   J = |(∂x/∂α × ∂x/∂β) · d|</div>
+      <div class="n">and W = 0 when the sheet misses the ray. The per-pixel relative variance then comes from three places, and every finding in the study is one of them.</div>
+    </div>
+    <div class="narrow">
+      <ul class="clean">
+        <li><b>Miss mass.</b> With crossing probability <code>P</code>, the zero point-mass alone contributes <code>(1 − P)/P</code>. Measured as the <em>whole</em> story for the UV quad (rel std = 1.05–1.16 × √(1/P − 1) on 90% of pixels) and as the exponential wall of the photon sphere in dense fog.</li>
+        <li><b>How J vanishes.</b> Constant across a pixel: a grazing band <em>between</em> pixels, no in-pixel tail. Linearly with the sampled coordinate (the planes): an integrable tail, mean converges everywhere. As the square root — a <strong>fold</strong>, two quadric roots merging (sphere, cone, and every hourglass): <code>W ~ ε^{−1/2}</code>, tail index 2, and <code>E[W²]</code> is <em>log-divergent</em>. The sample variance of a fold member never converges (the sphere's grows 5.2 → 20.1 from 10³ to 1.6·10⁷ samples) and must never be read as a convergence gauge. A Cauchy fan (the disk): bounded, but silent on two exact rays.</li>
+        <li><b>Whether p tracks f.</b> Phase function, transmittance and emitter cosine are common multipliers — <em>unless</em> the phase peak sits on a member's singular locus. The same <code>g = 0.8</code> divides the sphere's variance by 23 and multiplies the disk's by 11 on identical Jacobian histograms.</li>
+      </ul>
+    </div>
+    <div class="pair">
+      <div class="pane">{{PNG:dirsweep_fig_var_vs_N.png}}</div>
+      <div class="pane">{{PNG:dirsweep_fig_phase_point.png}}</div>
+    </div>
+    <div class="paircap"><b>Study figures</b><span>Left: the sample variance of the sphere and cone estimators keeps growing with N — the fold's log-divergent second moment, measured. Right: the same crossings under three phase functions; the sphere's fold sits at the phase minimum and the disk's fan at its maximum, so one <code>g</code> helps one member and hurts the other.</span></div>
+
+    <div class="narrow">
+      <h3>The hourglass verdict, by light size</h3>
+      <p>The efficiency question between the two seeds has an answer, and it is not the Jacobian. The vertex members are <strong>light-trace-limited</strong>: at the baseline waist their light half succeeds on 1–2% of roots, and that is the whole 30–90× gap in coverage below. Their Jacobian term is actually 2–3× <em>smaller</em> than 20's, with no axial pathology.</p>
+      <div class="tw"><table>
+        <thead><tr><th>member</th><th>coverage</th><th>cv²</th><th>relvar</th><th>wins when</th></tr></thead>
+        <tbody>
+          <tr class="key"><td>20 light-seeded</td><td>0.738</td><td>8.2</td><td>11</td><td><b>point lights and emitters under ~10°</b> — nothing else exists there; worst at the paraxial focus (331), best just under the ball (4.2)</td></tr>
+          <tr><td>22a entry-seeded</td><td>0.011</td><td>2.5</td><td>331</td><td>emitters over ~35°: overtakes 20 at edge 2.4 (27.6 vs 65); flat in ior</td></tr>
+          <tr><td>23 exit cone</td><td>0.004</td><td>2.5</td><td>978</td><td>only low ior (≤ 1.2) with rays perpendicular to the axis; its back-trace through the ball loses coverage as ior rises</td></tr>
+          <tr><td>24 reflection cone</td><td>0.003–0.006</td><td>1.7–10</td><td>450–2140</td><td><b>reflection caustics from emitters of edge ≥ ~1</b> — 1.3–50× the reflected beam; loses below edge 0.3</td></tr>
+          <tr><td>18 beam, r = 0.01</td><td>0.110</td><td>0.14</td><td>9.3</td><td>as good as 20 at the waist; degrades linearly with the bundle radius; kernel-biased at the axial caustic</td></tr>
+        </tbody>
+      </table></div>
+      <p class="note"><b>What the numbers say to do next.</b> Not MIS between the seeds — their densities live in different measures and the vertex members rarely have a root where 20 does. Importance-sample the light half instead: aim <code>θ</code> at the emitter and the 1–2% success rate is the entire gap. The medium, meanwhile, is irrelevant to the whole hourglass family (coverage 0.738 at every σ<sub>t</sub>).</p>
+    </div>
+    <div class="pair">
+      <div class="pane">{{PNG:fig_hg_lightsize.png}}</div>
+      <div class="pane">{{PNG:fig_hg_height.png}}</div>
+    </div>
+    <div class="paircap"><b>Hourglass sweeps</b><span>Left: relative variance against emitter size for the four members — the crossover from 20 to 22a is where the emitter subtends ~35°. Right: camera height through the caustic; 20's spike at the paraxial focus is the axial line caustic sending every revolved sheet's <code>ρ → 0</code> at once.</span></div>
+    <div class="narrow">
+      <p>Six of the fifteen rules, each with its measurement in <code>docs/variance/README.md</code>: a single swept plane degrades like <code>sin(γ)^{−3}</code> in its angle to the camera; the three-plane mixture caps the worst pixel at 1.5 rel std in every viewing direction; never use the random-orientation plane when the continuous mixture exists (same samples, 1.6–2.2× better); the cone has an exact on/off criterion for bounded variance; the medium density matters only to members that sample a distance from it; and epsilon guards are irrelevant to variance — acceptance geometry and mixtures are what keep it finite.</p>
+      <p>The study also records where its own Monte Carlo means did not match quadrature — a −0.7% cone clamp bias, the beam's kernel bias at the axial caustic, and a fold-tailed running mean sitting 31% high at 4·10⁵ samples before settling — so nobody has to rediscover them.</p>
+    </div>
+  </div>
+</section>

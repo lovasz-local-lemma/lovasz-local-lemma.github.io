@@ -1,0 +1,613 @@
+<!doctype html>
+<html lang="en">
+<head><style id="portfolio-early-paint">html{background:#0b0d0c;color-scheme:dark}html.portfolio-booting body{opacity:0}</style><script src="../../portfolio-navigation.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BalanceForge — Technical Report</title>
+<style>
+  :root{
+    --bg:#0b0f16; --bg2:#121823; --bg3:#19212e; --line:#243042;
+    --fg:#e6edf3; --muted:#93a1b3; --dim:#6b7a8d;
+    --teal:#6ce2e2; --amber:#f5b769; --violet:#bd87ff; --red:#e8635f;
+    --green:#73e08a; --blue:#7fb4f0;
+    --radius:14px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; background:radial-gradient(1200px 700px at 70% -10%, #16243a 0%, var(--bg) 55%) fixed;
+    color:var(--fg); font:16px/1.65 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--teal); text-decoration:none}
+  a:hover{text-decoration:underline}
+  code,.mono{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace; font-size:.88em}
+  code{background:#0a1422; border:1px solid var(--line); border-radius:6px; padding:.08em .4em; color:#cfe6ff}
+  .wrap{max-width:1080px; margin:0 auto; padding:0 24px}
+
+  /* hero */
+  header.hero{padding:74px 0 40px; border-bottom:1px solid var(--line); position:relative; overflow:hidden}
+  .hero h1{font-size:clamp(34px,6vw,58px); line-height:1.04; margin:0 0 14px; letter-spacing:-.02em; font-weight:800}
+  .hero h1 .spark{background:linear-gradient(100deg,var(--teal),var(--violet) 60%,var(--amber)); -webkit-background-clip:text; background-clip:text; color:transparent}
+  .hero p.lede{font-size:clamp(17px,2.4vw,21px); color:var(--muted); max-width:760px; margin:0 0 26px}
+  .chips{display:flex; flex-wrap:wrap; gap:10px}
+  .chip{background:var(--bg2); border:1px solid var(--line); border-radius:999px; padding:8px 15px; font-size:13.5px; color:var(--muted)}
+  .chip b{color:var(--fg); font-weight:700}
+  .kicker{font:600 13px/1 ui-monospace,monospace; letter-spacing:.18em; text-transform:uppercase; color:var(--teal); margin-bottom:18px}
+
+  /* sections */
+  section{padding:54px 0; border-bottom:1px solid var(--line)}
+  h2{font-size:clamp(24px,3.4vw,33px); margin:0 0 6px; letter-spacing:-.01em; font-weight:750; display:flex; align-items:baseline; gap:14px}
+  h2 .n{font:700 15px/1 ui-monospace,monospace; color:var(--teal); opacity:.8; padding-top:6px}
+  h2 + .sub{color:var(--muted); margin:0 0 28px; max-width:780px; font-size:16.5px}
+  h3{font-size:18px; margin:34px 0 12px; color:var(--fg); font-weight:700}
+  p{margin:0 0 14px} ul{margin:0 0 14px; padding-left:22px} li{margin:5px 0}
+
+  /* recipe */
+  .recipe{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; margin-top:8px}
+  .crit{background:var(--bg2); border:1px solid var(--line); border-left:3px solid var(--teal); border-radius:12px; padding:16px 18px}
+  .crit h4{margin:0 0 5px; font-size:15px; color:var(--teal)}
+  .crit p{margin:0; font-size:14px; color:var(--muted)}
+
+  /* boundary figure */
+  figure{margin:8px 0 0; text-align:center}
+  figure svg{width:100%; height:auto; max-width:880px; border:1px solid var(--line); border-radius:var(--radius); background:linear-gradient(180deg,#0c1422,#0a0f18)}
+  figcaption{color:var(--dim); font-size:13.5px; margin-top:12px}
+
+  /* demo cards */
+  .grouphead{display:flex; align-items:center; gap:12px; margin:38px 0 14px}
+  .grouphead .ic{width:30px; height:30px; flex:0 0 30px; border-radius:8px; display:grid; place-items:center; font-size:16px}
+  .grouphead h3{margin:0; font-size:17px}
+  .grouphead .ct{color:var(--dim); font-size:13px; margin-left:auto}
+  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(330px,1fr)); gap:16px}
+  .card{background:linear-gradient(180deg,var(--bg2),#0f1622); border:1px solid var(--line); border-radius:var(--radius); padding:18px 20px; transition:transform .15s,border-color .15s}
+  .card:hover{transform:translateY(-3px); border-color:#33465f}
+  .card .top{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px}
+  .card h4{margin:0; font-size:16.5px; font-weight:750}
+  .card .char{color:var(--amber); font-size:13px; font-weight:600; margin:0 0 10px}
+  .card .row{display:flex; gap:8px; font-size:13.5px; margin:6px 0; color:var(--muted)}
+  .card .row .lab{flex:0 0 64px; color:var(--dim); font:600 11.5px/1.5 ui-monospace,monospace; text-transform:uppercase; letter-spacing:.04em; padding-top:1px}
+  .card .row .val{flex:1}
+  .card .metric{color:var(--teal); font-family:ui-monospace,monospace; font-size:12.5px}
+  .badge{font:700 10.5px/1 ui-monospace,monospace; letter-spacing:.06em; padding:5px 8px; border-radius:6px; text-transform:uppercase; white-space:nowrap}
+  .b-works{background:rgba(115,224,138,.14); color:var(--green); border:1px solid rgba(115,224,138,.3)}
+  .b-foil{background:rgba(232,99,95,.13); color:var(--red); border:1px solid rgba(232,99,95,.32)}
+  .b-batch{background:rgba(245,183,105,.13); color:var(--amber); border:1px solid rgba(245,183,105,.3)}
+
+  /* tables */
+  table{width:100%; border-collapse:collapse; margin:6px 0 8px; font-size:14.5px}
+  th,td{text-align:left; padding:11px 13px; border-bottom:1px solid var(--line); vertical-align:top}
+  th{color:var(--dim); font:600 12px/1.4 ui-monospace,monospace; text-transform:uppercase; letter-spacing:.05em}
+  tr:hover td{background:rgba(255,255,255,.015)}
+  td .why{color:var(--muted); font-size:13.5px}
+  .tag{display:inline-block; font:600 11px/1 ui-monospace,monospace; padding:4px 7px; border-radius:5px; border:1px solid var(--line); color:var(--muted)}
+  .tag.fund{color:var(--red); border-color:rgba(232,99,95,.3)}
+  .tag.shape{color:var(--amber); border-color:rgba(245,183,105,.3)}
+  .tag.infra{color:var(--blue); border-color:rgba(127,180,240,.3)}
+
+  .callout{background:linear-gradient(180deg,#11203a,#0e1626); border:1px solid #294063; border-left:3px solid var(--teal); border-radius:12px; padding:16px 20px; margin:18px 0}
+  .callout b{color:var(--teal)}
+  .two{display:grid; grid-template-columns:1fr 1fr; gap:18px}
+  @media(max-width:720px){.two{grid-template-columns:1fr}}
+  footer{padding:40px 0 70px; color:var(--dim); font-size:13.5px}
+  footer .mono{color:var(--muted)}
+  .muted{color:var(--muted)}
+</style>
+  <link rel="stylesheet" href="portfolio.css">
+<link rel="stylesheet" href="../../portfolio-controls.css"><link rel="stylesheet" href="../../portfolio-demo-return.css"><script defer src="../../portfolio-demo-return.js" data-project="balanceforge" data-title="BalanceForge" data-overview="projects/balanceforge/overview.html" data-group="signature" data-thumbnail="media/previews/balanceforge/native-dodge-spatial-neat-circuit.png" data-routes="[{&quot;project&quot;:&quot;balanceforge&quot;,&quot;title&quot;:&quot;BalanceForge&quot;,&quot;group&quot;:&quot;signature&quot;,&quot;thumbnail&quot;:&quot;media/previews/balanceforge/native-dodge-spatial-neat-circuit.png&quot;,&quot;overview&quot;:&quot;projects/balanceforge/overview.html&quot;,&quot;path&quot;:&quot;live_demos/balanceforge/index.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:2},{&quot;project&quot;:&quot;balanceforge&quot;,&quot;title&quot;:&quot;BalanceForge&quot;,&quot;group&quot;:&quot;signature&quot;,&quot;thumbnail&quot;:&quot;media/previews/balanceforge/native-dodge-spatial-neat-circuit.png&quot;,&quot;overview&quot;:&quot;projects/balanceforge/overview.html&quot;,&quot;path&quot;:&quot;live_demos/balanceforge/index.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:1},{&quot;project&quot;:&quot;balanceforge&quot;,&quot;title&quot;:&quot;BalanceForge&quot;,&quot;group&quot;:&quot;signature&quot;,&quot;thumbnail&quot;:&quot;media/previews/balanceforge/native-dodge-spatial-neat-circuit.png&quot;,&quot;overview&quot;:&quot;projects/balanceforge/overview.html&quot;,&quot;path&quot;:&quot;live_demos/balanceforge/control-study.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:1},{&quot;project&quot;:&quot;balanceforge&quot;,&quot;title&quot;:&quot;BalanceForge&quot;,&quot;group&quot;:&quot;signature&quot;,&quot;thumbnail&quot;:&quot;media/previews/balanceforge/native-dodge-spatial-neat-circuit.png&quot;,&quot;overview&quot;:&quot;projects/balanceforge/overview.html&quot;,&quot;path&quot;:&quot;live_demos/balanceforge/report.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:1},{&quot;project&quot;:&quot;balanceforge&quot;,&quot;title&quot;:&quot;BalanceForge&quot;,&quot;group&quot;:&quot;signature&quot;,&quot;thumbnail&quot;:&quot;media/previews/balanceforge/native-dodge-spatial-neat-circuit.png&quot;,&quot;overview&quot;:&quot;projects/balanceforge/overview.html&quot;,&quot;path&quot;:&quot;live_demos/balanceforge/diffsim-balance.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:1},{&quot;project&quot;:&quot;balanceforge&quot;,&quot;title&quot;:&quot;BalanceForge&quot;,&quot;group&quot;:&quot;signature&quot;,&quot;thumbnail&quot;:&quot;media/previews/balanceforge/native-dodge-spatial-neat-circuit.png&quot;,&quot;overview&quot;:&quot;projects/balanceforge/overview.html&quot;,&quot;path&quot;:&quot;live_demos/balanceforge/&quot;,&quot;query&quot;:{},&quot;priority&quot;:-1}]"></script><!-- universal-navigation:start --><link rel="stylesheet" href="../../portfolio-location.css?v=054b6b462c"><script defer src="../../portfolio-location.js?v=054b6b462c"></script><script defer src="../../portfolio-routes.js?v=054b6b462c"></script><script defer src="../../portfolio-universal-navigation.js?v=054b6b462c"></script><!-- universal-navigation:end --><style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head>
+<body class="portfolio-balanceforge-report">
+  <div class="portfolio-return" data-theme="dark" role="navigation" aria-label="Portfolio"><a class="portfolio-return-link" href="../../projects/balanceforge/index.html" target="_top"><span aria-hidden="true">←</span> Project overview</a></div>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">Technical Report · Evolutionary Neuro-Control Sandbox</div>
+    <h1>BalanceForge: teaching a tiny brain to <span class="spark">move things on purpose</span></h1>
+    <p class="lede">A browser sandbox that <em>evolves</em> a small neural controller for a 2-D physics task and lets you watch it learn live. This report maps the territory we charted: a recipe for tasks that train fast, the wall where they stop, sixteen working demos, the foils, and the theory under each one.</p>
+    <div class="chips">
+      <span class="chip"><b>16</b> trainable demos shipped</span>
+      <span class="chip"><b>&lt;15–60</b> generations to solve</span>
+      <span class="chip"><b>8</b> new reward objectives</span>
+      <span class="chip"><b>1</b> boundary: stability</span>
+      <span class="chip"><b>16/16</b> robust across 5 independent runs</span>
+      <span class="chip"><b>double pendulum</b> solved by exact gradients</span>
+      <span class="chip"><b>100%</b> headless-verified</span>
+    </div>
+  </div>
+</header>
+
+<section id="what">
+  <div class="wrap">
+    <h2><span class="n">01</span> What this is</h2>
+    <p class="sub">The loop is simple, the emergent behaviour isn't.</p>
+    <p>A <b>setup</b> defines a 2-D scene — a cart on a frictionless rail (position-controlled, so it never falls), optionally carrying a multi-link arm, a ball, or a target. A <b>policy</b> (a small multi-layer perceptron) reads an observation each physics step and outputs one or more actions (cart force, joint torques). An <b>objective</b> scores every step with a dense reward. A black-box <b>optimizer</b> — chiefly <a href="#methods">CMA-ES</a> — evolves a population of policies against that reward, and the canvas plays the current champion as it improves.</p>
+    <p>The whole thing is deterministic and headless-runnable, which let us hold every demo to one rule: <b>it must pass an automated training probe (random policy → solved, in &lt;~15 generations) before it ships.</b> That discipline is what produced a clean map instead of a pile of half-working toys.</p>
+  </div>
+</section>
+
+<section id="recipe">
+  <div class="wrap">
+    <h2><span class="n">02</span> The recipe for a task that trains fast</h2>
+    <p class="sub">Six properties. Hit all six and a random policy climbs to mastery in seconds of training. Miss one and you usually have a foil.</p>
+    <div class="recipe">
+      <div class="crit"><h4>Dense reward</h4><p>Nonzero everywhere, near-monotone improvement from a random policy. The optimizer always has a slope to climb.</p></div>
+      <div class="crit"><h4>Gen-0 success rigged</h4><p>The very first random policy already scores something climbable — the first target sits where the body starts.</p></div>
+      <div class="crit"><h4>Short credit horizon</h4><p>Reward now reflects action now. No long delays between doing the right thing and being paid for it.</p></div>
+      <div class="crit"><h4>Reactive-sufficient</h4><p>Solvable by reacting to the current observation — no anticipation, planning, or momentum-banking required.</p></div>
+      <div class="crit"><h4>Low-dim &amp; stable</h4><p>A position-controlled cart never falls. Stable bodies self-recover; the policy refines, it doesn't rescue.</p></div>
+      <div class="crit"><h4>Non-deceptive</h4><p>No well-paying local optimum that leads away from the goal. Potential-field shaping can turn even "go around" reactive.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="boundary">
+  <div class="wrap">
+    <h2><span class="n">03</span> The boundary — the one finding that organizes everything</h2>
+    <p class="sub">Task <em>complexity</em> is not the wall. <b>Instability</b> is. Stable control of <em>any</em> flavour — multi-joint coordination, moving targets, obstacle routing, selection, sequencing — trains fast. The two things that break it are an <b>unstable pose</b> (you must balance/swing up) and an <b>unshaped sparse reward</b> (you only score on a rare event).</p>
+    <figure>
+      <svg viewBox="0 0 880 500" xmlns="http://www.w3.org/2000/svg" font-family="ui-monospace,monospace">
+        <!-- zones -->
+        <defs>
+          <linearGradient id="gz" x1="0" y1="1" x2="1" y2="0">
+            <stop offset="0" stop-color="#123022" stop-opacity=".75"/><stop offset="1" stop-color="#0e1626" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <rect x="70" y="40" width="740" height="400" fill="url(#gz)"/>
+        <!-- the works zone -->
+        <path d="M70 440 L70 150 Q360 250 520 440 Z" fill="rgba(115,224,138,.10)" stroke="rgba(115,224,138,.45)" stroke-dasharray="6 6" stroke-width="1.5"/>
+        <text x="180" y="410" fill="#73e08a" font-size="15" font-weight="700">THE RELIABLE ZONE</text>
+        <text x="180" y="430" fill="#5e9a72" font-size="12">stable · dense · reactive</text>
+        <!-- axes -->
+        <line x1="70" y1="440" x2="810" y2="440" stroke="#34465e" stroke-width="1.5"/>
+        <line x1="70" y1="440" x2="70" y2="40" stroke="#34465e" stroke-width="1.5"/>
+        <text x="440" y="478" fill="#93a1b3" font-size="13" text-anchor="middle">STABILITY &nbsp;→&nbsp; (left = self-righting · right = must be balanced / swung up)</text>
+        <text x="34" y="240" fill="#93a1b3" font-size="13" text-anchor="middle" transform="rotate(-90 34 240)">REWARD DENSITY → (bottom = dense · top = sparse / anticipatory)</text>
+        <!-- demo cluster (teal) -->
+        <g fill="#6ce2e2">
+          <circle cx="150" cy="400" r="6"/><circle cx="185" cy="378" r="6"/><circle cx="135" cy="362" r="6"/>
+          <circle cx="210" cy="395" r="6"/><circle cx="170" cy="345" r="6"/><circle cx="240" cy="372" r="6"/>
+          <circle cx="200" cy="330" r="6"/><circle cx="265" cy="392" r="6"/><circle cx="155" cy="320" r="6"/>
+          <circle cx="285" cy="358" r="6"/><circle cx="230" cy="338" r="6"/><circle cx="300" cy="385" r="6"/>
+          <circle cx="320" cy="360" r="6"/><circle cx="270" cy="330" r="6"/><circle cx="345" cy="385" r="6"/>
+          <circle cx="318" cy="332" r="6"/>
+        </g>
+        <text x="150" y="300" fill="#9fe9e9" font-size="13" font-weight="700">16 shipped demos</text>
+        <text x="150" y="317" fill="#5d9a9a" font-size="11">tracking · interception · evasion · arms · juggle</text>
+        <!-- accelerating-track edge -->
+        <circle cx="470" cy="395" r="6" fill="#6ce2e2"/>
+        <line x1="476" y1="392" x2="540" y2="372" stroke="#3a586e" stroke-width="1"/>
+        <text x="544" y="368" fill="#9fe9e9" font-size="11.5">accelerating-track</text>
+        <text x="544" y="383" fill="#5d9a9a" font-size="10.5">rides the actuator speed-limit</text>
+        <!-- foils (red), at the walls -->
+        <g>
+          <circle cx="720" cy="395" r="7" fill="#e8635f"/>
+          <text x="708" y="375" fill="#f29b98" font-size="11.5" text-anchor="end">balance-angle</text>
+          <text x="708" y="389" fill="#a86663" font-size="10.5" text-anchor="end">unstable swept set-point</text>
+
+          <circle cx="765" cy="320" r="7" fill="#e8635f"/>
+          <text x="753" y="300" fill="#f29b98" font-size="11.5" text-anchor="end">chain-reach (up-target)</text>
+          <text x="753" y="314" fill="#a86663" font-size="10.5" text-anchor="end">multi-link swing-up</text>
+
+          <circle cx="430" cy="95" r="7" fill="#e8635f"/>
+          <text x="446" y="92" fill="#f29b98" font-size="11.5">chain-trace</text>
+          <text x="446" y="106" fill="#a86663" font-size="10.5">needs anticipation / momentum</text>
+
+          <circle cx="250" cy="80" r="7" fill="#e8635f"/>
+          <text x="266" y="77" fill="#f29b98" font-size="11.5">pong-volley</text>
+          <text x="266" y="91" fill="#a86663" font-size="10.5">sparse: rare ball contact</text>
+        </g>
+        <text x="650" y="150" fill="#c97a77" font-size="14" font-weight="700">THE WALLS</text>
+        <text x="650" y="168" fill="#8a5754" font-size="11.5">instability &amp; unshaped sparsity</text>
+      </svg>
+      <figcaption>Every working demo sits in the stable + dense + reactive corner. The four foils are pushed against the walls — and crucially, they fail for <em>different</em> reasons, none of them "too complex".</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section id="demos">
+  <div class="wrap">
+    <h2><span class="n">04</span> The demo suite</h2>
+    <p class="sub">Sixteen demos, each gated on a headless probe. Grouped by the control problem they pose. <span class="muted">Most also ship a "watch it learn" <a href="#curriculum">curriculum</a> variant.</span></p>
+
+    <div class="grouphead"><div class="ic" style="background:rgba(108,226,226,.14);color:var(--teal)">◎</div><h3>Position tracking — the canonical fast demo</h3><div class="ct">reactive · a proportional controller suffices</div></div>
+    <div class="grid">
+      <div class="card"><div class="top"><h4>rail-catcher</h4><span class="badge b-works">works</span></div>
+        <p class="char">Shadow a drifting dot</p>
+        <div class="row"><span class="lab">theory</span><span class="val">Pure 1-D position tracking. The optimal action is a function of the current cart→target error — textbook proportional control.</span></div>
+        <div class="row"><span class="lab">reward</span><span class="val"><code>chain_trace</code> — 2-D closeness, collapses to <span class="metric">1 − |Δx|/REF</span>.</span></div>
+        <div class="row"><span class="lab">result</span><span class="val metric">~5 gens · tracks to 7px</span></div>
+        <div class="row"><span class="lab">easy/hard</span><span class="val">Easy: monotone gradient, gen-0 aligned. The reference point for everything else.</span></div>
+      </div>
+      <div class="card"><div class="top"><h4>accelerating-track</h4><span class="badge b-works">works</span></div>
+        <p class="char">A chirp dot — find the speed wall</p>
+        <div class="row"><span class="lab">theory</span><span class="val">Tracking with a time-varying bandwidth. The target oscillates faster and faster, crossing the cart's max speed at ≈ t = 6.4 s.</span></div>
+        <div class="row"><span class="lab">reward</span><span class="val"><code>chain_trace</code> · cartAccel 3200</span></div>
+        <div class="row"><span class="lab">result</span><span class="val metric">head tracked to 9px, then visibly breaks</span></div>
+        <div class="row"><span class="lab">easy/hard</span><span class="val">A built-in honesty gauge: reactive tracking holds right up to the <em>actuator</em> limit, then degrades — not a learning failure, just physics.</span></div>
+      </div>
+      <div class="card"><div class="top"><h4>safe-zone</h4><span class="badge b-works">works</span></div>
+        <p class="char">Stay inside a drifting band</p>
+        <div class="row"><span class="lab">theory</span><span class="val">Set-membership control with a flat-topped cost: anywhere inside the band is maximal, so the goal is "stay within the moving zone", not "sit on a point".</span></div>
+        <div class="row"><span class="lab">reward</span><span class="val"><code>zone_keep</code> — full inside, ramps outside.</span></div>
+        <div class="row"><span class="lab">result</span><span class="val metric">in-band ~100% · ~10 gens</span></div>
+        <div class="row"><span class="lab">easy/hard</span><span class="val">Easy, but the flat plateau gives no within-band gradient — the band's <em>motion</em> supplies the tracking signal.</span></div>
+      </div>
+    </div>
+
+    <div class="grouphead"><div class="ic" style="background:rgba(245,183,105,.14);color:var(--amber)">⤓</div><h3>Interception, sequencing &amp; selection</h3><div class="ct">step-change targets · closed loops · argmin</div></div>
+    <div class="grid">
+      <div class="card"><div class="top"><h4>catch-drop</h4><span class="badge b-works">works</span></div>
+        <p class="char">Slide under a falling dot</p>
+        <div class="row"><span class="lab">theory</span><span class="val">Reactive interception — track the x of a faller, be under it when it lands; on landing it respawns at a new x (a step-change target).</span></div>
+        <div class="row"><span class="lab">reward</span><span class="val"><code>catch_drop</code> — x-only closeness · cartAccel 3200</span></div>
+        <div class="row"><span class="lab">result</span><span class="val metric">100% caught, landing &lt;10px · ~15 gens</span></div>
+        <div class="row"><span class="lab">easy/hard</span><span class="val">Harder than rail-catcher only in transit: the cart must re-cross to each new drop. A strong actuator makes it clean.</span></div>
+      </div>
+      <div class="card"><div class="top"><h4>pick-side</h4><span class="badge b-works">works</span></div>
+        <p class="char">Hop to whichever post is lit</p>
+        <div class="row"><span class="lab">theory</span><span class="val">Binary set-point regulation on a clock — the target is a square wave between two posts, flipping every 2.0 s.</span></div>
+        <div class="row"><span class="lab">reward</span><span class="val"><code>catch_drop</code> reuse</span></div>
+        <div class="row"><span class="lab">result</span><span class="val metric">on the lit post ~60% of the time</span></div>
+        <div class="row"><span class="lab">easy/hard</span><span class="val">The 2.0 s hold is <b>load-bearing</b>: shrink it and the cart must leave a post <em>before</em> the flip — that turns it anticipatory, i.e. a foil.</span></div>
+      </div>
+      <div class="card"><div class="top"><h4>tag-sequence</h4><span class="badge b-works">works</span></div>
+        <p class="char">Touch the lit posts in a self-paced cycle</p>
+        <div class="row"><span class="lab">theory</span><span class="val">Closed-loop waypoint sequencing: touching a post lights the next. The policy's own success drives the task forward — a genuine closed loop.</span></div>
+        <div class="row"><span class="lab">reward</span><span class="val"><code>tag_sequence</code> — closeness + a <b>+1 tag bonus</b> · cartAccel 3200</span></div>
+        <div class="row"><span class="lab">result</span><span class="val metric">~16 posts tagged in 8s</span></div>
+        <div class="row"><span class="lab">easy/hard</span><span class="val">The bonus is essential — see <a href="#shaping">Reward-shaping lessons</a>. Without it, touching a post relocates it and <em>drops</em> the reward, so a greedy policy hovers forever just outside the radius.</span></div>
+      </div>
+      <div class="card"><div class="top"><h4>prioritize-nearest</h4><span class="badge b-works">works</span></div>
+        <p class="char">Chase the closest of three dots</p>
+        <div class="row"><span class="lab">theory</span><span class="val">An <b>argmin</b> selection task: three dots drift; the policy must compute "which is nearest" from all three in its observation and chase it.</span></div>
+        <div class="row"><span class="lab">reward</span><span class="val"><code>catch_drop</code> against the nearest dot</span></div>
+        <div class="row"><span class="lab">result</span><span class="val metric">holds the nearest to ~11px</span></div>
+        <div class="row"><span class="lab">easy/hard</span><span class="val">A richer observation→action map than single-target tracking, but still reactive + dense. A small MLP learns the piecewise min.</span></div>
+      </div>
+      <div class="card"><div class="top"><h4>midpoint-meet</h4><span class="badge b-works">works</span></div>
+        <p class="char">Hold the midpoint of two dots</p>
+        <div class="row"><span class="lab">theory</span><span class="val">Derived-target regulation: the goal is on neither dot but the average between them — the policy must learn the relation x* = ½(x₁+x₂).</span></div>
+        <div class="row"><span class="lab">reward</span><span class="val"><code>catch_drop</code> on the computed midpoint (sharpened distScale)</span></div>
+        <div class="row"><span class="lab">result</span><span class="val metric">holds the average to ~7px</span></div>
+        <div class="row"><span class="lab">easy/hard</span><span class="val">Learning a [0.5, 0.5] weighting is subtler than copying one channel — a tightened reward basin keeps it from stalling on "track one dot".</span></div>
+      </div>
+    </div>
+
+    <div class="grouphead"><div class="ic" style="background:rgba(189,135,255,.14);color:var(--violet)">⇄</div><h3>Other control domains — evasion &amp; velocity</h3><div class="ct">the same machinery, inverted</div></div>
+    <div class="grid">
+      <div class="card"><div class="top"><h4>flee-the-dot</h4><span class="badge b-works">works</span></div>
+        <p class="char">Reactive evasion — the inverse of chasing</p>
+        <div class="row"><span class="lab">theory</span><span class="val">A repulsion-only field: maximize distance from a dot that homes onto the cart (plus a sway so it can't just be out-run to a wall).</span></div>
+        <div class="row"><span class="lab">reward</span><span class="val"><code>flee_evade</code> — the <em>negation</em> of catch_drop closeness, saturating at a clearance.</span></div>
+        <div class="row"><span class="lab">result</span><span class="val metric">holds ~240px clearance vs 68 parked</span></div>
+        <div class="row"><span class="lab">easy/hard</span><span class="val">Easy: the optimal action is "push away from the pursuer's current x". Watch for a pin-to-a-wall local optimum.</span></div>
+      </div>
+      <div class="card"><div class="top"><h4>cruise-control</h4><span class="badge b-works">works</span></div>
+        <p class="char">Match the dot's <em>speed</em>, not its position</p>
+        <div class="row"><span class="lab">theory</span><span class="val">Velocity-domain tracking — drive cart.vx to a commanded cruise velocity. A proportional controller on velocity error, with a small inherent phase lag.</span></div>
+        <div class="row"><span class="lab">reward</span><span class="val"><code>vel_match</code> (reads a one-line <code>velTarget</code> kinematics field)</span></div>
+        <div class="row"><span class="lab">result</span><span class="val metric">24px/s error vs 131 parked</span></div>
+        <div class="row"><span class="lab">easy/hard</span><span class="val">A genuinely different control problem from every position demo. The subtlety: perfect tracking wants feed-forward, but the slow command makes pure feedback reach ~98% — so it stays reactive.</span></div>
+      </div>
+    </div>
+
+    <div class="grouphead"><div class="ic" style="background:rgba(127,180,240,.14);color:var(--blue)">⊿</div><h3>Multi-DOF arms — coordination, navigation, dexterity</h3><div class="ct">cart + servo joints · the proof that complexity ≠ the wall</div></div>
+    <div class="grid">
+      <div class="card"><div class="top"><h4>arm-reach</h4><span class="badge b-works">works</span></div>
+        <p class="char">Cart + elbow reach a target</p>
+        <div class="row"><span class="lab">theory</span><span class="val">2-DOF inverse-kinematics reach. The cart positions the base, the servo elbow bends — together they place the hand. The target is <em>down-side</em>, gravity-stable: a reach, not a swing-up.</span></div>
+        <div class="row"><span class="lab">reward</span><span class="val"><code>chain_trace</code> positive-closeness (2 actions)</span></div>
+        <div class="row"><span class="lab">result</span><span class="val metric">hand to ~35px · ~40 gens</span></div>
+        <div class="row"><span class="lab">easy/hard</span><span class="val"><b>The proof that multi-DOF coordination trains fine.</b> Same actuator machinery as the failed swing-up reacher — stable pose instead of up-pose, and it just works.</span></div>
+      </div>
+      <div class="card"><div class="top"><h4>arm-track</h4><span class="badge b-works">works</span></div>
+        <p class="char">The arm follows a moving target</p>
+        <div class="row"><span class="lab">theory</span><span class="val">Reach-and-track: arm-reach with the target sweeping the reachable region. Continuous multi-DOF coordination on a moving goal.</span></div>
+        <div class="row"><span class="lab">reward</span><span class="val"><code>chain_trace</code></span></div>
+        <div class="row"><span class="lab">result</span><span class="val metric">follows within ~27px</span></div>
+        <div class="row"><span class="lab">easy/hard</span><span class="val">Slow sweep → still reactive. The first sign that "moving target" doesn't break multi-DOF.</span></div>
+      </div>
+      <div class="card"><div class="top"><h4>arm-obstacle</h4><span class="badge b-works">works</span></div>
+        <p class="char">Route the hand <em>around</em> an obstacle</p>
+        <div class="row"><span class="lab">theory</span><span class="val">Potential-field navigation (3 actions): an attraction to the target plus a soft repulsion from a fixed obstacle that blocks the straight path. Both are in the observation → the routing is reactive, no planning.</span></div>
+        <div class="row"><span class="lab">reward</span><span class="val"><code>reach_avoid</code> — closeness − soft repulsion</span></div>
+        <div class="row"><span class="lab">result</span><span class="val metric">reaches ~28px, 0% inside the obstacle</span></div>
+        <div class="row"><span class="lab">easy/hard</span><span class="val"><b>Key finding:</b> a non-convex "go around" path is <em>not</em> a foil when shaped as a potential field and the obstacle is observed. The shaping makes the deceptive landscape reactive.</span></div>
+      </div>
+      <div class="card"><div class="top"><h4>arm-dodge</h4><span class="badge b-works">works</span></div>
+        <p class="char">Hold a target while an obstacle drifts through</p>
+        <div class="row"><span class="lab">theory</span><span class="val">Dynamic re-routing: the repulsor <em>moves</em>, sweeping through the reach region, so the hand is repeatedly pushed off the target and must dodge then return. The same potential-field controller follows a moving repulsor.</span></div>
+        <div class="row"><span class="lab">reward</span><span class="val"><code>reach_avoid</code> (zero new code)</span></div>
+        <div class="row"><span class="lab">result</span><span class="val metric">holds ~59px, 0% inside the drifting obstacle</span></div>
+        <div class="row"><span class="lab">easy/hard</span><span class="val">Harder hold (it's shoved off periodically) but still reactive + stable.</span></div>
+      </div>
+      <div class="card"><div class="top"><h4>arm-slot</h4><span class="badge b-works">works</span></div>
+        <p class="char">Thread the needle into a narrow gap</p>
+        <div class="row"><span class="lab">theory</span><span class="val">Constrained reach: a target inside a slot flanked by two keep-out walls. The reward is a <b>capped funnel</b> — a small per-wall barrier that cancels at the slot center, so the field pulls the tip in without the walls pushing it out.</span></div>
+        <div class="row"><span class="lab">reward</span><span class="val"><code>thread_slot</code> — closeness − two capped barriers</span></div>
+        <div class="row"><span class="lab">result</span><span class="val metric">threads to ~19px, 0% wall contact</span></div>
+        <div class="row"><span class="lab">easy/hard</span><span class="val">The shaping is delicate — too strong a barrier pushes the tip <em>out</em> of the slot; see <a href="#shaping">lessons</a>.</span></div>
+      </div>
+    </div>
+
+    <div class="grouphead"><div class="ic" style="background:rgba(115,224,138,.14);color:var(--green)">◐</div><h3>The juggle — dual-objective control</h3><div class="ct">do two conflicting things at once</div></div>
+    <div class="grid">
+      <div class="card"><div class="top"><h4>plate-spin</h4><span class="badge b-works">works</span></div>
+        <p class="char">Carry a ball in a tray to a target — without spilling</p>
+        <div class="row"><span class="lab">theory</span><span class="val">A stable pendulum-on-cart in disguise. The ball in a <b>concave</b> bowl is a 1-D dynamics — restoring toward center minus the cart's acceleration (the pseudo-force that sloshes it) minus damping — so centered is a stable energy minimum, the <em>opposite</em> of an inverted pole. The policy must do setpoint tracking (cart→target) <em>and</em> disturbance rejection (ball-centering) at once: accelerate smoothly.</span></div>
+        <div class="row"><span class="lab">reward</span><span class="val"><code>plate_spin</code> = ½·ball-centered + ½·cart-on-target</span></div>
+        <div class="row"><span class="lab">result</span><span class="val metric">target to ~19px, ball within ~16px of center (lip 70)</span></div>
+        <div class="row"><span class="lab">easy/hard</span><span class="val"><b>Concave only.</b> A flat tray makes ball-centering an unstable slosh — the inverted-pendulum foil in disguise. The bowl is what keeps it tractable.</span></div>
+      </div>
+    </div>
+    <p class="muted" style="margin-top:22px; font-size:14px">The sandbox also carries a pre-existing menagerie — single/double/triple pendulums, a spring pendulum, golf &amp; putt, a bullet-dodge scene, and the multi-link chain — which span the harder, sometimes-foil end of the spectrum (swing-up, sparse strikes). The sixteen above are the demos that train <em>fast and immediately</em>.</p>
+  </div>
+</section>
+
+<section id="foils">
+  <div class="wrap">
+    <h2><span class="n">05</span> What doesn't work yet — and exactly why</h2>
+    <p class="sub">Four tasks resist reactive evolution. None of them because they're "too complex" — each violates a <em>specific</em> recipe property. The honest part: knowing whether it's a fundamental limit or just a shaping gap.</p>
+    <table>
+      <thead><tr><th style="width:20%">Task</th><th style="width:30%">Why it fails</th><th style="width:16%">Nature</th><th>Path to making it work</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><b>balance-angle</b><div class="muted" style="font-size:12.5px">inverted pole tracks a swept lean</div></td>
+          <td class="why">Two problems at once: the pole is <b>unstable</b>, and a <b>moving</b> set-point dilutes the "stay upright" signal that a fixed target gets for free.</td>
+          <td><span class="tag fund">fundamental</span><div class="muted" style="font-size:12px;margin-top:4px">instability</div></td>
+          <td class="why">A curriculum that starts with a static target and a low-gravity bootstrap, then widens — the framework supports it, but it's no longer "immediately working".</td>
+        </tr>
+        <tr>
+          <td><b>chain-trace</b><div class="muted" style="font-size:12.5px">a passive whip traces a moving curve</div></td>
+          <td class="why">Requires <b>anticipation &amp; momentum exploitation</b> — the tip is downstream of swinging links, so you must pre-load the swing. Reactive evolution stalls; the canonical zeroth-order foil.</td>
+          <td><span class="tag fund">fundamental</span><div class="muted" style="font-size:12px;margin-top:4px">anticipatory</div></td>
+          <td class="why">The differentiable simulator's <em>exact gradient</em> traces it cleanly — but that's a different optimizer, not reactive CMA-ES. A capability gap, honestly reported.</td>
+        </tr>
+        <tr>
+          <td><b>pong-volley</b><div class="muted" style="font-size:12.5px">a bat returns a pitched ball</div></td>
+          <td class="why"><b>Sparse:</b> a random gen-0 bat never even <em>contacts</em> the ball, so the reward is ≈0 everywhere with no gradient to climb.</td>
+          <td><span class="tag shape">shapeable</span><div class="muted" style="font-size:12px;margin-top:4px">sparsity</div></td>
+          <td class="why">Feed the predicted intercept point and reward shrinking distance to it every step — turns it into a catch-drop clone. Doable; just not free.</td>
+        </tr>
+        <tr>
+          <td><b>chain reacher (up-target)</b><div class="muted" style="font-size:12.5px">4-link arm reaches a target overhead</div></td>
+          <td class="why">The target is <em>up</em> while the chain hangs <em>down</em> — reaching it is a multi-link <b>swing-up</b> to an unstable pose. Fails from scratch (fitness −18) <em>and</em> stalls even with a target-ease curriculum (level 3/15).</td>
+          <td><span class="tag fund">fundamental</span><div class="muted" style="font-size:12px;margin-top:4px">instability</div></td>
+          <td class="why">None that's cheap. But note: <b>multi-DOF itself is fine</b> — the shipped <a href="#demos">arm-reach</a> proves it. The limiter is the unstable pose, not the action count.</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="callout">
+      <b>The counterintuitive datum that nails it down — corrected by our own negative tests.</b> The classic <code>balance_up</code> task trains <em>reliably</em> from a 30° start tilt (the trained policy holds upright ~90–100% of the time, run after run). From a 5° tilt the outcome is a <em>lottery</em>: across repeated runs, the best-of-3 upright fraction ranged from 22% to 74% — some runs stall farming the center/calm bonuses, some stumble into balancing. We first reported this as a clean single-run fact (9.86 vs 3.88 fitness); building an executable test for it (<code>foils-probe.js</code>) exposed the variance. The corrected claim is <em>stronger</em>, not weaker: near the unstable equilibrium the fitness landscape is flat and noisy, so the gradient doesn't just shrink — training <em>degenerates into chance</em>. A displaced start restores a strong, consistent "catch the falling pole" slope that CMA-ES locks onto every time.
+    </div>
+  </div>
+</section>
+
+<section id="methods">
+  <div class="wrap">
+    <h2><span class="n">06</span> The methods — how the brain is evolved</h2>
+    <p class="sub">No backprop on the reward. These are black-box optimizers searching directly in policy-parameter space. The sandbox offers a whole zoo; this project leaned on the first two.</p>
+    <table>
+      <thead><tr><th style="width:22%">Method</th><th>What it is &amp; why it fits</th></tr></thead>
+      <tbody>
+        <tr><td><b>CMA-ES</b> <span class="muted">(workhorse)</span></td><td class="why">Covariance Matrix Adaptation Evolution Strategy. Samples a population from a Gaussian, then <em>adapts the full covariance</em> toward the directions that improved fitness — it learns the local curvature of the reward landscape. Smooth, sample-efficient, and ideal for a smooth low-dimensional MLP. Solved every demo here in tens of generations.</td></tr>
+        <tr><td><b>sep-CMA-ES</b></td><td class="why">CMA-ES with a <em>diagonal</em> covariance — O(n) state instead of O(n²), so it scales to larger networks at the cost of ignoring cross-parameter correlations.</td></tr>
+        <tr><td><b>NEAT / NEAT-full</b></td><td class="why">NeuroEvolution of Augmenting Topologies — evolves the network <em>structure</em> (nodes and connections) alongside the weights, growing complexity from a minimal seed. Useful exactly where the policy-class <em>shape</em> matters, e.g. the antisymmetric reflex a swing-up needs.</td></tr>
+        <tr><td><b>The rest of the zoo</b></td><td class="why">Differential Evolution, PSO, a flock of swarm metaheuristics (cuckoo, whale, fish, ant-colony, firefly, bat), simulated annealing, parallel tempering, CEM, finite-difference &amp; SPSA gradient estimators, NES, random search — all available for head-to-head comparison on identical tasks.</td></tr>
+        <tr><td><b>Differentiable sim</b></td><td class="why">A separate autodiff (Adam) copy of the world for <em>exact</em> gradient probes. It's what shows chain-trace is solvable in principle — the foil is reactive-evolution-specific, not problem-specific.</td></tr>
+        <tr><td><b>Policy classes</b></td><td class="why">A small MLP throughout, but CNNs over a rendered phase-space image and NEAT topologies are first-class options.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="differentiable">
+  <div class="wrap">
+    <h2><span class="n">07</span> Differentiable vs. gradient-free — the two ways to optimize</h2>
+    <p class="sub">The suite trains most tasks <em>blind</em> — black-box search that needs only a reward. But most of these tasks have a known, smooth model, and when you use it the results change completely. This is the axis that really separates the techniques.</p>
+
+    <div class="two">
+      <div>
+        <h3>Gradient-free — the general, blind optimizer</h3>
+        <p>CMA-ES, NEAT, DE, PSO… ask for <em>nothing but a scalar reward</em> — no model, no smoothness. Maximally general (works on discrete, contact-rich, unknown-dynamics tasks), but weaker: it stumbles, and on hard <em>unstable</em> tasks it plateaus. The honest slogan: <em>"anything can be optimized, even blind — just not always well."</em></p>
+      </div>
+      <div>
+        <h3>Differentiable — the principled baseline</h3>
+        <p>When you <em>have the analytical model</em> (the equations of motion), you backprop the reward <em>through</em> the simulated trajectory and use the exact gradient (the adjoint method). This is the traditional path — control theory, differentiable simulation. Fast, reliable, and it cracks tasks blind search can't. The cost: you need the formula, and it must be smooth.</p>
+      </div>
+    </div>
+
+    <div class="callout">
+      <b>The proof — the double pendulum.</b> Gradient-free evolution <em>plateaus at ~13% hold</em> on double-pendulum balance no matter the budget (<code>double-balance-probe.js</code>). Exact gradients through the differentiable simulator (Adam) reach <b>100% hold with a robust ±12° basin</b> (<code>double-balance-adam.js</code>), and a single pose-conditioned controller holds <b>all four equilibria on command</b> — both-up, up/down, down/up (a pendulum on a hanging link), both-down — at 0.94–1.00 (<code>double-poses-adam.js</code>). Reach is the same story: the grad-free arm lands ~35px; the differentiable one reaches <b>4.7px</b> (<code>arm-reach-adam.js</code>). The trick that makes it work: train in the near-linear regime (short horizon) so backprop-through-chaos stays clean.
+    </div>
+
+    <h3>Which of our setups can be differentiable?</h3>
+    <p class="muted" style="font-size:14px; margin-bottom:14px">A task is exact-gradient-trainable iff the loss is a <em>smooth</em> function of the policy parameters through the dynamics — smooth model, no hard events.</p>
+    <table>
+      <thead><tr><th style="width:20%">Regime</th><th>Setups</th><th style="width:14%">Differentiable?</th><th style="width:30%">Why</th></tr></thead>
+      <tbody>
+        <tr><td><b>Smooth ODE control</b></td><td class="why">pendulums (single/double/triple/spring/twin), chains, all arm-*, cart tracking (rail-catcher, catch-drop, cruise, accel, safe-zone, midpoint, flee), plate-spin</td><td><span style="color:var(--green); font-weight:700">✅ fully</span></td><td class="why">mass-spring ODE is smooth; even the obstacle repulsion is a smooth potential field</td></tr>
+        <tr><td><b>Contact / collision</b></td><td class="why">ball-single, golf, putt, pong, dodge</td><td><span class="tag shape">⚠ soft-only</span></td><td class="why">impact flips velocity discontinuously → needs a <em>soft</em> contact model (approximate); dodge's discrete random spawns break the tape</td></tr>
+        <tr><td><b>Discrete / selection</b></td><td class="why">prioritize-nearest (argmin), tag-sequence (events), pick-side (square-wave flip)</td><td><span class="tag fund">❌ no</span></td><td class="why">reward is piecewise-constant → zero/undefined gradient; grad-free only</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Per-technique: does it need a gradient, and what that means</h3>
+    <table>
+      <thead><tr><th style="width:34%">Technique</th><th style="width:28%">Needs</th><th>Meaning</th></tr></thead>
+      <tbody>
+        <tr><td>Differentiable physics (diff-sim + Adam)</td><td class="why">the <b>equations of motion</b></td><td class="why">backprop through the simulated trajectory (adjoint)</td></tr>
+        <tr><td>LQR / optimal control</td><td class="why">the <b>linearized model</b></td><td class="why">solve Riccati analytically</td></tr>
+        <tr><td>Differentiable rendering / <b>optics</b></td><td class="why">the <b>light-transport / projection</b> formula</td><td class="why">backprop through image formation</td></tr>
+        <tr><td>Grad-free (CMA-ES, NEAT, DE, PSO…)</td><td class="why"><b>nothing but a scalar reward</b></td><td class="why">blind black-box search</td></tr>
+        <tr><td>Gradient-<em>estimate</em> (SPSA, FD-GD, NES, "adam")</td><td class="why">reward only, but many probes</td><td class="why">finite-difference the gradient — the middle ground</td></tr>
+      </tbody>
+    </table>
+    <p class="muted" style="font-size:14px">One-liner: <b>differentiable needs the formula (physics / optics); grad-free needs only a score.</b> So we frame the differentiable versions as the <em>baseline</em> — the traditional, stronger tool — and grad-free as the general fallback that proves you can learn even without the model.</p>
+
+    <div class="two" style="margin-top:20px">
+      <div>
+        <h3>Where CNN actually helps</h3>
+        <p>The CNN presets underperform because the hand-crafted Top-K observation already hands the MLP the relevant state. A CNN's edge is a <em>spatial, translation-invariant</em> prior — it only pays off on a <em>raw field</em> observation. The honest demo (planned): <b>pixel-dodge</b> on a raw occupancy grid, where CNN ≫ MLP-on-pixels but both &lt; MLP+TopK. The lesson: <em>CNN is for when you must see raw space and can't hand-craft features.</em></p>
+      </div>
+      <div>
+        <h3>Why not Hanayama / Sokoban</h3>
+        <p>Rigid-unravel puzzles are <em>contact-dominated + combinatorial</em> (which piece, which order) — a planning/search showcase, not a differentiable-physics one, and they'd reinforce the grad-free side we're trying to balance. Sokoban-style discrete solution-space viz doesn't fit the continuous focus either. Both are parked as stretch goals.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="curriculum">
+  <div class="wrap">
+    <h2><span class="n">08</span> The curriculum — watching it learn, and when it backfires</h2>
+    <p class="sub">A curriculum ramps one difficulty knob from easy to hard across levels; a fitness gate advances when the champion clears <code>thresholdFrac × ceiling</code> for two generations running. Every demo above ships a "watch it learn" variant.</p>
+    <div class="two">
+      <div>
+        <h3>The mechanism</h3>
+        <p>Each demo exposes a difficulty parameter — rail-catcher's drift amplitude (30→150), the safe-zone band width (120→55), the obstacle radius (3→35), the bowl stiffness (deep→flatter). The level climbs 0→15 as the policy masters each rung, so you literally watch the task get harder while the controller keeps up.</p>
+      </div>
+      <div>
+        <h3>The tuning rule we found</h3>
+        <p>Set the advance threshold <b>just below each demo's achievable cap</b>. Too low and it breezes 2 generations per level (no visible struggle); too high and it grinds. The right setting produces a back-loaded arc — easy levels fly by, the hard ones genuinely take work.</p>
+      </div>
+    </div>
+    <div class="callout">
+      <b>When a curriculum <em>helps</em> vs. <em>hurts</em>.</b> A curriculum <em>bootstraps</em> a task that's unlearnable directly — it's the only hope for the swing-up foils. But for a task that already trains directly (every arm demo solves in ~40 generations from scratch), a difficulty ramp adds pure <em>overhead</em>: at a mastery threshold it grinds 130+ generations re-mastering each intermediate rung. So the arm curricula deliberately use a lower "advance-when-competent" threshold — they're there to <em>show the difficulty climb</em>, not to make a hard task possible. <b>Rule of thumb:</b> high threshold for tasks that generalize across difficulty; low threshold (just show the ramp) for hard-but-directly-learnable ones.</p>
+    </div>
+  </div>
+</section>
+
+<section id="shaping">
+  <div class="wrap">
+    <h2><span class="n">09</span> Reward-shaping lessons — the deceptions we hit</h2>
+    <p class="sub">Most "it won't learn" moments weren't the optimizer's fault — they were a reward that quietly paid for the wrong thing. Four worth remembering.</p>
+    <table>
+      <thead><tr><th style="width:20%">Demo</th><th style="width:42%">The deception</th><th>The fix</th></tr></thead>
+      <tbody>
+        <tr><td><b>tag-sequence</b></td><td class="why">With pure closeness, <em>touching</em> the lit post relocates it — which drops the closeness reward. So the greedy policy learned to hover just <em>outside</em> the touch radius forever (high reward, zero tags).</td><td class="why">A one-shot <b>+1 bonus</b> on each tag, so advancing the cycle outweighs the momentary reward dip. 0 tags → 16.</td></tr>
+        <tr><td><b>arm-slot</b></td><td class="why">Two wall-barriers strong enough to keep the tip out of the walls were also strong enough to push it back <em>out of the slot</em> — the funnel inverted (reaches → 58px, stalls).</td><td class="why">Keep the target <em>outside</em> the barrier zone (clean reach) and let the barrier bite only very near a wall. A monotone funnel in.</td></tr>
+        <tr><td><b>arm-reach</b></td><td class="why">The reach reward's sparse "+1 inside the radius" bonus barely fires when the hand hovers <em>at</em> the radius edge — so fitness stayed ~0.8 and the curriculum gate starved (stalled at level 8).</td><td class="why">Switch to a positive-closeness reward that reflects reach <em>quality</em>, so the gate sees real progress.</td></tr>
+        <tr><td><b>plate-spin</b></td><td class="why">A flat tray turns "keep the ball centered" into balancing an inverted pendulum — the foil, hidden inside a friendly-looking demo.</td><td class="why">Ship a <b>concave</b> bowl only: gravity self-centers the ball, making centered a stable minimum.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="verify">
+  <div class="wrap">
+    <h2><span class="n">10</span> How we kept it honest</h2>
+    <p class="sub">Every claim in this report is backed by a script that runs without a browser.</p>
+    <ul>
+      <li><b>Headless train-probes.</b> Each demo has a probe that boots the full engine in Node, trains it for a fixed budget, and asserts a task-specific success metric (caught %, mean error, wall contact %, before/after reward gap). A demo doesn't ship until its probe passes — this is what caught every foil <em>before</em> it became a "broken demo".</li>
+      <li><b>A growing smoke test.</b> One file builds every setup, checks observation/action shapes, ticks the dynamics, evaluates each reward, and string-checks that every preset + overlay exists. It runs on every change.</li>
+      <li><b>Adversarial design.</b> New demos were brainstormed by a fan-out of idea "lenses", then each was vetted by a skeptic agent trying to prove it a foil — so most dead-ends died as a paragraph, not as shipped code.</li>
+      <li><b>The honest boundary.</b> The probe is also why we can say what <em>doesn't</em> work without hand-waving: a foil is a probe that fails, with a measured reason.</li>
+      <li><b>Negative results as tests.</b> <code>foils-probe.js</code> asserts the boundary claims themselves — pong-volley must <em>stay</em> sparse, the up-target reacher must <em>stay</em> unreachable — so a silent change that invalidates this report breaks the build. Building it also corrected one of our own claims (the balance-lottery datum above).</li>
+    </ul>
+  </div>
+</section>
+
+<section id="evidence">
+  <div class="wrap">
+    <h2><span class="n">11</span> Evidence appendix — the measured tables</h2>
+    <p class="sub">Every number below regenerates from a committed probe (<code>robustness-probe.js</code>, <code>before-after-probe.js</code>, <code>optimizer-bakeoff-probe.js</code>, <code>foils-probe.js</code>). Run them with <code>node &lt;probe&gt;.js</code> — no browser required.</p>
+
+    <h3>Robustness — 5 independent runs per demo, original pass criteria</h3>
+    <p class="muted" style="font-size:14px">Result: <b style="color:var(--green)">16/16 demos robust at 5/5</b>. The per-run metric samples show the honest spread (the trainer has unseeded RNG, so each run is an independent sample).</p>
+    <table>
+      <thead><tr><th>Demo</th><th>Runs</th><th>Per-run metric</th><th>Demo</th><th>Runs</th><th>Per-run metric</th></tr></thead>
+      <tbody>
+        <tr><td>rail-catcher</td><td class="mono">5/5</td><td class="mono muted">6, 4, 6, 3, 5 px</td><td>prioritize-nearest</td><td class="mono">5/5</td><td class="mono muted">9, 8, 9, 12, 10 px</td></tr>
+        <tr><td>catch-drop</td><td class="mono">5/5</td><td class="mono muted">80–100% caught</td><td>arm-reach</td><td class="mono">5/5</td><td class="mono muted">29–35 px</td></tr>
+        <tr><td>pick-side</td><td class="mono">5/5</td><td class="mono muted">65–74% on-post</td><td>arm-track</td><td class="mono">5/5</td><td class="mono muted">25–35 px</td></tr>
+        <tr><td>flee-the-dot</td><td class="mono">5/5</td><td class="mono muted">241 px clearance ×5</td><td>arm-obstacle</td><td class="mono">5/5</td><td class="mono muted">27–52 px, 0% inside</td></tr>
+        <tr><td>cruise-control</td><td class="mono">5/5</td><td class="mono muted">22–23 px/s</td><td>arm-dodge</td><td class="mono">5/5</td><td class="mono muted">43–68 px, 0% inside</td></tr>
+        <tr><td>accelerating-track</td><td class="mono">5/5</td><td class="mono muted">3–7 px (head)</td><td>arm-slot</td><td class="mono">5/5</td><td class="mono muted">19–31 px, 0% contact</td></tr>
+        <tr><td>safe-zone</td><td class="mono">5/5</td><td class="mono muted">100% in-band ×5</td><td>plate-spin</td><td class="mono">5/5</td><td class="mono muted">8–13 px, no spill</td></tr>
+        <tr><td>midpoint-meet</td><td class="mono">5/5</td><td class="mono muted">3–7 px</td><td>tag-sequence</td><td class="mono">5/5</td><td class="mono muted">16–17 tags / 8 s</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Before vs. after — gen-0 random policy vs. trained champion, same seeded world</h3>
+    <p class="muted" style="font-size:14px">The reward integral of the untrained gen-0 genome vs. the champion, on identical deterministic rollouts. <b style="color:var(--green)">16/16 champions win.</b> Small ratios are the demos whose dense reward gives gen-0 a high floor by design (the "gen-0 rigged" recipe property) — the champion still separates cleanly.</p>
+    <table>
+      <thead><tr><th>Demo</th><th>gen-0</th><th>champion</th><th>×</th><th>Demo</th><th>gen-0</th><th>champion</th><th>×</th></tr></thead>
+      <tbody>
+        <tr><td>rail-catcher</td><td class="mono">1.21</td><td class="mono">7.88</td><td class="mono">6.5</td><td>tag-sequence</td><td class="mono">2.41</td><td class="mono">18.65</td><td class="mono">7.7</td></tr>
+        <tr><td>catch-drop</td><td class="mono">2.10</td><td class="mono">6.37</td><td class="mono">3.0</td><td>prioritize-nearest</td><td class="mono">4.97</td><td class="mono">7.63</td><td class="mono">1.5</td></tr>
+        <tr><td>pick-side</td><td class="mono">1.93</td><td class="mono">6.50</td><td class="mono">3.4</td><td>arm-reach</td><td class="mono">0.10</td><td class="mono">5.92</td><td class="mono">56.8</td></tr>
+        <tr><td>flee-the-dot</td><td class="mono">3.39</td><td class="mono">7.56</td><td class="mono">2.2</td><td>arm-track</td><td class="mono">0.48</td><td class="mono">6.43</td><td class="mono">13.3</td></tr>
+        <tr><td>cruise-control</td><td class="mono">4.77</td><td class="mono">7.55</td><td class="mono">1.6</td><td>arm-obstacle</td><td class="mono">2.43</td><td class="mono">5.78</td><td class="mono">2.4</td></tr>
+        <tr><td>accelerating-track</td><td class="mono">1.59</td><td class="mono">7.02</td><td class="mono">4.4</td><td>arm-dodge</td><td class="mono">0.23</td><td class="mono">4.66</td><td class="mono">20.0</td></tr>
+        <tr><td>safe-zone</td><td class="mono">1.40</td><td class="mono">8.00</td><td class="mono">5.7</td><td>arm-slot</td><td class="mono">0.50</td><td class="mono">6.11</td><td class="mono">12.2</td></tr>
+        <tr><td>midpoint-meet</td><td class="mono">0.12</td><td class="mono">7.62</td><td class="mono">65.8</td><td>plate-spin</td><td class="mono">4.65</td><td class="mono">7.11</td><td class="mono">1.5</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Optimizer bake-off — same tasks, same budget, eight optimizers</h3>
+    <p class="muted" style="font-size:14px">One easy task (rail-catcher, 30 gens × pop 30) and one hard one (arm-obstacle, 60 gens × pop 36); lower is better. The headline is honest and a little humbling: <b>on a recipe-clean task, even random search clears the pass bar</b> — the recipe does the feasibility work; the optimizer buys precision and consistency. CMA-ES is near-best on both, untuned — that's why it's the workhorse.</p>
+    <table>
+      <thead><tr><th>Optimizer</th><th>rail-catcher (miss px)</th><th>arm-obstacle (tip px, % inside)</th><th>Note</th></tr></thead>
+      <tbody>
+        <tr><td><b>CMA-ES</b></td><td class="mono">3</td><td class="mono">35 (0%)</td><td class="why">near-best on both, no tuning — the workhorse</td></tr>
+        <tr><td>sep-CMA-ES</td><td class="mono">3</td><td class="mono">35 (0%)</td><td class="why">matches CMA-ES here; scales to bigger nets</td></tr>
+        <tr><td>NEAT-full</td><td class="mono">4</td><td class="mono">52 (0%)</td><td class="why">topology growth costs budget on fixed-shape tasks</td></tr>
+        <tr><td>DE</td><td class="mono">5</td><td class="mono">50 (0%)</td><td class="why">solid on both</td></tr>
+        <tr><td>PSO</td><td class="mono">3</td><td class="mono">51 (0%)</td><td class="why">excellent easy-task precision</td></tr>
+        <tr><td>NES</td><td class="mono">59</td><td class="mono">66 (0%)</td><td class="why">the one laggard — needs step-size tuning</td></tr>
+        <tr><td>Annealing</td><td class="mono">15</td><td class="mono">26 (0%)</td><td class="why">sniped the best hard-task score this seed</td></tr>
+        <tr><td>Random search</td><td class="mono">23</td><td class="mono">40 (0%)</td><td class="why">clears both pass bars(!) — quantifies the recipe</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Negative tests — the boundary, asserted</h3>
+    <ul>
+      <li><b>pong-volley stays sparse:</b> best fitness after a full budget ≈ <span class="mono">0.27</span> against the ≥ 8 a single return pays — gen-0 never contacts the ball, so there is no gradient. <span class="muted">Hard gate, holds.</span></li>
+      <li><b>up-target reacher stays unstable:</b> the trained tip parks ≈ <span class="mono">460 px</span> from a target with a 30 px success radius — multi-link swing-up remains out of reach. <span class="muted">Hard gate, holds.</span></li>
+      <li><b>the balance lottery:</b> 30° start → upright ~90–100% reliably; 5° start → best-of-3 upright ranged 22–74% across invocations. <span class="muted">Reported as measurement — too honest a lottery to gate on.</span></li>
+    </ul>
+  </div>
+</section>
+
+<section id="next">
+  <div class="wrap">
+    <h2><span class="n">12</span> What's next — batched &amp; pending</h2>
+    <p class="sub">Three ideas survived vetting but aren't shipped, each blocked on a known, named thing rather than a mystery.</p>
+    <div class="grid">
+      <div class="card"><div class="top"><h4>Split Replay</h4><span class="badge b-batch">core done · UI batched</span></div>
+        <p class="char">gen-0 random vs. trained champion, side by side</p>
+        <div class="row"><span class="lab">status</span><span class="val">The enabling core is <b>shipped + verified</b>: the engine now snapshots the gen-0 genome, and the before/after reward gap is real (catch-drop 2.15 → 6.33 on the same seed).</span></div>
+        <div class="row"><span class="lab">blocked on</span><span class="val">The side-by-side <em>render</em> is pure browser UI — and <code>app.js</code> can't run in Node, so it's the one thing not headless-verifiable. Batched for a live pass.</span></div>
+      </div>
+      <div class="card"><div class="top"><h4>Cursor-Follow toy</h4><span class="badge b-batch">batched UI</span></div>
+        <p class="char">Drive the target with your mouse; the trained brain follows live</p>
+        <div class="row"><span class="lab">why it works</span><span class="val">Inference-only — a frozen position-tracking policy can't be "broken" by a human cursor. Squarely in the reliable zone.</span></div>
+        <div class="row"><span class="lab">blocked on</span><span class="val">Browser-only plumbing (a pointer handler), same un-verifiable category.</span></div>
+      </div>
+      <div class="card"><div class="top"><h4>Synchronized Catchers</h4><span class="badge b-batch">needs engine work</span></div>
+        <p class="char">Two carts split a falling stream — emergent division of labour</p>
+        <div class="row"><span class="lab">why it works</span><span class="val">Each cart is a stable catch-drop; the only risk is a double-commit attractor, broken by a yield penalty. Not a foil.</span></div>
+        <div class="row"><span class="lab">blocked on</span><span class="val"><span class="tag infra">infra</span> The engine is structurally single-cart — <code>step(world, dt, cmd)</code> drives one <code>w.cart</code>. Two carts means real physics work, not just a new setup.</span></div>
+      </div>
+    </div>
+    <p class="muted" style="margin-top:18px; font-size:14px">One more boundary worth recording: the adversarial machinery in the engine co-evolves <em>environment</em> knobs (gravity, push strength), not a second neural policy — so AI-vs-AI <em>duels</em> are net-new infrastructure, and were correctly rejected as out of reach.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p><b style="color:var(--fg)">BalanceForge</b> — evolutionary neuro-control sandbox. The throughline: <span class="muted">a stable body, a dense reward, and a controller that only has to react. Get those three and a tiny evolved brain learns to track, intercept, evade, select, sequence, reach, route, dodge, thread, and juggle — in seconds of training. The only wall is having to balance something that wants to fall.</span></p>
+    <p class="mono" style="margin-top:14px">16 trainable demos · robust 5/5 across independent runs · 8 new reward objectives · negative results shipped as tests · 100% headless-verified.</p>
+  </div>
+</footer>
+
+</body>
+</html>

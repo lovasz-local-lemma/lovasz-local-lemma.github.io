@@ -1,0 +1,664 @@
+<!doctype html>
+<html lang="en">
+<head><script src="../../../../portfolio-lab-frame.js"></script><script defer src="../../../../portfolio-document-frame.js"></script><script defer src="../../../../portfolio-media.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RIV · API &amp; Interfaces</title>
+<style>
+  :root{
+    --bg:#0b0e14; --bg2:#0e1320; --panel:#121a2b; --panel2:#16213a;
+    --line:#243149; --ink:#dce6f5; --dim:#8aa0c0; --faint:#5c6f8e;
+    --cyan:#5cd6ff; --violet:#b08cff; --amber:#ffce6b; --green:#7ee2a8;
+    --pink:#ff8fc7; --red:#ff7a7a;
+    --mono:ui-monospace,"JetBrains Mono",SFMono-Regular,Consolas,monospace;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;font-family:var(--sans);color:var(--ink);line-height:1.55;
+    background:
+      radial-gradient(1200px 700px at 80% -10%,rgba(94,140,255,.16),transparent 60%),
+      radial-gradient(900px 600px at -10% 20%,rgba(176,140,255,.12),transparent 55%),
+      var(--bg);
+  }
+  a{color:var(--cyan);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 24px 80px}
+  code,.mono{font-family:var(--mono)}
+  code{background:rgba(255,255,255,.05);padding:1px 5px;border-radius:5px;font-size:.92em}
+
+  header.hero{padding:72px 0 36px;border-bottom:1px solid var(--line)}
+  .kicker{font-family:var(--mono);font-size:12px;letter-spacing:.28em;
+    text-transform:uppercase;color:var(--cyan)}
+  h1{font-size:clamp(34px,6vw,58px);margin:.25em 0 .1em;font-weight:800;
+    letter-spacing:-.02em;
+    background:linear-gradient(92deg,#fff 10%,var(--cyan) 55%,var(--violet) 95%);
+    -webkit-background-clip:text;background-clip:text;color:transparent}
+  .lede{font-size:18px;color:var(--dim);max-width:64ch}
+  .badges{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+  .badge{font-family:var(--mono);font-size:12.5px;padding:7px 12px;border-radius:999px;
+    background:var(--panel);border:1px solid var(--line);color:var(--dim)}
+  .badge b{color:var(--ink)}
+  .crumbs{margin-top:18px;font-size:13.5px;color:var(--dim)}
+
+  h2{font-size:26px;margin:64px 0 6px;letter-spacing:-.01em}
+  h2 .num{font-family:var(--mono);color:var(--faint);font-size:16px;margin-right:10px}
+  .sub{color:var(--dim);margin:0 0 22px;max-width:74ch}
+
+  .card{background:linear-gradient(180deg,var(--panel),var(--bg2));
+    border:1px solid var(--line);border-radius:16px;padding:20px}
+
+  /* contract diagram */
+  .stack{display:grid;gap:14px}
+  .layer{border-radius:14px;padding:16px 18px;border:1px solid var(--line)}
+  .layer h3{margin:0 0 4px;font-size:15px;font-family:var(--mono);letter-spacing:.02em}
+  .layer p{margin:0;color:var(--dim);font-size:13.5px}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .chip{font-family:var(--mono);font-size:12px;padding:5px 10px;border-radius:8px;
+    background:rgba(255,255,255,.04);border:1px solid var(--line);color:var(--ink)}
+  .l-seam{background:linear-gradient(180deg,rgba(255,206,107,.10),rgba(255,206,107,.02));
+    border-color:rgba(255,206,107,.4);text-align:center}
+  .l-seam h3{color:var(--amber)}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .l-pls{background:linear-gradient(180deg,rgba(94,214,255,.07),transparent);
+    border-color:rgba(94,214,255,.3)}
+  .l-pls h3{color:var(--cyan)}
+  .l-ours{background:linear-gradient(180deg,rgba(176,140,255,.10),transparent);
+    border-color:rgba(176,140,255,.45)}
+  .l-ours h3{color:var(--violet)}
+  .arrowrow{display:flex;justify-content:center;color:var(--faint);font-size:22px;margin:-4px 0}
+  .note{margin-top:14px;font-size:13px;color:var(--dim)}
+  .note b{color:var(--amber)}
+
+  /* code */
+  pre.code{background:#080b12;border:1px solid var(--line);border-radius:12px;
+    padding:13px 15px;overflow-x:auto;font-family:var(--mono);font-size:12px;
+    line-height:1.52;color:#cfe0f5;margin:10px 0 4px;white-space:pre;tab-size:2}
+  .cap{font-size:12px;color:var(--dim);margin:0 0 4px}
+  .cmp{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:6px}
+  .col h4{margin:0 0 4px;font-family:var(--mono);font-size:13px;letter-spacing:.02em}
+  .col.ours h4{color:var(--violet)} .col.official h4{color:var(--cyan)}
+  .col .tagline{font-size:12px;color:var(--faint);margin:0 0 6px}
+
+  /* per-interface cards */
+  .iface{border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-top:14px;
+    background:var(--panel)}
+  .iface .top{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  .iface h3{margin:0;font-family:var(--mono);font-size:16px}
+  .iface h3 .api{color:var(--cyan)}
+  .iface h3 .arrow{color:var(--faint);margin:0 8px}
+  .iface h3 .impl{color:var(--violet)}
+  .iface .loc{font-family:var(--mono);font-size:11px;color:var(--faint)}
+  .iface .how{color:var(--dim);font-size:13.5px;margin:9px 0 0}
+  .iface .contract{margin:9px 0 0;font-size:13px;color:var(--ink);
+    border-left:2px solid rgba(255,206,107,.5);padding-left:11px}
+  .iface .contract b{color:var(--amber);font-family:var(--mono);font-size:11px;
+    letter-spacing:.06em;text-transform:uppercase;margin-right:6px}
+  .iface .how b.lbl{color:var(--violet);font-family:var(--mono);font-size:11px;
+    letter-spacing:.06em;text-transform:uppercase;margin-right:6px}
+  .methods{display:flex;flex-wrap:wrap;gap:6px;margin:11px 0 2px}
+  .methods .m{font-family:var(--mono);font-size:11px;padding:4px 9px;border-radius:7px;
+    background:rgba(255,255,255,.03);border:1px solid var(--line);color:var(--dim)}
+
+  /* matrix table */
+  table{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:6px}
+  th,td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--faint);font-weight:600}
+  td.cap0{font-family:var(--mono);color:var(--ink);font-size:12.5px;white-space:nowrap}
+  td.off{color:var(--cyan)} td.our{color:var(--violet)} td.note{color:var(--dim)}
+  .x{color:var(--faint)}
+  tr:hover td{background:rgba(255,255,255,.02)}
+
+  /* byte layout strip */
+  .bytes{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+  .seg{font-family:var(--mono);font-size:12px;border:1px solid var(--line);border-radius:9px;
+    padding:8px 11px;background:var(--panel)}
+  .seg b{color:var(--amber);display:block;font-size:11px;letter-spacing:.05em}
+  .seg span{color:var(--dim)}
+
+  footer{margin-top:64px;padding-top:22px;border-top:1px solid var(--line);
+    color:var(--faint);font-size:13px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+  @media(max-width:760px){.two{grid-template-columns:1fr}.cmp{grid-template-columns:1fr}}
+</style>
+<style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head>
+<body><style>.portfolio-document-return{position:relative;z-index:100;display:flex;flex-wrap:wrap;gap:10px;padding:16px 24px;background:#111d25;border-bottom:1px solid #b3ceb74d;font:12px/1.5 Arial,sans-serif}.portfolio-document-return a{color:#cbded2;text-decoration:none;padding:8px 12px;border:1px solid #b3ceb733;border-radius:8px;transition:color .5s,box-shadow .5s,border-color .5s}.portfolio-document-return a:hover{color:#fff;border-color:#d9c18488;box-shadow:0 0 16px #d9c18422}@media(prefers-reduced-motion:reduce){.portfolio-document-return a{transition:none}}</style><link rel="stylesheet" href="../../../../portfolio-controls.css"><aside class="portfolio-document-return"><a href="../../index.html#html-library">← RIVX brochure</a><a href="../index.html">Document library</a><a href="../../../../index.html">← Back to portfolio</a><a href="api-and-interfaces.html.txt" download>Original HTML ↓</a></aside>
+<div class="wrap">
+
+  <header class="hero">
+    <div class="kicker">rive_gl_player · api &amp; interfaces</div>
+    <h1>RIV — API &amp; Interfaces</h1>
+    <p class="lede">The official Rive runtime parses the file and runs the scene, then hands
+      drawing to an <b>abstract render interface</b>. This project implements that entire
+      interface from scratch — a second, independent renderer for the same <code>.riv</code>.
+      Here is the exact contract, how we satisfied each piece, what we reuse unchanged, and
+      the binary &amp; feather internals where ours meets the original.</p>
+    <div class="badges">
+      <span class="badge"><b>7</b> render interfaces implemented</span>
+      <span class="badge"><b>2</b> conforming renderers · ours ∥ PLS</span>
+      <span class="badge">parse · model · animation = <b>reused</b></span>
+      <span class="badge">round-trips through <b>File::import</b></span>
+    </div>
+    <p class="crumbs">Companion to <a href="project-structure.html">RIV — Project Structure</a>.</p>
+  </header>
+
+  <!-- 01 -->
+  <section>
+    <h2><span class="num">01</span>The contract — one interface, two implementations</h2>
+    <p class="sub">Rive's runtime never draws pixels itself. It builds a scene of <em>Core</em>
+      objects and emits draw commands against a set of pure-virtual interfaces. Anyone who
+      implements those interfaces gets a working renderer. Rive ships one (the GPU "Rive
+      Renderer", PLS). We wrote a second.</p>
+
+    <div class="card">
+      <div class="stack">
+        <div class="layer l-seam">
+          <h3>the rive render interface — the API contract</h3>
+          <div class="chips" style="justify-content:center">
+            <span class="chip">rive::Factory</span><span class="chip">rive::Renderer</span>
+            <span class="chip">rive::RenderPath</span><span class="chip">rive::RenderPaint</span>
+            <span class="chip">rive::RenderShader</span><span class="chip">rive::RenderBuffer</span>
+            <span class="chip">rive::RenderImage</span>
+          </div>
+        </div>
+        <div class="arrowrow">▼ two independent implementations ▼</div>
+        <div class="two">
+          <div class="layer l-pls">
+            <h3>official — Rive Renderer (PLS)</h3>
+            <p><code>rive::RiveRenderer</code> over <code>rive::gpu::RenderContextGLImpl</code>
+              — the Pixel-Local-Storage GPU pipeline. The <code>RenderContext</code> <em>is</em>
+              the <code>Factory</code>. Wired by <code>gl_backend.cpp</code>; flushed per frame.</p>
+            <div class="chips"><span class="chip">not cg_renderer — Rive's Apple CoreGraphics path, unused here (CMake include only, 0 source refs)</span></div>
+          </div>
+          <div class="layer l-ours">
+            <h3>ours — GL stencil-then-cover</h3>
+            <p><code>SimpleShapeFactory</code> + <code>GlStencilShapeRenderer</code> + the
+              <code>SimpleRender*</code> objects: a hand-written GL pipeline (MSAA FBO,
+              stencil-then-cover, analytic erf feather, in-shader gradients).</p>
+            <div class="chips"><span class="chip">backend/src/render/ · gl_shape_renderer · gl_stencil_renderer · simple_shape_factory</span></div>
+          </div>
+        </div>
+      </div>
+      <p class="note">Both are real <code>rive::Factory</code> / <code>rive::Renderer</code>
+        implementations. The same <code>.riv</code> is imported twice — once with each factory —
+        so the app can render it through either pipeline and compare them live.</p>
+    </div>
+  </section>
+
+  <!-- 02 -->
+  <section>
+    <h2><span class="num">02</span>The seven interfaces — how we did each</h2>
+    <p class="sub">Every interface below lives in <code>backend/src/render/</code>. Each card states
+      the <b style="color:var(--amber)">Contract</b> — what the runtime requires you to fill in — and
+      <b style="color:var(--violet)">Ours</b> — how we satisfied it. The recurring idea: keep
+      geometry and paint as plain CPU data at build time, then do all GPU work lazily at
+      <em>draw</em> time. We reimplement <em>rendering</em> only — never parsing, the Core model,
+      or animation.</p>
+
+    <!-- Factory -->
+    <div class="iface">
+      <div class="top">
+        <h3><span class="api">rive::Factory</span><span class="arrow">→</span><span class="impl">SimpleShapeFactory</span></h3>
+        <span class="loc">render/simple_shape_factory.hpp:350 · rive/factory.hpp</span>
+      </div>
+      <p class="contract"><b>Contract</b> Hand back a ref-counted (<code>rcp</code>) render
+        resource for each <code>make*</code> the runtime issues while building a scene — a path,
+        an empty path, a paint, a linear/radial gradient shader, or a vertex/index buffer — and
+        decode in-band image bytes to a <code>RenderImage</code>. The runtime owns lifetimes
+        through the <code>rcp</code>; you choose the concrete representation. <code>decodeImage</code>
+        may return null on failure.</p>
+      <p class="how"><b class="lbl">Ours</b> The object factory the runtime calls <em>during</em> <code>File::import</code>
+        to materialise every render resource for the "ours" route. Each <code>make*</code> wraps the
+        matching <code>SimpleRender*</code> in an <code>rcp</code> via <code>make_rcp</code>, keeping
+        gradients as CPU stop data rather than baking them. <code>decodeImage</code> runs Rive's own
+        bundled <code>Bitmap</code> decoder, forces premultiplied RGBA8 (so <code>GL_LINEAR</code> is
+        correct at transparent edges), then uploads straight to a GL texture — a GL context is
+        already current during import.</p>
+      <div class="methods">
+        <span class="m">makeRenderPath(RawPath&amp;, FillRule)</span><span class="m">makeEmptyRenderPath()</span>
+        <span class="m">makeRenderPaint()</span><span class="m">makeLinearGradient(...)</span>
+        <span class="m">makeRadialGradient(...)</span><span class="m">makeRenderBuffer(type, flags, size)</span>
+        <span class="m">decodeImage(Span&lt;const uint8_t&gt;)</span>
+      </div>
+      <p class="cap">SimpleShapeFactory::decodeImage — reuse Rive's decoder, then upload to GL</p>
+      <pre class="code">rive::rcp&lt;rive::RenderImage&gt; decodeImage(rive::Span&lt;const uint8_t&gt; span) override
+{
+    // Decode PNG/JPEG/WebP with Rive's bundled Bitmap decoder, force PREMULTIPLIED
+    // RGBA8 (like the official runtime), then wrap a GL texture in SimpleRenderImage.
+    auto bmp = Bitmap::decode(span.data(), span.size());
+    if (!bmp) return nullptr;
+    if (bmp-&gt;pixelFormat() != Bitmap::PixelFormat::RGBAPremul)
+        bmp-&gt;pixelFormat(Bitmap::PixelFormat::RGBAPremul);
+    return rive::make_rcp&lt;SimpleRenderImage&gt;(bmp-&gt;bytes(), bmp-&gt;width(), bmp-&gt;height());
+}</pre>
+    </div>
+
+    <!-- Renderer -->
+    <div class="iface">
+      <div class="top">
+        <h3><span class="api">rive::Renderer</span><span class="arrow">→</span><span class="impl">GlStencilShapeRenderer</span></h3>
+        <span class="loc">render/gl_stencil_renderer.hpp:26 · rive/renderer.hpp</span>
+      </div>
+      <p class="contract"><b>Contract</b> Maintain a transform / clip / opacity state stack
+        (<code>save</code> / <code>restore</code> / <code>transform</code> /
+        <code>modulateOpacity</code>) and execute the draw commands the runtime issues against it —
+        <code>drawPath(path, paint)</code>, <code>clipPath(path)</code>, <code>drawImage</code>,
+        <code>drawImageMesh</code> — producing pixels however you like. The runtime hands you its
+        own <code>RenderPath</code>/<code>RenderPaint</code> pointers; you downcast to read them.</p>
+      <p class="how"><b class="lbl">Ours</b> The draw-command sink the runtime issues into. It owns a transform / opacity /
+        clip <em>State</em> stack (<code>save</code>/<code>restore</code>/<code>transform</code>/
+        <code>modulateOpacity</code> push and mutate the back entry). <code>drawPath</code> downcasts
+        the path &amp; paint to our concretes, flattens the <code>RawPath</code> into device-space
+        contours under the current transform, then dispatches to a <code>GlShapePipeline</code>
+        (solid / gradient / feathered fills, tessellated strokes) that does the actual GPU
+        stencil-then-cover into an MSAA FBO. <code>clipPath</code> pushes a flattened device-space
+        clip layer (non-convex stencil intersection). It also carries side-channel <em>aux</em> modes
+        (id / depth / velocity / bounds / contour) that re-purpose the same draws for the NPR
+        post-process — something the official renderer can't feed.</p>
+      <div class="methods">
+        <span class="m">save() / restore()</span><span class="m">transform(Mat2D&amp;)</span>
+        <span class="m">modulateOpacity(float)</span><span class="m">drawPath(path, paint)</span>
+        <span class="m">clipPath(path)</span><span class="m">drawImage(img, sampler, blend, opacity)</span>
+        <span class="m">drawImageMesh(img, verts, uvs, indices, ...)</span>
+      </div>
+      <p class="cap">The save/restore/transform/opacity State-stack that backs the adapter</p>
+      <pre class="code">void save() override    { m_stack.push_back(m_stack.back()); }
+void restore() override { if (m_stack.size() &gt; 1) m_stack.pop_back(); }
+void transform(const rive::Mat2D&amp; t) override
+{
+    m_stack.back().transform = m_stack.back().transform * t;
+}
+void modulateOpacity(float o) override { m_stack.back().opacity *= o; }</pre>
+    </div>
+
+    <!-- RenderPath -->
+    <div class="iface">
+      <div class="top">
+        <h3><span class="api">rive::RenderPath</span><span class="arrow">→</span><span class="impl">SimpleRenderPath</span></h3>
+        <span class="loc">render/simple_shape_factory.hpp:231 · rive/renderer.hpp</span>
+      </div>
+      <p class="contract"><b>Contract</b> Accumulate path geometry: the verb stream
+        (<code>moveTo</code> / <code>lineTo</code> / <code>cubicTo</code> / <code>close</code>), a
+        fill rule, and combiners that append other paths or a raw path under a transform
+        (<code>addRenderPath</code>, <code>addRenderPathBackwards</code>, <code>addRawPath</code>);
+        <code>rewind</code> clears it. The runtime never asks you to rasterize — only to hold the
+        geometry until it issues a <code>drawPath</code>.</p>
+      <p class="how"><b class="lbl">Ours</b> Geometry is stored purely on the CPU as a <code>rive::RawPath</code> + a
+        <code>FillRule</code> — there is no tessellation at build time. The verb overrides
+        (<code>moveTo</code>/<code>lineTo</code>/<code>cubicTo</code>/<code>close</code>) and the
+        <code>add*Path</code> combiners forward straight into the held <code>RawPath</code>, baking
+        the supplied <code>Mat2D</code> via <code>RawPath::addPath(&amp;transform)</code> and
+        downcasting to recover the concrete when merging two paths. The renderer reads
+        <code>rawPath()</code>/<code>fillRuleValue()</code> and flattens to device-space polylines
+        only at draw time.</p>
+      <div class="methods">
+        <span class="m">rewind()</span><span class="m">fillRule(FillRule)</span>
+        <span class="m">moveTo / lineTo / cubicTo / close</span><span class="m">addRawPath(RawPath&amp;)</span>
+        <span class="m">addRenderPath(path, Mat2D&amp;)</span><span class="m">addRenderPathBackwards(...)</span>
+      </div>
+      <p class="cap">Verb &amp; combiner overrides forwarding into the held RawPath</p>
+      <pre class="code">void moveTo(float x, float y) override { m_path.moveTo(x, y); }
+void lineTo(float x, float y) override { m_path.lineTo(x, y); }
+void addRenderPath(const rive::RenderPath* p, const rive::Mat2D&amp; m) override
+{
+    if (auto* s = dynamic_cast&lt;const SimpleRenderPath*&gt;(p))
+        m_path.addPath(s-&gt;rawPath(), &amp;m);   // bake the transform into our RawPath
+}</pre>
+    </div>
+
+    <!-- RenderPaint -->
+    <div class="iface">
+      <div class="top">
+        <h3><span class="api">rive::RenderPaint</span><span class="arrow">→</span><span class="impl">SimpleRenderPaint</span></h3>
+        <span class="loc">render/simple_shape_factory.hpp:185 · rive/renderer.hpp</span>
+      </div>
+      <p class="contract"><b>Contract</b> Capture the paint state the runtime sets: style
+        (fill / stroke), color, stroke thickness / join / cap, feather strength, blend mode, and an
+        optional gradient <code>shader</code>. <code>invalidateStroke</code> signals stroke geometry
+        should be rebuilt. Pure data — the interface never draws.</p>
+      <p class="how"><b class="lbl">Ours</b> A plain CPU value-object: every setter stashes its argument into a member
+        (style, color, thickness, join, cap, feather, blend mode, optional shader);
+        <code>invalidateStroke</code> is a no-op because no stroke geometry is cached here. Accessors
+        expose those to the renderer — <code>colorValue()</code> even folds a bound gradient down to a
+        representative average so a solid-color path always has something usable, while
+        <code>shaderValue()</code> downcasts back to <code>SimpleRenderShader</code> for full gradient
+        reconstruction.</p>
+      <div class="methods">
+        <span class="m">style(RenderPaintStyle)</span><span class="m">color(ColorInt)</span>
+        <span class="m">thickness(float)</span><span class="m">join(StrokeJoin)</span><span class="m">cap(StrokeCap)</span>
+        <span class="m">feather(float)</span><span class="m">blendMode(BlendMode)</span>
+        <span class="m">shader(rcp&lt;RenderShader&gt;)</span><span class="m">invalidateStroke()</span>
+      </div>
+    </div>
+
+    <!-- RenderShader -->
+    <div class="iface">
+      <div class="top">
+        <h3><span class="api">rive::RenderShader</span><span class="arrow">→</span><span class="impl">SimpleRenderShader</span></h3>
+        <span class="loc">render/simple_shape_factory.hpp:51 · rive/renderer.hpp</span>
+      </div>
+      <p class="contract"><b>Contract</b> Be an opaque gradient handle. The runtime constructs you
+        via <code>Factory::makeLinearGradient</code> / <code>makeRadialGradient</code> (endpoints or
+        centre + radius, plus parallel color and stop-position arrays) and hands you back through
+        <code>RenderPaint::shader</code>. The base declares <em>no</em> virtuals — you decide how to
+        store and later sample the gradient.</p>
+      <p class="how"><b class="lbl">Ours</b> <code>RenderShader</code> is an opaque marker base in Rive — no virtuals to
+        override — so the gradient lives as data: a kind (linear/radial), start/end points, a radius,
+        and a sorted, clamped vector of <code>(position, color)</code> stops captured from the
+        factory's arrays. The renderer either feeds those stops to the GL gradient program in object
+        space (with the device→object inverse, so radial gradients stay elliptical under rotation), or
+        — for the CPU/ImGui path — evaluates a screen point against the stops by bracketing and
+        <code>colorLerp</code>.</p>
+      <div class="methods">
+        <span class="m">isRadial() / startPoint() / endPoint()</span><span class="m">radiusValue()</span>
+        <span class="m">gradientStops()</span><span class="m">sample(screenPos, Mat2D&amp;)</span>
+        <span class="m">representativeColor()</span>
+      </div>
+      <p class="cap">Gradient kept as stop data, evaluated by bracketing + colorLerp</p>
+      <pre class="code">rive::ColorInt sampleAt(float position) const
+{
+    if (position &lt;= m_stops.front().position) return m_stops.front().color;
+    if (position &gt;= m_stops.back().position)  return m_stops.back().color;
+    for (size_t i = 1; i &lt; m_stops.size(); ++i)
+        if (position &lt;= m_stops[i].position) {
+            float t = (position - m_stops[i-1].position) /
+                      (m_stops[i].position - m_stops[i-1].position);
+            return rive::colorLerp(m_stops[i-1].color, m_stops[i].color, t);
+        }
+    return m_stops.back().color;
+}</pre>
+    </div>
+
+    <!-- RenderBuffer -->
+    <div class="iface">
+      <div class="top">
+        <h3><span class="api">rive::RenderBuffer</span><span class="arrow">→</span><span class="impl">SimpleRenderBuffer</span></h3>
+        <span class="loc">render/simple_shape_factory.hpp:289 · rive/render_buffer.hpp</span>
+      </div>
+      <p class="contract"><b>Contract</b> Back a typed buffer (vertex / index, sized in bytes from
+        the base ctor) for image meshes. The runtime writes into it through the map protocol:
+        <code>onMap</code> returns a writable pointer, <code>onUnmap</code> finalises the write
+        (upload to GPU if you need to). You keep the contents readable at draw time.</p>
+      <p class="how"><b class="lbl">Ours</b> Vertex / UV / index buffers for image meshes are just a heap
+        <code>std::vector&lt;uint8_t&gt;</code> sized to the requested byte count. The runtime fills it
+        through the map/unmap protocol — <code>onMap</code> hands back the raw pointer,
+        <code>onUnmap</code> is a no-op (no GPU upload), so the bytes simply live in CPU memory. At
+        draw time <code>drawImageMesh</code> reads <code>bytes()</code>/<code>byteSize()</code> to
+        expand the mesh into device-space triangles.</p>
+      <div class="methods">
+        <span class="m">onMap()</span><span class="m">onUnmap()</span>
+        <span class="m">+ bytes() / byteSize()</span>
+      </div>
+    </div>
+
+    <!-- RenderImage -->
+    <div class="iface">
+      <div class="top">
+        <h3><span class="api">rive::RenderImage</span><span class="arrow">→</span><span class="impl">SimpleRenderImage</span></h3>
+        <span class="loc">render/simple_shape_factory.hpp:315 · rive/renderer.hpp</span>
+      </div>
+      <p class="contract"><b>Contract</b> Wrap a decoded bitmap as a drawable image and report its
+        <code>width</code> / <code>height</code> (base members). The runtime hands you premultiplied
+        RGBA8 from <code>Factory::decodeImage</code>; you own the GPU upload and the texture's
+        lifetime, and expose whatever handle your <code>Renderer</code> needs to bind it.</p>
+      <p class="how"><b class="lbl">Ours</b> An image is one GL texture. The ctor receives tightly-packed premultiplied
+        RGBA8, sets the base <code>RenderImage</code> width/height members, then
+        <code>glGenTextures</code> + <code>glTexImage2D</code> uploads it as <code>GL_RGBA8</code> with
+        linear filtering and clamp-to-edge wrap. The destructor frees the texture;
+        <code>textureId()</code> exposes the handle for the renderer's textured-quad / mesh draws.</p>
+      <div class="methods">
+        <span class="m">~SimpleRenderImage() (glDeleteTextures)</span><span class="m">+ textureId()</span>
+        <span class="m">sets base m_Width / m_Height</span>
+      </div>
+      <p class="cap">Premultiplied RGBA8 → a GL_RGBA8 texture (linear, clamp-to-edge)</p>
+      <pre class="code">SimpleRenderImage(const uint8_t* rgba, int w, int h)
+{
+    m_Width = w; m_Height = h;            // base rive::RenderImage members
+    glGenTextures(1, &amp;m_tex);
+    glBindTexture(GL_TEXTURE_2D, m_tex);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w, h, 0, GL_RGBA,
+                 GL_UNSIGNED_BYTE, rgba);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+}</pre>
+    </div>
+
+    <p class="note" style="margin-top:18px">▸ <b>Scope note.</b> These seven are the high-level
+      render interfaces. For headless GPU-free tests, <code>native_backend.cpp</code> additionally
+      subclasses three lower-level <code>rive::gpu</code> classes — <code>BufferRingNull</code>,
+      <code>RenderContextNullImpl</code>, <code>RenderTargetNull</code> — to stand in for the render
+      context without a real GL device.</p>
+  </section>
+
+  <!-- 03 -->
+  <section>
+    <h2><span class="num">03</span>Ours vs original — who does what</h2>
+    <p class="sub">The honest split. Almost everything above the rasterizer is the official
+      runtime, reused unchanged; we own the rendering, the binary <em>export</em>, and the
+      experimental container. <span style="color:var(--cyan)">cyan = official (reused)</span>,
+      <span style="color:var(--violet)">violet = ours (from scratch)</span>.</p>
+    <div class="card" style="padding:6px 6px 2px">
+      <table>
+        <thead><tr><th>capability</th><th>official (rive-runtime)</th><th>ours (from scratch)</th></tr></thead>
+        <tbody>
+          <tr><td class="cap0">.riv parse / import</td><td class="off">rive::File::import — header + object-stream decode into live Core objects</td><td class="our">io/riv_binary_reader inspectRiv() — independent <em>structural</em> walk only</td></tr>
+          <tr><td class="cap0">Core object model</td><td class="off">Core / Component / Drawable / Path / Shape + generated reflection; CoreRegistry</td><td class="x">—  (100% reused via artboard-&gt;objects())</td></tr>
+          <tr><td class="cap0">Animation + state machines</td><td class="off">LinearAnimationInstance, StateMachineInstance, Scene::advanceAndApply</td><td class="x">—  (100% reused)</td></tr>
+          <tr><td class="cap0">Layout (Yoga)</td><td class="off">vendored Yoga + src/layout flexbox solve</td><td class="x">—</td></tr>
+          <tr><td class="cap0">Text shaping</td><td class="off">text_engine + HarfBuzz + SheenBidi (glyphs, BiDi, line-break)</td><td class="x">—  (consumes the resulting RenderPaths)</td></tr>
+          <tr><td class="cap0">Render backend</td><td class="off">PLS RenderContext + RiveRenderer (gl_backend.cpp → FramebufferRenderTargetGL)</td><td class="our">render/ GlShapePipeline — MSAA FBO, stencil-then-cover, + NPR aux passes</td></tr>
+          <tr><td class="cap0">Factory + render objects</td><td class="off">the GL RenderContext <em>is</em> the Factory; RiveRenderPath/Paint/Image</td><td class="our">SimpleShapeFactory + SimpleRender* (the seam in §02)</td></tr>
+          <tr><td class="cap0">Feathered fills</td><td class="off">feather.cpp + rive_renderer Gaussian-integral LUT; fillRule=clockwise gate</td><td class="our">3 modes: gaussian blur · atlas blur · analytic JFA-SDF + erf</td></tr>
+          <tr><td class="cap0">Image decode</td><td class="off">decoders/ Bitmap::decode → libpng / libjpeg / libwebp</td><td class="x">—  (only the premultiply + GL upload wrapper is ours)</td></tr>
+          <tr><td class="cap0">.riv binary <em>export</em></td><td class="x">—  (runtime is import + render only)</td><td class="our">io/riv_binary_writer writeSplatRiv() — a full v7.0 encoder</td></tr>
+          <tr><td class="cap0">experimental .rivx</td><td class="x">—  (no such format)</td><td class="our">editor writeRivx/readRivx — splat fields, spline curves, NPR look</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 04 -->
+  <section>
+    <h2><span class="num">04</span>What we reference from the original</h2>
+    <p class="sub">Three places where our code calls directly into rive-runtime instead of
+      reinventing it — the parser, the image decoder, and the binary primitives our writer mirrors.</p>
+
+    <div class="card">
+      <h3 style="margin:0 0 4px;font-family:var(--mono);font-size:15px;color:var(--cyan)">rive::File::import — the parser we <em>call</em>, never reimplement</h3>
+      <p style="color:var(--dim);font-size:13.5px;margin:0">Takes the raw <code>.riv</code> bytes + a
+        <code>Factory</code>, walks the <code>RuntimeHeader</code> + property table-of-contents + object
+        stream (via <code>BinaryReader</code>), and deserialises into the live Core model. Because the
+        resources come from the supplied <code>Factory</code>, the same parse populates either the GPU
+        objects or <em>our</em> <code>SimpleRender*</code> objects. Our load path (scene_loader.cpp)
+        just calls it.</p>
+      <pre class="code">// backend/src/scene/scene_loader.cpp — the canonical load
+rive::ImportResult importResult = rive::ImportResult::malformed;
+auto file = rive::File::import({bytes.data(), bytes.size()},
+                               app.backend-&gt;factory(),   // official OR SimpleShapeFactory
+                               &amp;importResult);
+auto artboard = file-&gt;artboardDefault();</pre>
+      <p class="note">Our <code>io/riv_binary_reader</code> walks the same bytes for diagnostics, but
+        its own header says it plainly: <em>"actual object decode still defers to rive::File::import"</em>.
+        We prove we understand the format; the runtime still owns the decode.</p>
+    </div>
+
+    <div class="cmp" style="margin-top:16px">
+      <div class="col official">
+        <h4>Bitmap::decode — the image codec (reused)</h4>
+        <p class="tagline">decoders/include/rive/decoders/bitmap_decoder.hpp</p>
+        <pre class="code">// Called from SimpleShapeFactory::decodeImage.
+// libpng / libjpeg / libwebp live in rive-runtime;
+// we add only premultiply + the GL upload.
+auto bmp = Bitmap::decode(span.data(), span.size());
+bmp-&gt;pixelFormat(Bitmap::PixelFormat::RGBAPremul);</pre>
+      </div>
+      <div class="col official">
+        <h4>rive::BinaryWriter — what our ByteWriter mirrors</h4>
+        <p class="tagline">external/rive-runtime/src/core/binary_writer.cpp</p>
+        <pre class="code">void BinaryWriter::writeVarUint(uint64_t value) {
+    uint8_t buf[16]; int i = 0;
+    do { uint8_t b = value &amp; 0x7f; value &gt;&gt;= 7;
+         if (value) b |= 0x80;        // more bytes follow
+         buf[i++] = b; } while (value);
+    m_Stream-&gt;write(buf, i);
+}</pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 -->
+  <section>
+    <h2><span class="num">05</span>The <code>.riv</code> binary round-trip</h2>
+    <p class="sub">What turns scene data <em>into</em> bytes, and what reads bytes back. Our writer is
+      the one subsystem with no official counterpart — and it is validated by feeding its output
+      straight back through the official <code>File::import</code>.</p>
+
+    <div class="card">
+      <div class="cap" style="font-size:13px;color:var(--ink);font-family:var(--mono)">on-disk layout (all ints LEB128 varuint unless noted)</div>
+      <div class="bytes">
+        <div class="seg"><b>HEADER</b><span>"RIVE" · major=7 · minor=0 · fileId</span></div>
+        <div class="seg"><b>PROPERTY ToC</b><span>varuint keys → 0, then packed 2-bit field-type bitmap (4 keys / uint32)</span></div>
+        <div class="seg"><b>OBJECT STREAM</b><span>[ typeKey · (propKey, value)* · 0 ]* until EOF</span></div>
+      </div>
+      <p class="note" style="margin-top:12px">Value width comes from the key's ToC field type:
+        <b style="color:var(--ink)">uint</b> → varuint · <b style="color:var(--ink)">double</b> →
+        f32 little-endian · <b style="color:var(--ink)">color</b> → 4-byte 0xAARRGGBB ·
+        <b style="color:var(--ink)">string</b> → varuint length + bytes. Object order: Backboard →
+        Artboard → per shape: Shape → Ellipse/Rectangle → Fill(+fillRule) →
+        SolidColor/Gradient(+stops) → Feather → optional Stroke. <code>parentId</code> is an
+        artboard-local index, not a global one.</p>
+    </div>
+
+    <div class="cmp" style="margin-top:16px">
+      <div class="col ours">
+        <h4>ours — what turns into binary</h4>
+        <p class="tagline">io/riv_binary_writer.cpp · writeSplatRiv()</p>
+        <pre class="code">struct ByteWriter {
+  std::vector&lt;uint8_t&gt; bytes;
+  void varuint(uint64_t v){            // LEB128
+    do { uint8_t b=v&amp;0x7F; v&gt;&gt;=7;
+         if(v) b|=0x80; bytes.push_back(b);} while(v);
+  }
+  void f32(float f){ uint32_t u; memcpy(&amp;u,&amp;f,4); u32le(u);}
+};
+// emit one Shape: typeKey, (key,value) pairs, 0 terminator
+w.varuint(TK_SHAPE);
+w.varuint(PK_PARENT); w.varuint(0);   // parent = Artboard
+w.varuint(PK_X); w.f32(sp.x);
+w.varuint(PK_Y); w.f32(sp.y);
+w.varuint(0);                          // end of object</pre>
+      </div>
+      <div class="col official">
+        <h4>official — what reads from binary</h4>
+        <p class="tagline">external/.../src/file.cpp · readRuntimeObject()</p>
+        <pre class="code">static Core* readRuntimeObject(BinaryReader&amp; reader,
+                               const RuntimeHeader&amp; header) {
+  auto key = reader.readVarUintAs&lt;int&gt;();
+  auto object = CoreRegistry::makeCoreInstance(key);
+  while (true) {
+    auto propertyKey = reader.readVarUintAs&lt;uint16_t&gt;();
+    if (propertyKey == 0) break;             // terminator
+    if (!object-&gt;deserialize(propertyKey, reader)) {
+      int id = CoreRegistry::propertyFieldId(propertyKey);
+      if (id == -1) id = header.propertyFieldId(propertyKey);
+      /* decode by CoreUint/String/Double/ColorType */
+    }
+  }
+  return object;
+}</pre>
+      </div>
+    </div>
+    <p class="note" style="margin-top:10px">Our <code>inspectRiv()</code> reader is the structural
+      mirror of that loop — read a <code>typeKey</code>, then <code>(propKey, value)</code> pairs to the
+      <code>0</code> terminator, resolving each value's width from the ToC (or a registry fallback) and
+      skipping it. Same grammar, used only to validate the bytes; the real object build is
+      <code>File::import</code>.</p>
+  </section>
+
+  <!-- 06 -->
+  <section>
+    <h2><span class="num">06</span>The feather — analytic from scratch</h2>
+    <p class="sub">A feathered fill is a soft, Gaussian-blurred edge. The original convolves coverage
+      with a precomputed Gaussian-integral table; ours floods a signed-distance field and evaluates
+      the same integral (<code>erf</code>) per pixel. Both blur with the <b>same</b> width:
+      <code>sigma = feather / 2</code>.</p>
+
+    <div class="cmp">
+      <div class="col ours">
+        <h4>ours — JFA signed-distance + erf</h4>
+        <p class="tagline">render/gl_shaders.inl · kFeatherErfFS (mode 2)</p>
+        <pre class="code">float erf(float x){                  // Abramowitz-Stegun 7.1.26
+  float s=sign(x); x=abs(x);
+  float t=1.0/(1.0+0.3275911*x);
+  float y=1.0-(((((1.061405429*t-1.453152027)*t
+            +1.421413741)*t-0.284496736)*t
+            +0.254829592)*t)*exp(-x*x);
+  return s*y;
+}
+void main(){
+  float sd = sgn*dist;               // signed dist to JFA edge
+  float k  = 3.0/(max(uFeatherRadius,0.25)*1.41421356);
+  // k = 3/(radius*sqrt2)  ⇒  sigma = radius/3 = feather/2
+  float cov = 0.5*(erf((2.0*uHalfWidth - sd)*k) + erf(sd*k));
+  frag = vec4(0.0, 0.0, 0.0, clamp(cov, 0.0, 1.0));
+}</pre>
+      </div>
+      <div class="col official">
+        <h4>official — Gaussian-integral LUT + the gate</h4>
+        <p class="tagline">external/.../renderer/src/rive_renderer.cpp:152</p>
+        <pre class="code">if (paint-&gt;getFeather() != 0 &amp;&amp; !paint-&gt;getIsStroked())
+{
+    if (path-&gt;getFillRule() != FillRule::clockwise &amp;&amp;
+        !m_context-&gt;frameDescriptor().clockwiseFillOverride)
+    {
+        // Don't draw feathered fills that aren't clockwise.
+        return;
+    }
+    // curvature-softened copy so 1-D feather along the normal is valid
+    clipAndPushDraw(gpu::PathDraw::Make(m_context, m_stack.back().matrix,
+        path-&gt;makeSoftenedCopyForFeathering(paint-&gt;getFeather(),
+                                            matrixMaxScale),
+        path-&gt;getFillRule(), paint, ...));
+}</pre>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px;border-color:rgba(255,206,107,.4)">
+      <h3 style="margin:0 0 6px;font-family:var(--mono);font-size:15px;color:var(--amber)">⚑ The fillRule gate — why exported feathers used to render blank</h3>
+      <p style="color:var(--dim);font-size:13.5px;margin:0 0 6px">The official runtime
+        <b>silently drops</b> any feathered, non-stroked fill whose path fill rule is not
+        <code>clockwise</code> (<code>FillRule::clockwise == 2</code>). Our writer originally omitted
+        <code>fillRule</code> (defaulting to <code>nonZero</code>), so feathered exports painted
+        <b>~0 pixels</b> in the official backend. Emitting property key <code>40 = 2</code> on every
+        Fill — exactly what the Rive editor does — flips that to <b>~335k</b> painted pixels on the
+        test fixture. The matching <code>Feather</code> (typeKey 533, key 749) carries the strength,
+        with <code>sigma = strength / 2</code>.</p>
+      <pre class="code">w.varuint(TK_FILL);
+w.varuint(PK_PARENT);   w.varuint(shapeLocal);
+w.varuint(PK_FILLRULE); w.varuint(2);   // 2 = clockwise — REQUIRED for feather
+w.varuint(0);
+// ... the Feather under that same Fill:
+w.varuint(TK_FEATHER);
+w.varuint(PK_PARENT);   w.varuint(fillLocal);
+w.varuint(PK_FEATHER);  w.f32(sp.feather);   // strength; sigma = strength/2
+w.varuint(0);</pre>
+    </div>
+  </section>
+
+  <footer>
+    <span>RIV — API &amp; Interfaces · ours implements the Rive render contract, reuses parse · model · animation</span>
+    <span>rive_gl_player · render/ · io/ · external/rive-runtime</span>
+  </footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,24 @@
+/* Native select semantics, with a dark fallback and a styled picker where supported. */
+select{color-scheme:dark}
+select option,select optgroup{color:#eee9df;background-color:#17212b}
+select option:disabled{color:#84929d;background-color:#141c24}
+@supports (appearance:base-select){
+  select:not([multiple]):not([size]),select:not([multiple]):not([size])::picker(select){appearance:base-select}
+  select:not([multiple]):not([size]){display:inline-flex;align-items:center;justify-content:space-between;gap:12px}
+  select:not([multiple]):not([size])::picker-icon{color:var(--project-accent,#d8c486);transition:rotate .25s}
+  select:not([multiple]):not([size]):open::picker-icon{rotate:180deg}
+  select:not([multiple]):not([size])::picker(select){
+    color:#eee9df;background:linear-gradient(125deg,#263338f5,#121b25fa);
+    border:1px solid #cab7758c;border-radius:12px;padding:6px;
+    box-shadow:0 12px 34px #0009,0 0 22px #d1b06c25,inset 0 1px #effff51a;
+    max-height:min(420px,65vh);overflow-y:auto;scrollbar-color:#948865 #17212b;
+    opacity:1;transition:opacity .2s,display .2s allow-discrete,overlay .2s allow-discrete;
+  }
+  select:not([multiple]):not([size]) option{border-radius:7px;padding:9px 12px;margin:2px 0;background:transparent;color:#eee9df;white-space:normal}
+  select:not([multiple]):not([size]) option:hover,select:not([multiple]):not([size]) option:focus-visible{background:#394847;color:#fff9e7;outline:1px solid #b4ccbb55}
+  select:not([multiple]):not([size]) option:checked{background:#5f5130;color:#fff5d6}
+  select:not([multiple]):not([size]) option:disabled{color:#84929d;background:#141c24}
+  select:not([multiple]):not([size]) option::checkmark{color:#f2d999}
+  @starting-style{select:not([multiple]):not([size])::picker(select){opacity:0}}
+}
+@media(prefers-reduced-motion:reduce){select,select::picker(select),select::picker-icon{transition:none!important}}

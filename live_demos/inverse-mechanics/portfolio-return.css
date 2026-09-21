@@ -1,0 +1,55 @@
+/* Shared portfolio navigation, inserted into each app's existing layout. */
+a.portfolio-return {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  justify-self: start;
+  flex: 0 0 auto;
+  gap: 7px;
+  width: fit-content;
+  max-width: 100%;
+  min-height: 32px;
+  margin: 0 0 10px;
+  padding: 6px 10px;
+  border: 1px solid #9c83474d;
+  border-radius: 7px;
+  background: #10120ff0;
+  color: #d7c18c;
+  font: 500 11px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif;
+  letter-spacing: .01em;
+  text-decoration: none;
+  white-space: nowrap;
+  box-shadow: none;
+  transition: color 140ms ease, border-color 140ms ease, background 140ms ease;
+}
+a.portfolio-return:hover {
+  color: #f3dfb0;
+  border-color: #b99c5b;
+  background: #202319;
+  text-decoration: none;
+}
+a.portfolio-return:focus-visible {
+  outline: 2px solid #e2c582;
+  outline-offset: 3px;
+}
+.portfolio-return-row {
+  width: min(1320px, calc(100% - 40px));
+  margin: 0 auto;
+  padding-top: 8px;
+}
+.portfolio-return-row a.portfolio-return { margin-bottom: 0; }
+.atlas-nav > a.portfolio-return { margin-bottom: -10px; }
+.panel-header.portfolio-return-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+}
+.portfolio-return-header > a.portfolio-return { grid-column: 1 / -1; margin: 0; }
+@media (max-width: 600px) {
+  a.portfolio-return { min-height: 36px; padding: 7px 10px; }
+  .portfolio-return-row { width: calc(100% - 24px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  a.portfolio-return { transition: none; }
+}

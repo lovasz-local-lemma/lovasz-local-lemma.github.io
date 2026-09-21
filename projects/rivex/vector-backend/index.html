@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en"><head><script src="../lab-health.js"></script><link rel="icon" href="data:,"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Vector Signal · RIVX drawing backend</title><link rel="stylesheet" href="style.css"><!-- universal-navigation:start --><link rel="stylesheet" href="../../../portfolio-location.css?v=054b6b462c"><script defer src="../../../portfolio-location.js?v=054b6b462c"></script><script defer src="../../../portfolio-routes.js?v=054b6b462c"></script><script defer src="../../../portfolio-universal-navigation.js?v=054b6b462c"></script><!-- universal-navigation:end --><style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head>
+<body><main>
+  <header><a class="back" href="../index.html#manual-two-backends">← RIVX</a><span class="eyebrow">A different meaning for the same drawing</span><h1>Vector Signal</h1><p class="lead">Rive animates the paths. A custom backend turns them into light. Ordinary Rive draws the instrument on top.</p></header>
+  <div class="route" aria-label="Rendering pipeline"><span><b>01 / Evaluate</b>Official Rive · original .riv</span><i>→</i><span><b>02 / Interpret</b>Cubic commands → beam → phosphor</span><i>→</i><span><b>03 / Return</b>Bound Rive reticle + selection</span></div>
+  <div class="toolbar">
+    <label>Artwork<select id="source"><option value="truck">Truck / state machine</option><option value="faux">Faux / keyed motion</option><option value="jellyfish">Jellyfish / organic paths</option><option value="rosette">Kinetic rosette / original</option><option value="import" hidden>Imported .riv</option></select></label>
+    <label class="file">Open .riv<input id="file" type="file" accept=".riv"></label>
+    <label>Artboard<select id="artboard"></select></label><label>Animation<select id="animation"></select></label>
+    <button id="play">Pause</button><button id="clear">Clear phosphor</button>
+  </div>
+  <p id="error" role="alert" hidden></p>
+  <section class="views">
+    <figure class="reference"><figcaption><b>Official drawing</b><span>The source stays intact.</span></figcaption><canvas id="reference" width="720" height="480" aria-label="Original Rive drawing, with original pointer interaction"></canvas><div id="machine-inputs"></div></figure>
+    <figure class="beam-view"><figcaption><b>Enhanced drawing</b><span>Hover a path · click to select · double-click to release</span></figcaption><div class="stage"><canvas id="beam" width="720" height="480" aria-label="Custom analytic vector beam"></canvas><canvas id="overlay" width="720" height="480" aria-label="Ordinary Rive instrument overlay"></canvas><div class="stage-label">LIVE VECTOR COMMANDS <span id="signal-dot">●</span></div></div></figure>
+  </section>
+  <section class="controls" aria-label="Beam settings">
+    <label>Phosphor<select id="colour"><option value="green">P31 / green</option><option value="amber">P3 / amber</option><option value="ice">Ice / cyan</option></select></label>
+    <label>Spot width <output id="radius-value"></output><input id="radius" type="range" min=".45" max="3.5" step=".05" value="1.1"></label>
+    <label>Afterglow <output id="persistence-value"></output><input id="persistence" type="range" min=".06" max="1.5" step=".01" value=".34"></label>
+    <label>Trace speed <output id="speed-value"></output><input id="speed" type="range" min=".03" max="2" step=".01" value=".35"></label>
+    <label>Coverage <output id="coverage-value"></output><input id="coverage" type="range" min=".015" max="1" step=".005" value=".72"></label>
+    <label>Energy <output id="strength-value"></output><input id="strength" type="range" min=".2" max="3" step=".05" value="1.2"></label>
+  </section>
+  <div class="options"><label><input id="clip" type="checkbox" checked>Respect vector clips</label><label><input id="travel" type="checkbox">Show blanked travel</label><label><input id="isolate" type="checkbox">Isolate selected path</label><label><input id="return" type="checkbox" checked>Rive return layer</label><button id="release">Release selection</button><button id="hide">Mute selected path</button><button id="restore">Restore paths</button></div>
+  <section class="inspector">
+    <div><span class="eyebrow">Before rasterization</span><h2>Inspect the signal.</h2><p id="selection">Hover the enhanced drawing to inspect an evaluated path.</p><dl class="metrics"><div><dt>Draw calls</dt><dd id="draw-count">—</dd></div><div><dt>Source cubics</dt><dd id="cubic-count">—</dd></div><div><dt>Beam segments</dt><dd id="segment-count">—</dd></div><div><dt>State</dt><dd id="status">Loading…</dd></div></dl><p id="limits" class="muted"></p></div>
+  </section>
+  <section class="signal-history" aria-labelledby="signal-history-title">
+    <p class="history-explainer">Select a curve in the enhanced drawing to see its current geometry. Enable the optional time volume to record and explore the same curve’s motion.</p>
+    <label class="history-toggle"><input id="history-enabled" type="checkbox">Record and show 3D history <span>Off by default · no path capture or 3D projection while off</span></label>
+    <label class="history-picker">Curve to follow <select id="history-path"><option value="">All paths / hover to inspect</option></select></label>
+    <div class="history-panes">
+    <div class="history-pane"><header><span class="eyebrow">SELECTED VECTOR GEOMETRY</span><h2>The curve, now.</h2></header><figure><figcaption><b id="history-selection">Hover or select a curve above</b><span>Original cubic handles</span></figcaption><div class="geometry-stage"><canvas id="geometry" width="720" height="360" aria-label="Selected path and original Bezier control handles"></canvas></div></figure></div>
+    <div class="history-pane"><header><span class="eyebrow">ANIMATION BECOMES GEOMETRY</span><h2 id="signal-history-title">Give the drawing a time axis.</h2></header><figure><figcaption><b id="history-path-title">All captured paths</b><span>Gold: recent · mint: earlier · drag to orbit</span></figcaption><canvas id="history-volume" width="720" height="480" aria-label="The selected evaluated Rive contour through time. Drag to turn."></canvas></figure></div>
+    </div>
+    <div class="history-toolbar"><button id="history-pose">Hold one pose</button><button id="history-sweep">Sweep the next second</button><button id="history-record">Freeze capture</button><button id="history-clear">Clear captured paths</button></div>
+    <div class="history-controls"><label>Representation<select id="history-mode"><option value="volume">2D + time volume</option><option value="snapshot">One captured pose</option></select></label><label>Temporal window <output id="history-window-value">3.50 s</output><input id="history-window" type="range" min=".05" max="3.5" step=".05" value="3.5"></label><label>Look back <output id="history-lookback-value">0.00 s</output><input id="history-lookback" type="range" min="0" max="3.5" step=".05" value="0"></label><label>Time-axis depth<input id="history-depth" type="range" min="0" max="380" step="5" value="190"></label></div>
+    <p id="history-status" role="status" class="muted">3D history is off. The live drawing and current-curve inspector still work.</p><p class="muted">When enabled: at most 72 samples at 20 Hz and 2,200 points per sample. Complex contours are resampled to fit that budget; captured coordinates stay below 1.21 MiB. This geometric history is separate from the fading phosphor image. It travels in the exported RIVX Suite, not inside a new ordinary .riv.</p>
+  </section>
+  <section class="delivery"><div><span class="eyebrow">Take the running pipeline</span><h2>Export the enhanced player.</h2><p>The original .riv, official evaluator, custom beam renderer, return-layer .riv, retained path history and current settings travel together in one browser page.</p></div><div><button class="primary" id="export">Export standalone HTML ↗</button><label><input type="checkbox" id="overwrite">Reuse export filename</label><p id="export-status" role="status"></p></div></section>
+  <section class="notes"><article><h3>Why this is a backend</h3><p>The input is the evaluated drawing: move, line, cubic, transformed subpaths, paint opacity and clip stacks. No screenshot, edge detector or GPU readback supplies the beam. Muting a draw call changes this renderer while the official drawing remains intact.</p></article><article><h3>The small piece of mathematics</h3><p>A moving Gaussian spot integrates along each segment. An error-function difference gives its axial intensity; a Gaussian gives its width. History decays as <code>exp(−Δt / τ)</code>. The Rive reticle uses the same arc-length scan position.</p></article><article><h3>The exact boundary</h3><p>This is a focused browser counterpart of RIVX’s native vector-beam pipeline. It implements path drawing semantics, not the complete native renderer or every .rivx document type. Raster images remain visible in the reference but have no vector contours. Clip centerlines use sampled geometric tests; narrow features can be missed, and glow may cross their boundary. Hidden paths can remain: this is a drawing-command view, not a visible-silhouette solver.</p></article></section>
+  <footer><p id="credit"></p><a href="../effect-workshop/?preset=beam&source=truck">Compare the image-derived beam →</a><p>Import ordinary .riv artwork with embedded assets. External image, font and audio references are not downloaded or bundled. GPU Canvas documents use the separate signed-instrument player.</p><p>Browser hybrid · official Rive Canvas advanced 2.42.2 + custom WebGL2 · no GPU Canvas scripts</p></footer>
+</main><script type="module" src="app.js"></script></body></html>

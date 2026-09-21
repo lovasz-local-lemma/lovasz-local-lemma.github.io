@@ -1,0 +1,11 @@
+{
+  "format": "RIVX-RELIGHT-STUDY-1",
+  "name": "Glass, brass and a moving light",
+  "scope": "Analytic scene fixture for this viewer; not the native RIVX3D or RIVX3S file schema.",
+  "glass": [0.65, 0.85, 0, 0.85],
+  "metal": [-1.05, 0.57, -0.45, 0.57],
+  "camera": {"target": [0, 0.7, 0], "distance": 5.6, "pitch": 0.18, "yaw": 0.18},
+  "light": {"radius": 3.0, "height": 3.4, "centerZ": 0.7, "minDegrees": -100, "maxDegrees": 100},
+  "bake": {"width": 640, "height": 420, "samples": 25, "fps": 24},
+  "approximations": ["Direct illumination and analytic visibility; no indirect path tracing", "Two-interface sphere refraction, Schlick Fresnel, Beer tint; one reflected ray", "Floor caustic is a shaped light-driven lobe, not a photon estimate", "Portable shading is keyed over one light-position arc; material regions are separately named image meshes"]
+}

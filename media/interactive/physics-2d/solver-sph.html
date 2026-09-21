@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><script src="../../../portfolio-lab-frame.js"></script><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark"><title>A neighborhood becomes a liquid</title><link rel="stylesheet" href="solver-labs.css"><style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head>
+<body data-solver="sph"><main><header><p class="eyebrow">01 / SPH · local support</p><h1>A neighborhood becomes a liquid</h1><p>Drag the gold probe through a bulk region, across its free boundary, and into the thin neck. Every neighbor contributes a different amount.</p></header>
+<div class="modes" aria-label="View"><button type="button" data-mode="density" aria-pressed="true">Density contribution</button><button type="button" data-mode="gradient" aria-pressed="false">Kernel gradient</button></div><div class="controls"><label class="control" for="radius"><span>Smoothing length h<output id="radius-value"></output></span><input id="radius" type="range" min="0.04" max="0.23" value="0.1" step="0.005"></label><label class="control" for="compression"><span>Particle spacing<output id="compression-value"></output></span><input id="compression" type="range" min="0.7" max="1.2" value="1" step="0.01"></label></div>
+<figure class="viewport"><canvas id="solver-view" role="img" aria-label="A neighborhood becomes a liquid; computed values are listed immediately below"></canvas><figcaption id="canvas-note">Mint particles contribute inside the gold support circle of radius 2h. The bars rank their individual contributions. A wider kernel reduces local variation but also spreads information across finer features.</figcaption><div class="metrics" aria-live="off"><div><output id="metric-0">—</output><span>Kernel density ρ</span></div><div><output id="metric-1">—</output><span>Supported neighbors</span></div><div><output id="metric-2">—</output><span>Gradient magnitude</span></div></div></figure>
+<div class="toolbar"><button type="button" id="reset">Reset schematic ↺</button><span>Computed explanation · native implementation in Physics2D</span></div>
+<details class="model"><summary>Equations and model boundary</summary><pre>ρ(x) = Σⱼ mⱼ W(|x − xⱼ|, h)
+∇ρ(x) = Σⱼ mⱼ ∇W(x − xⱼ, h)</pre><p>The cubic spline and its 2D normalization match the native SPH kernel. This probe computes interpolation and its gradient on prescribed particle positions; it does not advance pressure, viscosity or collisions. The native codimensional branch adds a tangent-aware treatment for thin filaments.</p></details>
+</main><script src="solver-core.js"></script><script src="solver-ui.js"></script></body></html>

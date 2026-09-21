@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark"><script src="../../../portfolio-lab-frame.js"></script><title>The front moves between frames.</title><link rel="stylesheet" href="recording-blast.css"><style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head>
+<body><main>
+<header><p class="eyebrow">Crucible / reading the recordings</p><h1>The front moves between frames.</h1><p>A bright ring is a picture. Delivering a kick requires an arrival test. Step the same front through both methods and watch which stationary probes it reaches.</p></header>
+<div class="controls">
+<label>Frame interval <output id="dt-out"></output><input id="dt" aria-label="Frame interval" type="range" min="0.03" max="0.32" step="0.01" value="0.18"></label>
+<label>Source energy <output id="energy-out"></output><input id="energy" aria-label="Source energy" type="range" min="0.3" max="3" step="0.1" value="1"></label>
+<label>Ring test width <output id="width-out"></output><input id="width" aria-label="Ring test width" type="range" min="0.02" max="0.3" step="0.01" value="0.08"></label>
+<label>Wall opening <output id="gap-out"></output><input id="gap" aria-label="Wall opening" type="range" min="0" max="5.2" step="0.1" value="1.2"></label>
+</div>
+<div class="toolbar"><button id="play" type="button">Play arrival</button><button id="next" type="button">One step →</button><button id="reset" type="button">Rewind ↺</button><label class="check"><input id="walls" type="checkbox" checked> Test wall visibility</label></div>
+<label class="timeline">Simulation step <output id="step-out"></output><input id="step" aria-label="Simulation step" type="range" min="0" max="12" step="1" value="5"></label>
+<figure><canvas id="blast-view" role="img" aria-label="Two methods sampling the same expanding shock front: a thin ring can skip probes; the swept annulus detects their crossing. A wall blocks direct arrivals outside its opening."></canvas>
+<figcaption><span class="key mint">● received one kick</span><span class="key coral">● skipped by ring samples</span><span class="key violet">● direct path blocked</span><span class="key gold">○ current front</span><span>Markers are fixed arrival gauges; arrow lengths illustrate a falling impulse proxy.</span></figcaption></figure>
+<div class="metrics" aria-live="polite"><div><output id="narrow-count"></output><span>thin-ring arrivals</span></div><div><output id="swept-count"></output><span>swept arrivals</span></div><div><output id="missed-count"></output><span>skipped by thin ring</span></div><div><output id="blocked-count"></output><span>occluded probes reached in radius</span></div></div>
+<p class="takeaway" id="takeaway"></p>
+<details><summary>How this relates to the native sandbox</summary><p>The selectable Sedov front uses a two-dimensional similarity radius, then a constant-speed continuation. At each physics substep its source, wind and particle passes inspect the interval from the old radius to the new radius. For this single stationary front, the crossing creates one impulse event; it is not a force applied again at every rendered frame.</p><pre>R(t) = k √t,  k ∝ E¼; then R advances at c₀
+arrival: Rprevious &lt; distance ≤ Rcurrent
+direct visibility: source → receiver avoids the wall</pre><p>This is a dimensionless teaching model with fixed probes and exact intersections against two rectangles. Native visibility uses a finite set of SDF samples; thin geometry and moving particle walls have additional limitations. The switch illustrates direct occlusion, not diffraction, reflection, transmission or a compressible pressure solve. Neither the recordings nor this schematic validate physical blast pressures. The thin-ring method is an intentionally incomplete comparison, not a claim about the legacy solver.</p><p>Opening a sealed chamber and propagating a front are different questions. <a href="solver-cavity.html">The chamber schematic</a> explains connectivity and pressure release; this one explains arrival and obstruction after a front exists.</p></details>
+</main><script src="recording-blast-core.js"></script><script src="recording-blast.js"></script></body></html>

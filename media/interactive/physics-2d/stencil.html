@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Physics2D — one particle, nine grid nodes</title>
+<style>
+:root{color-scheme:dark;--mint:#70e4c6;--gold:#f2cd81;--text:#e9eef2;--muted:#b1bdc8;--line:#ffffff20}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 0 0,#153334,transparent 65%),#10151d;color:var(--text);font:14px/1.55 system-ui,sans-serif}main{max-width:1120px;margin:auto;padding:22px}header{display:flex;justify-content:space-between;align-items:start;gap:18px;margin-bottom:18px}h1{font:500 clamp(25px,3vw,34px)/1.15 Georgia,serif;margin:4px 0 10px}p{margin:0;color:var(--muted)}.eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mint)}button{border:1px solid #6ee4c650;border-radius:8px;background:#1b3436;color:var(--text);padding:9px 15px;cursor:pointer;white-space:nowrap}button:hover{border-color:var(--mint)}.layout{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(250px,1fr);gap:18px}.diagram{border:1px solid var(--line);border-radius:15px;background:linear-gradient(145deg,#17323845,#131823);overflow:hidden;margin:0;align-self:start}.diagram svg{width:100%;display:block;touch-action:none;cursor:crosshair}.diagram figcaption{border-top:1px solid var(--line);padding:13px 16px;font-size:13px;color:var(--muted)}.grid-line{stroke:#a1b0c125;stroke-width:1}.weight-label{fill:#d2e5e6;text-anchor:middle;font:13px ui-monospace,monospace}.particle{fill:var(--gold);stroke:#fff0c4;stroke-width:1.5}.particle-halo{fill:#eabd4130;stroke:#eec36b80}.particle-label{fill:#f2cd81;font:14px system-ui}.velocity{stroke:#ac9dff;stroke-width:2.2}.side{display:flex;flex-direction:column;gap:14px}.control{display:grid;grid-template-columns:1fr auto;gap:5px 12px}.control input{grid-column:1/-1;width:100%;accent-color:var(--mint)}.control output{color:var(--mint);font:14px ui-monospace,monospace}.control label{font-weight:600}.box{border:1px solid var(--line);border-radius:12px;padding:15px;background:#1b253650}.metric{display:flex;justify-content:space-between;gap:12px;padding:7px 0;font-size:12px}.metric+.metric{border-top:1px solid #ffffff0e}.metric output{color:var(--mint);text-align:right;font-family:ui-monospace,monospace}.metric span{color:var(--muted)}.check{display:flex;gap:9px;align-items:center;cursor:pointer}.check input{accent-color:var(--mint)}#velocity-note{font-size:12px;padding-top:9px}.equations{font-family:ui-monospace,monospace;line-height:1.85;color:#ddd3ff;font-size:12px}.equations small{display:block;font:12px/1.6 system-ui;color:var(--muted);margin-top:8px}.weight-table{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:12px}.weight-table span{display:flex;justify-content:space-between;gap:6px;font:11px ui-monospace,monospace;border:1px solid #ffffff12;padding:5px;border-radius:4px}.weight-table b{font-weight:400;color:#93a4b1}.weight-table output{color:#8edfc8}details summary{cursor:pointer;color:var(--mint);font-size:13px}footer{margin-top:15px;font-size:12px;color:var(--muted);max-width:960px}a{color:var(--mint)}:focus-visible{outline:2px solid var(--gold);outline-offset:4px}#velocity-note[hidden]{display:none}@media(max-width:700px){main{padding:15px}.layout{grid-template-columns:1fr}.diagram svg{max-height:430px}header{gap:10px}.side{display:grid;grid-template-columns:1fr 1fr}.side>.box:last-child{grid-column:1/-1}}@media(max-width:420px){.side{display:flex}.metric{font-size:11px}}
+</style>
+<style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head>
+<body>
+<main>
+<header><div><div class="eyebrow">Physics2D / transfer basis</div><h1>One particle, nine grid nodes.</h1><p>Drag the gold particle, or use the coordinate sliders. Colored node area follows its interpolation weight.</p></div><button type="button" id="reset-stencil">Reset</button></header>
+<div class="layout">
+<figure class="diagram">
+<svg id="stencil-view" viewBox="0 0 552 552" role="img" aria-label="Quadratic particle-to-grid stencil">
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#ac9dff"/></marker></defs>
+<path class="grid-line" d="M96 38V510M276 38V510M456 38V510M38 96H514M38 276H514M38 456H514"/>
+<rect x="186" y="186" width="180" height="180" rx="5" fill="#eac57204" stroke="#eac57235" stroke-dasharray="5 6"/>
+<g id="stencil-layer"></g>
+</svg>
+<figcaption>Coordinates are measured in grid-cell units. The local stencil origin follows base = floor(position − ½), so its shifted coordinate lies in [½, 1½]. This study holds that local origin fixed.</figcaption>
+</figure>
+<div class="side">
+<section class="box" aria-label="Particle controls">
+<div class="control"><label for="position-x">Local x</label><output id="value-x" for="position-x">0.80</output><input id="position-x" type="range" min=".5" max="1.5" step=".01" value=".8"></div>
+<div class="control"><label for="position-y">Local y</label><output id="value-y" for="position-y">0.70</output><input id="position-y" type="range" min=".5" max="1.5" step=".01" value=".7"></div>
+<div class="control"><label for="particle-mass">Particle mass</label><output id="value-mass" for="particle-mass">1.0</output><input id="particle-mass" type="range" min=".5" max="5" step=".1" value="1"></div>
+<label class="check"><input type="checkbox" id="affine-view">Show affine velocity samples</label>
+<p id="velocity-note" hidden>Purple arrows sample v + C(xᵢ − xₚ), with v = (0.4, −0.15) and C = [[0, 0.65], [−0.3, 0]]. Their weighted average recovers v at the particle. Diagram y increases downward.</p>
+</section>
+<section class="box" aria-label="Computed transfer invariants">
+<div class="metric"><span>Σ weights</span><output id="sum-weights"></output></div>
+<div class="metric"><span>Grid mass / particle mass</span><output id="sum-mass"></output></div>
+<div class="metric"><span>Recovered position</span><output id="position-result"></output></div>
+<div class="metric"><span>Second moments xx, yy; xy</span><output id="moment-result"></output></div>
+<div class="metric"><span>Recovered affine velocity</span><output id="velocity-result"></output></div>
+<details><summary>Inspect all nine weights</summary><div id="weight-table" class="weight-table"></div></details>
+</section>
+<section class="box equations" aria-label="Quadratic basis equations">
+w₀(f) = ½(1½ − f)²<br>w₁(f) = ¾ − (f − 1)²<br>w₂(f) = ½(f − ½)²<br>wᵢⱼ = wᵢ(fₓ) wⱼ(fᵧ)
+<small>x basis: <output id="weights-x"></output><br>y basis: <output id="weights-y"></output><br>The tensor-product weights sum to one, reproduce position and yield D = ¼I in grid-cell units. Restoring cell width Δx gives D = ¼Δx²I, the constant used in the MLS/APIC transfer.</small>
+</section>
+</div>
+</div>
+<footer>This is an interactive explanation of the quadratic basis in Physics2D’s MPM transfer, derived from its solver-internals guide and mpm_utils.glsl. It isolates interpolation: stress, boundary clipping, fixed-point scatter, grid forces and time integration are outside this small study.</footer>
+</main>
+<script src="stencil.js"></script>
+</body>
+</html>

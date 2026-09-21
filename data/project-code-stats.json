@@ -1,0 +1,1682 @@
+{
+  "version": 1,
+  "methodVersion": 2,
+  "measuredAt": "2026-09-21T13:36:49+00:00",
+  "basis": "Nonblank source lines, comments included.",
+  "method": "Counts physical nonblank lines in supported source files, including tests and support tools. Languages follow file extensions, with conservative recognition of GLSL/WGSL/HLSL/CUDA literals in JavaScript, TypeScript, and C/C++, CUDA-qualified declarations and functions in C/C++, and inline HTML script/style bodies. Each mixed line is assigned once, by its dominant nonspace language content. Other C/C++ header content is grouped under C++. Exact duplicate file contents are counted once within a source scope.",
+  "exclusions": "Excludes known third-party and dependency folders, build output, generated runtimes, minified JavaScript, archives, reference copies, snapshots, recordings, documentation, and non-code data. Exclusions use directory/file conventions and generated-file markers; this is not an exhaustive dependency or provenance audit.",
+  "interpretation": "A source-size inventory, not a measure of personal authorship, engineering quality, or AI use. Embedded GPU detection uses explicit language markers and distinctive syntax, not a full parser. Unrecognized fragments remain with their host language; dynamic source is not reconstructed. JavaScript template interpolation expressions remain host code. Shared source scopes are labeled.",
+  "projects": {
+    "radiance-lab": {
+      "id": "radiance-lab",
+      "title": "RadianceLab",
+      "status": "measured",
+      "scope": "Primary project source tree; build output, dependencies, archives, and reference copies excluded.",
+      "totalLines": 132377,
+      "files": 522,
+      "languages": [
+        {
+          "name": "C++",
+          "lines": 94546,
+          "files": 206,
+          "percent": 71.42,
+          "color": "#b9a0da"
+        },
+        {
+          "name": "GLSL",
+          "lines": 36206,
+          "files": 292,
+          "percent": 27.35,
+          "color": "#deb771"
+        },
+        {
+          "name": "JavaScript",
+          "lines": 588,
+          "files": 1,
+          "percent": 0.44,
+          "color": "#e0cc81"
+        },
+        {
+          "name": "PowerShell",
+          "lines": 505,
+          "files": 9,
+          "percent": 0.38,
+          "color": "#a0bad8"
+        },
+        {
+          "name": "CMake",
+          "lines": 253,
+          "files": 1,
+          "percent": 0.19,
+          "color": "#a7b99b"
+        },
+        {
+          "name": "Batch",
+          "lines": 158,
+          "files": 14,
+          "percent": 0.12,
+          "color": "#a8b1af"
+        },
+        {
+          "name": "Python",
+          "lines": 121,
+          "files": 2,
+          "percent": 0.09,
+          "color": "#8faecf"
+        }
+      ]
+    },
+    "rivex": {
+      "id": "rivex",
+      "title": "RIVX",
+      "status": "measured",
+      "scope": "Primary project source tree; build output, dependencies, archives, and reference copies excluded.",
+      "totalLines": 283146,
+      "files": 395,
+      "languages": [
+        {
+          "name": "C++",
+          "lines": 265535,
+          "files": 382,
+          "percent": 93.78,
+          "color": "#b9a0da"
+        },
+        {
+          "name": "GLSL",
+          "lines": 16247,
+          "files": 23,
+          "percent": 5.74,
+          "color": "#deb771"
+        },
+        {
+          "name": "CMake",
+          "lines": 825,
+          "files": 1,
+          "percent": 0.29,
+          "color": "#a7b99b"
+        },
+        {
+          "name": "PowerShell",
+          "lines": 296,
+          "files": 4,
+          "percent": 0.1,
+          "color": "#a0bad8"
+        },
+        {
+          "name": "JavaScript",
+          "lines": 190,
+          "files": 4,
+          "percent": 0.07,
+          "color": "#e0cc81"
+        },
+        {
+          "name": "HTML",
+          "lines": 32,
+          "files": 2,
+          "percent": 0.01,
+          "color": "#ce9d83"
+        },
+        {
+          "name": "Python",
+          "lines": 17,
+          "files": 1,
+          "percent": 0.01,
+          "color": "#8faecf"
+        },
+        {
+          "name": "Batch",
+          "lines": 3,
+          "files": 1,
+          "percent": 0.0,
+          "color": "#a8b1af"
+        },
+        {
+          "name": "CSS",
+          "lines": 1,
+          "files": 1,
+          "percent": 0.0,
+          "color": "#a8aad9"
+        }
+      ]
+    },
+    "modal2d": {
+      "id": "modal2d",
+      "title": "Modal2D",
+      "status": "measured",
+      "scope": "Primary project source tree; build output, dependencies, archives, and reference copies excluded.",
+      "totalLines": 60933,
+      "files": 277,
+      "languages": [
+        {
+          "name": "C++",
+          "lines": 59188,
+          "files": 244,
+          "percent": 97.14,
+          "color": "#b9a0da"
+        },
+        {
+          "name": "Batch",
+          "lines": 495,
+          "files": 22,
+          "percent": 0.81,
+          "color": "#a8b1af"
+        },
+        {
+          "name": "CMake",
+          "lines": 393,
+          "files": 5,
+          "percent": 0.64,
+          "color": "#a7b99b"
+        },
+        {
+          "name": "GLSL",
+          "lines": 350,
+          "files": 1,
+          "percent": 0.57,
+          "color": "#deb771"
+        },
+        {
+          "name": "CUDA",
+          "lines": 302,
+          "files": 3,
+          "percent": 0.5,
+          "color": "#91c0a2"
+        },
+        {
+          "name": "Python",
+          "lines": 120,
+          "files": 1,
+          "percent": 0.2,
+          "color": "#8faecf"
+        },
+        {
+          "name": "PowerShell",
+          "lines": 85,
+          "files": 2,
+          "percent": 0.14,
+          "color": "#a0bad8"
+        }
+      ]
+    },
+    "physics-2d": {
+      "id": "physics-2d",
+      "title": "Crucible2.5D",
+      "status": "measured",
+      "scope": "Primary project source tree; build output, dependencies, archives, and reference copies excluded.",
+      "totalLines": 60213,
+      "files": 251,
+      "languages": [
+        {
+          "name": "C++",
+          "lines": 39063,
+          "files": 113,
+          "percent": 64.87,
+          "color": "#b9a0da"
+        },
+        {
+          "name": "GLSL",
+          "lines": 20682,
+          "files": 130,
+          "percent": 34.35,
+          "color": "#deb771"
+        },
+        {
+          "name": "Python",
+          "lines": 252,
+          "files": 6,
+          "percent": 0.42,
+          "color": "#8faecf"
+        },
+        {
+          "name": "CMake",
+          "lines": 144,
+          "files": 1,
+          "percent": 0.24,
+          "color": "#a7b99b"
+        },
+        {
+          "name": "Batch",
+          "lines": 72,
+          "files": 2,
+          "percent": 0.12,
+          "color": "#a8b1af"
+        }
+      ]
+    },
+    "shaderweave": {
+      "id": "shaderweave",
+      "title": "ShaderWeave",
+      "status": "measured",
+      "scope": "Primary project source tree; build output, dependencies, archives, and reference copies excluded.",
+      "totalLines": 79100,
+      "files": 490,
+      "languages": [
+        {
+          "name": "GLSL",
+          "lines": 52395,
+          "files": 396,
+          "percent": 66.24,
+          "color": "#deb771"
+        },
+        {
+          "name": "C++",
+          "lines": 21293,
+          "files": 54,
+          "percent": 26.92,
+          "color": "#b9a0da"
+        },
+        {
+          "name": "CUDA",
+          "lines": 5353,
+          "files": 46,
+          "percent": 6.77,
+          "color": "#91c0a2"
+        },
+        {
+          "name": "Batch",
+          "lines": 59,
+          "files": 1,
+          "percent": 0.07,
+          "color": "#a8b1af"
+        }
+      ]
+    },
+    "balanceforge": {
+      "id": "balanceforge",
+      "title": "BalanceForge",
+      "status": "measured",
+      "scope": "Primary project source tree; build output, dependencies, archives, and reference copies excluded.",
+      "totalLines": 85850,
+      "files": 333,
+      "languages": [
+        {
+          "name": "JavaScript",
+          "lines": 78577,
+          "files": 312,
+          "percent": 91.53,
+          "color": "#e0cc81"
+        },
+        {
+          "name": "CSS",
+          "lines": 3163,
+          "files": 14,
+          "percent": 3.68,
+          "color": "#a8aad9"
+        },
+        {
+          "name": "HTML",
+          "lines": 3105,
+          "files": 10,
+          "percent": 3.62,
+          "color": "#ce9d83"
+        },
+        {
+          "name": "C++",
+          "lines": 748,
+          "files": 7,
+          "percent": 0.87,
+          "color": "#b9a0da"
+        },
+        {
+          "name": "Python",
+          "lines": 132,
+          "files": 1,
+          "percent": 0.15,
+          "color": "#8faecf"
+        },
+        {
+          "name": "Batch",
+          "lines": 65,
+          "files": 1,
+          "percent": 0.08,
+          "color": "#a8b1af"
+        },
+        {
+          "name": "PowerShell",
+          "lines": 60,
+          "files": 2,
+          "percent": 0.07,
+          "color": "#a0bad8"
+        }
+      ]
+    },
+    "aperture": {
+      "id": "aperture",
+      "title": "Aperture",
+      "status": "measured",
+      "scope": "Browser application source folder; installed dependencies and generated output excluded.",
+      "totalLines": 8938,
+      "files": 12,
+      "languages": [
+        {
+          "name": "JavaScript",
+          "lines": 4914,
+          "files": 11,
+          "percent": 54.98,
+          "color": "#e0cc81"
+        },
+        {
+          "name": "GLSL",
+          "lines": 2718,
+          "files": 2,
+          "percent": 30.41,
+          "color": "#deb771"
+        },
+        {
+          "name": "HTML",
+          "lines": 866,
+          "files": 1,
+          "percent": 9.69,
+          "color": "#ce9d83"
+        },
+        {
+          "name": "CSS",
+          "lines": 440,
+          "files": 1,
+          "percent": 4.92,
+          "color": "#a8aad9"
+        }
+      ]
+    },
+    "inverse-mechanics": {
+      "id": "inverse-mechanics",
+      "title": "Inverse Mechanics & Optics",
+      "status": "measured",
+      "scope": "Primary project source tree; build output, dependencies, archives, and reference copies excluded.",
+      "totalLines": 26994,
+      "files": 49,
+      "languages": [
+        {
+          "name": "TypeScript",
+          "lines": 15766,
+          "files": 32,
+          "percent": 58.41,
+          "color": "#83b7d0"
+        },
+        {
+          "name": "C++",
+          "lines": 6528,
+          "files": 2,
+          "percent": 24.18,
+          "color": "#b9a0da"
+        },
+        {
+          "name": "CSS",
+          "lines": 1761,
+          "files": 2,
+          "percent": 6.52,
+          "color": "#a8aad9"
+        },
+        {
+          "name": "HTML",
+          "lines": 1522,
+          "files": 1,
+          "percent": 5.64,
+          "color": "#ce9d83"
+        },
+        {
+          "name": "JavaScript",
+          "lines": 691,
+          "files": 7,
+          "percent": 2.56,
+          "color": "#e0cc81"
+        },
+        {
+          "name": "Python",
+          "lines": 564,
+          "files": 7,
+          "percent": 2.09,
+          "color": "#8faecf"
+        },
+        {
+          "name": "GLSL",
+          "lines": 155,
+          "files": 5,
+          "percent": 0.57,
+          "color": "#deb771"
+        },
+        {
+          "name": "WGSL",
+          "lines": 7,
+          "files": 1,
+          "percent": 0.03,
+          "color": "#b7ce84"
+        }
+      ]
+    },
+    "fortune_crystal": {
+      "id": "fortune_crystal",
+      "title": "Fortune’s Loom",
+      "status": "measured",
+      "scope": "Shared source tree for Fortune’s Loom / Theory Workbench. Each project view shows that same whole scope; these totals must not be added together.",
+      "totalLines": 84307,
+      "files": 215,
+      "languages": [
+        {
+          "name": "C++",
+          "lines": 81059,
+          "files": 191,
+          "percent": 96.15,
+          "color": "#b9a0da"
+        },
+        {
+          "name": "Crystal",
+          "lines": 2422,
+          "files": 11,
+          "percent": 2.87,
+          "color": "#bac9d6"
+        },
+        {
+          "name": "CMake",
+          "lines": 277,
+          "files": 2,
+          "percent": 0.33,
+          "color": "#a7b99b"
+        },
+        {
+          "name": "PowerShell",
+          "lines": 172,
+          "files": 2,
+          "percent": 0.2,
+          "color": "#a0bad8"
+        },
+        {
+          "name": "HTML",
+          "lines": 144,
+          "files": 3,
+          "percent": 0.17,
+          "color": "#ce9d83"
+        },
+        {
+          "name": "Python",
+          "lines": 129,
+          "files": 3,
+          "percent": 0.15,
+          "color": "#8faecf"
+        },
+        {
+          "name": "GLSL",
+          "lines": 47,
+          "files": 1,
+          "percent": 0.06,
+          "color": "#deb771"
+        },
+        {
+          "name": "JavaScript",
+          "lines": 37,
+          "files": 3,
+          "percent": 0.04,
+          "color": "#e0cc81"
+        },
+        {
+          "name": "CSS",
+          "lines": 15,
+          "files": 2,
+          "percent": 0.02,
+          "color": "#a8aad9"
+        },
+        {
+          "name": "Batch",
+          "lines": 5,
+          "files": 1,
+          "percent": 0.01,
+          "color": "#a8b1af"
+        }
+      ],
+      "sharedWith": [
+        "theory-workbench"
+      ]
+    },
+    "analytical-render": {
+      "id": "analytical-render",
+      "title": "Analytical Render · LTC",
+      "status": "measured",
+      "scope": "Primary project source tree; build output, dependencies, archives, and reference copies excluded.",
+      "totalLines": 9498,
+      "files": 16,
+      "languages": [
+        {
+          "name": "JavaScript",
+          "lines": 4174,
+          "files": 12,
+          "percent": 43.95,
+          "color": "#e0cc81"
+        },
+        {
+          "name": "WGSL",
+          "lines": 2669,
+          "files": 4,
+          "percent": 28.1,
+          "color": "#b7ce84"
+        },
+        {
+          "name": "CSS",
+          "lines": 1469,
+          "files": 3,
+          "percent": 15.47,
+          "color": "#a8aad9"
+        },
+        {
+          "name": "C",
+          "lines": 855,
+          "files": 2,
+          "percent": 9.0,
+          "color": "#bac9d6"
+        },
+        {
+          "name": "HTML",
+          "lines": 331,
+          "files": 3,
+          "percent": 3.48,
+          "color": "#ce9d83"
+        }
+      ]
+    },
+    "symbolic_math": {
+      "id": "symbolic_math",
+      "title": "Symbolic Unfolded",
+      "status": "measured",
+      "scope": "Primary project source tree; build output, dependencies, archives, and reference copies excluded.",
+      "totalLines": 31880,
+      "files": 87,
+      "languages": [
+        {
+          "name": "Ruby",
+          "lines": 21984,
+          "files": 74,
+          "percent": 68.96,
+          "color": "#d88f95"
+        },
+        {
+          "name": "JavaScript",
+          "lines": 5631,
+          "files": 5,
+          "percent": 17.66,
+          "color": "#e0cc81"
+        },
+        {
+          "name": "CSS",
+          "lines": 2382,
+          "files": 5,
+          "percent": 7.47,
+          "color": "#a8aad9"
+        },
+        {
+          "name": "HTML",
+          "lines": 1812,
+          "files": 5,
+          "percent": 5.68,
+          "color": "#ce9d83"
+        },
+        {
+          "name": "Batch",
+          "lines": 71,
+          "files": 2,
+          "percent": 0.22,
+          "color": "#a8b1af"
+        }
+      ]
+    },
+    "photon_primitive": {
+      "id": "photon_primitive",
+      "title": "Photon Primitives",
+      "status": "measured",
+      "scope": "Browser gallery and interactive studies only. The native renderer that made the recorded images is not included.",
+      "totalLines": 6505,
+      "files": 15,
+      "languages": [
+        {
+          "name": "JavaScript",
+          "lines": 3694,
+          "files": 7,
+          "percent": 56.79,
+          "color": "#e0cc81"
+        },
+        {
+          "name": "CSS",
+          "lines": 1800,
+          "files": 4,
+          "percent": 27.67,
+          "color": "#a8aad9"
+        },
+        {
+          "name": "HTML",
+          "lines": 954,
+          "files": 6,
+          "percent": 14.67,
+          "color": "#ce9d83"
+        },
+        {
+          "name": "Shell",
+          "lines": 36,
+          "files": 1,
+          "percent": 0.55,
+          "color": "#c1c99c"
+        },
+        {
+          "name": "GLSL",
+          "lines": 21,
+          "files": 1,
+          "percent": 0.32,
+          "color": "#deb771"
+        }
+      ]
+    },
+    "tof_render": {
+      "id": "tof_render",
+      "title": "Holography & depth reconstruction",
+      "status": "not-measured",
+      "scope": "Not measured: this entry is a written study; no implementation source scope is declared.",
+      "totalLines": null,
+      "files": null,
+      "languages": []
+    },
+    "lightfield-neural": {
+      "id": "lightfield-neural",
+      "title": "LightField / Neural",
+      "status": "measured",
+      "scope": "Primary project source tree; build output, dependencies, archives, and reference copies excluded.",
+      "totalLines": 25480,
+      "files": 175,
+      "languages": [
+        {
+          "name": "C++",
+          "lines": 12165,
+          "files": 59,
+          "percent": 47.74,
+          "color": "#b9a0da"
+        },
+        {
+          "name": "Python",
+          "lines": 12091,
+          "files": 101,
+          "percent": 47.45,
+          "color": "#8faecf"
+        },
+        {
+          "name": "GLSL",
+          "lines": 991,
+          "files": 6,
+          "percent": 3.89,
+          "color": "#deb771"
+        },
+        {
+          "name": "CMake",
+          "lines": 153,
+          "files": 5,
+          "percent": 0.6,
+          "color": "#a7b99b"
+        },
+        {
+          "name": "Batch",
+          "lines": 80,
+          "files": 4,
+          "percent": 0.31,
+          "color": "#a8b1af"
+        }
+      ]
+    },
+    "inverse-render-lab": {
+      "id": "inverse-render-lab",
+      "title": "Inverse Render Lab",
+      "status": "measured",
+      "scope": "Primary project source tree; build output, dependencies, archives, and reference copies excluded.",
+      "totalLines": 37186,
+      "files": 63,
+      "languages": [
+        {
+          "name": "JavaScript",
+          "lines": 28869,
+          "files": 60,
+          "percent": 77.63,
+          "color": "#e0cc81"
+        },
+        {
+          "name": "CSS",
+          "lines": 4179,
+          "files": 1,
+          "percent": 11.24,
+          "color": "#a8aad9"
+        },
+        {
+          "name": "HTML",
+          "lines": 3826,
+          "files": 1,
+          "percent": 10.29,
+          "color": "#ce9d83"
+        },
+        {
+          "name": "WGSL",
+          "lines": 269,
+          "files": 1,
+          "percent": 0.72,
+          "color": "#b7ce84"
+        },
+        {
+          "name": "Python",
+          "lines": 43,
+          "files": 1,
+          "percent": 0.12,
+          "color": "#8faecf"
+        }
+      ]
+    },
+    "cpu-atelier": {
+      "id": "cpu-atelier",
+      "title": "Realtime Graphics on CPU",
+      "status": "measured",
+      "scope": "Primary project source tree; build output, dependencies, archives, and reference copies excluded.",
+      "totalLines": 6275,
+      "files": 61,
+      "languages": [
+        {
+          "name": "C++",
+          "lines": 4916,
+          "files": 46,
+          "percent": 78.34,
+          "color": "#b9a0da"
+        },
+        {
+          "name": "JavaScript",
+          "lines": 1157,
+          "files": 13,
+          "percent": 18.44,
+          "color": "#e0cc81"
+        },
+        {
+          "name": "HTML",
+          "lines": 154,
+          "files": 1,
+          "percent": 2.45,
+          "color": "#ce9d83"
+        },
+        {
+          "name": "CSS",
+          "lines": 43,
+          "files": 1,
+          "percent": 0.69,
+          "color": "#a8aad9"
+        },
+        {
+          "name": "GLSL",
+          "lines": 5,
+          "files": 1,
+          "percent": 0.08,
+          "color": "#deb771"
+        }
+      ]
+    },
+    "pipeline": {
+      "id": "pipeline",
+      "title": "WebGPU Atelier",
+      "status": "measured",
+      "scope": "Primary project source tree; build output, dependencies, archives, and reference copies excluded.",
+      "totalLines": 52485,
+      "files": 417,
+      "languages": [
+        {
+          "name": "TypeScript",
+          "lines": 25942,
+          "files": 142,
+          "percent": 49.43,
+          "color": "#83b7d0"
+        },
+        {
+          "name": "WGSL",
+          "lines": 18750,
+          "files": 225,
+          "percent": 35.72,
+          "color": "#b7ce84"
+        },
+        {
+          "name": "Svelte",
+          "lines": 7618,
+          "files": 45,
+          "percent": 14.51,
+          "color": "#b6b7aa"
+        },
+        {
+          "name": "JavaScript",
+          "lines": 105,
+          "files": 2,
+          "percent": 0.2,
+          "color": "#e0cc81"
+        },
+        {
+          "name": "CSS",
+          "lines": 51,
+          "files": 2,
+          "percent": 0.1,
+          "color": "#a8aad9"
+        },
+        {
+          "name": "HTML",
+          "lines": 16,
+          "files": 1,
+          "percent": 0.03,
+          "color": "#ce9d83"
+        },
+        {
+          "name": "Batch",
+          "lines": 3,
+          "files": 1,
+          "percent": 0.01,
+          "color": "#a8b1af"
+        }
+      ]
+    },
+    "membrane": {
+      "id": "membrane",
+      "title": "Minimal Membrane",
+      "status": "measured",
+      "scope": "Primary project source tree; build output, dependencies, archives, and reference copies excluded.",
+      "totalLines": 3462,
+      "files": 13,
+      "languages": [
+        {
+          "name": "TypeScript",
+          "lines": 2711,
+          "files": 11,
+          "percent": 78.31,
+          "color": "#83b7d0"
+        },
+        {
+          "name": "CSS",
+          "lines": 540,
+          "files": 1,
+          "percent": 15.6,
+          "color": "#a8aad9"
+        },
+        {
+          "name": "HTML",
+          "lines": 163,
+          "files": 1,
+          "percent": 4.71,
+          "color": "#ce9d83"
+        },
+        {
+          "name": "GLSL",
+          "lines": 48,
+          "files": 1,
+          "percent": 1.39,
+          "color": "#deb771"
+        }
+      ]
+    },
+    "curve-atlas": {
+      "id": "curve-atlas",
+      "title": "Curve Atlas",
+      "status": "measured",
+      "scope": "Primary project source tree; build output, dependencies, archives, and reference copies excluded.",
+      "totalLines": 24956,
+      "files": 78,
+      "languages": [
+        {
+          "name": "TypeScript",
+          "lines": 21458,
+          "files": 66,
+          "percent": 85.98,
+          "color": "#83b7d0"
+        },
+        {
+          "name": "CSS",
+          "lines": 3443,
+          "files": 9,
+          "percent": 13.8,
+          "color": "#a8aad9"
+        },
+        {
+          "name": "JavaScript",
+          "lines": 42,
+          "files": 2,
+          "percent": 0.17,
+          "color": "#e0cc81"
+        },
+        {
+          "name": "HTML",
+          "lines": 13,
+          "files": 1,
+          "percent": 0.05,
+          "color": "#ce9d83"
+        }
+      ]
+    },
+    "tracer_flatland": {
+      "id": "tracer_flatland",
+      "title": "Flatland — Light Transport",
+      "status": "measured",
+      "scope": "Primary project source tree; build output, dependencies, archives, and reference copies excluded.",
+      "totalLines": 6455,
+      "files": 20,
+      "languages": [
+        {
+          "name": "Ruby",
+          "lines": 6112,
+          "files": 13,
+          "percent": 94.69,
+          "color": "#d88f95"
+        },
+        {
+          "name": "JavaScript",
+          "lines": 311,
+          "files": 5,
+          "percent": 4.82,
+          "color": "#e0cc81"
+        },
+        {
+          "name": "HTML",
+          "lines": 27,
+          "files": 1,
+          "percent": 0.42,
+          "color": "#ce9d83"
+        },
+        {
+          "name": "CSS",
+          "lines": 5,
+          "files": 1,
+          "percent": 0.08,
+          "color": "#a8aad9"
+        }
+      ]
+    },
+    "prism_optics": {
+      "id": "prism_optics",
+      "title": "Spectral geometric optics",
+      "status": "measured",
+      "scope": "Maintained standalone browser application source; the project brochure is excluded.",
+      "totalLines": 2462,
+      "files": 2,
+      "languages": [
+        {
+          "name": "JavaScript",
+          "lines": 1890,
+          "files": 1,
+          "percent": 76.77,
+          "color": "#e0cc81"
+        },
+        {
+          "name": "CSS",
+          "lines": 293,
+          "files": 1,
+          "percent": 11.9,
+          "color": "#a8aad9"
+        },
+        {
+          "name": "HTML",
+          "lines": 279,
+          "files": 1,
+          "percent": 11.33,
+          "color": "#ce9d83"
+        }
+      ]
+    },
+    "image_processing": {
+      "id": "image_processing",
+      "title": "Computational photography",
+      "status": "measured",
+      "scope": "Maintained standalone browser application source; the project brochure is excluded.",
+      "totalLines": 5065,
+      "files": 28,
+      "languages": [
+        {
+          "name": "JavaScript",
+          "lines": 4014,
+          "files": 25,
+          "percent": 79.25,
+          "color": "#e0cc81"
+        },
+        {
+          "name": "CSS",
+          "lines": 556,
+          "files": 3,
+          "percent": 10.98,
+          "color": "#a8aad9"
+        },
+        {
+          "name": "HTML",
+          "lines": 422,
+          "files": 1,
+          "percent": 8.33,
+          "color": "#ce9d83"
+        },
+        {
+          "name": "GLSL",
+          "lines": 73,
+          "files": 3,
+          "percent": 1.44,
+          "color": "#deb771"
+        }
+      ]
+    },
+    "hackenbush": {
+      "id": "hackenbush",
+      "title": "Hackenbush Lab",
+      "status": "measured",
+      "scope": "Primary project source tree; build output, dependencies, archives, and reference copies excluded.",
+      "totalLines": 20617,
+      "files": 25,
+      "languages": [
+        {
+          "name": "JavaScript",
+          "lines": 15822,
+          "files": 21,
+          "percent": 76.74,
+          "color": "#e0cc81"
+        },
+        {
+          "name": "CSS",
+          "lines": 3800,
+          "files": 2,
+          "percent": 18.43,
+          "color": "#a8aad9"
+        },
+        {
+          "name": "HTML",
+          "lines": 936,
+          "files": 2,
+          "percent": 4.54,
+          "color": "#ce9d83"
+        },
+        {
+          "name": "Batch",
+          "lines": 59,
+          "files": 1,
+          "percent": 0.29,
+          "color": "#a8b1af"
+        }
+      ]
+    },
+    "circle": {
+      "id": "circle",
+      "title": "Circle · Roundness Lab",
+      "status": "measured",
+      "scope": "Primary project source tree; build output, dependencies, archives, and reference copies excluded.",
+      "totalLines": 10888,
+      "files": 28,
+      "languages": [
+        {
+          "name": "JavaScript",
+          "lines": 6940,
+          "files": 22,
+          "percent": 63.74,
+          "color": "#e0cc81"
+        },
+        {
+          "name": "CSS",
+          "lines": 3141,
+          "files": 5,
+          "percent": 28.85,
+          "color": "#a8aad9"
+        },
+        {
+          "name": "HTML",
+          "lines": 807,
+          "files": 1,
+          "percent": 7.41,
+          "color": "#ce9d83"
+        }
+      ]
+    },
+    "contour-atlas": {
+      "id": "contour-atlas",
+      "title": "Integral Atlas · A guide to tricky integrals",
+      "status": "measured",
+      "scope": "Primary project source tree; build output, dependencies, archives, and reference copies excluded.",
+      "totalLines": 32026,
+      "files": 62,
+      "languages": [
+        {
+          "name": "TypeScript",
+          "lines": 18207,
+          "files": 43,
+          "percent": 56.85,
+          "color": "#83b7d0"
+        },
+        {
+          "name": "CSS",
+          "lines": 13797,
+          "files": 17,
+          "percent": 43.08,
+          "color": "#a8aad9"
+        },
+        {
+          "name": "HTML",
+          "lines": 17,
+          "files": 1,
+          "percent": 0.05,
+          "color": "#ce9d83"
+        },
+        {
+          "name": "JavaScript",
+          "lines": 5,
+          "files": 1,
+          "percent": 0.02,
+          "color": "#e0cc81"
+        }
+      ]
+    },
+    "clique-proofs": {
+      "id": "clique-proofs",
+      "title": "Clique Proofs",
+      "status": "measured",
+      "scope": "Primary project source tree; build output, dependencies, archives, and reference copies excluded.",
+      "totalLines": 11600,
+      "files": 7,
+      "languages": [
+        {
+          "name": "CSS",
+          "lines": 9372,
+          "files": 2,
+          "percent": 80.79,
+          "color": "#a8aad9"
+        },
+        {
+          "name": "HTML",
+          "lines": 1693,
+          "files": 3,
+          "percent": 14.59,
+          "color": "#ce9d83"
+        },
+        {
+          "name": "Python",
+          "lines": 332,
+          "files": 3,
+          "percent": 2.86,
+          "color": "#8faecf"
+        },
+        {
+          "name": "JavaScript",
+          "lines": 203,
+          "files": 1,
+          "percent": 1.75,
+          "color": "#e0cc81"
+        }
+      ]
+    },
+    "complex_function": {
+      "id": "complex_function",
+      "title": "Complex functions",
+      "status": "measured",
+      "scope": "Maintained standalone browser application source; the project brochure is excluded.",
+      "totalLines": 4810,
+      "files": 9,
+      "languages": [
+        {
+          "name": "JavaScript",
+          "lines": 3848,
+          "files": 6,
+          "percent": 80.0,
+          "color": "#e0cc81"
+        },
+        {
+          "name": "HTML",
+          "lines": 499,
+          "files": 2,
+          "percent": 10.37,
+          "color": "#ce9d83"
+        },
+        {
+          "name": "CSS",
+          "lines": 275,
+          "files": 1,
+          "percent": 5.72,
+          "color": "#a8aad9"
+        },
+        {
+          "name": "GLSL",
+          "lines": 188,
+          "files": 2,
+          "percent": 3.91,
+          "color": "#deb771"
+        }
+      ]
+    },
+    "dft_dct": {
+      "id": "dft_dct",
+      "title": "Drawing with harmonics",
+      "status": "measured",
+      "scope": "Maintained standalone browser application source; the project brochure is excluded.",
+      "totalLines": 2114,
+      "files": 15,
+      "languages": [
+        {
+          "name": "JavaScript",
+          "lines": 1450,
+          "files": 12,
+          "percent": 68.59,
+          "color": "#e0cc81"
+        },
+        {
+          "name": "CSS",
+          "lines": 485,
+          "files": 3,
+          "percent": 22.94,
+          "color": "#a8aad9"
+        },
+        {
+          "name": "HTML",
+          "lines": 179,
+          "files": 1,
+          "percent": 8.47,
+          "color": "#ce9d83"
+        }
+      ]
+    },
+    "catalan": {
+      "id": "catalan",
+      "title": "Catalan structures",
+      "status": "not-measured",
+      "scope": "Not measured: only the deployed browser bundle is available here; the original application source is not declared.",
+      "totalLines": null,
+      "files": null,
+      "languages": []
+    },
+    "laplacian": {
+      "id": "laplacian",
+      "title": "Laplace transform studies",
+      "status": "measured",
+      "scope": "Maintained standalone browser application source; the project brochure is excluded.",
+      "totalLines": 1168,
+      "files": 9,
+      "languages": [
+        {
+          "name": "JavaScript",
+          "lines": 529,
+          "files": 7,
+          "percent": 45.29,
+          "color": "#e0cc81"
+        },
+        {
+          "name": "HTML",
+          "lines": 317,
+          "files": 1,
+          "percent": 27.14,
+          "color": "#ce9d83"
+        },
+        {
+          "name": "CSS",
+          "lines": 276,
+          "files": 2,
+          "percent": 23.63,
+          "color": "#a8aad9"
+        },
+        {
+          "name": "GLSL",
+          "lines": 46,
+          "files": 1,
+          "percent": 3.94,
+          "color": "#deb771"
+        }
+      ]
+    },
+    "theory-workbench": {
+      "id": "theory-workbench",
+      "title": "Theory Workbench",
+      "status": "measured",
+      "scope": "Shared source tree for Fortune’s Loom / Theory Workbench. Each project view shows that same whole scope; these totals must not be added together.",
+      "totalLines": 84307,
+      "files": 215,
+      "languages": [
+        {
+          "name": "C++",
+          "lines": 81059,
+          "files": 191,
+          "percent": 96.15,
+          "color": "#b9a0da"
+        },
+        {
+          "name": "Crystal",
+          "lines": 2422,
+          "files": 11,
+          "percent": 2.87,
+          "color": "#bac9d6"
+        },
+        {
+          "name": "CMake",
+          "lines": 277,
+          "files": 2,
+          "percent": 0.33,
+          "color": "#a7b99b"
+        },
+        {
+          "name": "PowerShell",
+          "lines": 172,
+          "files": 2,
+          "percent": 0.2,
+          "color": "#a0bad8"
+        },
+        {
+          "name": "HTML",
+          "lines": 144,
+          "files": 3,
+          "percent": 0.17,
+          "color": "#ce9d83"
+        },
+        {
+          "name": "Python",
+          "lines": 129,
+          "files": 3,
+          "percent": 0.15,
+          "color": "#8faecf"
+        },
+        {
+          "name": "GLSL",
+          "lines": 47,
+          "files": 1,
+          "percent": 0.06,
+          "color": "#deb771"
+        },
+        {
+          "name": "JavaScript",
+          "lines": 37,
+          "files": 3,
+          "percent": 0.04,
+          "color": "#e0cc81"
+        },
+        {
+          "name": "CSS",
+          "lines": 15,
+          "files": 2,
+          "percent": 0.02,
+          "color": "#a8aad9"
+        },
+        {
+          "name": "Batch",
+          "lines": 5,
+          "files": 1,
+          "percent": 0.01,
+          "color": "#a8b1af"
+        }
+      ],
+      "sharedWith": [
+        "fortune_crystal"
+      ]
+    },
+    "fenwick": {
+      "id": "fenwick",
+      "title": "Fenwick trees",
+      "status": "not-measured",
+      "scope": "Not measured: only the deployed browser bundle is available here; the original application source is not declared.",
+      "totalLines": null,
+      "files": null,
+      "languages": []
+    },
+    "trees": {
+      "id": "trees",
+      "title": "Seven search trees",
+      "status": "measured",
+      "scope": "Maintained standalone browser application source; the project brochure is excluded.",
+      "totalLines": 2646,
+      "files": 15,
+      "languages": [
+        {
+          "name": "JavaScript",
+          "lines": 2416,
+          "files": 13,
+          "percent": 91.31,
+          "color": "#e0cc81"
+        },
+        {
+          "name": "HTML",
+          "lines": 209,
+          "files": 1,
+          "percent": 7.9,
+          "color": "#ce9d83"
+        },
+        {
+          "name": "CSS",
+          "lines": 21,
+          "files": 1,
+          "percent": 0.79,
+          "color": "#a8aad9"
+        }
+      ]
+    },
+    "graph_algorithms": {
+      "id": "graph_algorithms",
+      "title": "Graph algorithms",
+      "status": "measured",
+      "scope": "Maintained standalone browser application source; the project brochure is excluded.",
+      "totalLines": 13721,
+      "files": 42,
+      "languages": [
+        {
+          "name": "JavaScript",
+          "lines": 11841,
+          "files": 39,
+          "percent": 86.3,
+          "color": "#e0cc81"
+        },
+        {
+          "name": "CSS",
+          "lines": 1353,
+          "files": 4,
+          "percent": 9.86,
+          "color": "#a8aad9"
+        },
+        {
+          "name": "HTML",
+          "lines": 527,
+          "files": 3,
+          "percent": 3.84,
+          "color": "#ce9d83"
+        }
+      ]
+    },
+    "5D": {
+      "id": "5D",
+      "title": "High-dimensional Fields & Shadow Design",
+      "status": "measured",
+      "scope": "Primary project source tree; build output, dependencies, archives, and reference copies excluded.",
+      "totalLines": 11156,
+      "files": 41,
+      "languages": [
+        {
+          "name": "JavaScript",
+          "lines": 6119,
+          "files": 29,
+          "percent": 54.85,
+          "color": "#e0cc81"
+        },
+        {
+          "name": "WGSL",
+          "lines": 3124,
+          "files": 8,
+          "percent": 28.0,
+          "color": "#b7ce84"
+        },
+        {
+          "name": "C++",
+          "lines": 558,
+          "files": 1,
+          "percent": 5.0,
+          "color": "#b9a0da"
+        },
+        {
+          "name": "CSS",
+          "lines": 556,
+          "files": 5,
+          "percent": 4.98,
+          "color": "#a8aad9"
+        },
+        {
+          "name": "HTML",
+          "lines": 402,
+          "files": 4,
+          "percent": 3.6,
+          "color": "#ce9d83"
+        },
+        {
+          "name": "CUDA",
+          "lines": 270,
+          "files": 2,
+          "percent": 2.42,
+          "color": "#91c0a2"
+        },
+        {
+          "name": "Batch",
+          "lines": 65,
+          "files": 1,
+          "percent": 0.58,
+          "color": "#a8b1af"
+        },
+        {
+          "name": "CMake",
+          "lines": 43,
+          "files": 1,
+          "percent": 0.39,
+          "color": "#a7b99b"
+        },
+        {
+          "name": "GLSL",
+          "lines": 19,
+          "files": 1,
+          "percent": 0.17,
+          "color": "#deb771"
+        }
+      ]
+    },
+    "rubik-strategy": {
+      "id": "rubik-strategy",
+      "title": "Advanced Rubik & Variant Studio",
+      "status": "measured",
+      "scope": "Primary project source tree; build output, dependencies, archives, and reference copies excluded.",
+      "totalLines": 32903,
+      "files": 75,
+      "languages": [
+        {
+          "name": "TypeScript",
+          "lines": 26530,
+          "files": 70,
+          "percent": 80.63,
+          "color": "#83b7d0"
+        },
+        {
+          "name": "CSS",
+          "lines": 6288,
+          "files": 1,
+          "percent": 19.11,
+          "color": "#a8aad9"
+        },
+        {
+          "name": "Batch",
+          "lines": 59,
+          "files": 1,
+          "percent": 0.18,
+          "color": "#a8b1af"
+        },
+        {
+          "name": "Python",
+          "lines": 14,
+          "files": 2,
+          "percent": 0.04,
+          "color": "#8faecf"
+        },
+        {
+          "name": "HTML",
+          "lines": 12,
+          "files": 1,
+          "percent": 0.04,
+          "color": "#ce9d83"
+        }
+      ]
+    },
+    "pi_collision": {
+      "id": "pi_collision",
+      "title": "Computing π Through Physics",
+      "status": "measured",
+      "scope": "Primary project source tree; build output, dependencies, archives, and reference copies excluded.",
+      "totalLines": 30139,
+      "files": 86,
+      "languages": [
+        {
+          "name": "JavaScript",
+          "lines": 28806,
+          "files": 81,
+          "percent": 95.58,
+          "color": "#e0cc81"
+        },
+        {
+          "name": "CSS",
+          "lines": 1091,
+          "files": 2,
+          "percent": 3.62,
+          "color": "#a8aad9"
+        },
+        {
+          "name": "GLSL",
+          "lines": 114,
+          "files": 1,
+          "percent": 0.38,
+          "color": "#deb771"
+        },
+        {
+          "name": "HTML",
+          "lines": 69,
+          "files": 2,
+          "percent": 0.23,
+          "color": "#ce9d83"
+        },
+        {
+          "name": "Batch",
+          "lines": 59,
+          "files": 1,
+          "percent": 0.2,
+          "color": "#a8b1af"
+        }
+      ]
+    }
+  },
+  "website": {
+    "id": "portfolio",
+    "title": "Portfolio website",
+    "status": "measured",
+    "scope": "Website runtimes, styles, tests, and build tools. Generated pages and project applications are excluded; this is not a sum of the projects.",
+    "totalLines": 40417,
+    "files": 318,
+    "languages": [
+      {
+        "name": "JavaScript",
+        "lines": 22522,
+        "files": 187,
+        "percent": 55.72,
+        "color": "#e0cc81"
+      },
+      {
+        "name": "Python",
+        "lines": 11431,
+        "files": 100,
+        "percent": 28.28,
+        "color": "#8faecf"
+      },
+      {
+        "name": "CSS",
+        "lines": 6451,
+        "files": 30,
+        "percent": 15.96,
+        "color": "#a8aad9"
+      },
+      {
+        "name": "WGSL",
+        "lines": 6,
+        "files": 1,
+        "percent": 0.01,
+        "color": "#b7ce84"
+      },
+      {
+        "name": "PowerShell",
+        "lines": 5,
+        "files": 1,
+        "percent": 0.01,
+        "color": "#a0bad8"
+      },
+      {
+        "name": "HTML",
+        "lines": 2,
+        "files": 1,
+        "percent": 0.0,
+        "color": "#ce9d83"
+      }
+    ]
+  }
+}

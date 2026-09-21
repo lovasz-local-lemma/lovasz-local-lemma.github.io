@@ -1,0 +1,77 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><script src="../../../portfolio-lab-frame.js"></script><meta name="color-scheme" content="dark"><title>Mesh resolution and element connectivity — Modal2D teaching lab</title><script>if(new URLSearchParams(location.search).get("poster")==="1")document.documentElement.dataset.labPoster="true";</script><link rel="stylesheet" href="basics-a765b041aa80.css"><style>
+html{color-scheme:dark;scroll-behavior:auto}body{background:#101619;font-size:15px}
+.lab-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding:12px 16px;border-bottom:1px solid #a7c3a830;background:linear-gradient(110deg,#213c354a,#28231955);font:12px/1.5 system-ui,sans-serif;color:#b7cbbb}
+.lab-header a{color:#d6c48f;text-underline-offset:3px}.lab-header button{font:inherit;background:#22392e;color:#c7e7d2;border:1px solid #7baf8a60;border-radius:7px;padding:7px 12px;cursor:pointer;transition:box-shadow .4s,border-color .4s}
+.lab-header button:hover{box-shadow:0 0 18px #89bb792e;border-color:#a8d392}
+.lab-main{max-width:1000px;margin:0 auto;padding:12px}.demo{margin:0;border-color:#b3c6a545}.demo .body{padding:14px}.demo .exp{font-size:14px;color:#bbcabf;line-height:1.65}.demo .hd .k{background:#bbd3a7}.demo .hd{background:linear-gradient(110deg,#8ca58224,transparent)}
+.lab-caption{font-size:13px;line-height:1.65;color:#abbdb0;padding:0 4px;margin:12px 0 4px}.lab-caption strong{color:#d1c08b}.demo .hint{font-size:12px;line-height:1.65;color:#9dafaa}.row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.row canvas{width:100%;height:auto;min-width:0}canvas{height:auto;margin-inline:auto}.ctl{gap:8px 14px}.ctl label{max-width:100%}.seg{flex-wrap:wrap}.modegal{max-width:100%}
+.modegal .m[role=button]:focus-visible{outline:2px solid #e5cf8e;outline-offset:3px;box-shadow:0 0 20px #d8c58444}
+html[data-lab-poster] body{overflow:hidden}html[data-lab-poster] .lab-header,html[data-lab-poster] .lab-caption,html[data-lab-poster] .demo .exp,html[data-lab-poster] .demo .hint{display:none}
+html[data-lab-poster] .lab-main{height:100vh;max-width:none;padding:16px;display:flex}html[data-lab-poster] .demo{flex:1;display:flex;flex-direction:column}html[data-lab-poster] .demo .body{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:center;gap:12px;padding:20px}
+html[data-lab-poster] .demo .body>canvas{max-height:calc(100vh - 190px);width:auto;max-width:100%;align-self:center}html[data-lab-poster] .row{width:min(100%,1100px);align-self:center}html[data-lab-poster] .ctl,html[data-lab-poster] .modegal{justify-content:center}
+@media(max-width:480px){.row{grid-template-columns:1fr}.lab-main{padding:8px}.demo .body{padding:10px}.ctl input[type=range]{width:110px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important}}
+</style><!-- universal-navigation:start --><link rel="stylesheet" href="../../../portfolio-location.css?v=054b6b462c"><script defer src="../../../portfolio-location.js?v=054b6b462c"></script><script defer src="../../../portfolio-routes.js?v=054b6b462c"></script><script defer src="../../../portfolio-universal-navigation.js?v=054b6b462c"></script><!-- universal-navigation:end --><style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head><body><header class="lab-header"><span>Modal2D · interactive teaching model</span><a href="../library/docs/modal2d-how-it-works.html#mesh" target="_blank" rel="noopener">Read the original explanation ↗</a><button type="button" id="lab-motion" aria-pressed="false">Pause motion</button></header><main class="lab-main"><div class="demo">
+    <div class="hd"><span class="k">DEMO</span><h4>Mesh resolution and element connectivity</h4></div>
+    <div class="body">
+      <p class="exp">Change resolution and hover a triangle to inspect its nodes. Compare the number of unknowns with the amount of geometric detail represented.</p>
+      <canvas class="ia" id="cvMesh" width="860" height="290"></canvas>
+      <div class="ctl">
+        <label>resolution <input type="range" id="mshRes" min="3" max="15" value="8"></label>
+        <span class="val" id="mshInfo">&mdash;</span>
+        <label><input type="checkbox" id="mshNodes" checked> show nodes</label>
+      </div>
+      <p class="hint">Hover an element to see the local unit of assembly. Smaller elements represent finer geometry, at a higher numerical cost.</p>
+    </div>
+  </div><p class="lab-caption"><strong>Model scope.</strong> Structured triangular mesh illustration. Refinement and node counting are computed, but no elasticity or error estimate is solved here; eigensolve cost depends on the selected dense or sparse method.</p></main><script>/* One document, one selected demonstration. */
+(() => {
+  'use strict';
+  const lifecycle = window.PortfolioLabFrame;
+  const button = document.getElementById('lab-motion');
+  let paused = false;
+  button.addEventListener('click', () => {
+    paused = !paused; lifecycle.setPaused(paused);
+    button.textContent = paused ? 'Resume motion' : 'Pause motion';
+    button.setAttribute('aria-pressed', String(paused));
+  });
+  // The authored eigensolver gallery rebuilds div-based choice pads on every
+  // selection. Enhance only those clickable pads; canvases and native buttons
+  // retain their own interaction semantics.
+  const gallery = document.getElementById('eigGal');
+  let choices = null;
+  if (gallery) {
+    function enhanceChoices() {
+      [...gallery.children].forEach((pad, index) => {
+        if (!pad.classList.contains('m') || typeof pad.onclick !== 'function') return;
+        pad.setAttribute('role', 'button'); pad.tabIndex = 0;
+        pad.setAttribute('aria-label', 'Select mode ' + (index + 1));
+        pad.setAttribute('aria-pressed', String(pad.classList.contains('sel')));
+      });
+    }
+    gallery.addEventListener('keydown', event => {
+      if (event.key !== 'Enter' && event.key !== ' ') return;
+      const pad = event.target.closest('.m[role="button"]');
+      if (!pad || pad.parentElement !== gallery) return;
+      event.preventDefault();
+      if (event.repeat) return;
+      const index = [...gallery.children].indexOf(pad);
+      pad.click(); enhanceChoices();
+      gallery.children[index]?.focus({preventScroll: true});
+    });
+    choices = new MutationObserver(enhanceChoices);
+    choices.observe(gallery, {childList: true});
+    enhanceChoices();
+  }
+  window.addEventListener('pagehide', event => { if (!event.persisted) choices?.disconnect(); });
+  window.ModalLabLifecycle = {trackAudio(context) { return lifecycle.trackAudio(context); }};
+
+})();
+</script><script src="basics-a765b041aa80.js"></script><script>if(document.documentElement.dataset.labPoster==="true")document.getElementById("eigGo")?.click();</script></body></html>

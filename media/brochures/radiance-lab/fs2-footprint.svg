@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360">
+<defs>
+<marker id="ay" viewBox="0 0 6 6" refX="5" refY="3" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L6 3L0 6Z" fill="#FFD264"/></marker>
+<marker id="ab" viewBox="0 0 6 6" refX="5" refY="3" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L6 3L0 6Z" fill="#78C8FF"/></marker>
+<marker id="aw" viewBox="0 0 6 6" refX="5" refY="3" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L6 3L0 6Z" fill="#DDE3E0"/></marker>
+</defs>
+<g fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" font-family="'JetBrains Mono',ui-monospace,monospace" font-size="12">
+<path d="M306 55V290" stroke="#FFFFFF" stroke-opacity="0.15" stroke-dasharray="2 4"/>
+<!-- LEFT: photon sheet meets the receiver in a curve; the camera hit is off it -->
+<path d="M55 255 L295 255 L245 190 L5 190 Z" fill="#FFFFFF" fill-opacity="0.06" stroke="#FFFFFF" stroke-opacity="0.25"/>
+<path d="M95 62 L57.5 199.8 Q155 255 205 229 Z" fill="#FFD264" fill-opacity="0.18" stroke="#FFD264" stroke-opacity="0.7"/>
+<path d="M95 62 L103.3 222.3 M95 62 L177 236.9" stroke="#FFD264" stroke-opacity="0.35"/>
+<path d="M57.5 199.8 Q155 255 205 229" stroke="#FFD264"/>
+<circle cx="95" cy="62" r="6" stroke="#FFD264" stroke-dasharray="3 2"/>
+<path d="M83.2 105.4 Q101.5 110.5 119.8 99.6" stroke="#FFD264" marker-end="url(#ay)"/>
+<path d="M117.3 156.1 L127.5 198.8" stroke="#FFD264" marker-end="url(#ay)"/>
+<text x="123" y="112" fill="#FFD264">φ</text>
+<text x="132" y="186" fill="#FFD264">t</text>
+<circle cx="288" cy="148" r="6" stroke="#78C8FF" stroke-dasharray="3 2"/>
+<path d="M285.1 154.4 L249.1 235.1" stroke="#78C8FF"/>
+<circle cx="247.5" cy="238.8" r="4" stroke="#FFFFFF" stroke-width="2"/>
+<g fill="#DDE3E0" stroke="none">
+<text x="20" y="22">2D ∩ 2D = a curve</text>
+<text x="20" y="37">— the gather does not exist</text>
+<text x="106" y="66">light</text><text x="268" y="138">eye</text>
+<text x="255.5" y="242.8">x</text>
+<text x="52" y="272">receiver S</text>
+<text x="104" y="226" fill="#FFD264">footprint</text>
+<text x="190" y="272">x ∉ footprint</text>
+</g>
+<!-- RIGHT: add a camera sheet; the two footprint curves cross at one point -->
+<path d="M365 255 L605 255 L555 190 L315 190 Z" fill="#FFFFFF" fill-opacity="0.06" stroke="#FFFFFF" stroke-opacity="0.25"/>
+<path d="M405 62 L367.5 199.8 Q465 255 515 229 Z" fill="#FFD264" fill-opacity="0.18" stroke="#FFD264" stroke-opacity="0.7"/>
+<path d="M405 62 L413.3 222.3 M405 62 L487 236.9" stroke="#FFD264" stroke-opacity="0.35"/>
+<path d="M367.5 199.8 Q465 255 515 229" stroke="#FFD264"/>
+<circle cx="405" cy="62" r="6" stroke="#FFD264" stroke-dasharray="3 2"/>
+<path d="M393.2 105.4 Q411.5 110.5 429.8 99.6" stroke="#FFD264" marker-end="url(#ay)"/>
+<path d="M427.3 156.1 L437.5 198.8" stroke="#FFD264" marker-end="url(#ay)"/>
+<text x="433" y="112" fill="#FFD264">φ</text>
+<text x="442" y="186" fill="#FFD264">t</text>
+<path d="M598 148 L493 252.4 Q457.8 233 448 193.9 Z" fill="#78C8FF" fill-opacity="0.18" stroke="#78C8FF" stroke-opacity="0.7"/>
+<path d="M598 148 L477 241.5 M598 148 L454.5 212.2" stroke="#78C8FF" stroke-opacity="0.35"/>
+<path d="M493 252.4 Q457.8 233 448 193.9" stroke="#78C8FF"/>
+<circle cx="598" cy="148" r="6" stroke="#78C8FF" stroke-dasharray="3 2"/>
+<path d="M555 161.2 Q553.5 173.4 566.1 179.7" stroke="#78C8FF" marker-end="url(#ab)"/>
+<path d="M592.3 152 L475.4 234.8" stroke="#78C8FF"/>
+<path d="M425 130 L458 118" stroke="#FFD264" marker-end="url(#ay)"/>
+<path d="M538 182 L558 152" stroke="#78C8FF" marker-end="url(#ab)"/>
+<path d="M472.2 232.2 L472.2 207.2" stroke="#DDE3E0" stroke-opacity="0.6" marker-end="url(#aw)"/>
+<g opacity="0.6"><path d="M477.2 237.4 L500.1 238.7" stroke="#FFD264" marker-end="url(#ay)"/><path d="M468.6 233.7 L452.1 217.6" stroke="#78C8FF" marker-end="url(#ab)"/></g>
+<circle cx="472.2" cy="237.2" r="4" stroke="#FFFFFF" stroke-width="2"/>
+<g fill="#DDE3E0" stroke="none">
+<text x="330" y="22">curve ∩ curve = a point</text>
+<text x="330" y="37">J = det[N<tspan dy="3" font-size="9">p</tspan><tspan dy="-3">, </tspan>N<tspan dy="3" font-size="9">c</tspan><tspan dy="-3">, </tspan>n<tspan dy="3" font-size="9">S</tspan><tspan dy="-3">]</tspan></text>
+<text x="416" y="66">light</text><text x="607" y="152">eye</text>
+<text x="461" y="121" fill="#FFD264">N<tspan dy="3" font-size="9">p</tspan></text>
+<text x="561" y="150" fill="#78C8FF">N<tspan dy="3" font-size="9">c</tspan></text>
+<text x="478.2" y="211.2">n<tspan dy="3" font-size="9">S</tspan></text>
+<text x="502.1" y="232.7">a</text>
+<text x="441.1" y="214.6">b</text>
+<text x="456.2" y="250.2">x</text>
+<text x="568" y="188" fill="#78C8FF">θ</text>
+<text x="539.1" y="186.6" fill="#78C8FF">t</text>
+<text x="362" y="272">receiver S</text>
+<text x="320" y="345" text-anchor="middle">surface primitives · give the camera a sheet too</text>
+</g>
+</g>
+</svg>

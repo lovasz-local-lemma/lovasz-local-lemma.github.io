@@ -1,0 +1,54 @@
+<!-- ================= CORRELATED BATCH (slots after #variance, before #proof) ================= -->
+<section id="batch" style="--secc:var(--l620)" data-nav="Seeing the estimator">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">06 — What the estimator actually looks like</p>
+      <h2>Freeze the batch and the maths becomes a photograph</h2>
+      <p class="lead">Every estimator on this page samples a fresh primitive per camera sample, so the geometry averages away before you can see it. Reuse one batch across the whole frame instead and the individual swept sheets stay on screen — each weighted by its own co-area Jacobian, which is exactly the quantity the rest of this page is about.</p>
+      <p>This is photon mapping's trick applied to analytic primitives, and it cost one line. The integrator already drew every photon-side random number <em>after</em> the camera ray was built, so correlating is a split of the random-number stream rather than a refactor: seed the photon side from the primitive index instead of the pixel, and every pixel that lands on index <code>k</code> rebuilds the same primitive bit for bit. Not one strategy block changed.</p>
+    </div>
+
+    <figure>
+      {{DOCPNG:correlated/fig-cone-9.png}}
+      <figcaption><b>Sixteen photon cones, one apex</b><span>Each cone is one sample of the same estimator: a photon leaves the light at a fixed polar angle, and the azimuth and distance are swept into a surface. The camera ray meets that surface in closed form. Every cone shares the light as its apex, and the searing point where they all meet is not a bug in the render — it is the Jacobian going to zero at the tangency locus, which is the thing the mixture later has to fix.</span></figcaption>
+    </figure>
+
+    <div class="narrow">
+      <h3>Each family fails in its own shape</h3>
+      <p>The variance study classifies how each primitive's Jacobian vanishes — constant across a pixel, linearly, as a square-root fold, or as a bounded fan. That classification turns out to be literally a prediction about what the frozen batch looks like, because the Jacobian sits in the denominator.</p>
+    </div>
+
+    <div class="pair">
+      <div class="pane">{{DOCPNG:correlated/fig-sphere-7.png}}</div>
+      <div class="pane">{{DOCPNG:correlated/fig-hourglass-20.png}}</div>
+    </div>
+    <div class="paircap"><b>Fold members</b><span>Left, the photon sphere: a shell of constant flight distance about the light, and two quadric roots merge at its silhouette, so every bubble carries an incandescent rim. Right, the hourglass: sixteen caustic horns, and every one of them piles its brightest region onto the same axial line, because at the paraxial focus the revolution's Jacobian collapses for all of them at once.</span></div>
+
+    <div class="narrow">
+      <h3>The clearest argument for mixing anything</h3>
+      <p>The balance heuristic changes a weight formula and draws no random numbers. So the two frames below are the <em>same frozen batch</em>, the same sixteen primitives in the same places, with only the edge weights different. Nothing about the geometry moved.</p>
+    </div>
+
+    <div class="pair">
+      <div class="pane">{{DOCPNG:correlated/fig-mis-13-flat.png}}</div>
+      <div class="pane">{{DOCPNG:correlated/fig-mis-13-balance.png}}</div>
+    </div>
+    <div class="paircap"><b>Flat weights, then balanced</b><span>Left: the three primitives averaged with equal weight — the rims are still there, because each member is still fully trusted on the locus where it is worst. Right: the balance heuristic, where a member's weight falls exactly where its own density spikes. The rims go out. This is the whole mixture argument in two frames that differ by one formula.</span></div>
+
+    <div class="narrow">
+      <div class="readout">
+        <div class="row"><span class="lbl">Film maximum · cone alone</span><span class="val">49,000</span></div>
+        <div class="row"><span class="lbl">Film maximum · three primitives, flat weights</span><span class="val">4,562</span></div>
+        <div class="row hi"><span class="lbl">Film maximum · three primitives, balance heuristic</span><span class="val">368.7</span></div>
+      </div>
+
+      <h3>Two predictions that did not survive</h3>
+      <p>The design document predicted a picture for each family before any of them was rendered. Most were right. Two were not, and they are worth more than the ones that were.</p>
+      <ul class="clean">
+        <li><b>The disk's pinwheel is unreachable.</b> Its blades are half-planes that <em>contain</em> the light's axis, so the pinwheel is what you would see looking straight down that axis — and every scene in this renderer has a level camera. From the side it is a fan of vertical blades, and level with the light it degenerates to two half-frames.</li>
+        <li><b>The quad's tangency is one scanline, not scattered slivers.</b> The estimator translates the light quad without rotating it, so a ceiling quad stays horizontal at every distance and a level camera sees every member near edge-on at the same height. The whole estimator's variance lives on one row at the camera's eye level — which is also <em>why</em> its screen footprint is so small.</li>
+      </ul>
+      <p class="note"><b>The trap, fired deliberately.</b> The normalisation is one over the number of primitives <em>drawn</em>, never the number that crossed the ray. The wrong version was implemented behind a debug flag first, purely to watch it fail: it reads 2.1× to 6.8× too bright here, and it <em>converges</em> — 4.385, 4.447, 4.451 at rising pass counts on one preset. A quietly wrong image that looks more correct the longer you render it is the worst failure mode available, so it is now a thing this project has seen rather than a thing it was warned about.</p>
+    </div>
+  </div>
+</section>

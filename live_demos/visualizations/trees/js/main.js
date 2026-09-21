@@ -276,7 +276,7 @@ class TreeDemo {
             const nodesSpan = container.querySelector('.nodes');
             
             heightSpan.textContent = `Height: ${tree.getHeight()}`;
-            nodesSpan.textContent = `Nodes: ${tree.getNodeCount()}`;
+            nodesSpan.textContent = `Keys: ${tree.getNodeCount()}`;
         }
 
         // Update metrics panel
@@ -420,7 +420,7 @@ class TreeDemo {
 
         const balanceFactors = {};
         for (const [treeType, tree] of Object.entries(this.trees)) {
-            balanceFactors[treeType] = this.calculateBalanceFactor(tree);
+            balanceFactors[treeType] = TreeMetrics.meanNodeVisits(tree.root);
         }
 
         const treeColors = {
@@ -433,6 +433,7 @@ class TreeDemo {
             sbt: 'SBT', treap: 'Treap', splay: 'Splay', '234': '2-3-4'
         };
 
+        const maxVisits = Math.max(1, ...Object.values(balanceFactors));
         for (const [treeType, balance] of Object.entries(balanceFactors)) {
             const barContainer = document.createElement('div');
             barContainer.className = 'bar-container';
@@ -446,13 +447,13 @@ class TreeDemo {
             
             const barFill = document.createElement('div');
             barFill.className = 'bar-fill';
-            barFill.style.width = `${balance * 100}%`;
+            barFill.style.width = `${balance / maxVisits * 100}%`;
             barFill.style.backgroundColor = treeColors[treeType];
             barFill.style.color = treeColors[treeType];
             
             const value = document.createElement('span');
             value.className = 'bar-value';
-            value.textContent = `${Math.round(balance * 100)}%`;
+            value.textContent = balance.toFixed(2);
             value.style.color = treeColors[treeType];
             
             barWrapper.appendChild(barFill);
@@ -477,14 +478,6 @@ class TreeDemo {
             ).length : 0;
         }
         
-        // Debug logging
-        console.log('Operation counts:', operationCounts);
-        for (const [treeType, tree] of Object.entries(this.trees)) {
-            const spins = tree.operations.filter(op => op.type === 'spin').length;
-            const recolors = tree.operations.filter(op => op.type === 'recolor').length;
-            console.log(`${treeType}: ${spins} spins, ${recolors} recolors (not counted), total: ${operationCounts[treeType]}`);
-        }
-
         const maxOps = Math.max(...Object.values(operationCounts), 1);
 
         const treeColors = {
@@ -564,8 +557,8 @@ class TreeDemo {
         const optimalHeight = Math.ceil(Math.log2(totalNodes + 1));
 
         const properties = [
-            { label: 'Total Nodes', value: totalNodes },
-            { label: 'Optimal Height', value: optimalHeight },
+            { label: 'Stored keys', value: totalNodes },
+            { label: 'Minimum binary height', value: optimalHeight },
             { label: 'Best Height (excl. 234)', value: `${bestHeight} (${bestTrees.join(', ')})` },
             { label: 'Worst Height (excl. Naive)', value: `${worstNonBSTHeight} (${worstTrees.join(', ')})` },
             { label: 'Naive BST Height', value: bstHeight }

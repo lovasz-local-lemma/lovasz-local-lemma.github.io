@@ -1,0 +1,181 @@
+<!doctype html><html lang="en"><head><style data-portfolio-paint>html{background:#0b0d0c;color-scheme:dark}html.portfolio-booting body{opacity:0}</style><script src="../../../portfolio-navigation.js?v=688f1905bc"></script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>RIVX · RIVX architecture</title><meta name="description" content="Retained geometry, signal representation and the boundary between native experiments and official Rive delivery."><meta name="color-scheme" content="dark"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="../../../portfolio.css?v=b7ed8602e5"><link rel="stylesheet" href="../../../portfolio-effects.css?v=62be30dafa"><link rel="stylesheet" href="../../../portfolio-atmospheres.css?v=4b74c57939"><link rel="stylesheet" href="../../../portfolio-motion.css?v=4b098d8184"><link rel="stylesheet" href="../../../portfolio-case-studies.css?v=243caf2b0d"><link rel="stylesheet" href="../../../portfolio-brochures.css?v=a1e5e16132"><link rel="stylesheet" href="../../../portfolio-project-themes.css?v=a898c35e78"><link rel="stylesheet" href="../../../portfolio-location.css?v=9c4c1ad84f"><link rel="stylesheet" href="../../../portfolio-controls.css?v=9376de7761"><link rel="stylesheet" href="../../../portfolio-media.css?v=c51f7712ea"><link rel="stylesheet" href="../../../portfolio-overviews.css?v=8612c4ee0a"><link rel="stylesheet" href="../../../portfolio-motivations.css?v=ccc1c1d866"><link rel="stylesheet" href="../../../portfolio-claims.css?v=058dbd00ef"><link rel="stylesheet" href="../../../portfolio-feature-atlas.css?v=e73f02cb31"><script type="application/json" id="media-framing">{"media/brochures/physics-2d/thermal-furnace-magnetic-field-probe.png":{"width":1602,"height":940,"top":39},"media/brochures/physics-2d/magnetic-field-direction-appearance-controls.png":{"width":1602,"height":940,"top":39},"media/brochures/physics-2d/time-bomb-blast-particle-plume.png":{"width":1602,"height":940,"top":39}}</script><script defer src="../../../portfolio-claims.js?v=ed914a4d3a"></script><script defer src="../../../portfolio-visual-defaults.js?v=eecfd5c771"></script><script defer src="../../../portfolio-motion.js?v=a642c710f9"></script><script defer src="../../../portfolio-fire-studies.js?v=7717e15582"></script><script defer src="../../../portfolio-embers.js?v=8a8be5569d"></script><script defer src="../../../portfolio-atmospheres.js?v=021b2f100e"></script><script defer src="../../../portfolio-effects.js?v=03a6c89d6c"></script><script defer src="../../../portfolio-brochures.js?v=055cad29d6"></script><script defer src="../../../portfolio-location.js?v=3846586893"></script><script defer src="../../../portfolio-media.js?v=d2d555a888"></script><script defer src="../../../portfolio-articles.js?v=acb89575ce"></script><script defer src="../../../portfolio-labs.js?v=a0b86a3809"></script><link rel="stylesheet" href="../../../portfolio-technical.css?v=0ecb3a48c7"><!-- universal-navigation:start --><script defer src="../../../portfolio-routes.js?v=054b6b462c"></script><script defer src="../../../portfolio-universal-navigation.js?v=054b6b462c"></script><!-- universal-navigation:end --><style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head><body data-page="technical" data-project-theme="vector" data-project-id="rivex" data-default-atmosphere="contours"><a class="skip-link" href="#main">Skip to content</a><nav class="site-nav portfolio-route" data-route-group="flagships" aria-label="Portfolio location"><div class="route-path"><a class="route-node route-home" href="../../../index.html#project-rivex" aria-label="Portfolio"><img class="route-mark" src="../../../media/identity/portfolio-mark.svg" alt="" width="52" height="52"><span class="route-copy"><small>Work / ideas</small><strong>Portfolio</strong></span></a><span class="route-wire" aria-hidden="true"><i></i><b></b></span><div class="route-node route-group"><span class="route-glyph" aria-hidden="true">✦</span><span class="route-copy"><small>Collection</small><strong>Flagship</strong></span></div><span class="route-wire" aria-hidden="true"><i></i><b></b></span><div class="route-node route-project"><span class="route-glyph" hidden aria-hidden="true">◈</span><img class="route-thumb" src="../../../media/brochures/rivex/native-hatch-relief.png" width="42" height="42" alt=""><span class="route-copy"><small>Project</small><strong>RIVX</strong></span></div></div><div class="route-end"><span class="route-meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><a class="route-back" href="../../../index.html#project-rivex">← Back to portfolio</a></div></nav><main id="main" class="project-page technical-page"><header class="technical-hero"><span class="eyebrow">RIVX · technical notes</span><h1>RIVX architecture</h1><p>Retained geometry, signal representation and the boundary between native experiments and official Rive delivery.</p><div class="technical-actions"><a href="../index.html">← RIVX brochure</a></div></header><article class="technical-document"><p>RIVX is an <strong>experimental graphics authoring platform built around Rive</strong>. It combines a native studio, an enhanced rendering framework, and pipelines for converting or baking scene information into a chosen drawing. Its central question is <strong>what information should remain live, and what should become a drawing?</strong></p>
+<p>The platform covers both creation and delivery. The native studio assembles scenes, effects and representations; the rendering framework evaluates and draws them through several backends; the export pipelines produce ordinary <code>.riv</code> drawings and animations or specialized browser suites. The GPU Canvas studies add signed instruments authored through the official toolchain. A scene can use rich intermediate computation and still finish as ordinary Rive geometry.</p>
+<p>These parts have working implementations with different scopes. The native application is the broadest authoring and research environment. Browser instruments expose selected workflows and reopenable artifacts; they do not collectively constitute a general browser port of every native feature.</p>
+<h2 id="the-narrative">The narrative</h2><p>The project started with 3D in Rive scripting. Moving into a native renderer made paths, motion, coverage and intermediate fields available to inspect and modify. That led to experiments in soft primitives, extra curve families, geometry-aware effects and 3D scenes.</p>
+<p>The return to ordinary Rive was a representation problem: project 3D motion into keyed paths, place baked illumination on image meshes, turn scalar fields into contours, or approximate a soft field with a bounded number of marks. These are useful outputs because they offer an authored drawing language and a particular playback contract.</p>
+<p>GPU Canvas adds a way to package live computation inside the Rive document. It changes the delivery choices, rather than invalidating vector reconstruction. A contour drawing, a per-pixel lighting model and a retained scene preserve different things. The appropriate choice depends on the appearance, interaction, compatibility and resource budget.</p>
+<p>The project can therefore make a concrete claim: <strong>RIVX extends the authoring and drawing pipeline, then carries selected results into independently playable presentations.</strong> It does not need to claim that every experiment is a universal scene format or that its renderer replaces all of official Rive.</p>
+<h2 id="three-independent-decisions">Three independent decisions</h2><div class="case-table-wrap technical-table" tabindex="0" role="region" aria-label="Technical comparison"><table>
+<thead>
+<tr>
+<th>Decision</th>
+<th>Options in this project</th>
+<th>Responsibility</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Evaluate</td>
+<td>Official Rive core; native Scene3D graph; a specialized browser host</td>
+<td>Animation, scene state, geometry and interaction</td>
+</tr>
+<tr>
+<td>Draw</td>
+<td>Official Rive; custom Rive renderer adapter; direct GPU scene rendering</td>
+<td>Primitive interpretation, coverage, compositing and auxiliary fields</td>
+</tr>
+<tr>
+<td>Deliver</td>
+<td>Ordinary <code>.riv</code>; GPU Canvas <code>.riv</code>; browser hybrid</td>
+<td>The data and computation that travel to the audience</td>
+</tr>
+</tbody></table></div>
+<p>An authoring backend is not an output format. Using the custom renderer to inspect or generate a result does not make that backend necessary when the exported result consists entirely of supported ordinary Rive objects.</p>
+<h2 id="rive-friendly-rendering-is-a-research-track">Rive-friendly rendering is a research track</h2><p>GPU Canvas makes live shader computation available inside a Rive presentation. It does not decide whether that presentation would be better as tone regions, stroked contours, fitted soft marks, textured surfaces or a full shader image. RIVX investigates those representation choices as well as the renderer that executes them.</p>
+<p>The NPR studies turn illumination into actual geometry. The curve and splat studies expose approximation residuals and primitive budgets. The keyed-motion work measures what can be shared across poses. Paired native performance probes separately measure CPU submission and GPU work for path count, vertices, feather, clips and overdraw. This is a practical study of Rive-friendly drawing, not a universal claim that vectors are faster.</p>
+<p>A useful comparison therefore records the source signal, final shapes or images, approximation error, update cost and playback cost. The current native timing evidence supports the workloads and device it measured; the live browser studies make the representation testable without turning those desktop results into browser frame-rate promises. See <a href="../index.html#manual-measured-representation-cost">the study section</a> and <a href="../iso-studio/index.html">live vector reconstruction</a>.</p>
+<h2 id="what-the-three-rendering-choices-do">What the three rendering choices do</h2><p><strong>Official Rive</strong> supplies the compatibility baseline and standard playback. In the native imported-artwork workflow, official and custom drawing both retain the official core for import and animation evaluation. The application can therefore change the drawing boundary without replacing the animation engine.</p>
+<p><strong>RIVX Draw</strong>, the working name for the enhanced path backend, implements the Rive renderer/factory boundary. It receives actual paths and transforms. Its value is access to drawing semantics and alternative rendering behavior: contour capture, shape identity, paint-order depth, transform motion, curve fields, experimental coverage and feathering. The paint-order field is not reconstructed physical 3D depth.</p>
+<p>Native vector beam is a concrete example. The evaluated artboard supplies transformed contours; an ordered trajectory drives a moving Gaussian spot; analytic segment integration and persistent accumulation determine the appearance. Native contour capture occurs before general clipping and opacity treatment, so these are raw draw contours rather than automatically extracted visible silhouettes. The existing Effect Workshop’s pixel-derived beam is a useful browser treatment with a different input contract.</p>
+<p><strong>Scene3D direct rendering</strong>, labelled “No-Rive” in its interface, draws the laboratory’s own retained geometry and fields directly on the GPU. It supplies reference views and supports representations that do not need an ordinary Rive artboard. Its internal <code>Backend::Ours</code> name is separate from the top-level custom Rive renderer. The shared word has obscured two different responsibilities.</p>
+<p>The custom route has real limitations. It is not complete official-renderer parity, and ordinary path workloads can benefit from the official renderer’s batching. Its purpose is control and data access where the experiment needs them; profiling measures the resulting tradeoff.</p>
+<h2 id="working-names-studio-draw-and-suite">Working names: Studio, Draw and Suite</h2><div class="case-table-wrap technical-table" tabindex="0" role="region" aria-label="Technical comparison"><table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>RIVX Studio</td>
+<td>The native authoring application and experimental laboratories</td>
+</tr>
+<tr>
+<td>RIVX Draw</td>
+<td>The experimental, instrumented implementation of the Rive drawing boundary</td>
+</tr>
+<tr>
+<td>Native <code>.rivx</code> project</td>
+<td>A particular versioned document family for its intended loader</td>
+</tr>
+<tr>
+<td>RIVX Suite</td>
+<td>A hybrid browser export containing the programs, retained data and optional Rive layers required by its named player</td>
+</tr>
+</tbody></table></div>
+<p>Draw and Suite are provisional labels, pending a final naming decision. They separate an implementation from a deliverable; no file extension or native format has changed. A Suite can carry a focused browser port of Draw, official Rive with external GPU passes, or a direct custom-WebGL retained scene. It does not imply full enhanced-backend coverage.</p>
+<p>Native <code>.rivx</code> documents are not universally ordinary <code>.riv</code> files with optional bytes appended. The editor document retains curve construction and effect/pipeline settings; <code>RIVX3S</code> retains scene/graph state and external asset references; <code>RIVX3D</code> retains supported spatial primitives; <code>RIVXP1</code> stores a photon cache. Their readers and execution requirements differ.</p>
+<p>A hybrid browser deliverable can contain an ordinary <code>.riv</code>, a shader and host code without reading every native <code>.rivx</code> family. Conversely, the retained custom-WebGL viewer can draw its supported primitive data without using the Rive runtime at all. The artifact and its player should always be named together.</p>
+<h2 id="curves-retained-construction-versus-ordinary-drawing">Curves: retained construction versus ordinary drawing</h2><p>The native curve editor retains a curve kind, control points and supported handles/style in its <code>.rivx</code> editor record. A Yuksel-family construction can remain editable without converting it into manually arranged cubic handles. The custom editor drawing path still samples that construction for rendering; retaining the model is distinct from rendering it without approximation.</p>
+<p>The browser <a href="../curve-studio/index.html">Curve Atelier</a> ports the local evaluator to JavaScript. It uses the unmodified official Rive WebGL2 runtime to draw a pool of ordinary filled segments. The gold reference is densely sampled; the coral overlay uses the adjustable coarse budget. Its measured residual compares those two sampled drawings. The <code>.riv</code> snapshot stores filled quadrilaterals; its separate JSON preserves the construction for the browser host.</p>
+<p>The native exporter makes a related but different conversion: Cubic Pen writes true cubic Bézier vertices, while B-spline and Yuksel families become sampled polylines in ordinary <code>.riv</code>. It does not perform a fitted cubic conversion. The RIVX label identifies the authoring model and evaluation step; official Rive is a valid endpoint for the resulting drawing. This browser evaluator port is not a port of the complete native renderer.</p>
+<h2 id="gpu-canvas-and-a-host-composed-hybrid">GPU Canvas and a host-composed hybrid</h2><p>Official GPU Canvas is genuinely integrated with the Rive draw stream:</p>
+<ul>
+<li>Its image can be drawn through the normal renderer and participate in transforms, clipping and opacity.</li>
+<li>A color view can feed a subsequent GPU pass.</li>
+<li>The Canvas API can render Rive content into a texture.</li>
+<li>The runtime schedules canvas work and dependencies during draw/replay; scripts can share view-model state.</li>
+</ul>
+<p>This supports a Rive → texture → GPU → Rive composition, including multiple dependent canvases. The important advantage is ownership of composition and state inside an authored document, not an exclusive class of shader algorithms. Input routing still needs correct local coordinates and, for instantiated artboards, event forwarding. Shader distortion does not automatically provide physical 3D picking.</p>
+<p>A hybrid can implement selected equivalent behavior. Its host then owns shared state and clocks, texture handoff and pass order, coordinate conversion, hit testing, clipping, resize behavior and resource lifetime. The four paired showpieces test matching visual models and selected controls. They do not prove a universal conversion of arbitrary GPU Canvas documents.</p>
+<p>The native Browser delivery layer recipe currently composes official Rive underlay and overlay around a retained renderer. Layer stacking alone is not an arbitrary feedback graph. A deeper comparison should inspect dependencies and interaction as well as the resulting image.</p>
+<p>Official API references: <a href="https://github.com/rive-app/rive-docs/blob/main/scripting/api-reference/gpu/gpu-canvas.mdx" rel="noopener">GPUCanvas</a>, <a href="https://github.com/rive-app/rive-docs/blob/main/scripting/api-reference/gpu/canvas.mdx" rel="noopener">Canvas</a>, <a href="https://github.com/rive-app/rive-docs/blob/main/scripting/api-reference/interfaces/node.mdx" rel="noopener">Node draw scheduling</a>, <a href="https://github.com/rive-app/rive-docs/blob/main/scripting/api-reference/interfaces/context.mdx" rel="noopener">Context and shared view models</a>, <a href="https://rive.app/docs/scripting/pointer-events#nested-pointer-events" rel="noopener">pointer forwarding</a>.</p>
+<h2 id="why-some-effects-need-a-separate-export-implementation">Why some effects need a separate export implementation</h2><p>Saving an effect’s parameters preserves a recipe. It does not insert the effect’s native renderer into the ordinary Rive runtime.</p>
+<p>For example, the native Scene3D_new scope exporter captures its current contour geometry and emits a 60 fps gradient sweep along static stroke legs. It is a real ordinary <code>.riv</code> animation, but it does not carry arbitrary imported-artboard contour animation or the live phosphor buffer.</p>
+<p>There are three useful ways to deliver it:</p>
+<ol>
+<li><strong>Translate the result into ordinary Rive.</strong> Export supported curves, images, meshes and keys. This may preserve only an authored camera or time domain.</li>
+<li><strong>Author the computation for GPU Canvas.</strong> Package supported scripts, shaders, resources and Rive interaction in a signed document. The current signed instruments demonstrate this route; the native arbitrary Scene3D/effect-stack converter is not implemented by their existence.</li>
+<li><strong>Carry an additional player.</strong> A hybrid includes the code and data needed by that particular live behavior. A focused browser renderer can port one enhanced drawing model without pretending to port the entire native application.</li>
+</ol>
+<p>The working <a href="../vector-backend/index.html">direct vector-backend instrument</a> now provides this evidence. Official Rive evaluates the original animation and inputs. A command adapter records the actual move, line, cubic and transformed path commands. A custom WebGL renderer integrates the moving beam and retains its phosphor history. An ordinary Rive reticle tracks the beam and a bound rectangle marks the selected path, returning the shared signal to a vector presentation.</p>
+<p>Hovering, inspection, isolation and muting operate on captured drawing contributions. Its standalone HTML export includes the original source, official evaluator, adapter, custom renderer and return layer. This demonstrates an extended drawing pipeline whose connection to Rive is the animated geometry itself. It is a focused browser implementation, not official GPU Canvas, a universal native <code>.rivx</code> loader or complete native renderer parity. The player names its supported command and rendering contract.</p>
+<h2 id="three-histories-three-useful-queries">Three histories, three useful queries</h2><p>The time-axis studies share an operation—retain successive states and give time a spatial coordinate—but store different signals. They belong to one family of experiments.</p>
+<div class="case-table-wrap technical-table" tabindex="0" role="region" aria-label="Technical comparison"><table>
+<thead>
+<tr>
+<th>Study</th>
+<th>Retained signal</th>
+<th>Why keep this version?</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Direct vector instrument: “Give the drawing a time axis”</td>
+<td>Evaluated Rive contour coordinates and timestamps</td>
+<td>Follow a selected draw call through successive poses; inspect its geometric trajectory.</td>
+</tr>
+<tr>
+<td>Effect Workshop image-time volume</td>
+<td>Rendered colour and motion-density samples in a circular texture history</td>
+<td>Slice or ray march appearance, including image content and post-processing.</td>
+</tr>
+<tr>
+<td>Glass history beside keyed playback</td>
+<td>An atlas of baked Rive pose images</td>
+<td>Inspect an authored appearance sequence without recomputing its refraction.</td>
+</tr>
+</tbody></table></div>
+<p>The vector study retains draw-call ordinals rather than guaranteed persistent object IDs across topology-changing animation. Its geometric capture is separate from the beam’s decaying phosphor buffer. The image volume preserves appearance but cannot restore path identity. The glass atlas records authored pose time; its optional computed optical-time overlay has a separate clock and does not modify the baked pixels.</p>
+<p>This distinction justifies keeping the studies while explaining them together in <a href="../index.html#manual-beam-spacetime">the temporal representation section</a>. GPU Canvas can implement compatible variants too; the useful extension is an explicit history contract, not ownership of the idea of time as a dimension.</p>
+<h2 id="the-mathematical-through-line">The mathematical through-line</h2><div class="case-table-wrap technical-table" tabindex="0" role="region" aria-label="Technical comparison"><table>
+<thead>
+<tr>
+<th>Representation change</th>
+<th>Quantity or constraint to preserve</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>3D motion → 2D keys</td>
+<td>Projection, topology and paint order within the authored domain</td>
+</tr>
+<tr>
+<td>Spatial Gaussian → screen splat</td>
+<td>Covariance under the local projection Jacobian</td>
+</tr>
+<tr>
+<td>Radiance or image → contours / fitted marks</td>
+<td>Selected level sets or appearance error under a primitive budget</td>
+</tr>
+<tr>
+<td>Paths → photon primitives</td>
+<td>Sampling measure, valid support, visibility assumptions and optical path time</td>
+</tr>
+<tr>
+<td>Moving spot → phosphor image</td>
+<td>Segment-integrated Gaussian energy and temporal decay</td>
+</tr>
+<tr>
+<td>Sampled images → opacity keys</td>
+<td>The intended effective weights after compositing</td>
+</tr>
+</tbody></table></div>
+<p>The common research problem is controlled loss of information. A smaller representation is valuable when it retains the behavior that matters. Error, storage, object count, temporal sampling and runtime work belong in the comparison; visual resemblance alone is not the entire result.</p>
+<h2 id="accumulation-and-estimator-claims">Accumulation and estimator claims</h2><p>The dense-scattering browser draws independent batches into a framebuffer running mean. Photon and primitive limits bound each batch; they do not cap the accumulated pass count. The current batch and fixed-size image buffers suffice, so memory does not grow with the total paths sampled. A scene or camera edit invalidates the previous mean. This fixes replacing a sparse sample set under a progressive label. It does not prove consistency of the full light-transport estimator: finite footprints, regularized weights, display mapping and limited path branches remain.</p>
+<p>Beams fit the segment-and-feather representation particularly well, but that is a drawing advantage rather than an exemption from estimator validation. Higher-dimensional primitives can be stronger estimators when their sampling measure, Jacobian, support and visibility are handled correctly. See <a href="https://cs.dartmouth.edu/~wjarosz/publications/bitterli17beyond.html" rel="noopener">Beyond points and beams</a> and <a href="https://cs.dartmouth.edu/~wjarosz/publications/deng19photon.html" rel="noopener">Photon surfaces</a>. <a href="https://cs.dartmouth.edu/~wjarosz/publications/marco19progressive.html" rel="noopener">Progressive transient photon beams</a> additionally distinguishes a progressive bandwidth schedule from simply averaging a fixed kernel. <a href="../../radiance-lab/index.html">RadianceLab</a> is the portfolio&#39;s home for the fuller estimator study.</p>
+<p>The hourglass separates angular-cell volume sheets from its independent photon surface receiver. The latter removes triangular floor spokes and progressively reduces noise around a finite-kernel expectation. At zero requested radius it still uses a normalized pixel footprint. Neither its sample-complete status nor its beauty reconstruction claims an unbiased or fully converged render.</p>
+<h2 id="what-is-usable-experimental-or-still-open">What is usable, experimental or still open</h2><p><strong>Usable now:</strong> named ordinary <code>.riv</code> exports, the four signed GPU Canvas instruments, the direct vector-backend player, specialized retained viewers, and browser laboratories with working standalone export actions. Each has a defined source and player.</p>
+<p><strong>Experimental implementation:</strong> the native custom renderer, auxiliary channels, curve and splat representations, transport primitives and scene graph. These are real working systems with explicit coverage limits, rather than one production-ready replacement runtime.</p>
+<p><strong>Research:</strong> measure-preserving primitives, approximation error, fitting, projection, compositing and representation cost. Their value includes derivations and controlled comparisons, even when the best shipping representation is a bake.</p>
+<p><strong>Expansion:</strong> broader native-to-browser renderer coverage and automatic conversion of more native graph behavior to GPU Canvas. These are concrete extensions of working routes, not prerequisites for claiming the existing result.</p>
+<h2 id="implementation-evidence-checked-for-this-account">Implementation evidence checked for this account</h2><p>Native paths are relative to <code>offline_projs/RIVX/</code> in the AIO workspace:</p>
+<ul>
+<li><code>backend/src/scene/scene_loader.cpp</code>: official import with a custom factory for the alternate draw route.</li>
+<li><code>backend/src/render/gl_stencil_renderer.hpp</code>: Rive renderer adapter and path contour capture.</li>
+<li><code>backend/src/core/player_frame.cpp</code>: contour-mode artboard draw and auxiliary-field production.</li>
+<li><code>backend/src/beam/vector_beam.cpp</code>: segment integration and persistent accumulation.</li>
+<li><code>backend/src/npr/ours_aux_producer.hpp</code>: identity and geometry-derived field contracts.</li>
+<li><code>backend/src/scene3d/scene3d_panel.cpp</code>: the distinct Scene3D direct/“No-Rive” route.</li>
+<li><code>backend/src/editor/shape_editor.cpp</code>: editor <code>.rivx</code> curve/effect/pipeline records and ordinary-Rive conversion boundaries.</li>
+<li><code>backend/src/scene3d/scene3d_rivx_record.hpp</code>: retained scene/graph records and external asset references.</li>
+<li><code>backend/src/ui/export_panel.cpp</code>: native browser suite composition and export actions.</li>
+</ul>
+<p>Public browser examples and their README files identify the implemented subset separately from these native capabilities. Authoring sources for the signed showpieces remain outside the public site.</p>
+<h2 id="extension-design-brief">Extension design brief</h2><p>The <a href="extension-roadmap.html">retained information roadmap</a> distinguishes native capabilities, verified browser subsets and proposed reusable systems. It gives acceptance criteria for semantic fields, curve/splat representations, history buffers, coupled transport and export negotiation.</p>
+</article><footer class="technical-footer"><div class="technical-actions"><a href="../index.html">← RIVX brochure</a></div></footer></main></body></html>

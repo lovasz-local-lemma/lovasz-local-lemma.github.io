@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><script src="../../../portfolio-lab-frame.js"></script><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark"><title>The temperature falls. The history stays.</title><link rel="stylesheet" href="solver-labs.css"><style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head>
+<body data-solver="thermal"><main><header><p class="eyebrow">05 / Thermal MPM · state variables</p><h1>The temperature falls. The history stays.</h1><p>Heat the left end for four time units, then cool it. Compare reversible softening with a retained processing state across the same strip.</p></header>
+<div class="controls"><label class="control" for="time"><span>Heating / cooling timeline<output id="time-value"></output></span><input id="time" type="range" min="0" max="12" value="3.2" step="0.05"></label><label class="control" for="peak"><span>Heater temperature · K<output id="peak-value"></output></span><input id="peak" type="range" min="350" max="650" value="580" step="5"></label><label class="control" for="conductivity"><span>Thermal diffusion rate<output id="conductivity-value"></output></span><input id="conductivity" type="range" min="0.04" max="0.3" value="0.18" step="0.01"></label></div>
+<figure class="viewport"><canvas id="solver-view" role="img" aria-label="The temperature falls. The history stays.; computed values are listed immediately below"></canvas><figcaption id="canvas-note">The top strip shows the temperature field; the second shows reversible stiffness; the third shows an irreversible conversion. After the heater turns off, temperature and softening can recover while conversion remains. A surface can finish processing while the core is still cold.</figcaption><div class="metrics" aria-live="off"><div><output id="metric-0">—</output><span>Heater now</span></div><div><output id="metric-1">—</output><span>Hottest material point</span></div><div><output id="metric-2">—</output><span>Maximum retained conversion</span></div></div></figure>
+<div class="toolbar"><button type="button" id="cycle">Run heat / cool cycle ↗</button><button type="button" id="reset">Reset schematic ↺</button><span>Computed explanation · native implementation in Physics2D</span></div>
+<details class="model"><summary>Equations and model boundary</summary><pre>∂T/∂t = κ ∂²T/∂x² − γ(T − 300)
+E(T)/E₀ = clamp(1 − (T−300)/200, 0.05, 1)
+ċ = k(T)(1−c), k(T) ≥ 0</pre><p>A static 1D diffusion experiment, with the native MAT_THERMAL softening law evaluated in kelvin. The conversion kinetics and heating schedule are illustrative, not a particular native material preset. Latent heat, deformation, shell expansion, pressure generation and fracture are discussed in the brochure rather than silently simulated here.</p></details>
+</main><script src="solver-core.js"></script><script src="solver-ui.js"></script></body></html>

@@ -1,0 +1,688 @@
+/* =============================================================================
+   noita_gish - docs-dark.css
+   One shared stylesheet for the three hand-written docs pages.
+
+   HOW IT IS ATTACHED (one line per page, nothing else):
+   immediately after the page's existing inline style block closes, and before
+   the head closes, insert exactly:
+
+       <link rel="stylesheet" href="assets/docs-dark.css">
+
+   It is linked AFTER each page's own style block, so at equal specificity these
+   rules win by source order. Delete that one <link> line and every page is
+   byte-for-byte its original self again. Nothing here is required for the
+   content to be readable; there is no JavaScript anywhere in this file.
+
+   The system in one sentence: a near-black cool ground with 72px graph paper
+   and film grain (int_bee), a system-serif display face over mono micro-labels
+   (int_bee), figures drawn in the portfolio's fixed 640x360 / 1.5px / 12px-mono
+   grammar, and one borrowed device - the masked amber "lit edge" ring from
+   light-through-vectors - recoloured per subsystem, so the raking light on a
+   panel IS that panel's identity colour.
+   ========================================================================== */
+
+/* =============================================================================
+   1 - DESIGN SYSTEM
+   ========================================================================== */
+
+:root {
+  color-scheme: dark;
+
+  /* -- ground ------------------------------------------------------------ */
+  --bg:        #080B10;   /* page */
+  --bg-deep:   #04060A;   /* html; also the knockout ground for figure marks */
+  --bg-lift:   #0C1016;   /* figure plate: one step ABOVE the page, never below */
+  --surface:   rgba(255,255,255,.035);
+  --surface-2: rgba(255,255,255,.060);
+  --surface-3: rgba(255,255,255,.085);
+
+  /* -- lines ------------------------------------------------------------- */
+  --line:      rgba(255,255,255,.100);   /* panel edge */
+  --line-2:    rgba(255,255,255,.180);   /* emphasised edge, dashed slots */
+  --line-soft: rgba(255,255,255,.055);   /* table row rules, card sub-dividers */
+
+  /* -- ink --------------------------------------------------------------- */
+  --text:    #F1F3EF;   /* warm off-white, deliberately not #fff */
+  --text-2:  #C6CDC9;
+  --muted:   #98A5A8;
+  --muted-2: #6C797D;
+
+  /* -- accents: four semantic hues, each with a *-soft fill companion ----- */
+  --accent:      #EFB456;  --accent-soft:  rgba(239,180, 86,.12);  /* primary / links / eyebrows */
+  --live:        #59DBE9;  --live-soft:    rgba( 89,219,233,.12);  /* focus, live, interactive */
+  --bridge:      #A982FF;  --bridge-soft:  rgba(169,130,255,.14);  /* secondary / bridging */
+  --warn:        #FF7E72;  --warn-soft:    rgba(255,126,114,.12);  /* broken / warning */
+  --good:        #7FD8A0;  --good-soft:    rgba(127,216,160,.12);  /* solid / verified */
+  --caution:     #F0C35A;  --caution-soft: rgba(240,195, 90,.13);  /* caveat */
+  --partial:     #E8A45E;  --partial-soft: rgba(232,164, 94,.13);  /* partial */
+  --inert:       #A8A2B4;  --inert-soft:   rgba(168,162,180,.12);  /* stub */
+
+  /* -- subsystem identity -------------------------------------------------
+     The half-built idea in mechanics_relationships.html, lifted into the dark
+     register. Author's hue assignments preserved; only luminance changed.     */
+  --sys-mpm:   #7DA2F0;  --sys-mpm-lit:   rgba(125,162,240,.34);
+  --sys-sph:   #47C9BE;  --sys-sph-lit:   rgba( 71,201,190,.34);
+  --sys-air:   #E0A05A;  --sys-air-lit:   rgba(224,160, 90,.34);
+  --sys-field: #A8C264;  --sys-field-lit: rgba(168,194,100,.34);
+  --sys-heat:  #F0705F;  --sys-heat-lit:  rgba(240,112, 95,.34);
+  --sys-sdf:   #A8A2B4;  --sys-sdf-lit:   rgba(168,162,180,.34);
+  --sys-debug: #6FB8DA;  --sys-debug-lit: rgba(111,184,218,.34);
+
+  /* the two per-section override targets; default to the primary accent */
+  --sys:     var(--accent);
+  --sys-lit: rgba(239,180,86,.30);
+
+  /* -- figure palette (CSS mirror of the literals used inside the SVGs) --- */
+  --fig-grid: #FFD264;   /* grid / field state - the swept, solved thing */
+  --fig-part: #78C8FF;   /* particle state - always the minority colour */
+  --fig-ink:  #DDE3E0;   /* neutral labels, axes */
+  --fig-mark: #FF4646;   /* a sampled / coupling marker. NEVER a line. */
+  --fig-dead: #9AA3A0;   /* semantic demotion by desaturation */
+
+  /* -- type --------------------------------------------------------------
+     No webfonts. --display is a system serif with a real Palatino/Iowan on
+     macOS and Book Antiqua/Georgia on Windows; --mono resolves to Cascadia
+     Mono or Consolas on Windows 11.                                        */
+  --sans: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Text",
+          "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --display: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua",
+             Georgia, "Times New Roman", serif;
+  --mono: ui-monospace, "Cascadia Mono", "Segoe UI Mono", "SFMono-Regular",
+          "SF Mono", Consolas, "Liberation Mono", monospace;
+
+  --fs-micro: .625rem;    /* 10px */   --fs-mini: .6875rem;  /* 11px */
+  --fs-xs:    .75rem;     /* 12px */   --fs-sm:   .8125rem;  /* 13px */
+  --fs-base:  .9375rem;   /* 15px */   --fs-md:   1.0625rem; /* 17px */
+  --fs-h3:    1.15rem;
+  --fs-h2:    clamp(1.55rem, 3vw, 2.2rem);
+  --fs-h1:    clamp(2.2rem, 5.2vw, 3.9rem);
+
+  --ls-micro: .18em;   /* eyebrow */
+  --ls-label: .12em;   /* th, kicker, badge */
+  --ls-h1: -.032em;    --ls-h2: -.022em;
+
+  --measure: 68ch;
+
+  /* -- space (4px base) --------------------------------------------------- */
+  --sp-1: 4px;  --sp-2: 8px;  --sp-3: 12px; --sp-4: 16px; --sp-5: 24px;
+  --sp-6: 32px; --sp-7: 48px; --sp-8: 72px; --sp-9: 104px;
+
+  /* -- radii -------------------------------------------------------------- */
+  --r-1: 4px; --r-2: 8px; --r-3: 12px; --r-4: 16px; --r-pill: 999px;
+
+  /* -- shadow: in the dark form the top highlight is inset, not a drop ----- */
+  --shadow-1: inset 0 1px 0 rgba(255,255,255,.045), 0 10px 30px -14px rgba(0,0,0,.85);
+  --shadow-2: inset 0 1px 0 rgba(255,255,255,.055), 0 28px 80px -28px rgba(0,0,0,.95),
+              0 3px 18px rgba(0,0,0,.35);
+}
+
+/* =============================================================================
+   2 - GROUND, GRAIN, GRID
+   ========================================================================== */
+
+* { box-sizing: border-box; }
+
+html { background: var(--bg-deep); scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--text);
+  background:
+    linear-gradient(rgba(255,255,255,.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px),
+    radial-gradient(circle at 52% -18%, rgba(95,118,160,.13), transparent 42%),
+    linear-gradient(180deg, #0A0D13 0%, var(--bg) 45%, #05070B 100%);
+  background-size: 72px 72px, 72px 72px, auto, auto;
+  background-attachment: fixed;
+  font-family: var(--sans);
+  font-size: var(--fs-base);
+  line-height: 1.62;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Full-page film grain. One rule, an inline data: SVG. No network, no JS. */
+body::after {
+  content: ""; position: fixed; inset: 0; z-index: 40;
+  pointer-events: none; opacity: .035; mix-blend-mode: soft-light;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.9'/%3E%3C/svg%3E");
+}
+
+::selection { color: #05070B; background: var(--accent); }
+
+:focus-visible { outline: 2px solid var(--live); outline-offset: 3px; border-radius: 3px; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  * { transition: none !important; }
+}
+
+/* =============================================================================
+   3 - THE ONE BORROWED DEVICE: the masked "lit edge" ring
+   from REF/light-through-vectors.html, recoloured per subsystem.
+
+   A 1px gradient ring, bright only at the top-left and bottom-right corners
+   (140deg, stops at 38%/64%), so every surface on the page looks raked by the
+   SAME light source. The flat --line border stays underneath, so the shape
+   never breaks where the gradient reaches transparent. Amber, not white: a
+   white ring reads as a bevel, an amber one reads as light.
+
+   The integration: --sys-lit is the ring colour and it is set PER SECTION, so
+   a panel inside #frame is lit air-orange and one inside #ferro is lit
+   heat-red. That is what finally makes the half-built subsystem palette do
+   work. backdrop-filter is deliberately NOT used - nothing sits behind these
+   cards but flat ground. Degrades to a plain hairline where mask-composite
+   is missing.
+   ========================================================================== */
+
+.panel, .card, .roadmap, .mini, .metric, .diagram, .schem,
+.callout, .note, .warn, .legend, .toc, .nav, .hero-side {
+  position: relative;
+}
+
+.panel::before, .card::before, .roadmap::before, .mini::before, .metric::before,
+.diagram::before, .schem::before, .callout::before, .note::before, .warn::before,
+.legend::before, .toc::before, .nav::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  border-radius: inherit;
+  background: linear-gradient(140deg,
+              var(--sys-lit), transparent 38%, transparent 64%, var(--sys-lit));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+          mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  padding: 1px;
+}
+
+/* Per-section identity. Zero markup edits: all of these ids already exist. */
+#overview      { --sys: var(--sys-debug); --sys-lit: var(--sys-debug-lit); }
+#frame         { --sys: var(--sys-air);   --sys-lit: var(--sys-air-lit); }
+#atlas         { --sys: var(--accent);    --sys-lit: rgba(239,180,86,.30); }
+#relationships { --sys: var(--sys-mpm);   --sys-lit: var(--sys-mpm-lit); }
+#ferro         { --sys: var(--sys-heat);  --sys-lit: var(--sys-heat-lit); }
+#thermal       { --sys: var(--sys-heat);  --sys-lit: var(--sys-heat-lit); }
+#debugging     { --sys: var(--sys-sdf);   --sys-lit: var(--sys-sdf-lit); }
+#systems       { --sys: var(--sys-mpm);   --sys-lit: var(--sys-mpm-lit); }
+#materials     { --sys: var(--sys-field); --sys-lit: var(--sys-field-lit); }
+#scenes        { --sys: var(--sys-air);   --sys-lit: var(--sys-air-lit); }
+#gaps          { --sys: var(--sys-heat);  --sys-lit: var(--sys-heat-lit); }
+#solvers       { --sys: var(--sys-mpm);   --sys-lit: var(--sys-mpm-lit); }
+#magnetic      { --sys: var(--sys-field); --sys-lit: var(--sys-field-lit); }
+#charged       { --sys: var(--sys-debug); --sys-lit: var(--sys-debug-lit); }
+#fluids        { --sys: var(--sys-sph);   --sys-lit: var(--sys-sph-lit); }
+#solids        { --sys: var(--sys-mpm);   --sys-lit: var(--sys-mpm-lit); }
+#granular      { --sys: var(--sys-sdf);   --sys-lit: var(--sys-sdf-lit); }
+#open          { --sys: var(--warn);      --sys-lit: var(--warn-soft); }
+
+/* =============================================================================
+   4 - LAYOUT
+   ========================================================================== */
+
+main, .shell {
+  width: min(1180px, calc(100% - 44px));
+  margin: 0 auto;
+  padding: var(--sp-7) 0 var(--sp-9);
+}
+/* mechanics_status.html has no <main>: give its flat children the same measure */
+body > h1, body > h2, body > p, body > table, body > div, body > ul, body > footer {
+  width: min(1180px, calc(100% - 44px));
+  margin-left: auto; margin-right: auto;
+}
+body > h2 { margin-top: var(--sp-8); }
+
+section { padding: var(--sp-8) 0; border-bottom: 1px solid var(--line); }
+section:last-of-type { border-bottom: 0; }
+
+.grid-2 { display: grid; gap: var(--sp-5); grid-template-columns: repeat(2, minmax(0,1fr)); }
+.grid-3 { display: grid; gap: var(--sp-5); grid-template-columns: repeat(3, minmax(0,1fr)); }
+.atlas, .card-grid, .roadmap-grid {
+  display: grid; gap: var(--sp-4);
+  grid-template-columns: repeat(auto-fit, minmax(258px, 1fr));
+}
+@media (max-width: 820px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+
+/* =============================================================================
+   5 - TYPE: two registers with almost nothing between them
+   ========================================================================== */
+
+h1, h2, h3 {
+  font-family: var(--display);
+  font-weight: 400;
+  color: var(--text);
+  text-wrap: balance;
+}
+h1 { font-size: var(--fs-h1); line-height: .98; letter-spacing: var(--ls-h1);
+     margin: 0 0 var(--sp-4); }
+h2 { font-size: var(--fs-h2); line-height: 1.06; letter-spacing: var(--ls-h2);
+     margin: 0 0 var(--sp-4); border: 0; padding: 0; }
+h3 { font-size: var(--fs-h3); line-height: 1.22; letter-spacing: -.012em;
+     margin: var(--sp-5) 0 var(--sp-2); }
+
+/* Every h2 gets a rule + glow in its section's identity colour. Pure CSS on
+   an element that already exists - no markup, and it recolours for free. */
+h2::before {
+  content: ""; display: block; width: 22px; height: 1px;
+  margin: 0 0 var(--sp-3);
+  background: var(--sys);
+  box-shadow: 0 0 12px var(--sys);
+}
+
+p { margin: 0 0 var(--sp-3); color: var(--text-2); max-width: var(--measure);
+    text-wrap: pretty; }
+strong, b { color: var(--text); font-weight: 600; }
+em { color: var(--text); font-style: italic; }
+ul, ol { color: var(--text-2); max-width: var(--measure); padding-left: 1.15em; }
+li { margin: 0 0 var(--sp-1); }
+li::marker { color: var(--sys); }
+
+.lede {
+  font-family: var(--display);
+  font-size: var(--fs-md); line-height: 1.5; font-weight: 400;
+  color: var(--text-2); max-width: 58ch;
+}
+
+a { color: var(--accent); text-decoration: none;
+    border-bottom: 1px solid var(--accent-soft);
+    transition: border-color .18s, color .18s; }
+a:hover { color: #F6C979; border-bottom-color: var(--accent); }
+
+code, .mono, td.id {
+  font-family: var(--mono);
+  font-size: .86em;
+  letter-spacing: -.015em;
+  text-transform: none;
+  color: var(--text);
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: var(--r-1);
+  padding: .08em .38em;
+}
+pre code { display: block; padding: var(--sp-3); overflow-x: auto; }
+
+/* Register B: tiny, wide-tracked, uppercase mono. The whole "label" voice. */
+.eyebrow, .kicker, .stamp, th, .meta {
+  font-family: var(--mono);
+  text-transform: uppercase;
+  letter-spacing: var(--ls-label);
+  font-weight: 500;
+}
+.eyebrow {
+  display: flex; align-items: center; gap: 9px;
+  font-size: var(--fs-mini); letter-spacing: var(--ls-micro);
+  color: var(--sys); margin: 0 0 var(--sp-4);
+}
+.eyebrow::before {
+  content: ""; width: 6px; height: 6px; border-radius: 50%;
+  background: currentColor; box-shadow: 0 0 12px currentColor; flex: none;
+}
+.kicker { font-size: var(--fs-micro); color: var(--muted-2); margin: 0 0 var(--sp-2); }
+.stamp, .meta { font-size: var(--fs-micro); color: var(--muted-2); letter-spacing: .1em; }
+
+/* Caption: a mono uppercase kicker in <b> beside a sentence in a <span>. */
+.caption, figcaption {
+  font-family: var(--sans); text-transform: none; letter-spacing: 0;
+  font-size: var(--fs-sm); line-height: 1.55; color: var(--muted);
+  max-width: 62ch; margin-top: var(--sp-3);
+  display: flex; gap: 9px; align-items: baseline;
+}
+.caption b, figcaption b {
+  color: var(--muted-2); font-family: var(--mono); font-weight: 500;
+  font-size: var(--fs-micro); letter-spacing: .14em;
+  text-transform: uppercase; white-space: nowrap; padding-top: 2px;
+}
+
+/* =============================================================================
+   6 - SURFACES
+   ========================================================================== */
+
+.panel, .card, .roadmap, .mini, .metric, .diagram, .hero-side {
+  background:
+    linear-gradient(145deg, rgba(255,255,255,.055), transparent 34%),
+    linear-gradient(180deg, rgba(18,23,31,.82), rgba(10,14,21,.72));
+  border: 1px solid var(--line);
+  border-radius: var(--r-4);
+  box-shadow: var(--shadow-1);
+  padding: var(--sp-5);
+  overflow: hidden;
+}
+.panel { box-shadow: var(--shadow-2); }
+.mini, .metric { padding: var(--sp-4); border-radius: var(--r-3); }
+.panel > *, .card > *, .roadmap > *, .mini > * { position: relative; z-index: 1; }
+
+/* The subsystem colour bar on atlas cards - already in the markup. */
+.colorbar {
+  height: 3px; border-radius: 3px; margin: 0 0 var(--sp-3);
+  background: var(--sys); box-shadow: 0 0 14px var(--sys-lit);
+}
+.colorbar.mpm   { --sys: var(--sys-mpm);   --sys-lit: var(--sys-mpm-lit); }
+.colorbar.sph   { --sys: var(--sys-sph);   --sys-lit: var(--sys-sph-lit); }
+.colorbar.air   { --sys: var(--sys-air);   --sys-lit: var(--sys-air-lit); }
+.colorbar.field { --sys: var(--sys-field); --sys-lit: var(--sys-field-lit); }
+.colorbar.heat  { --sys: var(--sys-heat);  --sys-lit: var(--sys-heat-lit); }
+.colorbar.sdf   { --sys: var(--sys-sdf);   --sys-lit: var(--sys-sdf-lit); }
+.colorbar.debug { --sys: var(--sys-debug); --sys-lit: var(--sys-debug-lit); }
+/* a card containing a .colorbar takes that subsystem's raking light too */
+.mini:has(.colorbar.mpm)   { --sys: var(--sys-mpm);   --sys-lit: var(--sys-mpm-lit); }
+.mini:has(.colorbar.sph)   { --sys: var(--sys-sph);   --sys-lit: var(--sys-sph-lit); }
+.mini:has(.colorbar.air)   { --sys: var(--sys-air);   --sys-lit: var(--sys-air-lit); }
+.mini:has(.colorbar.field) { --sys: var(--sys-field); --sys-lit: var(--sys-field-lit); }
+.mini:has(.colorbar.heat)  { --sys: var(--sys-heat);  --sys-lit: var(--sys-heat-lit); }
+.mini:has(.colorbar.sdf)   { --sys: var(--sys-sdf);   --sys-lit: var(--sys-sdf-lit); }
+.mini:has(.colorbar.debug) { --sys: var(--sys-debug); --sys-lit: var(--sys-debug-lit); }
+
+/* =============================================================================
+   7 - TABLES: a ledger, not a grid. No vertical rules anywhere.
+   ========================================================================== */
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: var(--sp-4) 0 var(--sp-5);
+  font-size: var(--fs-sm);
+  color: var(--muted);
+}
+th {
+  font-size: var(--fs-micro);
+  color: var(--muted-2);
+  text-align: left;
+  padding: 10px 14px;
+  background: none;
+  border: 0;
+  border-bottom: 1px solid var(--line-2);
+  white-space: nowrap;
+}
+td {
+  padding: 11px 14px;
+  border: 0;
+  border-bottom: 1px solid var(--line-soft);
+  vertical-align: top;
+  line-height: 1.55;
+  font-variant-numeric: tabular-nums;
+}
+tr:last-child td { border-bottom: 0; }
+table tr:hover td {
+  background: linear-gradient(90deg, rgba(255,255,255,.045), transparent 72%);
+}
+table tr:hover td:first-child { box-shadow: inset 2px 0 0 var(--sys); }
+td.name  { color: var(--text); font-weight: 600; white-space: nowrap; }
+td.notes { color: var(--muted); }
+td.status{ white-space: nowrap; }
+td.id    { background: none; border: 0; border-bottom: 1px solid var(--line-soft);
+           padding: 11px 14px; color: var(--muted-2); }
+
+/* No table in the corpus has an overflow wrapper. Make the element itself
+   scroll on narrow viewports rather than pushing the body sideways. */
+@media (max-width: 760px) {
+  table { display: block; overflow-x: auto; white-space: normal; }
+}
+
+/* =============================================================================
+   8 - STATUS BADGES
+   One pill recipe: the border is currentColor and the fill is that accent's
+   *-soft token, so one class plus one colour variable produces the whole
+   status vocabulary. The legacy colour-named classes keep working AND
+   semantic aliases are provided, so mechanics_status.html needs no markup
+   edit to look right, and can be migrated later one class at a time with no
+   visual change at all.
+   ========================================================================== */
+
+.b {
+  display: inline-flex; align-items: center; min-height: 22px;
+  padding: 0 9px; border-radius: var(--r-pill);
+  font-family: var(--mono); font-size: var(--fs-micro); font-weight: 500;
+  letter-spacing: .1em; text-transform: uppercase;
+  border: 1px solid currentColor;
+  background: var(--pill-fill, var(--surface-2));
+  color: var(--pill-ink, var(--muted));
+  white-space: nowrap;
+}
+.b.green,  .b.is-solid   { --pill-ink: var(--good);    --pill-fill: var(--good-soft); }
+.b.yellow, .b.is-caveat  { --pill-ink: var(--caution); --pill-fill: var(--caution-soft); }
+.b.orange, .b.is-partial { --pill-ink: var(--partial); --pill-fill: var(--partial-soft); }
+.b.red,    .b.is-broken  { --pill-ink: var(--warn);    --pill-fill: var(--warn-soft); }
+.b.gray,   .b.is-stub    { --pill-ink: var(--inert);   --pill-fill: var(--inert-soft); }
+
+.chip, .tag, .priority-index {
+  display: inline-flex; align-items: center; min-height: 24px;
+  padding: 0 10px; border-radius: var(--r-pill);
+  font-family: var(--mono); font-size: var(--fs-micro);
+  letter-spacing: var(--ls-label); text-transform: uppercase;
+  color: var(--muted); background: var(--surface); border: 1px solid var(--line);
+}
+
+.legend {
+  display: flex; flex-wrap: wrap; gap: var(--sp-4);
+  padding: var(--sp-4); border-radius: var(--r-3);
+  background: var(--surface); border: 1px solid var(--line);
+  font-size: var(--fs-sm); color: var(--muted); margin: var(--sp-5) auto;
+}
+.legend > span { display: flex; align-items: center; gap: 9px; }
+
+/* =============================================================================
+   9 - CALLOUTS: the left rail carries the meaning, the ring carries the light
+   ========================================================================== */
+
+.callout, .note, .warn {
+  margin: var(--sp-4) auto;
+  padding: var(--sp-4) var(--sp-5);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--sys);
+  border-radius: var(--r-3);
+  background: var(--surface);
+  color: var(--text-2);
+  font-size: var(--fs-sm);
+  line-height: 1.6;
+}
+.note                { --sys: var(--caution); --sys-lit: var(--caution-soft); }
+.warn, .callout.warn { --sys: var(--warn);    --sys-lit: var(--warn-soft); }
+.callout p:last-child, .note p:last-child, .warn p:last-child { margin-bottom: 0; }
+.callout ul, .note ul, .warn ul { margin-bottom: 0; }
+
+/* =============================================================================
+   10 - NAV: sticky, zero JS
+   ========================================================================== */
+
+.toc, .nav {
+  position: sticky; top: 0; z-index: 30;
+  display: flex; flex-wrap: wrap; gap: var(--sp-2); align-items: center;
+  margin: var(--sp-5) auto; padding: var(--sp-3) var(--sp-4);
+  border: 1px solid var(--line); border-radius: var(--r-3);
+  background: rgba(8,11,16,.82);
+  -webkit-backdrop-filter: blur(16px) saturate(1.2);
+          backdrop-filter: blur(16px) saturate(1.2);
+  box-shadow: var(--shadow-1);
+  font-size: var(--fs-xs);
+}
+.toc strong {
+  font-family: var(--mono); font-size: var(--fs-micro); font-weight: 500;
+  text-transform: uppercase; letter-spacing: var(--ls-micro); color: var(--muted-2);
+}
+.toc a, .nav a {
+  display: inline-flex; align-items: center; min-height: 26px;
+  padding: 0 10px; border-radius: var(--r-pill); border: 1px solid var(--line);
+  font-family: var(--mono); font-size: var(--fs-micro);
+  letter-spacing: var(--ls-label); text-transform: uppercase;
+  color: var(--muted); background: var(--surface);
+  transition: color .18s, background .18s, border-color .18s;
+}
+.toc a:hover, .nav a:hover {
+  color: var(--accent); background: var(--accent-soft); border-color: var(--accent);
+}
+h2[id], section[id], [id] { scroll-margin-top: 84px; }
+
+/* =============================================================================
+   11 - REMAINING EXISTING COMPONENTS
+   ========================================================================== */
+
+header { border-bottom: 1px solid var(--line); padding-bottom: var(--sp-5);
+         margin-bottom: var(--sp-6); }
+.heatbar { height: 9px; border-radius: 2px; overflow: hidden;
+           background: var(--surface-2); border: 1px solid var(--line); }
+.heatbar span { display: block; height: 100%;
+                background: linear-gradient(90deg, #72321F, #FF7F42 62%, #FFD08A); }
+.metric strong { font-family: var(--mono); font-size: 1.55rem; font-weight: 500;
+                 font-variant-numeric: tabular-nums; letter-spacing: -.02em;
+                 color: var(--text); display: block; }
+.footer-note { color: var(--muted-2); font-size: var(--fs-xs); }
+.bullet-list { font-size: var(--fs-sm); }
+.hero { border-bottom: 1px solid var(--line); padding-bottom: var(--sp-6); }
+.hero-grid { display: grid; gap: var(--sp-6);
+             grid-template-columns: minmax(0,1.35fr) minmax(0,.65fr); }
+@media (max-width: 820px) { .hero-grid { grid-template-columns: 1fr; } }
+.chip-row { display: flex; flex-wrap: wrap; gap: var(--sp-2); margin-top: var(--sp-4); }
+.section-top { margin-bottom: var(--sp-5); }
+
+/* =============================================================================
+   12 - FIGURES: the plate, and the de-lighting of the LEGACY diagrams.
+
+   Phase 1 keeps every existing SVG in place and only repaints it, so nothing
+   is lost while figures are redrawn one at a time in the schematic kit.
+   These selectors are `svg .x` (0,1,1) on purpose: each page's SVG
+   <defs><style> sits in the body, LATER in source order than this file, so a
+   bare `.node` would lose to it.
+   ========================================================================== */
+
+.schem, .diagram {
+  background: var(--bg-lift);
+  border: 1px solid var(--line);
+  border-radius: var(--r-3);
+  padding: 14px 10px;
+  overflow-x: auto;
+}
+.schem svg, .diagram svg, figure svg, .panel > svg {
+  display: block; width: 100%; height: auto; max-width: 900px; margin: 0 auto;
+}
+figure { margin: var(--sp-6) 0; }
+
+/* -- legacy figure de-lighting ------------------------------------------- */
+svg .node, svg .step        { fill: rgba(255,255,255,.045); stroke: var(--line-2); }
+svg .title, svg .stepText,
+svg .labelStrong            { fill: var(--text); }
+svg .small, svg .subText,
+svg .label                  { fill: var(--muted); }
+svg .edge, svg .arr         { stroke: var(--fig-ink); stroke-opacity: .45; }
+svg .line                   { stroke: var(--fig-part); }
+svg .fieldLine              { stroke: var(--fig-grid); stroke-opacity: .7; }
+svg .mpm-stroke             { stroke: var(--sys-mpm); }
+svg .sph-stroke             { stroke: var(--sys-sph); }
+svg .air-stroke             { stroke: var(--sys-air); }
+svg .field-stroke           { stroke: var(--sys-field); }
+svg .heat-stroke            { stroke: var(--sys-heat); }
+svg .sdf-stroke             { stroke: var(--sys-sdf); }  /* the class the author forgot to define */
+svg .debug-stroke           { stroke: var(--sys-debug); }
+/* the white / paper plates the legacy figures paint for themselves.
+   Presentation attributes lose to any CSS rule, so this is enough. */
+.panel > svg > rect:first-of-type,
+.diagram > svg > rect:first-of-type { fill: transparent; stroke: var(--line); }
+svg [fill="#f8faf8"], svg [fill="#fbfcfb"], svg [fill="#fbfbfa"], svg [fill="#fff"] {
+  fill: rgba(255,255,255,.045);
+}
+svg text { paint-order: stroke; }
+
+/* =============================================================================
+   13 - SCHEMATIC KIT: the frame for figures redrawn in the portfolio language.
+   The SVG carries its own literal hexes (self-contained, droppable on any
+   ground); only the plate, the legend and the ledger are CSS.
+   ========================================================================== */
+
+.schem-fig { margin: var(--sp-6) 0; }
+.schem-fig .schem svg { max-width: 100%; }
+
+.schem-legend {
+  display: grid; grid-template-columns: 14px 1fr; gap: 8px 11px;
+  margin-top: var(--sp-3);
+  font-family: var(--mono); font-size: var(--fs-mini); line-height: 1.45;
+  color: var(--muted);
+}
+.schem-legend i { display: block; width: 14px; height: 3px; border-radius: 2px;
+                  margin-top: 6px; background: currentColor; font-style: normal; }
+.schem-legend .grid { color: var(--fig-grid); }
+.schem-legend .part { color: var(--fig-part); }
+.schem-legend .mark { color: var(--fig-mark); }
+.schem-legend em { display: block; font-style: normal; color: var(--muted-2); opacity: .8; }
+
+/* -- ledger rows hung off a schematic's numbered nodes -------------------- */
+.ledger { margin: var(--sp-4) 0 0; }
+.ledger-row {
+  display: grid; align-items: baseline; gap: 18px;
+  grid-template-columns: 26px minmax(120px,.55fr) minmax(180px,1fr);
+  padding: 9px 0; border-bottom: 1px solid var(--line-soft);
+  font-size: var(--fs-sm); color: var(--muted);
+}
+.ledger-row > i {
+  font-family: var(--mono); font-style: normal; font-size: var(--fs-micro);
+  color: var(--sys); font-variant-numeric: tabular-nums;
+}
+.ledger-row > b { color: var(--text); font-weight: 600; }
+.ledger-head {
+  color: var(--muted-2); font-family: var(--mono); font-size: var(--fs-micro);
+  text-transform: uppercase; letter-spacing: var(--ls-label);
+  border-bottom: 1px solid var(--line-2);
+}
+.ledger-head > b { color: var(--muted-2); font-weight: 500; }
+
+/* =============================================================================
+   14 - PRINT
+   ========================================================================== */
+@media print {
+  body { background: #fff; color: #111; }
+  body::after { display: none; }
+  .panel, .card, .mini, .schem, .diagram { box-shadow: none; border-color: #bbb; }
+  .toc, .nav { position: static; }
+  a { color: #114; border: 0; }
+}
+
+/* ==========================================================================
+   15 · LEGACY VARIABLE ADAPTER                                    (2026-08-17)
+   --------------------------------------------------------------------------
+   The three pages predate this sheet and style themselves through their OWN
+   custom properties -- `table { background: var(--panel) }`, `body { color:
+   var(--ink) }`, subsystem strips keyed to `var(--mpm)` and friends. Those
+   inline rules are more numerous than anything worth rewriting, and rewriting
+   them would break the promise that deleting one <link> restores each page
+   byte-for-byte.
+
+   So instead of overriding the RULES, this redefines the VARIABLES they read.
+   Every legacy declaration then resolves to a dark-register value on its own,
+   with zero edits to any page.
+
+   Found the hard way: without this block the pages render dark EXCEPT for
+   their tables, which stayed pure white (--panel was still #ffffff) with pale
+   text on top -- unreadable, and the tables are most of the content here.
+
+   The subsystem hues are remapped to the luminance-lifted --sys-* set: the
+   originals were chosen for dark ink on white paper and are far too dark to
+   read as identity colours on this ground.
+   ========================================================================== */
+:root{
+  /* ground + ink */
+  --paper:var(--bg);
+  --panel:var(--bg-lift);
+  --panel-2:var(--surface);
+  --ink:var(--text);
+  --ink-2:var(--text-2);
+
+  /* subsystem identity: legacy names -> lifted hues */
+  --mpm:var(--sys-mpm);
+  --sph:var(--sys-sph);
+  --air:var(--sys-air);
+  --field:var(--sys-field);
+  --heat:var(--sys-heat);
+  --sdf:var(--sys-sdf);
+  --debug:var(--sys-debug);
+}
+
+/* Tables carry most of the content on these pages, so they get the explicit
+   treatment rather than relying on the adapter alone: a lifted plate, hairline
+   rules, and a quiet uppercase header row in the register B idiom. */
+table{ background:var(--bg-lift); border-collapse:collapse; width:100%;
+       border:1px solid var(--line); border-radius:var(--r-3); overflow:hidden; }
+table th{ background:rgba(255,255,255,.045); color:var(--muted-2);
+          font:750 var(--fs-micro)/1.5 var(--sans); letter-spacing:var(--ls-label);
+          text-transform:uppercase; text-align:left; padding:10px 14px;
+          border-bottom:1px solid var(--line-2); }
+table td{ padding:10px 14px; border-top:1px solid var(--line-soft);
+          color:var(--text-2); vertical-align:top; }
+table tr:first-child td{ border-top:0; }

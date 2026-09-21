@@ -1,0 +1,42 @@
+{
+  "date": "2026-09-10T18:50:28.429Z",
+  "node": "v24.19.0",
+  "threads": 8,
+  "warmupRounds": 2,
+  "measuredRounds": 5,
+  "notes": "Same frozen seed/state restored before each measured step+render; quality mode changes cloth tessellation and image budget. Includes real engine simulation, BVH and rendering; excludes browser transport/display. Execution parity checked bit-for-bit.",
+  "rows": [
+    {
+      "profile": "old_dispatch_rich",
+      "medianMs": 242.479,
+      "minMs": 222.9297,
+      "maxMs": 259.9043,
+      "simulationMedianMs": 30.2134,
+      "renderMedianMs": 209.1116
+    },
+    {
+      "profile": "persistent_rich",
+      "medianMs": 237.3647,
+      "minMs": 225.7214,
+      "maxMs": 266.0217,
+      "simulationMedianMs": 31.8633,
+      "renderMedianMs": 205.686
+    },
+    {
+      "profile": "persistent_small_image_same_physics",
+      "medianMs": 82.156,
+      "minMs": 79.1511,
+      "maxMs": 99.1809,
+      "simulationMedianMs": 33.9155,
+      "renderMedianMs": 49.8071
+    },
+    {
+      "profile": "smooth_default_25cloth",
+      "medianMs": 43.9949,
+      "minMs": 37.3447,
+      "maxMs": 54.2266,
+      "simulationMedianMs": 22.5051,
+      "renderMedianMs": 21.6985
+    }
+  ]
+}

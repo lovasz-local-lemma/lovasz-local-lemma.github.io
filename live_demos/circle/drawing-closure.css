@@ -1,0 +1,21 @@
+.closure-controls { display: grid; grid-template-columns: minmax(150px, 1fr) minmax(120px, 1fr); gap: 15px; align-items: end; margin: 10px 0 16px; }
+.closure-controls label { display: grid; gap: 7px; font-size: 12px; font-weight: 650; }
+.closure-controls select { width: 100%; min-width: 0; font-size: 12px; }
+.closure-controls p { margin: 0 0 3px; color: var(--ink-soft); font-size: 12px; line-height: 1.5; }
+.closure-status { border: 1px solid #6aab9b60; border-radius: 12px; padding: 11px 13px; margin-top: 12px; color: #285e4e; background: #deece280; font-size: 12px; line-height: 1.6; transition: background 500ms, border-color 500ms; }
+.closure-status.is-warning { color: #81523a; border-color: #bd906e75; background: #f3e8d66b; }
+.closure-status[hidden] { display: none; }
+.closure-status strong { font-weight: 700; }
+.closure-reasoning { margin-top: 14px; border-top: 1px solid var(--line); padding-top: 13px; font-size: 12px; line-height: 1.65; }
+.closure-reasoning summary { cursor: pointer; color: #486456; transition: text-shadow 500ms; }
+.closure-reasoning summary:hover { text-shadow: 0 0 12px #acd2b7; }
+.closure-reasoning p { color: var(--ink-soft); margin: 10px 0 0; }
+.closure-reasoning strong { color: var(--ink); }
+.stage-completion { fill: none; stroke: #96ffe2; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; filter: drop-shadow(0 0 4px #74ecc498); }
+.stage-completion.is-preview { stroke-dasharray: 5 4; stroke-width: 2.5; }
+.stage-discarded-tail { fill: none; stroke: #efbc78; stroke-width: 2; stroke-dasharray: 2 4; opacity: .8; vector-effect: non-scaling-stroke; }
+.stage-completion-dot { fill: #173d30; stroke: #96ffe2; stroke-width: 1.4; vector-effect: non-scaling-stroke; }
+.drawing-stage .stage-close-target { transition: stroke 200ms, fill 200ms; }
+.draw-prompt > span:last-child { max-width: 260px; line-height: 1.5; }
+@media (max-width: 520px) { .closure-controls { grid-template-columns: minmax(0, 1fr); gap: 8px; } }
+@media (prefers-reduced-motion: reduce) { .closure-status, .closure-reasoning summary, .drawing-stage .stage-close-target { transition: none; } }

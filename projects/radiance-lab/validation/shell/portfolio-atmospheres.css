@@ -1,0 +1,66 @@
+/* Small controls for the procedural canvas studies; the portfolio stays gold. */
+.spark-field { opacity:var(--atmosphere-opacity,.85); }
+.gallery-open .spark-field { opacity:calc(var(--atmosphere-opacity,.85) * .294); }
+.project-equation { padding:20px;text-align:center; }
+.project-equation strong { overflow-wrap:anywhere; }
+.atmosphere-tools { position:fixed;right:18px;bottom:18px;z-index:1150;font:12px/1.5 var(--sans); }
+.atmosphere-toggle { display:flex;align-items:center;gap:9px;min-height:42px;padding:9px 15px;border:1px solid #d3ab536e;border-radius:24px;background:linear-gradient(150deg,#27271ef5,#0c100df5);color:#e7d4a1;box-shadow:inset 0 1px 0 #fff0bc35,0 7px 22px #0009,0 0 18px #dca44312;transition:border-color .2s,box-shadow .2s; }
+.atmosphere-toggle>span { color:#ffe5a0;font-size:22px;line-height:1;text-shadow:0 0 9px #ffd482a8; }
+.atmosphere-toggle:hover,.atmosphere-toggle[aria-expanded="true"] { border-color:#ffe19bbb;box-shadow:inset 0 1px 0 #fff0bc65,0 7px 22px #0009,0 0 20px #dca44340; }
+.atmosphere-panel { position:absolute;right:0;bottom:54px;width:min(388px,calc(100vw - 32px));max-height:calc(100dvh - 95px);overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#bca26666 transparent;padding:21px;border:1px solid #e2bb6388;border-radius:22px;background:linear-gradient(155deg,#22271efc,#0d1311fc);box-shadow:0 18px 70px #000c,0 0 34px #d2a13a23,inset 0 1px 0 #fff2bb55;animation:atmosphere-enter .25s ease-out; }
+.atmosphere-heading { display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px; }
+.atmosphere-heading h2 { font-size:22px;color:#f4e3b5;margin:0; }
+.atmosphere-close { font-size:25px;line-height:1;min-width:32px;min-height:32px;color:#e7cf97; }
+.atmosphere-panel>label,.atmosphere-level label { display:block;font-size:11px;letter-spacing:.08em;color:#e5cb90; }
+.atmosphere-panel select { width:100%;max-width:100%;margin:7px 0 10px;padding:10px 12px;border:1px solid #d1b26a6e;border-radius:11px;background:#121a16;color:#eee7d2;font:13px var(--sans);min-height:43px; }
+.atmosphere-panel select:focus-visible,.atmosphere-panel input:focus-visible { outline:2px solid #ffe1a1;outline-offset:4px; }
+.atmosphere-description { min-height:40px;color:#c2c5b8;font-size:12px;margin:0 0 20px; }
+.atmosphere-region { display:grid;gap:3px;position:relative;margin:-5px 0 19px;padding:10px 13px 10px 20px;border-left:1px solid #f2ce81;border-radius:0 9px 9px 0;background:linear-gradient(90deg,#ba792518,transparent); }
+.atmosphere-region::before { content:"";position:absolute;left:-3px;top:13px;width:5px;height:5px;border-radius:50%;background:#fff0bb;box-shadow:0 0 4px #ffe297,0 0 12px #ffb132; }
+.atmosphere-region>span { color:#aeaa92;font-size:9px;text-transform:uppercase;letter-spacing:.14em; }
+.atmosphere-region strong { font:500 13px/1.5 var(--sans);color:#f6deb0; }
+.atmosphere-region small { color:#cfb780;font-size:11px; }
+.atmosphere-level { display:flex;justify-content:space-between;align-items:center; }
+.atmosphere-level output { color:#e5cb90;font-variant-numeric:tabular-nums; }
+.atmosphere-panel input[type="range"] { appearance:none;-webkit-appearance:none;width:100%;height:6px;margin:14px 0 17px;border:1px solid #dfba5b33;border-radius:8px;background:linear-gradient(90deg,#dfbf72 var(--range-fill,85%),#b3b5a51c var(--range-fill,85%));cursor:pointer; }
+.atmosphere-panel input[type="range"]::-webkit-slider-thumb{appearance:none;width:14px;height:14px;border-radius:50%;border:1px solid #fff2c5;background:radial-gradient(circle at 35% 25%,#fff9dc,#eac779 58%,#b27d31);box-shadow:0 0 8px #eab45666;transition:box-shadow .5s}
+.atmosphere-panel input[type="range"]::-moz-range-thumb{width:13px;height:13px;border-radius:50%;border:1px solid #fff2c5;background:#efd089;box-shadow:0 0 8px #eab45666}
+.atmosphere-panel input[type="range"]:hover::-webkit-slider-thumb{box-shadow:0 0 14px #ffd87daa}
+.ember-tuning{margin:0 0 20px;padding-top:15px;border-top:1px solid #e5bf5733}.ember-tuning[hidden]{display:none}.ember-tuning h3{font:500 18px var(--serif);color:#f2db9c;margin:0 0 12px}.ember-tuning>label{font-size:11px;color:#c9be9b}
+.ember-control-grid{display:grid;grid-template-columns:1fr 1fr;gap:3px 18px;margin-top:8px}.ember-control{min-width:0}.ember-control label{display:flex;justify-content:space-between;gap:6px;font-size:10px;color:#c5c6b9}.ember-control output{color:#ebce8f;font-variant-numeric:tabular-nums;font-size:10px}.ember-control input[type=range]{margin-block:12px 15px}
+.ember-tuning-actions{display:flex;gap:9px;flex-wrap:wrap}.ember-tuning-actions button{font:11px/1.4 var(--sans);padding:8px 11px;border:1px solid #d3b46a66;border-radius:8px;background:linear-gradient(135deg,#ccb47318,#111810);color:#ebd69e;transition:box-shadow .5s,border-color .5s}.ember-tuning-actions button:hover{border-color:#ecd18f;box-shadow:0 0 16px #e0b95133}
+.ember-recipe{display:block;user-select:text;font:10px/1.65 var(--sans);color:#969d8e;margin-top:11px;overflow-wrap:anywhere}.ember-copy-status{font-size:10px;color:#c9dbbc}
+.atmosphere-panel::-webkit-scrollbar{width:5px;height:5px}.atmosphere-panel::-webkit-scrollbar-thumb{background:#bca26666;border-radius:5px}.atmosphere-panel::-webkit-scrollbar-track{background:transparent}.atmosphere-panel::-webkit-scrollbar-button{display:none}
+.atmosphere-panel .atmosphere-motion { display:flex;align-items:center;gap:8px;font-size:12px;letter-spacing:0; }
+.atmosphere-motion input { accent-color:#d8bd79;width:16px;height:16px;margin:0; }
+.atmosphere-note { font-size:10px;color:#959e91;margin:13px 0 0; }
+.atmosphere-swatch { position:relative;height:68px;margin-bottom:18px;overflow:hidden;border-radius:12px;border:1px solid #9b956733;background:radial-gradient(ellipse at 35% 100%,#a4582780,transparent 65%),#0a1110; }
+.atmosphere-swatch span,.atmosphere-swatch i,.atmosphere-swatch b { position:absolute;display:block;width:135%;height:92px;left:-14%;top:23px;border:1px solid #efc47690;border-radius:50%;transform:rotate(-18deg);box-shadow:0 0 15px #d99e3e22,inset 0 0 15px #d99e3e16; }
+.atmosphere-swatch i { top:16px;transform:rotate(19deg);border-color:#f39f6680; }.atmosphere-swatch b { top:35px;transform:rotate(7deg);border-color:#e1cb8644; }
+[data-atmosphere-scene="caustics"] .atmosphere-swatch { background:radial-gradient(ellipse at 85% 20%,#267b7770,transparent 70%),#0b1515; }
+[data-atmosphere-scene="caustics"] .atmosphere-swatch span { border-color:#c0fae6;box-shadow:0 0 14px #82d9c855; }
+[data-atmosphere-scene="orrery"] .atmosphere-swatch { background:radial-gradient(circle at 65% 45%,#87732a38,transparent 58%),#0e1515; }
+[data-atmosphere-scene="orrery"] .atmosphere-swatch :is(span,i,b) { width:130px;height:95px;left:90px;top:-17px;transform:rotate(-25deg); }
+[data-atmosphere-scene="orrery"] .atmosphere-swatch i { width:73px;left:115px;transform:rotate(40deg); }
+[data-atmosphere-scene="orrery"] .atmosphere-swatch b { width:40px;left:130px;transform:rotate(65deg); }
+[data-atmosphere-scene="aurora"] .atmosphere-swatch { background:linear-gradient(125deg,#11201d,#266b5855 30%,#47396050 62%,#11171b); }
+[data-atmosphere-scene="aurora"] .atmosphere-swatch :is(span,i,b) { border-color:#79d8b288;box-shadow:0 -9px 20px #74dab32a; }
+[data-atmosphere-scene="aurora"] .atmosphere-swatch i { border-color:#c8acdb88;box-shadow:0 -9px 20px #bb8ed22a; }
+[data-atmosphere-scene="contours"] .atmosphere-swatch { background:repeating-radial-gradient(ellipse at 75% 140%,transparent 0 6px,#95bca52b 7px 8px,transparent 9px 14px),#101b18; }
+[data-atmosphere-scene="contours"] .atmosphere-swatch :is(span,i,b) { opacity:.2; }
+[data-atmosphere-scene="cinderstorm"] .atmosphere-swatch { background:repeating-linear-gradient(120deg,transparent 0 27px,#ffd69b99 28px,#d3743e55 29px,transparent 30px 56px),radial-gradient(ellipse at 10% 140%,#92390eaa,transparent 70%),#0e110e; }
+[data-atmosphere-scene="cinderstorm"] .atmosphere-swatch :is(span,i,b) { opacity:.16; }
+[data-atmosphere-scene="hearth"] .atmosphere-swatch { background:radial-gradient(ellipse at 25% 140%,#e37528c9,transparent 62%),radial-gradient(ellipse at 85% 140%,#a63612c9,transparent 70%),#120e0c; }
+[data-atmosphere-scene="hearth"] .atmosphere-swatch :is(span,i,b) { width:100px;height:160px;left:25px;top:15px;border-color:#ffb86944;box-shadow:0 -4px 20px #eb742333;transform:rotate(22deg); }
+[data-atmosphere-scene="hearth"] .atmosphere-swatch i { left:135px;top:7px;transform:rotate(-20deg); }
+[data-atmosphere-scene="firewhirl"] .atmosphere-swatch { background:radial-gradient(ellipse at 75% 100%,#a84b1670,transparent 70%),#100f0c; }
+[data-atmosphere-scene="firewhirl"] .atmosphere-swatch :is(span,i,b) { left:70px;top:-17px;width:125px;height:135px;transform:rotate(30deg);border-color:#ffd797b3;box-shadow:0 0 12px #f9963d44; }
+[data-atmosphere-scene="firewhirl"] .atmosphere-swatch i { left:84px;width:95px;transform:rotate(-30deg); }
+[data-atmosphere-scene="sparkcascade"] .atmosphere-swatch { background:repeating-linear-gradient(74deg,transparent 0 39px,#ffc97a88 40px,#a2522a22 41px,transparent 43px 68px),radial-gradient(ellipse at 50% -40%,#e7874880,transparent 80%),#0e110e; }
+[data-atmosphere-scene="sparkcascade"] .atmosphere-swatch :is(span,i,b) { opacity:.12; }
+[data-atmosphere-scene="iondrift"] .atmosphere-swatch { background:radial-gradient(ellipse at 10% 90%,#c7893744,transparent 60%),radial-gradient(ellipse at 90% 20%,#24777b55,transparent 65%),#0b1312; }
+[data-atmosphere-scene="iondrift"] .atmosphere-swatch :is(span,i,b) { width:70%;height:40px;left:15%;top:12px;border-style:dotted;border-color:#ffe6af99;box-shadow:0 0 12px #9edbd330; }
+[data-atmosphere-scene="iondrift"] .atmosphere-swatch i { transform:rotate(28deg);border-color:#aee9e4aa; }
+@keyframes atmosphere-enter { from { opacity:0;transform:translateY(8px); } to { opacity:1;transform:translateY(0); } }
+@media(max-width:760px) { .atmosphere-tools{right:12px;bottom:12px}.atmosphere-toggle{font-size:11px;padding:8px 13px}.atmosphere-panel{padding:18px} }
+@media(prefers-reduced-motion:reduce) { .atmosphere-panel{animation:none}.spark-field{transition:none;opacity:calc(var(--atmosphere-opacity,.85) * .65)} }

@@ -1,0 +1,133 @@
+:root{
+  --bg:#0e1116; --bg2:#141a22; --card:#161d27; --inline:#1c2530;
+  --bd:#243140; --bd2:#1c2632;
+  --tx:#c9d4e0; --dim:#8a99ab; --faint:#5e6e80; --hd:#e8eef5;
+  --ac:#34d3c4; --ac2:#4fd6e8; --acd:#1e3a3a;
+  --warm:#f0a35e; --warmd:#3a2a18; --rose:#ff8a6a; --blue:#5aa9ff;
+  --mono:'JetBrains Mono',ui-monospace,Consolas,monospace;
+  --sans:'Inter',system-ui,'Segoe UI',Roboto,sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:var(--sans);
+  font-size:16px;line-height:1.75;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto;padding:0 26px}
+
+/* hero */
+header.hero{padding:70px 0 40px;border-bottom:1px solid var(--bd2);
+  background:radial-gradient(1200px 400px at 50% -120px,rgba(52,211,196,.11),transparent 70%)}
+h1{margin:0;font-size:44px;line-height:1.15;letter-spacing:-.02em;color:var(--hd);font-weight:700}
+h1 .g{background:linear-gradient(92deg,var(--ac),var(--blue));-webkit-background-clip:text;
+  background-clip:text;-webkit-text-fill-color:transparent}
+.tag{margin:14px 0 0;font-size:19px;color:var(--dim);max-width:760px}
+.chips{margin-top:22px;display:flex;gap:9px;flex-wrap:wrap}
+.chip{font-family:var(--mono);font-size:11.5px;padding:5px 11px;border-radius:20px;
+  background:var(--inline);border:1px solid var(--bd);color:var(--dim)}
+.chip b{color:var(--ac);font-weight:600}
+
+/* nav */
+nav.top{position:sticky;top:0;z-index:50;background:rgba(14,17,22,.92);
+  backdrop-filter:blur(10px);border-bottom:1px solid var(--bd2)}
+nav.top .wrap{display:flex;gap:4px;flex-wrap:wrap;padding-top:9px;padding-bottom:9px}
+nav.top a{font-size:13px;color:var(--dim);text-decoration:none;padding:6px 11px;border-radius:7px}
+nav.top a:hover{color:var(--ac2);background:var(--inline)}
+
+section{padding:52px 0;border-bottom:1px solid var(--bd2)}
+h2{font-size:29px;margin:0 0 6px;color:var(--hd);letter-spacing:-.01em}
+h2 .n{font-family:var(--mono);font-size:14px;color:var(--ac);margin-right:11px;font-weight:600}
+.lede{font-size:17.5px;color:var(--dim);max-width:820px;margin:0 0 26px}
+h3{font-size:19px;color:var(--hd);margin:34px 0 8px}
+p{max-width:830px}
+code{font-family:var(--mono);font-size:.88em;background:var(--inline);
+  padding:2px 6px;border-radius:4px;color:var(--ac2)}
+.eq{background:var(--bg2);border:1px solid var(--bd);border-left:3px solid var(--ac);
+  border-radius:8px;padding:15px 19px;margin:19px 0;font-family:var(--mono);
+  font-size:14.5px;color:var(--hd);overflow-x:auto;max-width:830px}
+.eq .c{color:var(--faint);font-size:12.5px;font-family:var(--sans);display:block;margin-top:7px}
+.note{background:var(--card);border:1px solid var(--bd);border-left:3px solid var(--warm);
+  border-radius:8px;padding:14px 18px;margin:20px 0;max-width:830px;color:var(--dim);font-size:15px}
+.note b{color:var(--warm)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:18px;margin:24px 0}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:11px;padding:19px}
+.card h4{margin:0 0 7px;font-size:15.5px;color:var(--ac2)}
+.card p{margin:0;font-size:14.5px;color:var(--dim)}
+
+/* demos */
+.demo{background:var(--card);border:1px solid var(--bd);border-radius:13px;
+  margin:26px 0;overflow:hidden}
+.demo .hd{display:flex;align-items:center;gap:11px;padding:13px 18px;
+  background:linear-gradient(180deg,rgba(52,211,196,.09),transparent);
+  border-bottom:1px solid var(--bd)}
+.demo .hd .k{font-family:var(--mono);font-size:11px;color:var(--bg);background:var(--ac);
+  padding:2px 8px;border-radius:5px;font-weight:700}
+.demo .hd h4{margin:0;font-size:16px;color:var(--hd);flex:1}
+.demo .body{padding:18px}
+.demo .exp{font-size:14.5px;color:var(--dim);margin:0 0 15px;max-width:840px}
+.ctl{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin:14px 0 4px;
+  font-size:13px;color:var(--dim)}
+.ctl label{display:flex;align-items:center;gap:7px}
+.ctl input[type=range]{width:132px;accent-color:var(--ac)}
+button.b{font-family:var(--sans);font-size:13px;font-weight:600;color:var(--bg);
+  background:var(--ac);border:0;padding:7px 15px;border-radius:7px;cursor:pointer}
+button.b:hover{background:var(--ac2)}
+button.b.alt{background:var(--inline);color:var(--ac2);border:1px solid var(--bd)}
+button.b.alt:hover{border-color:var(--ac)}
+canvas{display:block;max-width:100%;border-radius:8px;background:#0b0f14}
+.row{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start}
+.val{font-family:var(--mono);color:var(--ac2);font-size:12.5px}
+.hint{font-size:12.5px;color:var(--faint);margin-top:9px;font-style:italic}
+.modegal{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.modegal .m{border:1px solid var(--bd);border-radius:8px;padding:5px;cursor:pointer;background:var(--bg2)}
+.modegal .m.sel{border-color:var(--ac);box-shadow:0 0 0 1px var(--ac)}
+.modegal .m div{font-family:var(--mono);font-size:10px;color:var(--dim);text-align:center;margin-top:3px}
+footer{padding:40px 0 70px;color:var(--faint);font-size:13.5px}
+
+/* ---- learn-more chips + floating panel ---- */
+button.lm{font-family:var(--sans);font-size:11.5px;font-weight:600;letter-spacing:.02em;
+  color:var(--ac2);background:rgba(52,211,196,.09);border:1px solid var(--bd);
+  padding:3px 10px;border-radius:20px;cursor:pointer;margin:8px 0 0;
+  transition:background .15s,border-color .15s,color .15s}
+button.lm:hover{background:rgba(52,211,196,.19);border-color:var(--ac);color:var(--hd)}
+button.lm::before{content:"?";display:inline-block;margin-right:6px;font-weight:700;
+  color:var(--ac)}
+#lmBack{position:fixed;inset:0;background:rgba(6,9,13,.72);backdrop-filter:blur(3px);
+  opacity:0;pointer-events:none;transition:opacity .22s ease;z-index:200}
+#lmBack.on{opacity:1;pointer-events:auto}
+#lmPanel{position:fixed;top:50%;left:50%;width:min(660px,92vw);max-height:82vh;overflow-y:auto;
+  transform:translate(-50%,-46%) scale(.97);opacity:0;pointer-events:none;
+  background:var(--card);border:1px solid var(--bd);border-radius:14px;
+  box-shadow:0 24px 70px rgba(0,0,0,.6);padding:26px 30px 28px;z-index:201;
+  transition:opacity .22s ease,transform .22s ease}
+#lmPanel.on{opacity:1;transform:translate(-50%,-50%) scale(1);pointer-events:auto}
+#lmPanel h3{margin:0 0 4px;font-size:21px;color:var(--hd)}
+#lmPanel .sub{font-family:var(--mono);font-size:11.5px;color:var(--ac);
+  text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px}
+#lmPanel p{font-size:15px;color:var(--tx);max-width:none;margin:0 0 13px}
+#lmPanel .eq{margin:15px 0;font-size:13.5px}
+#lmPanel .kk{color:var(--warm);font-weight:600}
+#lmClose{position:absolute;top:14px;right:16px;background:transparent;border:0;
+  color:var(--faint);font-size:22px;cursor:pointer;line-height:1;padding:4px 8px}
+#lmClose:hover{color:var(--ac2)}
+
+
+/* ---- interactive affordances: make it obvious what reacts to the cursor ---- */
+canvas.ia{cursor:pointer;transition:box-shadow .2s ease,filter .2s ease}
+canvas.ia:hover{box-shadow:0 0 0 1px rgba(52,211,196,.5),0 0 26px rgba(52,211,196,.18)}
+canvas.ia:active{box-shadow:0 0 0 1px rgba(52,211,196,.85),0 0 32px rgba(52,211,196,.3)}
+button.b{transition:background .16s,box-shadow .16s,transform .12s}
+button.b:hover{box-shadow:0 0 18px rgba(52,211,196,.38);transform:translateY(-1px)}
+button.b:active{transform:translateY(0)}
+button.b.alt:hover{box-shadow:0 0 16px rgba(79,214,232,.26)}
+.ctl label{transition:color .16s;border-radius:6px;padding:2px 4px}
+.ctl label:hover{color:var(--ac2)}
+.ctl input[type=range]{transition:filter .16s}
+.ctl input[type=range]:hover{filter:brightness(1.28) saturate(1.2)}
+.ctl input[type=checkbox]{accent-color:var(--ac);cursor:pointer}
+.seg{display:inline-flex;border:1px solid var(--bd);border-radius:8px;overflow:hidden}
+.seg button{background:var(--inline);color:var(--dim);border:0;padding:6px 13px;
+  font-size:12.5px;cursor:pointer;font-family:var(--sans);transition:background .16s,color .16s}
+.seg button:hover{background:rgba(52,211,196,.16);color:var(--hd)}
+.seg button.on{background:var(--ac);color:var(--bg);font-weight:600}
+.modegal .m{transition:border-color .16s,box-shadow .16s,transform .12s}
+.modegal .m:hover{border-color:var(--ac);box-shadow:0 0 16px rgba(52,211,196,.2);
+  transform:translateY(-1px)}

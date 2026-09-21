@@ -1,0 +1,70 @@
+/* A single, horizontally scrollable identity ribbon; never stacked badges. */
+body > header.topbar {
+  padding: 10px 16px 7px; gap: 7px 18px;
+  background: radial-gradient(ellipse at 12% 0%,#819ff51c,transparent 58%),linear-gradient(160deg,#1b2030f5,#10121bec);
+  border-bottom: 1px solid #b8c8f040;
+  box-shadow: inset 0 1px #e8edff21,0 5px 22px #0003;
+}
+header.topbar .brand { gap: 9px; }
+.forge-emblem { flex: 0 0 36px; width: 36px; height: 36px; overflow: visible; }
+.emblem-orbit { fill:#7dc6ec0b; stroke:#a9c4ed65; stroke-width:.7; stroke-dasharray:1 3; }
+.emblem-link { fill:none; stroke:#d8eaff; stroke-width:2; stroke-linejoin:round; filter:drop-shadow(0 0 3px #9fcbff); }
+.emblem-rail { stroke:#9ab1dd77; stroke-width:1; }
+.emblem-joint { fill:#aeccff; stroke:#f2f8ff; stroke-width:1; }
+.emblem-tip { fill:#88ebd7; stroke:#eafffa; stroke-width:1; filter:drop-shadow(0 0 5px #72e2c5b3); }
+header.topbar .brand-name { font-size:19px; letter-spacing:.035em; font-weight:650; color:#eaf1ff; text-shadow:0 1px 0 #fff3,0 0 18px #a7c1fb38; }
+header.topbar .brand-tag { font-size:10px; letter-spacing:.07em; color:#a4b7d4; }
+header.topbar .topbar-status { flex-direction:row; justify-content:flex-end; gap:12px; }
+header.topbar .status-big { font-size:11px; letter-spacing:.19em; }
+header.topbar .status-detail { font-size:10px; margin:0; height:auto; max-width:360px; letter-spacing:0; }
+.controller-ribbon { grid-column:1/-1; display:flex; align-items:center; gap:8px; min-width:0; padding:7px 10px; overflow-x:auto; scrollbar-width:thin; white-space:nowrap; border:1px solid #aabed82c; border-radius:13px; background:linear-gradient(180deg,#d8e7ff0b,#080c163d); box-shadow:inset 0 1px #eff5ff19,inset 0 -2px 3px #0003; }
+.ribbon-caption { flex:0 0 auto; font-size:8px; letter-spacing:.16em; color:#9dadc5; }
+.momentum-start-note { flex:0 0 auto; padding:12px; margin:0 0 12px; border:1px solid #c6a6ee75; border-radius:13px; color:#c6c6df; background:linear-gradient(140deg,#66529135,#202133); box-shadow:inset 0 1px #ead8ff40,0 0 18px #b995ff12; font-size:11px; line-height:1.6; }
+.momentum-start-note[hidden] { display:none; }
+.momentum-start-note strong,.momentum-start-note span,.momentum-start-note small { display:block; }
+.momentum-start-note strong { color:#e3d2ff; margin-bottom:5px; }
+.momentum-start-note small { color:#aebad1; margin-top:6px; font-variant-numeric:tabular-nums; }
+#activeControllerName { flex:0 1 auto; min-width:80px; max-width:360px; overflow:hidden; text-overflow:ellipsis; color:#dce8fc; font-size:11px; font-weight:550; margin-right:auto; }
+.arcade-toggle { --progress:0; position:relative; overflow:hidden; flex:0 0 auto; border:1px solid #84d6bd55; border-radius:999px; padding:5px 10px; background:linear-gradient(155deg,#243c3b,#131d27); color:#b8e8db; font:500 10px system-ui; box-shadow:inset 0 1px #e4fff733,0 0 12px #80ebc416; white-space:nowrap; cursor:pointer; }
+.arcade-toggle[aria-pressed="true"] { border-color:#a6edce99; text-shadow:0 0 8px #9ee8d460; }
+.arcade-toggle::after { content:""; position:absolute; height:2px; left:7px; right:7px; bottom:1px; background:#b5f4d6; box-shadow:0 0 5px #b5f4d6; transform-origin:left; transform:scaleX(var(--progress)); }
+.arcade-toggle:focus-visible { outline:2px solid #e1faeb; outline-offset:3px; }
+.arcade-notice { color:#b8e8db; font:500 11px system-ui; white-space:normal; flex:0 1 210px; min-width:135px; }
+.method-note { margin:8px 0 12px; border:1px solid #80c7b333; border-radius:12px; padding:10px 12px; color:#b2c3d9; font-size:12px; line-height:1.65; background:linear-gradient(140deg,#80bbcc0d,#0b111b33); }
+.method-note[hidden] { display:none; }
+.method-note summary { color:#99dace; cursor:pointer; font-weight:600; }
+.method-note p { margin:9px 0; }
+.method-note strong { color:#d8e7ee; }
+.method-note a { color:#a4d8f5; }
+.method-note ul { margin:8px 0; padding-left:16px; }
+header.topbar .controller-ribbon .controller-kind-badge { --chip:#a9c8fb; flex:0 0 auto; display:inline-flex; align-items:center; min-height:25px; padding:4px 10px; border:1px solid color-mix(in srgb,var(--chip) 60%,transparent); border-radius:999px; color:var(--chip); background:linear-gradient(155deg,color-mix(in srgb,var(--chip) 19%,#151b27),#111620); box-shadow:inset 0 1px 0 #f4f8ff65,inset 0 -2px 3px #0008,0 0 11px color-mix(in srgb,var(--chip) 13%,transparent); text-shadow:0 0 8px color-mix(in srgb,var(--chip) 25%,transparent); font-size:10px; line-height:1.2; }
+header.topbar .controller-ribbon [hidden] { display:none; }
+header.topbar #controllerKindBadge[data-kind="reference"] { --chip:#f5d38e; }
+header.topbar #controllerKindBadge[data-kind="neat"] { --chip:#98e9af; }
+header.topbar #controllerKindBadge[data-kind="cnn"] { --chip:#81e5da; }
+header.topbar #controllerKindBadge[data-kind="gradient"] { --chip:#cdb1fb; }
+header.topbar #pendulumPhaseBadge[data-phase="acquiring"] { --chip:#c8b0fc; }
+header.topbar #pendulumPhaseBadge[data-phase="holding"] { --chip:#8ce4c3; }
+header.topbar #pendulumPhaseBadge[data-phase="recovering"] { --chip:#ffc08d; }
+header.topbar #controllerTimeBadge { --chip:#c0cde0; }
+.physics-rate-control { --rate-tint:#aecfe9; flex:0 0 auto; display:inline-flex; align-items:center; gap:6px; min-height:25px; padding:0 9px; border:1px solid #a8c9df68; border-radius:999px; color:var(--rate-tint); background:linear-gradient(155deg,#b5d9fa1c,#121b27); box-shadow:inset 0 1px #eaf8ff65,inset 0 -2px 3px #0008,0 0 10px #9dcaed13; white-space:nowrap; transition:border-color .2s,box-shadow .2s,background .2s; }
+.physics-rate-icon { flex:0 0 13px; width:13px; height:13px; fill:none; stroke:currentColor; stroke-width:1.2; stroke-linecap:round; stroke-linejoin:round; filter:drop-shadow(0 0 3px #aad8ff40); }
+.physics-rate-icon path + path { opacity:.4; stroke-width:.7; }
+header.topbar #physicsRateSelect { appearance:none; width:auto; max-width:185px; min-height:25px; margin:0; padding:4px 15px 4px 0; border:0; border-radius:0; color:inherit; background:linear-gradient(45deg,transparent 50%,currentColor 50%) right 4px center/4px 4px no-repeat,linear-gradient(135deg,currentColor 50%,transparent 50%) right 0 center/4px 4px no-repeat; box-shadow:none; font:500 10px/1.2 system-ui,sans-serif; cursor:pointer; text-shadow:0 0 8px #b9dbfa25; }
+header.topbar #physicsRateSelect option { background:#18202c; color:#d6e7f8; text-shadow:none; }
+header.topbar #physicsRateSelect:focus { outline:none; }
+.physics-rate-control:focus-within { outline:2px solid #d9efff; outline-offset:2px; }
+.physics-rate-control:hover { border-color:#d5ecffc4; box-shadow:inset 0 1px #f2faff88,inset 0 -2px 3px #0008,0 0 12px #9dcaed30; }
+header.topbar #physicsRateSelect:disabled { color:#a1afc1; cursor:default; opacity:.8; }
+.physics-rate-note { flex:0 1 auto; max-width:190px; overflow:hidden; text-overflow:ellipsis; padding-left:7px; border-left:1px solid #b4cbe136; color:#a7bed2; font:500 9px/1.3 system-ui,sans-serif; }
+.physics-rate-note:empty { display:none; }
+.physics-rate-control[data-override="true"] { --rate-tint:#ffda93; border-color:#efc276b3; background:linear-gradient(155deg,#72573555,#211c1a); box-shadow:inset 0 1px #ffedbb9c,inset 0 -2px 3px #0008,0 0 13px #edb35d32; }
+.physics-rate-control[data-override="true"] .physics-rate-note { color:#f4ca87; border-color:#edc27959; }
+.physics-rate-control[data-override="true"] .physics-rate-icon { filter:drop-shadow(0 0 4px #ffc77880); }
+@media(prefers-reduced-motion:reduce) { .physics-rate-control { transition:none; } }
+header.topbar .topbar-actions .btn,header.topbar .topbar-actions .select { min-height:31px; padding-top:5px; padding-bottom:5px; border-radius:9px; box-shadow:inset 0 1px #f0f5ff14,0 2px 3px #0002; }
+header.topbar .topbar-actions .btn-primary { border-color:#b9d7ff88; box-shadow:inset 0 1px #f4f8ff83,0 0 13px #6190ee38,0 3px 5px #0005; }
+@media(max-width:900px) { header.topbar .status-detail { max-width:180px; } header.topbar .brand-name { font-size:17px; } }
+@media(max-width:540px) { body > header.topbar { padding:8px; gap:6px; } header.topbar .status-detail { display:none; } .forge-emblem { width:29px; height:29px; flex-basis:29px; } .controller-ribbon { gap:6px; padding:6px; } .ribbon-caption { display:none; } #activeControllerName { flex:0 0 140px; } }
+
+#courseRuleBadge[hidden]{display:none}

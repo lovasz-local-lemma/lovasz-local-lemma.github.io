@@ -1,0 +1,293 @@
+<!doctype html><html lang="en"><head><style data-portfolio-paint>html{background:#0b0d0c;color-scheme:dark}html.portfolio-booting body{opacity:0}</style><script src="../../../portfolio-navigation.js?v=688f1905bc"></script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Crucible2.5D · Models, branches and their limits</title><meta name="description" content="What the current and archived implementations try to do, what changed, and which claims still need evidence."><meta name="color-scheme" content="dark"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="../../../portfolio.css?v=b7ed8602e5"><link rel="stylesheet" href="../../../portfolio-effects.css?v=62be30dafa"><link rel="stylesheet" href="../../../portfolio-atmospheres.css?v=4b74c57939"><link rel="stylesheet" href="../../../portfolio-motion.css?v=4b098d8184"><link rel="stylesheet" href="../../../portfolio-case-studies.css?v=243caf2b0d"><link rel="stylesheet" href="../../../portfolio-brochures.css?v=a1e5e16132"><link rel="stylesheet" href="../../../portfolio-project-themes.css?v=a898c35e78"><link rel="stylesheet" href="../../../portfolio-location.css?v=9c4c1ad84f"><link rel="stylesheet" href="../../../portfolio-controls.css?v=9376de7761"><link rel="stylesheet" href="../../../portfolio-media.css?v=c51f7712ea"><link rel="stylesheet" href="../../../portfolio-overviews.css?v=8612c4ee0a"><link rel="stylesheet" href="../../../portfolio-motivations.css?v=ccc1c1d866"><link rel="stylesheet" href="../../../portfolio-claims.css?v=058dbd00ef"><link rel="stylesheet" href="../../../portfolio-feature-atlas.css?v=e73f02cb31"><script type="application/json" id="media-framing">{"media/brochures/physics-2d/thermal-furnace-magnetic-field-probe.png":{"width":1602,"height":940,"top":39},"media/brochures/physics-2d/magnetic-field-direction-appearance-controls.png":{"width":1602,"height":940,"top":39},"media/brochures/physics-2d/time-bomb-blast-particle-plume.png":{"width":1602,"height":940,"top":39}}</script><script defer src="../../../portfolio-claims.js?v=ed914a4d3a"></script><script defer src="../../../portfolio-visual-defaults.js?v=eecfd5c771"></script><script defer src="../../../portfolio-motion.js?v=a642c710f9"></script><script defer src="../../../portfolio-fire-studies.js?v=7717e15582"></script><script defer src="../../../portfolio-embers.js?v=8a8be5569d"></script><script defer src="../../../portfolio-atmospheres.js?v=021b2f100e"></script><script defer src="../../../portfolio-effects.js?v=03a6c89d6c"></script><script defer src="../../../portfolio-brochures.js?v=055cad29d6"></script><script defer src="../../../portfolio-location.js?v=3846586893"></script><script defer src="../../../portfolio-media.js?v=d2d555a888"></script><script defer src="../../../portfolio-articles.js?v=acb89575ce"></script><script defer src="../../../portfolio-labs.js?v=a0b86a3809"></script><link rel="stylesheet" href="../../../portfolio-technical.css?v=0ecb3a48c7"><!-- universal-navigation:start --><script defer src="../../../portfolio-routes.js?v=054b6b462c"></script><script defer src="../../../portfolio-universal-navigation.js?v=054b6b462c"></script><!-- universal-navigation:end --><style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head><body data-page="technical" data-project-theme="matter" data-project-id="physics-2d" data-default-atmosphere="contours"><a class="skip-link" href="#main">Skip to content</a><nav class="site-nav portfolio-route" data-route-group="flagships" aria-label="Portfolio location"><div class="route-path"><a class="route-node route-home" href="../../../index.html#project-physics-2d" aria-label="Portfolio"><img class="route-mark" src="../../../media/identity/portfolio-mark.svg" alt="" width="52" height="52"><span class="route-copy"><small>Work / ideas</small><strong>Portfolio</strong></span></a><span class="route-wire" aria-hidden="true"><i></i><b></b></span><div class="route-node route-group"><span class="route-glyph" aria-hidden="true">✦</span><span class="route-copy"><small>Collection</small><strong>Flagship</strong></span></div><span class="route-wire" aria-hidden="true"><i></i><b></b></span><div class="route-node route-project"><span class="route-glyph" hidden aria-hidden="true">◈</span><img class="route-thumb" src="../../../media/brochures/physics-2d/food-surface/burger.jpg" width="42" height="42" alt=""><span class="route-copy"><small>Project</small><strong>Crucible2.5D</strong></span></div></div><div class="route-end"><span class="route-meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><a class="route-back" href="../../../index.html#project-physics-2d">← Back to portfolio</a></div></nav><main id="main" class="project-page technical-page"><header class="technical-hero"><span class="eyebrow">Crucible2.5D · native laboratory notes</span><h1>Crucible2.5D · Models, branches and their limits</h1><p>What the current and archived implementations try to do, what changed, and which claims still need evidence.</p><div class="technical-actions"><a href="../index.html#manual-recording-studio">← Crucible2.5D brochure</a><a href="recording-scenes.html">Recording compositions</a><a href="food-studio.html">Food surface and recording studio</a><a href="model-audit.html" aria-current="page">Models, branches and their limits</a><a href="thermal-comparison.html">Thermal comparison routes</a><a href="porous-growth-comparison.html">Porous growth and thickness</a></div></header><aside class="technical-scope"><span>◈</span><p>Native implementation notes and retained comparison evidence. Scene captures record behavior; targeted GPU checks establish specific numerical properties. Their conclusions remain separate from material calibration and whole-system convergence.</p></aside><article class="technical-document"><p><strong>Source audit dated 2026-09-19.</strong> This document checks the native source against its earlier descriptions and proposes recording cases. It does not certify an entire multiphysics engine. The starting native checkpoint for this pass is <code>8baca7b</code>; the parallel recording pass is adding opt-in alternatives. Existing models remain available. <code>Legacy1</code> and <code>Legacy2</code> were inspected without modifying either checkout.</p>
+<h2 id="what-the-project-is">What the project is</h2><p><strong>Crucible is an experimental, interactive material laboratory built around several coupled GPU solvers.</strong> MPM handles deforming matter, SPH handles another family of fluids, an Eulerian grid carries air and scalar fields, and SDF geometry supplies boundaries and thermal properties. Constitutive models, field forces, procedural growth rules and visual treatments coexist deliberately. The interesting achievement is making their interactions inspectable and playable, while retaining alternate models for comparison.</p>
+<p>Use <strong>Crucible</strong> as the product title; <strong>Crucible — a 2D material laboratory</strong> supplies the dimensional qualifier when useful. Historical <code>noita_gish</code> names identify earlier builds, not a second current project. There is no reason to explain shortcomings through a manual-code versus AI-code comparison. This is a record of hands-on systems work: implementing models, finding ownership and scale errors at interfaces, and deciding which approximations make useful interactive instruments.</p>
+<p>Suggested public copy:</p>
+<blockquote>
+<p>Heat a body until its shell changes, drag a magnetic field through a fluid, or let a living pattern reshape a soft material. Crucible is my experimental GPU material laboratory: several solvers, many material models, and a set of deliberately visible compromises. Alternate implementations stay available so I can compare the behavior I authored with the behavior a more constrained model produces.</p>
+</blockquote>
+<h2 id="evidence-and-confidence">Evidence and confidence</h2><ul>
+<li><strong>Implemented:</strong> directly present in the inspected shader/CPU code. This says nothing by itself about the appearance or accuracy of a full scene.</li>
+<li><strong>Source-supported diagnosis:</strong> a mechanism explains an observed symptom; the scene has not been rerun in this audit.</li>
+<li><strong>Historical measurement:</strong> retained in a prior report or source comment. It is not a new measurement and should not be copied into a current benchmark without repeating it.</li>
+<li><strong>Current recording probe:</strong> a runtime result produced by the parallel implementation pass and checked against its saved log. Its scope is the stated scene, run length and configuration.</li>
+<li><strong>Proposed:</strong> a suggested alternate route or recording. It is not a shipped feature unless the implementation pass explicitly records it as completed.</li>
+</ul>
+<p>No single “percent physically correct” is defensible. A model can have the right force direction but the wrong spatial range, conserve a local quantity but lose it at the receiving grid, or produce plausible morphology without modeling biology. Record correctness by <strong>mechanism, conservation scope, time/space dependence, and validation case</strong> instead.</p>
+<p>The older <code>STATUS.html</code> is an April snapshot. <code>docs/evolution.html</code> is valuable history, but some of its conclusions are stronger than the current code supports. In particular:</p>
+<ol>
+<li>Contact Heat v2 exchanges heat both ways; it is <strong>not an established exact global energy-conservation scheme</strong>.</li>
+<li>The anisotropic fracture implementation has a nonlocal term, but its authored length is proportional to grid spacing; <strong>resolution independence has not been demonstrated</strong>.</li>
+<li>Thermo Metal implements stress relaxation and heat-treatment memory, not a calibrated metallurgical annealing cycle.</li>
+<li>Culture “growth,” vitality recovery, and adding new matter are separate mechanisms. A visibly healing scar need not recover missing mass.</li>
+<li>The analytic blast front is coupled to a projected air solver; it is not a resolved compressible shock simulation.</li>
+</ol>
+<h2 id="1-heating-phase-change-and-thermal-contact">1. Heating, phase change and thermal contact</h2><h3 id="what-is-actually-there">What is actually there</h3><p><code>shaders/physics/mpm_thermal.comp:31</code> advances a temperature Laplacian only across occupied MPM grid nodes. The coefficient is limited to 0.24 per neighbor direction. This prevents the particular explicit-stencil instability; when the requested diffusivity is too large, it also reduces the effective diffusion rate. Its <code>u_physically_based_heat</code> uniform no longer selects different MPM diffusion formulas. Both historical branches were algebraically the same apart from the missing stability clamp.</p>
+<p>The heat-source position now includes the grid origin (<code>mpm_thermal.comp:79</code>). Both archived versions still use <code>vec2(node) * u_dx</code>, so a brush specified in world coordinates can heat an offset location. This is a concrete reason some early heating tests appeared ineffective. Legacy1 additionally retains the unclamped “non-physical” diffusion branch; Legacy2 has the common stable update. These archive differences were checked directly, not inferred from names.</p>
+<p>The direct MPM heater blends toward its target by <code>radial_weight * 0.1</code> <strong>per dispatch</strong>, without a <code>dt</code> factor (<code>mpm_thermal.comp:83</code>). More substeps therefore change its heating strength. Keep substeps fixed in a comparison. Prefer an air/SDF-mediated heater when recording indirect heating, and label a target-temperature brush as a controlled heat reservoir rather than a fixed-power heater.</p>
+<h3 id="runtime-finding-hiding-a-gizmo-also-disabled-the-heater">Runtime finding: hiding a gizmo also disabled the heater</h3><p><strong>Measured during this recording pass:</strong> scene 121, <em>Recording: Crust &amp; Kiln Gallery</em>, initially completed 240 frames with 8,483 MPM particles, no reported nonfinite values, and particle temperatures of only <strong>297.75–299.83 K</strong>, despite the scene&#39;s configured <strong>820 K</strong> heat source. The retained baseline evidence is <code>portfolio-work/crucible-recording-20260919/captures/scene-121.log</code> (<code>F240</code> and <code>Recording check</code> entries).</p>
+<p>The source explains the failure. <code>src/main.cpp:398</code> initializes <code>g_show_heat_gizmos</code> to false. The legacy branch of the physics update (<code>src/main.cpp:11374</code> in the current recording build) temporarily sets both MPM and SPH scene-heater radius and temperature to zero when that helper is hidden, restoring configured values after stepping. Hiding the visual helper therefore disables the physical source too, including a <code>--no-ui</code> capture. A correctly configured hot scene can consequently remain near ambient. That is a control-ownership error, not evidence that curing or thermal material response itself is broken.</p>
+<p>The recording build now supplies <strong>opt-in independent scene-heater activation</strong> for the new presets, preserving legacy behavior by default. Under <strong>Appearance → Thermal capture &amp; comparison</strong>, <strong>Scene heater enabled</strong> controls simulation and <strong>Draw heater gizmos</strong> controls drawing when <strong>Independent heater control (comparison)</strong> is selected.</p>
+<p><strong>Verified activation comparison:</strong> the independent route with gizmos hidden reached <strong>297.92–631.97 K</strong> after 240 frames, with the same 8,483 MPM particles and no reported nonfinite values (<code>captures-final/scene-121.log</code>). The retained three-way comparison in <code>control-validation/results.json</code> reports identical particle count and temperature extrema for independent activation and legacy activation with the gizmos visible; legacy activation with them hidden stayed at <strong>297.75–299.83 K</strong>. Those evidence paths are relative to <code>portfolio-work/crucible-recording-20260919/</code>. This verifies that the new recording route heats without its visual helper. Matching these reported extrema is not a claim of bitwise-identical simulation state, calibrated heat transfer, global energy conservation, or realistic crust fracture. A separate disabled-source test remains useful when extending the controls.</p>
+<p>Contact Heat v2 uses fixed-point numerator and denominator grids and gathers a neighborhood mixture temperature (<code>mpm_contact_mix.comp:39</code>, <code>sph_contact_mix.comp:36</code>). Hot contributors can cool; cold contributors can warm. This removes the fundamental one-way maximum-temperature ratchet. The benefit is real, but the older “conserving mixture” label needs qualification: particles generally gather <strong>different normalized neighborhoods</strong>.</p>
+<p>A simple analytical counterexample illustrates the missing proof. With equal capacities, temperature <code>(1,0,0)</code>, and symmetric neighborhoods <code>{1,2}</code>, <code>{1,2,3}</code>, <code>{2,3}</code>, the local mean targets are <code>(1/2,1/3,0)</code>. Their sum is <code>5/6</code>, not <code>1</code>. Relaxing each particle at the same rate therefore changes total heat. This is an illustrative discretization argument, not a measured error in a particular Crucible scene. An exact exchange route would transfer equal-and-opposite edge heat or use a conservative scatter/update/gather with explicitly matched capacities.</p>
+<p>Other channels still exchange or remove heat: air coupling, the optional cold-contact quench channel, latent cooling, SDF heat loss, sources, and clamps. Turning v2 on does not establish conservation for that entire system. The water-quench channel and mixture exchange can both cool a body; show their switches independently if diagnosing rate differences.</p>
+<p>One additional identity discrepancy needs a focused check: <code>mpm_contact_mix.comp:33</code> says it skips rope segments but tests material id 51; <code>MPMMaterial::ROPE_SEGMENT</code> is 80 (<code>mpm_solver.h:99</code>) and 51 names SPH viscous goo. The impact depends on whether/how rope particles enter this dispatch. This audit records the mismatch without claiming it caused a recorded failure or silently changing the legacy route.</p>
+<h3 id="phase-change-and-glass">Phase change and glass</h3><p><code>mpm_p2g.comp:1573</code> uses a temperature-driven phase fraction with rate-limited changes, subtracts <code>dphi * latent_heat</code> from temperature, blends elastic/volumetric stresses, and relaxes deformation memory toward an isotropic state. The latent parameter is used as a temperature change per phase increment; it is not by itself a fully unit-calibrated enthalpy law. Some deformation relaxation is per step rather than per second (<code>rf = reset_fraction * 0.3</code>), so timestep and substep studies matter.</p>
+<p>The separate Glass material (<code>mpm_p2g.comp:1295</code>) deliberately retains a substantial hot stiffness floor and delays the full liquid-like blend. Pseudo-thickness/cohesion settings increase that support. Heating a Glass block can therefore make a soft solid rather than a visibly draining melt. This is not the same behavior as the generic Phase material. <strong>Record Glass and Phase side by side</strong> under the same heater, using a narrow bridge or overhang so even modest softening changes the silhouette. Filament Glass is a third, useful niche: stretch a hot neck and cool it to reveal history-dependent failure.</p>
+<p><strong>Current recording probe:</strong> scene 128 initially inherited a 650 K “hot glass” setting, below the active Glass branch&#39;s <strong>720–980 K</strong> softening interval. Only the new recording specimen was changed to 1100 K; old presets and solver equations were left intact. The parallel pass observed melting/dripping in its 480-frame hot run, while the cold specimen slid away intact. Saved <code>control-validation/results.json</code> reports 2,088 particles and a maximum of <strong>1076.54 K</strong> for the hot run; the parent run reported no nonfinite values. This shows why preset naming alone cannot establish that the selected constitutive regime was exercised. It demonstrates visible softening in this setup, not calibrated glass rheology, and the moving cold specimen is not a stationary geometric reference.</p>
+<p>The appropriate research comparison is heat transport plus temperature-dependent constitutive change, as in <a href="https://www.disneyanimation.com/publications/augmented-mpm-for-phase-change-and-varied-materials/" rel="noopener">Stomakhin et al., Augmented MPM for Phase-Change and Varied Materials</a>. Crucible should not imply it reproduces that paper&#39;s solver or validation suite.</p>
+<h3 id="recording-and-proposed-alternatives">Recording and proposed alternatives</h3><p><strong>Best first scene:</strong> a hot SDF pan or cauldron over a modest fuel source, with a single large deformable sample above it. Show the temperature field briefly, then return to material appearance. A row of unlike samples gives a more informative comparison than uniformly igniting the entire room.</p>
+<p><strong>Initial indirect-heating failure in scene 129:</strong> the Fuel &amp; Cauldron setup ran for 2,400 frames (20 simulated seconds) with 1,823 MPM particles and no reported nonfinite values. Its fuel bed rose from 690 K to a mean <strong>818.39 K</strong>, but the wax and stretch ingredients fell from 300 K to means <strong>291.24 K</strong> and <strong>292.21 K</strong>. The saved <code>portfolio-work/crucible-recording-20260919/control-validation/cauldron-2400.log</code> records these batches separately. That initial fixture did <strong>not</strong> demonstrate successful indirect heating of the contents. Retain it as a coupling diagnostic: a hot-looking fuel bed alone is insufficient evidence.</p>
+<h3 id="source-findings-exposed-by-the-cauldron-test">Source findings exposed by the cauldron test</h3><p>The current shader gives air-to-particle warming several gates (<code>mpm_g2p.comp:1800</code>): air must exceed ambient by 20 K and the particle by 2 K, then the transfer is multiplied by <code>smoothstep(ambient+30, ambient+320, T_air)</code> and <code>smoothstep(8,120,T_air-T_particle)</code>. For ordinary full-thermal materials the coefficient is 0.24 per second before those factors. With a 300 K ambient, that means an air threshold of 320 K and a plume ramp from 330 to 620 K. Mildly warm air can therefore contribute almost no heating. The SDF contact path has its own positive-surplus gate and contact weight (<code>mpm_g2p.comp:1816</code>). These are implemented transfer rules; they are not evidence that any particular gate alone caused the measured failure.</p>
+<p>Two other source issues deserve isolated numerical tests before material tuning is treated as a general repair:</p>
+<ul>
+<li><strong>Temperature quantization can break a uniform state.</strong> <code>mpm_p2g.comp:4744</code> atomically accumulates <code>int(m*1e6)</code> for mass but only <code>int(m*T*1e3)</code> for weighted temperature. <code>mpm_grid_op.comp:212</code> rescales these independently truncated sums and divides them. For illustration, a single weighted contribution with mass <code>0.000019</code> at 300 K becomes mass 19 and heat 5 in the integer buffers, which reconstructs approximately 263.16 K. This is an analytical example of the quantization, not a measured particle from scene 129. G2P then relaxes thermal particles toward the gathered grid temperature (<code>mpm_g2p.comp:1742</code>). A uniform-temperature, no-source test would establish the actual bias across the engine&#39;s normal mass and interpolation ranges. The temperature and mass truncation errors do not cancel in general.</li>
+<li><strong>Particle-to-air writes can race.</strong> <code>euler_inject.comp:106</code> launches one invocation per particle, maps positions into cells at line 157, and uses ordinary floating-point <code>air_temp[ci] += ...</code> at lines 318 and 323. Multiple particles can address the same cell. These read/modify/write updates are not atomic, so their contributions have no reliable reduction guarantee; source strength and repeatability can depend on contention. This is a source-level concurrency defect, not a measurement of how much heat scene 129 loses. A separate accumulation buffer with a supported atomic representation or a per-cell reduction is a candidate additive repair. <a href="https://registry.khronos.org/OpenGL/specs/gl/GLSLangSpec.4.60.pdf" rel="noopener">GLSL specification, scalar conversions and atomic memory functions</a>.</li>
+</ul>
+<p><strong>Verified fixture-only improvement:</strong> the recording pass changed only scene 129 to a pot-wall radius of 0.06, fuel top at −0.90, air cooling 0.15, solid thermal capacity 1.0, solid diffusivity 0.012, and solid contact coefficient 0.03. The radius heater remains disabled. In <code>control-validation/cauldron-compact-2400.log</code>, the new fixture completes 2,400 frames with 2,607 MPM particles and no reported nonfinite values. Its fuel mean is <strong>816.29 K</strong>; ingredients starting at 300 K reach <strong>317.58 K</strong> (wax) and <strong>318.37 K</strong> (stretch). Grid temperature probes below the vessel, at its wall and above it report <strong>574.66 K</strong>, <strong>484.12 K</strong> and <strong>357.73 K</strong>, respectively. This demonstrates gentle heat delivery in the compact fixture, not calibrated melting or energy conservation. More fuel particles and several scene settings changed together, so it is not an isolated estimate of any one parameter&#39;s effect. Neither staging nor the new shared-face air/SDF route fixes the two particle-transfer issues above; no shader repair for them is included in this pass.</p>
+<p>Separate three controls: <strong>simulation temperature</strong>, <strong>emission onset/palette</strong>, and <strong>exposure</strong>. Raising emission onset or lowering saturation can make hot air stop appearing golden without changing any physics. Faster cooling is a simulation edit and should use an explicitly identified reservoir/ambient route. A rainbow temperature diagnostic should have a legend and fixed range; automatic rescaling can conceal the fact that all samples have become nearly isothermal.</p>
+<p><strong>Additive reference candidates:</strong> a shared-face thermal-flux route for the air/SDF grid, an exponential reservoir-cooling route, and eventually a closed two-body heat-exchange benchmark with a displayed energy residual. The first two are being handled by the parallel implementation pass; their validation is reported separately. They do not turn the entire coupled engine into a conservative thermal solver.</p>
+<h2 id="2-baking-crust-and-spontaneous-cracking">2. Baking, crust and spontaneous cracking</h2><p>Crust Dough is a useful authored constitutive model, not simply a color filter. Gas/expansion, curing, shell stiffness, target rest volume and tear state all change in <code>mpm_p2g.comp:2418</code>. Differential core expansion and shell contraction can drive failure without dragging. However:</p>
+<ul>
+<li>The shell/core mask is assigned at spawn from distance to a rectangle or circle boundary (<code>mpm_solver.cpp:466</code>). It is material memory, not a recomputed exposed-surface or moisture field. Cutting the object does not automatically turn its new interior boundary into an equivalent drying surface.</li>
+<li>Gas is a bounded scalar controlling rest volume; this branch does not resolve individual gas bubbles or a gas equation of state inside pores.</li>
+<li>Crack growth is a strain/mismatch threshold; stress retains a substantial residual floor. A dark crack can be a damaged band without a mechanically separated opening.</li>
+<li>Pseudo-enclosure/cohesion and the crumb scaffold deliberately resist separation. The <code>bake_v2</code> route measures tension relative to the expanded rest state, so harmless free expansion no longer creates as much apparent tensile damage. That can make a corrected model <strong>look less dramatic</strong> while being a better controlled comparison.</li>
+</ul>
+<p>The archived Crust Dough branch already has expansion and shell mismatch. Current Bake Profile v1 adds per-material differentiation, while Bake v2 changes the reference state for damage. Newer is therefore not simply “more detailed”: one change separates recipes, another removes a false source of cracks.</p>
+<p><strong>Recording:</strong> begin with one circle, one thick rectangle, and one notched/complex outline. Heat from below so the temperature gradient and asymmetrical expansion remain readable. Use a short close-up showing the sequence <strong>pale body → darker/stiffer shell → swelling core → damaged/opening region</strong>. If no opening occurs, record “shell formation and stress” rather than promising self-fracture. For the complex outline, ensure the scene author supplies an appropriate shell-seed map; joining several independently seeded pieces can introduce artificial internal crust seams.</p>
+<p><strong>Useful old route:</strong> a stylized expanding/breaking pastry is valid authored behavior. Keep it as “Legacy bake response” rather than describing every difference as a defect. A future moisture/drying field and free-surface shell update would be a new model, not a correction achieved by making the current crack coefficient larger.</p>
+<h2 id="3-metal-heating-and-cooling">3. Metal heating and cooling</h2><p><code>mpm_p2g.comp:3562</code> stores <code>harden</code>, <code>hot_memory</code>, and <code>crack</code>. Above its authored hot threshold it grows heat memory and blends deformation toward the polar rotation. When cool, hardening rises toward that stored memory; higher hardening changes stiffness and lowers the crack threshold. <strong>Hardening is never reduced by reheating in this branch.</strong> The word <code>anneal</code> names stress relaxation of <code>F</code>, not recovery/recrystallization of a metal&#39;s internal structure. The same essential model appears in Legacy1 and Legacy2.</p>
+<p>This can support a good <strong>heat-treatment memory</strong> demo: heat two supported strips, cool one quickly and one slowly, then apply the same displacement. It needs an unheated control and a numerical hardening readout because the authored stiffness range may look subtle. It cannot yet establish quantitative differences between annealing, tempering and quenching for a real alloy. Real heat-treatment behavior is material- and thermal-history-dependent; see <a href="https://www.nist.gov/publications/circular-bureau-standards-no-495heat-treatment-and-properties-iron-and-steel" rel="noopener">NIST&#39;s heat treatment reference</a>.</p>
+<p><strong>Proposed alternate route:</strong> name it “Recovery model (experimental).” Introduce a separate internal hardening variable that decays under a documented time-temperature recovery law, distinct from instantaneous elastic softening and from quench memory. Compare cold-worked, heated/held, and quenched strips. Without alloy calibration, call it a phenomenological recovery model; “theoretically correct annealing” would be too strong.</p>
+<h2 id="4-magnetic-families">4. Magnetic families</h2><h3 id="legacy-field-and-the-ring-like-response">Legacy field and the ring-like response</h3><p>The legacy force is multiplied by several controls: external-drive gating, sharpness suppression, a wall gate, density damping and inward-force cancellation (<code>mpm_g2p.comp:751</code>, <code>:777</code>, <code>:784</code>, <code>:802</code>, <code>:828</code>). Each can be understandable alone, but their overlap can leave a narrow active region. A short cold-start Jacobi solve also cannot establish a global long-range field every frame. Increasing a surface-spike gain cannot repair missing field support.</p>
+<p>The historical documentation gives specific truncation percentages and timing estimates. They were <strong>not rerun here</strong> and should remain historical diagnostics, not current measured specifications. The shader/solver architecture supports the qualitative diagnosis: local iterative propagation plus multiplicative suppression can make a moving magnet affect a ring instead of the whole body.</p>
+<h3 id="new-magnetic">New Magnetic</h3><p>The current New Magnetic route uses softened analytic 2D pole kernels for the external field, a finite-difference field-energy gradient, relaxed particle magnetization, and acceleration limits (<code>new_magnetic_force.comp:302</code>). It later regained a warm-started particle self-field; the header&#39;s “not ported in v1” paragraph describes the first version, not the current feature set (<code>new_magnetic_field.h:95</code>). Particle magnetization is still driven by the external field while the force sees the total field, deliberately avoiding a fully self-consistent feedback loop.</p>
+<p>It also has a normal/surface proxy and imposed corrugation frequency (<code>new_magnetic_force.comp:166</code>, <code>:178</code>). This is a <strong>Rosensweig-inspired surface response</strong>, not a validated prediction of the instability threshold or wavelength. The proxy uses total MPM mass, so another MPM material touching ferrofluid can contaminate what it considers a free surface. A simple SDF container in air is the cleanest first recording.</p>
+<p>For context, free-surface ferrofluid models couple the magnetic field in fluid and air to the interface; see <a href="https://drum.lib.umd.edu/items/b830a1b5-a871-4010-ac6e-ba101627607b" rel="noopener">Ferrofluids: Modeling, Numerical Analysis, and Scientific Computation</a>. Crucible&#39;s imposed field and surface forcing are a practical reduced experiment, not a substitute for those coupled equations.</p>
+<h3 id="fantasy">Fantasy</h3><p>Fantasy adds latched activation, anti-reversal behavior and a cursor-centered vortex (<code>fantasy_magnetic_force.comp:73</code>). Its spectacle is intentional. Persistent filaments or orbital motion are useful demonstrations of field-controlled matter, but should not be evidence of physical ferrohydrodynamics. The old and new routes have different goals rather than a strict quality ordering.</p>
+<p><strong>Recording:</strong> a broad shallow basin with a flat free surface and ample headroom. Begin with no field, sweep a pole slowly, hold it stationary, then lift. Repeat the same motion in Legacy/New/Fantasy. Add a field overlay only briefly; its presence can otherwise hide the material silhouette. Separate attraction, holding, spikes, remanence and vortex motion into short clips.</p>
+<h2 id="5-living-materials-why-the-generations-differ">5. Living materials: why the generations differ</h2><p>These are procedural/artificial-life materials coupled to mechanics. They are not biological growth models. <a href="https://arxiv.org/abs/1812.05433" rel="noopener">Lenia</a> supplies a useful vocabulary for continuous cellular automata, but a CA field, a tissue constitutive law, and insertion of particles remain distinct components.</p>
+<div class="case-table-wrap technical-table" tabindex="0" role="region" aria-label="Technical comparison"><table>
+<thead>
+<tr>
+<th>Family</th>
+<th>Actual mechanism and likely weak point</th>
+<th>Worth keeping for</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Early Euler bio/ash materials</td>
+<td>Several field-gated channels drive deformation and recovery. In the old ash branch, P2G and G2P both wrote regrowth state; the last writer could erase recovery. V2 gives G2P ownership and aligns the temperature window (<code>mpm_g2p.comp:2264</code>).</td>
+<td>A burn scar that changes mechanical state; a lesson in state ownership. It does not restore deleted particles.</td>
+</tr>
+<tr>
+<td>Colony, spawn-first</td>
+<td>Core energy and a guide field gate insertion; insertion occurs as visible particle clusters (<code>living_frontier_spawn.comp:48</code>, <code>living_colony.cpp</code>). Growth can look quantized and rapidly consume budget.</td>
+<td>A deliberately cellular colony with a killable heart and resource dependence.</td>
+</tr>
+<tr>
+<td>Colony, expand+fill</td>
+<td>Rest-volume expansion is primary, filling only thinning occupied regions. Sparse frontier drives can remain active, making the body keep inflating.</td>
+<td>Creeping foam, invasive growth, swelling around supports. Use finite recording duration and visible particle count.</td>
+</tr>
+<tr>
+<td>Bloom, bounded</td>
+<td>Expansion approaches a target; insertion only repairs a hole with tissue on opposite sides (<code>living_frontier_spawn.comp:55</code>). It is intentionally easy to reach an almost inert endpoint.</td>
+<td>A breathing/expanding organism, elastic recovery and tear repair. Not an indefinitely exploring colony.</td>
+</tr>
+<tr>
+<td>Automata</td>
+<td>Its field target is floored by occupancy, then boosted by ash (<code>living_automata_field.comp:90</code>). Insertion demands an empty cell surrounded by a ring of occupied cells (<code>living_automata_ring_spawn.comp:44</code>). Dense interiors resist field-created holes, and an outer growth edge rarely satisfies the ring test.</td>
+<td>A conservative tissue/ash comparison or local hole repair, not the best porous-growth hero.</td>
+</tr>
+<tr>
+<td>Culture</td>
+<td>A more resolved pattern field pulls matter onto membrane ridges. Sculpt mode rearranges existing particles; Grow separately inserts near occupied membranes with a lifetime budget (<code>living_culture_insert.comp:49</code>).</td>
+<td>The strongest candidate for porous morphology, burning and recovery. Its behavior is explicitly authored and resource-free.</td>
+</tr>
+</tbody></table></div>
+<p>Culture vitality is asymmetric (<code>living_culture_vitality.comp:55</code>): cool living tissue heals automatically; dead tissue needs a diffused green-neighbor source. That is why a surviving green rim can reclaim a burnt patch instead of settling into grey. It also means starvation does not kill it. <code>starve_rate</code> and <code>revive_threshold</code> are currently unused in that shader (<code>living_culture_vitality.comp:32</code>); <code>husk_eps</code> is similarly vestigial. A tooltip promising those effects is misleading.</p>
+<p>The revival field spreads living occupancy (<code>living_culture_revive.comp:39</code>). It is not supplied by dead matter itself. Completely burning every surviving seed is different from burning one patch. There is no new particle insertion in revival: a repaired color/vitality scar is not recreated mass. Culture&#39;s <code>grow</code> default is false, and its default lifetime insertion cap is 4000 particles (<code>living_culture.h:34</code>, <code>:68</code>). Once exhausted, it can recover vitality but will not endlessly replace removed tissue.</p>
+<p>The maximum membrane acceleration in the vitality shader is 1.8 simulation units; default showcase gravity is intentionally reduced in existing scenes. A full-gravity puddle is therefore not surprising. “Climbing down a container” is also different from climbing up against gravity. The early Surface Creeper has explicit tangent/support forces (<code>mpm_g2p.comp:2180</code>) and may be the more appropriate old-model niche for the user&#39;s container-edge shot.</p>
+<p><strong>Recording:</strong> a small raised bowl or pedestal in the middle of a quiet scene, with broad open space around and below it. Shoot Culture sculpt, Culture grow, and a surface-following old material separately. Keep one control part green when testing regrowth. Show the field as an inset or brief diagnostic, not an overlay that conceals the material. Keep the low-gravity setting visible in the recording notes.</p>
+<p><strong>Proposed alternate route:</strong> a nutrient/reserve budget can make insertion and recovery debits explicit and allow regrowth after removal when reserves remain. This would recover Colony&#39;s useful resource/kill mechanics while retaining Culture&#39;s morphology. It is a new hybrid, not a small correctness patch or real metabolism.</p>
+<h2 id="6-fire-confinement-explosions-and-rockets">6. Fire, confinement, explosions and rockets</h2><p>Burn Front v2 removes the old unconditional temperature floor and uses cooling-sensitive self-heating, making extinguishing possible. It also adds per-particle ignition variation and a faster authored consumption rate (<code>mpm_p2g.comp</code> burning branches; controls in <code>mpm_solver.h:168</code>). A threshold floor can erase any cooling applied elsewhere, so the old inability to extinguish was structural. The new model still has authored temperatures and rates; a rougher front is not proof of chemical accuracy.</p>
+<p>Fire v3&#39;s oxygen pass consumes oxygen according to <strong>hot smoke as an activity proxy</strong>, replenishes it according to outside reachability, and produces smolder fuel (<code>euler_oxygen.comp:51</code>). It is not a stoichiometric reaction network. The airtight module identifies enclosed regions on a coarse grid and evolves a pressure-like scalar with source/hold/vent rules (<code>euler_airtight_update.comp:61</code>). A gap smaller than a coarse cell may not behave like a resolved leak. A sealed/open vessel comparison is excellent, but use apertures visibly larger than a coarse cell and show the cavity diagnostic.</p>
+<p>The legacy blast deposits several independently tuned channels. Sedov Front instead ties an analytic two-dimensional radius and several output effects to an energy parameter (<code>shock_front.cpp</code>; <code>shock_front_particles.comp:76</code>). It gives a much clearer traveling-event model. However, its impulse test uses a radial annulus and a short SDF occlusion scan; the air solver still uses pressure projection. The aftermath&#39;s wall-aware flow does not establish a physically reflected/diffracted shock front. <a href="https://physbam.stanford.edu/papers/stanford2010-03.pdf" rel="noopener">Practical Animation of Compressible Flow for Shock Waves</a> describes the genuinely compressible simulation problem that is outside this implementation&#39;s scope.</p>
+<p>The particle guard remembers one last front id, not a per-particle set of all fronts (<code>shock_front_particles.comp:68</code>). Static radial crossings are naturally one-shot, but strong motion/re-entry plus overlapping fronts deserves a dedicated test before claiming “at most once for every front” without qualification.</p>
+<p>Rockets have an explicit thrust increment and a separately authored air plume (<code>src/main.cpp:2761</code>, <code>:2948</code>). This is a sandbox propulsion behavior driven by pressure/nozzle state, not a mass-flow nozzle/exhaust momentum solve. It is still a good interactive result. Describe the scene as <strong>propulsion, venting and impact in a destructible test range</strong>, not a validated engine model.</p>
+<p><strong>Why explosions look alike:</strong> the same smoke/heat/compositing stack can dominate different underlying impulses, while high ambient warmth and low emission onset erase distinctions. Record one event in a clean scene, allow its plume to clear, and compare pressure, impulse and aftermath separately. Do not make all three more visible merely by raising all gains.</p>
+<p><strong>Recording:</strong> a long open range, one thin destructible obstacle, a sealed chamber, and a chamber with a large visible vent. Use the same authored projectile or charge where possible. Do not begin with every effect enabled. A quiet pre-shot frame and a readable slow-motion front are more informative than a golden screen.</p>
+<h2 id="7-tearing-anisotropic-damage-and-solver-coupling">7. Tearing, anisotropic damage and solver coupling</h2><p>Crucible has a genuine nonlocal damage path inspired by <a href="https://doi.org/10.1145/3386569.3392428" rel="noopener">Wolper et al., AnisoMPM</a>: positive-stress driving, a structural tensor, damage history and a regularization term (<code>mpm_p2g.comp:527</code>; <code>mpm_damage_scatter.comp</code>; <code>mpm_damage_gather.comp</code>). The retained <a href="https://github.com/penn-graphics-research/ziran2020" rel="noopener">author implementation</a> is the appropriate reference. Only <strong>ORTHO_TEAR, BRITTLE and TOUGH</strong> are enrolled (<code>mpm_solver.cpp:68</code>); selecting the model does not upgrade every baking, glass or composite branch.</p>
+<p>Isotropic versus anisotropic mode is the clean comparison: same body, same resolution, same stretch, rotate the fibers. Legacy versus AnisoMPM also changes the damage law and residual response, so it is not a directionality-only control.</p>
+<p>Two important qualifications correct the older documentation:</p>
+<ul>
+<li><code>l0 = profile_ratio * scale * dx</code> (<code>mpm_p2g.comp:592</code>), with default ratio 0.5. Increasing resolution changes the physical length unless the author compensates. A nonlocal term is present, but that alone proves neither resolution-independent crack width nor crack speed. Hold world-space <code>l0</code> fixed and resolve it with multiple cells before a convergence claim.</li>
+<li>The shared damage grid has no object/material key. Separate touching objects can exchange damage information within its support. Use spatially separated strips for the first comparison, and reserve touching interfaces as a failure-case demonstration.</li>
+</ul>
+<p>Preserving the fiber term while degrading parts of the matrix can make tears visibly stringier. However, thermal state, fracture length, particle spacing, contact, and post-damage compression treatment still influence the result. A clean build and a correct local formula do not establish a calibrated fracture toughness.</p>
+<p>For SPH/MPM contact, read <span class="technical-source-label">the existing full-contact-reaction audit</span>. It carefully distinguishes the old penalty-only reaction, the newer complete local contact ledger, and receiver losses. Its 783 GPU assertions are <strong>retained prior measurements from 2026-09-13</strong>, not tests rerun here. SDF obstacles remain kinematic; particles do not dynamically move the cauldron itself.</p>
+<p><strong>Recording:</strong> three independent notched strips, two pinning/drag anchors, a dark quiet background, identical loading. Compare fiber angles and display damage briefly. Keep the load slow enough that the comparison concerns damage direction rather than wildly different inertial motion. A fluid jet pushing an MPM body is a separate useful coupling shot.</p>
+<h2 id="8-ranked-recording-slate">8. Ranked recording slate</h2><p>Reliability below means source-supported setup confidence, <strong>not a claim that a new recording was captured in this audit</strong>. Every proposed scene still needs a short live dress rehearsal.</p>
+<div class="case-table-wrap technical-table" tabindex="0" role="region" aria-label="Technical comparison"><table>
+<thead>
+<tr>
+<th>Priority</th>
+<th>Shot</th>
+<th>Visual interest</th>
+<th>Setup confidence</th>
+<th>Honest caption and decisive check</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>Ferrofluid basin, slow pole sweep and stationary hold</td>
+<td>High</td>
+<td>Higher with New Magnetic + SDF basin</td>
+<td>“Field-driven matter.” Confirm the body follows and remains held; show spikes as authored surface response.</td>
+</tr>
+<tr>
+<td>2</td>
+<td>One heated row: dough, clay, glass, metal</td>
+<td>High</td>
+<td>Medium</td>
+<td>“One heat source, different material histories.” Keep sizes/heater exposure comparable; use field legend.</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Crust Dough circle/notched body on a pan</td>
+<td>High</td>
+<td>Medium</td>
+<td>“A stiffening shell around an expanding interior.” Verify an opening before labeling self-cracking.</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Culture on a central pedestal, local burn and return</td>
+<td>High</td>
+<td>Medium at reduced gravity</td>
+<td>“Pattern-driven tissue and a returning vitality front.” State sculpt/grow and the insertion cap.</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Isotropic/anisotropic notched-strip comparison</td>
+<td>High</td>
+<td>Medium</td>
+<td>“Fiber direction changes damage.” Same loading, enrolled material, matched resolution.</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Sealed vessel versus open vent</td>
+<td>High</td>
+<td>Medium</td>
+<td>“Confinement changes the release.” Show coarse cavity reachability; separate smoke appearance from pressure.</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Quiet rocket range and one impact</td>
+<td>High</td>
+<td>Medium</td>
+<td>“Authored propulsion and material response.” Keep plume exposure restrained, clear between shots.</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Indirect cauldron heating</td>
+<td>High</td>
+<td>Medium</td>
+<td>“Fuel → air/solid → contents.” Verify the contents warm without direct brush intersection.</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Glass bridge softening beside Phase melt</td>
+<td>Medium–high</td>
+<td>Medium</td>
+<td>“Different ways to lose solid memory.” Record before/after silhouette, not just glow.</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Mixed-material stack/burger under a platen, then warming</td>
+<td>High</td>
+<td>Lower until contact tuning</td>
+<td>“Interfaces decide the result.” Use separate heating and compression clips; don&#39;t promise real food chemistry.</td>
+</tr>
+<tr>
+<td>11</td>
+<td>Thermo Metal hot/held/cooled strips</td>
+<td>Medium</td>
+<td>Lower for dramatic appearance</td>
+<td>“Heat-treatment memory.” Compare load response/readout; avoid an annealing claim.</td>
+</tr>
+<tr>
+<td>12</td>
+<td>Legacy Colony core removal / Bloom bounded recovery</td>
+<td>Medium</td>
+<td>Medium</td>
+<td>“Different rules make different organisms.” A useful old model earns its place through a distinct mechanic.</td>
+</tr>
+</tbody></table></div>
+<p>Additional compact shots worth trying: magnetic remanence after the pole is removed; an insulating versus conducting pan; a cold-water quench split screen; a fiber direction wheel; a field overlay dissolving into the final shaded material. These reveal why the system exists without requiring a new solver.</p>
+<h2 id="9-what-a-fixed-mode-should-mean">9. What a “fixed mode” should mean</h2><p>Use <strong>Model comparison</strong> as the public label and put <strong>Legacy / Alternative (experimental)</strong> inside it. “Fixed” should name a specific repaired invariant, not claim the whole alternate route is theoretically correct.</p>
+<div class="case-table-wrap technical-table" tabindex="0" role="region" aria-label="Technical comparison"><table>
+<thead>
+<tr>
+<th>Alternate</th>
+<th>Constraint it can improve</th>
+<th>What it still does not prove</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Shared-face air/SDF thermal exchange</td>
+<td>Opposite sides use the same conductance and equal/opposite heat before other channels</td>
+<td>Conservation of particles, sources, boundaries or the entire multiphysics step</td>
+</tr>
+<tr>
+<td>Exponential thermal reservoir</td>
+<td>Well-defined per-second cooling/heating without smoke-dependent hold</td>
+<td>Closed-system energy conservation; the reservoir intentionally adds/removes heat</td>
+</tr>
+<tr>
+<td>Complete local contact ledger</td>
+<td>Accounts for the local contact velocity-change terms</td>
+<td>Exact global momentum after delayed, clipped grid delivery</td>
+</tr>
+<tr>
+<td>World-space fracture length</td>
+<td>Separates authored crack scale from grid spacing</td>
+<td>Converged toughness or crack speed without resolution tests</td>
+</tr>
+<tr>
+<td>Thermal recovery internal variable</td>
+<td>Distinguishes reversible softening, stress relaxation and permanent history</td>
+<td>Metallurgical accuracy without an alloy/time-temperature calibration</td>
+</tr>
+<tr>
+<td>Nutrient-budget living route</td>
+<td>Makes insertion/recovery costs and replenishment explicit</td>
+<td>Biological realism; the morphology is still artificial life</td>
+</tr>
+<tr>
+<td>Conservative enthalpy/contact route</td>
+<td>Makes heat capacity and phase energy auditable</td>
+<td>A correct interface and material law merely from passing a two-body heat test</td>
+</tr>
+</tbody></table></div>
+<p>Keep the legacy defaults, serialize the selected route in the scene, and compare from the same reset. Changing formulas halfway through a heavily damaged/hardened state confounds the result. A useful experimental clip includes the good case first, a short diagnostic, and one clear limitation. There is no need to make every material universally reliable before the portfolio can honestly show its potential.</p>
+<h2 id="10-minimal-validation-before-publishing-captions">10. Minimal validation before publishing captions</h2><ol>
+<li><strong>Scene repeatability:</strong> reset, fixed timestep/substeps, fixed material count, same action; save exact settings with the recording.</li>
+<li><strong>Thermal control:</strong> no-source equal-temperature state should remain equal; a closed two-body contact test should report total heat drift; a cooling reservoir should follow its stated time constant.</li>
+<li><strong>Material visibility:</strong> record temperature and relevant internal state together once, so a weak color change is not mistaken for no simulation change.</li>
+<li><strong>Fracture:</strong> confirm enrolled material, compare identical loads, hold world-space regularization length while changing resolution; do not use an unrun convergence claim.</li>
+<li><strong>Living:</strong> distinguish rearranged area, particle count, vitality and deleted matter. Test partial burn and complete burn separately.</li>
+<li><strong>Magnetics:</strong> compare zero field, stationary field and moving field; inspect without the holding spring to distinguish magnetic force from cursor control.</li>
+<li><strong>Blast/cavity:</strong> test one isolated event first; check wall occlusion and gap resolution; don&#39;t infer reflected shock physics from the pressure-projected aftermath.</li>
+</ol>
+<p>This audit inspected the listed mechanisms and their histories, and incorporates the saved heater activation comparison and hot-glass recording probe above. It did not run every material or reproduce every numerical claim in the older documentation. Unreviewed mechanisms—especially electrostatic subfamilies, triboelectric placeholders, detailed 2.5D carving, and every custom composite recipe—remain a follow-up, not silently certified coverage.</p>
+</article><footer class="technical-footer"><div class="technical-actions"><a href="../index.html#manual-recording-studio">← Crucible2.5D brochure</a><a href="recording-scenes.html">Recording compositions</a><a href="food-studio.html">Food surface and recording studio</a><a href="model-audit.html" aria-current="page">Models, branches and their limits</a><a href="thermal-comparison.html">Thermal comparison routes</a><a href="porous-growth-comparison.html">Porous growth and thickness</a></div></footer></main></body></html>

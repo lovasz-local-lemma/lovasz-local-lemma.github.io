@@ -1,0 +1,1036 @@
+/* css/style.css */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0a0a1a;
+  --panel: #16213e;
+  --border: #2a2a4a;
+  --coral: #e94560;
+  --cyan: #4cc9f0;
+  --purple: #7c83fd;
+  --text: #ccc;
+  --text-dim: #888;
+
+  /* ── Type ──────────────────────────────────────────────────────────────────
+     Three voices, deliberately: a DISPLAY face for titles, the SYSTEM stack for
+     prose (webfonting 39 cards of body copy buys nothing and costs a reflow),
+     and MONO for anything measured — formulas, counters, mechanisms.
+     IBM Plex Sans is the display face specifically because it ships GREEK: the
+     h1 is "Computing π Through Physics" and π appears in six of the nine section
+     titles, so a face without Greek would fall back mid-word at 38px. It also
+     shares a genealogy with Plex Mono, so the title voice and the measured voice
+     are relatives rather than strangers. If the CDN fails, the system stack
+     takes over and only the character is lost, never the glyphs. */
+  --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --display: 'IBM Plex Sans', var(--sans);
+  /* Do NOT webfont the mono: the readouts carry π σ ε ⌊⌋ ∝ √ ≈ ⁿ ² ₇, and a
+     webfont would per-glyph-fall-back on those, mixing faces inside one formula.
+     This stack already renders them all — it is promoted, not replaced. */
+  --mono: ui-monospace, SFMono-Regular, 'Cascadia Mono', Consolas, 'Liberation Mono', monospace;
+
+  --fs-micro: 10px;   /* uppercase labels + pills   600 / .07em */
+  --fs-cap:   12px;   /* captions, tables, legends              */
+  --fs-body:  13px;   /* card prose                             */
+  --fs-read:  15px;   /* section blurbs — these are essays      */
+  --fs-h3:    18px;   /* card title                             */
+  --fs-h2:    24px;   /* section title                          */
+  --fs-h1:    38px;   /* hub title                              */
+
+  /* #888 on --panel is 4.48:1 — a hair under AA, and it is the colour of every
+     card description. Split the role: prose gets a lighter grey, while
+     --text-dim stays put for micro-labels where recession is the whole point. */
+  --text-body: #9aa0b0;   /* 6.1:1 on --panel, 7.4:1 on --bg */
+  /* Unconfirmed π digits were inline #666 = 2.77:1, i.e. half the hero number
+     was effectively invisible. Recede without vanishing. */
+  --pi-drift: #8b93a8;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  /* The document had no font-size and no line-height at all, so every leading in
+     the file was either absent or ad hoc. Set the baseline once. */
+  font-family: var(--sans);
+  font-size: var(--fs-body);
+  line-height: 1.55;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+#header {
+  display: flex;
+  align-items: center;
+  padding: 8px 20px;
+  gap: 12px;
+}
+
+#back-btn {
+  color: var(--text-dim);
+  text-decoration: none;
+  font-size: 13px;
+}
+#back-btn:hover { color: var(--text); }
+
+#sim-title {
+  font-size: 15px;
+  font-weight: 600;
+  flex: 1;
+  min-width: 0;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.alt-links {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.alt-link {
+  color: var(--cyan);
+  border: 1px solid rgba(76, 201, 240, 0.5);
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 11px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.alt-link:hover { background: rgba(76, 201, 240, 0.14); color: #fff; }
+
+#desc-toggle {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  border: 1px solid var(--purple);
+  color: var(--purple);
+  font-size: 12px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+#desc-toggle:hover { background: rgba(124,131,253,0.15); }
+
+#description-panel {
+  position: fixed;
+  top: 48px;
+  right: 20px;
+  width: min(560px, calc(100vw - 40px));
+  padding: 0;
+  z-index: 30;
+  pointer-events: none;
+}
+#desc-content {
+  display: none;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-dim);
+  max-height: min(70vh, 520px);
+  overflow-y: auto;
+  margin-bottom: 6px;
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.45);
+  pointer-events: auto;
+}
+#desc-content.open { display: block; }
+#desc-content h4 { color: var(--text); margin: 6px 0 2px; font-size: 12px; }
+#desc-content h4:first-child { margin-top: 0; }
+#desc-content .formula { color: var(--cyan); font-family: monospace; font-size: 12px; }
+#desc-content .expected { color: var(--coral); font-family: monospace; font-size: 11px; }
+
+#controls-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 5px 20px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  min-height: 48px;
+}
+
+#main-view {
+  display: flex;
+  gap: 8px;
+  padding: 8px 12px;
+  flex: 1;
+  min-height: 0;
+}
+
+.canvas-square {
+  flex: 1;
+  background: var(--panel);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  position: relative;
+}
+
+.canvas-square canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
+/* Extra views: overlaid inside the phase canvas */
+#extra-views-overlay {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  align-content: flex-end;
+  gap: 4px;
+  max-height: calc(100% - 12px);
+  max-width: min(248px, calc(100% - 12px));
+  z-index: 5;
+}
+
+#extra-views-overlay:empty { display: none; }
+
+#extra-views-overlay .mini-view {
+  width: 78px;
+  height: 78px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  overflow: hidden;
+  opacity: 0.85;
+  transition: opacity 0.15s, border-color 0.15s;
+}
+#extra-views-overlay .mini-view:hover {
+  opacity: 1;
+  border-color: var(--purple);
+}
+#extra-views-overlay .mini-view canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+#extra-views-overlay .mini-view .mini-label {
+  position: absolute;
+  bottom: 2px;
+  left: 3px;
+  font-size: 7.5px;
+  color: var(--text-dim);
+  pointer-events: none;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  #main-view { flex-direction: column; }
+}
+
+/* Controls */
+.control-group { display: flex; align-items: center; gap: 6px; }
+.control-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 4px;
+  flex: 0 0 auto;
+}
+.playback { gap: 4px; }
+.shared-toggles {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.ctrl-btn {
+  background: #2a2a4a;
+  border: none;
+  border-radius: 4px;
+  color: #aaa;
+  padding: 4px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.ctrl-btn:hover { background: #3a3a5a; color: #fff; }
+.ctrl-btn:first-child { background: var(--coral); color: white; }
+.ctrl-btn.play-ready {
+  background: #2d8a4e;
+  color: white;
+  animation: play-glow 2s ease-in-out infinite;
+}
+.ctrl-btn.play-active {
+  background: var(--coral);
+  color: white;
+  animation: none;
+}
+@keyframes play-glow {
+  0%, 100% { box-shadow: 0 0 4px rgba(45, 138, 78, 0.3); }
+  50% { box-shadow: 0 0 14px rgba(45, 138, 78, 0.7); }
+}
+
+.ctrl-separator { width: 1px; height: 24px; background: var(--border); }
+
+.slider-group { flex-direction: column; align-items: flex-start; min-width: 128px; flex: 0 0 128px; }
+.select-group { flex-direction: column; align-items: flex-start; min-width: 88px; }
+/* Now a real <label for=…> (was a div), so it needs an explicit display or it
+   would go inline and collapse the control's column layout. */
+.ctrl-label { display: block; cursor: pointer; color: var(--text-dim); font-size: 10px; margin-bottom: 2px; white-space: nowrap; }
+.ctrl-value { color: var(--purple); font-family: monospace; font-size: 10px; }
+
+.ctrl-slider { width: 100%; accent-color: var(--purple); height: 3px; }
+
+/* Highlighted "important" control (e.g. Develop slider, slice selects):
+   amber accent + pulsing glow. Applies to sliders and selects alike. */
+.slider-group.slider-highlight,
+.select-group.slider-highlight {
+  box-sizing: border-box;
+  border-radius: 6px;
+  padding: 3px 6px;
+  background: rgba(255, 194, 60, 0.09);
+  animation: slider-glow 2.2s ease-in-out infinite;
+}
+.slider-group.slider-highlight .ctrl-label,
+.select-group.slider-highlight .ctrl-label { color: #ffd97a; font-weight: 700; }
+.slider-group.slider-highlight .ctrl-value { color: #ffc23c; }
+.slider-group.slider-highlight .ctrl-slider { accent-color: #ffc23c; height: 5px; }
+.select-group.slider-highlight .ctrl-select { border-color: #ffc23c; color: #ffd97a; }
+@keyframes slider-glow {
+  0%, 100% { box-shadow: 0 0 5px rgba(255, 194, 60, 0.3); }
+  50% { box-shadow: 0 0 14px rgba(255, 194, 60, 0.72); }
+}
+
+.ctrl-select {
+  width: 100%;
+  min-width: 88px;
+  background: #2a2a4a;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  font-size: 10px;
+  padding: 3px 6px;
+}
+
+.ctrl-toggle {
+  color: var(--text-dim);
+  font-size: 9px;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.collision-counter { margin-left: auto; text-align: right; flex-direction: column; }
+.formula-readout + .collision-counter { margin-left: 0; }
+.counter-label { color: var(--text-dim); font-size: 9px; }
+.counter-value { color: var(--coral); font-size: 14px; font-family: monospace; line-height: 1.1; }
+
+.extra-views-label {
+  color: var(--purple);
+  font-size: 10px;
+  letter-spacing: 1px;
+  padding: 0 0 4px 0;
+  width: 100%;
+}
+
+/* Hub page */
+.hub-page { display: flex; flex-direction: column; align-items: center; padding: 40px 20px; }
+#hub-header { text-align: center; margin-bottom: 40px; }
+#hub-header h1 { font-size: 32px; font-weight: 700; margin-bottom: 8px; }
+.tagline { color: var(--text-dim); font-size: 16px; max-width: 600px; }
+#hub-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; max-width: 1000px; width: 100%; }
+.sim-section { display: contents; }
+.sim-section-header { grid-column: 1 / -1; margin: 12px 0 -6px; }
+.sim-section-header h2 { font-size: 18px; margin-bottom: 4px; }
+.sim-section-header p { color: var(--text-dim); font-size: 13px; max-width: 720px; }
+.sim-section-grid { display: contents; }
+.sim-card { position: relative; background: var(--panel); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; color: var(--text); transition: border-color 0.2s, box-shadow 0.2s; }
+.sim-card:hover { border-color: var(--purple); box-shadow: 0 0 20px rgba(124, 131, 253, 0.15); }
+.sim-card-link { display: block; height: 100%; color: inherit; text-decoration: none; cursor: pointer; }
+.card-preview { position: relative; overflow: hidden; height: 160px; background: var(--bg); display: flex; align-items: center; justify-content: center; }
+.card-preview-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 0.45s ease; }
+.card-preview-img.loaded { opacity: 1; }
+.card-placeholder { font-size: 48px; color: var(--coral); opacity: 0.3; font-weight: bold; }
+
+/* Suggested-path strip: the site's narrative arc as numbered anchor chips. */
+.path-strip {
+  grid-column: 1 / -1;
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+  padding: 10px 14px; margin-bottom: 4px;
+  background: rgba(124, 131, 253, 0.06);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 12px;
+}
+.path-label { color: var(--text-dim); font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; margin-right: 4px; }
+.path-step { color: var(--text); text-decoration: none; display: inline-flex; align-items: center; gap: 6px; padding: 3px 8px; border: 1px solid var(--border); border-radius: 999px; transition: border-color .15s, color .15s; }
+.path-step:hover { border-color: var(--cyan); color: var(--cyan); }
+.path-num { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; border-radius: 50%; background: var(--purple); color: #0a0a1a; font-weight: 700; font-size: 10px; }
+.path-arrow { color: var(--text-dim); }
+
+/* Convergence badge — what kind of answer the machine gives. */
+.card-conv {
+  display: inline-block; margin-bottom: 8px; margin-left: 6px;
+  padding: 2px 8px; border-radius: 999px;
+  font-size: 10px; letter-spacing: 0.02em;
+  border: 1px solid;
+}
+.conv-exact { border-color: #7CFC8A; color: #a9f7b5; }
+.conv-stat { border-color: #6a8caf; color: #a9c4de; }
+.conv-biased { border-color: #e08a3c; color: #ffc59e; }
+.conv-ext { border-color: #8b6ccf; color: #d1c3ff; }
+.conv-legacy { border-color: #c0606a; color: #f0a9b1; }
+
+/* ── "What's new" colour coding ──────────────────────────────────────────────
+   One palette shared by three surfaces so the same idea always reads the same
+   colour: the card badge, the What's-New panel, and the inline highlights in
+   the section descriptions.
+     new     = a mechanism that did not exist before   (green)
+     rebuilt = the card was substantially reworked     (blue)
+     fixed   = an honesty / framing correction         (amber)
+     retired = moved to the hidden shelf               (grey) */
+:root {
+  --nw-new: #4ade80;
+  --nw-rebuilt: #60a5fa;
+  --nw-fixed: #fbbf24;
+  --nw-retired: #8b8ba7;
+}
+
+.card-new {
+  display: inline-block; margin-bottom: 8px; margin-right: 6px;
+  padding: 2px 8px; border-radius: 999px;
+  font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+  border: 1px solid; color: #10121f;
+}
+.card-new-new     { background: var(--nw-new);     border-color: var(--nw-new); }
+.card-new-rebuilt { background: var(--nw-rebuilt); border-color: var(--nw-rebuilt); }
+.card-new-fixed   { background: var(--nw-fixed);   border-color: var(--nw-fixed); }
+
+/* Make a changed card findable at a glance in a dense grid. */
+.sim-card.is-new     { border-color: rgba(74, 222, 128, 0.55); box-shadow: 0 0 18px rgba(74, 222, 128, 0.12); }
+.sim-card.is-rebuilt { border-color: rgba(96, 165, 250, 0.50); box-shadow: 0 0 18px rgba(96, 165, 250, 0.10); }
+.sim-card.is-fixed   { border-color: rgba(251, 191, 36, 0.45); }
+
+/* Inline highlights inside section descriptions + the panel. */
+.hl-new, .hl-rebuilt, .hl-fixed, .hl-retired {
+  border-bottom: 1px dotted currentColor; padding-bottom: 1px;
+}
+.hl-new     { color: #9df3bd; }
+.hl-rebuilt { color: #a8cdfb; }
+.hl-fixed   { color: #ffd98a; }
+.hl-retired { color: #b6b6c9; }
+
+/* The What's-New panel itself. */
+.whats-new {
+  grid-column: 1 / -1;
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: 12px; padding: 16px 18px; margin-bottom: 6px;
+  box-sizing: border-box; max-width: 100%; min-width: 0;
+}
+.whats-new > h2 { font-size: 16px; margin: 0 0 4px; color: var(--text); }
+.whats-new > p.wn-sub { color: var(--text-dim); font-size: 12px; margin: 0 0 12px; }
+.wn-batch { margin-top: 14px; }
+.wn-batch:first-of-type { margin-top: 0; }
+.wn-batch > h3 {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-dim); margin: 0 0 8px; font-weight: 600;
+}
+.wn-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; }
+.wn-item { display: flex; flex-wrap: wrap; gap: 9px; align-items: baseline; font-size: 12.5px; line-height: 1.35; }
+/* The note is the flexible half: let it shrink and wrap rather than forcing the
+   panel wider than the grid column (a flex item defaults to min-width:auto). */
+.wn-item > span:last-child { flex: 1 1 0; min-width: 0; overflow-wrap: break-word; }
+.wn-tag {
+  flex: 0 0 auto; min-width: 62px; text-align: center;
+  padding: 1px 7px; border-radius: 999px;
+  font-size: 9px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase;
+  color: #10121f;
+}
+.wn-tag-new     { background: var(--nw-new); }
+.wn-tag-rebuilt { background: var(--nw-rebuilt); }
+.wn-tag-fixed   { background: var(--nw-fixed); }
+.wn-tag-retired { background: var(--nw-retired); }
+.wn-item a { color: var(--text); text-decoration: none; font-weight: 600; border-bottom: 1px solid rgba(124,131,253,0.4); }
+.wn-item a:hover { color: var(--purple); }
+.wn-note { color: var(--text-dim); }
+.wn-legend { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); font-size: 11px; color: var(--text-dim); }
+.wn-legend span::before { content: ''; display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 5px; vertical-align: middle; }
+.wn-legend .l-new::before     { background: var(--nw-new); }
+.wn-legend .l-rebuilt::before { background: var(--nw-rebuilt); }
+.wn-legend .l-fixed::before   { background: var(--nw-fixed); }
+.wn-legend .l-retired::before { background: var(--nw-retired); }
+
+/* Capstone summary table + hidden shelf. */
+.capstone { grid-column: 1 / -1; margin-top: 18px; }
+.capstone-table-wrap { overflow-x: auto; }
+.capstone-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 10px; }
+.capstone-table th { text-align: left; color: var(--text-dim); font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; padding: 6px 10px; border-bottom: 1px solid var(--border); }
+.capstone-table td { padding: 6px 10px; border-bottom: 1px solid rgba(42, 42, 74, 0.55); vertical-align: top; }
+.capstone-table tr:hover td { background: rgba(124, 131, 253, 0.05); }
+.capstone-table a { color: var(--cyan); text-decoration: none; }
+.capstone-table a:hover { text-decoration: underline; }
+.cap-n { color: var(--text-dim); }
+.cap-fam { color: var(--text-dim); white-space: nowrap; }
+.cap-mech { color: var(--purple); font-family: monospace; font-size: 11px; }
+.hidden-shelf { margin: 14px 0 30px; color: var(--text-dim); font-size: 12px; }
+.hidden-shelf summary { cursor: pointer; }
+.hidden-shelf a { color: var(--text-dim); text-decoration: underline dotted; }
+.hidden-shelf a:hover { color: var(--cyan); }
+
+/* Per-category accent (set via --section-accent on each .sim-section). */
+.sim-section-header { border-left: 3px solid var(--section-accent, #5a6a8a); padding-left: 12px; }
+.sim-section-header h2 { color: var(--section-accent, var(--text)); }
+.sim-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--section-accent, transparent);
+  z-index: 3;
+}
+.card-info { padding: 16px; }
+.sim-card-with-action .card-info { padding-bottom: 48px; }
+.card-rigor {
+  display: inline-block;
+  margin-bottom: 8px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+.card-rigor-exact { border-color: #2d8a4e; color: #8fe3ad; }
+.card-rigor-exact-analog { border-color: var(--cyan); color: #9fe8ff; }
+.card-rigor-exact-asymptotic { border-color: #58c9b9; color: #a8f0e4; }
+.card-rigor-exact-geometric { border-color: #f2b64a; color: #ffd784; }
+.card-rigor-statistical { border-color: #58c07a; color: #a7efbf; }
+.card-rigor-statistical-geometric { border-color: #58c07a; color: #a7efbf; }
+.card-rigor-legacy-demo { border-color: #8b6ccf; color: #d1c3ff; }
+.card-rigor-extension { border-color: var(--purple); color: #c7cbff; }
+.card-rigor-stylized-extension { border-color: #8b6ccf; color: #d1c3ff; }
+.card-rigor-experimental { border-color: var(--coral); color: #ffb0bd; }
+.card-rigor-biased { border-color: #e08a3c; color: #ffc59e; }
+.card-rigor-curiosity { border-color: #8b6ccf; color: #d1c3ff; }
+.card-info h2 { font-size: 18px; margin-bottom: 6px; }
+.card-info p { color: var(--text-dim); font-size: 13px; margin-bottom: 8px; }
+.card-mechanism { font-size: 11px; color: var(--purple); font-family: monospace; }
+.card-popup-action {
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  border: 1px solid rgba(76, 201, 240, 0.55);
+  border-radius: 5px;
+  background: rgba(76, 201, 240, 0.1);
+  color: var(--cyan);
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 6px 10px;
+}
+.card-popup-action:hover,
+.card-popup-action:focus-visible {
+  background: rgba(76, 201, 240, 0.2);
+  color: #fff;
+  outline: none;
+}
+
+.modal-open { overflow: hidden; }
+.sim-popup {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: none;
+  place-items: center;
+  padding: 22px;
+}
+.sim-popup.open { display: grid; }
+.sim-popup-scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(4, 5, 14, 0.78);
+  backdrop-filter: blur(5px);
+}
+.sim-popup-panel {
+  position: relative;
+  z-index: 1;
+  width: min(1120px, 100%);
+  height: min(760px, calc(100vh - 44px));
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55);
+}
+.sim-popup-header {
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+}
+.sim-popup-header h2 {
+  flex: 1;
+  min-width: 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+.sim-popup-open {
+  color: var(--cyan);
+  border: 1px solid rgba(76, 201, 240, 0.45);
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 11px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.sim-popup-open:hover { background: rgba(76, 201, 240, 0.14); color: #fff; }
+.sim-popup-close {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: #2a2a4a;
+  color: var(--text);
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+}
+.sim-popup-close:hover,
+.sim-popup-close:focus-visible {
+  border-color: var(--coral);
+  color: #fff;
+  outline: none;
+}
+.sim-popup-frame {
+  flex: 1;
+  width: 100%;
+  border: 0;
+  background: var(--bg);
+}
+
+#description-panel {
+  margin-bottom: 0;
+}
+#desc-toggle {
+  color: var(--purple);
+  font-size: 13px;
+  cursor: pointer;
+  padding: 6px 0;
+  user-select: none;
+}
+#desc-toggle:hover { color: var(--cyan); }
+#desc-content {
+  display: none;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-dim);
+  max-height: min(70vh, 520px);
+  overflow-y: auto;
+}
+#desc-content.open { display: block; }
+#desc-content h4 { color: var(--text); margin: 8px 0 4px; font-size: 13px; }
+#desc-content h4:first-child { margin-top: 0; }
+#desc-content .formula { color: var(--cyan); font-family: monospace; font-size: 14px; }
+#desc-content .expected { color: var(--coral); font-family: monospace; }
+
+.raw-phase-toggle {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  background: rgba(22, 33, 62, 0.85);
+  border: 1px solid var(--purple);
+  color: var(--purple);
+  padding: 5px 12px;
+  border-radius: 4px;
+  font-size: 11px;
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.2s;
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+.raw-phase-toggle:hover {
+  background: rgba(124, 131, 253, 0.2);
+  color: #fff;
+}
+.raw-phase-toggle.active {
+  background: var(--purple);
+  color: white;
+  animation: none;
+}
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 4px rgba(124, 131, 253, 0.3); }
+  50% { box-shadow: 0 0 12px rgba(124, 131, 253, 0.6); }
+}
+
+.mini-view.active-indicator {
+  border: 2px solid var(--cyan) !important;
+  box-shadow: 0 0 8px rgba(76, 201, 240, 0.5);
+  opacity: 1 !important;
+}
+
+.transform-toggle {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background: rgba(22, 33, 62, 0.85);
+  border: 1px solid var(--cyan);
+  color: var(--cyan);
+  padding: 5px 12px;
+  border-radius: 4px;
+  font-size: 11px;
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.2s;
+}
+.transform-toggle:hover {
+  background: rgba(76, 201, 240, 0.2);
+  color: #fff;
+}
+.transform-toggle.active {
+  background: var(--cyan);
+  color: #0a0a1a;
+}
+
+.formula-readout {
+  min-width: 300px;
+  max-width: 520px;
+  margin-left: auto;
+  color: var(--text-dim);
+  font-size: 10px;
+  line-height: 1.22;
+  text-align: right;
+  justify-content: flex-end;
+  font-family: ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace;
+}
+.formula-readout strong { color: var(--text); font-weight: 600; }
+.formula-readout .f-count { color: var(--coral); }
+.formula-readout .f-angle { color: var(--cyan); }
+.formula-readout .f-mass { color: #ffd784; }
+.formula-readout .f-result { color: #8fe3ad; }
+.formula-readout .f-muted { color: var(--text-dim); }
+.formula-readout .f-warning { color: #ffd784; }
+
+.phase-axis-overlay {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  z-index: 6;
+  pointer-events: none;
+  display: grid;
+  gap: 4px;
+  max-width: min(360px, calc(100% - 190px));
+  color: var(--text-dim);
+  font-family: ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace;
+  font-size: 10px;
+  line-height: 1.25;
+}
+.phase-axis-title {
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  margin-bottom: 1px;
+}
+.phase-axis-label {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  min-width: 0;
+}
+.phase-axis-key {
+  color: var(--cyan);
+  font-weight: 700;
+  min-width: 10px;
+}
+.phase-axis-y .phase-axis-key { color: #ffd784; }
+.phase-axis-z .phase-axis-key { color: #8fe3ad; }
+
+@media (max-width: 768px) {
+  .alt-links { display: none; }
+  .formula-readout { min-width: 280px; }
+  .phase-axis-overlay { max-width: calc(100% - 20px); }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   POLISH LAYER
+   Placed last so it settles the specificity ties this file already resolves by
+   source order (see the two #desc-content blocks). Nothing here changes the
+   palette, the card idiom, or the information architecture — it fixes
+   hierarchy, legibility and keyboard access on top of them.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── 1. Focus. The site had exactly two focus rules and both ended in
+   `outline: none`, so a 39-card grid could be tabbed through invisibly.
+   --cyan clears 3:1 on every surface here (10.2:1 on --bg, 8.3:1 on --panel). */
+:where(a, button, summary, [tabindex], input, select):focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+/* The card link fills a card with overflow:hidden, which clips its ring —
+   so lift the indicator onto the card box itself. */
+.sim-card:focus-within {
+  border-color: var(--cyan);
+  box-shadow: 0 0 0 2px var(--cyan);
+}
+.sim-card-link:focus-visible { outline: none; }
+/* These two substituted a near-invisible background shift for a real ring. */
+.card-popup-action:focus-visible,
+.sim-popup-close:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 2px;
+}
+
+/* ── 2. Typographic hierarchy. Section titles and card titles were BOTH
+   18px/700 — a heading and the things it heads at identical weight and size.
+   Give each step its own job, and set the leadings that were never set. */
+#hub-header h1 {
+  font-family: var(--display);
+  font-size: var(--fs-h1);
+  font-weight: 650;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+.sim-section-header h2 {
+  font-family: var(--display);
+  font-size: var(--fs-h2);
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+  margin-bottom: 6px;
+}
+.sim-card h2 {
+  font-family: var(--display);
+  font-size: var(--fs-h3);
+  font-weight: 650;
+  line-height: 1.28;
+  letter-spacing: -0.01em;
+}
+.sim-section-e .sim-section-header h2,
+.sim-section-secondary .sim-section-header h2 { font-size: clamp(21px, 2.2vw, 29px); }
+.sim-section-secondary .card-preview { aspect-ratio: 2.2; }
+.sim-section-secondary .card-info { padding: 16px; }
+.sim-section-secondary .card-info h2 { font-size: 19px; }
+#sim-title { font-family: var(--display); letter-spacing: -0.01em; }
+
+/* Measure: the section blurbs carry the argument and were running ~110
+   characters per line at 720px. 62ch lands them near 70. */
+.sim-section-header p {
+  color: var(--text-body);
+  font-size: var(--fs-read);
+  line-height: 1.65;
+  max-width: 62ch;
+}
+.card-info p { color: var(--text-body); font-size: var(--fs-body); line-height: 1.55; }
+.wn-note, .hidden-shelf { color: var(--text-body); }
+.tagline { color: var(--text-body); line-height: 1.55; max-width: 52ch; }
+
+/* ── 3. The card body. Two <span class="card-mechanism"> siblings were emitted
+   back to back as inline elements, so the "What changed" note and the π
+   mechanism ran together into one undifferentiated blob. Making .card-info a
+   wrap-flex container gives every block child its own line AND lets the badge
+   row share a single gap — which also removes the 6px misindent that appeared
+   when three pills wrapped. */
+.card-info {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 6px;
+  row-gap: 8px;
+}
+.card-info > h2,
+.card-info > p,
+.card-info > .card-mechanism { flex: 1 0 100%; margin: 0; }
+.card-new, .card-rigor, .card-conv { margin: 0; }
+
+.card-mechanism { font-family: var(--mono); font-size: var(--fs-cap); line-height: 1.45; }
+/* The changelog note is PROSE, not a measured value — give it the prose face,
+   and clamp it so one long note cannot blow out its whole grid row. */
+.card-mechanism.hl-new,
+.card-mechanism.hl-rebuilt,
+.card-mechanism.hl-fixed,
+.card-mechanism.hl-retired {
+  font-family: var(--sans);
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ── 4. Three badges preceded every title and read as one undifferentiated
+   block. Keep the pill geometry (it is right) but let each axis take a
+   different FORM, so they separate without a new colour. */
+.card-rigor { text-transform: none; letter-spacing: 0.03em; font-size: var(--fs-micro); }
+.card-conv {
+  border: 0; padding: 0; border-radius: 0;
+  font-family: var(--mono); font-size: var(--fs-micro);
+  display: inline-flex; align-items: center; gap: 5px;
+}
+.card-conv::before {
+  content: ''; width: 6px; height: 6px; border-radius: 50%;
+  background: currentColor; flex: 0 0 auto;
+}
+
+/* ── 5. Two colour systems were competing for "which card matters", and the
+   changelog was winning: an 18px coloured glow beats a 3px accent strip. That
+   is backwards — the section accent is permanent architecture, the what's-new
+   layer is perishable. Let the accent own every edge; let the badge alone
+   carry the changelog hue, and mark a changed card by luminance instead. */
+.sim-card.is-new,
+.sim-card.is-rebuilt,
+.sim-card.is-fixed {
+  border-color: rgba(255, 255, 255, 0.22);
+  box-shadow: none;
+}
+.sim-card.is-new::before,
+.sim-card.is-rebuilt::before,
+.sim-card.is-fixed::before { height: 5px; }
+
+/* ── 6. The grid was capped at 1000px, which pins it to 3 columns and leaves
+   wide screens half empty. The cap was really protecting the prose measure —
+   now capped explicitly above, so the grid is free. */
+#hub-grid { max-width: 1240px; }
+
+/* Every note in the what's-new panel started at one of two x positions,
+   because "Honesty fix" overflows the 62px min-width the others sit at. */
+.wn-tag { flex: 0 0 88px; font-size: var(--fs-micro); letter-spacing: 0.06em; }
+
+/* Placeholder letters were 48px — half again the page title — and there are 39
+   of them on screen while previews load. */
+.card-placeholder { font-size: 34px; font-family: var(--display); font-weight: 650; }
+
+/* ── 7. The π readout is the entire point of a sim page and was 14px, smaller
+   than default body text. It is the hero; let it read like one. */
+.counter-value {
+  font-family: var(--mono);
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;   /* digits stop jittering as they tick */
+}
+.counter-label { font-size: var(--fs-micro); letter-spacing: 0.07em; text-transform: uppercase; }
+/* Keep the number pinned in view: the counter is DOM-last in a horizontally
+   scrolling bar, so on a narrow window the site's whole reason for existing
+   could scroll off the right edge while the simulation ran. */
+.collision-counter {
+  position: sticky; right: 0; z-index: 2;
+  flex-direction: column; align-items: flex-end; text-align: right;
+  gap: 0; padding-left: 18px;
+  background: linear-gradient(90deg, rgba(22, 33, 62, 0) 0, var(--panel) 18px);
+}
+.formula-readout { font-size: 11px; line-height: 1.4; }
+/* Digit highlighting, moved out of inline styles so it is themeable at all. */
+.pi-locked { color: #7CFC8A; font-weight: 700; text-shadow: 0 0 10px rgba(124, 252, 138, 0.28); }
+.pi-drift  { color: var(--pi-drift); font-weight: 400; }
+
+/* ── 8. Motion. Two intentional additions — a staggered entrance so the grid
+   assembles rather than snapping in, and a lift on hover that uses the section
+   accent already in scope. Both are suppressed wholesale below. */
+@keyframes card-rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+.sim-card {
+  animation: card-rise 0.42s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+  animation-delay: calc(var(--card-i, 0) * 22ms);
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+.sim-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--section-accent, var(--purple));
+}
+.path-step, .wn-item a, .alt-link { transition: color 0.18s, border-color 0.18s; }
+
+/* ── 9. Motion safety. There was no prefers-reduced-motion block at all, and
+   this pass adds motion, so it needs one. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .sim-card:hover { transform: none; }
+}
+
+/* ── 10. Hit targets. The range inputs were 3px tall — box-sizing is global, so
+   3px was the entire click target, 12.5% of the 24px WCAG floor. Native
+   appearance centres the track inside the element box, so the visual weight of
+   the slider is unchanged; only the target grows. */
+.ctrl-slider,
+.slider-group.slider-highlight .ctrl-slider { height: 24px; margin: 0; }
+#desc-toggle { width: 28px; height: 28px; background: none; font: inherit; padding: 0; }
+
+/* ── 11. Hero contrast. --coral on --panel is 4.15:1 — under AA, and at 22px/500
+   the readout is NOT "large text" by WCAG (that needs 24px at normal weight), so
+   the site's headline number was failing. Same hue, lifted for legibility. */
+:root { --coral-hi: #ff7d90; }        /* 6.5:1 on --panel */
+.counter-value { color: var(--coral-hi); font-size: 24px; }
+
+/* ── 12. One monospace voice. The bare `monospace` keyword resolves to Courier
+   New on Firefox/Windows but Consolas on Chrome, so card mechanism lines and the
+   sim readouts were literally different typefaces on the same machine. */
+.cap-mech, #desc-content .formula, #desc-content .expected, .ctrl-value {
+  font-family: var(--mono);
+}
+
+/* ── 13. The thumbnails are <button> now; strip the UA chrome they inherit. */
+#extra-views-overlay .mini-view {
+  padding: 0; border: 1px solid var(--border); background: none;
+  font: inherit; color: inherit; cursor: pointer; display: block;
+}
+/* 7.5px was below any legibility floor, and it sits over live canvas whose
+   luminance changes frame to frame — so it needs its own shadow, not a colour. */
+#extra-views-overlay .mini-view .mini-label {
+  font-size: 9px; font-weight: 600; letter-spacing: 0.02em;
+  color: #cfd4e0; text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9); pointer-events: none;
+}
+
+/* ── 14. Spacing drift: 7 / 9 / 18 / 30 were off-grid with nothing depending on
+   them. Snapped to the 4px base the rest of the layout already uses. */
+.wn-list { gap: 8px; }
+.wn-item { column-gap: 12px; row-gap: 4px; }
+.whats-new { padding: 16px; }
+.wn-batch { margin-top: 16px; }
+.wn-legend { margin-top: 16px; padding-top: 12px; gap: 12px; }
+.capstone { margin-top: 20px; }
+.hidden-shelf { margin: 16px 0 32px; }
+
+/* ── 15. Centred multi-line prose gives the eye no return point and fights the
+   flush-left, rule-anchored section headers directly below it. */
+#hub-header { text-align: left; max-width: 62ch; }
+.card-placeholder { color: var(--section-accent, var(--coral)); opacity: 0.22; }
+
+/* Screen-reader-only text, for the icon button that opens the explanation. */
+.sr-only {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
+}
+
+/* The primary argument precedes the collection and its development history. */
+.hub-thesis { color: var(--text-body); max-width: 65ch; margin-top: 12px; }
+.hub-start { display: inline-flex; gap: 24px; margin-top: 20px; padding: 10px 16px;
+  color: var(--cyan); border: 1px solid var(--cyan); border-radius: 8px; text-decoration: none; }
+.hub-start:hover, .hub-start:focus-visible { color: #fff; background: #4cc9f018; }
+.whats-new > summary { color: var(--text-body); cursor: pointer; font-size: var(--fs-read); }
+.whats-new[open] > summary { margin-bottom: 12px; color: var(--text); }
+.reading-next { display: block; padding: 7px 20px; color: var(--cyan); background: #4cc9f00a;
+  border-block: 1px solid #4cc9f026; font-size: var(--fs-cap); text-decoration: none; }
+.reading-next:hover, .reading-next:focus-visible { color: #fff; background: #4cc9f018; }

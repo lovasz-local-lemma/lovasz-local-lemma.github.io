@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><style id="portfolio-early-paint">html{background:#0b0d0c;color-scheme:dark}html.portfolio-booting body{opacity:0}</style><script src="../../portfolio-navigation.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="A C++ and WebAssembly experiment in CPU path tracing, coupled smoke and cloth, and measured SIMD and thread acceleration." />
+  <meta name="theme-color" content="#0b1215" />
+  <title>Realtime Graphics on CPU — Rendering & Dynamics in WebAssembly</title>
+  <script src="../../portfolio-coi.js" data-scopes="./"></script>
+  <link rel="stylesheet" href="styles.css" />
+<link rel="stylesheet" href="../../portfolio-controls.css"><link rel="stylesheet" href="../../portfolio-demo-return.css"><script defer src="../../portfolio-demo-return.js" data-project="cpu-atelier" data-title="Realtime Graphics on CPU" data-overview="projects/cpu-atelier/overview.html" data-group="graphics" data-thumbnail="media/previews/cpu-atelier/native-cloth-canopy-render-and-execution-controls.png" data-routes="[{&quot;project&quot;:&quot;cpu-atelier&quot;,&quot;title&quot;:&quot;Realtime Graphics on CPU&quot;,&quot;group&quot;:&quot;graphics&quot;,&quot;thumbnail&quot;:&quot;media/previews/cpu-atelier/native-cloth-canopy-render-and-execution-controls.png&quot;,&quot;overview&quot;:&quot;projects/cpu-atelier/overview.html&quot;,&quot;path&quot;:&quot;live_demos/cpu-atelier/index.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:2},{&quot;project&quot;:&quot;cpu-atelier&quot;,&quot;title&quot;:&quot;Realtime Graphics on CPU&quot;,&quot;group&quot;:&quot;graphics&quot;,&quot;thumbnail&quot;:&quot;media/previews/cpu-atelier/native-cloth-canopy-render-and-execution-controls.png&quot;,&quot;overview&quot;:&quot;projects/cpu-atelier/overview.html&quot;,&quot;path&quot;:&quot;live_demos/cpu-atelier/index.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:1},{&quot;project&quot;:&quot;cpu-atelier&quot;,&quot;title&quot;:&quot;Realtime Graphics on CPU&quot;,&quot;group&quot;:&quot;graphics&quot;,&quot;thumbnail&quot;:&quot;media/previews/cpu-atelier/native-cloth-canopy-render-and-execution-controls.png&quot;,&quot;overview&quot;:&quot;projects/cpu-atelier/overview.html&quot;,&quot;path&quot;:&quot;live_demos/cpu-atelier/&quot;,&quot;query&quot;:{},&quot;priority&quot;:-1}]"></script><!-- universal-navigation:start --><link rel="stylesheet" href="../../portfolio-location.css?v=054b6b462c"><script defer src="../../portfolio-location.js?v=054b6b462c"></script><script defer src="../../portfolio-routes.js?v=054b6b462c"></script><script defer src="../../portfolio-universal-navigation.js?v=054b6b462c"></script><!-- universal-navigation:end --><style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head>
+<body>
+  <div id="app">
+    <header class="masthead">
+      <div class="identity">
+        <svg class="mark" viewBox="0 0 52 52" aria-hidden="true">
+          <defs><linearGradient id="chip" x2="1" y2="1"><stop stop-color="#b8f1e2"/><stop offset="1" stop-color="#d8b272"/></linearGradient></defs>
+          <rect x="9" y="9" width="34" height="34" rx="10" fill="#182a2b" stroke="url(#chip)"/>
+          <path d="M16 34 23 18 28 28 36 16M16 34h20M17 4v5m9-5v5m9-5v5M17 43v5m9-5v5m9-5v5M4 17h5m-5 9h5m-5 9h5m34-18h5m-5 9h5m-5 9h5" fill="none" stroke="url(#chip)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="28" cy="28" r="2.7" fill="#f3dba2"/>
+        </svg>
+        <div><h1>Realtime Graphics <span>on CPU</span></h1><p>Rendering &amp; dynamics · C++ / WebAssembly</p></div>
+      </div>
+      <div class="header-meta"><span class="build-label">EXECUTION</span><span id="status-pill"><i></i><span id="buildkind">Loading WebAssembly…</span></span><a href="../../projects/cpu-atelier/technical-notes/method.html" class="text-link">Technical notes ↗</a></div>
+    </header>
+
+    <main class="exhibit">
+      <div class="intro">
+        <p class="eyebrow">A DIFFERENT COMPUTE CANVAS</p>
+        <h2>Every ray. Every constraint.<br /><em>On the CPU.</em></h2>
+        <p>Ray tracing, volumetric effects and grid solvers are natural GPU workloads. Here, C++ compiled to WebAssembly does the computation: coupled smoke and cloth, path tracing, and the final image effects. Explore what SIMD and threads accelerate—and where memory access and divergent work set the limit.</p>
+      </div>
+      <section id="viewport" aria-label="Interactive rendered scene">
+        <div class="scene-caption"><span><i class="live-dot"></i><span id="scene-name">Coupled canopy</span></span><span id="play-state">LIVE SIMULATION</span></div>
+        <div class="canvas-space"><canvas id="view" width="800" height="600" aria-label="CPU path-traced smoke and cloth. Drag to orbit, scroll to zoom." aria-describedby="camhint"></canvas></div>
+        <div class="view-footer"><p id="camhint">Drag to orbit · scroll to zoom · arrow keys and +/− when focused</p><button id="savepng" class="quiet">Save image ↗</button></div>
+        <div class="image-readout"><span><b id="fps">–</b> fresh images / s</span><span title="Current scene's progressive sample count. Surface-history frames are reported separately in Looks."><b id="samples">0</b> samples / pixel</span><span><b id="image-size">448 × 336</b> CPU image</span><span><b id="work-ms">–</b> worker compute</span></div>
+      </section>
+
+      <section class="pipeline-panel" aria-label="Live CPU pipeline">
+        <div class="section-heading"><h3>The work behind the image</h3><span>Measured C++ stage time</span></div>
+        <div class="pipeline-flow">
+          <div class="pipe-step" title="Fluid, cloth and two-way coupling" data-stage="physics"><span class="step-no">01</span><strong>Dynamics</strong><small>Fluid + cloth + coupling</small><output data-stage-ms="physics">–</output><i class="stage-track"><b></b></i></div>
+          <div class="pipe-step" title="Triangle mesh and BVH reconstruction" data-stage="geometry"><span class="step-no">02</span><strong>Geometry</strong><small>Mesh + BVH rebuild</small><output data-stage-ms="geometry">–</output><i class="stage-track"><b></b></i></div>
+          <div class="pipe-step" title="Path tracing of surfaces and participating media" data-stage="trace"><span class="step-no">03</span><strong>Light transport</strong><small>Surfaces + volume</small><output data-stage-ms="trace">–</output><i class="stage-track"><b></b></i></div>
+          <div class="pipe-step" title="CPU surface-history reconstruction, spatial denoising, oil painting and vintage effects" data-stage="finish"><span class="step-no">04</span><strong>Image finish</strong><small>History + denoise + effects</small><output data-stage-ms="finish">–</output><i class="stage-track"><b></b></i></div>
+        </div>
+        <p class="pipeline-note"><span>CPU → finished RGBA image</span><span class="arrow">→</span><span>WebGL2 → texture presentation only</span></p>
+      </section>
+    </main>
+
+    <aside id="panel" aria-label="Scene inspector">
+      <section class="preset-card">
+        <div class="section-heading"><h3>Choose a study</h3><span>START HERE</span></div>
+        <div class="preset-grid" role="group" aria-label="Scene presets">
+          <button id="p_default" aria-pressed="true"><span>◈</span>Coupled canopy</button>
+          <button id="p_fire" class="fire-preset" aria-pressed="false"><span>✦</span>Emissive plume</button>
+          <button id="p_dense" aria-pressed="false"><span>≋</span>Dense smoke</button>
+          <button id="p_windy" aria-pressed="false"><span>⚑</span>Windy flag</button>
+          <button id="p_painterly" aria-pressed="false"><span>⌁</span>Oil painting</button>
+          <button id="p_lowsun" aria-pressed="false"><span>◒</span>Low sun</button>
+        </div>
+        <p class="hint" id="study-note">A rising plume pushes the canopy; the moving cloth becomes an obstacle in the fluid grid.</p>
+        <div class="quality-card">
+          <label for="quality">Motion &amp; detail <span id="adaptive-state">FIXED IMAGE BUDGET</span></label>
+          <div class="quality-tip-wrap" id="quality-tip-wrap"><button id="quality-advice" type="button" aria-describedby="quality-tip" hidden>◌ Quality suggestion</button><div id="quality-tip" role="tooltip">Consider reducing quality to get a smoother result.<small>Rich keeps the original detail. Try Balanced or Smooth when the computer is busy.</small></div></div>
+          <select id="quality"><option value="rich" selected>Rich · original detail · default</option><option value="balanced">Balanced · finer detail</option><option value="smooth">Smooth · adaptive motion</option><option value="splats">Voxel motion · detailed plume</option></select>
+          <p id="quality-note">448 × 336 · original detail · full 48³ fluid.</p>
+        </div>
+        <div class="playback-row"><button id="pause" class="primary">Pause &amp; converge</button><button id="resetsim" title="Restart the fluid simulation">Reset smoke</button><button id="resetcloth" title="Reset cloth positions">Reset cloth</button></div>
+        <p class="hint">Stable surfaces accumulate while the scene moves. Pause to converge the entire image.</p>
+      </section>
+
+      <nav class="inspector-tabs" aria-label="Inspector sections" role="tablist">
+        <button id="tab-scene" role="tab" aria-selected="true" aria-controls="pane-scene" data-tab="scene">Scene</button>
+        <button id="tab-looks" role="tab" aria-selected="false" aria-controls="pane-looks" tabindex="-1" data-tab="looks">Looks</button>
+        <button id="tab-execution" role="tab" aria-selected="false" aria-controls="pane-execution" tabindex="-1" data-tab="execution">Execution</button>
+      </nav>
+      <div id="err" role="alert"></div>
+      <div class="inspector-content">
+        <section id="pane-scene" class="tab-pane" role="tabpanel" aria-labelledby="tab-scene">
+          <div class="block"><h3>Coupled dynamics</h3>
+            <label class="toggle"><input type="checkbox" id="volume" checked /><span>Render participating media<small>Single-scattering smoke and volumetric emission.</small></span></label>
+            <label class="toggle"><input type="checkbox" id="cloth" checked /><span>Cloth surface<small>Position-based distance constraints; ray-traced triangle mesh.</small></span></label>
+            <label class="toggle"><input type="checkbox" id="coupling" checked /><span>Two-way coupling<small>Fluid drags the sheet; the sheet obstructs the fluid. Off: scripted cloth breeze.</small></span></label>
+          </div>
+          <div class="block"><h3>Cloth arrangement</h3>
+            <div class="segmented two" role="group" aria-label="Cloth layout">
+              <button id="lay_flag" aria-pressed="false">Flag on a pole</button><button id="lay_canopy" aria-pressed="true">Canopy</button><button id="lay_ring" aria-pressed="false">Through ring</button><button id="lay_canopy_high" aria-pressed="false">Raised canopy</button>
+            </div>
+            <label class="toggle"><input type="checkbox" id="ring" /><span>Brass ring obstacle<small>A static torus for cloth collision and the fluid grid.</small></span></label>
+            <label class="toggle"><input type="checkbox" id="seal" checked /><span>Sealed cloth<small>Dense grid stamping closes the gaps between particles.</small></span></label>
+            <label class="range-label" for="clothres">Cloth resolution <span><b id="clothresval">45</b> columns</span></label>
+            <input type="range" id="clothres" min="9" max="81" step="4" value="45" />
+            <p class="hint"><span id="clothparts">–</span> particles · finer folds increase the serial cloth solver's work.</p>
+          </div>
+          <div class="block"><h3>Surface &amp; emission</h3>
+            <div class="segmented two" role="group" aria-label="Sphere material"><button id="m_diffuse" aria-pressed="false">Diffuse</button><button id="m_metal" aria-pressed="false">Rough metal</button><button id="m_glass" aria-pressed="false">Glass</button><button id="m_coat" aria-pressed="true">Car paint</button></div>
+            <label class="range-label" for="fire">Fire emission <span id="fireval">0</span></label><input type="range" id="fire" min="0" max="200" step="5" value="0" />
+            <p class="hint">Temperature drives light emitted inside the volume. The Emissive plume study raises the source above the sphere so its hot core is visible.</p>
+          </div>
+        </section>
+        <section id="pane-looks" class="tab-pane" role="tabpanel" aria-labelledby="tab-looks" hidden>
+          <div class="block"><h3>Plume representation</h3>
+            <div class="segmented two" role="group" aria-label="Volume representation"><button id="volume_smooth" aria-pressed="true">Smooth volume</button><button id="volume_splats" aria-pressed="false">Voxel splats</button></div>
+            <div id="splat-settings" hidden><label class="range-label" for="splat-resolution">Grid detail <span id="splat-resolution-value">28</span></label><input id="splat-resolution" type="range" min="8" max="40" step="2" value="28" /></div>
+            <label class="range-label" for="volume-steps">Smooth volume samples <span id="volume-steps-value">32</span></label><input type="range" id="volume-steps" min="8" max="64" step="8" value="32" />
+            <p class="hint">More ray samples refine smoke and hot emission at extra rendering cost. The fluid grid and timestep stay fixed.</p>
+            <p class="hint">Voxel splats are compact 3D supports sampled from the same smoke and temperature fields. They rotate with the scene and are occluded by its surfaces. This stylizes the plume; surfaces remain path traced.</p>
+            <p class="hint">A coarser representation can reduce volume-rendering work, but does not accelerate the 48³ simulation. Compare the live stage timings; image quality and density coverage also change.</p>
+          </div>
+          <div class="block"><h3>A deliberately low-resolution image</h3><p class="hint">A pixel-scale image, Reinhard tone curve, and visible sampling process. Motion &amp; detail chooses the image budget; Smooth adapts it to measured CPU work. No frames are interpolated.</p>
+            <label class="range-label" for="sat">HDR saturation <span id="satval">1.35</span></label><input type="range" id="sat" min="0" max="2.5" step="0.05" value="1.35" />
+          </div>
+          <div class="block"><h3>Sampling &amp; reconstruction</h3>
+            <label class="toggle"><input type="checkbox" id="temporal" checked /><span>Surface history<small>Reuse validated surface radiance. Smoke and fire stay current; moving cloth is excluded.</small></span></label>
+            <label class="range-label" for="reconstruction-view">Inspect reconstruction</label>
+            <select id="reconstruction-view"><option value="image">Rendered image</option><option value="history">History reuse</option></select>
+            <div class="history-stats"><span title="Fraction of all image pixels accepting previous surface history"><b id="history-reuse">–</b> pixels reuse</span><span title="Mean history age across eligible static surfaces, saturating at 8. New or rejected history counts as 1. This is not effective samples per pixel."><b id="history-frames">–</b> mean age</span><span title="Surface reconstruction and its display conversion"><b id="history-ms">–</b> CPU pass</span></div>
+            <p class="hint" id="history-state">Live · stable surfaces only</p>
+            <p class="hint" id="history-legend" hidden><span class="legend-reused">Mint · reused (brighter = older)</span><br /><span class="legend-fresh">Amber · fresh or rejected history</span><br /><span class="legend-excluded">Slate · excluded, including cloth and sky</span><br />Camera, scene and material changes clear history. Pausing bypasses this pass.</p>
+            <p class="hint">A running surface average with depth and normal checks. Each fresh sample keeps at least ⅛ of the weight; the pixel grid stays crisp. <a href="../../projects/cpu-atelier/technical-notes/image-reconstruction.html" target="_blank" rel="noopener">How it works ↗</a></p>
+            <label class="toggle"><input type="checkbox" id="strat" /><span>Low-discrepancy sampling<small>R2 sequence with per-pixel offsets; same sample budget, different error distribution.</small></span></label>
+            <label class="toggle"><input type="checkbox" id="denoise" /><span>Spatial denoise · à-trous<small>Three edge-aware passes. Less noise; fine detail can soften.</small></span></label>
+          </div>
+          <div class="block"><h3>Vintage image chain</h3>
+            <label class="toggle"><input type="checkbox" id="vintage" /><span>Enable vintage finish</span></label>
+            <div class="effect-grid"><label class="toggle"><input type="checkbox" id="v_bloom" checked />Bloom</label><label class="toggle"><input type="checkbox" id="v_chroma" checked />Chromatic fringe</label><label class="toggle"><input type="checkbox" id="v_scan" checked />Scanlines</label><label class="toggle"><input type="checkbox" id="v_dither" checked />Ordered dither</label></div>
+            <p class="hint">The individual passes apply when Vintage finish is enabled.</p>
+          </div>
+          <div class="block"><h3>Painterly rendering</h3><label class="toggle"><input type="checkbox" id="npr" /><span>Oil painting · brush &amp; impasto<small>flockaroo's two-pass NPR, ported from GLSL to C++.</small></span></label><p class="hint">This pass runs on the CPU too. Its scalar implementation is unaffected by the SIMD switch.</p></div>
+        </section>
+        <section id="pane-execution" class="tab-pane" role="tabpanel" aria-labelledby="tab-execution" hidden>
+          <div class="block execution-card"><h3>Change how the work runs</h3><div id="cfg">Initializing engine…</div>
+            <label class="toggle"><input type="checkbox" id="simd" checked /><span><span id="kernel-label">SIMD kernels</span><small>Four-lane ray packets and fluid stencils.</small></span></label>
+            <label class="range-label" for="threads">Worker threads <span id="threadsval">1</span></label><input type="range" id="threads" min="1" max="1" value="1" />
+            <p class="hint">A persistent worker team is reused between passes. The engine runs off the UI thread. More parallelism still does not guarantee lower time: compare the current scene at different thread counts.</p>
+          </div>
+          <div class="block"><h3>Runtime checks</h3><dl class="metrics"><div><dt>Cross-origin isolation</dt><dd id="coi">?</dd></div><div><dt>Logical processors reported</dt><dd id="hw">?</dd></div><div><dt>Scalar / SIMD self-check</dt><dd id="simdok">?</dd></div><div><dt>Simulation watchdog resets</dt><dd id="resets">0</dd></div></dl><p class="hint"><a id="scalarlink" href="?scalar">Load the scalar-only build ↗</a><br />Separate scalar and SIMD modules support an end-to-end build comparison.</p></div>
+          <details class="block"><summary>Model &amp; measurement scope</summary><p class="hint">This is a CPU systems study with illustrative transport and materials. The volume uses single scattering with a heuristic ambient fill; rough metal and clearcoat are simplified shading models.</p><p class="hint">Cloth uses projected distance constraints. Its fluid coupling combines drag with moving grid obstacles, rather than a fully momentum-conserving joint solver. Each fresh image follows one fixed 0.1 s simulation update; presentation is not real-time physical pacing. Quality presets rebuild cloth at a different tessellation while retaining the 48³ fluid. Smooth adapts only the image resolution.</p><p class="hint">The startup self-check samples a renderer tile and a seeded fluid update. The complete engine frame runs in a dedicated worker, leaving controls responsive while the CPU works. Expensive scenes can still produce fewer fresh images.</p></details>
+          <details class="block"><summary>Detailed live timings</summary><pre id="stages"></pre><dl class="metrics"><div><dt>Trace / sample</dt><dd id="ms">–</dd></div><div><dt>Fluid step</dt><dd id="simms">–</dd></div><div><dt>Cloth + mesh + coupling</dt><dd id="clothms">–</dd></div><div><dt>Denoise</dt><dd id="dnms">–</dd></div><div><dt>Vintage finish</dt><dd id="vinms">–</dd></div><div><dt>Oil painting</dt><dd id="nprms">–</dd></div><div><dt>C++ render + finish</dt><dd id="frametotal">–</dd></div><div><dt>Readout update · JS only</dt><dd id="ui-update-ms">–</dd></div></dl><p class="hint">C++ render time excludes simulation and presentation. The image footer reports worker compute and framebuffer-copy time, excluding message transport and GPU presentation. Readout updates run at most six times per second; their timer excludes layout, paint and compositing.</p></details>
+          <details class="block"><summary>Benchmark this workload</summary>
+            <p class="hint">Measured on this device and scene, not reference scores. Each configuration is warmed up; the lowest sampled time is reported. CPU contention affects the result.</p>
+            <button id="benchfluid" class="primary">Measure fluid step</button>
+            <dl class="metrics"><div><dt>Scalar · 1 / N threads</dt><dd id="f_s">–</dd></div><div><dt>SIMD path · 1 / N</dt><dd id="f_v">–</dd></div><div><dt>SIMD ratio · 1 thread</dt><dd id="f_simd">–</dd></div><div><dt>Thread ratio · scalar</dt><dd id="f_thr">–</dd></div></dl>
+            <p class="hint">The fluid continues evolving during this comparison; its four measurements are not identical-state replays.</p>
+            <button id="bench" class="primary">Measure path tracer</button>
+            <p class="hint">Simulation is frozen for the sweep. Path tracing only: excludes image effects. Ratios below 1 mean the tested path was slower.</p>
+            <dl class="metrics"><div><dt>Scalar / 1 thread</dt><dd id="b_s1">–</dd></div><div><dt id="lab_sN">Scalar / N threads</dt><dd id="b_sN">–</dd></div><div><dt>SIMD path / 1 thread</dt><dd id="b_v1">–</dd></div><div><dt id="lab_vN">SIMD path / N threads</dt><dd id="b_vN">–</dd></div><div><dt>SIMD ratio · 1 thread</dt><dd id="sp_simd">–</dd></div><div><dt>SIMD ratio · N threads</dt><dd id="sp_simdN">–</dd></div><div><dt>Thread ratio · scalar</dt><dd id="sp_thr">–</dd></div><div><dt>Combined ratio</dt><dd id="sp_all">–</dd></div></dl>
+            <p class="hint">In the scalar-only module, the “SIMD path” uses scalar emulation and is not a hardware SIMD measurement.</p>
+          </details>
+        </section>
+      </div>
+      <footer class="inspector-footer">C++ → WebAssembly · SIMD + pthreads <span>CPU COMPUTE / GPU DISPLAY</span></footer>
+    </aside>
+  </div>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

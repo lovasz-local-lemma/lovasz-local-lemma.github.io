@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Modal Synthesis — Technical Roadmap</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;600&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: rgba(255,255,255,0.03);
+    --glass: rgba(255,255,255,0.06);
+    --glass-border: rgba(255,255,255,0.1);
+    --text: #e0e0e8;
+    --text-dim: #8888a0;
+    --accent: #4ecdc4;
+    --accent2: #ff6b6b;
+    --accent3: #a78bfa;
+    --glow: rgba(78, 205, 196, 0.3);
+    --glow2: rgba(255, 107, 107, 0.2);
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* Animated background */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background:
+      radial-gradient(ellipse at 20% 50%, rgba(78,205,196,0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 20%, rgba(167,139,250,0.06) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 80%, rgba(255,107,107,0.05) 0%, transparent 50%);
+    z-index: -1;
+    animation: bgPulse 8s ease-in-out infinite alternate;
+  }
+  @keyframes bgPulse {
+    0% { opacity: 0.7; }
+    100% { opacity: 1; }
+  }
+
+  .container { max-width: 1100px; margin: 0 auto; padding: 2rem; }
+
+  /* Glass card */
+  .card {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 2rem;
+    margin: 1.5rem 0;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px var(--glow);
+  }
+
+  /* Hero */
+  .hero {
+    text-align: center;
+    padding: 4rem 0 3rem;
+  }
+  .hero h1 {
+    font-size: 3.5rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--accent), var(--accent3), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: titleGlow 3s ease-in-out infinite alternate;
+  }
+  @keyframes titleGlow {
+    0% { filter: brightness(1); }
+    100% { filter: brightness(1.3); }
+  }
+  .hero .subtitle {
+    font-size: 1.2rem;
+    color: var(--text-dim);
+    margin-top: 0.5rem;
+    font-weight: 300;
+  }
+  .hero .badge {
+    display: inline-block;
+    padding: 0.3rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin: 1rem 0.3rem 0;
+    border: 1px solid;
+  }
+  .badge.cuda { border-color: #76b900; color: #76b900; }
+  .badge.opengl { border-color: #5586a4; color: #5586a4; }
+  .badge.fem { border-color: var(--accent); color: var(--accent); }
+  .badge.audio { border-color: var(--accent2); color: var(--accent2); }
+  .badge.imgui { border-color: var(--accent3); color: var(--accent3); }
+
+  h2 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  h2 .icon { font-size: 1.5rem; }
+  h3 { font-size: 1.2rem; font-weight: 600; margin: 1rem 0 0.5rem; color: var(--accent); }
+
+  p { margin: 0.5rem 0; }
+
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    background: rgba(255,255,255,0.08);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.85em;
+  }
+
+  .code-block {
+    background: rgba(0,0,0,0.4);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    padding: 1rem;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    line-height: 1.5;
+    margin: 0.8rem 0;
+  }
+
+  /* Grid */
+  .grid { display: grid; gap: 1.5rem; }
+  .grid-2 { grid-template-columns: 1fr 1fr; }
+  .grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+  @media (max-width: 768px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+
+  /* Stats */
+  .stat {
+    text-align: center;
+    padding: 1.5rem;
+  }
+  .stat .num {
+    font-size: 2.5rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--accent), var(--accent3));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .stat .label { font-size: 0.85rem; color: var(--text-dim); margin-top: 0.3rem; }
+
+  /* Timeline */
+  .timeline { position: relative; padding-left: 2rem; }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--accent), var(--accent3), var(--accent2));
+  }
+  .timeline-item {
+    position: relative;
+    padding: 1rem 0 1rem 1.5rem;
+  }
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -2rem;
+    top: 1.4rem;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 12px var(--glow);
+  }
+  .timeline-item .time {
+    font-size: 0.75rem;
+    color: var(--accent);
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+
+  /* Tag list */
+  .tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.5rem; }
+  .tag {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    background: rgba(78,205,196,0.15);
+    color: var(--accent);
+    border: 1px solid rgba(78,205,196,0.3);
+  }
+  .tag.red { background: rgba(255,107,107,0.15); color: var(--accent2); border-color: rgba(255,107,107,0.3); }
+  .tag.purple { background: rgba(167,139,250,0.15); color: var(--accent3); border-color: rgba(167,139,250,0.3); }
+
+  /* File tree */
+  .file-tree { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; line-height: 2; }
+  .file-tree .dir { color: var(--accent); font-weight: 600; }
+  .file-tree .file { color: var(--text-dim); padding-left: 1.5rem; }
+  .file-tree .desc { color: #666; font-style: italic; }
+
+  /* Equation box */
+  .equation {
+    text-align: center;
+    padding: 1.2rem;
+    margin: 1rem 0;
+    background: rgba(78,205,196,0.05);
+    border: 1px solid rgba(78,205,196,0.15);
+    border-radius: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.1rem;
+    letter-spacing: 0.5px;
+  }
+
+  /* Animated wave decoration */
+  .wave-deco {
+    height: 60px;
+    overflow: hidden;
+    margin: 2rem 0;
+  }
+  .wave-deco svg { width: 100%; height: 100%; }
+  .wave-path {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 1.5;
+    opacity: 0.3;
+    animation: waveMove 4s linear infinite;
+  }
+  @keyframes waveMove {
+    0% { stroke-dashoffset: 0; }
+    100% { stroke-dashoffset: -200; }
+  }
+
+  .section-title {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+  }
+
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0; }
+  th { text-align: left; padding: 0.5rem; color: var(--accent); font-size: 0.85rem; border-bottom: 1px solid var(--glass-border); }
+  td { padding: 0.4rem 0.5rem; font-size: 0.85rem; border-bottom: 1px solid rgba(255,255,255,0.03); }
+
+  footer {
+    text-align: center;
+    padding: 3rem 0;
+    color: var(--text-dim);
+    font-size: 0.8rem;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<!-- Hero -->
+<div class="hero">
+  <h1>Modal Synthesis</h1>
+  <p class="subtitle">Physics-Based Sound Synthesis via Finite Element Modal Analysis</p>
+  <div>
+    <span class="badge fem">FEM</span>
+    <span class="badge cuda">CUDA</span>
+    <span class="badge opengl">OpenGL 4.5</span>
+    <span class="badge audio">PortAudio</span>
+    <span class="badge imgui">ImGui</span>
+  </div>
+</div>
+
+<!-- Wave decoration -->
+<div class="wave-deco">
+  <svg viewBox="0 0 1000 60" preserveAspectRatio="none">
+    <path class="wave-path" d="M0,30 Q50,5 100,30 T200,30 T300,30 T400,30 T500,30 T600,30 T700,30 T800,30 T900,30 T1000,30" stroke-dasharray="10 5"/>
+  </svg>
+</div>
+
+<!-- Stats -->
+<div class="grid grid-3">
+  <div class="card stat"><div class="num">33+</div><div class="label">Preset Scenes</div></div>
+  <div class="card stat"><div class="num">8</div><div class="label">Interaction Modes</div></div>
+  <div class="card stat"><div class="num">120</div><div class="label">Max Eigenmodes</div></div>
+</div>
+
+<!-- Theory -->
+<div class="card">
+  <div class="section-title">Theory</div>
+  <h2><span class="icon">📐</span> Finite Element Method</h2>
+  <p>Structures are discretized into triangular mesh elements. Each node has degrees of freedom (DOFs) representing displacement. The system is governed by the generalized eigenvalue problem:</p>
+  <div class="equation">K · φ = ω² · M · φ</div>
+  <p>where <code>K</code> is the stiffness matrix, <code>M</code> is the mass matrix, <code>ω</code> are the natural frequencies, and <code>φ</code> are the mode shapes.</p>
+
+  <div class="grid grid-2" style="margin-top:1rem">
+    <div>
+      <h3>Element Types</h3>
+      <table>
+        <tr><th>Element</th><th>DOFs/Node</th><th>Application</th></tr>
+        <tr><td>CST (Constant Strain Triangle)</td><td>2 (ux, uy)</td><td>Membrane vibration</td></tr>
+        <tr><td>Euler-Bernoulli Beam</td><td>3 (ux, uy, θ)</td><td>Strings, beam shells</td></tr>
+        <tr><td>DKT (Discrete Kirchhoff Triangle)</td><td>3 (w, θx, θy)</td><td>Plate bending</td></tr>
+      </table>
+    </div>
+    <div>
+      <h3>Eigensolvers</h3>
+      <table>
+        <tr><th>Method</th><th>When Used</th></tr>
+        <tr><td>cuSOLVER (GPU dense)</td><td>Small matrices (&lt;2000 DOF)</td></tr>
+        <tr><td>Shift-invert Lanczos (CPU)</td><td>Large sparse matrices</td></tr>
+        <tr><td>SimplicialLDLT</td><td>Free-free boundary conditions</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Synthesis -->
+<div class="card">
+  <div class="section-title">Audio</div>
+  <h2><span class="icon">🔊</span> Modal Synthesis</h2>
+  <p>Each mode is an independent damped harmonic oscillator. The total displacement (and sound pressure) is the superposition of all modes:</p>
+  <div class="equation">p(t) = Σᵢ αᵢ · Aᵢ · e<sup>−ζωᵢ(t−t₀)</sup> · sin(ωd,ᵢ · (t−t₀))</div>
+  <p>This closed-form solution is evaluated on GPU via CUDA — one thread per audio sample, all modes summed in parallel. <strong>44.1kHz, 512-sample buffer, zero-latency analytical evaluation.</strong></p>
+
+  <h3>Post-Processing Chain</h3>
+  <div class="tags">
+    <span class="tag">1-pole LP Filter</span>
+    <span class="tag red">Soft Clip (tanh)</span>
+    <span class="tag purple">Peak Auto-Normalize</span>
+    <span class="tag">Frequency Drift</span>
+  </div>
+</div>
+
+<!-- Medium Propagation -->
+<div class="card">
+  <div class="section-title">Visualization</div>
+  <h2><span class="icon">🌊</span> Medium Propagation</h2>
+  <p>Acoustic radiation visualized in real-time using a <strong>Kirchhoff boundary integral</strong> evaluated on GPU via OpenGL compute shader:</p>
+  <div class="equation">p(x,t) = Σⱼ vn,ⱼ · sin(ω(t − rⱼ/c)) / √rⱼ · cos(θⱼ)</div>
+  <p>Each boundary node acts as a point source with retarded time. The compute shader evaluates this at every pixel (up to 1920×1080), with per-pixel point-in-mesh occlusion testing.</p>
+
+  <div class="grid grid-2" style="margin-top:1rem">
+    <div>
+      <h3>Features</h3>
+      <ul style="list-style:none; padding:0;">
+        <li>✦ Pixel-perfect resolution</li>
+        <li>✦ Deformed mesh mask (follows vibration)</li>
+        <li>✦ Directional radiation (cos θ weighting)</li>
+        <li>✦ Blue/red phase coloring with exposure control</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Acoustic Feedback</h3>
+      <p>Optional medium→structure coupling: pressure at each boundary node from other sources is computed and applied as force, enabling <strong>sympathetic resonance</strong> between separate structures through the air.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Instrument Builder -->
+<div class="card">
+  <div class="section-title">Tools</div>
+  <h2><span class="icon">🎹</span> Instrument Builder</h2>
+  <p>Interactive tuning mode for creating custom instruments with precise pitch control:</p>
+
+  <div class="grid grid-3">
+    <div>
+      <h3>7 Component Shapes</h3>
+      <div class="tags">
+        <span class="tag">String</span>
+        <span class="tag">Box-2 Elastic</span>
+        <span class="tag">Box-Open</span>
+        <span class="tag">Triangle</span>
+        <span class="tag">Hexagon</span>
+        <span class="tag">Box-Hard</span>
+        <span class="tag">Ring</span>
+      </div>
+    </div>
+    <div>
+      <h3>Fine-Tuning</h3>
+      <div class="tags">
+        <span class="tag purple">Fine-W (binary search)</span>
+        <span class="tag purple">Fine-Size (uniform)</span>
+        <span class="tag purple">Fine-WH (alternating 2D)</span>
+      </div>
+      <p style="font-size:0.8rem; margin-top:0.5rem">Converges within ±2 cents of target. Auto-retry with jitter on collapse.</p>
+    </div>
+    <div>
+      <h3>Export / Import</h3>
+      <p style="font-size:0.8rem">Native file dialogs. Save tuned instruments as .txt files. 8 notes per instrument (C major scale, any octave C1–C8).</p>
+    </div>
+  </div>
+</div>
+
+<!-- Code Structure -->
+<div class="card">
+  <div class="section-title">Architecture</div>
+  <h2><span class="icon">📁</span> Code Structure</h2>
+
+  <div class="grid grid-2">
+    <div class="file-tree">
+      <div class="dir">libmodal/</div>
+      <div class="file">src/fem/element_cst.cpp <span class="desc">— CST membrane</span></div>
+      <div class="file">src/fem/element_beam.cpp <span class="desc">— Euler-Bernoulli beam</span></div>
+      <div class="file">src/fem/element_dkt.cpp <span class="desc">— DKT plate bending</span></div>
+      <div class="file">src/fem/assembler.cpp <span class="desc">— K,M assembly</span></div>
+      <div class="file">src/solver/eigensolve.cpp <span class="desc">— GPU/CPU eigensolver</span></div>
+      <div class="file">src/audio/synthesis.cu <span class="desc">— CUDA audio kernel</span></div>
+      <div class="file">src/modal_api.cpp <span class="desc">— Public C API</span></div>
+    </div>
+    <div class="file-tree">
+      <div class="dir">modal_viewer/</div>
+      <div class="file">src/app/app.cpp <span class="desc">— Main loop, state machine</span></div>
+      <div class="file">src/renderer/mesh_renderer.cpp <span class="desc">— OpenGL mesh</span></div>
+      <div class="file">src/renderer/shader.cpp <span class="desc">— GLSL shaders</span></div>
+      <div class="file">src/audio/audio_engine.cpp <span class="desc">— PortAudio callback</span></div>
+      <div class="file">src/ui/ui_manager.cpp <span class="desc">— ImGui toolbar</span></div>
+      <div class="file">src/ui/viz_spectrum.cpp <span class="desc">— Frequency spectrum</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- Scenes -->
+<div class="card">
+  <div class="section-title">Content</div>
+  <h2><span class="icon">🎼</span> 33 Preset Scenes</h2>
+
+  <div class="grid grid-3">
+    <div>
+      <h3>Basic Shapes</h3>
+      <p style="font-size:0.8rem">Rect, Circle, L-Shape, Triangle, Tuning Fork, Ring, String, Cross, Star</p>
+    </div>
+    <div>
+      <h3>Instruments</h3>
+      <p style="font-size:0.8rem">Harp, Piano, Guitar, Guitar+, Piano+, Violin, Harp+, Bow Strings</p>
+    </div>
+    <div>
+      <h3>Resonators</h3>
+      <p style="font-size:0.8rem">Box variants, BigBox, HexBox, DoubleBox, Tuned8/12, Bell shapes, Open+Box, Glass chambers</p>
+    </div>
+  </div>
+</div>
+
+<!-- Interaction -->
+<div class="card">
+  <div class="section-title">Interaction</div>
+  <h2><span class="icon">👆</span> 8 Interaction Modes</h2>
+  <table>
+    <tr><th>Mode</th><th>Description</th></tr>
+    <tr><td><strong>Strike</strong></td><td>Single impulse at click point</td></tr>
+    <tr><td><strong>Rapid</strong></td><td>Continuous strikes at 20Hz while held</td></tr>
+    <tr><td><strong>Bow</strong></td><td>Gentle continuous excitation at 30Hz</td></tr>
+    <tr><td><strong>Pluck</strong></td><td>Click-drag to set force direction, release to strike</td></tr>
+    <tr><td><strong>Sweep</strong></td><td>Frequency sweep 20Hz–2kHz to find resonances</td></tr>
+    <tr><td><strong>Region</strong></td><td>Circular area strike with linear falloff</td></tr>
+    <tr><td><strong>Blow*</strong></td><td>Sinusoidal excitation at local resonant frequency</td></tr>
+    <tr><td><strong>Bow+</strong></td><td>Friction-based bowing with stick-slip accumulator</td></tr>
+  </table>
+</div>
+
+<!-- Technology Stack -->
+<div class="card">
+  <div class="section-title">Stack</div>
+  <h2><span class="icon">⚡</span> Technology</h2>
+  <div class="grid grid-2">
+    <div>
+      <table>
+        <tr><th>Component</th><th>Technology</th></tr>
+        <tr><td>FEM Assembly</td><td>Eigen (C++ linear algebra)</td></tr>
+        <tr><td>Eigensolver</td><td>cuSOLVER + custom Lanczos</td></tr>
+        <tr><td>Audio Synthesis</td><td>CUDA kernel (1 thread/sample)</td></tr>
+        <tr><td>Audio Output</td><td>PortAudio (44.1kHz, float32)</td></tr>
+      </table>
+    </div>
+    <div>
+      <table>
+        <tr><th>Component</th><th>Technology</th></tr>
+        <tr><td>Rendering</td><td>OpenGL 4.5 Core + GLSL 450</td></tr>
+        <tr><td>Medium Viz</td><td>GL Compute Shader</td></tr>
+        <tr><td>UI</td><td>Dear ImGui (docking branch)</td></tr>
+        <tr><td>Meshing</td><td>Triangle (Delaunay lib)</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Future -->
+<div class="card">
+  <div class="section-title">Roadmap</div>
+  <h2><span class="icon">🚀</span> Future Directions</h2>
+  <div class="timeline">
+    <div class="timeline-item">
+      <div class="time">Near-term</div>
+      <p><strong>3D Solid Elements</strong> — Tetrahedral FEM for volumetric vibration. Requires 3D mesher (TetGen) and 3D rendering.</p>
+    </div>
+    <div class="timeline-item">
+      <div class="time">Near-term</div>
+      <p><strong>Per-Mode Damping</strong> — Frequency-dependent damping instead of uniform ζ. Higher modes decay faster (material-accurate).</p>
+    </div>
+    <div class="timeline-item">
+      <div class="time">Medium-term</div>
+      <p><strong>Tension-Based Strings</strong> — Wave equation elements (f ∝ 1/L) instead of beam bending (f ∝ 1/L²) for realistic string sound.</p>
+    </div>
+    <div class="timeline-item">
+      <div class="time">Medium-term</div>
+      <p><strong>Convolution Reverb</strong> — Room impulse response applied post-synthesis for spatial realism.</p>
+    </div>
+    <div class="timeline-item">
+      <div class="time">Long-term</div>
+      <p><strong>BEM Acoustic Radiation</strong> — Full Boundary Element Method replacing the simplified Kirchhoff integral for accurate far-field radiation patterns.</p>
+    </div>
+    <div class="timeline-item">
+      <div class="time">Long-term</div>
+      <p><strong>Multi-Material Regions</strong> — Per-element material properties for composite structures (wood body + steel strings + brass frets).</p>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>Modal Synthesis — Built with C++, CUDA, OpenGL, and physics.</p>
+  <p style="margin-top:0.3rem">2024–2026</p>
+</footer>
+
+</div>
+</body>
+</html>

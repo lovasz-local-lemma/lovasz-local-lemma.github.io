@@ -1,0 +1,35 @@
+{
+  "rows": [
+    {
+      "name": "Exact visibility",
+      "error": "-0.005% sample error",
+      "fraction": "100%",
+      "efficiency": "1.000\u00d7"
+    },
+    {
+      "name": "12 \u00d7 8 cache only",
+      "error": "+3.605% bias",
+      "fraction": "0.02%",
+      "efficiency": "Biased target"
+    },
+    {
+      "name": "12 \u00d7 8 + exact correction",
+      "error": "-0.038% sample error",
+      "fraction": "12.05%",
+      "efficiency": "1.671\u00d7"
+    },
+    {
+      "name": "48 \u00d7 32 cache only",
+      "error": "+0.313% bias",
+      "fraction": "0.29%",
+      "efficiency": "Biased target"
+    },
+    {
+      "name": "48 \u00d7 32 + exact correction",
+      "error": "+0.014% sample error",
+      "fraction": "12.26%",
+      "efficiency": "0.873\u00d7"
+    }
+  ],
+  "note": "Lower time \u00d7 variance is better. The coarse corrected cache loses; the refined one shows a modest gain in this small NumPy CPU experiment. Both corrected empirical intervals contain the independent reference. Costs include a cold cache build; timing is noisy, and this is not a general renderer speed-up. Cache-only bias is measured independently of sampling noise."
+}

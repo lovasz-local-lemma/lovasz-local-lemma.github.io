@@ -1,0 +1,154 @@
+<!doctype html><html lang="en"><head><style data-portfolio-paint>html{background:#0b0d0c;color-scheme:dark}html.portfolio-booting body{opacity:0}</style><script src="../../../portfolio-navigation.js?v=688f1905bc"></script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Crucible2.5D · Recording compositions</title><meta name="description" content="Native scenes: start a take immediately or pause to frame it, introduce one change, then inspect its response."><meta name="color-scheme" content="dark"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="../../../portfolio.css?v=b7ed8602e5"><link rel="stylesheet" href="../../../portfolio-effects.css?v=62be30dafa"><link rel="stylesheet" href="../../../portfolio-atmospheres.css?v=4b74c57939"><link rel="stylesheet" href="../../../portfolio-motion.css?v=4b098d8184"><link rel="stylesheet" href="../../../portfolio-case-studies.css?v=243caf2b0d"><link rel="stylesheet" href="../../../portfolio-brochures.css?v=a1e5e16132"><link rel="stylesheet" href="../../../portfolio-project-themes.css?v=a898c35e78"><link rel="stylesheet" href="../../../portfolio-location.css?v=9c4c1ad84f"><link rel="stylesheet" href="../../../portfolio-controls.css?v=9376de7761"><link rel="stylesheet" href="../../../portfolio-media.css?v=c51f7712ea"><link rel="stylesheet" href="../../../portfolio-overviews.css?v=8612c4ee0a"><link rel="stylesheet" href="../../../portfolio-motivations.css?v=ccc1c1d866"><link rel="stylesheet" href="../../../portfolio-claims.css?v=058dbd00ef"><link rel="stylesheet" href="../../../portfolio-feature-atlas.css?v=e73f02cb31"><script type="application/json" id="media-framing">{"media/brochures/physics-2d/thermal-furnace-magnetic-field-probe.png":{"width":1602,"height":940,"top":39},"media/brochures/physics-2d/magnetic-field-direction-appearance-controls.png":{"width":1602,"height":940,"top":39},"media/brochures/physics-2d/time-bomb-blast-particle-plume.png":{"width":1602,"height":940,"top":39}}</script><script defer src="../../../portfolio-claims.js?v=ed914a4d3a"></script><script defer src="../../../portfolio-visual-defaults.js?v=eecfd5c771"></script><script defer src="../../../portfolio-motion.js?v=a642c710f9"></script><script defer src="../../../portfolio-fire-studies.js?v=7717e15582"></script><script defer src="../../../portfolio-embers.js?v=8a8be5569d"></script><script defer src="../../../portfolio-atmospheres.js?v=021b2f100e"></script><script defer src="../../../portfolio-effects.js?v=03a6c89d6c"></script><script defer src="../../../portfolio-brochures.js?v=055cad29d6"></script><script defer src="../../../portfolio-location.js?v=3846586893"></script><script defer src="../../../portfolio-media.js?v=d2d555a888"></script><script defer src="../../../portfolio-articles.js?v=acb89575ce"></script><script defer src="../../../portfolio-labs.js?v=a0b86a3809"></script><link rel="stylesheet" href="../../../portfolio-technical.css?v=0ecb3a48c7"><!-- universal-navigation:start --><script defer src="../../../portfolio-routes.js?v=054b6b462c"></script><script defer src="../../../portfolio-universal-navigation.js?v=054b6b462c"></script><!-- universal-navigation:end --><style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head><body data-page="technical" data-project-theme="matter" data-project-id="physics-2d" data-default-atmosphere="contours"><a class="skip-link" href="#main">Skip to content</a><nav class="site-nav portfolio-route" data-route-group="flagships" aria-label="Portfolio location"><div class="route-path"><a class="route-node route-home" href="../../../index.html#project-physics-2d" aria-label="Portfolio"><img class="route-mark" src="../../../media/identity/portfolio-mark.svg" alt="" width="52" height="52"><span class="route-copy"><small>Work / ideas</small><strong>Portfolio</strong></span></a><span class="route-wire" aria-hidden="true"><i></i><b></b></span><div class="route-node route-group"><span class="route-glyph" aria-hidden="true">✦</span><span class="route-copy"><small>Collection</small><strong>Flagship</strong></span></div><span class="route-wire" aria-hidden="true"><i></i><b></b></span><div class="route-node route-project"><span class="route-glyph" hidden aria-hidden="true">◈</span><img class="route-thumb" src="../../../media/brochures/physics-2d/food-surface/burger.jpg" width="42" height="42" alt=""><span class="route-copy"><small>Project</small><strong>Crucible2.5D</strong></span></div></div><div class="route-end"><span class="route-meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><a class="route-back" href="../../../index.html#project-physics-2d">← Back to portfolio</a></div></nav><main id="main" class="project-page technical-page"><header class="technical-hero"><span class="eyebrow">Crucible2.5D · native laboratory notes</span><h1>Crucible2.5D · Recording compositions</h1><p>Native scenes: start a take immediately or pause to frame it, introduce one change, then inspect its response.</p><div class="technical-actions"><a href="../index.html#manual-recording-studio">← Crucible2.5D brochure</a><a href="recording-scenes.html" aria-current="page">Recording compositions</a><a href="food-studio.html">Food surface and recording studio</a><a href="model-audit.html">Models, branches and their limits</a><a href="thermal-comparison.html">Thermal comparison routes</a><a href="porous-growth-comparison.html">Porous growth and thickness</a></div></header><aside class="technical-scope"><span>◈</span><p>Native implementation notes and retained comparison evidence. Scene captures record behavior; targeted GPU checks establish specific numerical properties. Their conclusions remain separate from material calibration and whole-system convergence.</p></aside><article class="technical-document"><h2 id="open-the-recording-studio">Open the recording studio</h2><p>The application is now titled <strong>Crucible</strong>; its subtitle is <strong>a 2D material laboratory</strong>. The folder/project ID remains <code>Physics_2D</code> so existing paths keep working.</p>
+<p>Use the newly built <code>build-local/Release/Crucible2.5D.exe</code>. In the top bar, open <strong>Presets → Recording studio</strong>, choose a take and click <strong>Load and run</strong> to start immediately, or <strong>Load paused</strong> to arrange the shot first. The panel shows the loaded scene, its <strong>PAUSED / RUNNING</strong> state and a <strong>Run take / Pause take</strong> button. The global <strong>Run (P) / Pause (P)</strong> control is first in the toolbar so it remains visible in narrower windows. The larger recording preset panel includes Original surface, optional Surface finishes, Particle diagnostic, Material beauty, Temperature, Damage/crust and Material history views. <strong>P</strong> runs/pauses, <strong>R</strong> resets recording scenes to paused, <strong>U</strong> hides the interface, middle-drag pans, and the wheel zooms. <strong>SPACE</strong> opens Create and right-click places the selected material.</p>
+<p>The two empty stages preselect Heavy Ferrofluid or Culture Tissue respectively. They remain empty until you place something. Appearance → Thermal capture &amp; comparison contains the new display controls and optional model comparisons.</p>
+<p>From the source root, this opens the kiln gallery without replacing saved window settings:</p>
+<pre><code class="language-powershell">./build-local/Release/Crucible2.5D.exe --scene 121 --no-settings
+</code></pre>
+<p><code>python tools/build_local.py --configure --target noita_gish contact_reaction_test thermal_comparison_test</code> creates an isolated local build from the dependencies already cached in this checkout. The historical CMake target name remains <code>noita_gish</code>; its output is <code>Crucible2.5D.exe</code>. Do not reuse the copied <code>build/</code> CMake cache, which may still refer to the original development folder.</p>
+<p>For repeatable framebuffer captures and native checks:</p>
+<pre><code class="language-powershell">python tools/check_recording_scenes.py --frames 240
+python tools/check_recording_controls.py
+./build-local/Release/Crucible2.5D.exe --scene 128 --frames 480 --run --hidden --no-ui --no-settings --capture glass.bmp
+</code></pre>
+<p><code>--seed-material</code> explicitly places the starter material for scenes 120/123. <code>--thermal-view</code> selects the temperature diagnostic; <code>--fixed-heat</code> selects the symmetric diffusion comparison. <code>--legacy-heater</code> restores the old heater/gizmo link, and <code>--heater-gizmo</code> turns that drawing on. All hidden runs require a finite <code>--frames</code> limit. Captures are lossless BMP files; the native window itself works with OBS as before.</p>
+<h2 id="compositions">Compositions</h2><p>Twenty-three additive presets start at scene ID 120. The original 120 scenes and their IDs are unchanged. Filter the Scene Browser to <strong>recording</strong>, load a composition, arrange the camera while paused, and only then run. The selected row contains a short shot guide. Magnetic Tank and Living Pedestal are intentionally empty so the recording can begin with placing the material.</p>
+<p>These scenes stage existing models. They are not new claims of physical accuracy. Use a clean natural-material view for the main take and a second temperature, pressure, field or fiber view to explain what happened. Keep failed takes: a useful comparison can show a limit without presenting it as a validated physical result.</p>
+<div class="case-table-wrap technical-table" tabindex="0" role="region" aria-label="Technical comparison"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Preset</th>
+<th>First take</th>
+<th>Useful comparison</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>120</td>
+<td>Magnetic Tank</td>
+<td>Drop a radius 0.35–0.5 Heavy Ferrofluid blob near <code>(0,-0.35)</code>, let it settle, then hold <strong>M</strong> above it.</td>
+<td>Reload with ordinary or Sticky Ferrofluid. Sweep the same cursor path. A broad empty basin makes their differences legible.</td>
+</tr>
+<tr>
+<td>121</td>
+<td>Crust &amp; Kiln Gallery</td>
+<td>Unpause three cold specimens over the 820 K source. Record the boule swelling, tile firing and hollow vessel response.</td>
+<td>Temperature view reveals shell/core lag. Current crust rules may leave a connected skin rather than separated cracks; show that result honestly.</td>
+</tr>
+<tr>
+<td>122</td>
+<td>Rocket &amp; Chamber Range</td>
+<td>From the left launch mark, aim a Rocket at the chamber door around <code>y=0.2</code>. Three equal ceramic witnesses sit progressively deeper inside.</td>
+<td>Cold stoneware supplies the existing airtight shell tag; use air resolution 512+. Remove a roof/wall section for a cavity-connectivity comparison. Rendered rings and Sedov fronts still use SDF obstruction, so this is not a claim of complete MPM shock shielding.</td>
+</tr>
+<tr>
+<td>123</td>
+<td>Living Pedestal</td>
+<td>Drop a radius 0.25 <strong>Culture Tissue</strong> seed at <code>(0,0.5)</code> in the shallow raised dish, then unpause.</td>
+<td>Show its field overlay, then one burn/reclaim take with live material left nearby. Other legacy living backends remain separate experiments rather than interchangeable versions of one model.</td>
+</tr>
+<tr>
+<td>124</td>
+<td>Three Grains</td>
+<td>Unpause the three equal loading beads above warm orthotropic strips. Only the fiber directions differ: along, across, diagonal.</td>
+<td>Reload and use Spring Drag on one strip. Compare existing fracture modes at the same geometry, timestep and load. A visible tear is not a fracture-toughness measurement.</td>
+</tr>
+<tr>
+<td>125</td>
+<td>Layered Press</td>
+<td>Unpause the press weight onto the bun/patty/stretch-layer stack.</td>
+<td>Move the weight aside before a second take, then heat the stack from below. These are material analogues, not a cooking simulator.</td>
+</tr>
+<tr>
+<td>126</td>
+<td>Reaction Row</td>
+<td>Unpause four identical square specimens above compact equal burning pads: wax, crust, glaze, timber.</td>
+<td>Record natural colours, then temperature and damage/field views. Equal geometry/start temperature does not imply equal heat capacity or equal absorbed energy.</td>
+</tr>
+<tr>
+<td>127</td>
+<td>Metal Heat Cycle</td>
+<td>Left strip starts at 300 K, right at 700 K. Record the warm strip cooling on its saddles, then heat one end.</td>
+<td>Cool and reheat. The implemented hardening history is one-way on cooling; call this <strong>heat-treatment memory</strong>, not a reversible annealing model.</td>
+</tr>
+<tr>
+<td>128</td>
+<td>Glass Drape</td>
+<td>Equal glass strips at 300 K and 1100 K fall onto identical rounded formers.</td>
+<td>Heat the initially cold copy, then allow cooling. The hot copy starts above the implemented 720–980 K softening window; it still retains a stiffness floor. This is not a measured viscosity/temperature curve.</td>
+</tr>
+<tr>
+<td>129</td>
+<td>Fuel &amp; Cauldron</td>
+<td>Unpause the compact MPM fuel bed beneath the thin rigid pot. Watch the initially cold contents with a fixed temperature scale.</td>
+<td>The compact fixture demonstrates gentle indirect warming with no radius heater. Compare with the retained thick-pot failure; this is not a melting or calibrated heat-transfer demonstration.</td>
+</tr>
+</tbody></table></div>
+<p>The additional <strong>Liquid Cascade (130)</strong>, <strong>Ribbon Canopy (131)</strong> and <strong>Wax Drop
+Bowl (132)</strong> compositions have <span class="technical-source-label">their own shot guides</span>.</p>
+<p><strong>Fuel &amp; Water (133)</strong> replaces the cauldron&#39;s two MPM ingredients with a shallow
+300 K pool of ordinary SPH Water. The fuel and conductive pot provide the heat;
+there is no radius heater. Both cauldron scenes enable <strong>Ordinary water can boil</strong>
+under Recording studio. Turning it off restores ordinary Water&#39;s previous calm
+response. Read <span class="technical-source-label">what the water model actually does</span> before
+presenting this as a physical boiling simulation.</p>
+<h2 id="optional-surface-finishes">Optional surface finishes</h2><p>The latest nine <span class="technical-source-label">material-contrast scenes (134–142)</span>
+add thin heating witnesses, scored crust bridges, metal bending, open kiln shapes,
+matched impacts, notched and hanging grain tests, and two layered burger takes.</p>
+<p>Under <strong>Presets → Recording studio → Surface finishes</strong>, try <strong>Satin</strong> first
+for a continuous soft surface. <strong>Liquid</strong> gives a wetter highlight,
+<strong>Porcelain</strong> a brighter polished finish, and <strong>Soft wax</strong> warm translucency.
+<strong>Original clay</strong> restores the established shading. These presets change both
+SPH and MPM drawing; they do not change the physical material or motion.
+The same controls are under <strong>Appearance → Surface finish presets</strong>.</p>
+<p><strong>Surface smoothing</strong> blends the lighting towards a broader density field.
+<strong>Smoothing radius</strong> controls the size of the lighting detail; <strong>Surface relief</strong>
+controls how strongly the surface appears rounded. Coverage and material colors
+still come from the original field, preserving droplets, gaps and boundaries.
+Zero smoothing bypasses the new shading; the original look remains the default.
+The patterned <strong>Field</strong> styles keep their existing behavior.</p>
+<p>This removes an artificial source of lumps: the former normal calculation gave
+even a tiny particle-density ripple a full-strength tilt. The optional normals
+retain gradient magnitude and use two half-resolution Gaussian passes. There
+is no added GPU readback and no blur pass when smoothing is off. This is a
+display treatment, not a new liquid solver or a geometric surface reconstruction;
+coarse particle silhouettes can still be visible in sparse regions.</p>
+<p>For reproducible captures, add <code>--surface-finish satin</code> (or <code>original</code>, <code>liquid</code>,
+<code>porcelain</code>, <code>wax</code>) to the existing capture command.</p>
+<h2 id="framing-and-presentation">Framing and presentation</h2><p>All compositions except Rocket &amp; Chamber Range fit the usual world. The range uses the established XL domain and approximately 92 pixels per world unit. Leave the launch lane empty. The other recording scenes start with a camera centered at <code>(0,-0.25)</code> and zoom <code>160</code>, with the original surface presentation (Clay for MPM; Liquid for the new SPH cascade). Use <strong>Particle diagnostic</strong> for the underlying samples. Press <strong>U</strong> for a clean take without the interface or tool HUD. There is intentional empty space above for motion and plumes.</p>
+<p>Start with 5–10 seconds of the untouched specimen, then one clear intervention. Keep the camera still during the reaction. Reset instead of stacking multiple unrelated effects into one take. A second close-up or field-overlay take can explain the same event without covering the first take in controls.</p>
+<p>Prefer display exposure/temperature colouring when the air turns uniformly gold. Those controls change appearance. Increasing air cooling changes the simulated experiment and should be identified in the caption or comparison. Do not label either as an automatically more accurate result.</p>
+<p>For magnetic and living scenes, the initial blank frame is useful: place one material and let that action introduce the experiment. There is no hidden seed or pre-triggered magnetic source in either composition.</p>
+<h3 id="a-heater-can-stay-on-while-its-gizmo-is-hidden">A heater can stay on while its gizmo is hidden</h3><p>Under <strong>Appearance → Thermal capture &amp; comparison</strong>, <strong>Independent heater control (comparison)</strong> separates <strong>Scene heater enabled</strong> from <strong>Draw heater gizmos</strong>. It is enabled for the new recording scenes. This matters for a clean kiln recording: hiding the explanatory drawing must not turn off the experiment. Switching the comparison off restores the original drawing/activation link for an explicit A/B.</p>
+<p>The historical connection was a real source of misleading captures: a configured temperature alone did not prove the source was active. Keep the activation state with the recording, and inspect the temperature readout before judging a thermal material&#39;s response.</p>
+<h2 id="runtime-activation-contract">Runtime activation contract</h2><p>The scene loaders own geometry, particles and explicit heat-source parameters. Application integration owns pause, camera/domain and the field modules:</p>
+<ul>
+<li>Every <code>is_recording_scene(id)</code> scene starts paused on a normal Scene Browser load or reset. Recording studio&#39;s <strong>Load and run</strong> explicitly starts it; <strong>Load paused</strong> retains the staging state. An explicit command-line run request can also override the initial pause for repeatable captures. A still scene immediately after a normal load is intentional; press <strong>P</strong> or <strong>Run take</strong>.</li>
+<li>The independent heater control is enabled in recording scenes; scene 121 has its configured radius source active. The other new presets explicitly have source radius zero unless the user adds a source.</li>
+<li><strong>120:</strong> magnetic field enabled; existing field tuning. The Create choice should be <code>MPMMaterial::HEAVY_FERRO_FLUID</code> (67), catalog name <code>Heavy Ferrofluid [new][experimental]</code>. No particle is automatically created.</li>
+<li><strong>122:</strong> use the XL SDF bounds <code>(-6.2,-2.2)</code> to <code>(6.2,4.4)</code>, grid bounds <code>(-6.4,-2.5)</code> to <code>(6.4,4.6)</code>, camera <code>(0,0.55)</code>, zoom <code>92</code>. Use the application&#39;s existing rocket and airtight/blast path. No automatic rocket launch.</li>
+<li><strong>123:</strong> current Living Culture backend enabled, Grow enabled, <code>CULTURE_TISSUE</code> (95), and the same <code>-1.5</code> gravity used by the existing Culture showcase. No particle is automatically created. The catalog name is <code>Culture Tissue [new]</code>; tissue starts at 305 K when placed from that preset.</li>
+<li><strong>126:</strong> enable the existing structural fire damage option for the timber witness. Oxygen coupling on both air and MPM sides is a suitable explicit recording configuration.</li>
+<li><strong>129:</strong> air and MPM oxygen coupling is suitable. Source radius remains zero; the fuel is the heat source. The compact fixture explicitly uses pot segment radius <code>0.06</code>, fuel top <code>-0.90</code> (bottom <code>-1.36</code>), air cooling <code>0.15</code>, solid thermal capacity <code>1</code>, diffusivity <code>0.012</code> and contact rate <code>0.03</code>. These are scene-specific experimental settings; old scenes retain their defaults.</li>
+<li>Other model switches retain the normal existing backend defaults. In particular, these presets do not silently select a new fracture, bake, magnetic or thermal solver.</li>
+</ul>
+<p>Recording presets now also retain the familiar fire display by default. Material
+beauty restores it after Temperature. Heat-triggered blast visuals are an
+explicit experimental option, since ordinary heating can fool that detector;
+projectile rupture effects remain independent. See <code>regression_review_20260920.md</code>.</p>
+<p>All new helpers restore spawn-time global Young&#39;s modulus, Poisson ratio and fiber strength after authoring the batches. Material bake profiles may intentionally supply their own per-material base values when the existing Bake Profiles option is enabled. The point-sampled hollow vessel and rounded bun seed their shell from their actual exposed shape, including the cavity, rather than giving every point a uniform shell/core flag.</p>
+<h2 id="interpretation-limits">Interpretation limits</h2><p>The suite prioritizes legibility and repeatability. It is not a promise that every staged effect will be spectacular under every solver combination. The current thermal crust laws mix temperature-dependent stiffness, prescribed growth/shrinkage, shell seeds, accumulated damage and residual cohesion. That can produce attractive shell/core contrasts while retaining visible bridges across a nominal crack. The new hollow vessel is an extra diagnostic for that behavior.</p>
+<p>Likewise, current metal hardening history, living growth and fire/explosion phenomenology have different levels of physical grounding. Keep their settings and names explicit. “The same framework hosts several models with different assumptions” is a stronger and more accurate story than “every material simulates its real counterpart.”</p>
+<h2 id="validation-record">Validation record</h2><p>Source construction is checked against the actual material enum, catalog and existing spawn APIs. Runtime captures and model audit results are recorded in the continuation handoff for this pass. A composition&#39;s presence here does not by itself establish that the desired dynamic outcome has been observed.</p>
+<p>The first 240-frame run of each of the ten scenes completed without reported nonfinite particle values. That establishes a short stability check, not the success of every planned shot. Scene 121 exposed the hidden-heater issue described above: with independent activation enabled, its 8,483 MPM particles reached <strong>297.92–631.97 K</strong> after 240 frames, compared with <strong>297.75–299.83 K</strong> in the legacy hidden-gizmo run.</p>
+<p>In scene 128, a 480-frame capture with the right specimen starting at <strong>1100 K</strong> shows visible softening and dripping, while the cold strip slides as an intact body. The first staging attempt at 650 K did not cross the model&#39;s 720–980 K softening interval and showed no such contrast. This verifies the intended comparison within this stylized glass model; it does not validate a physical melt viscosity. Keep the same fixed temperature-display range across both specimens and comparison takes.</p>
+<p>The first scene 129 fixture failed its indirect-heating shot. After 2,400 frames (20 simulated seconds), fuel mean was <strong>818.39 K</strong>, while wax and stretch means were <strong>291.24 K</strong> and <strong>292.21 K</strong>, below their initial 300 K. The retained <code>control-validation/cauldron-2400.log</code> records this finite but unsuccessful result.</p>
+<p>The compact retune above produced <strong>gentle indirect warming</strong>, with no radius heater: after 2,400 frames, fuel mean was <strong>816.29 K</strong>, wax <strong>317.58 K</strong>, and stretch <strong>318.37 K</strong>. Air probes below the vessel, at its wall and above it read <strong>574.66 K</strong>, <strong>484.12 K</strong> and <strong>357.73 K</strong>. All 2,607 particles remained finite. Evidence: <code>control-validation/cauldron-compact-2400.log</code>. This supports a staged warming example; it does not establish melting, a calibrated thermal model or a general repair to particle/air transfer. Keep both fixtures&#39; outcomes in the model discussion.</p>
+</article><footer class="technical-footer"><div class="technical-actions"><a href="../index.html#manual-recording-studio">← Crucible2.5D brochure</a><a href="recording-scenes.html" aria-current="page">Recording compositions</a><a href="food-studio.html">Food surface and recording studio</a><a href="model-audit.html">Models, branches and their limits</a><a href="thermal-comparison.html">Thermal comparison routes</a><a href="porous-growth-comparison.html">Porous growth and thickness</a></div></footer></main></body></html>

@@ -1,0 +1,121 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360">
+  <defs>
+    <marker id="lah" viewBox="0 0 6 6" refX="5.5" refY="3" markerWidth="5" markerHeight="5" orient="auto">
+      <path d="M0 0L6 3L0 6Z" fill="#FFD264" fill-opacity="0.6"/>
+    </marker>
+  </defs>
+  <g font-family="JetBrains Mono, ui-monospace, monospace" font-size="12" fill="#DDE3E0">
+
+    <text x="20" y="20">three coordinates at a photon vertex: (θ, φ, t) in a frame (a, U, V)</text>
+
+    <!-- ============================ ROW A ============================ -->
+    <text x="20" y="44" fill="#FFD264">FIX ONE, SWEEP TWO</text>
+    <text x="176" y="44" fill-opacity="0.75">a sheet. the camera ray crosses it at a point. no kernel.</text>
+    <line x1="20" y1="52" x2="620" y2="52" stroke="#FFFFFF" stroke-opacity="0.18" stroke-width="1"/>
+
+    <!-- A1 · 08 disk : meridian half-plane hinged on the axis, sweeps theta,t -->
+    <line x1="98" y1="62" x2="98" y2="152" stroke="#FFFFFF" stroke-opacity="0.28" stroke-width="1" stroke-dasharray="3 4"/>
+    <g stroke="#FFB347" stroke-width="1.5">
+      <path d="M98 72L176 58L176 150L98 140Z" fill="#FFB347" fill-opacity="0.16" stroke-opacity="0.7"/>
+      <path d="M98 105L176 66M98 105L176 100M98 105L176 140" fill="none" stroke-opacity="0.3" stroke-width="1"/>
+    </g>
+    <line x1="60" y1="150" x2="190" y2="72" stroke="#78C8FF" stroke-width="1.5"/>
+    <circle cx="140" cy="102" r="4" fill="none" stroke="#FFFFFF" stroke-width="2"/>
+    <circle cx="98" cy="105" r="5" fill="none" stroke="#FFD264" stroke-width="1.5" stroke-dasharray="3 2.5"/>
+
+    <!-- A2 · 09 cone : apex at the vertex, fixed half-angle, sweeps phi,t -->
+    <line x1="320" y1="60" x2="320" y2="152" stroke="#FFFFFF" stroke-opacity="0.28" stroke-width="1" stroke-dasharray="3 4"/>
+    <g stroke="#FFE9A6" stroke-width="1.5">
+      <ellipse cx="320" cy="72" rx="52" ry="14" fill="#FFE9A6" fill-opacity="0.10" stroke="none"/>
+      <path d="M320 140L268 72A52 14 0 0 0 372 72Z" fill="#FFE9A6" fill-opacity="0.16" stroke-opacity="0.7"/>
+      <path d="M268 72A52 14 0 0 1 372 72" fill="none" stroke-opacity="0.35" stroke-dasharray="3 3"/>
+    </g>
+    <path d="M320 118A22 22 0 0 0 307 122" fill="none" stroke="#DDE3E0" stroke-opacity="0.7" stroke-width="1"/>
+    <text x="298" y="116" fill-opacity="0.8">θ</text>
+    <line x1="252" y1="150" x2="400" y2="66" stroke="#78C8FF" stroke-width="1.5"/>
+    <circle cx="340" cy="100" r="4" fill="none" stroke="#FFFFFF" stroke-width="2"/>
+    <circle cx="320" cy="140" r="5" fill="none" stroke="#FFD264" stroke-width="1.5" stroke-dasharray="3 2.5"/>
+
+    <!-- A3 · 07 sphere : radius t about the vertex, sweeps theta,phi -->
+    <g stroke="#FFD264" stroke-width="1.5">
+      <circle cx="512" cy="105" r="46" fill="#FFD264" fill-opacity="0.16" stroke-opacity="0.7"/>
+      <path d="M466 105A46 14 0 0 0 558 105" fill="none" stroke-opacity="0.6"/>
+      <path d="M466 105A46 14 0 0 1 558 105" fill="none" stroke-opacity="0.35" stroke-dasharray="3 3"/>
+    </g>
+    <line x1="444" y1="152" x2="584" y2="62" stroke="#78C8FF" stroke-width="1.5"/>
+    <circle cx="475" cy="132" r="4" fill="none" stroke="#FFFFFF" stroke-width="2"/>
+    <circle cx="552" cy="83" r="4" fill="none" stroke="#FFFFFF" stroke-width="2"/>
+    <circle cx="512" cy="105" r="5" fill="none" stroke="#FFD264" stroke-width="1.5" stroke-dasharray="3 2.5"/>
+
+    <g text-anchor="middle">
+      <text x="128" y="170" fill="#FFB347">08 disk · sweeps θ,t</text>
+      <text x="320" y="170" fill="#FFE9A6">09 cone · sweeps φ,t</text>
+      <text x="512" y="170" fill="#FFD264">07 sphere · sweeps θ,φ</text>
+      <g font-size="11" fill-opacity="0.62">
+        <text x="128" y="180">holds φ</text>
+        <text x="320" y="180">holds θ</text>
+        <text x="512" y="180">holds t</text>
+      </g>
+    </g>
+
+    <text x="320" y="193" text-anchor="middle" font-size="11" fill-opacity="0.55">each column is a complementary pair — the sheet holds what the curve sweeps</text>
+
+    <!-- ============================ ROW B ============================ -->
+    <text x="20" y="206" fill="#FFD264">FIX TWO, SWEEP ONE</text>
+    <text x="176" y="206" fill-opacity="0.75">a curve. the camera ray misses it. one 1-D kernel.</text>
+    <line x1="20" y1="214" x2="620" y2="214" stroke="#FFFFFF" stroke-opacity="0.18" stroke-width="1"/>
+
+    <!-- B1 · 28 ring : circle of radius t sin(theta) about the axis, sweeps phi -->
+    <line x1="98" y1="222" x2="98" y2="304" stroke="#FFFFFF" stroke-opacity="0.28" stroke-width="1" stroke-dasharray="3 4"/>
+    <g fill="none" stroke="#9AA3A0" stroke-opacity="0.75" stroke-width="1" stroke-dasharray="3 3">
+      <ellipse cx="98" cy="248" rx="56" ry="19"/>
+      <ellipse cx="98" cy="248" rx="48" ry="11"/>
+    </g>
+    <ellipse cx="98" cy="248" rx="52" ry="15" fill="none" stroke="#FFD264" stroke-width="1.5"/>
+    <line x1="98" y1="296" x2="150" y2="248" stroke="#FFD264" stroke-opacity="0.5" stroke-width="1" stroke-dasharray="3 3"/>
+    <text x="116" y="284" font-size="11" fill="#FFD264" fill-opacity="0.8">t</text>
+    <line x1="46" y1="266" x2="206" y2="232" stroke="#78C8FF" stroke-width="1.5"/>
+    <line x1="150" y1="244" x2="150" y2="248" stroke="#9AA3A0" stroke-width="1" stroke-dasharray="2 2"/>
+    <text x="156" y="243" font-size="11" fill="#9AA3A0">r</text>
+    <circle cx="150" cy="244" r="4" fill="none" stroke="#FFFFFF" stroke-width="2"/>
+    <circle cx="98" cy="296" r="5" fill="none" stroke="#FFD264" stroke-width="1.5" stroke-dasharray="3 2.5"/>
+
+    <!-- B2 · 29 arc : half-circle of radius t about the vertex, sweeps theta -->
+    <line x1="312" y1="212" x2="312" y2="304" stroke="#FFFFFF" stroke-opacity="0.28" stroke-width="1" stroke-dasharray="3 4"/>
+    <g fill="none" stroke="#9AA3A0" stroke-opacity="0.75" stroke-width="1" stroke-dasharray="3 3">
+      <path d="M312 214A44 44 0 0 1 312 302"/>
+      <path d="M312 222A36 36 0 0 1 312 294"/>
+    </g>
+    <path d="M312 218A40 40 0 0 1 312 298" fill="none" stroke="#FFD264" stroke-width="1.5"/>
+    <line x1="274" y1="260" x2="398" y2="221" stroke="#78C8FF" stroke-width="1.5"/>
+    <line x1="350" y1="236" x2="347" y2="238" stroke="#9AA3A0" stroke-width="1" stroke-dasharray="2 2"/>
+    <text x="356" y="232" font-size="11" fill="#9AA3A0">r</text>
+    <circle cx="350" cy="236" r="4" fill="none" stroke="#FFFFFF" stroke-width="2"/>
+    <circle cx="312" cy="258" r="5" fill="none" stroke="#FFD264" stroke-width="1.5" stroke-dasharray="3 2.5"/>
+
+    <!-- B3 · 18 beam : the traced ray itself, sweeps t -->
+    <g fill="none" stroke="#9AA3A0" stroke-opacity="0.75" stroke-width="1" stroke-dasharray="3 3">
+      <path d="M455 297L583 225"/>
+      <path d="M449 287L577 215"/>
+    </g>
+    <line x1="452" y1="292" x2="578" y2="221" stroke="#FFD264" stroke-width="1.5" marker-end="url(#lah)"/>
+    <line x1="462" y1="228" x2="596" y2="276" stroke="#78C8FF" stroke-width="1.5"/>
+    <line x1="529" y1="252" x2="528" y2="249" stroke="#9AA3A0" stroke-width="1" stroke-dasharray="2 2"/>
+    <text x="535" y="262" font-size="11" fill="#9AA3A0">r</text>
+    <circle cx="529" cy="252" r="4" fill="none" stroke="#FFFFFF" stroke-width="2"/>
+    <circle cx="452" cy="292" r="5" fill="none" stroke="#FFD264" stroke-width="1.5" stroke-dasharray="3 2.5"/>
+
+    <g text-anchor="middle">
+      <text x="128" y="322" fill="#FFD264">28 ring · sweeps φ</text>
+      <text x="320" y="322" fill="#FFD264">29 arc · sweeps θ</text>
+      <text x="512" y="322" fill="#FFD264">18 beam · sweeps t</text>
+      <g font-size="11" fill-opacity="0.62">
+        <text x="128" y="336">holds θ,t</text>
+        <text x="320" y="336">holds φ,t</text>
+        <text x="512" y="336">holds θ,φ</text>
+      </g>
+    </g>
+
+    <text x="320" y="354" text-anchor="middle" fill-opacity="0.85">one expression: integrand × (1/2r) ÷ |(∂x/∂u) × d| — the beam's 1/sin θ is that, at unit speed</text>
+  </g>
+</svg>

@@ -1,0 +1,103 @@
+{
+  "scope": "Conditional two-flight geometric integral; not full rendered radiance or performance claim",
+  "parameters": {
+    "theta1": 0.73,
+    "theta2": 1.0,
+    "distance_bounds": [
+      0.25,
+      2.5
+    ],
+    "sigma": 0.22,
+    "camera_origin": [
+      4.0,
+      0.0,
+      1.0
+    ],
+    "camera_direction": [
+      -0.9922778767136677,
+      0.0,
+      0.12403473458920847
+    ]
+  },
+  "samples_per_chart_per_replicate": 6000,
+  "replicates": 16,
+  "reference": {
+    "1536": 0.1783609565375296,
+    "3072": 0.17834990746161514
+  },
+  "reference_refinement_delta": 1.1049075914454365e-05,
+  "geometry": {
+    "max_relative_scaled_fd_error": 4.220057422534108e-11,
+    "max_root_residual": 9.948697895853552e-14,
+    "recovered_roots": [
+      213,
+      158,
+      225
+    ],
+    "shortest_arc_tail_discrepancy": 1.088655023323606
+  },
+  "accepted_root_counts": [
+    81656,
+    48650,
+    78951
+  ],
+  "max_mc_root_residual": 8.901213532666445e-14,
+  "estimates": {
+    "cylinder": {
+      "mean": 0.17853478713568185,
+      "standard_error": 0.0015401851202080713,
+      "ci95_normal": [
+        0.17551602430007404,
+        0.18155354997128967
+      ],
+      "relative_reference_error": 0.0010366121109790516,
+      "replicate_variance": 3.795472327216562e-05,
+      "variance_times_quadric_queries": 0.22772833963299371,
+      "measured_python_seconds": 4.4332269999722484,
+      "variance_times_seconds_per_replicate": 1.051636899916498e-05,
+      "note": "Normal interval across independent replicates; isolated charts can have heavy tails."
+    },
+    "cone": {
+      "mean": 0.17715778669983964,
+      "standard_error": 0.001428039893493841,
+      "ci95_normal": [
+        0.17435882850859172,
+        0.17995674489108757
+      ],
+      "relative_reference_error": -0.006684168098220478,
+      "replicate_variance": 3.2628766998558416e-05,
+      "variance_times_quadric_queries": 0.1957726019913505,
+      "measured_python_seconds": 3.971648999999161,
+      "variance_times_seconds_per_replicate": 8.099375613814384e-06,
+      "note": "Normal interval across independent replicates; isolated charts can have heavy tails."
+    },
+    "hyperboloid": {
+      "mean": 0.17828965325332602,
+      "standard_error": 0.0014597829374513084,
+      "ci95_normal": [
+        0.17542847869592146,
+        0.18115082781073058
+      ],
+      "relative_reference_error": -0.00033784266640046745,
+      "replicate_variance": 3.4095459591583525e-05,
+      "variance_times_quadric_queries": 0.20457275754950116,
+      "measured_python_seconds": 5.007364899953245,
+      "variance_times_seconds_per_replicate": 1.0670525475416848e-05,
+      "note": "Normal interval across independent replicates; isolated charts can have heavy tails."
+    },
+    "three_chart_mis": {
+      "mean": 0.1784014136383959,
+      "standard_error": 0.00042095952589422383,
+      "ci95_normal": [
+        0.17757633296764322,
+        0.17922649430914858
+      ],
+      "relative_reference_error": 0.0002887928427539599,
+      "replicate_variance": 2.835310759057435e-06,
+      "variance_times_quadric_queries": 0.051035593663033826,
+      "measured_python_seconds": 13.412240899924655,
+      "variance_times_seconds_per_replicate": 2.376741932914159e-06,
+      "note": "Normal interval across independent replicates; isolated charts can have heavy tails."
+    }
+  }
+}

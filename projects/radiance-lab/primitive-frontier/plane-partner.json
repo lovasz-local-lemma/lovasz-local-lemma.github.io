@@ -1,0 +1,47 @@
+{
+  "scope": "Same conditional geometric integral; plane/quadric chart experiment, not full rendering.",
+  "shared_singularity": {
+    "quadric_jacobians": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "plane_jacobian": 0.8414709848078965
+  },
+  "samples_per_chart_per_replicate": 5000,
+  "replicates": 16,
+  "reference": 0.11469554307141404,
+  "results": {
+    "three_quadrics": {
+      "mean": 0.11419577248354111,
+      "standard_error": 0.0002956216401256224,
+      "empirical_95_interval": [
+        0.11361635406889489,
+        0.11477519089818733
+      ],
+      "relative_reference_difference": -0.004357367117236222,
+      "variance_times_queries": 0.020974116986535125
+    },
+    "quadrics_plus_plane": {
+      "mean": 0.11420282924440037,
+      "standard_error": 0.0002596024691044677,
+      "empirical_95_interval": [
+        0.11369400840495561,
+        0.11471165008384512
+      ],
+      "relative_reference_difference": -0.00429584109215897,
+      "variance_times_queries": 0.021565901428843556
+    },
+    "plane_only": {
+      "mean": 0.1140701209886462,
+      "standard_error": 0.001273465527397145,
+      "empirical_95_interval": [
+        0.1115741285549478,
+        0.1165661134223446
+      ],
+      "relative_reference_difference": -0.005452889153490625,
+      "variance_times_queries": 0.12973715595751106
+    }
+  },
+  "note": "Intervals and variances are empirical; quadric and plane queries have different implementation costs."
+}

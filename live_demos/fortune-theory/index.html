@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head><style id="portfolio-early-paint">html{background:#0b0d0c;color-scheme:dark}html.portfolio-booting body{opacity:0}</style><script src="../../portfolio-navigation.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Fortune & Theory: a C++ geometry workbench exposing sweep events, six beachline backends, numerical decisions and raw/reference comparisons.">
+  <meta name="theme-color" content="#0c1014">
+  <title>Fortune &amp; Theory — Inside the sweep</title>
+  <link rel="stylesheet" href="studio.css">
+  <script defer src="studio.js"></script>
+<link rel="stylesheet" href="../../portfolio-controls.css"><link rel="stylesheet" href="../../portfolio-demo-return.css"><script defer src="../../portfolio-demo-return.js" data-project="fortune_crystal" data-title="Fortune’s Loom" data-overview="projects/fortune_crystal/overview.html" data-group="signature" data-thumbnail="media/brochures/fortune_crystal/browser-medium.jpg" data-routes="[{&quot;project&quot;:&quot;fortune_crystal&quot;,&quot;title&quot;:&quot;Fortune’s Loom&quot;,&quot;group&quot;:&quot;signature&quot;,&quot;thumbnail&quot;:&quot;media/brochures/fortune_crystal/browser-medium.jpg&quot;,&quot;overview&quot;:&quot;projects/fortune_crystal/overview.html&quot;,&quot;path&quot;:&quot;live_demos/fortune-theory/index.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:1}]"></script><!-- universal-navigation:start --><link rel="stylesheet" href="../../portfolio-location.css?v=054b6b462c"><script defer src="../../portfolio-location.js?v=054b6b462c"></script><script defer src="../../portfolio-routes.js?v=054b6b462c"></script><script defer src="../../portfolio-universal-navigation.js?v=054b6b462c"></script><!-- universal-navigation:end --><style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head>
+<body>
+  <a class="skip-link" href="#main">Skip to the case study</a>
+  <div class="ambient" aria-hidden="true"></div>
+  <header class="masthead">
+    <a class="brand" href="./" aria-label="Fortune and Theory home">
+      <svg viewBox="0 0 42 42" aria-hidden="true"><path d="M7 8 28 4 37 22 26 37 5 30Z M7 8 20 18 28 4 M20 18 37 22 M20 18 15 30 5 30 M15 30 26 37"/><circle cx="20" cy="18" r="3"/></svg>
+      <span>Fortune <i>&amp;</i> Theory</span>
+    </a>
+    <nav aria-label="Case study"><a href="#investigations">Investigations</a><a href="#implementation">Inside the implementation</a><a class="nav-launch" href="lab/?study=fortune">Open workbench <span aria-hidden="true">↗</span></a></nav>
+  </header>
+
+  <main id="main">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <p class="eyebrow"><span></span> C++ · geometry · executable theory</p>
+        <h1 id="hero-title">Inside<br>the <em>sweep.</em></h1>
+        <p class="hero-lead">The diagram is the result.<br>The interesting work happens between events.</p>
+        <p class="hero-description">A geometry workbench that exposes the changing beachline, the tree beneath it, and the numerical decisions that keep them consistent.</p>
+        <a class="launch primary" href="lab/?study=fortune"><span class="play" aria-hidden="true">▶</span> Explore Fortune's sweep <span aria-hidden="true">↗</span></a>
+        <p class="launch-note">Runs in your browser · C++ compiled to WebAssembly</p>
+      </div>
+      <figure class="hero-preview glass" id="workbench-preview">
+        <div class="window-bar"><span class="window-dots" aria-hidden="true"><i></i><i></i><i></i></span><span>Geometry / events / structure</span><span class="live-mark">Inspect the state</span></div>
+        <a href="lab/?study=fortune" class="preview-link" aria-label="Open the Fortune geometry workbench">
+          <img id="fortune-capture" src="fortune-preview.jpg" width="1440" height="900" alt="Fortune workbench showing the geometric diagram, event state and beachline tree." hidden>
+          <svg class="preview-schematic" viewBox="0 0 720 470" role="img" aria-labelledby="schematic-title schematic-desc">
+            <title id="schematic-title">The geometry and structure of a sweep event</title>
+            <desc id="schematic-desc">A schematic joins parabolic beachline arcs, a pending circle event and an ordered tree. It illustrates the linked views; it is not a captured execution.</desc>
+            <defs>
+              <pattern id="hero-grid" width="36" height="36" patternUnits="userSpaceOnUse"><path d="M36 0H0V36" fill="none" stroke="#91acc2" stroke-opacity=".09"/></pattern>
+              <linearGradient id="arc-color" x1="0" x2="1"><stop stop-color="#7acabb"/><stop offset="1" stop-color="#bba5ed"/></linearGradient>
+              <filter id="soft-light"><feGaussianBlur stdDeviation="3"/></filter>
+            </defs>
+            <rect width="720" height="470" fill="#10171d"/><rect width="720" height="470" fill="url(#hero-grid)"/>
+            <path d="M0 316H720" stroke="#ebcc86" stroke-width="1.4"/><path d="M0 316H720" stroke="#ebcc86" stroke-width="7" opacity=".2" filter="url(#soft-light)"/>
+            <text x="26" y="303" class="svg-label gold">SWEEP LINE</text><text x="568" y="303" class="svg-label gold">NEXT EVENT ↓</text>
+            <path d="M25 110Q90 420 204 244Q236 151 270 243Q370 430 436 139Q510 371 695 185" fill="none" stroke="url(#arc-color)" stroke-width="3"/>
+            <path d="M25 110Q90 420 204 244Q236 151 270 243Q370 430 436 139Q510 371 695 185" fill="none" stroke="url(#arc-color)" stroke-width="10" opacity=".16" filter="url(#soft-light)"/>
+            <circle cx="236" cy="186" r="97" fill="#bba5ed" fill-opacity=".025" stroke="#bba5ed" stroke-opacity=".65" stroke-dasharray="5 7"/>
+            <path d="M155 132 236 89 322 141" stroke="#adbad0" stroke-opacity=".35" fill="none"/>
+            <g fill="#a1ded2" stroke="#12191e" stroke-width="3"><circle cx="104" cy="162" r="6"/><circle cx="155" cy="132" r="6"/><circle cx="236" cy="89" r="6"/><circle cx="322" cy="141" r="6"/><circle cx="450" cy="93" r="6"/><circle cx="570" cy="183" r="6"/></g>
+            <circle cx="236" cy="283" r="5" fill="#ebcc86"/><path d="M236 290V337" stroke="#ebcc86" stroke-dasharray="3 5"/>
+            <rect x="468" y="33" width="223" height="60" rx="10" fill="#19202b" stroke="#bba5ed" stroke-opacity=".28"/><circle cx="487" cy="54" r="3" fill="#bba5ed"/><text x="499" y="57" class="svg-label">PENDING CIRCLE EVENT</text><text x="487" y="78" class="svg-small">Neighbors determine its validity.</text>
+            <rect x="26" y="343" width="668" height="101" rx="13" fill="#0d1218" fill-opacity=".94" stroke="#8fa7b8" stroke-opacity=".16"/>
+            <text x="44" y="366" class="svg-label">THE SAME ORDER, IN A TREE</text>
+            <g fill="none" stroke="#91b3c2" stroke-opacity=".5"><path d="M430 361 340 393 291 423 M340 393 386 423 M430 361 516 393 465 423 M516 393 565 423"/><path d="M291 423H565" stroke="#83d3c0" stroke-dasharray="4 7"/></g>
+            <g fill="#13272c" stroke="#8ad8c7" stroke-width="1.6"><circle cx="430" cy="361" r="9"/><circle cx="340" cy="393" r="8"/><circle cx="516" cy="393" r="8"/><circle cx="291" cy="423" r="7"/><circle cx="386" cy="423" r="7"/><circle cx="465" cy="423" r="7"/><circle cx="565" cy="423" r="7"/></g>
+            <text x="44" y="393" class="svg-small">Split · remove · rebalance</text><text x="44" y="416" class="svg-small">Threaded neighbors stay in order.</text>
+          </svg>
+          <span class="preview-open">Open the working system <span aria-hidden="true">↗</span></span>
+        </a>
+        <figcaption><span data-capture-caption hidden>Browser workbench · recorded execution, inspectable intermediate state.</span><span data-schematic-caption>Schematic · the working application opens from this view.</span></figcaption>
+      </figure>
+    </section>
+
+    <section id="investigations" class="investigations" aria-labelledby="investigations-title">
+      <div class="section-heading"><div><p class="eyebrow">Three entry points</p><h2 id="investigations-title">Follow a difficult transition.</h2></div><p>Each route opens a specific setup<br>in the same workbench.</p></div>
+      <div class="route-grid">
+        <a class="route-card glass mint" href="lab/?study=fortune">
+          <div class="route-top"><span>01 / Structure</span><span aria-hidden="true">↗</span></div>
+          <svg viewBox="0 0 360 142" aria-hidden="true"><path class="faint" d="M15 112H345 M55 15V130 M125 15V130 M195 15V130 M265 15V130"/><path class="line" d="M18 26Q60 176 133 88Q180 28 215 100Q254 161 341 40"/><path class="gold-line" d="M15 112H345"/><g class="dot"><circle cx="73" cy="47" r="4"/><circle cx="176" cy="29" r="4"/><circle cx="267" cy="45" r="4"/></g><circle cx="176" cy="112" r="5" fill="#ebcc86"/></svg>
+          <h3>The sweep, from the inside</h3><p>Arcs split. Neighbors change. A tree rotates. The timeline preserves the intermediate state behind each geometric event.</p><span class="route-action">Inspect the beachline <span aria-hidden="true">→</span></span>
+        </a>
+        <a class="route-card glass lavender" href="lab/?study=ties">
+          <div class="route-top"><span>02 / Numerical decisions</span><span aria-hidden="true">↗</span></div>
+          <svg viewBox="0 0 360 142" aria-hidden="true"><circle class="line dashed" cx="105" cy="67" r="48"/><path class="faint" d="M105 19V115 M57 67H153"/><g class="dot"><circle cx="105" cy="19" r="4"/><circle cx="57" cy="67" r="4"/><circle cx="153" cy="67" r="4"/><circle cx="105" cy="115" r="4"/></g><path class="line" d="M164 66H196"/><rect class="faint-box" x="211" y="22" width="126" height="31" rx="6"/><rect class="faint-box" x="211" y="59" width="126" height="31" rx="6"/><rect class="faint-box" x="211" y="96" width="126" height="31" rx="6"/><path class="line" d="M224 37H304 M224 74H281 M224 111H312"/><circle cx="321" cy="74" r="3" fill="#ebcc86"/></svg>
+          <h3>When events nearly coincide</h3><p>Rings and shared heights expose sensitive ordering decisions. Compare robustness settings, then inspect the first disagreement.</p><span class="route-action">Examine ties &amp; degeneracies <span aria-hidden="true">→</span></span>
+        </a>
+        <a class="route-card glass gold" href="lab/?study=apollonius">
+          <div class="route-top"><span>03 / Weighted geometry</span><span aria-hidden="true">↗</span></div>
+          <svg viewBox="0 0 360 142" aria-hidden="true"><path class="faint" d="M0 114H360 M0 42H360"/><circle class="faint-box" cx="84" cy="72" r="31"/><circle class="faint-box" cx="247" cy="79" r="51"/><circle class="faint-box" cx="167" cy="22" r="15"/><path class="line" d="M151 142Q166 88 139 35 M139 35Q169 41 203 0 M139 35Q64 6 0 23"/><g class="dot"><circle cx="84" cy="72" r="3"/><circle cx="247" cy="79" r="3"/><circle cx="167" cy="22" r="3"/></g></svg>
+          <h3>Distance to a disk boundary</h3><p>Weights introduce curved bisectors and sites without cells. Inspect an evolving Apollonius construction and its current limits.</p><span class="route-action">Explore weighted diagrams <span aria-hidden="true">→</span></span>
+        </a>
+      </div>
+    </section>
+
+    <section id="implementation" class="implementation glass" aria-labelledby="implementation-title">
+      <div class="implementation-intro"><p class="eyebrow">Inside the implementation</p><h2 id="implementation-title">Geometry and structure<br>have to agree.</h2><p>A beachline has two simultaneous orders: the tree's in-order traversal and its threaded neighbors. Splits, removals and rotations must preserve their agreement.</p></div>
+      <div class="backend-study">
+        <div class="backend-family"><span class="family-label">Arcs on leaves</span><span class="backend-chip mint">Leaf AVL</span></div>
+        <div class="backend-family"><span class="family-label">Arcs on every node</span><div class="backend-chips"><span class="backend-chip lavender">AVL</span><span class="backend-chip lavender">Red-black</span><span class="backend-chip lavender">Treap</span><span class="backend-chip lavender">Splay</span><span class="backend-chip lavender">Size-balanced</span></div></div>
+        <div class="invariant"><span aria-hidden="true">⇌</span><div><strong>One geometric obligation. Six backends.</strong><p>Different balancing behavior supplies differential evidence. Recorded mutations and structural checks make a mismatch traceable.</p></div></div>
+      </div>
+    </section>
+
+    <section class="evidence" id="evidence" aria-labelledby="evidence-title">
+      <div class="section-heading"><div><p class="eyebrow">Evidence before a polished result</p><h2 id="evidence-title">Keep the failure visible.</h2></div></div>
+      <div class="evidence-grid">
+        <article><span class="evidence-icon mint" aria-hidden="true">⌁</span><h3>Raw construction / reference</h3><p>The raw sweep edges remain distinct from the independently clipped final diagram. Reference-final mode can correct the display; it does not prove the sweep succeeded. Their disagreement is a useful result.</p></article>
+        <article><span class="evidence-icon lavender" aria-hidden="true">ƒ</span><h3>The formula behind a comparison</h3><p>Expression graphs retain geometric constructions while predicate views expose numerical evaluation and unresolved decisions. Formula preservation and filtered comparisons do not constitute certified exact arithmetic. This WebAssembly build provides 53-bit <code>double</code> and 113-bit software <code>long double</code> significands; wider evaluation still does not certify geometric predicates.</p></article>
+        <article><span class="evidence-icon gold" aria-hidden="true">◇</span><h3>A harder construction, qualified</h3><p>The weighted-diagram investigation caches analytic pairwise information incrementally. DCEL topology is reassembled globally. It remains an incomplete paper-based construction with explicit numerical fallbacks.</p></article>
+      </div>
+      <p class="validation-note"><strong>Checked in this edition.</strong> The native core test suite and 26 WebAssembly signature groups passed. These checks provide regression evidence for the covered cases; they do not establish correctness for every degeneracy.</p>
+      <aside class="boundary-note" aria-label="Known cocircular boundary">
+        <span class="boundary-mark" aria-hidden="true">∵</span>
+        <div><strong>Known cocircular boundary.</strong> The regular 12-site circle places a site exactly at the circumcircle nadir, making its site event simultaneous with several circle events. Native and browser runs can leave a missing or misplaced raw-sweep spoke—even with <code>Lazy Exact</code> selected. That mode preserves formulas and re-evaluates selected close comparisons; it is not a certified exact predicate-and-construction pipeline. <a href="lab/?study=ties">Open the stress case <span aria-hidden="true">↗</span></a></div>
+      </aside>
+    </section>
+
+    <section class="related glass" aria-labelledby="related-title">
+      <div><p class="eyebrow">The supporting study library</p><h2 id="related-title">The same habit,<br>in another representation.</h2><p>Additional algorithms extend the workbench, with the same emphasis on visible intermediate representations.</p></div>
+      <div class="related-links">
+        <a href="lab/?study=delaunay"><span class="related-symbol mint" aria-hidden="true">△</span><span><strong>Delaunay triangulation</strong><small>Approach the Voronoi dual through triangles and circumcenters.</small></span><span aria-hidden="true">↗</span></a>
+        <a href="lab/?study=fourier"><span class="related-symbol lavender" aria-hidden="true">∿</span><span><strong>Fourier &amp; decompositions</strong><small>Inspect how a signal changes representation, with intermediate structure visible.</small></span><span aria-hidden="true">↗</span></a>
+      </div>
+    </section>
+
+    <section class="scope-history">
+      <article class="scope"><p class="eyebrow">The browser edition</p><h2>A focused window into<br>the C++ application.</h2><p>The main sweep and weighted-geometry routes are accompanied by selected theory views. This edition does not claim parity with every desktop laboratory.</p><ul><li>Desktop 3D GLSL 330 volume views and threaded laboratories are omitted.</li><li>The original Crystal/SFML executable remains a separate project archive.</li><li>Snapshot playback is instrumentation, not an algorithm-throughput benchmark.</li><li>Known degeneracies and unresolved predicates remain part of the investigation.</li></ul></article>
+      <article class="history"><p class="eyebrow">Origins</p><h2>From a Crystal prototype<br>to a geometry workbench.</h2><p>The original visualizer joined the moving beachline to its underlying tree. The C++ project expands that idea through multiple backends, recorded mutations and explicit comparisons.</p><p class="authorship">I wrote the original Crystal implementation and the main C++ tree and beachline infrastructure without AI assistance.</p><a class="text-link" href="https://lovasz-local-lemma.github.io/showcases/Fortune_in_Crystal/index.html">View the earlier Crystal project <span aria-hidden="true">↗</span></a></article>
+    </section>
+    <div class="closing-launch"><span>Start with the mechanism.</span><a class="launch primary" href="lab/?study=fortune">Open Fortune &amp; Theory <span aria-hidden="true">↗</span></a></div>
+  </main>
+  <footer><a class="brand footer-brand" href="./">Fortune <i>&amp;</i> Theory</a><span>Geometric algorithms · visible intermediate state</span><a href="../../index.html#signature">Portfolio overview <span aria-hidden="true">↗</span></a></footer>
+</body>
+</html>

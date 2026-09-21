@@ -1,0 +1,70 @@
+<!--
+  fig-evo-contact-heat.svg  ·  noita_gish schematic kit
+  Kit rules live in fig-frame-loop.svg. Extracted verbatim from docs/evolution.html,
+  where this figure is inlined; kept here so it can be reused and checked standalone.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img"
+     aria-label="Left: the legacy contact heat grid holds an atomic maximum of the temperatures deposited into it, so an ember at nine hundred kelvin sets the cell to nine hundred, two clay particles absorb from it, and nothing ever lowers the ember. Right: version two accumulates a mass weighted numerator and denominator, every particle deposits and every particle relaxes toward the resulting average, so the ember cools while the clay warms.">
+<defs>
+  <marker id="chY" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#FFD264"/></marker>
+  <marker id="chB" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#78C8FF"/></marker>
+</defs>
+<g font-family="ui-monospace, 'Cascadia Mono', Consolas, monospace" font-size="12" fill="#DDE3E0" stroke-width="1.5">
+   <rect x="16" y="21" width="18" height="2" fill="#FFD264" stroke="none"/>
+  <text x="40" y="26" fill-opacity="0.75">grid cell state</text>
+  <rect x="176" y="21" width="18" height="2" fill="#78C8FF" stroke="none"/>
+  <text x="200" y="26" fill-opacity="0.75">particles</text>
+  <circle cx="317" cy="25" r="3" fill="#FF4646"/>
+  <text x="326" y="26" fill-opacity="0.75">deposit</text>
+  <text x="624" y="26" text-anchor="end" fill="#9AA3A0">one ember, two cold bodies</text>
+   <rect x="14" y="40" width="300" height="262" rx="6" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.25)"/>
+  <rect x="326" y="40" width="300" height="262" rx="6" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.25)"/>
+  <text x="26" y="60">legacy: atomicMax ratchet</text>
+  <text x="338" y="60">v2: conserving mixture</text>
+   <rect x="44" y="74" width="240" height="52" rx="4" fill="rgba(255,255,255,0.06)" stroke="#FFD264" stroke-opacity="0.45"/>
+  <text x="164" y="96" text-anchor="middle" fill="#FFD264">grid_contact_temp</text>
+  <text x="164" y="114" text-anchor="middle">max(900, 300, 300) = 900</text>
+   <path d="M70,162 V130" fill="none" stroke="#78C8FF" marker-end="url(#chB)"/>
+  <circle cx="70" cy="128" r="3.2" fill="#FF4646"/>
+  <path d="M88,130 V158" fill="none" stroke="#FFD264" stroke-opacity="0.45" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#chY)"/>
+  <text x="96" y="150" fill="#9AA3A0">no return</text>
+  <path d="M184,130 V158" fill="none" stroke="#FFD264" marker-end="url(#chY)"/>
+  <path d="M264,130 V158" fill="none" stroke="#FFD264" marker-end="url(#chY)"/>
+  <circle cx="76" cy="170" r="6" fill="none" stroke="#78C8FF"/>
+  <circle cx="184" cy="170" r="6" fill="none" stroke="#78C8FF"/>
+  <circle cx="264" cy="170" r="6" fill="none" stroke="#78C8FF"/>
+  <text x="76" y="194" text-anchor="middle">SPH 900</text>
+  <text x="184" y="194" text-anchor="middle">MPM 300</text>
+  <text x="264" y="194" text-anchor="middle">MPM 300</text>
+   <text x="26" y="222">ten warm particles read as one</text>
+  <text x="26" y="240" fill="#9AA3A0">nothing lowers a cell, so a second</text>
+  <text x="26" y="254" fill="#9AA3A0">atomicMax channel was bolted on</text>
+  <text x="26" y="274" fill="#9AA3A0">SPH never receives contact heat</text>
+  <text x="26" y="294">energy from nothing, every frame</text>
+   <rect x="356" y="74" width="240" height="52" rx="4" fill="rgba(255,255,255,0.06)" stroke="#FFD264" stroke-opacity="0.45"/>
+  <text x="476" y="96" text-anchor="middle" fill="#FFD264">num += w mC T, den += w mC</text>
+  <text x="476" y="114" text-anchor="middle">T_avg = num / den = 460</text>
+  <circle cx="476" cy="126" r="5" fill="none" stroke="#FFFFFF" stroke-width="2"/>
+   <path d="M394,162 V130" fill="none" stroke="#78C8FF" marker-end="url(#chB)"/>
+  <circle cx="394" cy="128" r="3.2" fill="#FF4646"/>
+  <path d="M414,130 V158" fill="none" stroke="#FFD264" marker-end="url(#chY)"/>
+  <path d="M456,162 V130" fill="none" stroke="#78C8FF" marker-end="url(#chB)"/>
+  <circle cx="456" cy="128" r="3.2" fill="#FF4646"/>
+  <path d="M496,130 V158" fill="none" stroke="#FFD264" marker-end="url(#chY)"/>
+  <path d="M538,162 V130" fill="none" stroke="#78C8FF" marker-end="url(#chB)"/>
+  <circle cx="538" cy="128" r="3.2" fill="#FF4646"/>
+  <path d="M558,130 V158" fill="none" stroke="#FFD264" marker-end="url(#chY)"/>
+  <circle cx="404" cy="170" r="6" fill="none" stroke="#78C8FF"/>
+  <circle cx="476" cy="170" r="6" fill="none" stroke="#78C8FF"/>
+  <circle cx="548" cy="170" r="6" fill="none" stroke="#78C8FF"/>
+  <text x="404" y="194" text-anchor="middle">900 cools</text>
+  <text x="476" y="194" text-anchor="middle">300 warms</text>
+  <text x="548" y="194" text-anchor="middle">300 warms</text>
+   <text x="338" y="222">both solvers deposit and both relax</text>
+  <text x="338" y="240" fill="#9AA3A0">warm plus warm sums hotter than</text>
+  <text x="338" y="254" fill="#9AA3A0">either; water carries 2x mC, so it</text>
+  <text x="338" y="268" fill="#9AA3A0">quenches natively</text>
+  <text x="338" y="294">impact heat still deposits num only</text>
+   <text x="320" y="348" text-anchor="middle">the ratchet could only ever go one way</text>
+</g>
+</svg>

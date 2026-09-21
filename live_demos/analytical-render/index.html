@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="en">
+  <head><style id="portfolio-early-paint">html{background:#0b0d0c;color-scheme:dark}html.portfolio-booting body{opacity:0}</style><script src="../../portfolio-navigation.js"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LTC Light Studio · Analytical Surface Lighting</title>
+    <meta name="description" content="Direct surface lighting with polygon integrals and fitted GGX linearly transformed cosines. An interactive study of materials, approximation, and visibility." />
+    <link rel="stylesheet" href="styles.css?v=20260911luminous" />
+  <link rel="stylesheet" href="../../portfolio-controls.css"><link rel="stylesheet" href="../../portfolio-demo-return.css"><script defer src="../../portfolio-demo-return.js" data-project="analytical-render" data-title="Analytical Render · LTC" data-overview="projects/analytical-render/overview.html" data-group="signature" data-thumbnail="media/previews/analytical-render/native-material-garage-ltc-bsdf-split.png" data-routes="[{&quot;project&quot;:&quot;analytical-render&quot;,&quot;title&quot;:&quot;Analytical Render · LTC&quot;,&quot;group&quot;:&quot;signature&quot;,&quot;thumbnail&quot;:&quot;media/previews/analytical-render/native-material-garage-ltc-bsdf-split.png&quot;,&quot;overview&quot;:&quot;projects/analytical-render/overview.html&quot;,&quot;path&quot;:&quot;live_demos/analytical-render/index.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:2},{&quot;project&quot;:&quot;analytical-render&quot;,&quot;title&quot;:&quot;Analytical Render · LTC&quot;,&quot;group&quot;:&quot;signature&quot;,&quot;thumbnail&quot;:&quot;media/previews/analytical-render/native-material-garage-ltc-bsdf-split.png&quot;,&quot;overview&quot;:&quot;projects/analytical-render/overview.html&quot;,&quot;path&quot;:&quot;live_demos/analytical-render/index.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:1},{&quot;project&quot;:&quot;analytical-render&quot;,&quot;title&quot;:&quot;Analytical Render · LTC&quot;,&quot;group&quot;:&quot;signature&quot;,&quot;thumbnail&quot;:&quot;media/previews/analytical-render/native-material-garage-ltc-bsdf-split.png&quot;,&quot;overview&quot;:&quot;projects/analytical-render/overview.html&quot;,&quot;path&quot;:&quot;live_demos/analytical-render/&quot;,&quot;query&quot;:{},&quot;priority&quot;:-1}]"></script><!-- universal-navigation:start --><link rel="stylesheet" href="../../portfolio-location.css?v=054b6b462c"><script defer src="../../portfolio-location.js?v=054b6b462c"></script><script defer src="../../portfolio-routes.js?v=054b6b462c"></script><script defer src="../../portfolio-universal-navigation.js?v=054b6b462c"></script><!-- universal-navigation:end --><style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head>
+  <body>
+    <div class="ambientEnergy" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+    <header class="brandbar">
+      <a class="brand" href="./" aria-label="LTC Light Studio home">
+        <svg class="brandMark" viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="logoLight" x2="1" y2="1"><stop stop-color="#ead297"/><stop offset="1" stop-color="#79d8cb"/></linearGradient></defs><path d="M12 14 44 8 55 22 24 30Z" fill="url(#logoLight)" fill-opacity=".16" stroke="url(#logoLight)" stroke-width="1.5"/><path d="M12 14 31 53 55 22M24 30 31 53M44 8 31 53" fill="none" stroke="#9bcfc9" stroke-opacity=".6"/><path d="M12 53a19 19 0 0 1 38 0M8 54h48" fill="none" stroke="#ead297" stroke-width="1.5"/><circle cx="31" cy="53" r="3" fill="#f5e9bd"/></svg>
+        <div><span class="eyebrow">Analytical surface lighting</span><h1>LTC Light Studio</h1></div>
+      </a>
+      <p class="brandPromise">Continuous light. Finite computation.<br /><span>Polygon integration, fitted materials, and the cost of approximation.</span></p>
+      
+    </header>
+    <main class="shell">
+      <section class="stage" aria-label="Renderer output">
+        <nav class="sceneJourney" aria-label="Experiment families">
+          <button type="button" data-scene-group="diffuse"><small>01 · Exact foundation</small><span>Diffuse integral</span></button>
+          <button type="button" data-scene-group="materials" aria-pressed="true"><small>02 · Main investigation</small><span>LTC & materials</span></button>
+          <button type="button" data-scene-group="extensions"><small>03 · Related studies</small><span>Optics & geometry</span></button>
+          <button type="button" data-scene-group="motion"><small>04 · Moving geometry</small><span>Motion studies</span></button>
+        </nav>
+        <div class="topbar">
+          <div>
+            <span class="eyebrow" id="sceneEyebrow">Fitted GGX LTC · WebGPU flagship</span>
+            <h2 id="sceneTitle">The material garage</h2>
+            <p id="sceneDescription">Normal-mapped paint, blended materials and a separate clearcoat lobe under polygon lights. Compare fitted GGX LTC with BSDF Monte Carlo, then inspect each layer.</p>
+          </div>
+          <div class="metrics" aria-live="polite">
+            <span id="modeMetric">Compare</span>
+            <span id="timeMetric">Preparing</span>
+          </div>
+        </div>
+
+        <div class="canvasWrap">
+          <canvas id="renderCanvas" width="960" height="600" aria-label="Interactive surface-lighting comparison"></canvas>
+          <div class="splitLabel" id="splitLabel" hidden>
+            <span><i></i><b id="integralLabel">Fitted LTC</b><small id="integralSubtitle">Deterministic direct lighting</small></span>
+            <span><i></i><b id="mcLabel">Monte Carlo</b><small id="mcSubtitle">Sampled direct lighting</small></span>
+          </div>
+          <button class="splitHandle" id="splitHandle" type="button" aria-label="Drag comparison splitter" hidden></button>
+        </div>
+
+        <div class="evidenceStrip"><span id="kernelBadge">Fitted GGX LTC</span><p id="comparisonScope">Compare the diffuse, GGX base and clearcoat integrals. Glass, film and ambient fill are shared.</p><button id="diffuseReferenceButton" type="button">Open diffuse comparison ↗</button></div>
+
+        <section class="learningDeck" aria-label="Live LTC inspection and theory">
+          <div id="ltcProbe" class="probeCard"></div>
+          <details class="crashCourse" open>
+            <summary><span class="eyebrow">THE IDEA IN THREE STEPS</span><strong>Integrate a simpler shape. Keep the material.</strong><span class="foldMark">− / +</span></summary>
+            <div class="courseSteps">
+              <article><span class="courseNumber">01</span><h3>A light fills an angle.</h3><p>Every surface point receives a continuum of incoming directions. Diffuse lighting integrates a cosine over that spherical polygon.</p><div class="miniFormula">L<sub>o</sub> = ∫<sub>Ω</sub> L<sub>e</sub> f<sub>r</sub> cos θ dω</div></article>
+              <article><span class="courseNumber">02</span><h3>The fit changes coordinates.</h3><p>A matrix warps a cosine lobe to approximate GGX. Roughness and view angle select a fit from the published 64² tables.</p><div class="miniFormula">light polygon → M⁻¹ polygon</div></article>
+              <article><span class="courseNumber">03</span><h3>The boundary does the work.</h3><p>The transformed polygon is evaluated along its edges. Monte Carlo samples the original direct-light model: differences expose fitting error and sampling noise.</p><div class="miniFormula">surface integral → finite edge sum</div></article>
+            </div>
+            <div class="courseFoot"><p>Garage comparison: diffuse + GGX base + dielectric coat. Glass, film and ambient fill remain shared. Both direct surface estimators use unoccluded emitters. The optional numerical volume is shared.</p><a class="referenceLink" href="https://eheitzresearch.wordpress.com/415-2/" target="_blank" rel="noreferrer">Heitz et al. · SIGGRAPH 2016 ↗</a></div>
+          </details>
+        <details class="methodPanel derivation">
+          <summary>From an integral to a boundary</summary>
+          <div class="methodDiagram" aria-label="Schematic: polygon directions are transformed into a cosine domain, then evaluated along its edges">
+            <svg viewBox="0 0 300 88" role="img" aria-label="Polygon, inverse transform, cosine-domain polygon"><path d="M13 13 66 7 83 31 31 40Z" fill="#e9c68e20" stroke="#e9c68e"/><path d="M13 13 48 73 83 31M31 40 48 73M66 7 48 73" stroke="#e9c68e66" fill="none"/><path d="M30 74a18 18 0 0 1 36 0" stroke="#81dccb" fill="none"/><path class="diagramArrow" d="M105 42h61m-8-5 8 5-8 5" stroke="#a7bfd3" fill="none"/><text x="123" y="29" fill="#acbdd4">M⁻¹</text><path d="M204 67a34 34 0 0 1 68 0" stroke="#80d6c9" fill="none"/><path d="M211 50 238 34 262 51 244 66Z" fill="#80d6c921" stroke="#80d6c9"/><circle cx="238" cy="67" r="2.5" fill="#f1e2b3"/><text x="6" y="86" fill="#a7b8cb">light directions</text><text x="198" y="86" fill="#a7b8cb">cosine domain</text></svg>
+          </div>
+          <ol class="methodSteps"><li><b>Integrate the cosine.</b> For an unoccluded polygon emitter, diffuse irradiance reduces to its spherical boundary.</li><li><b>Fit the glossy lobe.</b> The garage reads published GGX LTC matrix/amplitude tables, transforms the polygon, and evaluates it deterministically.</li><li><b>Account for visibility.</b> Unoccluded emitters keep the two estimators comparable. A retained experimental polygon-clipping path covers only aligned rectangular blockers.</li></ol>
+          <div class="formula" aria-label="Diffuse irradiance equals emitted radiance times one half the sum over edges of edge angle times the normal projection of the edge axis">
+            <math display="block"><mrow><mi mathcolor="#f0d293">E</mi><mo>=</mo><mfrac><msub><mi mathcolor="#f0d293">L</mi><mi>e</mi></msub><mn>2</mn></mfrac><munder><mo mathcolor="#86dfca">∑</mo><mi>i</mi></munder><msub><mi mathcolor="#86dfca">θ</mi><mi>i</mi></msub><mo>·</mo><mo>(</mo><mi mathcolor="#acbaf4">n</mi><mo>·</mo><msub><mi mathcolor="#acbaf4">ê</mi><mi>i</mi></msub><mo>)</mo></mrow></math>
+            <div class="formulaKeys"><span>θᵢ = atan2(‖uᵢ × uᵢ₊₁‖, uᵢ · uᵢ₊₁)</span><span>êᵢ = normalized edge cross product</span><span>uᵢ: unit light directions, clipped above the horizon</span></div>
+          </div>
+          <p class="controlNote">This exact diffuse identity motivates LTC. The implemented GGX fit, edge approximation and horizon treatment are approximate; anisotropy is a heuristic extension. Runtime light integration is sample-free, not the entire image pipeline.</p>
+          <a class="referenceLink" href="https://eheitzresearch.wordpress.com/415-2/" target="_blank" rel="noreferrer">Heitz et al. · SIGGRAPH 2016 ↗</a>
+        </details>
+        </section>
+      </section>
+
+      <aside class="panel" aria-label="Renderer controls">
+        <div class="inspectorTitle"><span class="eyebrow">LIGHT / MATERIAL / CAMERA</span><h2>Scene instrument</h2><span class="inspectorLight" aria-hidden="true"></span></div>
+        <section class="controlGroup">
+          <label class="label">Lighting display</label>
+          <div class="segments" role="radiogroup" aria-label="Render mode">
+            <label>
+              <input type="radio" name="mode" value="analytic" />
+              <span>Integral</span>
+            </label>
+            <label>
+              <input type="radio" name="mode" value="mc" />
+              <span>Monte Carlo</span>
+            </label>
+            <label>
+              <input type="radio" name="mode" value="split" checked />
+              <span>Compare</span>
+            </label>
+          </div>
+        </section>
+
+        <section class="controlGroup">
+          <label class="label" for="sceneSelect">Experiment in this family</label>
+          <select id="sceneSelect">
+            <option value="studio">Studio spheres</option>
+            <option value="grazing">Grazing wall</option>
+            <option value="closeup">Close receiver</option>
+            <option value="sweep">Light sweep</option>
+            <option value="stack">Stacked spheres</option>
+            <option value="trio">Moving trio</option>
+            <option value="mirror">Mirror ball</option>
+            <option value="iridescence">Thin-film sphere</option>
+            <option value="quadrics">Analytic quadrics</option>
+            <option value="meshlights">Mesh quad lights</option>
+            <option value="cinematic">LTC bay</option>
+            <option value="physicspile">Physics pile</option>
+            <option value="physicstorus">Torus toss</option>
+            <option value="shapelab">Shape lab</option>
+            <option value="materiallab">BSDF lab</option>
+            <option value="garage" selected>The material garage · fitted LTC</option>
+            <option value="showcase">Showcase room</option>
+          </select>
+          <p class="controlNote" id="sceneQuestion">How does a fitted cosine lobe turn polygonal lights into a practical material model?</p>
+          <label class="animateToggle"><input id="animate" type="checkbox" checked /><span>Animate light & scene</span></label>
+          <div class="fancyControl" id="extraFancyControl">
+            <label class="fancySwitch"><input id="extraFancy" type="checkbox" checked aria-describedby="fancyCaption" /><span class="fancyIcon" aria-hidden="true">✧</span><span>Extra fancy</span><span class="fancyTrack" aria-hidden="true"></span></label>
+            <p id="fancyCaption">Organic volume cube · raised-edge normals · flowing inlay</p>
+          </div>
+        </section>
+
+
+
+        <section class="controlGroup backendControls">
+          <label class="label">Backend</label>
+          <div class="segments" role="radiogroup" aria-label="Renderer backend">
+            <label>
+              <input type="radio" name="backend" value="js" />
+              <span>JS</span>
+            </label>
+            <label>
+              <input type="radio" name="backend" value="wasm" />
+              <span>WASM</span>
+            </label>
+            <label>
+              <input type="radio" name="backend" value="webgpu" checked />
+              <span>GPU</span>
+            </label>
+          </div>
+          <div class="backendGuide"><span id="backendApplicability" role="button" tabindex="0" title="The garage material and atmosphere implementation runs on WebGPU.">Full material path</span><button id="backendLearnMore" type="button">Learn more ↗</button></div>
+          <p class="controlNote" id="backendNotice" role="status">JS and WASM open the common diffuse studies at a smaller image budget. Returning to GPU restores this scene.</p>
+        </section>
+
+        <section class="controlGroup materialControls" id="garageControls">
+          <div class="groupHeading"><h3>Material anatomy</h3><span>GARAGE · GPU</span></div>
+          <label class="label" for="materialView">Intermediate result</label>
+          <select id="materialView"><option value="0">Beauty · all lobes</option><option value="1">Shading normals</option><option value="2">Base roughness</option><option value="3">Material blend mask</option><option value="4">Base lobe only</option><option value="5">Clearcoat lobe only</option></select>
+          <div class="controlPair"><div class="rangeField"><label class="rowLabel" for="floorRoughness"><span>Floor roughness</span><output id="floorRoughnessOut">0.28</output></label><input id="floorRoughness" type="range" min="0.035" max="1" step="0.005" value="0.28" /></div><div class="rangeField"><label class="rowLabel" for="normalStrength"><span>Normal detail</span><output id="normalStrengthOut">1</output></label><input id="normalStrength" type="range" min="0" max="2" step="0.05" value="1" /></div></div>
+          <div class="controlPair"><div class="rangeField"><label class="rowLabel" for="coatWeight"><span>Coat strength</span><output id="coatWeightOut">1</output></label><input id="coatWeight" type="range" min="0" max="1" step="0.025" value="1" /></div><div class="rangeField"><label class="rowLabel" for="blendStrength"><span>Material blending</span><output id="blendStrengthOut">1</output></label><input id="blendStrength" type="range" min="0" max="1" step="0.025" value="1" /></div></div>
+          <div class="rangeField"><label class="rowLabel" for="textureScale"><span>Texture frequency</span><output id="textureScaleOut">1</output></label><input id="textureScale" type="range" min="0.25" max="3" step="0.05" value="1" /></div>
+          <p class="controlNote" id="materialControlScope">The live probe isolates the geometric floor’s base GGX fit. The image also includes mapped normals, procedural blends and a separate coat.</p>
+        </section>
+
+        <details class="controlGroup atmosphereControls" id="atmosphereControls">
+          <summary class="groupHeading"><h3>Atmosphere & motion</h3><span>DETAILS +</span></summary>
+          <div class="atmosphereBody">
+          <p class="controlNote" id="atmosphereScope">Extra fancy adds a bounded organic volume. Turn it off to edit the room haze.</p>
+          <label class="rowLabel" for="mediumDensity"><span>Medium extinction</span><output id="mediumDensityOut">Off</output></label>
+          <input id="mediumDensity" type="range" min="0" max="0.8" step="0.02" value="0" />
+          <label class="label" for="mediumMode">Density structure</label>
+          <select id="mediumMode"><option value="1">Rolling noise</option><option value="2">Filaments & cavities</option><option value="0">Uniform haze</option></select>
+          <div class="controlPair"><div class="rangeField"><label class="rowLabel" for="mediumAlbedo"><span>Scatter / extinction</span><output id="mediumAlbedoOut">0.85</output></label><input id="mediumAlbedo" type="range" min="0" max="1" step="0.05" value="0.85" /></div><div class="rangeField"><label class="rowLabel" for="mediumFrequency"><span>Noise scale</span><output id="mediumFrequencyOut">1.00</output></label><input id="mediumFrequency" type="range" min="0.3" max="3" step="0.1" value="1" /></div></div>
+          <div class="controlPair"><div class="rangeField"><label class="rowLabel" for="mediumSteps"><span>Volume steps</span><output id="mediumStepsOut">20</output></label><input id="mediumSteps" type="range" min="8" max="40" step="4" value="20" /></div><div class="rangeField"><label class="rowLabel" for="groundFlow"><span>Ground flow</span><output id="groundFlowOut">Off</output></label><input id="groundFlow" type="range" min="0" max="1" step="0.05" value="0" /></div></div>
+          <div class="toggles"><label><input id="mediumAnimate" type="checkbox" checked /><span>Animate atmosphere</span></label><label><input id="mediumOnly" type="checkbox" /><span>Volume only</span></label><label><input id="lightFrame" type="checkbox" checked /><span>Bronze light housing</span></label></div>
+          <a class="referenceLink" href="../../projects/analytical-render/technical-notes/extra-fancy.html" target="_blank" rel="noreferrer">Volume, surface detail & light animation ↗</a>
+          </div>
+        </details>
+
+        <section class="controlGroup lightControls">
+          <div class="groupHeading"><h3>Emitter geometry</h3><span>LIVE</span></div>
+          <label class="rowLabel" for="lightWidth">
+            <span>Light width</span>
+            <output id="lightWidthOut">2.6</output>
+          </label>
+          <input id="lightWidth" type="range" min="0.4" max="4.2" value="2.6" step="0.05" />
+
+          <label class="rowLabel" for="lightDepth">
+            <span>Light depth</span>
+            <output id="lightDepthOut">1.7</output>
+          </label>
+          <input id="lightDepth" type="range" min="0.3" max="3.2" value="1.7" step="0.05" />
+
+          <label class="rowLabel" for="lightHeight">
+            <span>Light height</span>
+            <output id="lightHeightOut">2.9</output>
+          </label>
+          <input id="lightHeight" type="range" min="1.2" max="4.2" value="2.9" step="0.05" />
+        </section>
+
+        <section class="controlGroup qualityControls">
+          <div class="groupHeading"><h3>Image & sampling</h3><span>GPU BUDGET</span></div>
+          <label class="rowLabel" for="samples">
+            <span>MC samples</span>
+            <output id="samplesOut">2</output>
+          </label>
+          <input id="samples" type="range" min="1" max="64" value="2" step="1" />
+
+          <label class="rowLabel" for="exposure">
+            <span>Exposure</span>
+            <output id="exposureOut">1.15</output>
+          </label>
+          <input id="exposure" type="range" min="0.4" max="2.4" value="1.15" step="0.05" />
+
+          <label class="rowLabel" for="aaSamples">
+            <span>Subpixel samples · GPU</span>
+            <output id="aaSamplesOut">2x</output>
+          </label>
+          <input id="aaSamples" type="range" min="1" max="4" value="2" step="1" />
+        </section>
+
+        <section class="controlGroup">
+          <label class="rowLabel" for="renderScale">
+            <span>Render scale</span>
+            <output id="renderScaleOut">3.00</output>
+          </label>
+          <input id="renderScale" type="range" min="0.45" max="4" value="3" step="0.05" />
+
+          <label class="rowLabel" for="targetFps">
+            <span>Target FPS</span>
+            <output id="targetFpsOut">60</output>
+          </label>
+          <input id="targetFps" type="range" min="1" max="144" value="60" step="1" />
+        </section>
+
+        <section class="controlGroup cameraControls">
+          <div class="groupHeading"><h3>Thin-lens camera</h3><span>8 LENS SAMPLES</span></div>
+          <label class="rowLabel" for="aperture">
+            <span>Aperture</span>
+            <output id="apertureOut">0.000</output>
+          </label>
+          <input id="aperture" type="range" min="0" max="0.35" value="0" step="0.005" />
+
+          <label class="rowLabel" for="focusDistance">
+            <span>Focus distance</span>
+            <output id="focusDistanceOut">5.20</output>
+          </label>
+          <input id="focusDistance" type="range" min="1" max="8" value="5.2" step="0.05" />
+        </section>
+
+        <section class="controlGroup toggles">
+          <label>
+            <input id="bounceFill" type="checkbox" checked />
+            <span>Stylized ambient fill</span>
+          </label>
+          <label>
+            <input id="horizonClip" type="checkbox" checked />
+            <span>Horizon clip</span>
+          </label>
+          <label>
+            <input id="showFalseColor" type="checkbox" />
+            <span>False color</span>
+          </label>
+        </section>
+
+        <div class="actions">
+          <button id="renderButton" type="button">Render</button>
+          <button id="seedButton" type="button" aria-label="Reseed Monte Carlo noise">Reseed</button>
+        </div>
+
+        <details class="technicalPanel"><summary>Frame diagnostics</summary><section class="readout" aria-live="polite">
+          <div>
+            <span>Surface hits</span>
+            <strong id="hitCount">0</strong>
+          </div>
+          <div>
+            <span>Display</span>
+            <strong id="displayBackendLabel">WebGPU</strong>
+          </div>
+          <div>
+            <span>Resolution</span>
+            <strong id="resolutionLabel">960 × 600</strong>
+          </div>
+          <div>
+            <span>Frame FPS</span>
+            <strong id="frameFpsLabel">0</strong>
+          </div>
+          <div>
+            <span>Producer CPU time</span>
+            <strong id="backendFrameLabel">0 ms</strong>
+          </div>
+          <div>
+            <span>Present submit</span>
+            <strong id="displayFrameLabel">0 ms</strong>
+          </div>
+          <div>
+            <span>Light work / lobe · estimate</span>
+            <strong id="evalCount">0</strong>
+          </div>
+          <div>
+            <span>Lighting</span>
+            <strong id="lightingLabel">closed form</strong>
+          </div>
+          <div>
+            <span>Assumption</span>
+            <strong id="assumptionLabel">direct + fill</strong>
+          </div>
+        </section><p class="controlNote">Producer timing measures CPU work (GPU command submission on the GPU path), not GPU elapsed time. Garage light work estimates emitter samples or edge sets per lobe, before surface misses and varying material lobe counts.</p></details>
+
+        <details class="technicalPanel"><summary>Arithmetic throughput probe</summary><section class="controlGroup backendGroup">
+          <p class="controlNote">A synthetic arithmetic kernel, separate from polygon lighting. CPU/WASM execution and GPU submission/readback have different measurement boundaries; this is not evidence of renderer speedup.</p>
+          <div class="backendGrid" aria-live="polite">
+            <div>
+              <span>Selected</span>
+              <strong id="backendLabel">WebGPU renderer</strong>
+            </div>
+            <div>
+              <span>Kernel</span>
+              <strong id="kernelLabel">analytic</strong>
+            </div>
+            <div>
+              <span>Kernel time</span>
+              <strong id="backendTime">pending</strong>
+            </div>
+          </div>
+          <button id="benchButton" type="button">Run Kernel</button>
+        </section></details>
+        <p class="scopeFooter">LTC direct surface lighting; numerical volume scattering and emission. No caustics or full global illumination. <a href="../../projects/analytical-render/technical-notes/method.html">Implementation notes ↗</a></p>
+      </aside>
+    </main>
+
+    <aside id="backendInfo" class="backendInfo" role="dialog" aria-modal="false" aria-labelledby="backendInfoTitle" hidden>
+      <header><div><span class="eyebrow">IMPLEMENTATION / COMPUTE</span><h2 id="backendInfoTitle">Three execution paths.</h2></div><button id="closeBackendInfo" type="button" aria-label="Close backend information">Close ×</button></header>
+      <div class="backendInfoBody">
+        <p>Feature support and speed are separate questions. These backends share a diffuse foundation, but do not implement the same complete material renderer.</p>
+        <div class="backendMatrix"><table><caption>Implemented in this project</caption><thead><tr><th>Capability</th><th>JS</th><th>WASM</th><th>GPU</th></tr></thead><tbody><tr><th>Diffuse polygon integral / MC</th><td>Yes</td><td>Yes</td><td>Yes</td></tr><tr><th>Fitted GGX, coat & material textures</th><td>—</td><td>—</td><td>Yes</td></tr><tr><th>Garage glass, aperture & atmosphere</th><td>—</td><td>—</td><td>Yes</td></tr><tr><th>Image execution</th><td>CPU</td><td>CPU</td><td>GPU</td></tr></tbody></table></div>
+        <p class="infoCallout">“Not applicable” means that feature has not been implemented in that backend here. JavaScript and WebAssembly can implement it; changing the execution language alone does not add it.</p>
+        <h3>Why the scene changes</h3><p>The CPU paths open a supported diffuse study, reduce resolution and disable GPU-only controls. The previous GPU scene and settings are kept for your return. The common scenes remain useful for comparing the same lighting integral.</p>
+        <h3>Where the time goes</h3><p>JS evaluates pixels in a main-thread loop. The compiled WASM kernel also runs on one CPU thread; it has no worker pool in this project. WebGPU dispatches many pixels concurrently. Resolution, light count and Monte Carlo samples multiply the work. WASM is not automatically faster than optimized JavaScript.</p>
+        <h3>How much faster?</h3><p id="backendMeasured">A recorded same-workload CPU audit measured <strong>25.9 ms for JS</strong> and <strong>4.5 ms for WASM</strong>: the moving trio at 192×100, split view, two MC samples. These are medians from this machine's Node/V8 run, excluding browser presentation—not a universal multiplier.</p><p>The live “Producer CPU time” includes actual CPU rendering for JS/WASM but only command submission for GPU. Dividing those numbers would not measure GPU speedup. The technical notes retain the complete measurements.</p>
+        <p class="controlNote">This panel stays open while you try the controls. Close it with the button above.</p><a class="referenceLink" href="../../projects/analytical-render/technical-notes/backends.html" target="_blank" rel="noreferrer">Backend audit & measurement method ↗</a>
+      </div>
+    </aside>
+
+    <script src="ltc-data.js?v=20260911luminous"></script>
+    <script src="garage-shader.js?v=20260911luminous"></script>
+    <script src="ltc-inspector.js?v=20260911luminous"></script>
+    <script src="backend-policy.js?v=20260911luminous"></script>
+    <script src="app.js?v=20260911luminous"></script>
+  </body>
+</html>

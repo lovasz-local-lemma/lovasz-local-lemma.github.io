@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="../../../../../portfolio-lab-frame.js"></script><script defer src="../../../../../portfolio-document-frame.js"></script><script defer src="../../../../../portfolio-media.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fine-W+ — Experimental Thorough Tuning</title>
+<style>
+  
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0a0a0f;
+    --surface: rgba(255,255,255,0.03);
+    --glass: rgba(255,255,255,0.06);
+    --glass-border: rgba(255,255,255,0.1);
+    --text: #e0e0e8;
+    --text-dim: #8888a0;
+    --accent: #4ecdc4;
+    --accent2: #ff6b6b;
+    --accent3: #a78bfa;
+    --warn: #f5a623;
+    --good: #6dd47e;
+    --code-bg: rgba(0,0,0,0.35);
+  }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.65;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 20% 50%, rgba(78,205,196,0.06) 0%, transparent 55%),
+      radial-gradient(ellipse at 80% 20%, rgba(167,139,250,0.05) 0%, transparent 55%),
+      radial-gradient(ellipse at 50% 90%, rgba(255,107,107,0.04) 0%, transparent 55%);
+    z-index: -1;
+  }
+  .container { max-width: 980px; margin: 0 auto; padding: 2rem 2rem 6rem; }
+
+  header {
+    padding: 3rem 0 2rem;
+    border-bottom: 1px solid var(--glass-border);
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--accent3), var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.6rem;
+    letter-spacing: -0.01em;
+  }
+  header .subtitle { color: var(--text-dim); font-size: 0.95rem; }
+  header .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 1.2rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+  }
+  header .meta span {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    padding: 0.3rem 0.75rem;
+    border-radius: 6px;
+    color: var(--text-dim);
+  }
+  header .meta span b { color: var(--accent); font-weight: 600; }
+
+  h2 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 2.5rem 0 1rem;
+    color: var(--accent);
+    letter-spacing: -0.005em;
+  }
+  h2 .num {
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85em;
+    margin-right: 0.5rem;
+  }
+  h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 1.5rem 0 0.6rem;
+    color: var(--text);
+  }
+
+  p { margin: 0.8rem 0; }
+  ul, ol { margin: 0.6rem 0 1rem 1.5rem; }
+  li { margin: 0.3rem 0; }
+  strong { color: var(--accent); font-weight: 600; }
+  em { color: var(--accent3); font-style: italic; }
+
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.88em;
+    background: var(--code-bg);
+    color: var(--accent);
+    padding: 0.1rem 0.4rem;
+    border-radius: 4px;
+    border: 1px solid var(--glass-border);
+  }
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    padding: 1rem 1.2rem;
+    overflow-x: auto;
+    margin: 1rem 0;
+    font-size: 0.85rem;
+    line-height: 1.55;
+    color: var(--text);
+  }
+  pre code { background: none; padding: 0; border: none; color: inherit; font-size: inherit; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+    font-size: 0.92rem;
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  thead { background: rgba(78,205,196,0.07); }
+  th {
+    text-align: left;
+    padding: 0.7rem 0.9rem;
+    font-weight: 600;
+    color: var(--accent);
+    border-bottom: 1px solid var(--glass-border);
+  }
+  td {
+    padding: 0.6rem 0.9rem;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    color: var(--text);
+  }
+  tr:last-child td { border-bottom: none; }
+
+  .card {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 1.4rem 1.6rem;
+    margin: 1.2rem 0;
+    backdrop-filter: blur(18px);
+  }
+  .card.component { border-left: 3px solid var(--accent); }
+  .card.theory    { border-left: 3px solid var(--accent3); }
+  .card.warn      { border-left: 3px solid var(--warn); }
+  .card h3 { margin-top: 0; }
+
+  .pill {
+    display: inline-block;
+    padding: 0.15rem 0.55rem;
+    border-radius: 999px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-left: 0.5rem;
+    vertical-align: middle;
+  }
+  .pill.proposed { background: rgba(245,166,35,0.15); color: var(--warn); border: 1px solid rgba(245,166,35,0.3); }
+
+  .ascii-toolbar {
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--code-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    padding: 1rem 1.2rem;
+    color: var(--text-dim);
+    overflow-x: auto;
+    line-height: 1.4;
+    font-size: 0.82rem;
+  }
+  .ascii-toolbar b { color: var(--accent); font-weight: 600; }
+  .ascii-toolbar i { color: var(--accent3); font-style: normal; }
+
+  .swatch {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 0.4rem;
+    vertical-align: middle;
+    border: 1px solid rgba(255,255,255,0.2);
+  }
+  .swatch.green   { background: rgb(46, 204, 113); }
+  .swatch.yellow  { background: rgb(241, 196, 15); }
+  .swatch.red     { background: rgb(231, 76, 60); }
+  .swatch.hollow  { background: transparent; }
+
+  .formula {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.92rem;
+    background: rgba(167,139,250,0.07);
+    border-left: 3px solid var(--accent3);
+    padding: 0.8rem 1.2rem;
+    margin: 1rem 0;
+    border-radius: 0 6px 6px 0;
+  }
+
+  hr { border: none; height: 1px; background: var(--glass-border); margin: 2rem 0; }
+
+  footer {
+    margin-top: 4rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--glass-border);
+    color: var(--text-dim);
+    font-size: 0.85rem;
+    text-align: center;
+  }
+</style>
+<style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head>
+<body><style>.portfolio-document-return{position:relative;z-index:100;display:flex;flex-wrap:wrap;gap:10px;padding:16px 24px;background:#111d25;border-bottom:1px solid #b3ceb74d;font:12px/1.5 Arial,sans-serif}.portfolio-document-return a{color:#cbded2;text-decoration:none;padding:8px 12px;border:1px solid #b3ceb733;border-radius:8px;transition:color .5s,box-shadow .5s,border-color .5s}.portfolio-document-return a:hover{color:#fff;border-color:#d9c18488;box-shadow:0 0 16px #d9c18422}@media(prefers-reduced-motion:reduce){.portfolio-document-return a{transition:none}}</style><link rel="stylesheet" href="../../../../../portfolio-controls.css"><aside class="portfolio-document-return"><a href="../../../index.html#html-library">← Modal2D brochure</a><a href="../../index.html">Document library</a><a href="../../../../../index.html">← Back to portfolio</a><a href="2026-04-27-experimental-thorough-tuning-design.html.txt" download>Original HTML ↓</a></aside>
+<div class="container">
+
+<header>
+  <h1>Fine-W+: experimental thorough param tuning <span class="pill proposed">Proposed</span></h1>
+  <div class="subtitle">Adaptive multi-mode sampling for 1D parameter search. Coexists with the existing Fine-W / Size / WH binary-search modes.</div>
+  <div class="meta">
+    <span>Date: <b>2026-04-27</b></span>
+    <span>Scope: <b>libmodal + modal_viewer/{app,ui}</b></span>
+    <span>Item: <b>#10 (1D first)</b></span>
+    <span>Plan: <b>5 commits</b></span>
+  </div>
+</header>
+
+<h2><span class="num">¶</span>Goal</h2>
+<p>Replace the current 1D bisection — which often fails because it assumes a monotonic <code>param → freq</code> map — with an adaptive sampler that <strong>(a)</strong> records every <code>(param, freq, mode-amplitude)</code> triple it has ever evaluated for the current note, <strong>(b)</strong> chooses each next sample by intermediate-value bracketing or unexplored-region density, and <strong>(c)</strong> matches against <em>any</em> mode whose strike amplitude clears an audibility threshold rather than only the fundamental.</p>
+<p>The existing <code>Fine-W</code> / <code>Fine-Size</code> / <code>Fine-WH</code> modes are kept unchanged. The new tuner is exposed as <strong>Fine-W+</strong> alongside them.</p>
+
+<h2><span class="num">¶</span>Theoretical framing</h2>
+<div class="card theory">
+<p>The 1D tuning problem:</p>
+<div class="formula">Find <code>x ∈ [lo, hi]</code> such that some mode <code>k</code> has <code>freq_k(x) ≈ target</code> and <code>|amp_k(x)|</code> is large enough to be heard, where <code>(freq_k, amp_k)</code> come from the eigensolve at parameter <code>x</code>.</div>
+<p>The current code reduces this to "find <code>x</code> such that <code>freq[0](x) = target</code>" via bisection. Bisection converges only when <code>freq[0](x)</code> is monotonic in <code>x</code>, which fails for our shapes because:</p>
+<ol>
+  <li><strong>Mode reordering.</strong> As <code>x</code> grows, mode 1 may drop below mode 2; the identity of "the lowest mode" switches at a crossing. The lower-envelope <code>freq[0]</code> has a kink there.</li>
+  <li><strong>Differential scaling.</strong> Bending modes scale <code>~1/L²</code>, longitudinal modes scale <code>~1/L</code>. Different modes dominate at different sizes.</li>
+  <li><strong>Localised modes.</strong> In shapes with sub-features (legs, strings, rings), some modes are governed by the sub-feature's geometry, not the overall scale parameter.</li>
+</ol>
+<p>Each <em>individual</em> <code>freq_k(x)</code> IS continuous and locally monotonic within a "mode regime" — by the Intermediate Value Theorem, a root exists in any interval where <code>freq_k</code> brackets the target. The right approach is to sample the function densely enough to detect brackets across all relevant modes, then refine.</p>
+</div>
+
+<h2><span class="num">¶</span>Design</h2>
+<p>Five components, in implementation order. Each commits independently.</p>
+
+<div class="card component">
+<h3>1. <code>modal_compute_strike_amplitudes</code> (libmodal)</h3>
+<p>Expose the boundary-normal projection that <code>modal_strike</code> already does internally, so the viewer can query "what would the per-mode strike amplitudes be at this position?" without mutating audio state.</p>
+<pre><code>// Pure read; no mode_states_, vis_impulses_, or strike_buf side effects.
+// Writes up to n_modes_max amplitudes (or fewer if fewer modes exist).
+// Returns the actual count written.
+int modal_compute_strike_amplitudes(
+    ModalResult* res, float x, float y,
+    float* out_amps, int n_modes_max);</code></pre>
+<p>Refactor the existing <code>compute_strike_impulse</code> (added in #9, commit <code>a05bdbc</code>) to share the projection code with this new function. ~30 LOC net.</p>
+</div>
+
+<div class="card component">
+<h3>2. <code>Sample</code> and the sample database</h3>
+<pre><code>struct Sample {
+    float param;                  // x value (width for Fine-W+)
+    std::vector&lt;float&gt; freqs;     // top-K mode frequencies
+    std::vector&lt;float&gt; amps;      // strike amplitude per mode
+    int   best_mode;              // index of best-matching audible mode (or -1)
+    float best_cents;             // signed cents from target for best_mode
+    float best_amp_norm;          // |amps[best_mode]| / max_i|amps[i]|
+    bool  quiet;                  // best_amp_norm &lt; min_audible_ratio
+};</code></pre>
+<p>Database lives on <code>App</code> as <code>std::vector&lt;Sample&gt; param_db_</code>, kept sorted by <code>param</code>. Cleared on session start (Fine-W+ click) and on Reset.</p>
+<p><code>K</code> defaults to <strong>24</strong> modes per sample. Eigensolve already computes them; storing freq/amp arrays adds ~200 bytes per sample.</p>
+<p><strong>Selecting <code>best_mode</code>:</strong> the closest-to-target mode whose <code>|amps[i]| / max|amps|</code> ≥ <code>min_audible_ratio</code>. If none qualifies, fall back to closest-overall and set <code>quiet = true</code>. This keeps the algorithm prefering audible matches but doesn't crash when no audible mode exists.</p>
+</div>
+
+<div class="card component">
+<h3>3. The adaptive sampler</h3>
+<p>Per-session state on <code>App</code>:</p>
+<table>
+  <thead><tr><th>Field</th><th>Meaning</th><th>Default</th></tr></thead>
+  <tbody>
+    <tr><td><code>fine_budget_</code></td><td>Max samples per session</td><td>64</td></tr>
+    <tr><td><code>fine_min_audible_</code></td><td>Mode amplitude threshold (fraction of loudest)</td><td>0.1</td></tr>
+    <tr><td><code>param_db_</code></td><td>Sorted (param, ..) samples</td><td>{}</td></tr>
+    <tr><td><code>init_seeded_</code></td><td>True after the initial 8-sample sweep</td><td>false</td></tr>
+  </tbody>
+</table>
+<p><strong>Algorithm</strong> (per Phase-4 invocation):</p>
+<pre><code>1. Insert just-completed Sample into param_db_ (sorted).
+2. If !init_seeded_:
+       Pick next of 8 evenly-spaced params in [fine_lo_, fine_hi_].
+       If all 8 done: init_seeded_ = true. Else hand to Phase 2 and stop.
+3. best_sample = sample with min |best_cents| where !quiet.
+4. Termination checks:
+     a. CONVERGED:           best_cents &lt; threshold AND !quiet → apply.
+     b. BUDGET_EXHAUSTED:    param_db_.size() ≥ fine_budget_ → apply suboptimal.
+     c. DENSITY_EXHAUSTED:   min adjacent gap &lt; (hi-lo)/10000
+                             AND best_cents &gt; 2 × threshold → apply suboptimal,
+                             status: "1D search exhausted — try Fine-WH+ later."
+5. Score every region (consecutive sample pair):
+     BRACKET (priority 0): sign change in best_cents → must contain a root.
+                           score = 1 / (|ci| + |cj| + 1e-3),  pick = midpoint.
+     NEAR_BEST (1):        adjacent to current best.
+                           score = 1 / (|best_cents| · gap),  pick = best ± 0.3·gap.
+     GAP (2):               otherwise.  score = gap / total_range,  pick = midpoint.
+6. Choose highest-scoring region (tie-break by priority).
+7. Hand pick.param to Phase 2 (build_with_param). Loop.</code></pre>
+<p>"Running in circles" detection is structural: every iteration produces a new sample at a previously-unsampled param. The minimum-gap density check catches the case where the algorithm has refined as much as 1D can ever express — that's the signal to suggest Fine-WH+ later.</p>
+</div>
+
+<div class="card component">
+<h3>4. State-machine integration</h3>
+<p><code>fine_mode_</code> gains a new value <code>4</code> (Fine-W+). Existing values <code>1/2/3</code> keep their behaviour.</p>
+<ul>
+  <li><strong>Phase 1 / 3</strong> (wait_strike, wait_sound) — identical for all modes.</li>
+  <li><strong>Phase 2</strong> (build_with_param) — for mode 4, the param to build with comes from <code>pick_next_sample_for_adaptive()</code>. For modes 1/2/3, unchanged.</li>
+  <li><strong>Phase 4</strong> (read result) — branches:
+    <ul>
+      <li>Modes 1/2/3: existing binary-search step.</li>
+      <li>Mode 4: build a Sample (read freqs + compute strike amps), insert into <code>param_db_</code>, run the adaptive sampler step.</li>
+    </ul>
+  </li>
+</ul>
+<p>The Auto-mode glue from <strong>#6C</strong> already takes a mode number in <code>start_fine_tune_for_target(int mode)</code>; passing 4 re-arms Fine-W+ for the next note transparently.</p>
+</div>
+
+<div class="card component">
+<h3>5. UI changes</h3>
+<p><strong>Toolbar Row 3</strong> gains one button + two sliders:</p>
+<div class="ascii-toolbar">
+[<b>Fine-W</b>][<b>Fine-Size</b>][<b>Fine-WH</b>][<i>Fine-W+</i>][<b>Auto</b>] | [Threshold|3c] [<i>Budget|64</i>] [<i>MinAud|10%</i>] | …
+</div>
+<p>The new <code>[Fine-W+]</code> button starts mode 4. The two new sliders share Row 3's adaptive-wrap behaviour from <strong>#1</strong>.</p>
+
+<p><strong>Chart augmentation:</strong> when <code>fine_mode == 4</code>, the existing "binary search segment" view at the top of the Tuning Chart is replaced by a true histogram:</p>
+<ul>
+  <li><strong>X axis</strong>: parameter value (the searched dimension).</li>
+  <li><strong>Y axis</strong>: frequency in Hz (log-scale), with a horizontal target band.</li>
+  <li><strong>Each sample</strong>: dot at <code>(param, freqs[best_mode])</code>, coloured by <code>|best_cents|</code>: <span class="swatch green"></span>green ≤ threshold, <span class="swatch yellow"></span>yellow ≤ 4 × threshold, <span class="swatch red"></span>red beyond.</li>
+  <li><strong>Glyph</strong>: filled circle for audible (<code>!quiet</code>), <span class="swatch hollow" style="border-color: var(--text);"></span>hollow circle for quiet.</li>
+  <li><strong>Best-so-far</strong>: extra ring (same as today).</li>
+</ul>
+<p>The "Frequency vs attempt" plot stays unchanged below the histogram — gives time-ordered context. So the chart shows <em>both</em> views in Fine-W+ mode (per your request).</p>
+</div>
+
+<h2><span class="num">¶</span>New configuration</h2>
+<table>
+  <thead><tr><th>Variable</th><th>Type</th><th>Default</th><th>Range</th><th>UI</th></tr></thead>
+  <tbody>
+    <tr><td><code>fine_budget_</code></td><td><code>int</code></td><td>64</td><td>16..4096</td><td>Drag slider in Row 3</td></tr>
+    <tr><td><code>fine_min_audible_</code></td><td><code>float</code></td><td>0.1</td><td>0.01..0.5</td><td>Drag slider in Row 3</td></tr>
+    <tr><td><code>tune_threshold_cents_</code></td><td><code>float</code></td><td>5.0</td><td>unchanged</td><td>(existing)</td></tr>
+  </tbody>
+</table>
+<p><code>Budget = 64</code> means up to 64 evaluations per note × ~10 ms per eval ≈ 0.6 s wall time on the current machine. <code>Budget = 4096</code> ≈ 40 s — useful for difficult shapes when run unattended (Auto mode).</p>
+
+<h2><span class="num">¶</span>Failure modes &amp; edge cases</h2>
+<div class="card warn">
+<ul>
+  <li><strong>Strike position not yet recorded.</strong> Phase 1 still waits for the user's first strike. Once recorded, the rest is automatic.</li>
+  <li><strong>All modes quiet at every sample.</strong> Algorithm exhausts budget without an audible hit; reports quiet suboptimal. User re-strikes off-centre.</li>
+  <li><strong>Target outside the achievable frequency range.</strong> Density-exhaustion fires. User widens <code>[lo, hi]</code> (currently hardcoded at <code>0.3 × initial → 3 × initial</code>; could be exposed later).</li>
+  <li><strong>Budget set very low.</strong> Pre-warn at &lt; 24: "Budget very low; increase for better results."</li>
+  <li><strong>Memory growth.</strong> Worst case 4096 × ~200 bytes ≈ 800 KB per session. Cleared on session start. Negligible.</li>
+  <li><strong>Eigensolve order matters across samples.</strong> Eigensolver returns ascending order — mode reordering shows up as <code>freqs[0]</code> discontinuity. The multi-mode match handles this: we don't track mode identity, only "any matching mode."</li>
+</ul>
+</div>
+
+<h2><span class="num">¶</span>Out of scope</h2>
+<ul>
+  <li><strong>Fine-Size+</strong> and <strong>Fine-WH+</strong>. Genuine 2D adaptive sampling needs different priority scoring (Latin-hypercube seeding, 2D bracket detection). Deferred until 1D is validated.</li>
+  <li><strong>Bayesian Optimisation with Gaussian Process surrogate.</strong> Theoretically optimal for expensive black-box optimisation but ~500 LOC of new code (or a library dependency). Deferred unless 1D Fine-W+ proves insufficient.</li>
+  <li><strong>Brent's method as a refinement step</strong> inside a bracketing region. Could add later if further evaluation budget reduction matters; for now bisection-of-bracket is fine.</li>
+  <li><strong>Mode-tracking via continuation</strong> (computing per-mode trajectories across param values to follow specific modes through crossings). Useful for Fine-WH+; not needed for 1D multi-mode matching.</li>
+  <li><strong>Auto-widening</strong> <code>[lo, hi]</code>. User controls it via re-running with manual width adjustment.</li>
+</ul>
+
+<h2><span class="num">¶</span>Acceptance criteria</h2>
+<ol>
+  <li>With <code>Fine-W+</code> selected and an arbitrary 1D-tunable shape struck off-centre, the algorithm reaches <code>|cents| &lt; threshold</code> for the audible best mode in ≤ 64 evaluations on shapes where any of <code>Fine-W</code>/<code>Fine-WH</code> would also converge.</li>
+  <li>On shapes where bisection fails (e.g. a shape with a known mode crossing in <code>[lo, hi]</code>), <code>Fine-W+</code> finds an audible match where bisection cannot. Verified manually on at least one such shape.</li>
+  <li>Density-exhaustion path produces the "try Fine-WH+ for this note" status message and accepts <code>suboptimal=true</code>.</li>
+  <li>Budget-exhaustion accepts <code>suboptimal=true</code>. Note shows orange.</li>
+  <li>Auto mode (<strong>#6C</strong>) drives Fine-W+ end-to-end across all 8 notes when Fine-W+ is the chosen mode.</li>
+  <li>The histogram chart renders correctly with at least 1 sample, with proper colour coding for in-threshold / close / far / quiet.</li>
+  <li>Existing modes (Fine-W, Fine-Size, Fine-WH) remain byte-identical in behaviour.</li>
+</ol>
+
+<h2><span class="num">¶</span>Implementation plan</h2>
+<ol>
+  <li><strong>libmodal</strong> — <code>modal_compute_strike_amplitudes</code> (refactor + new function). ~30 LOC.</li>
+  <li><strong>Sample DB</strong> — <code>Sample</code> struct, <code>param_db_</code>, sample-insertion helper, best-mode selection. ~80 LOC.</li>
+  <li><strong>Adaptive sampler</strong> — <code>pick_next_param_adaptive()</code>, region scoring, termination checks. ~150 LOC.</li>
+  <li><strong>State machine integration</strong> — <code>fine_mode_ = 4</code> dispatch in Phase 2 and Phase 4; Auto-mode integration. ~50 LOC.</li>
+  <li><strong>UI</strong> — <code>[Fine-W+]</code> button, Budget + MinAudible sliders, histogram chart view (replaces "binary search segment" when <code>fine_mode == 4</code>). ~80 LOC.</li>
+</ol>
+<p>Total ~390 LOC across <code>libmodal/src/modal_api.cpp</code>, <code>modal_viewer/src/app/app.{cpp,h}</code>, <code>modal_viewer/src/ui/ui_manager.{cpp,h}</code>. No new files.</p>
+
+<footer>
+  Modal2D / ModalSynth — design spec for #10 (1D scope).
+</footer>
+
+</div>
+</body>
+</html>

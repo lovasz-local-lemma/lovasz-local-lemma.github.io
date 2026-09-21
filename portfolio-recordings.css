@@ -1,0 +1,48 @@
+/* Performance first: native controls, stable proportions, sound by choice. */
+.opening-performance{margin:20px 0 44px;min-width:0}.performance-heading{display:flex;gap:20px;align-items:center;justify-content:space-between;margin:12px 0 18px}.performance-heading h2{font-size:clamp(24px,2.6vw,38px);margin:8px 0}.performance-sound{color:#a7d9df;white-space:nowrap}.opening-performance .manual-media{position:relative;margin:0;border:1px solid #dcc78380;border-radius:18px;overflow:hidden;background:#080e12;box-shadow:0 14px 50px #0008,0 0 25px #d6b96018}.opening-performance video{display:block;width:100%;height:auto;max-height:65vh;object-fit:contain;background:#080e12}.opening-performance figcaption{padding:12px 20px;color:#c9d4ce}.opening-performance>p{max-width:1000px;color:#bbcec9}.performance-play{position:absolute;top:45%;left:50%;transform:translate(-50%,-50%);border:1px solid #ead59d;background:#172325ed;color:#ffebba;border-radius:40px;padding:16px 26px;box-shadow:0 0 30px #e0bd5030;cursor:pointer;font:600 16px/1.5 Inter,Arial,sans-serif}.performance-play:hover,.performance-play:focus-visible{background:#35443a;outline:2px solid #efd898;outline-offset:4px}.performance-play[hidden]{display:none}.project-picture .card-motion{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#0b1217;opacity:0;pointer-events:none;transition:opacity .3s;z-index:2}.project-picture.motion-ready .card-motion{opacity:1}.card-motion-cue{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);z-index:3;max-width:75%;padding:4px 9px;border-radius:7px;background:#10181de8;color:#cbe1dd;font:11px/1.4 Inter,Arial,sans-serif;opacity:0;pointer-events:none}.project-picture.motion-ready .card-motion-cue{opacity:1}@media(prefers-reduced-motion:reduce){.project-picture .card-motion{transition:none}}@media(max-width:600px){.performance-heading{display:block}.performance-play{font-size:13px;padding:10px 16px;width:max-content;max-width:85%}}
+.project-picture:has(.card-motion) .card-motion{z-index:20}
+.project-picture:has(.card-motion) .card-motion-cue{z-index:21}
+.project-picture:has(.card-motion) .picture-language,.project-picture:has(.card-motion) .picture-medium,.project-picture:has(.card-motion) .project-ribbon{z-index:22}
+.project-picture.motion-ready .shot-captions,.project-picture.motion-ready .shot-dots{visibility:hidden}
+
+/* Broad footage with prose flowing back to full width below it. */
+.chapter-opening.recording-wrap{display:flow-root}
+.recording-wrap>.manual-media{float:right;width:70%;margin:0 0 24px 28px}
+.recording-wrap>.chapter-prose{display:block;min-width:0}
+.recording-wrap video,.recording-gallery video{display:block;width:100%;height:auto;max-height:none;object-fit:contain}
+.recording-gallery{clear:both;margin:32px 0;padding:24px;border:1px solid #d6bf7555;border-radius:18px;background:linear-gradient(120deg,#c5aa4010,#91bfce08)}
+.recording-gallery h3{margin-top:0}.recording-gallery .manual-media{margin:0}
+.recording-choices{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}
+.recording-choices button{display:flex;align-items:center;gap:7px;background:#111c20;color:#d4dfdc;border:1px solid #879f9a70;border-radius:9px;padding:10px 13px;cursor:pointer;font:inherit}
+.recording-choices button[aria-pressed=true]{background:#393b2a;color:#ffdfa2;border-color:#e6ca7f;box-shadow:0 0 14px #d5ab4420}
+.recording-choices button:focus-visible{outline:2px solid #d8c68a;outline-offset:3px}.recording-pane[hidden]{display:none}
+.recorded-music{margin:26px 0}.recorded-music h4{font-size:1.3rem;color:#b9dded}
+@media(max-width:1100px){.recording-wrap>.manual-media{float:none;width:100%;margin:0 0 24px}.recording-gallery{padding:14px}}
+
+#manual-music .recording-wrap>.manual-media{float:none;width:100%;margin:0 0 24px}
+
+.recording-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;align-items:start}.recording-grid>section:only-child{grid-column:1/-1}.recording-grid h4{margin:12px 0;color:#b9dded;font-size:1.12rem}.recording-grid .manual-media{margin:0;position:relative}.opening-comparisons{margin-top:28px}.opening-comparisons video{max-height:none}.recording-grid .performance-play{font-size:13px;padding:10px 16px;max-width:90%}@media(max-width:950px){.recording-grid{grid-template-columns:1fr}}
+
+.opening-theory{margin:32px 0;padding:24px;border:1px solid #bcdccc50;border-radius:18px;background:#12212577}.opening-theory h3{color:#b9dded}.opening-theory video{max-height:65vh}
+
+/* Recordings in closing sections sit outside the chapter column: two across keeps the interface text legible. */
+.manual-section>.manual-media-grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,460px),1fr))}
+
+/* Recording galleries with 3 or 4 columns, and folded galleries. .cols-N outranks .recording-grid, so every narrow-screen rule is restated here. */
+.recording-grid.cols-3{grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.recording-grid.cols-4{grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.recording-grid.cols-3 h4,.recording-grid.cols-4 h4{font-size:.95rem;margin:8px 0}
+.recording-grid.cols-4 figcaption{font-size:.82rem}
+@media(max-width:1300px){.recording-grid.cols-4{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:1100px){.recording-grid.cols-3,.recording-grid.cols-4{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:950px){.recording-grid.cols-3{grid-template-columns:1fr}}
+@media(max-width:560px){.recording-grid.cols-4{grid-template-columns:1fr}}
+details.recording-fold>summary{cursor:pointer;list-style:none;display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline}
+details.recording-fold>summary::-webkit-details-marker{display:none}
+details.recording-fold>summary h3{margin:0}
+details.recording-fold .recording-count{color:#a9c2bd;font-size:.9rem}
+details.recording-fold>summary .detail-chevron{margin-left:auto}
+details.recording-fold[open]>summary{margin-bottom:16px}
+details.recording-fold[open]>summary .detail-chevron{transform:rotate(45deg)}
+/* A recording placeholder that shares a media grid sits in a narrow column: the glyph goes above the text so the caption keeps its measure. */
+.manual-media-grid:has(>:nth-child(2)) .capture-slot{flex-direction:column;align-items:flex-start;gap:10px}

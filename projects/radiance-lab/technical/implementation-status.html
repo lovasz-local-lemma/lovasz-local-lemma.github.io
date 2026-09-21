@@ -1,0 +1,175 @@
+<!doctype html><html lang="en"><head><style data-portfolio-paint>html{background:#0b0d0c;color-scheme:dark}html.portfolio-booting body{opacity:0}</style><script src="../../../portfolio-navigation.js?v=688f1905bc"></script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Implemented renderers and open experiments — RadianceLab</title><meta name="description" content="A concrete implementation ledger: scene modes, controlled numerical experiments and the extensions that remain open."><meta name="color-scheme" content="dark"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="../../../portfolio.css?v=b7ed8602e5"><link rel="stylesheet" href="../../../portfolio-effects.css?v=62be30dafa"><link rel="stylesheet" href="../../../portfolio-atmospheres.css?v=4b74c57939"><link rel="stylesheet" href="../../../portfolio-motion.css?v=4b098d8184"><link rel="stylesheet" href="../../../portfolio-case-studies.css?v=243caf2b0d"><link rel="stylesheet" href="../../../portfolio-brochures.css?v=a1e5e16132"><link rel="stylesheet" href="../../../portfolio-project-themes.css?v=a898c35e78"><link rel="stylesheet" href="../../../portfolio-location.css?v=9c4c1ad84f"><link rel="stylesheet" href="../../../portfolio-controls.css?v=9376de7761"><link rel="stylesheet" href="../../../portfolio-media.css?v=c51f7712ea"><link rel="stylesheet" href="../../../portfolio-overviews.css?v=8612c4ee0a"><link rel="stylesheet" href="../../../portfolio-motivations.css?v=ccc1c1d866"><link rel="stylesheet" href="../../../portfolio-claims.css?v=058dbd00ef"><link rel="stylesheet" href="../../../portfolio-feature-atlas.css?v=e73f02cb31"><script type="application/json" id="media-framing">{"media/brochures/physics-2d/thermal-furnace-magnetic-field-probe.png":{"width":1602,"height":940,"top":39},"media/brochures/physics-2d/magnetic-field-direction-appearance-controls.png":{"width":1602,"height":940,"top":39},"media/brochures/physics-2d/time-bomb-blast-particle-plume.png":{"width":1602,"height":940,"top":39}}</script><script defer src="../../../portfolio-claims.js?v=ed914a4d3a"></script><script defer src="../../../portfolio-visual-defaults.js?v=eecfd5c771"></script><script defer src="../../../portfolio-motion.js?v=a642c710f9"></script><script defer src="../../../portfolio-fire-studies.js?v=7717e15582"></script><script defer src="../../../portfolio-embers.js?v=8a8be5569d"></script><script defer src="../../../portfolio-atmospheres.js?v=021b2f100e"></script><script defer src="../../../portfolio-effects.js?v=03a6c89d6c"></script><script defer src="../../../portfolio-brochures.js?v=055cad29d6"></script><script defer src="../../../portfolio-location.js?v=3846586893"></script><script defer src="../../../portfolio-media.js?v=d2d555a888"></script><script defer src="../../../portfolio-articles.js?v=acb89575ce"></script><script defer src="../../../portfolio-labs.js?v=a0b86a3809"></script><link rel="stylesheet" href="../../../portfolio-technical.css?v=0ecb3a48c7"><script defer src="../../../portfolio-technical.js"></script><!-- universal-navigation:start --><script defer src="../../../portfolio-routes.js?v=054b6b462c"></script><script defer src="../../../portfolio-universal-navigation.js?v=054b6b462c"></script><!-- universal-navigation:end --><style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head><body data-page="technical" data-project-theme="optics" data-project-id="radiance-lab" data-default-atmosphere="caustics"><canvas class="spark-field" aria-hidden="true"></canvas><a class="skip-link" href="#main">Skip to content</a><nav class="site-nav portfolio-route" data-route-group="flagships" aria-label="Portfolio location"><div class="route-path"><a class="route-node route-home" href="../../../index.html#project-radiance-lab" aria-label="Portfolio"><img class="route-mark" src="../../../media/identity/portfolio-mark.svg" alt="" width="52" height="52"><span class="route-copy"><small>Work / ideas</small><strong>Portfolio</strong></span></a><span class="route-wire" aria-hidden="true"><i></i><b></b></span><div class="route-node route-group"><span class="route-glyph" aria-hidden="true">✦</span><span class="route-copy"><small>Collection</small><strong>Flagship</strong></span></div><span class="route-wire" aria-hidden="true"><i></i><b></b></span><a class="route-node route-project" href="../index.html"><span class="route-glyph" hidden aria-hidden="true">◈</span><img class="route-thumb" src="../../../media/previews/radiance-lab/caustic-showcase.png" width="42" height="42" alt=""><span class="route-copy"><small>Project</small><strong>RadianceLab</strong></span></a><span class="route-wire" aria-hidden="true"><i></i><b></b></span><a class="route-node technical-route" href="index.html"><span class="route-copy"><small>Technical reading room</small><strong>Implemented renderers and open experiments</strong></span></a></div><div class="route-end"><span class="route-meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><a class="route-back" href="../../../index.html#project-radiance-lab">← Back to portfolio</a></div></nav><nav class="section-rail technical-rail" aria-label="Technical document sections"><span class="rail-indicator" aria-hidden="true"></span><a href="#technical-top" data-section="technical-top"><span>⌂</span><span>Start</span></a><a href="#surface-cone-plus-plane-was-already-implemented" data-section="surface-cone-plus-plane-was-already-implemented" title="Surface cone plus plane was already implemented"><small>01</small><span>Surface cone plus plane was already implemented</span></a><a href="#what-already-produces-native-scene-images" data-section="what-already-produces-native-scene-images" title="What already produces native scene images"><small>02</small><span>What already produces native scene images</span></a><a href="#computed-experiments-that-must-not-be-mistaken-for-general-scene-modes" data-section="computed-experiments-that-must-not-be-mistaken-for-general-scene-modes" title="Computed experiments that must not be mistaken for general scene modes"><small>03</small><span>Computed experiments that must not be mistaken for general scene modes</span></a><a href="#directions-still-open" data-section="directions-still-open" title="Directions still open"><small>04</small><span>Directions still open</span></a></nav><main id="main" class="project-page technical-page"><header id="technical-top" class="technical-hero"><span class="eyebrow">RadianceLab · Native implementation document</span><h1>Implemented renderers and open experiments</h1><p>A concrete implementation ledger: scene modes, controlled numerical experiments and the extensions that remain open.</p><div class="technical-actions"><a href="../index.html">← RadianceLab brochure</a><a href="index.html">Technical reading room</a><a href="../validation/index.html">Rendered evidence ↗</a></div></header><aside class="technical-scope"><span>◈</span><p>Implementation notes describe the native application. A working experiment, an approximate preview and a general transport estimator establish different things; each document states its own scope.</p></aside><article class="technical-document"><p>The useful distinction is whether a feature has a scene renderer, a controlled
+numerical experiment, or a geometric explanation. A rendered image proves that
+an execution path ran; it does not by itself prove unbiasedness, completeness
+or a performance advantage. This ledger records the current boundaries rather
+than counting every menu item as a completed estimator.</p>
+<h2 id="surface-cone-plus-plane-was-already-implemented">Surface cone plus plane was already implemented</h2><p>PP33 offers <strong>Cone</strong>, <strong>Plane</strong>, and <strong>Cone + plane: balance MIS</strong>. The pair retains one total sheet budget and accounts for both families on their common emitted-path measure. The retained comparison contains 54 native renders: three scenes, three choices, six independent seeds.</p>
+<p>An older running build may still offer only the earlier two choices. <strong>Surface-Curve-MIS.bat</strong> opens the updated paired caustic scene through the AIO launcher. Choose <strong>Sheet family → Cone + plane: balance MIS</strong>.</p>
+<p>The measured result is also useful: the pair did not provide an efficiency win
+in the tested fixtures. The two charts have the same marginal emitted-path
+density; their difference is within-sheet correlation and sweep orientation.
+The pair provides a controlled orientation hedge, not a new proposal that
+hits glass more often. <a href="surface-pair-analysis.html">Read the derivation and native comparison</a>.</p>
+<h2 id="what-already-produces-native-scene-images">What already produces native scene images</h2><div class="case-table-wrap technical-table" tabindex="0" role="region" aria-label="Technical comparison"><table>
+<thead>
+<tr>
+<th>Requested direction</th>
+<th>Working route</th>
+<th>Current boundary</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Arbitrary pairs/trios and sphere + plane</td>
+<td>PP31 custom combinations, including UV + sphere; source-size/profile matrices and measured comparisons</td>
+<td>Seven kernel-free members share a measure. Curve-family mixtures retain their finite kernels; combining exact and curve groups is an explicitly labeled fixed blend, not extended cross-measure MIS.</td>
+</tr>
+<tr>
+<td>More source sizes, angular profiles and colours</td>
+<td>Multi-emitter matrices 80–82; equal-flux studies 105–106</td>
+<td>Colour, area and angular power are recorded. Equal pass counts are not equal time or equal quality.</td>
+</tr>
+<tr>
+<td>Volumetric emitters and heterogeneous scenes</td>
+<td>Luminous solids 89–90, procedural emitters 91, heterogeneous chambers 92 and 104</td>
+<td>These exercise existing producer support. The GPU heterogeneous branch still has tracking/connection limitations; custom PP31 remains a bounded homogeneous-medium estimator.</td>
+</tr>
+<tr>
+<td>Mesh and multiple-glass hourglasses</td>
+<td>PP32 numerical mesh sheets, prepared sphere/torus/monkey/teapot/chain scenes, additive fast preview</td>
+<td>Mesh topology, branch changes and interpolation cuts remain explicit. Fast raster sheets are a biased viewfinder, with separate native comparisons.</td>
+</tr>
+<tr>
+<td>Surface curves and surface caustics</td>
+<td>PP33 actual analytical/triangle receivers and selected specular chains, with stochastic or finite-quadrature accumulation</td>
+<td>Finite-depth <code>L[S]*DE</code> scope. It does not implement arbitrary camera-side specular paths, all materials, dispersion, or a general receiver texture-baking system.</td>
+</tr>
+<tr>
+<td>Light-source translation</td>
+<td>Existing actual-scene central finite-difference window, with shared samples and a second step size</td>
+<td>Direct supported emitters/receivers only. It includes changed visibility at finite displacement, but is not a complete differentiable renderer or the zero-width boundary construction.</td>
+</tr>
+<tr>
+<td>Sphere × sphere connection</td>
+<td>New point-source/pinhole single-scattering scene renderer with residual-circle sampling and independent camera-ray reference</td>
+<td>Real source/sensor PDFs, visibility and bounded homogeneous attenuation; not arbitrary loaded scenes, area sources, multiple scattering or general volume pairings.</td>
+</tr>
+<tr>
+<td>Sharp surface derivative</td>
+<td>New collimated-quad boundary experiment, with editable motion vector, signed/overlay render and finite-difference comparison</td>
+<td>Zero world-space kernel; finite film-pixel integration. Fixed transport with local affine receiver projection, not general changing visibility or indirect-light derivatives.</td>
+</tr>
+<tr>
+<td>Coherent waves on real receivers</td>
+<td>New scalar Helmholtz superposition sampled at actual floor/sphere hits, with coherent/incoherent/signed cross-term views and a plane reference</td>
+<td>Ideal field probes do not block or re-scatter the optical field. It is not arbitrary-material coherent path tracing.</td>
+</tr>
+<tr>
+<td>Enhanced raster viewfinder</td>
+<td>Opt-in surface guide plus selected PP scattering film and fast sheets</td>
+<td>An appearance composite with visible fallback paths. Secondary guide paths do not acquire complete medium/mesh transport. Legacy raster remains available.</td>
+</tr>
+<tr>
+<td>Projector depth acquisition and unwrapping</td>
+<td>Six calibrated native GPU acquisitions: four-shot CW, three frequencies, anchored off-axis sensor/emitter carriers, plane-front and line setups</td>
+<td>New ambiguity resolution uses measured phases and declared capture range. Multipath gives apparent range; low signal, sideband overlap and calibration still matter.</td>
+</tr>
+<tr>
+<td>Take a shot, long exposure, camera movement and aperture controls</td>
+<td>Native high-quality capture, linear-film export where available, camera-motion averaging/time-lapse, ideal thin-lens tilt/shift</td>
+<td>Scene simulation is frozen during capture. CPU comparisons require supported camera paths; this is not a multi-element commercial lens prescription.</td>
+</tr>
+<tr>
+<td>Walk around a captured photograph</td>
+<td>World-fixed RGB-D plate with first-hit-depth parallax</td>
+<td>It preserves one captured view, leaves disocclusion holes and is a viewport overlay. It does not physically diffract, illuminate other objects or reproduce a full light field.</td>
+</tr>
+</tbody></table></div>
+<p>The <a href="scene-catalogue.html">scene catalogue</a>,
+<a href="custom-combinations.html">custom combinations</a>,
+<a href="surface-curves.html">surface implementation</a>,
+<a href="projector-imaging.html">projector imaging</a> and
+<a href="photography.html">photography guide</a> carry their exact controls and
+retained evidence.</p>
+<h2 id="computed-experiments-that-must-not-be-mistaken-for-general-scene-modes">Computed experiments that must not be mistaken for general scene modes</h2><div class="case-table-wrap technical-table" tabindex="0" role="region" aria-label="Technical comparison"><table>
+<thead>
+<tr>
+<th>Construction</th>
+<th>What the earlier experiment actually computed</th>
+<th>What that did not establish</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Sphere × sphere and plane × plane</td>
+<td>Exact residual circle/line geometry, coarea factors and samples</td>
+<td>A scene-radiance estimator with source/sensor PDFs, visibility and all path roots.</td>
+</tr>
+<tr>
+<td>Ball × parallelepiped and box × box</td>
+<td>Bounded overlap quadrature</td>
+<td>A bidirectional path sampler over arbitrary overlapping volumes.</td>
+</tr>
+<tr>
+<td>Temporal ellipsoid, ball/box clipping, finite kernel and delta limit</td>
+<td>A normalized geometric integral and dimension reduction at regular level sets</td>
+<td>Arrival-time support in the production PP0–33 films. GPU path gates are a separate route.</td>
+</tr>
+<tr>
+<td>Surface-footprint derivative</td>
+<td>A controlled receiver render using a declared smooth edge kernel</td>
+<td>An infinitely thin boundary derivative of a general moving area light.</td>
+</tr>
+<tr>
+<td>FFT wave propagation and hologram record/replay</td>
+<td>Actual complex-amplitude propagation, intensity-only sideband recovery and refocusing for controlled apertures/layers</td>
+<td>Coherent multiple scattering through arbitrary scene materials, polarization or physically diffracting in-scene holograms.</td>
+</tr>
+<tr>
+<td>Collision, track length and ratio tracking</td>
+<td>Sample histories, estimates and costs for one specified scalar volume integral</td>
+<td>Repair or validation of every existing GPU/UPBP medium-transport branch.</td>
+</tr>
+</tbody></table></div>
+<p>These experiments remain useful foundations. The distinction matters when a
+new drawing looks correct while the corresponding transport estimator has not
+yet been connected to a scene. The new <a href="sphere-connection.html">sphere-connection renderer</a>,
+<a href="boundary-derivatives.html">sharp boundary derivative</a> and
+<a href="coherent-receivers.html">coherent receiver render</a> provide actual
+bounded scene experiments for those three follow-ups. The earlier
+<a href="surface-time-derivatives.html">support and time experiments</a> and
+<a href="primitive-wave-laboratory.html">wave laboratory</a> remain alongside them.</p>
+<h2 id="directions-still-open">Directions still open</h2><ul>
+<li><strong>General transient photon primitives:</strong> arrival-time kernels, multisegment
+prefixes and correctly normalized delta limits are not universally wired
+through PP0–33. A sphere or ellipsoid picture alone does not complete them.</li>
+<li><strong>General dual-support transport:</strong> arbitrary plane/volume pairings, multiple
+preimages and manifold constraints still need matching measures, proposals,
+visibility and variance analysis.</li>
+<li><strong>Cross-measure MIS:</strong> finite-radius beam/ring/arc and kernel-free sheets need
+an extended derivation; the shipped exact/curve blend does not claim it.</li>
+<li><strong>General differentiable transport:</strong> smooth throughput terms, moving
+occlusion, refractive interfaces and indirect paths exceed a single boundary
+fixture or central finite difference.</li>
+<li><strong>Arbitrary coherent materials and sonar:</strong> scalar-wave demonstrations do not
+supply electromagnetic material boundaries, polarization, acoustic impedance
+or a transducer model.</li>
+<li><strong>Full manifold exploration:</strong> the existing specular-aware mutation prototype
+is not the complete constraint solver from the published algorithm. This
+remains the previously designated lower-priority direction.</li>
+<li><strong>A universal automatic combination ranking:</strong> second moments, support holes,
+Jacobian tails and cost make the analysis concrete, but there is no scene-
+independent score that chooses the best combination without assumptions.</li>
+</ul>
+<p>The <a href="backend-roadmap.html">backend and temporal audit</a> and
+<a href="support-matrix.html">estimator support matrix</a> separate a missing
+mathematical ingredient from a performance port. A name in the UI, a geometric
+schematic and an independently checked scene estimator are different kinds of
+evidence.</p>
+</article><footer class="technical-footer"><div class="technical-actions"><a href="../index.html">← RadianceLab brochure</a><a href="index.html">Technical reading room</a><a href="../validation/index.html">Rendered evidence ↗</a></div></footer></main></body></html>

@@ -1,0 +1,13 @@
+// Scene-aware replacement for the older generic transport illustration.
+// Read the exact retained occluders and the renderer's current view-projection.
+import Rive from './vector-replay/vendor/webgl2_advanced.js';
+const canvas=document.getElementById('riveUnderlay'),status=document.getElementById('riveUnderStat');
+let runtime,renderer,file,art,nodes=[],lastKey='',ready=false;
+function geometry(objects){const edges=[];for(const o of objects){const c=o.slice(1,4);if(o[0]===0){for(let axis=0;axis<3;axis++)for(let j=0;j<48;j++){const point=t=>c.map((x,i)=>x+(i===(axis+1)%3?o[4]*Math.cos(t):i===(axis+2)%3?o[4]*Math.sin(t):0));edges.push([point(j*Math.PI/24),point((j+1)*Math.PI/24)]);}}else if(o[0]===1){const point=k=>c.map((x,i)=>x+((k&(1<<i))?1:-1)*o[5+i]);for(let k=0;k<8;k++)for(let i=0;i<3;i++)if(!(k&(1<<i)))edges.push([point(k),point(k|(1<<i))]);}}return edges;}
+function draw(){if(!ready)return;const v=window.rivxSceneView;if(!v)return;const key=JSON.stringify([v.matrix,v.width,v.height,v.occluders]);if(key===lastKey)return;lastKey=key;const M=v.matrix,W=v.width,H=v.height;canvas.width=W;canvas.height=H;
+ const project=p=>{const w=M[3]*p[0]+M[7]*p[1]+M[11]*p[2]+M[15];if(w<=.05)return null;return [(1+(M[0]*p[0]+M[4]*p[1]+M[8]*p[2]+M[12])/w)*500,(1-(M[1]*p[0]+M[5]*p[1]+M[9]*p[2]+M[13])/w)*350];};
+ let count=0;for(const [a,b]of geometry(v.occluders)){const p=project(a),q=project(b);if(!p||!q||count>=nodes.length)continue;const n=nodes[count++],dx=q[0]-p[0],dy=q[1]-p[1];n.x=p[0];n.y=p[1];n.rotation=Math.atan2(dy,dx);n.scaleX=Math.hypot(dx,dy);n.scaleY=.45;}
+ for(let i=count;i<nodes.length;i++){nodes[i].scaleX=0;nodes[i].scaleY=0;}renderer.clear();renderer.save();renderer.align(runtime.Fit.fill,runtime.Alignment.center,{minX:0,minY:0,maxX:W,maxY:H},{minX:0,minY:0,maxX:1000,maxY:700});art.advance(0);art.draw(renderer);renderer.restore();renderer.flush();canvas.dataset.sceneGuides=String(count);canvas.dataset.renderer='official-rive-webgl2';
+}
+(async()=>{runtime=await Rive({locateFile:()=>new URL('./vector-replay/vendor/rive.wasm',import.meta.url).href});renderer=runtime.makeRenderer(canvas);file=await runtime.load(new Uint8Array(await(await fetch(new URL('./photon-studio/ink-pool.riv',import.meta.url))).arrayBuffer()));art=file.defaultArtboard();nodes=Array.from({length:384},(_,i)=>art.node('ink'+i));ready=true;status.textContent='official Rive · scene geometry + shared camera';window.addEventListener('rivx-view-updated',()=>runtime.requestAnimationFrame(draw));runtime.requestAnimationFrame(draw);})().catch(e=>{status.textContent='Scene guides unavailable: '+e.message;});
+window.addEventListener('pagehide',e=>{if(!e.persisted){ready=false;art?.delete();file?.delete();renderer?.delete();}});

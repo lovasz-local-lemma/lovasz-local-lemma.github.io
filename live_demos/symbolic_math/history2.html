@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><style id="portfolio-early-paint">html{background:#0b0d0c;color-scheme:dark}html.portfolio-booting body{opacity:0}</style><script src="../../portfolio-navigation.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Symbolic Math Engine - History Part 2</title>
+    <style>
+        :root {
+            --bg: #0f172a; --bg2: #1e293b; --bg3: #334155;
+            --text: #f1f5f9; --muted: #94a3b8; --accent: #667eea;
+            --green: #4ade80; --red: #f87171; --yellow: #fbbf24;
+            --purple: #a78bfa; --cyan: #22d3ee; --pink: #f472b6;
+            --orange: #fb923c;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; line-height: 1.6; }
+        .container { max-width: 1100px; margin: 0 auto; padding: 2rem; }
+        h1 { font-size: 2.2rem; margin-bottom: 0.5rem; background: linear-gradient(135deg, var(--accent), var(--pink)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        h2 { font-size: 1.5rem; margin-top: 2.5rem; margin-bottom: 1rem; color: var(--cyan); border-bottom: 1px solid var(--bg3); padding-bottom: 0.5rem; }
+        h3 { font-size: 1.15rem; margin-top: 1.5rem; margin-bottom: 0.5rem; color: var(--purple); }
+        p, li { color: var(--muted); margin-bottom: 0.5rem; }
+        a { color: var(--accent); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        code { background: var(--bg2); padding: 2px 6px; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 0.9em; color: var(--cyan); }
+        .back-link { display: inline-block; margin-bottom: 1.5rem; padding: 8px 16px; background: var(--bg2); border-radius: 8px; color: var(--accent); }
+        .card { background: var(--bg2); border-radius: 12px; padding: 1.5rem; margin: 1rem 0; border: 1px solid var(--bg3); }
+        .card-green { border-color: rgba(74,222,128,0.3); }
+        .card-red { border-color: rgba(248,113,113,0.3); }
+        .card-purple { border-color: rgba(167,139,250,0.3); }
+        .card-cyan { border-color: rgba(34,211,238,0.3); }
+        .card-yellow { border-color: rgba(251,191,36,0.3); }
+        .tag { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; margin-right: 4px; }
+        .tag-green { background: rgba(74,222,128,0.15); color: var(--green); }
+        .tag-red { background: rgba(248,113,113,0.15); color: var(--red); }
+        .tag-yellow { background: rgba(251,191,36,0.15); color: var(--yellow); }
+        .tag-purple { background: rgba(167,139,250,0.15); color: var(--purple); }
+        .tag-cyan { background: rgba(34,211,238,0.15); color: var(--cyan); }
+        .tag-pink { background: rgba(244,114,182,0.15); color: var(--pink); }
+        .tag-orange { background: rgba(251,146,60,0.15); color: var(--orange); }
+        .change-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1rem 0; }
+        @media (max-width: 768px) { .change-grid { grid-template-columns: 1fr; } }
+        .change-item { background: var(--bg2); border-radius: 10px; padding: 1rem; border-left: 3px solid var(--accent); }
+        .change-item h4 { font-size: 0.95rem; color: var(--text); margin-bottom: 0.4rem; }
+        .change-item p { font-size: 0.85rem; margin-bottom: 0; }
+        .before-after { display: flex; gap: 1rem; margin: 0.75rem 0; }
+        .before-after > div { flex: 1; padding: 0.75rem; border-radius: 8px; font-size: 0.85rem; }
+        .before { background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.2); }
+        .after { background: rgba(74,222,128,0.08); border: 1px solid rgba(74,222,128,0.2); }
+        .before strong { color: var(--red); }
+        .after strong { color: var(--green); }
+    </style>
+  <link rel="stylesheet" href="portfolio.css">
+<link rel="stylesheet" href="../../portfolio-controls.css"><link rel="stylesheet" href="../../portfolio-demo-return.css"><script defer src="../../portfolio-demo-return.js" data-project="symbolic_math" data-title="Symbolic Unfolded" data-overview="projects/symbolic_math/overview.html" data-group="signature" data-thumbnail="media/brochures/symbolic_math/residue-theorem-contour.png" data-routes="[{&quot;project&quot;:&quot;symbolic_math&quot;,&quot;title&quot;:&quot;Symbolic Unfolded&quot;,&quot;group&quot;:&quot;signature&quot;,&quot;thumbnail&quot;:&quot;media/brochures/symbolic_math/residue-theorem-contour.png&quot;,&quot;overview&quot;:&quot;projects/symbolic_math/overview.html&quot;,&quot;path&quot;:&quot;live_demos/symbolic_math/index.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:2},{&quot;project&quot;:&quot;symbolic_math&quot;,&quot;title&quot;:&quot;Symbolic Unfolded&quot;,&quot;group&quot;:&quot;signature&quot;,&quot;thumbnail&quot;:&quot;media/brochures/symbolic_math/residue-theorem-contour.png&quot;,&quot;overview&quot;:&quot;projects/symbolic_math/overview.html&quot;,&quot;path&quot;:&quot;live_demos/symbolic_math/index.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:1},{&quot;project&quot;:&quot;symbolic_math&quot;,&quot;title&quot;:&quot;Symbolic Unfolded&quot;,&quot;group&quot;:&quot;signature&quot;,&quot;thumbnail&quot;:&quot;media/brochures/symbolic_math/residue-theorem-contour.png&quot;,&quot;overview&quot;:&quot;projects/symbolic_math/overview.html&quot;,&quot;path&quot;:&quot;live_demos/symbolic_math/technical.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:1},{&quot;project&quot;:&quot;symbolic_math&quot;,&quot;title&quot;:&quot;Symbolic Unfolded&quot;,&quot;group&quot;:&quot;signature&quot;,&quot;thumbnail&quot;:&quot;media/brochures/symbolic_math/residue-theorem-contour.png&quot;,&quot;overview&quot;:&quot;projects/symbolic_math/overview.html&quot;,&quot;path&quot;:&quot;live_demos/symbolic_math/&quot;,&quot;query&quot;:{},&quot;priority&quot;:-1}]"></script><!-- universal-navigation:start --><link rel="stylesheet" href="../../portfolio-location.css?v=054b6b462c"><script defer src="../../portfolio-location.js?v=054b6b462c"></script><script defer src="../../portfolio-routes.js?v=054b6b462c"></script><script defer src="../../portfolio-universal-navigation.js?v=054b6b462c"></script><!-- universal-navigation:end --><style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head>
+<body class="portfolio-symbolic_math">
+  <div class="portfolio-return" data-theme="dark" role="navigation" aria-label="Portfolio"><a class="portfolio-return-link" href="../../projects/symbolic_math/index.html" target="_top"><span aria-hidden="true">←</span> Project overview</a></div>
+<div class="container">
+    <a href="history.html" class="back-link">&larr; History Part 1</a>
+    <a href="index.html" class="back-link" style="margin-left: 8px;">&larr; Back to Engine</a>
+
+    <h1>History Part 2: UI Overhaul, Complex Analysis & More</h1>
+    <p>Changes since the initial architecture was documented. Covers the residue theorem module, complex plane visualizations, UI redesign, and integration improvements.</p>
+
+    <!-- Residue Theorem -->
+    <h2>1. Residue Theorem Module <span class="tag tag-red">EXPERIMENTAL</span></h2>
+
+    <div class="card card-red">
+        <h3>What it does</h3>
+        <p>Evaluates improper integrals of rational functions P(x)/Q(x) over (-inf, inf) using complex contour integration. This is the first step into complex analysis territory.</p>
+        <h3>How it works</h3>
+        <ol>
+            <li><strong>Pole detection</strong> &mdash; Finds roots of Q(z) in the complex plane. Uses the quadratic formula for degree-2, rational root theorem + factoring for higher degrees, and Durand-Kerner numerical iteration for degree 4+.</li>
+            <li><strong>Multiplicity detection</strong> &mdash; Groups nearby Durand-Kerner roots within 1e-6 tolerance to identify double/triple poles.</li>
+            <li><strong>Contour selection</strong> &mdash; Picks upper half-plane poles (Im(z) > 0), falls back to lower half-plane if needed.</li>
+            <li><strong>Residue computation</strong> &mdash; Simple poles: P(z0)/Q'(z0). Higher-order: numerical contour integral around tiny circle (r=1e-5, n=256 points).</li>
+            <li><strong>Result</strong> &mdash; Real integral = Re(2*pi*i * sum of residues). Validates imaginary part is near zero.</li>
+        </ol>
+        <p><span class="tag tag-cyan">residue_theorem.rb</span> <span class="tag tag-cyan">definite_integral.rb</span></p>
+    </div>
+
+    <!-- Complex Plane Visualizations -->
+    <h2>2. Complex Plane Visualizations</h2>
+
+    <div class="card card-cyan">
+        <h3>Four canvas-based plots</h3>
+        <p>When a residue theorem integration runs, four plots are rendered in both the results panel and the expression tree panel:</p>
+        <ul>
+            <li><strong>|f(z)| Amplitude</strong> &mdash; Domain coloring heatmap. Deep navy at zeros, white-hot at poles. Log-scaled with aggressive ramp for high contrast.</li>
+            <li><strong>arg(f(z)) Phase + Contour</strong> &mdash; HSL color wheel for phase, golden semicircular contour path, green dashed circles around enclosed poles, direction arrows.</li>
+            <li><strong>Re(f(z))</strong> &mdash; Dark background, cyan (negative) / orange (positive) diverging colormap with quadratic+linear brightness ramp.</li>
+            <li><strong>Im(f(z))</strong> &mdash; Dark background, magenta (negative) / green (positive) diverging colormap.</li>
+        </ul>
+        <p>Results panel: 4 in a row at 270px each. Tree panel: 2x2 grid at 150px each, matching tree height.</p>
+        <p><span class="tag tag-cyan">complex_plot.js</span></p>
+    </div>
+
+    <!-- UI Redesign -->
+    <h2>3. UI Redesign</h2>
+
+    <div class="change-grid">
+        <div class="change-item" style="border-left-color: var(--pink);">
+            <h4>Operation Popups &mdash; Variable Auto-Detection</h4>
+            <p>All operation forms (derivative, integrate, evaluate, gradient, differential, definite integral, residue) now auto-detect variables from the formula and present them as color-coded clickable chips instead of text inputs.</p>
+        </div>
+        <div class="change-item" style="border-left-color: var(--yellow);">
+            <h4>Evaluate Form &mdash; Per-Variable Inputs</h4>
+            <p>Each detected variable gets its own styled input field with matching color. No more "x 2.0 y 3.0" text format.</p>
+        </div>
+        <div class="change-item" style="border-left-color: var(--cyan);">
+            <h4>Range Visualization &mdash; Draggable</h4>
+            <p>Definite integral and residue forms show a live number-line bar. Drag the handles to change bounds; values update in real-time. Supports infinity endpoints.</p>
+        </div>
+        <div class="change-item" style="border-left-color: var(--green);">
+            <h4>Layout &mdash; Examples at Bottom</h4>
+            <p>Input bar, formula display, trees, and results stay together. All example groups moved to the bottom of the page.</p>
+        </div>
+        <div class="change-item" style="border-left-color: var(--purple);">
+            <h4>Theme Selector</h4>
+            <p>Four themes: Default (dark glass), Academic (cool slate-indigo), Artistic (warm amber-rose), Wild (neon green-magenta). Persists via localStorage.</p>
+        </div>
+        <div class="change-item" style="border-left-color: var(--orange);">
+            <h4>Compact Solution Steps</h4>
+            <p>Each step category gets a unique math symbol (xn for power, u-arrow for substitution, theta for trig, etc). Reduced padding and margins. Simplification steps are extra-compact.</p>
+        </div>
+    </div>
+
+    <h3>UI Fixes</h3>
+    <div class="before-after">
+        <div class="before"><strong>Before:</strong> Pi/ops button shook on hover due to CSS rotate(90deg) + hover-triggered menu. Modal closed when clicking outside. LaTeX broke on nested functions like exp(cos(x)).</div>
+        <div class="after"><strong>After:</strong> Smooth hover+click behavior. Modal only closes via X/Cancel. LaTeX uses balanced-paren parser for correct nested rendering.</div>
+    </div>
+
+    <!-- Integration Improvements -->
+    <h2>4. Integration Improvements</h2>
+
+    <div class="card card-green">
+        <h3>Mixed Partial Fractions (Linear + Irreducible Quadratic)</h3>
+        <p>New: <code>integrate_mixed_pf</code> handles denominators that factor into linear terms times an irreducible quadratic. Uses numerical point-evaluation to set up a linear system, Gaussian elimination to solve for coefficients, then integrates each part separately (ln terms for linear factors, ln+arctan for the quadratic).</p>
+        <p><strong>Example:</strong> <code>(x^2+1)/(x^3+3x)</code> = <code>(x^2+1)/(x(x^2+3))</code></p>
+        <p>Decomposes as <code>1/(3x) + (2x)/(3(x^2+3))</code>, integrates to <code>(1/3)ln|x| + (1/3)ln(x^2+3)</code>.</p>
+        <p>Previously returned "integral" (unsolvable). Now fully handles the general case.</p>
+        <p><span class="tag tag-green">rational_integration.rb</span></p>
+    </div>
+
+    <div class="card card-green">
+        <h3>Simplification in All Pipelines</h3>
+        <p>Gradient and differential form endpoints now simplify each component after computation. Previously, raw derivative output like <code>2*x^(2-1) + y^2*((0*ln(y) + 2*0/y))</code> was returned as-is. Now it simplifies to <code>2*x</code> and <code>2*y</code>.</p>
+    </div>
+
+    <div class="card card-yellow">
+        <h3>3-Mode Simplification</h3>
+        <p>New dropdown in the header with three modes:</p>
+        <ul>
+            <li><strong>Simplify final result</strong> (default) &mdash; Run the experimental simplifier after the main computation.</li>
+            <li><strong>Never simplify</strong> &mdash; Return raw output. Useful for debugging the engine or seeing exact intermediate forms.</li>
+            <li><strong>Simplify along the way</strong> &mdash; Aggressive per-step simplification during recursive integration. Can produce cleaner intermediate steps but may occasionally interfere with pattern matching.</li>
+        </ul>
+        <p>Simplification steps are now shown in the solution steps panel with a <code>≈</code> symbol.</p>
+    </div>
+
+    <!-- Step Visualization -->
+    <h2>5. Solution Steps Redesign</h2>
+
+    <div class="card card-purple">
+        <h3>Unique Symbols per Category</h3>
+        <table style="font-size: 0.85rem;">
+            <tr><th>Symbol</th><th>Category</th><th>Color</th></tr>
+            <tr><td><code>∫∂</code></td><td>Integration by Parts</td><td style="color:#60a5fa;">Blue</td></tr>
+            <tr><td><code>xn</code></td><td>Power Rule</td><td style="color:#f59e0b;">Amber</td></tr>
+            <tr><td><code>+-</code></td><td>Sum/Difference</td><td style="color:#10b981;">Green</td></tr>
+            <tr><td><code>&#8728;</code></td><td>Product/Chain Rule</td><td style="color:#3b82f6;">Blue</td></tr>
+            <tr><td><code>c</code></td><td>Constant</td><td style="color:#8b5cf6;">Purple</td></tr>
+            <tr><td><code>ex</code></td><td>Exponential</td><td style="color:#34d399;">Emerald</td></tr>
+            <tr><td><code>&#8767;</code></td><td>Trigonometric</td><td style="color:#06b6d4;">Cyan</td></tr>
+            <tr><td><code>u-arrow</code></td><td>U-Substitution</td><td style="color:#fbbf24;">Amber</td></tr>
+            <tr><td><code>P/Q</code></td><td>Partial Fractions</td><td style="color:#f472b6;">Pink</td></tr>
+            <tr><td><code>theta</code></td><td>Trig Identity</td><td style="color:#2dd4bf;">Teal</td></tr>
+            <tr><td><code>sqrt</code></td><td>Radical/Trig Sub</td><td style="color:#e879f9;">Fuchsia</td></tr>
+            <tr><td><code>div</code></td><td>Polynomial Division</td><td style="color:#38bdf8;">Sky</td></tr>
+            <tr><td><code>&#8776;</code></td><td>Simplification</td><td style="color:#64748b;">Slate</td></tr>
+            <tr><td><code>&#10003;</code></td><td>Final Result</td><td style="color:#c084fc;">Purple</td></tr>
+        </table>
+        <p style="margin-top: 0.75rem;">P and Q in partial fraction steps are now color-coded: <span style="color:#f87171;font-weight:700;">P</span> in red, <span style="color:#4ade80;font-weight:700;">Q</span> in green, with quotient in blue and remainder in amber.</p>
+    </div>
+
+    <!-- Technical Notes -->
+    <h2>6. Technical Notes</h2>
+
+    <div class="card">
+        <h3>Balanced-Paren LaTeX Parser</h3>
+        <p>The client-side <code>convertToLatex</code> function was rewritten to handle nested parentheses correctly. The old regex <code>/exp\(([^)]+)\)/</code> broke on <code>exp(cos(x))</code> because <code>[^)]+</code> stops at the first close paren. The new version uses a proper balanced-paren scanner, fixing all nested function rendering.</p>
+
+        <h3>Cache-Busting</h3>
+        <p>All script tags use <code>?v=N</code> version parameters, incremented on each deployment, to prevent browser caching issues. This solved the initial bug where <code>complex_plot.js</code> wasn't loading despite being deployed.</p>
+
+        <h3>Canvas innerHTML Bug</h3>
+        <p>Early version used <code>div.innerHTML += '...'</code> after drawing to a canvas, which serializes the canvas to HTML (losing all pixel data) then re-parses it. Fixed by using <code>createElement + appendChild</code> for labels.</p>
+    </div>
+
+    <p style="margin-top: 3rem; text-align: center;">
+        <strong style="color: var(--text);">Continued in:</strong> <a href="history3.html" style="font-size: 1.1rem;">History Part 3: The Correctness Audit, Independent Verification &amp; the Modern UI &rarr;</a>
+    </p>
+
+    <p style="margin-top: 1.5rem; color: var(--muted); text-align: center; font-size: 0.85rem;">
+        Symbolic Math Engine &mdash; Built with Ruby &mdash; <a href="index.html">Back to Engine</a> &mdash; <a href="history.html">History Part 1</a> &mdash; <a href="history3.html">History Part 3</a>
+    </p>
+</div>
+</body>
+</html>

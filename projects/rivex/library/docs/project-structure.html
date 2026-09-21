@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="en">
+<head><script src="../../../../portfolio-lab-frame.js"></script><script defer src="../../../../portfolio-document-frame.js"></script><script defer src="../../../../portfolio-media.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RIV · Project Structure</title>
+<style>
+  :root{
+    --bg:#0b0e14; --bg2:#0e1320; --panel:#121a2b; --panel2:#16213a;
+    --line:#243149; --ink:#dce6f5; --dim:#8aa0c0; --faint:#5c6f8e;
+    --cyan:#5cd6ff; --violet:#b08cff; --amber:#ffce6b; --green:#7ee2a8;
+    --pink:#ff8fc7; --red:#ff7a7a;
+    --mono:ui-monospace,"JetBrains Mono",SFMono-Regular,Consolas,monospace;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;font-family:var(--sans);color:var(--ink);line-height:1.55;
+    background:
+      radial-gradient(1200px 700px at 80% -10%,rgba(94,140,255,.16),transparent 60%),
+      radial-gradient(900px 600px at -10% 20%,rgba(176,140,255,.12),transparent 55%),
+      var(--bg);
+  }
+  a{color:var(--cyan);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 24px 80px}
+  code,.mono{font-family:var(--mono)}
+
+  /* hero */
+  header.hero{padding:72px 0 36px;border-bottom:1px solid var(--line)}
+  .kicker{font-family:var(--mono);font-size:12px;letter-spacing:.28em;
+    text-transform:uppercase;color:var(--cyan)}
+  h1{font-size:clamp(34px,6vw,58px);margin:.25em 0 .1em;font-weight:800;
+    letter-spacing:-.02em;
+    background:linear-gradient(92deg,#fff 10%,var(--cyan) 55%,var(--violet) 95%);
+    -webkit-background-clip:text;background-clip:text;color:transparent}
+  .lede{font-size:18px;color:var(--dim);max-width:60ch}
+  .badges{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+  .badge{font-family:var(--mono);font-size:12.5px;padding:7px 12px;border-radius:999px;
+    background:var(--panel);border:1px solid var(--line);color:var(--dim)}
+  .badge b{color:var(--ink)}
+
+  h2{font-size:26px;margin:64px 0 6px;letter-spacing:-.01em}
+  h2 .num{font-family:var(--mono);color:var(--faint);font-size:16px;margin-right:10px}
+  .sub{color:var(--dim);margin:0 0 22px;max-width:72ch}
+
+  .card{background:linear-gradient(180deg,var(--panel),var(--bg2));
+    border:1px solid var(--line);border-radius:16px;padding:20px}
+
+  /* official vs ours diagram */
+  .stack{display:grid;gap:14px}
+  .layer{border-radius:14px;padding:16px 18px;border:1px solid var(--line)}
+  .layer h3{margin:0 0 4px;font-size:15px;font-family:var(--mono);letter-spacing:.02em}
+  .layer p{margin:0;color:var(--dim);font-size:13.5px}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .chip{font-family:var(--mono);font-size:12px;padding:5px 10px;border-radius:8px;
+    background:rgba(255,255,255,.04);border:1px solid var(--line);color:var(--ink)}
+  .l-official{background:linear-gradient(180deg,rgba(94,214,255,.10),rgba(94,214,255,.02));
+    border-color:rgba(94,214,255,.35)}
+  .l-official h3{color:var(--cyan)}
+  .l-seam{background:linear-gradient(180deg,rgba(255,206,107,.10),rgba(255,206,107,.02));
+    border-color:rgba(255,206,107,.4);text-align:center}
+  .l-seam h3{color:var(--amber)}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .l-pls{background:linear-gradient(180deg,rgba(94,214,255,.07),transparent);
+    border-color:rgba(94,214,255,.3)}
+  .l-pls h3{color:var(--cyan)}
+  .l-ours{background:linear-gradient(180deg,rgba(176,140,255,.10),transparent);
+    border-color:rgba(176,140,255,.45)}
+  .l-ours h3{color:var(--violet)}
+  .arrowrow{display:flex;justify-content:center;color:var(--faint);font-size:22px;margin:-4px 0}
+  .note{margin-top:14px;font-size:13px;color:var(--dim);text-align:center}
+  .note b{color:var(--amber)}
+
+  /* interface table */
+  table{width:100%;border-collapse:collapse;font-size:14px;margin-top:6px}
+  th,td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--line)}
+  th{font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--faint);font-weight:600}
+  td.mono{color:var(--ink)}
+  td .api{color:var(--cyan)} td .ours{color:var(--violet)}
+  tr:hover td{background:rgba(255,255,255,.02)}
+
+  /* module grid */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(232px,1fr));gap:14px}
+  .mod{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;
+    transition:transform .15s ease,border-color .15s ease}
+  .mod:hover{transform:translateY(-3px);border-color:var(--cyan)}
+  .mod .top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .mod h4{margin:0;font-family:var(--mono);font-size:15px}
+  .mod .files{font-family:var(--mono);font-size:11px;color:var(--faint)}
+  .mod p{margin:8px 0 0;color:var(--dim);font-size:13px}
+  .tag{font-family:var(--mono);font-size:10.5px;padding:3px 8px;border-radius:999px;font-weight:600}
+  .tag.lib{background:rgba(176,140,255,.16);color:var(--violet);border:1px solid rgba(176,140,255,.4)}
+  .tag.app{background:rgba(126,226,168,.14);color:var(--green);border:1px solid rgba(126,226,168,.35)}
+  .tag.base{background:rgba(94,214,255,.14);color:var(--cyan);border:1px solid rgba(94,214,255,.35)}
+
+  /* dependency graph */
+  .dep{display:grid;gap:12px}
+  .deprow{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .deprow .from{font-family:var(--mono);font-size:13px;min-width:130px;color:var(--ink)}
+  .deprow .to{display:flex;gap:8px;flex-wrap:wrap}
+  .pill{font-family:var(--mono);font-size:12px;padding:5px 11px;border-radius:999px;
+    background:var(--panel);border:1px solid var(--line)}
+  .pill.b{border-color:rgba(94,214,255,.4);color:var(--cyan)}
+  .pill.l{border-color:rgba(176,140,255,.4);color:var(--violet)}
+  .pill.x{border-color:rgba(126,226,168,.4);color:var(--green)}
+  .ar{color:var(--faint)}
+
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px}
+  .stat{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;text-align:center}
+  .stat .n{font-size:30px;font-weight:800;
+    background:linear-gradient(92deg,var(--cyan),var(--violet));
+    -webkit-background-clip:text;background-clip:text;color:transparent}
+  .stat .l{font-size:12.5px;color:var(--dim);margin-top:2px}
+
+  footer{margin-top:64px;padding-top:22px;border-top:1px solid var(--line);
+    color:var(--faint);font-size:13px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;margin:14px 0 0;font-size:12.5px;color:var(--dim)}
+  .legend span{display:inline-flex;align-items:center;gap:7px}
+  .dot{width:10px;height:10px;border-radius:50%}
+  @media(max-width:620px){.two{grid-template-columns:1fr}}
+</style>
+<style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head>
+<body><style>.portfolio-document-return{position:relative;z-index:100;display:flex;flex-wrap:wrap;gap:10px;padding:16px 24px;background:#111d25;border-bottom:1px solid #b3ceb74d;font:12px/1.5 Arial,sans-serif}.portfolio-document-return a{color:#cbded2;text-decoration:none;padding:8px 12px;border:1px solid #b3ceb733;border-radius:8px;transition:color .5s,box-shadow .5s,border-color .5s}.portfolio-document-return a:hover{color:#fff;border-color:#d9c18488;box-shadow:0 0 16px #d9c18422}@media(prefers-reduced-motion:reduce){.portfolio-document-return a{transition:none}}</style><link rel="stylesheet" href="../../../../portfolio-controls.css"><aside class="portfolio-document-return"><a href="../../index.html#html-library">← RIVX brochure</a><a href="../index.html">Document library</a><a href="../../../../index.html">← Back to portfolio</a><a href="project-structure.html.txt" download>Original HTML ↓</a></aside>
+<div class="wrap">
+
+  <header class="hero">
+    <div class="kicker">rive_gl_player · architecture</div>
+    <h1>RIV — Project Structure</h1>
+    <p class="lede">A Rive player and from-scratch vector editor built on the official
+      Rive runtime for parsing, scene and animation — but rendering through our own
+      ground-up GL pipeline that implements every Rive render interface.</p>
+    <div class="badges">
+      <span class="badge"><b>121</b> source files</span>
+      <span class="badge"><b>~40k</b> lines</span>
+      <span class="badge"><b>2</b> renderers · ours ∥ official</span>
+      <span class="badge"><b>5</b> GL-free test suites</span>
+      <span class="badge">CMake · OpenGL · Dear ImGui</span>
+    </div>
+  </header>
+
+  <section>
+    <h2><span class="num">01</span>Official vs Ours — the central idea</h2>
+    <p class="sub">The official runtime in <code>external/rive-runtime/</code> owns the
+      file format, the object model and animation. Drawing happens through an
+      <b>abstract interface seam</b> — and we provide a second, independent
+      implementation of that seam. Same <code>.riv</code>, two renderers.</p>
+
+    <div class="card">
+      <div class="stack">
+        <div class="layer l-official">
+          <h3>rive-runtime · official (external/rive-runtime)</h3>
+          <p>Everything above the renderer is shared and unmodified.</p>
+          <div class="chips">
+            <span class="chip">.riv parser — rive::File::import</span>
+            <span class="chip">Core model — Artboard · Shape · Path · Fill · Gradient · Text · Image</span>
+            <span class="chip">Animation + State machines — advanceAndApply</span>
+          </div>
+        </div>
+
+        <div class="arrowrow">▼ draws through ▼</div>
+
+        <div class="layer l-seam">
+          <h3>rive render interface — the API contract</h3>
+          <div class="chips" style="justify-content:center">
+            <span class="chip">Factory</span><span class="chip">Renderer</span>
+            <span class="chip">RenderPath</span><span class="chip">RenderPaint</span>
+            <span class="chip">RenderShader</span><span class="chip">RenderBuffer</span>
+            <span class="chip">RenderImage</span>
+          </div>
+        </div>
+
+        <div class="arrowrow">▼ two independent implementations ▼</div>
+
+        <div class="two">
+          <div class="layer l-pls">
+            <h3>official renderer — Rive Renderer (PLS)</h3>
+            <p>rive::RiveRenderer over rive::gpu::RenderContextGLImpl
+              (Pixel Local Storage GPU renderer, linked as rive_pls_renderer).
+              Wrapped by gl_backend.cpp. Fast, analytic edges, flattens splines.</p>
+            <div class="chips"><span class="chip">not cg_renderer — that is Rive's Apple CoreGraphics path, unused here</span></div>
+          </div>
+          <div class="layer l-ours">
+            <h3>ours — GL stencil-then-cover</h3>
+            <p>GlStencilShapeRenderer + SimpleShapeFactory + the Simple* render
+              objects. A from-scratch GL pipeline: MSAA edges, analytic erf feather,
+              exact spline primitives, in-shader gradients.</p>
+            <div class="chips">
+              <span class="chip">render/ · gl_shape_renderer · gl_stencil_renderer · shape_geometry</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="note">Import a <code>.riv</code> with <b>SimpleShapeFactory</b> → the artboard
+        builds <b>our</b> render objects → <code>artboard-&gt;draw(ours)</code> runs our GL
+        pipeline. The same scene also imports with the official factory for the live A/B compare.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">02</span>The interface seam — what "ours" implements</h2>
+    <p class="sub">We reimplement <em>rendering</em> ground-up. We do <b>not</b> reimplement
+      parsing, the Core model, or animation — those stay official and call into our objects.</p>
+    <div class="card" style="padding:6px 6px 2px">
+      <table>
+        <thead><tr><th>rive interface (the API)</th><th>our implementation</th><th>role</th></tr></thead>
+        <tbody>
+          <tr><td class="mono"><span class="api">rive::Factory</span></td><td class="mono"><span class="ours">SimpleShapeFactory</span></td><td>builds the render objects the runtime needs</td></tr>
+          <tr><td class="mono"><span class="api">rive::Renderer</span></td><td class="mono"><span class="ours">GlStencilShapeRenderer</span></td><td>save/clip/drawPath/drawImage — the GL pipeline</td></tr>
+          <tr><td class="mono"><span class="api">rive::RenderPath</span></td><td class="mono"><span class="ours">SimpleRenderPath</span></td><td>geometry: contours, fill rule, exact curves</td></tr>
+          <tr><td class="mono"><span class="api">rive::RenderPaint</span></td><td class="mono"><span class="ours">SimpleRenderPaint</span></td><td>fill/stroke, gradients, feather, blend</td></tr>
+          <tr><td class="mono"><span class="api">rive::RenderShader</span></td><td class="mono"><span class="ours">SimpleRenderShader</span></td><td>linear/radial gradient stops</td></tr>
+          <tr><td class="mono"><span class="api">rive::RenderBuffer</span></td><td class="mono"><span class="ours">SimpleRenderBuffer</span></td><td>vertex/index data for meshes</td></tr>
+          <tr><td class="mono"><span class="api">rive::RenderImage</span></td><td class="mono"><span class="ours">SimpleRenderImage</span></td><td>decoded bitmaps → GL textures</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">03</span>Module map</h2>
+    <p class="sub">Code is organised by <em>domain</em> folder; CMake assigns each file to a
+      <em>target</em>. The PlayerApp-free leaves are <span style="color:var(--violet)">static libraries</span>;
+      the app layer compiles into the <span style="color:var(--green)">rive_gl_player</span> executable.</p>
+    <div class="legend">
+      <span><i class="dot" style="background:var(--cyan)"></i> base lib (riv_backend)</span>
+      <span><i class="dot" style="background:var(--violet)"></i> module lib (riv_*)</span>
+      <span><i class="dot" style="background:var(--green)"></i> app layer (exe)</span>
+    </div>
+    <div class="grid" style="margin-top:16px">
+      <div class="mod"><div class="top"><h4>backend/</h4><span class="tag base">riv_backend</span></div><p>Rive integration base: wraps RenderContextGLImpl + RiveRenderer (official), runtime probe, param matcher.</p><div class="files">native_backend · gl_backend</div></div>
+      <div class="mod"><div class="top"><h4>render/</h4><span class="tag lib">riv_render</span></div><p>The ours GL stencil-then-cover renderer + Simple* render objects + geometry.</p><div class="files">gl_shape_renderer · gl_stencil_renderer · shape_geometry · simple_shape_factory</div></div>
+      <div class="mod"><div class="top"><h4>io/</h4><span class="tag lib">riv_io</span></div><p>Binary <code>.riv</code> reader/writer + registry fallback; image loading.</p><div class="files">riv_binary_reader · riv_binary_writer · image_target</div></div>
+      <div class="mod"><div class="top"><h4>curve/</h4><span class="tag lib">riv_curve</span></div><p>Spline evaluation (Bezier/B-spline/Yuksel), contour vectorizer, nested box-tree queries.</p><div class="files">curve_eval · contour_trace · box_tree</div></div>
+      <div class="mod"><div class="top"><h4>splat/</h4><span class="tag lib">riv_splat</span></div><p>Gaussian-splat lab: field math, greedy fitter, gradients, GPU optimizers. (ParamMatcher stays in riv_backend — it is part of that lib's public API.)</p><div class="files">splat_field · splat_fitter · gl_splat_* · training_metrics</div></div>
+      <div class="mod"><div class="top"><h4>npr/</h4><span class="tag lib">riv_npr</span></div><p>Non-photorealistic post-process effect registry + GL executor + aux buffers.</p><div class="files">npr_effects · npr_pipeline · ours_aux_producer</div></div>
+      <div class="mod"><div class="top"><h4>spacetime/</h4><span class="tag lib">riv_spacetime</span></div><p>Space-time volume raymarcher (a stack of recent frames; z = time).</p><div class="files">spacetime_volume · spacetime_params</div></div>
+      <div class="mod"><div class="top"><h4>beam/</h4><span class="tag lib">riv_beam</span></div><p>Vector beam — an XY oscilloscope trace of the scene's contours.</p><div class="files">vector_beam</div></div>
+      <div class="mod"><div class="top"><h4>scene/</h4><span class="tag app">exe</span></div><p>Loaded-scene introspection: hierarchy, inspector, per-object bounds.</p><div class="files">scene_loader · scene_inspector · scene_hierarchy · scene_bounds</div></div>
+      <div class="mod"><div class="top"><h4>editor/</h4><span class="tag app">exe</span></div><p>From-scratch shape + curve editor, gradient handles, undo, .rivx export.</p><div class="files">shape_editor</div></div>
+      <div class="mod"><div class="top"><h4>ui/</h4><span class="tag app">exe</span></div><p>Dear ImGui chrome: panels, headers, node graph, auto-layout, theme.</p><div class="files">ui_* · panel_routing · viewport_panel · node_graph</div></div>
+      <div class="mod"><div class="top"><h4>core/</h4><span class="tag app">exe</span></div><p>App lifecycle + the PlayerApp state, frame loop, input, feature routing.</p><div class="files">gl_player · player_app · player_frame · input_* · feature_*</div></div>
+      <div class="mod"><div class="top"><h4>dedup</h4><span class="tag app">exe</span></div><p>The P3 audit found the backend already DRY — the GL shader-compile helper is shared in <code>render/gl_util</code>, <code>.riv</code> (de)serialization in <code>riv_io</code>. The one genuine cross-file duplication (dashed-line draw) was hoisted into <code>ui/ui_common</code>; no separate <code>riv_util</code> lib was warranted.</p><div class="files">ui_common · gl_util</div></div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">04</span>Library graph</h2>
+    <p class="sub">Targets link upward. The base lib is shared by every module lib; the executable
+      and the GL-free test suites link the libs instead of recompiling sources.</p>
+    <div class="card">
+      <div class="dep">
+        <div class="deprow"><span class="from">riv_backend</span><span class="ar">←</span>
+          <div class="to"><span class="pill l">riv_io</span><span class="pill l">riv_curve</span><span class="pill l">riv_render</span><span class="pill l">riv_splat</span><span class="pill l">riv_npr</span><span class="pill l">riv_spacetime</span><span class="pill l">riv_beam</span></div>
+        </div>
+        <div class="deprow"><span class="from">rive_gl_player</span><span class="ar">→</span>
+          <div class="to"><span class="pill b">riv_backend</span><span class="pill l">all riv_* libs</span><span class="pill">imgui</span><span class="pill">glfw3</span></div>
+        </div>
+        <div class="deprow"><span class="from">rive_*_tests (5)</span><span class="ar">→</span>
+          <div class="to"><span class="pill x">riv_curve</span><span class="pill x">riv_splat</span><span class="pill x">riv_npr</span><span class="pill x">riv_render</span><span class="pill b">riv_backend</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">05</span>The ours-only container — .rivx</h2>
+    <p class="sub">Our editor and effect stacks can express things official <code>.riv</code> cannot
+      (exact splines, anisotropic splats, a serialized effect/beam/space-time pipeline). Those
+      persist in our experimental <code>.rivx</code> format, read and written only by the ours path.</p>
+  </section>
+
+  <section>
+    <h2><span class="num">06</span>By the numbers</h2>
+    <div class="stats">
+      <div class="stat"><div class="n">121</div><div class="l">source files</div></div>
+      <div class="stat"><div class="n">~40k</div><div class="l">lines of code</div></div>
+      <div class="stat"><div class="n">7</div><div class="l">module libraries</div></div>
+      <div class="stat"><div class="n">7</div><div class="l">rive interfaces reimplemented</div></div>
+      <div class="stat"><div class="n">5</div><div class="l">GL-free test suites</div></div>
+    </div>
+  </section>
+
+  <footer>
+    <span>RIV · rive_gl_player — built on rive-app/rive-runtime, rendered ground-up.</span>
+    <span class="mono">docs/project-structure.html</span>
+  </footer>
+
+</div>
+</body>
+</html>

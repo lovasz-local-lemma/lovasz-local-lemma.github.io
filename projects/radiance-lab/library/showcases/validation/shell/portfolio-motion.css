@@ -1,0 +1,35 @@
+/* The page shell stays illuminated while its content moves between states. */
+.project-tags .tag,.learn-more,.preview-button,.site-nav a,.pc-modes button,.pc-actions a{transition:color .22s,background-color .22s,border-color .22s,box-shadow .22s,opacity .22s}
+.preview-dialog{opacity:0;transform:translateY(10px) scale(.985);transition:opacity .2s ease,transform .26s cubic-bezier(.22,.68,.25,1)}
+.preview-dialog.is-visible{opacity:1;transform:none}
+.preview-dialog::backdrop{background:#06080500;backdrop-filter:blur(0);transition:background .2s,backdrop-filter .2s}
+.preview-dialog.is-visible::backdrop{background:#060805db;backdrop-filter:blur(9px)}
+.technique-results,#connection-explorer{overflow-anchor:none}
+.connections-section{scroll-margin-top:20px}
+.connections-return{display:inline-flex;align-items:center;gap:12px;max-width:100%;margin:0 0 22px;padding:10px 17px;border:1px solid #e9c97d99;border-radius:999px;background:linear-gradient(150deg,#443516eb,#151710f5);color:#ffe5a0;box-shadow:inset 0 1px 0 #fff1bd3d,0 0 20px #f3b83e22;font:500 12px/1.5 var(--sans);text-align:left;transition:color .2s,border-color .2s,box-shadow .2s}
+.connections-return:hover,.connections-return:focus-visible{border-color:#fff1bd;box-shadow:inset 0 1px 0 #fff5ce80,0 0 7px #ffe7987a,0 0 30px #eca52a42;color:#fff4d2}
+.connections-return{position:sticky;top:calc(var(--portfolio-nav-height,78px) + 10px);z-index:20}
+.connections-return .return-arrow{font-size:20px;line-height:1;color:#ffe9a9;text-shadow:0 0 10px #ffc84f}
+.connections-return small{display:block;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:#c5ae7f}
+.connections-return .return-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;max-width:min(70vw,540px)}
+.connection-bookmark-host{position:relative}
+.connection-bookmark,.rail-bookmark{position:absolute;pointer-events:none;z-index:8;filter:drop-shadow(0 0 2px #fff0b4) drop-shadow(0 0 9px #f4ad388c);animation:bookmark-appear .32s cubic-bezier(.2,.7,.2,1) both}
+.connection-bookmark{left:-17px;top:18px;width:28px;height:36px}
+.technique-card>.connection-bookmark{left:7px;top:auto;bottom:12px}
+a.connection-bookmark-host>.connection-bookmark{top:50%;margin-top:-18px;left:-26px}
+.connection-bookmark svg,.rail-bookmark svg{display:block;width:100%;height:100%;overflow:visible}
+.bookmark-body{fill:#9b6422;stroke:#ffdda0;stroke-width:1}
+.bookmark-facet{fill:#ffe9a5}
+.bookmark-edge{fill:none;stroke:#fff8da;stroke-width:1.2;stroke-linejoin:round}
+.bookmark-caption{position:absolute;top:3px;left:33px;white-space:nowrap;padding:3px 9px;border:1px solid #edca7b77;border-radius:5px;background:#211b11f5;color:#fff0bd;font:500 10px/1.8 var(--sans);letter-spacing:.08em;text-transform:uppercase;opacity:0;transform:translateX(-4px);transition:opacity .2s,transform .25s;box-shadow:0 3px 12px #0008}
+a.connection-bookmark-host .bookmark-caption{top:-24px;left:0}
+.connection-bookmark-host:is(:hover,:focus-within)>.connection-bookmark .bookmark-caption{opacity:1;transform:none}
+.rail-bookmark{right:-7px;top:50%;margin-top:-11px;width:16px;height:22px}
+.rail-bookmark svg{transform:scaleX(-1)}
+.connection-bookmark.is-arrived,.rail-bookmark.is-arrived{animation:bookmark-arrival 4.2s ease both}
+@keyframes bookmark-appear{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:none}}
+@keyframes bookmark-arrival{0%,65%{opacity:1}100%{opacity:0}}
+@media(max-width:760px){.connection-bookmark{left:-12px;width:24px;height:32px}a.connection-bookmark-host>.connection-bookmark{left:-13px}.bookmark-caption{font-size:9px;left:28px}}
+@media(prefers-reduced-motion:reduce){.connection-bookmark,.rail-bookmark,.connection-bookmark.is-arrived,.rail-bookmark.is-arrived{animation:none}.bookmark-caption{transition:none}}
+@media(prefers-reduced-motion:reduce){.preview-dialog,.preview-dialog::backdrop,.connections-return{transition:none;transform:none}}
+@media(max-width:760px){.connections-section{scroll-margin-top:35px}}

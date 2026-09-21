@@ -1,0 +1,830 @@
+<meta charset="utf-8">
+<title>Modal2D — The Barely Possible</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* ---------------------------------------------------------------------------
+   Brass and patina. The sibling pages (how-it-works, deep-dive) are teal on
+   blue-black; this one is the front door, so it takes the warm half of the
+   same family -- brass, with verdigris as the second accent. Verdigris is
+   what brass turns into, which is why the two palettes belong together.
+
+   The HDR feel comes from layered radial bloom UNDER the content and a thin
+   specular sheen on the rules, never from washing translucency over text.
+   --------------------------------------------------------------------------- */
+:root{
+  --bg:#0a0908; --bg2:#100e0b; --card:#15120d; --inline:#1c1811;
+  --bd:#332b1e; --bd2:#241e15;
+  --tx:#ded5c4; --dim:#a1937b; --faint:#6f6553; --hd:#f6efe0;
+  --br:#e0b455;          /* brass */
+  --br2:#f6dc9b;         /* brass highlight */
+  --brd:#8a6a1f;         /* deep brass */
+  --pat:#4fc9b0;         /* patina / verdigris -- the sibling pages' accent */
+  --pat2:#7fe0cd;
+  --rose:#e88a6a;
+  --mono:'JetBrains Mono',ui-monospace,Consolas,monospace;
+  --sans:'Inter',system-ui,'Segoe UI',Roboto,sans-serif;
+  --disp:'Fraunces',Georgia,'Times New Roman',serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:var(--sans);
+  font-size:16.5px;line-height:1.78;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1120px;margin:0 auto;padding:0 26px}
+::selection{background:rgba(224,180,85,.28);color:var(--hd)}
+
+/* ---- hero ---------------------------------------------------------------- */
+header.hero{position:relative;padding:96px 0 54px;overflow:hidden;
+  border-bottom:1px solid var(--bd2)}
+header.hero::before{content:"";position:absolute;inset:-40% -10% auto -10%;height:520px;
+  background:
+    radial-gradient(760px 300px at 22% 30%,rgba(224,180,85,.20),transparent 68%),
+    radial-gradient(620px 280px at 78% 10%,rgba(79,201,176,.11),transparent 70%);
+  pointer-events:none;z-index:0}
+header.hero .wrap{position:relative;z-index:1}
+.kicker{font-family:var(--mono);font-size:12px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--brd)}
+h1{margin:14px 0 0;font-family:var(--disp);font-size:clamp(40px,6.2vw,68px);
+  line-height:1.05;letter-spacing:-.018em;color:var(--hd);font-weight:600}
+h1 .g{background:linear-gradient(96deg,var(--br2) 8%,var(--br) 46%,var(--brd) 96%);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.tag{margin:20px 0 0;font-size:20.5px;color:var(--dim);max-width:760px;line-height:1.62}
+.chips{margin-top:26px;display:flex;gap:9px;flex-wrap:wrap}
+.chip{font-family:var(--mono);font-size:11.5px;padding:5px 12px;border-radius:20px;
+  background:var(--inline);border:1px solid var(--bd);color:var(--dim)}
+.chip b{color:var(--br);font-weight:600}
+
+/* ---- nav ----------------------------------------------------------------- */
+nav.top{position:sticky;top:0;z-index:50;background:rgba(10,9,8,.93);
+  backdrop-filter:blur(11px);border-bottom:1px solid var(--bd2)}
+nav.top .wrap{display:flex;gap:2px;flex-wrap:wrap;padding-top:9px;padding-bottom:9px}
+nav.top a{font-size:12.5px;color:var(--dim);text-decoration:none;padding:6px 10px;
+  border-radius:7px;transition:color .16s,background .16s}
+nav.top a:hover{color:var(--br2);background:var(--inline)}
+
+/* ---- sections ------------------------------------------------------------ */
+section{padding:60px 0;border-bottom:1px solid var(--bd2);position:relative}
+h2{font-family:var(--disp);font-size:clamp(27px,3.4vw,35px);margin:0 0 8px;
+  color:var(--hd);letter-spacing:-.012em;font-weight:600;line-height:1.2}
+h2 .n{font-family:var(--mono);font-size:13px;color:var(--br);margin-right:13px;
+  font-weight:600;letter-spacing:.04em;vertical-align:.28em}
+.lede{font-size:18.5px;color:var(--dim);max-width:830px;margin:0 0 30px;line-height:1.7}
+h3{font-family:var(--disp);font-size:21px;color:var(--hd);margin:40px 0 8px;font-weight:600}
+p{max-width:840px}
+strong{color:var(--hd);font-weight:600}
+em{color:var(--br2);font-style:italic}
+a.inl{color:var(--pat2);text-decoration:none;border-bottom:1px solid rgba(127,224,205,.34)}
+a.inl:hover{border-bottom-color:var(--pat2)}
+code{font-family:var(--mono);font-size:.87em;background:var(--inline);
+  padding:2px 6px;border-radius:4px;color:var(--br2)}
+
+/* a hairline with a specular glint in the middle */
+.rule{height:1px;max-width:840px;margin:34px 0;border:0;
+  background:linear-gradient(90deg,transparent,var(--bd) 12%,var(--brd) 50%,var(--bd) 88%,transparent)}
+
+/* ---- pull quote ---------------------------------------------------------- */
+.pull{max-width:840px;margin:34px 0;padding:22px 26px;border-radius:12px;
+  border:1px solid var(--bd);border-left:2px solid var(--br);
+  background:linear-gradient(100deg,rgba(224,180,85,.075),rgba(224,180,85,0) 62%);
+  font-family:var(--disp);font-size:21px;line-height:1.5;color:var(--hd);font-weight:400}
+
+.eq{background:var(--bg2);border:1px solid var(--bd);border-left:3px solid var(--br);
+  border-radius:9px;padding:16px 20px;margin:22px 0;font-family:var(--mono);
+  font-size:14.5px;color:var(--hd);overflow-x:auto;max-width:840px}
+.eq .c{color:var(--faint);font-size:12.5px;font-family:var(--sans);display:block;margin-top:8px;line-height:1.6}
+
+.note{background:var(--card);border:1px solid var(--bd);border-left:3px solid var(--pat);
+  border-radius:9px;padding:15px 19px;margin:22px 0;max-width:840px;color:var(--dim);font-size:15.5px}
+.note b{color:var(--pat2)}
+
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px;margin:26px 0}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:20px 21px;
+  position:relative;overflow:hidden}
+.card::after{content:"";position:absolute;inset:0 0 auto 0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(224,180,85,.5),transparent)}
+.card h4{margin:0 0 8px;font-size:15.5px;color:var(--br2);font-weight:600}
+.card p{margin:0;font-size:14.8px;color:var(--dim)}
+
+/* ---- the three-category diagram ------------------------------------------ */
+.cats{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin:30px 0;max-width:960px}
+.cat{border:1px solid var(--bd);border-radius:12px;padding:20px;background:var(--card)}
+.cat .t{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
+.cat .h{font-family:var(--disp);font-size:20px;margin:8px 0 6px;color:var(--dim)}
+.cat p{font-size:14.5px;color:var(--faint);margin:0}
+.cat.hot{border-color:var(--brd);
+  background:linear-gradient(160deg,rgba(224,180,85,.11),var(--card) 62%);
+  box-shadow:0 0 0 1px rgba(224,180,85,.14),0 18px 50px -26px rgba(224,180,85,.55)}
+.cat.hot .h{color:var(--br2)} .cat.hot p{color:var(--dim)} .cat.hot .t{color:var(--br)}
+
+/* ---- media: real output, and what is still to come ----------------------- */
+.media{background:var(--card);border:1px solid var(--bd);border-radius:13px;margin:26px 0;
+  overflow:hidden;max-width:840px}
+.media .hd{display:flex;align-items:center;gap:11px;padding:12px 18px;
+  background:linear-gradient(180deg,rgba(224,180,85,.10),transparent);
+  border-bottom:1px solid var(--bd)}
+.media .hd .k{font-family:var(--mono);font-size:10.5px;color:#241c08;background:var(--br);
+  padding:3px 9px;border-radius:5px;font-weight:700;letter-spacing:.04em}
+.media .hd h4{margin:0;font-size:15.5px;color:var(--hd);flex:1;font-weight:600}
+.media .body{padding:18px}
+.ab{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.ab .one{background:var(--bg2);border:1px solid var(--bd2);border-radius:9px;padding:14px}
+.ab .one .lbl{font-family:var(--mono);font-size:11.5px;color:var(--br);margin-bottom:9px;
+  letter-spacing:.05em;text-transform:uppercase}
+.ab .one .sub{font-size:13.5px;color:var(--faint);margin-top:9px;line-height:1.55}
+audio{width:100%;height:34px;filter:sepia(.35) saturate(1.5) hue-rotate(-16deg)}
+
+/* anything the author still has to drop in is meant to be conspicuous */
+.todo{border:1px dashed var(--brd);border-radius:9px;padding:16px 18px;
+  background:repeating-linear-gradient(135deg,rgba(224,180,85,.045),rgba(224,180,85,.045) 9px,transparent 9px,transparent 18px);
+  color:var(--dim);font-size:14.5px}
+.todo b{color:var(--br2);font-family:var(--mono);font-size:12.5px;letter-spacing:.05em}
+.todo .path{font-family:var(--mono);font-size:12.5px;color:var(--pat2)}
+.vid{aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;
+  flex-direction:column;gap:10px;text-align:center}
+
+figure{margin:26px 0;max-width:840px}
+figure canvas{width:100%;display:block;border:1px solid var(--bd);border-radius:11px;background:var(--bg2)}
+figcaption{font-size:13.8px;color:var(--faint);margin-top:11px;line-height:1.62}
+figcaption b{color:var(--dim)}
+
+/* ---- limits -------------------------------------------------------------- */
+.lim{max-width:840px;margin:22px 0;border:1px solid var(--bd);border-radius:12px;overflow:hidden}
+.lim .row{display:grid;grid-template-columns:190px 1fr;gap:0;border-bottom:1px solid var(--bd2)}
+.lim .row:last-child{border-bottom:0}
+.lim .row .a{padding:15px 18px;background:var(--bg2);font-family:var(--mono);
+  font-size:12.5px;color:var(--br);letter-spacing:.03em}
+.lim .row .b{padding:15px 18px;font-size:15px;color:var(--dim)}
+@media(max-width:620px){.lim .row{grid-template-columns:1fr}.lim .row .a{border-bottom:1px solid var(--bd2)}}
+
+/* ---- footer -------------------------------------------------------------- */
+footer{padding:60px 0 90px;color:var(--faint);font-size:14.5px}
+footer .links{display:flex;gap:14px;flex-wrap:wrap;margin-top:20px}
+footer .links a{color:var(--pat2);text-decoration:none;border:1px solid var(--bd);
+  border-radius:9px;padding:11px 16px;font-size:14px;transition:border-color .16s,color .16s}
+footer .links a:hover{border-color:var(--pat);color:var(--pat2)}
+footer .links a b{display:block;color:var(--hd);font-size:14.5px;font-weight:600;margin-bottom:2px}
+footer .links a span{color:var(--faint);font-size:13px}
+</style>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">Modal2D &nbsp;·&nbsp; a project note</div>
+    <h1>The <span class="g">barely possible</span></h1>
+    <p class="tag">Every sound in every game you have played is a recording. This is what happens
+      when you refuse to record one — and then insist the result stay in tune.</p>
+    <div class="chips">
+      <span class="chip"><b>FEM</b> eigenanalysis</span>
+      <span class="chip"><b>CUDA</b> solver</span>
+      <span class="chip"><b>Modal</b> synthesis</span>
+      <span class="chip"><b>120</b> chromatic slots</span>
+      <span class="chip"><b>C++17</b> + Dear ImGui</span>
+    </div>
+  </div>
+</header>
+
+<nav class="top"><div class="wrap">
+  <a href="#thesis">Three categories</a>
+  <a href="#candidate">The candidate</a>
+  <a href="#machine">The machine</a>
+  <a href="#test">An instrument can be wrong</a>
+  <a href="#inverse">The inverse problem</a>
+  <a href="#refuted">What measurement refuted</a>
+  <a href="#touch">Touch is geometry</a>
+  <a href="#samples">Why not samples</a>
+  <a href="#ensemble">The ensemble</a>
+  <a href="#limits">What is still hard</a>
+</div></nav>
+
+<!-- ====================================================================== -->
+<section id="thesis"><div class="wrap">
+  <h2><span class="n">01</span>Three categories, and the one worth living in</h2>
+  <p class="lede">Research is not mainly a way of producing results. It is a way of acquiring a map:
+    a sense of where the edge of the possible actually runs, which is almost never where people
+    assume it runs.</p>
+
+  <p>The map has three regions. Two of them are well surveyed and largely uninteresting. The third
+    is where all the leverage is, and it is under-explored more or less by definition.</p>
+
+  <div class="cats">
+    <div class="cat">
+      <div class="t">Region one</div>
+      <div class="h">Possible</div>
+      <p>Solved, productised, competitive. You can buy it. Building it yourself is a decision about
+        cost and control, not about capability.</p>
+    </div>
+    <div class="cat">
+      <div class="t">Region two</div>
+      <div class="h">Not possible yet</div>
+      <p>Blocked on something real — a missing algorithm, a physical limit, an order of magnitude
+        nobody has found. Effort here is a bet on a breakthrough.</p>
+    </div>
+    <div class="cat hot">
+      <div class="t">Region three</div>
+      <div class="h">Barely possible</div>
+      <p>Technically solved in a literature somewhere, and abandoned in practice. Not because it
+        does not work — because it was expensive, or awkward, or nobody built the tooling that
+        made it usable. <strong>This is the interesting one.</strong></p>
+    </div>
+  </div>
+
+  <p>The third category is peculiar in that membership changes without anyone announcing it. Hardware
+    moves, a solver gets ten times faster, someone writes the one piece of tooling that was missing —
+    and a technique that "everybody knows is impractical" quietly stops being impractical. The
+    knowledge that it is possible stays parked in papers, and the belief that it is not stays parked
+    in industry, and the two can sit there disagreeing for twenty years.</p>
+
+  <div class="pull">Knowing which things are barely possible is worth more than knowing how
+    to do any one of them. It tells you where to look.</div>
+
+  <p>I do not publish any more. That changed the output, not the habit — the reflex to ask <em>is
+    this actually hard, or does everyone just believe it is?</em> did not go anywhere, and it is not
+    something I switch on for a project. It is closer to how I read a problem than to something
+    I do to one. What follows is one worked example: picking a technique out of region three and
+    finding out, concretely, what was keeping it there.</p>
+</div></section>
+
+<!-- ====================================================================== -->
+<section id="candidate"><div class="wrap">
+  <h2><span class="n">02</span>The candidate: sound you compute instead of record</h2>
+  <p class="lede">Hit a metal bar. What you hear is not a waveform stored anywhere. It is a shape
+    obeying an equation. You could, in principle, solve the equation instead of recording the bar.</p>
+
+  <p>In practice nobody does. Games, film and virtually every audio tool ship <strong>samples</strong>:
+    recordings, pitched and layered and crossfaded. Samples are cheap, predictable, and they sound
+    exactly like the thing they are, because they <em>are</em> the thing they are.</p>
+
+  <p>Meanwhile there is a real research literature on physically modelled sound going back decades —
+    modal synthesis, finite-element eigenanalysis of plates and shells, contact models for
+    impact. The physics is not in doubt. The mathematics is textbook structural dynamics. And it
+    is essentially absent from shipping software.</p>
+
+  <p>So: region three. And the question that matters is not "does it work" but <strong>what
+    specifically kept it out</strong>. Two answers, and only one of them has expired.</p>
+
+  <div class="grid2">
+    <div class="card">
+      <h4>Cost — expired</h4>
+      <p>A generalised eigenproblem over a few thousand degrees of freedom used to be a coffee
+        break. On a GPU it is interactive. This objection is simply gone, and it went quietly.</p>
+    </div>
+    <div class="card">
+      <h4>Control — still live</h4>
+      <p>A solver hands you <em>an object that rings</em>. It does not hand you C5. There is no
+        knob for pitch, because pitch is an emergent property of geometry and material. Nobody
+        could ask the technique for anything, so nobody used it.</p>
+    </div>
+  </div>
+
+  <p>If you work in rendering this shape of story should feel familiar. Path tracing was correct
+    and well understood for decades while being considered hopeless for production. What changed
+    was partly hardware — and partly that people built the denoisers, the importance sampling and
+    the artist controls that turned a correct algorithm into a usable one. Nobody ever doubted the
+    rendering equation. They doubted you could afford it and art-direct it.</p>
+
+  <p><strong>Physical sound synthesis is at the equivalent moment, minus the tooling.</strong>
+    The affordability arrived. The controls did not. That gap is the whole project.</p>
+</div></section>
+
+<!-- ====================================================================== -->
+<section id="machine"><div class="wrap">
+  <h2><span class="n">03</span>What the machine does, in one page</h2>
+  <p class="lede">Enough to follow the argument. The mechanism in full is a separate page.</p>
+
+  <p>Take the object. Mesh it. Assemble the two matrices that structural dynamics gives you:
+    <strong>K</strong>, which says how hard it is to bend, and <strong>M</strong>, which says how
+    much of it has to be moved. Then solve the generalised eigenproblem.</p>
+
+  <div class="eq">K &phi; = &omega;<sup>2</sup> M &phi;
+    <span class="c">Each solution is a pair: a shape &phi; the object is willing to hold, and the
+      frequency &omega; at which it holds it. That is a <b>mode</b>. A struck object is doing all of
+      them at once, in proportions set by how you struck it.</span></div>
+
+  <p>Every mode then behaves as one damped harmonic oscillator — a decaying sine. Striking the object
+    projects your impulse onto each mode shape, which sets how loudly each one starts. Sum the
+    oscillators, and that sum is the sound. There is no filtering of a recording anywhere in this,
+    and no sample.</p>
+
+  <p>The useful mental model is not "simulation" but <em>spectrum with a physical cause</em>. A
+    synthesiser also adds up sine waves; the difference is that here you do not choose the
+    frequencies. The geometry chooses them, and it will happily choose ones you did not want.</p>
+
+  <div class="note"><b>Where to go deeper.</b> The mechanism — meshing, assembly, the eigensolver,
+    damping models, the air cavity — is laid out in
+    <a class="inl" href="modal2d-how-it-works.html">How It Works</a>, and the parts that took real
+    work are in <a class="inl" href="modal2d-deep-dive.html">the deep dive</a>. This page is the
+    story, not the manual.</div>
+</div></section>
+
+<!-- ====================================================================== -->
+<section id="test"><div class="wrap">
+  <h2><span class="n">04</span>The turn: a sound effect cannot be wrong, an instrument can</h2>
+  <p class="lede">This is the decision that shaped everything after it, and it started as a
+    complaint about evaluation.</p>
+
+  <p>Suppose you build a physical model and it produces a clang. Is it right? Nobody can tell you.
+    Nobody knows what that particular imaginary crate is supposed to sound like. Every demo of
+    physically modelled audio I have ever seen lives in this comfortable space, where "plausibly
+    metallic" is indistinguishable from correct.</p>
+
+  <div class="pull">Plausible is not a measurement. If your model cannot fail, you are not
+    testing it — you are admiring it.</div>
+
+  <p>So point it at something that <em>can</em> fail. C5 is 523.25 Hz. Twenty cents flat is
+    audibly wrong to any musician and measurably wrong to everyone else. An instrument has to land
+    on a specific frequency, respond to where you strike it, hold its place in a chord with eight
+    others, and do all of that repeatably.</p>
+
+  <p><strong>Making it play music was not scope creep. It was the only honest test available.</strong>
+    And it immediately started failing in ways a clang would have hidden: notes an eighth of a
+    semitone flat, notes that stopped dead instead of ringing, notes that sounded thin next to
+    their neighbours. Every one of those is a real defect in the model or its controls. Every one
+    of them is invisible if all you ask for is a clang.</p>
+
+  <div class="media">
+    <div class="hd"><span class="k">LISTEN</span><h4>The same set, tuned and mistuned</h4></div>
+    <div class="body">
+      <div class="ab">
+        <div class="one">
+          <div class="lbl">Tuned</div>
+          <audio controls preload="none" src="audio/tuned.wav"></audio>
+          <div class="sub">Each bar solved, measured, resized and re-measured until it lands
+            within a few cents of its note.</div>
+        </div>
+        <div class="one">
+          <div class="lbl">~40 cents out</div>
+          <audio controls preload="none" src="audio/mistuned.wav"></audio>
+          <div class="sub">The same geometry, the same material, the same code path. Only the
+            sizes are slightly wrong. This is what "plausibly metallic" sounds like when you
+            finally ask it a question with a right answer.</div>
+        </div>
+      </div>
+      <p style="margin:18px 0 0" class="todo"><b>TO ADD —</b> render both from the app and drop
+        them at <span class="path">docs/audio/tuned.wav</span> and
+        <span class="path">docs/audio/mistuned.wav</span>.</p>
+    </div>
+  </div>
+</div></section>
+
+<!-- ====================================================================== -->
+<section id="inverse"><div class="wrap">
+  <h2><span class="n">05</span>The inverse problem is the whole difficulty</h2>
+  <p class="lede">Forward is easy and is what the papers do. Backward is what an instrument maker
+    needs, and it is the reason the technique never shipped.</p>
+
+  <p>Give me a shape and a material and I will tell you what it sounds like. That direction is
+    a solve: mesh, assemble, eigen-decompose, done. It is the direction every published figure
+    runs in, and it is genuinely not the hard part.</p>
+
+  <p>Now run it backwards. <strong>I want C5. What shape?</strong></p>
+
+  <p>There is no formula. For a uniform bar clamped at nothing you can get an analytic answer, and
+    the moment your object is a box, a shell, a disc with a hole in it, or anything a person would
+    actually want to hit, the analytic answer is gone and you are left with search: guess a size,
+    solve, measure the error, guess again. Each guess is a full eigen-decomposition.</p>
+
+  <div class="eq">shape &rarr; sound&nbsp;&nbsp;&nbsp;<span style="color:var(--pat2)">one solve</span>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sound &rarr; shape&nbsp;&nbsp;&nbsp;<span style="color:var(--rose)">a search over solves</span>
+    <span class="c">And the search is over a function you cannot differentiate cheaply, cannot
+      evaluate quickly, and — as it turns out below — cannot even assume is monotonic.</span></div>
+
+  <p>This asymmetry is the actual answer to "why does nobody ship this". Not that it sounds bad.
+    Not that it is too slow to play. <em>That you cannot ask it for anything.</em> A sampler
+    answers "give me C5" in nanoseconds because someone recorded C5. A solver has to go looking.</p>
+
+  <p>Which reframes the project. The interesting engineering is not the physics — the physics is
+    a known quantity you can look up. It is the tuning loop, the tolerance handling, the search
+    that has to converge without a human watching it. It is, in the rendering analogy, the
+    denoiser rather than the rendering equation.</p>
+</div></section>
+
+<!-- ====================================================================== -->
+<section id="refuted"><div class="wrap">
+  <h2><span class="n">06</span>Where the obvious thing turned out to be false</h2>
+  <p class="lede">The one moment in this project I would actually defend as research, and it
+    consists entirely of not believing myself.</p>
+
+  <p>The first tuner rested on an assumption so comfortable I did not notice making it: that the
+    fundamental falls smoothly as the object grows. Bigger is lower. Every instrument you have
+    ever seen agrees — the long strings are at the left of the piano, the big pipes are at the
+    back of the organ.</p>
+
+  <p>If that holds, tuning is easy. Measure two sizes, fit the power law, extrapolate to your
+    target, polish. I built exactly that, and on bars it worked.</p>
+
+  <p>Then it started missing on other shapes, and instead of tightening the search I swept it:
+    solve every size across the range and plot what actually comes out.</p>
+
+  <figure>
+    <canvas id="sweep" width="1600" height="620"></canvas>
+    <figcaption><b>Schematic, not measured data.</b> What a sweep of the lowest audible mode against
+      size looks like for a shell-like shape. The smooth curve is the assumption. The real thing has
+      a region where growing the object <em>raises</em> the pitch, and a gap where nothing lands in
+      the audible band at all. <span class="todo" style="display:inline-block;padding:4px 8px;margin-top:8px"><b>TO ADD —</b>
+      replace with a real sweep exported from the app.</span></figcaption>
+  </figure>
+
+  <p>Two things were wrong with the premise, and only the first was surprising:</p>
+
+  <div class="grid2">
+    <div class="card">
+      <h4>Modes cross</h4>
+      <p>"The fundamental" is not one physical thing. As geometry changes, two mode families slide
+        past each other in frequency and a <em>different shape</em> becomes the lowest one. The
+        curve you are tracking is not one curve. It is the lower envelope of several, and envelopes
+        have corners.</p>
+    </div>
+    <div class="card">
+      <h4>Some sizes have nothing to say</h4>
+      <p>At certain proportions the lowest mode drops below audibility or the shape simply fails to
+        produce a usable one. The search asks for a measurement and receives no answer, which a
+        bisection that assumes continuity handles very badly.</p>
+    </div>
+  </div>
+
+  <p>The fix was unglamorous: throw away the power law, sample the space, keep a table, and
+    interpolate inside it. Slower to set up, and it does not care whether the function is monotonic,
+    because it never assumed it was.</p>
+
+  <div class="pull">The measurement took an afternoon. The assumption had already cost me
+    a week of tightening a search that was converging correctly on the wrong model.</div>
+
+  <p>I want to be precise about what the research habit contributed here, because it was not
+    knowledge. I did not know that mode crossing would bite. What the habit supplied was the
+    instinct to distrust a premise that was working — and to spend an afternoon on an
+    experiment whose only purpose was to try to embarrass me. That instinct is most of what
+    a research background is actually worth in engineering work, and it does not expire when
+    you stop writing papers.</p>
+
+  <h3>The same thing again, one level up</h3>
+
+  <p>The measurement that replaced the power law produced a headline of its own: for five of
+    seven shape families, the fundamental moved by tens or hundreds of per cent when the width
+    changed by <em>one representable float</em> — a distance of about six nanometres on a nine
+    centimetre object, over which nothing physical can happen. Read straight, that says the
+    quantity the tuner searches over is not a function of the thing it is varying, and no
+    search can converge against it.</p>
+
+  <p>That was too good a line to publish without checking. The probe had held every other
+    parameter fixed at one convenient value, so I swept them.</p>
+
+  <div class="pull">The headline survived for the boxes and collapsed for the string —
+    which I had just told someone was broken, against their direct experience of it working.</div>
+
+  <p>For a string, the parameter I had frozen <em>is</em> the cross-section. I had measured a
+    0.4&nbsp;mm beam on a 180&nbsp;mm span — a 450:1 sliver — and reported the result as a
+    property of strings. At a realistic 3&nbsp;mm the same shape is stable to the last bit and
+    reports a perfectly plausible 819&nbsp;Hz. The failure was never about which shape it was.
+    <strong>It tracks how slender the geometry is</strong>, which is a statement about
+    conditioning and element quality, and a far more useful thing to know than a list of
+    shapes to avoid.</p>
+
+  <p>Both halves of that are the same habit, applied twice. The first time it caught a premise
+    I had assumed. The second time it caught a conclusion I had just finished being pleased
+    with — which is the harder of the two, and the one that decides whether a measurement is
+    worth anything.</p>
+</div></section>
+
+<!-- ====================================================================== -->
+<section id="touch"><div class="wrap">
+  <h2><span class="n">07</span>Touch is geometry</h2>
+  <p class="lede">Where you hit it is not a detail of performance. It is an input to the physics,
+    and getting it wrong makes a correctly tuned instrument sound broken.</p>
+
+  <p>A mode has a shape, and that shape has places where it does not move: <strong>nodes</strong>.
+    Strike a node of a mode and you put almost no energy into it — you are pushing on the one part
+    of the object that particular standing wave has no interest in.</p>
+
+  <p>This is not subtle. Striking near a node of the fundamental measured roughly <strong>twenty
+    times less energy</strong> in it than striking the antinode, and what you hear is not a quieter
+    note. It is a different, wrong instrument: the fundamental barely speaks, the higher modes
+    dominate, and the sound stops almost immediately instead of ringing.</p>
+
+  <p>I found this the way you find most things, which is by having a bug. A whole set was tuned
+    correctly and sounded dead. The frequencies were right to within a couple of cents. The energy
+    was going somewhere else, because the player was striking each bar at its geometric centre and
+    for one whole family of shapes the geometric centre is very close to a node.</p>
+
+  <div class="media">
+    <div class="hd"><span class="k">LISTEN</span><h4>The same bar, struck in two places</h4></div>
+    <div class="body">
+      <div class="ab">
+        <div class="one">
+          <div class="lbl">Antinode</div>
+          <audio controls preload="none" src="audio/antinode.wav"></audio>
+          <div class="sub">Where the fundamental moves most. Full, long, in tune.</div>
+        </div>
+        <div class="one">
+          <div class="lbl">On a node</div>
+          <audio controls preload="none" src="audio/node.wav"></audio>
+          <div class="sub">Same object, same material, same tuning. Only the strike point moved.</div>
+        </div>
+      </div>
+      <p style="margin:18px 0 0" class="todo"><b>TO ADD —</b>
+        <span class="path">docs/audio/antinode.wav</span> and
+        <span class="path">docs/audio/node.wav</span>.</p>
+    </div>
+  </div>
+
+  <p>The consequence for the tool is concrete: the tuner <em>records where you struck</em>, stores
+    it with the instrument, and the player replays each note at the same relative spot. Touch is
+    not a performance parameter layered on afterwards. It is part of what the instrument is, and it
+    lives in the file next to the geometry.</p>
+</div></section>
+
+<!-- ====================================================================== -->
+<section id="samples"><div class="wrap">
+  <h2><span class="n">08</span>So why not just use samples?</h2>
+  <p class="lede">The honest answer is not "this sounds better". For one recorded bell, a recording
+    wins and it is not close.</p>
+
+  <p>The argument is about everything you did not record.</p>
+
+  <p>A string's overtones sit at close to whole multiples of its fundamental — that near-harmonic
+    stack is why a violin has an unambiguous pitch. <strong>A bar, a plate and a bell do not do
+    this.</strong> Their overtones land at ratios that have nothing to do with the harmonic series,
+    and that inharmonic spread is exactly what makes a bell sound like a bell rather than like an
+    organ pipe.</p>
+
+  <figure>
+    <canvas id="partials" width="1600" height="440"></canvas>
+    <figcaption>Where the overtones land. <b>Top:</b> a near-harmonic stack — whole multiples of the
+      fundamental. <b>Bottom:</b> the sort of spread a struck bar gives you, which no amount of
+      pitch-shifting a harmonic tone will produce. Schematic, drawn to make the contrast legible.</figcaption>
+  </figure>
+
+  <p>You can sample a bell. You cannot sample the bell that is three percent larger, in bronze
+    instead of aluminium, with a slightly thicker wall, struck two centimetres off centre — because
+    that is a different recording and nobody made it. Pitch-shifting will not get you there:
+    shifting moves every partial by the same ratio, and the real object's partials move by
+    <em>different</em> ratios when you change its proportions. That is why a pitched-down bell
+    sounds like a bell in a lift shaft rather than like a bigger bell.</p>
+
+  <div class="pull">A sampler gives you points. A solver gives you the space they were
+    drawn from — including all the points nobody thought to record.</div>
+
+  <div class="media">
+    <div class="hd"><span class="k">LISTEN</span><h4>One geometry, several materials</h4></div>
+    <div class="body">
+      <div class="ab">
+        <div class="one"><div class="lbl">Bronze</div>
+          <audio controls preload="none" src="audio/mat-bronze.wav"></audio></div>
+        <div class="one"><div class="lbl">Aluminium</div>
+          <audio controls preload="none" src="audio/mat-aluminium.wav"></audio></div>
+        <div class="one"><div class="lbl">Glass</div>
+          <audio controls preload="none" src="audio/mat-glass.wav"></audio></div>
+      </div>
+      <p style="margin:16px 0 0;font-size:14.8px;color:var(--dim)">Identical geometry and identical
+        strike, three materials. Not the same recording filtered three ways — three solves.</p>
+      <p style="margin:14px 0 0" class="todo"><b>TO ADD —</b>
+        <span class="path">docs/audio/mat-bronze.wav</span>,
+        <span class="path">mat-aluminium.wav</span>, <span class="path">mat-glass.wav</span>.</p>
+    </div>
+  </div>
+</div></section>
+
+<!-- ====================================================================== -->
+<section id="ensemble"><div class="wrap">
+  <h2><span class="n">09</span>The ensemble</h2>
+  <p class="lede">The payoff, and the point at which the thing stops being a demo and starts being
+    an instrument you can be dissatisfied with.</p>
+
+  <p>Once a single note can be asked for and delivered, a set follows: tune a range, give each
+    octave its own material, and hand the whole arrangement a score. The instruments are laid out
+    as themselves — real geometry at real relative sizes, not icons — and struck where they were
+    tuned to be struck.</p>
+
+  <div class="media">
+    <div class="hd"><span class="k">WATCH</span><h4>Tuning a range, then playing it</h4></div>
+    <div class="body">
+      <div class="todo vid">
+        <b>TO ADD — video</b>
+        <span>Auto-tuning an octave, spreading materials across the set, and playing a piece with
+          the whole ensemble visibly vibrating.</span>
+        <span class="path">docs/video/ensemble.mp4</span>
+      </div>
+    </div>
+  </div>
+
+  <p>Two details from this stage are worth keeping, because both are places where the physics
+    refused to stay in its box:</p>
+
+  <div class="grid2">
+    <div class="card">
+      <h4>Materials change pitch</h4>
+      <p>Frequency scales as &radic;(E/&rho;). Swap aluminium for bronze and a tuned instrument is
+        no longer tuned. The tool treats a material change as invalidating the tuning, because
+        physically it does.</p>
+    </div>
+    <div class="card">
+      <h4>An arrangement is a whole state</h4>
+      <p>Geometry, material, strike point, damping and the score are one artefact. Saving half of
+        it reproduces something that sounds subtly wrong, which is worse than something that
+        obviously fails.</p>
+    </div>
+  </div>
+
+  <div class="media">
+    <div class="hd"><span class="k">LISTEN</span><h4>A piece, played by solved instruments</h4></div>
+    <div class="body">
+      <audio controls preload="none" src="audio/ensemble.wav"></audio>
+      <p style="margin:14px 0 0" class="todo"><b>TO ADD —</b> export from Music mode to
+        <span class="path">docs/audio/ensemble.wav</span>.</p>
+    </div>
+  </div>
+</div></section>
+
+<!-- ====================================================================== -->
+<section id="limits"><div class="wrap">
+  <h2><span class="n">10</span>What is still hard</h2>
+  <p class="lede">The claim is that this is closer than the industry assumes. Not that it is solved.
+    Being precise about the difference is the entire value of having a map.</p>
+
+  <div class="lim">
+    <div class="row"><div class="a">the inverse problem</div><div class="b">Still a search, not a
+      formula. Tuning one note takes many solves, and the search needs a sampled table because the
+      function will not promise to be monotonic. Fine offline; nowhere near interactive
+      retuning of arbitrary geometry.</div></div>
+    <div class="row"><div class="a">shape complexity</div><div class="b">Simple families tune
+      readily. Box-like shapes resist, and measurement says the cause is cruder than mode
+      crossing: once the geometry becomes slender enough, the solve stops returning a usable
+      answer at all. A closed box reports a fundamental of 39&nbsp;kHz for a 9&nbsp;cm object,
+      and a value that moves by hundreds of per cent when its width changes by one
+      representable float. Nothing a search does can help with that.</div></div>
+    <div class="row"><div class="a">dimensionality</div><div class="b">Plates and shells, with
+      thickness as a parameter, rather than full 3-D solids. That covers most struck idiophones
+      and excludes a great deal else.</div></div>
+    <div class="row"><div class="a">radiation</div><div class="b">Coupling to the surrounding air
+      is modelled, not resolved. Real radiation patterns and room interaction are a separate
+      problem of comparable size.</div></div>
+    <div class="row"><div class="a">nonlinearity</div><div class="b">Modal synthesis is linear by
+      construction. Hard strikes, rattles, and the tension effects that make a gong a gong are
+      approximations bolted on rather than consequences of the model.</div></div>
+    <div class="row"><div class="a">conditioning</div><div class="b">Slender elements make the
+      stiffness matrix badly conditioned, and under a size threshold it is solved in single
+      precision. The result is a spectrum that is deterministic within a run and occasionally
+      disagrees between runs. Bounding element aspect ratio is the obvious next move, and it is
+      not done.</div></div>
+  </div>
+
+  <p>None of these is a reason not to have built it. They are the shape of the remaining work, and
+    knowing their shape is the difference between "this could be great" and a plan. The honest
+    summary is that the cost objection to physical sound synthesis has expired and the control
+    objection has not — and that the control objection is engineering, not physics, which is a much
+    better problem to have.</p>
+</div></section>
+
+<!-- ====================================================================== -->
+<section id="close"><div class="wrap">
+  <h2><span class="n">11</span>Why this one</h2>
+  <p>I build renderers. This is not a renderer, and the overlap is not the domain — it is the
+    posture. Both are cases of taking a physical process that is well understood on paper and
+    arguing with it until it runs at a useful speed with controls a person can actually hold.
+    Modes and light transport are the same kind of problem wearing different clothes: a linear
+    operator, a basis you get to choose, and a sampling strategy that decides whether the whole
+    thing is tractable.</p>
+
+  <p>The reason I go looking in region three is not tidiness. It is that the region is
+    systematically under-explored — the people who know it is possible are usually not the people
+    with a reason to build it, and the people with a reason have usually been told it is not
+    possible. Sitting in the overlap is an unreasonably good place to work, and getting there
+    mostly requires being willing to read the papers and then ignore the received wisdom about
+    what they are good for.</p>
+
+  <div class="pull">The map is the part that lasted. Not the publications — the ability to look
+    at something everyone has written off and ask, seriously, whether they are still right.</div>
+
+  <p>This project is one dot on that map, plotted properly: what was assumed, what was measured,
+    what the measurement refuted, and what is genuinely still out of reach.</p>
+</div></section>
+
+<footer><div class="wrap">
+  <p>Modal2D — a CUDA finite-element modal synthesis engine and a viewer for playing with it.</p>
+  <div class="links">
+    <a href="modal2d-how-it-works.html"><b>How It Works</b><span>The mechanism, from mesh to sound, with live demos</span></a>
+    <a href="modal2d-deep-dive.html"><b>Deep Dive</b><span>The parts that took real work</span></a>
+  </div>
+</div></footer>
+
+<script>
+/* ---------------------------------------------------------------------------
+   Two schematic figures. Both are drawn rather than measured, and both say so
+   in their captions -- a figure that looks like data and is not is worse than
+   no figure. They are here to make a shape legible, not to prove a number.
+   --------------------------------------------------------------------------- */
+const CSS = getComputedStyle(document.documentElement);
+const C = n => CSS.getPropertyValue(n).trim();
+
+function crisp(cv){
+  const r = Math.min(window.devicePixelRatio || 1, 2);
+  const w = cv.width, h = cv.height;
+  cv.width = w * r / 2; cv.height = h * r / 2;      // authored at 2x
+  const g = cv.getContext('2d');
+  g.scale(r/2, r/2);
+  return { g, w, h };
+}
+
+/* --- the sweep: assumption vs what a shell-like shape actually does -------- */
+(function(){
+  const cv = document.getElementById('sweep'); if (!cv) return;
+  const { g, w, h } = crisp(cv);
+  const L = 96, R = w - 40, T = 44, B = h - 66;
+  const X = t => L + (R - L) * t;
+  const Y = v => B - (B - T) * v;                    // v in 0..1
+
+  g.clearRect(0,0,w,h);
+
+  // axes
+  g.strokeStyle = C('--bd'); g.lineWidth = 1.5;
+  g.beginPath(); g.moveTo(L, T-14); g.lineTo(L, B); g.lineTo(R, B); g.stroke();
+  g.fillStyle = C('--faint');
+  g.font = '500 21px ' + C('--sans');
+  g.fillText('size  →', (L+R)/2 - 34, B + 42);
+  g.save(); g.translate(30, (T+B)/2 + 66); g.rotate(-Math.PI/2);
+  g.fillText('lowest audible mode', 0, 0); g.restore();
+
+  // the comfortable assumption: smooth monotonic fall
+  g.strokeStyle = C('--faint'); g.lineWidth = 2.5; g.setLineDash([7,7]);
+  g.beginPath();
+  for (let i = 0; i <= 200; i++){ const t = i/200; const v = 0.88 / (1 + 2.7*t);
+    i ? g.lineTo(X(t), Y(v)) : g.moveTo(X(t), Y(v)); }
+  g.stroke(); g.setLineDash([]);
+
+  // what actually comes back: two mode families, lower envelope, with a gap
+  const famA = t => 0.88 / (1 + 3.4*t);              // falls fast
+  const famB = t => 0.26 + 0.42*t;                   // rises
+  g.lineWidth = 2; g.strokeStyle = 'rgba(224,180,85,.34)';
+  [famA, famB].forEach(f => { g.beginPath();
+    for (let i = 0; i <= 200; i++){ const t=i/200; i?g.lineTo(X(t),Y(f(t))):g.moveTo(X(t),Y(f(t))); }
+    g.stroke(); });
+
+  // the envelope the search actually walks, with a dead band punched in it
+  const GAP0 = 0.60, GAP1 = 0.70;
+  g.lineWidth = 4; g.strokeStyle = C('--br2');
+  let pen = false;
+  g.beginPath();
+  for (let i = 0; i <= 400; i++){
+    const t = i/400;
+    if (t > GAP0 && t < GAP1){ pen = false; continue; }
+    const v = Math.min(famA(t), famB(t));
+    if (!pen){ g.moveTo(X(t), Y(v)); pen = true; } else g.lineTo(X(t), Y(v));
+  }
+  g.stroke();
+
+  // the dead band
+  g.fillStyle = 'rgba(232,138,106,.13)';
+  g.fillRect(X(GAP0), T-14, X(GAP1)-X(GAP0), B-(T-14));
+  g.strokeStyle = 'rgba(232,138,106,.5)'; g.lineWidth = 1.5; g.setLineDash([4,5]);
+  g.beginPath(); g.moveTo(X(GAP0), T-14); g.lineTo(X(GAP0), B);
+  g.moveTo(X(GAP1), T-14); g.lineTo(X(GAP1), B); g.stroke(); g.setLineDash([]);
+
+  // the crossing
+  let cx = 0; for (let i=0;i<=400;i++){ const t=i/400; if (famB(t) >= famA(t)) { cx = t; break; } }
+  g.fillStyle = C('--br2');
+  g.beginPath(); g.arc(X(cx), Y(famA(cx)), 6, 0, 7); g.fill();
+
+  // labels
+  g.font = '600 20px ' + C('--mono');
+  // Each label sits beside its own curve: at the left edge the assumption is
+  // high and the real envelope is low, so these must not be swapped.
+  g.fillStyle = C('--faint'); g.fillText('the assumption', X(.05), Y(.80));
+  g.fillStyle = C('--br2');
+  g.fillText('what comes back', X(.05), Y(.17));
+  g.font = '500 19px ' + C('--sans');
+  g.fillStyle = C('--dim');
+  g.fillText('modes cross — a different', X(cx) - 20, Y(famA(cx)) - 44);
+  g.fillText('shape is now the lowest', X(cx) - 20, Y(famA(cx)) - 20);
+  g.fillStyle = 'rgba(232,138,106,.95)';
+  g.fillText('nothing audible here', X(GAP0) + 6, T + 22);
+})();
+
+/* --- partials: near-harmonic vs the spread a struck bar gives -------------- */
+(function(){
+  const cv = document.getElementById('partials'); if (!cv) return;
+  const { g, w, h } = crisp(cv);
+  g.clearRect(0,0,w,h);
+  const L = 78, R = w - 40;
+  const MAX = 9.2;
+  const X = r => L + (R - L) * (r / MAX);
+
+  function row(y, ratios, col, name){
+    g.strokeStyle = C('--bd'); g.lineWidth = 1.5;
+    g.beginPath(); g.moveTo(L, y); g.lineTo(R, y); g.stroke();
+    ratios.forEach((r, i) => {
+      const x = X(r), tall = 74 * Math.pow(0.82, i) + 16;
+      g.strokeStyle = col; g.lineWidth = 3.5;
+      g.beginPath(); g.moveTo(x, y); g.lineTo(x, y - tall); g.stroke();
+      g.fillStyle = col; g.beginPath(); g.arc(x, y - tall, 4.5, 0, 7); g.fill();
+      g.font = '500 17px ' + C('--mono'); g.fillStyle = C('--faint');
+      g.fillText(r.toFixed(2).replace(/\.00$/,''), x - 15, y + 25);
+    });
+    g.font = '600 20px ' + C('--sans'); g.fillStyle = col;
+    g.fillText(name, L, y - 106);
+  }
+  row(158, [1,2,3,4,5,6,7,8,9], C('--pat'), 'near-harmonic  —  a string');
+  row(390, [1,2.76,5.40,8.93], C('--br2'), 'inharmonic  —  a struck bar');
+  g.font = '500 17px ' + C('--sans'); g.fillStyle = C('--faint');
+  g.fillText('× fundamental', R - 130, 424);
+})();
+</script>

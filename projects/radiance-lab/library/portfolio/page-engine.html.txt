@@ -1,0 +1,466 @@
+{{SECTION:_head.html}}
+{{NAV}}
+
+<!-- ================= HERO ================= -->
+<header class="hero">
+  <div class="hero-img">{{IMG:caustic_room}}</div>
+  <div class="wrap hero-in">
+    <p class="eyebrow">Light transport research · RadianceLab</p>
+    <h1>Ten integrators,<br>one <i>scene</i></h1>
+    <p class="thesis">A real-time GPU megakernel that recompiles itself to the render state, and a CPU integrator bank that runs interactively beside it. The two share a scene and a film format and almost nothing else — which is exactly what makes each usable as evidence about the other.</p>
+    <p class="note" style="max-width:54ch;margin:14px 0 0;color:#9fb0ad">Above: preset 47, the mirror-relay room — rendered by the CPU photon-primitive integrator at strategy 21, not by the megakernel this page is about. Its black walls are the reason: that integrator reads no surface albedo, so a frame from it is fog, caustic and directly-seen emitters only. Nothing in this scene is a mesh. Every surface in it is a sphere, a bounded plane or an oriented box, intersected analytically.</p>
+    <div class="spectrum"></div>
+    <div class="stats">
+      <div class="stat"><span class="k">Transport modes</span>
+        <div class="v"><span class="to">10</span></div>
+        <div class="sub">one GPU, eight CPU, one rasteriser</div></div>
+      <div class="stat"><span class="k">Megakernel</span>
+        <div class="v"><span class="to">4,090</span></div>
+        <div class="sub">lines, one dispatch, specialised to the live feature mask</div></div>
+      <div class="stat"><span class="k">Where the two paths agree</span>
+        <div class="v"><span class="to">1.0005</span></div>
+        <div class="sub">median CPU/GPU over 40,842 pixels</div></div>
+      <div class="stat"><span class="k">Where they do not</span>
+        <div class="v"><span class="from">L<sub>e</sub></span><span class="arr">→</span><span class="to">/2.96</span></div>
+        <div class="sub">an emitter seen directly · unresolved</div></div>
+    </div>
+  </div>
+</header>
+
+<!-- ================= TWO PATHS ================= -->
+<section id="twopaths" style="--secc:var(--l400)" data-nav="Two paths">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">01 — Shape of the thing</p>
+      <h2>The two renderers do not even share their intersection code</h2>
+      <p class="lead">A scene is a flat list of entities with analytic primitive types. It is uploaded to the GPU as four hand-packed SSBOs, and it is walked directly on the CPU by a 169-line intersector. Those are two separate implementations of the same five shapes, written at different times, and that independence is what makes a number produced by one of them count as evidence about the other.</p>
+      <p>Ten transport modes sit on top of that one scene — the GPU megakernel in real time, eight CPU integrators interactively, and a rasteriser. Number keys switch between them; the viewport keeps its camera and its film. Nine of the ten write the same linear-HDR film, and the headless harness dumps that film in one format — a four-byte magic, three ints, then <span class="mono">w·h·3</span> floats — so a GPU frame and a CPU frame are directly subtractable.</p>
+    </div>
+
+    <div class="tw"><table>
+      <thead><tr><th>#</th><th>Mode</th><th>Where it runs</th><th>Status on this site</th></tr></thead>
+      <tbody>
+        <tr><td>0</td><td>Rasteriser</td><td>GPU, GL</td><td>Scene inspection and LTC area lights</td></tr>
+        <tr class="key"><td>1</td><td>Path tracer</td><td>GPU megakernel</td><td><b>The reference path.</b> §02 onward is about this</td></tr>
+        <tr><td>2</td><td>Photon mapper</td><td>CPU</td><td>Surface only; the KD-tree is real and used here</td></tr>
+        <tr><td>3</td><td>VCM</td><td>CPU</td><td>Surface only — <span class="mono">skipVolumes = true</span>, hard-coded</td></tr>
+        <tr><td>4 / 5</td><td>MLT / PSSMLT</td><td>CPU</td><td>Surface only; chain and acceptance visualisers built</td></tr>
+        <tr><td>6</td><td>UPBP</td><td>CPU</td><td>Beams are built, uploaded and drawn — and never queried by the estimate</td></tr>
+        <tr><td>7</td><td>Path guiding</td><td>CPU</td><td>Spatial radiance cache with a directional field overlay</td></tr>
+        <tr><td>8</td><td>Manifold exploration</td><td>CPU</td><td><b>Mislabelled.</b> <span class="mono">newtonIterations</span> is written into its config and read nowhere; it is an MLT loop</td></tr>
+        <tr class="key"><td>9</td><td>Photon primitives</td><td>CPU</td><td><b>The research.</b> 31 strategy slots, 30 of them estimators and one a rasterised gather; 21 analytic swept manifolds, six kernel estimators, three baselines</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="narrow">
+      <p class="note"><b>Mode 0 is not only a viewport.</b> The raster panel carries a <b>tracer-guided rasterizer</b> — a toggle and a two-way mode, screen-space blend or vertex-baked, which reprojects the tracer’s own colour onto rasterised geometry and blends it over the raster shading so direct lights still contribute; the second mode is there for painterly and data-mosh passes. Beside it sits an experimental <b>LTC area light</b>, linearly transformed cosines after Heitz et al., which stands down to a legacy fallback light the moment the scene has a real quad light of its own. Both have readers in the raster renderer, both are one click from the panel, and both are <span class="st st-c">never viewed</span>: no capture of either exists anywhere in this repository. They are on this page because the honest thing to do with a working feature nobody has photographed is to name it, not to quietly leave it out of the mode table’s one-line summary.</p>
+      <h3>The mode number is a request, and the strategy number is not the one in the combo</h3>
+      <p>Neither selector on that panel behaves the way a radio button usually does. A mode change is <b>queued rather than applied</b>: the click sets a pending target and a three-frame cooldown, the radio shows the target instead of the state, the viewport prints "switching to&hellip;", and only when the counter reaches zero does the engine call <span class="mono">glFinish</span> and invalidate all eight CPU integrator instances — including the split view's second photon-primitive integrator — before the mode actually changes. Three frames of latency, bought to avoid freeing a resource the GPU is still reading.</p>
+      <p>The light-strategy combo is stranger: its display order is not its enumeration. Seven entries map through <span class="mono">comboToStrategy[] = {0, 1, 7, 2, 3, 4, 5}</span>, because internal ID 6 used to be the photon mapper and is now an overlay with a tab of its own — and a saved configuration still carrying strategy 6 is silently rewritten to Naive on load.</p>
+    </div>
+
+    <div class="tw"><table>
+      <thead><tr><th>Control</th><th>What it actually does</th><th>Catalogue grade</th></tr></thead>
+      <tbody>
+        <tr><td>Deferred, cooled-down mode switch</td><td>A three-frame cooldown, then <span class="mono">glFinish</span>, then eight integrator invalidations, then the switch. The pending target is what the radio draws</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>Auto-enable on switch</td><td><b>Defaults on</b>, and it is what makes a mode key work: completing the switch ticks that mode's own Enable flag. Every one of those flags is declared <span class="mono">false</span>, so with auto-enable turned off a mode key selects an integrator that does not run</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>Medium-support legend</td><td>Ten bullets under the radios, green <span class="mono">[Vol]</span> on the three modes with a volume path — GPU tracer, UPBP, photon primitives — grey on the other seven. The claim §07 of this page makes, printed in the panel that makes it</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>Strategy 2 — MIS (naive + NEE)</td><td>The power heuristic over BSDF sampling and next-event estimation. Fourth in the picker, ID 2 internally</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>Strategy 7 — Light Sample Only</td><td>Pure <span class="mono">s = 1</span>: shadow rays, emission on a direct hit disabled, so no caustics, no specular chains, no sky — a deliberately biased probe of what light sampling alone recovers. <b>It also kills volumes</b>, and the panel says so physically: the Volume Medium toggle is greyed <em>and</em> struck through with a drawn line naming the strategy as the reason</td><td><span class="st st-b">seen</span></td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="narrow">
+      <h3>What they share, and what they diverge on</h3>
+      <p>The shared surface is narrow on purpose, and it has been audited. Two places where the two implementations of the same primitive do not describe the same object, both known and both bounded:</p>
+      <ul class="clean">
+        <li><b>A rotated box is a different solid to each renderer.</b> The GPU treats <span class="mono">Box</span> as an OBB and rotates the ray by the entity's quaternion; the CPU intersector has an AABB path only. Any scene with a tilted box is outside the comparison.</li>
+        <li><b>Every bounded plane is 0.04 wider than it is declared.</b> Both intersectors clip with <span class="mono">diff &gt; halfExt + 0.02</span> per axis, deliberately mirrored so the two agree. An estimator that reads an emitter's area from an intersection therefore integrates over a quad of side <span class="mono">2h + 0.04</span> and reads 8–15% high on presets 47, 48 and 52. The pad was left global because removing it is not byte-neutral for any strategy in the roster.</li>
+      </ul>
+    </div>
+
+    <figure>
+      {{SVG:fs1-surface-nee.svg}}
+      <figcaption><b>The agreement</b><span>One camera ray, one diffuse hit, one connection to the ceiling emitter, no continuation. With the GPU's point lights disabled and directly-seen emitter pixels masked, this is the only transport both paths express identically — and it is the reference denominator every other CPU/GPU ratio is built on.</span></figcaption>
+    </figure>
+
+    <div class="narrow">
+      <div class="readout">
+        <div class="row hi"><span class="lbl">CPU surface NEE / GPU, preset 0, diffuse pixels</span><span class="val">median 1.0005</span></div>
+        <div class="row"><span class="lbl">Interquartile range over n = 40,842 pixels</span><span class="val">0.963 <span class="d">…</span> 1.039</span></div>
+        <div class="row"><span class="lbl">Same emitter, seen <em>directly</em>, oblique view — CPU</span><span class="val">(20.0, 19.0, 17.0)</span></div>
+        <div class="row"><span class="lbl">Same pixel — GPU</span><span class="val">(6.76, 6.43, 5.75)</span></div>
+        <div class="row hi"><span class="lbl">Ratio</span><span class="val">2.96× · unresolved</span></div>
+      </div>
+      <p class="note" style="margin-top:26px"><b>This is the design working, not failing.</b> The GPU applies a view cosine <span class="mono">|d·n|</span> to a camera-seen emitter; the CPU emitter-hit term returns <span class="mono">L<sub>e</sub></span> with no cosine. Both NEE paths agree, so only the <span class="mono">L E</span> class differs, and which convention is intended is still open. The acceptance gate that had run for months never caught it because its centre pixel views the emitter head-on, where <span class="mono">cos = 1</span>. Every CPU-vs-GPU ratio on this site masks directly-seen emitter pixels until it is settled.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= MEGAKERNEL ================= -->
+<section id="megakernel" style="--secc:var(--l460)" data-nav="Megakernel">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">02 — The kernel</p>
+      <h2>The path tracer recompiles itself when the render state changes shape</h2>
+      <p class="lead">The whole real-time path is one compute shader, 4,090 lines and 229 KB, and one <span class="mono">glDispatchCompute</span> per frame — bidirectional path tracing, fourteen materials, spectral transport and participating media in a single dispatch. A megakernel that large is slow to compile and, on some feature combinations, does not compile at all, so the engine specialises it rather than compiling all of it: it derives a four-bit feature mask from the live render state, builds a <span class="mono">#define</span> list from the mask, and rebuilds the kernel only when the mask changes.</p>
+      <p>The consequential detail is the last line of the recompile block: when a new variant loads, the accumulation buffer is reset, with the comment saying why. The image the user was accumulating was computed by a different estimator, and averaging the two would be quietly wrong. Turning spectral mode on therefore costs you your converged frame, visibly, rather than silently corrupting it.</p>
+    </div>
+
+    <div class="formula">
+      <div class="f">mask = <span class="hl">BDPT</span> | <span class="hl">SPECTRAL</span> | <span class="hl">VOLUMES</span> | <span class="hl">BDPT_MIS_B</span></div>
+      <div class="n">Derived from lightStrategy, spectralMode, enableMedium &amp;&amp; sceneHasVolume, and the BDPT MIS selection.<br><span class="mono">ComputePathTracer.cpp:81</span> · defines at <span class="mono">:98</span> · recompile at <span class="mono">:1703</span></div>
+    </div>
+
+    <div class="narrow">
+      <h3>The ladder, and the measurement that put a rung in it</h3>
+      <p>A compile failure at this size is a real operating condition, not a theoretical one, so the recompile is a measured ladder rather than a single call, and every rung is a state the renderer keeps running in:</p>
+      <div class="readout">
+        <div class="row"><span class="lbl">1 — full requested mask</span><span class="val">compile</span></div>
+        <div class="row"><span class="lbl">2 — on failure, drop <span class="mono">FEAT_BDPT_MIS_B</span></span><span class="val">BDPT survives, flat MIS</span></div>
+        <div class="row"><span class="lbl">3 — on failure, mask 0</span><span class="val">minimal kernel, always fits</span></div>
+        <div class="row hi"><span class="lbl">4 — on failure, keep the previously-compiled program</span><span class="val">no reset, no crash</span></div>
+      </div>
+      <p style="margin-top:26px">Rung two exists because a combination was measured to fail. The source records it in the mask function rather than in a commit message:</p>
+    </div>
+
+    <div class="formula">
+      <div class="f" style="font-size:clamp(12px,1.7vw,15px);text-align:left;line-height:1.7">// Measured: method B + FEAT_VOLUMES exceeds the GPU instruction<br>// ceiling, so on volume scenes method B is not requested.<br>// All other combos fit.</div>
+      <div class="n"><span class="mono">ComputePathTracer.cpp:88</span> — so the mask function refuses to request the combination in the first place, and the ladder's second rung is the safety net for hardware other than the one it was measured on.</div>
+    </div>
+
+    <div class="narrow">
+      <p>Startup deliberately compiles mask 0 rather than the mask the scene will want, because the minimal variant always fits and always starts fast; the first frame pays for the specialised one. Shaders are re-read from the build output at launch, so a shader change is a 6–14 second cycle with no rebuild of the C++.</p>
+      <p class="note"><b>The failure mode is louder headless than interactively.</b> If even mask 0 fails, the application keeps running with no path tracer and logs one line. Headless that is fatal, because no film is written and the harness notices. On screen it just looks wrong.</p>
+    </div>
+
+    <figure>
+      {{VIDEO:A kernel swapping itself out | Preset 51. Let the frame accumulate to visibly clean, ~300 passes. Open the Render panel and toggle Spectral on. Hold 4 s. Toggle it off. Hold 4 s. Keep the log pane visible in frame for the whole clip. | The accumulation counter drops to zero at the instant the log prints the mask change, and the image restarts from noise. That reset is the point: the two images were made by different estimators and must not be averaged.}}
+      <figcaption><b>Feature mask</b><span>The recompile is invisible except for the reset it forces, which is why it is worth showing in motion rather than describing.</span></figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ================= GEOMETRY ================= -->
+<section id="geometry" style="--secc:var(--l500)" data-nav="No BVH">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">03 — Geometry</p>
+      <h2>Every ray tests every primitive, and that is the design</h2>
+      <p class="lead">There is no acceleration structure in the path tracer and no triangle in the scene, and both are decisions. <span class="mono">traceRay</span> is a linear scan over all primitives, and the volume interaction runs a second full scan per bounce. <span class="mono">tinyobjloader</span> is vendored and linked and appears in zero source files; not one triangle reaches the <em>path tracer</em>. It is worth the italics: the tracer's upload loop skips every entity whose primitive type is <span class="mono">None</span>, while the rasteriser uploads a GPU mesh for every entity that owns one, so an entity can carry both a triangle mesh and an analytic primitive and be a different solid to each renderer. One preset exercises exactly that, and the note below the acceleration table is what happens when it does.</p>
+      <p>The reason is not performance. It is that the analytic estimators this engine exists to serve need <em>exact</em> intersections, and one of them needs more than that. The photon hourglass sweeps a refracted photon about the axis running from the light to the sphere's centre, and its whole derivation rests on that revolution being an exact symmetry of the object. A tessellated sphere is not rotationally symmetric. It would not merely make the estimator slower; it would make it wrong, in a way that would show up as a bias nobody could localise.</p>
+      <p>So spheres, bounded planes, oriented boxes, volume spheres and volume boxes are the entire palette; every intersection in every frame is exact, and forty-nine scene presets are composed procedurally from it.</p>
+    </div>
+
+    <div class="tw"><table>
+      <thead><tr><th>Primitive</th><th>GPU</th><th>CPU</th><th>Note</th></tr></thead>
+      <tbody>
+        <tr><td>Sphere</td><td>exact</td><td>exact</td><td>The one both paths agree on completely</td></tr>
+        <tr><td>Plane</td><td>infinite plane, per-axis clip</td><td>same</td><td><b>+0.02 pad on every axis</b>, mirrored deliberately</td></tr>
+        <tr><td>Box</td><td>OBB, quaternion</td><td>AABB only</td><td><b>The two paths disagree</b> on any rotated box</td></tr>
+        <tr><td>VolumeSphere</td><td>exact</td><td>exact</td><td>Medium container, not a surface</td></tr>
+        <tr><td>VolumeBox</td><td>AABB</td><td>AABB</td><td>No orientation on either side</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="tw"><table>
+      <thead><tr><th>Geometry and acceleration</th><th>State</th><th>Catalogue grade</th></tr></thead>
+      <tbody>
+        <tr><td>Per-primitive UVs</td><td>Spherical for spheres, a plane-local tangent frame for planes, dominant-face projection for boxes — computed in the intersector, so every surface has a UV without anyone assigning one</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>Only preset 30 has a rotated box</td><td><span class="mono">glm::rotate</span> occurs exactly once in the whole scene layer: 45&deg; about Y, on the dispersive prism. Everything else in forty-nine presets is axis-aligned, which is why the OBB/AABB split above has never bitten in practice</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>Triangle meshes</td><td><span class="mono">Mesh</span> and <span class="mono">Vertex</span> exist, are built procedurally in code, and are consumed by the rasteriser alone. The path tracer never sees one</td><td><span class="st st-d">superseded</span></td></tr>
+        <tr><td>Mesh file import</td><td>No OBJ, no glTF, no loader of any kind</td><td><span class="st st-d">absent</span></td></tr>
+        <tr><td>BVH (SAH, bucketed)</td><td>It builds, over per-entity AABBs, and the overlay draws its internal nodes as orange dashed boxes. <span class="mono">intersect</span> and <span class="mono">intersectAny</span> have no caller outside their own translation unit</td><td><span class="st st-d">inert</span></td></tr>
+        <tr><td>KD-tree</td><td>The one structure that is load-bearing: built for both photon maps, traversed by the gather shader on the GPU and by UPBP's kNN on the CPU, and carrying its own visualisation structs</td><td><span class="st st-b">seen</span></td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="narrow">
+      <p class="note"><b>The prism is two different solids, and the second one is 41 % too wide.</b> Preset 30 builds its prism as six box faces with half-extents <span class="mono">(0.5, 1.0, 0.5)</span>, then hands the tracer a pre-fattened half-extent of <span class="mono">(0.7071, 1.0, 0.7071)</span> — the axis-aligned bounding box of that cube rotated 45&deg;, with the source comment saying exactly that. It was the right number when the intersector was AABB-only. The GPU box test now <em>also</em> rotates the ray by the entity's quaternion, so the fattening is applied on top of the rotation it was compensating for: the prism the path tracer intersects is a 45&deg; box &radic;2 wider in X and Z than the prism the rasteriser draws from the same entity, twice its volume. Read from the source, not measured — and the reason the primitive palette above lists a disagreement between the two intersectors and this section lists a second one inside the GPU's own path. The catalogue records the pre-fattening; what it does not record is that the OBB path double-counts it.</p>
+      <p>The tree code is not absent — <span class="mono">BVH</span>, <span class="mono">Grid</span> and <span class="mono">KDTree</span> all exist, are visualised in the viewport, and the KD-trees are genuinely used by the photon mapper. What does not exist is GPU traversal, and the interface says so itself rather than leaving it to a backlog:</p>
+    </div>
+
+    <figure>
+      {{SHOT:Render panel · Acceleration section · check the BVH and Grid boxes so both red not-implemented borders are visible in one frame, with the KD-tree row showing normally alongside}}
+      <figcaption><b>An honest control</b><span>Two options draw a red border reading "BVH traversal on GPU not yet implemented". The pattern is used in eight places across the interface. Notice which controls do <em>not</em> have it — that is the claim being made.</span></figcaption>
+    </figure>
+
+    <div class="narrow">
+      <p class="note"><b>What the decision costs.</b> There is no image-texture route to surface albedo either — the tracer declares no <span class="mono">sampler2D</span> for it. Patterned surfaces come from a node graph baked to a per-entity texture array, or from a projector mode that welds a photograph into UV space. No preset builds a node graph, so every textured frame in this project was hand-authored in the editor and cannot currently be shipped as a preset.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= MATERIALS ================= -->
+<section id="materials" style="--secc:var(--l540)" data-nav="Materials">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">04 — Materials</p>
+      <h2>Fourteen BSDFs are implemented, and every one is reachable by loading a preset</h2>
+      <p class="lead">The material model is an explicit enum, not a heuristic read off metallic and IOR, and every one of its fourteen branches — Lambertian through thin-film metal, three-interface iridescence, dipole subsurface and Marschner-style hair — lives in the one megakernel and renders in real time. Ten of them are on the material showcase. The other four had no preset at all until the Apothecary (preset 56, a GPU-only room) was written to carry them: dipole subsurface on its jars, anisotropic brushed metal, hair, and passthrough on every volume prop. An earlier version of this page counted ten reachable and four unreachable; the catalogue caught the page predating the preset.</p>
+    </div>
+
+    <div class="tw"><table>
+      <thead><tr><th>#</th><th>Type</th><th>What is actually implemented</th><th>Reachable</th></tr></thead>
+      <tbody>
+        <tr><td>0</td><td>Diffuse</td><td>Cosine Lambertian; also the fallback branch</td><td><span class="st st-a">preset</span></td></tr>
+        <tr><td>1</td><td>Metal</td><td>GGX conductor, albedo-tinted Schlick; delta below r = 0.001; optional thin film on the Fresnel</td><td><span class="st st-a">preset</span></td></tr>
+        <tr><td>2</td><td>Glass</td><td>Fresnel and TIR; GGX perturbation above r = 0.01, at which point it reports a pdf and joins MIS. Smooth glass is a delta vertex</td><td><span class="st st-a">preset</span></td></tr>
+        <tr><td>3</td><td>CoatedDiffuse</td><td>4%-at-normal achromatic coat over a coloured base</td><td><span class="st st-a">preset</span></td></tr>
+        <tr><td>4</td><td>Paper</td><td>Lambertian sheet with 0.3·(1−cos) forward transmission</td><td><span class="st st-a">preset</span></td></tr>
+        <tr><td>5</td><td>Iridescent</td><td>Three-interface Airy reflectance per RGB wavelength over a GGX lobe</td><td><span class="st st-a">preset</span></td></tr>
+        <tr><td>6</td><td>Glint</td><td>Hashed world-position facet cells, four candidate normals. <b>Density clamps at 50</b>, so the top half of its 10–500 slider does nothing</td><td><span class="st st-a">preset</span></td></tr>
+        <tr><td>7</td><td>Snowflake</td><td>Reflected azimuth snapped to 60° increments</td><td><span class="st st-a">preset</span></td></tr>
+        <tr><td>8</td><td>DipoleSSS</td><td>Rough dielectric shell, classic dipole exit distance, Rodrigues walk. <b>Silently inert on anything but a sphere</b> — the branch searches for a sphere with a matching material index</td><td><span class="st st-a">preset 56</span></td></tr>
+        <tr><td>9</td><td>Passthrough</td><td>Ray continues, stays specular</td><td><span class="st st-a">preset 56</span></td></tr>
+        <tr><td>10</td><td>Mirror</td><td>Delta reflection tinted by albedo — but only while ior ≤ 1.01; above that Schlick washes the tint to white</td><td><span class="st st-a">preset</span></td></tr>
+        <tr><td>11</td><td>Anisotropic</td><td>Tangent frame built from the shading normal, so on a sphere it brushes along latitude</td><td><span class="st st-a">preset 56</span></td></tr>
+        <tr><td>12</td><td>Hair</td><td>Marschner-like R / TT / TRT at 10 / 60 / 30 %</td><td><span class="st st-a">preset 56</span></td></tr>
+        <tr><td>13</td><td>DispersiveGlass</td><td>Cauchy index; see §05</td><td><span class="st st-a">preset</span></td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="narrow">
+      <p>Two cross-cutting behaviours are worth more than most of the individual lobes. <b>Stochastic opacity</b> is a passthrough Russian roulette that deliberately does not consume a bounce, so a half-transparent object does not eat the bounce budget behind it. <b>Dielectric nesting depth</b> is a counter incremented only on a transmitting refraction, and it is what stops fog being applied to the segment of a camera ray that is inside a glass ball — the fix for an interior that used to render black.</p>
+    </div>
+
+    <div class="tw"><table>
+      <thead><tr><th>Material system</th><th>What it is</th><th>Catalogue grade</th></tr></thead>
+      <tbody>
+        <tr><td>The 14-BSDF enum</td><td>An explicit type on the material, not a heuristic read off metallic and IOR, and every one of the fourteen is reachable by loading a preset — a claim that only became true when the Apothecary was written</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>Emissive material versus <span class="mono">scene.lights[]</span></td><td>Two light systems that barely overlap. Every emitter the path tracer integrates comes from <span class="mono">material.emissionStrength</span>; the <span class="mono">scene.lights[]</span> array contributes <b>only</b> delta point lights, <b>only</b> when the point-light switch is on, <b>only</b> the first eight that are enabled, and — see §07 — only at surface vertices</td><td><span class="st st-c">scene-dependent</span></td></tr>
+        <tr><td>Material auto-clone on edit</td><td>Editing a material shared with an entity outside your selection group clones it first, renames the clone, and repoints only your group. It is why the six faces of a box edit as one object and the six faces of the <em>next</em> box do not follow</td><td><span class="st st-b">seen</span></td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="narrow">
+      <p class="note"><b>Four branches that went unlooked-at for most of the project's life.</b> DipoleSSS, Passthrough, Anisotropic and Hair had no preset until the Apothecary assigned all four, and this page said "no preset" beside each of them for longer than it should have. The table's last column is what a reader can verify by pressing a key today; the correction is one of the rows on the how-I-know page.</p>
+
+      <h3>The inspector has instruments of its own, and nobody has looked at them either</h3>
+      <p>The panel that edits those fourteen branches is not a stack of sliders. Its Surface tab runs a thousand lines and contains three plotters that no figure on this site has ever shown, each of which would be a feature in most renderers:</p>
+      <ul class="clean">
+        <li><b>A spectral albedo curve editor.</b> Switch a material to spectral and the colour picker is replaced by up to eight draggable Gaussian lobes over 380&ndash;780 nm, drawn on a wavelength-to-RGB ramp — click to add a lobe, drag to move it, right-click to remove it, with a smoothing width in nanometres and a live RGB preview swatch, auto-seeded from the current RGB the first time you open it. <span class="st st-c">never viewed</span></li>
+        <li><b>A BSDF lobe plot.</b> A three-dimensional lobe you drag to change the incoming direction, so the shape of the branch you just selected is visible before you render anything. <span class="st st-c">never viewed</span></li>
+        <li><b>An emission-profile visualiser.</b> The five profiles from &sect;07 drawn in 3-D, in emission colour or as a heatmap, with a power read-out beside them. It is the goniometric diagram of a light, in the panel that defines the light. <span class="st st-c">never viewed</span></li>
+      </ul>
+      <p>Three smaller pieces of the same panel are worth the sentence they take. <b>Anisotropy angle</b> is a separate slider from anisotropy amount, so a brushed metal's grain can be rotated independently of its strength — and it is the one field of the anisotropic branch that is <span class="st st-c">never viewed</span>. <b>Negative emission</b> unlocks a signed strength slider per material and per volume, and one preset ships a sphere at &minus;10 &mdash; but the subtractive light does not arrive, and finding out took one grep. The Experimental tab's <em>Allow Negative Emission</em> switch has four references in the whole program: its declaration, the checkbox, the checkbox's own status line, and the preset that sets it. No uniform, no reader outside <span class="mono">src/ui/</span>. Its tooltip promises that &ldquo;sampling uses abs(intensity) so both positive and negative emitters contribute proportionally&rdquo; and nothing implements that: every emissive gate in the megakernel &mdash; the hit path, the surface light list, the volume light list &mdash; is a signed <span class="mono">&gt; 0.01</span>, so a negative emitter is skipped by all three. The switch is <span class="st st-d">inert</span>, the signed slider is real, and this project's own catalogue still records the tooltip's promise as the behaviour. And <b>per-entity emitter mute</b> clones the material before it mutes, so silencing one quad does not silence its siblings, and it remembers the strength it took away.</p>
+    </div>
+
+    <figure>
+      {{SHOT:Preset 3 (Material Showcase) · GPU path tracer · 600+ passes · clean view (G) · frame the full row of spheres so all ten of the showcase's BSDFs are legible; then preset 56 (RICH: The Apothecary) for the other four}}
+      <figcaption><b>Ten of fourteen, then the other four</b><span>Look at the iridescent sphere's hue shift toward the silhouette — that is three-interface Airy interference evaluated per wavelength, not a gradient texture. Subsurface, anisotropic, hair and passthrough are absent from this frame by construction; they live one preset over, in the Apothecary.</span></figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ================= SPECTRAL ================= -->
+<section id="spectral" style="--secc:var(--l580)" data-nav="Dispersion">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">05 — Spectral</p>
+      <h2>Dispersion is gated on the spread parameter, not on the material type</h2>
+      <p class="lead">The surprising fact first, because it catches people: plain <span class="mono">Glass</span> disperses. The branch that computes a wavelength-dependent index tests <span class="mono">dispersionSpread &gt; 0.001</span> and nothing else, so a material typed as ordinary glass with a non-zero spread refracts chromatically, and a material typed <span class="mono">DispersiveGlass</span> with zero spread does not.</p>
+      <p>Underneath is a full spectral pipeline. The engine carries a hero wavelength per path — one λ drawn uniformly from [380, 780] nm at the top of the eye path, stored so a bidirectional connection can reuse it. Spectral reflectance is up to eight Gaussian lobes per material, packed into the material SSBO and edited in the interface on a rainbow-backed canvas that replaces the albedo picker. Conversion back to RGB goes through the CIE 1931 curves with an explicit normalisation so an equal-energy white matches the luminance the RGB path would have produced.</p>
+    </div>
+
+    <div class="formula">
+      <div class="f">n(λ) = ior + <span class="hl">B</span>/λ² − <span class="hl">B</span>/0.589²&nbsp;&nbsp;&nbsp;&nbsp;<span class="hl">B</span> = (ior − 1)·0.01·spread</div>
+      <div class="n">Cauchy, referenced to the sodium D line. Physical B for common glass is about (ior − 1)·0.01; the spread slider is an honest exaggeration factor, not a hidden fudge.</div>
+    </div>
+
+    <div class="narrow">
+      <h3>Two estimators for one physical effect</h3>
+      <p>Spectral mode feeds the hero wavelength straight into the Cauchy expression. RGB mode cannot — there is no single wavelength — so it runs a channel-level Monte Carlo instead: pick one of R, G or B uniformly, use that channel's wavelength, weight the throughput by three and zero the other two. The G wavelength is not fixed at 540 nm but slides between the R and B anchors under a slider, which is a control with no physical meaning that exists because it makes the fan easier to read on screen.</p>
+      <div class="readout">
+        <div class="row"><span class="lbl">Hero wavelength, per path</span><span class="val">380 + 400·ξ nm</span></div>
+        <div class="row"><span class="lbl">Spectral reflectance</span><span class="val">≤ 8 Gaussian lobes / material</span></div>
+        <div class="row"><span class="lbl">RGB dispersion estimator</span><span class="val">1 of 3 channels, ×3 weight</span></div>
+        <div class="row"><span class="lbl">R / B anchors</span><span class="val">620 nm <span class="d">/</span> 460 nm</span></div>
+        <div class="row"><span class="lbl">Sky in spectral mode</span><span class="val">achromatic</span></div>
+      </div>
+    </div>
+
+    <figure>
+      {{IMG:prism_fan}}
+      <figcaption><b>Preset 52, rendered by the CPU integrator</b><span>The same dispersion model, exercised through the photon-primitive path at strategy 21 rather than through the megakernel this section describes; the two read the same per-object spread. What to notice is not the fan itself but its <em>ordering</em>: red bends least and sits outermost, blue innermost, and the separation grows with distance from the sphere rather than being constant across the beam. A texture cannot do that; a per-wavelength index has to.</span></figcaption>
+    </figure>
+
+    <figure>
+      {{VIDEO:Dispersion is not a texture | Preset 52, spectral mode on, GPU path tracer, clean view. Orbit the camera slowly through about 60 degrees over 10 s, then hold. | The colour bands sweep across the receiving surface and change width as the geometry changes, while their order stays fixed. A painted rainbow would translate rigidly with the surface instead.}}
+    </figure>
+  </div>
+</section>
+
+<!-- ================= MEDIA ================= -->
+<section id="media" style="--secc:var(--l600)" data-nav="Media">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">06 — Participating media</p>
+      <h2>Seven ways to make fog reach the same switch; one of them is inert</h2>
+      <p class="lead">A medium is not attached to an entity — the medium <em>is</em> an entity, a volume sphere or volume box carrying its own scattering and absorption coefficients. Transport through it is delta tracking with null collisions, written inline in the eye loop rather than through the volume module's own routine, which is dead code. Density comes from one of seven sources, all dispatched by a single integer on the volume's config.</p>
+    </div>
+
+    <div class="tw"><table>
+      <thead><tr><th>Source</th><th>What it gives you</th><th>State</th></tr></thead>
+      <tbody>
+        <tr><td>Homogeneous</td><td>Constant density. What every caustic preset uses</td><td><span class="st st-a">measured</span></td></tr>
+        <tr><td>Noise Lab</td><td>FBM Perlin / Worley / Ridged / Marble / Turbulence / Voronoi, 1–8 octaves with per-octave amplitude mutes; 15 one-click presets that also set σ and g</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>Legacy procedural</td><td>16 styles, including Gyroid and Schwarz-P triply periodic minimal surfaces</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>SDF</td><td>Sphere, box, torus, cylinder, cone, octahedron, Mandelbulb, with an optional hollow-shell isosurface</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>Physics texture</td><td>A 3D density texture written by the SPH / MPM / Euler solvers — real, end to end</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>Baked node graph</td><td>Up to eight pairs of 3D textures — absorption, scattering and two channels of tint in one, the third and emission in the other</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>Reaction–diffusion</td><td>A 3D RD pattern</td><td><span class="st st-c">branch runs, result discarded</span></td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="narrow">
+      <p class="note"><b>A grade corrected, on the sixth row.</b> This table read <em>seen</em> for the baked node graph until 2026-09-06, and the project's own catalogue contradicted itself about it — one row calling the density source sighted, another calling the bake that is its only route unrendered. The stricter reading is the true one: nobody has pressed Bake and looked at the result. The route is also narrower than the row suggests, and <a href="the-instrument-panel.html" style="color:var(--l580)">The instrument panel</a> now carries the anatomy — three routes from a medium graph to a voxel, of which one folds an arbitrary math chain to a single number at the volume's centre and one has exactly <em>one</em> procedural payload slot per primitive, so two generators wired into absorption and scattering do not both survive.</p>
+    </div>
+
+    <div class="tw"><table>
+      <thead><tr><th>Two edges of the medium model</th><th>What it does</th><th>Catalogue grade</th></tr></thead>
+      <tbody>
+        <tr><td>Decoupled media <span class="mono">[Experimental]</span></td><td>Three extra procedural slots on one volume — scatter, absorption, emission — each with its own style, scale, speed and parameter. They do not replace the density source; they <b>modulate</b> it, each slot multiplying the volume's ordinary density by its own field, with style 0 returning exactly 1. The vocabulary is the fifteen legacy procedural styles only, so a Noise Lab, SDF or reaction&ndash;diffusion field cannot drive a slot. Absorption that ripples where scattering is a gyroid, from one entity</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>RGBA medium mode</td><td>A global switch that turns the medium colour picker from three channels into four and makes the alpha a per-volume density multiplier, scaling <em>both</em> &sigma;<sub>s</sub> and &sigma;<sub>a</sub> so the medium gets denser without changing its albedo. It is applied where the scene is packed for the GPU, which fixes its scope exactly: the megakernel and the rasteriser honour it, and every CPU integrator — photon mapper through photon primitives — reads the raw coefficients and ignores the alpha</td><td><span class="st st-c">never viewed</span></td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="narrow">
+      <h3>Where a medium is actually authored, and the two panels that cannot read each other</h3>
+      <p>All seven of those sources are reached through one panel — Properties, four tabs, the place an entity stops being a shape and becomes something with physics. Its Medium tab holds the seven density sources behind that single dispatch integer, the three phase functions with log and linear slider modes, decoupled media and volume emission. And it holds <b>fifteen named presets</b> that are the most under-described control in the program, because they are not noise presets at all: Fire, Smoke, Cloud, Lava, Nebula and the rest each write the scattering and absorption coefficients, the phase <em>g</em> and the volume emission alongside the ten noise parameters. &ldquo;Fire&rdquo; is scattering 6, absorption 0.1, isotropic, emission strength 5 at a red-orange. One button is an entire medium, not a texture.</p>
+      <p>The finding underneath that is the more interesting one. The Noise Lab in the node editor and the Noise Lab in this panel author the same kind of object into <strong>two disjoint halves of one per-primitive GPU record</strong>. The panel fills one block of it from the entity's own noise configuration; the node fills a different block from the node's parameter array. Neither can read the other's half, the node editor's version never touches the entity's configuration at all, and only the node's block carries a target mask and a blend mask. Two authoring surfaces for one field, agreeing only because they never meet — the same shape of finding as the two camera models on <a href="the-camera-is-not-a-viewpoint.html" style="color:var(--l680)">The camera is not a viewpoint</a>, and found the same way.</p>
+      <p class="note"><b>How the reaction&ndash;diffusion row was established.</b> Two defects, found separately. The scene's RD preset index was never assigned, which was fixed and verified at the upload boundary. The image still did not change, so the branch was forced to <span class="mono">density = 0.0</span> and the probe re-run: <b>byte-identical</b> to the untouched build, centre pixel 0.04631 either way. So the branch executes and something downstream throws its result away. Unfixed, and the practical consequence is stated where it matters — shoot one preset per RD group, because presets 5–8 and 10–13 render identically.</p>
+    </div>
+
+    <div class="narrow">
+      <h3>Three phase functions, and a noise floor two of them cannot escape</h3>
+      <p>Henyey–Greenstein short-circuits to isotropic below |g| = 0.01. Beside it sit an approximate three-lobe Lorenz–Mie — a size-dependent forward peak plus wavelength-split primary and secondary rainbow lobes near 138° and 130° and a backscatter glory, returning an RGB value so the scattering is genuinely chromatic — and a generalised Rayleigh with an optional 1/λ⁴ weighting.</p>
+      <p>Volume next-event estimation is skipped for the Mie and Rayleigh branches, because neither has a closed-form evaluation available at that call site. They render by phase sampling only. That makes them <em>noisier by construction</em>, which is a different statement from noisier by defect, and it is why a Mie fog box needs several times the passes of an HG one to read as clean.</p>
+      <div class="readout">
+        <div class="row"><span class="lbl">Phase 0 — Henyey–Greenstein</span><span class="val">NEE + phase sampling</span></div>
+        <div class="row"><span class="lbl">Phase 1 — Lorenz–Mie, 3 lobes</span><span class="val">phase sampling only</span></div>
+        <div class="row"><span class="lbl">Phase 2 — generalised Rayleigh</span><span class="val">phase sampling only</span></div>
+        <div class="row hi"><span class="lbl">g used by every caustic preset</span><span class="val">0.55</span></div>
+      </div>
+      <p style="margin-top:26px">That last row is doing more work than any other single number in the showcase scenes. At g = 0.55 the forward lobe is tight enough that a caustic cone reads as a beam with an edge; at g = 0 the same transport reads as haze.</p>
+      <p class="note"><b>Two limits found by running into them.</b> Shadow-ray transmittance is Beer–Lambert per segment, homogeneous within each segment, so it does not integrate a heterogeneous density along the ray — a correctness gap that only bites on structured media, which is where the interesting media are. And a fog box larger than 22×14×22 makes the GPU path tracer render pure black. That is scale-dependent, unresolved, and currently avoided rather than fixed.</p>
+    </div>
+
+    <figure>
+      {{SHOT:Contact sheet, six frames, GPU path tracer, 400 passes each, identical camera and lighting: (1) Noise Lab "Cloud" preset, (2) legacy procedural Gyroid, (3) legacy procedural Schwarz-P, (4) SDF Mandelbulb with hollow shell on, (5) a physics-driven SPH volume mid-splash, (6) homogeneous g=0.55 with a caustic cone through it}}
+      <figcaption><b>One switch, six branches</b><span>Compare the edge quality between the analytic SDF frames and the noise-driven ones: the SDF isosurface has a defined boundary because the density is a signed distance, while the FBM fields fade. Both go through the same delta-tracking transport.</span></figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ================= LIGHTS ================= -->
+<section id="lights" style="--secc:var(--l620)" data-nav="Light &amp; bounces">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">07 — Sampling and counting</p>
+      <h2>A point light is never sampled at a volume scatter vertex — and that is why the estimator research exists</h2>
+      <p class="lead">The delta point-light connection appears at exactly one site in the megakernel, inside the surface shading block. There is no counterpart in the volume scatter branch. A scene lit by a point light and filled with fog therefore renders near-black on the GPU: the only way a camera ray in the medium can find that light is to hit it by chance, and it has zero measure.</p>
+      <p>That is not a bug in the tracer. It is the shape of the problem the photon-primitive family was built to solve, and it is the reason this engine's most-used reference is a stochastic photon beam rather than next-event estimation.</p>
+    </div>
+
+    <div class="narrow">
+      <h3>What the GPU does sample well</h3>
+      <ul class="clean">
+        <li><b>Sphere lights by solid angle.</b> Sampling is uniform over the cone the sphere subtends, giving a constant pdf and no samples wasted near the silhouette. The older hemisphere-area sampler is retained behind a flag, which makes it a clean variance-only A/B: same image, different noise.</li>
+        <li><b>Power-weighted light selection.</b> Three modes — uniform, area-weighted, and area × luminance. The Veach MIS scene selects power weighting automatically, because its lights span roughly 500× in emission and 500× in area and uniform selection there is a disaster.</li>
+        <li><b>Quad lights by the right edges.</b> Each in-plane edge is paired with the half-extent of the world axis it points along, not by array position — so a non-square light is sampled correctly.</li>
+        <li><b>Multiple importance sampling at three sites</b> — BSDF-hits-emitter, surface NEE, and volume NEE — all with the power heuristic at β = 2.</li>
+      </ul>
+      <p>Five emission profiles sit on the emissive material itself, each with a polar tilt and an azimuth: diffuse cosine, laser at <span class="mono">cos<sup>500</sup></span>, cone with a hard cutoff, uniform hemisphere, and a grazing-only ring. <b>Cone and ring are used by no preset at all.</b> They are not invisible, though — the Properties panel draws whichever profile is selected as a three-dimensional lobe you can right-drag to rotate, with a power read-out beside it, which makes it the one place in the program where a light's goniometric diagram and the light itself are the same object. Like the profiles it draws, it has <span class="st st-c">never been viewed</span>.</p>
+      <p>Volume emitters get their own next-event path, switched on automatically by two of the three config-only fog boxes &mdash; presets 39 and 43, the cube-light and ball-light rigs &mdash; so an emissive volume is sampled rather than found. It samples a point uniformly inside the shell (<span class="mono">r&middot;u<sup>1/3</sup></span> in a sphere, uniform in a box), evaluates the density there, and converts the volume density to solid angle by <span class="mono">p<sub>vol</sub>&middot;r&sup2;</span> with no cosine at the light, because there is no surface to have one. And it carries a consequence the profile list does not advertise: the sampler sets the emitter's material index to &minus;1 on purpose, so <b>an emissive volume has no emission profile</b>. All five belong to surfaces.</p>
+    </div>
+
+    <div class="narrow">
+      <h3>The five-branch profile is written out five times, and one copy disagrees</h3>
+      <p>The tidy version of this is that the profiles are evaluated identically wherever a light is used. The source is one shared function and <b>four hand-transcribed copies</b>: <span class="mono">evalEmissionProfile</span> in a module, called from light tracing and from two connection sites, and the same five-branch ladder written out again inline in four more places — a volume next-event branch, a surface next-event branch, a light-to-aperture connection, and the site where an eye path hits an emitter directly.</p>
+      <p>Four of the five agree. The fifth — the emitter-hit copy, the one that runs when you simply <em>look</em> at a light — writes the diffuse profile as <span class="mono">abs(dot(rd, n))</span> where every other copy writes <span class="mono">max(dot(&minus;&omega;, n), 0)</span>, and writes the ring as <span class="mono">1 &minus; abs(&middot;)</span> where the others clamp. So a diffuse emitter is <b>two-sided when it is looked at and one-sided when it is connected to</b>. That absolute value is the same view cosine §01 of this page reports as the unresolved 2.96&times; disagreement between the two renderers; naming it here says what it is structurally, which is a fifth transcription that drifted, not a convention anyone chose.</p>
+      <p class="note"><b>And the plot beside them is a sketch, not an evaluation.</b> The goniometric visualiser draws each profile from its own drawing code rather than from the function the renderer evaluates, and for the ring the two do not match: the panel draws a lobe of length <span class="mono">sin&sup3;&theta;</span>, while the shader evaluates <span class="mono">3(1 &minus; cos&theta;)&sup2;</span>. Both peak at grazing and they fall off differently. The read-out labelled <em>Power</em> is <span class="mono">mean(emission RGB) &times; emissionStrength</span> — no area, no solid-angle integral — so it is a radiance, and two emitters of wildly different size read the same number. Arrow lengths are normalised per profile as well, which hides that the ring's peak weight is 3 where the diffuse profile's is 1.</p>
+    </div>
+
+    <div class="tw"><table>
+      <thead><tr><th>Light sampling</th><th>What is implemented</th><th>Catalogue grade</th></tr></thead>
+      <tbody>
+        <tr><td>Emission profiles (5)</td><td>Diffuse, laser, cone, hemisphere, ring, each with a polar tilt and azimuth — one shared function and four inline transcriptions, one of which is two-sided</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>&mdash; cone and ring</td><td>Implemented on both the GPU and the CPU photon-primitive walk, and assigned by no preset. Presets use only diffuse, laser (30, 37) and hemisphere (37)</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>&mdash; live goniometric plot</td><td>The selected profile as a rotatable 3-D lobe, in emission colour or as a heatmap, with the power read-out beside it, in the panel that defines the light</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>Cone sphere sampling</td><td>Uniform over the solid-angle cone the sphere subtends, so the directional density is the constant <span class="mono">1 / 2&pi;(1 &minus; cos&theta;<sub>max</sub>)</span> — the light-selection pdf multiplies it — and no sample is wasted near the silhouette. Switch it off and the legacy hemisphere-area sampler runs instead — two estimators of one integral, differing only in noise, for the price of one checkbox. It is not a pure A/B: inside the sphere's own radius the cone is undefined and the legacy path runs whatever the flag says</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>Power-weighted light selection</td><td>Uniform, area-weighted, or area &times; luminance, each with a matching <span class="mono">selectPdf</span> so the choice stays unbiased. The Veach rig selects the third automatically</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>Volume emitter sampling</td><td>Emissive volumes enter next-event estimation: uniform point in the shell, density evaluated at the sample, volume pdf converted by <span class="mono">p<sub>vol</sub>&middot;r&sup2;</span>, no emission profile</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>Point lights from <span class="mono">scene.lights[]</span></td><td>The only entry type the tracer uploads, capped at the first eight enabled, gated on the point-light switch — and connected at surface vertices only, which is the paragraph above</td><td><span class="st st-c">scene-dependent</span></td></tr>
+      </tbody>
+    </table></div>
+
+    {{SHOT:Preset 37 (Multi-Light Foggy Box), the one preset that assigns a non-default emission profile - select its laser emitter in the Scene Hierarchy - Properties, Material tab: TWO blocks are headed "Emission Profile", the upper one carrying Emission Color / Strength / the five-entry Profile combo and the lower one a collapsing header holding the 3-D visualiser; open both so they are in the same frame - set Profile = Cone, Theta (tilt) = 40 deg, Spread = 25 deg - in the visualiser set Color = Heatmap and right-drag inside the widget until the cone axis points across the frame rather than at you - shoot the two blocks and the "Power: ... | Profile: Cone" status line together - then change ONLY the Profile combo to Ring and shoot again without touching the widget; deliver as a left/right pair}}
+    <div class="paircap"><b>A light's goniometric diagram, in the panel that defines the light</b><span>Two profiles no preset assigns, drawn by the one control on this page that has never been switched on. What to notice in the right-hand frame: the ring lobe is drawn as a smooth grazing skirt, and the function the renderer actually evaluates for that profile is a different one — see the note above. The status line is the second thing to read, because the number beside <em>Power</em> does not change when you change the profile.</span></div>
+
+    <div class="narrow">
+      <h3>The bounce control is a teaching instrument</h3>
+      <p>The newer of the two bounce models does not count ray segments. It counts <em>scatter events</em>, separately by type, with a clean reading:</p>
+      <div class="readout">
+        <div class="row"><span class="lbl">Surface = 0</span><span class="val">emitters only</span></div>
+        <div class="row"><span class="lbl">Surface = 1</span><span class="val">direct illumination</span></div>
+        <div class="row"><span class="lbl">Medium = 1</span><span class="val">single scatter</span></div>
+        <div class="row"><span class="lbl">Medium = 0</span><span class="val">ray passes through the fog</span></div>
+        <div class="row hi"><span class="lbl">Optional total budget</span><span class="val">caps the sum, not each type</span></div>
+      </div>
+      <p style="margin-top:26px">Being able to set surfaces to zero and mediums to one, and see exactly the single-scatter term and nothing else, is what makes a light-transport bug findable. The legacy single-counter model is still selectable, and the two disagree about what "two bounces" means — which is worth knowing before comparing anyone's numbers to anyone else's.</p>
+    </div>
+
+    <div class="tw"><table>
+      <thead><tr><th>Counting and the film</th><th>What is implemented</th><th>Catalogue grade</th></tr></thead>
+      <tbody>
+        <tr><td>Bounce cap ladder (default)</td><td>Max Surface and Max Medium as independent scatter-<em>event</em> counts, plus an optional total budget. The loop bound is the sum of the two caps, or the total when the budget is on; the per-type caps still apply inside it, so the budget limits the sum without relaxing either type</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>Legacy bounce mode</td><td>Restores the old single cumulative counter, in which the camera ray is bounce 0 and volume single-scatter appears one step early. Kept selectable precisely so the two definitions can be compared rather than confused</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>NaN/Inf splat guard</td><td>Eight guards in the megakernel. Six discard a contribution before it can be added — the splat writer itself, the light-to-camera connection from a surface vertex and the one from a medium vertex, the light-to-aperture connection, the interior-connection loop, and next-event estimation. The other two zero a whole eye-path result instead, once where the path returns and once before it is accumulated. The comment calls it preventing pixel poisoning, which is exactly right: one non-finite splat into an accumulation buffer is permanent</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>Progressive accumulation</td><td>An <span class="mono">RGBA32F</span> accumulation image driven by a frame counter, with every image-changing control setting a reset flag. The reset <em>clears</em> the texture rather than restarting the average, and the source says why: light-tracer splats <b>add</b> to the accumulator instead of replacing it, so a stale splat would otherwise survive a parameter change it contradicts</td><td><span class="st st-a">measured</span></td></tr>
+      </tbody>
+    </table></div>
+
+    <figure>
+      {{VIDEO:Counting scatter events | Preset 48. New bounce model. Set Medium = 0, Surface = 0 and hold 2 s — emitters only. Step Surface 0 → 1 → 2 → 3, holding 2 s each. Return Surface to 1, then step Medium 0 → 1 → 2 → 3, holding 2 s each. Keep the two counters on screen. | The surface ladder adds a bounce of room light per step and saturates quickly; the medium ladder adds airlight and keeps changing the image far longer. Single-scatter — Surface 1, Medium 1 — is the frame every caustic comparison on this site is made in.}}
+    </figure>
+  </div>
+</section>
+
+<!-- ================= GAPS ================= -->
+<section id="gaps" style="--secc:var(--l680)" data-nav="The gaps">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">08 — Named, not cropped</p>
+      <h2>What is wrong with the engine, in the same table as what is right</h2>
+      <p class="lead">Everything on this page above the line was built; this is the part that is not finished, and the single most consequential item comes first because it is a bias source and the rest are not.</p>
+      <p><b>The eye path has no Russian roulette.</b> The one roulette block in the megakernel is inside the light subpath. The eye path terminates on the bounce ladder alone, and the estimator is bounded instead by a hard clamp: <span class="mono">radiance = min(radiance, vec3(1000.0))</span>, with further clamping inside the light-tracer splat. That clamp is a bias with no counterpart in any of the CPU integrators, which declare their bias and measure it. Its effect on any image here has never been measured — so a GPU frame used as a reference is, strictly, a reference with an unquantified ceiling on it.</p>
+    </div>
+
+    <div class="tw"><table>
+      <thead><tr><th>Gap</th><th>What it costs</th><th>How it is known</th></tr></thead>
+      <tbody>
+        <tr class="key"><td>No eye-path RR</td><td>A firefly clamp at 1000 stands in for it. Biased, and the bias is unmeasured</td><td>One roulette block, in the light path only; clamp at <span class="mono">pathTrace.comp:2372</span></td></tr>
+        <tr><td>Tonemap combo</td><td>None / Reinhard / ACES is offered; the shader hardcodes Reinhard and gamma 2.2. <b>ACES is unreachable</b></td><td><span class="mono">tonemapMode</span> has exactly two references: its declaration and the combo</td></tr>
+        <tr><td>Transmittance combo</td><td>Four methods offered, one implemented; the other three draw a red border but the control still moves</td><td>The variable is a function-local static, never persisted or read</td></tr>
+        <tr><td>Light subpath has no albedo</td><td>In light-tracing and BDPT modes, <b>a coloured mirror reflects white</b></td><td>Known, unfixed, in the triage document</td></tr>
+        <tr><td>Volume NEE for Mie / Rayleigh</td><td>Those two phase functions are noisier by construction</td><td>Explicit gate in the volume NEE condition, with the reason in-comment</td></tr>
+        <tr><td>Heterogeneous shadow transmittance</td><td>Beer–Lambert per segment does not integrate a varying density along a shadow ray</td><td>Read from the transmittance routine</td></tr>
+        <tr><td>Write-only controls</td><td>A dolly debug overlay, a debug-overlays menu item and a furnace-test log toggle are set and never read</td><td>Two references each: the declaration and the widget</td></tr>
+        <tr><td>Fog box over 22×14×22</td><td>The GPU path tracer renders pure black</td><td>Scale-dependent, unresolved; the limit is documented and respected</td></tr>
+        <tr><td>Preset 9 and preset 45</td><td>Menu entries that dispatch nothing</td><td>The dispatch skips 9 between its two ranges; 45 exists nowhere</td></tr>
+        <tr><td>No denoiser, no TAA</td><td>Blur is temporal EMA plus a spatial Gaussian; that is all</td><td>No SVGF, OIDN or à-trous anywhere. The panel itself says "[No backend]"</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="narrow">
+      <p class="note"><b>Absent by choice, in the same list.</b> A denoiser would undermine the argument this whole project makes. Every comparison here is a statement about where noise comes from and which estimator has less of it, and a denoiser makes two estimators with very different tails look identical. The temporal EMA and spatial Gaussian are labelled blur, not denoise, for the same reason.</p>
+
+      <h3>One more thing the harness cannot see</h3>
+      <p>A single preset sets a focal length, and until it was fixed that value leaked: load that scene, then any other, and the rest of the session rendered at a 30% wider field with nothing on screen saying so. The byte-identity regression harness — eight films, two resolutions, a feature off must change nothing — is <b>structurally blind to that entire class of bug</b>, because every headless render launches a fresh process and so never loads two presets in sequence.</p>
+      <p>That is the most useful thing in this section. A validation apparatus has a shape, and the shape is a claim about what it cannot catch. Anything a preset writes and no preset resets is invisible to this one.</p>
+    </div>
+  </div>
+</section>
+
+{{SECTION:_foot.html}}

@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="./../../../portfolio-lab-frame.js"></script><script defer src="./../../../portfolio-document-frame.js"></script><script defer src="./../../../portfolio-media.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>noita_gish Mechanics Relationship Map</title>
+<style>
+  :root {
+    --ink: #171a1f;
+    --muted: #5e6470;
+    --line: #d8dce1;
+    --paper: #f5f6f4;
+    --panel: #ffffff;
+    --mpm: #4067b1;
+    --sph: #0f8a84;
+    --air: #b06125;
+    --field: #6a7f32;
+    --heat: #b43d32;
+    --sdf: #6f6b74;
+    --debug: #4a7a9f;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    color: var(--ink);
+    background: var(--paper);
+    font: 14px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  main {
+    width: min(1220px, calc(100% - 40px));
+    margin: 0 auto;
+    padding: 28px 0 56px;
+  }
+  header {
+    display: grid;
+    grid-template-columns: 1.35fr 0.65fr;
+    gap: 24px;
+    align-items: end;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 18px;
+  }
+  h1 { margin: 0 0 8px; font-size: clamp(30px, 4vw, 48px); line-height: 1.05; letter-spacing: 0; }
+  h2 { margin: 36px 0 12px; font-size: 21px; line-height: 1.2; }
+  h3 { margin: 0 0 8px; font-size: 15px; line-height: 1.25; }
+  p { margin: 0 0 10px; }
+  a { color: #2454a6; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .lede { max-width: 760px; color: var(--muted); font-size: 16px; }
+  .meta {
+    color: var(--muted);
+    font-size: 12px;
+    text-align: right;
+  }
+  .toc {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+  }
+  .toc a, .tag {
+    display: inline-flex;
+    align-items: center;
+    min-height: 28px;
+    padding: 4px 9px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--panel);
+    color: #2d333b;
+    font-size: 12px;
+    font-weight: 650;
+  }
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 18px;
+  }
+  .grid-2 { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(330px, 0.9fr); gap: 18px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+  .atlas { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+  .mini {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #fbfbfa;
+    padding: 12px;
+  }
+  .mini p { color: var(--muted); font-size: 12px; margin: 0; }
+  .mini strong { display: block; margin-bottom: 4px; }
+  .colorbar { width: 100%; height: 6px; border-radius: 999px; margin: 0 0 9px; background: #999; }
+  .mpm { background: var(--mpm); }
+  .sph { background: var(--sph); }
+  .air { background: var(--air); }
+  .field { background: var(--field); }
+  .heat { background: var(--heat); }
+  .sdf { background: var(--sdf); }
+  .debug { background: var(--debug); }
+  svg { display: block; width: 100%; height: auto; }
+  .caption { color: var(--muted); font-size: 12px; margin-top: 10px; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  th, td {
+    padding: 10px 11px;
+    text-align: left;
+    vertical-align: top;
+    border-bottom: 1px solid #e9ecef;
+    font-size: 13px;
+  }
+  th {
+    color: #4f5662;
+    background: #eef1f1;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  tr:last-child td { border-bottom: 0; }
+  code {
+    padding: 1px 5px;
+    border-radius: 4px;
+    background: #eceff1;
+    font-family: ui-monospace, "SF Mono", Consolas, monospace;
+    font-size: 12px;
+  }
+  .callout {
+    border-left: 4px solid var(--field);
+    background: #fbfbf2;
+    padding: 11px 13px;
+    border-radius: 6px;
+    color: #343820;
+  }
+  .callout.warn { border-left-color: var(--heat); background: #fff4f1; color: #3d2420; }
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .legend .tag { gap: 6px; }
+  .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    background: currentColor;
+  }
+  @media (max-width: 900px) {
+    main { width: min(100% - 24px, 1220px); }
+    header, .grid-2, .grid-3, .atlas { grid-template-columns: 1fr; }
+    .meta { text-align: left; }
+  }
+</style>
+  <link rel="stylesheet" href="assets/docs-dark.css">
+<style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head>
+<body><style>.portfolio-document-return{position:relative;z-index:100;display:flex;flex-wrap:wrap;gap:10px;padding:16px 24px;background:#111d25;border-bottom:1px solid #b3ceb74d;font:12px/1.5 Arial,sans-serif}.portfolio-document-return a{color:#cbded2;text-decoration:none;padding:8px 12px;border:1px solid #b3ceb733;border-radius:8px;transition:color .5s,box-shadow .5s,border-color .5s}.portfolio-document-return a:hover{color:#fff;border-color:#d9c18488;box-shadow:0 0 16px #d9c18422}@media(prefers-reduced-motion:reduce){.portfolio-document-return a{transition:none}}</style><link rel="stylesheet" href="./../../../portfolio-controls.css"><aside class="portfolio-document-return"><a href="./../index.html#html-library">← Crucible2.5D brochure</a><a href="./index.html">Document library</a><a href="./../../../index.html">← Back to portfolio</a><a href="mechanics_relationships.html.txt" download>Original HTML ↓</a></aside><aside class="portfolio-document-return" style="display:block"><strong>Current scope note.</strong> This is a retained source guide. Contact Heat v2 does not establish exact whole-scene energy conservation; the fracture length scales with grid spacing, so resolution independence is not established; Thermo Metal implements heat-treatment memory rather than calibrated annealing. <a href="./../technical/model-audit.html">Read the current model audit →</a></aside>
+<main>
+  <header>
+    <div>
+      <h1>Mechanics Relationship Map</h1>
+      <p class="lede">A readable map of the simulation systems, how they exchange state, and which mechanics are artistic approximations versus closer physical models.</p>
+      <nav class="toc">
+        <a href="#overview">Overview</a>
+        <a href="#frame">Frame Loop</a>
+        <a href="#atlas">Mechanics Atlas</a>
+        <a href="#relationships">Coupling Matrix</a>
+        <a href="#ferro">Ferrofluid Lens</a>
+        <a href="#thermal">Thermal Lens</a>
+        <a href="#debugging">Debug Views</a>
+      </nav>
+    </div>
+    <div class="meta">
+      <p><strong>Companion pages</strong><br><a href="mechanics_status.html">Mechanics Status Report</a><br><a href="explosive_lab.html">The Explosive Lab</a><br><a href="solver_internals.html">Solver Internals</a><br><a href="evolution.html">Why This Version</a></p>
+      <p>Checkpoint: <code>5110b65</code><br>Updated: 2026-05-01</p>
+    </div>
+  </header>
+
+  <section id="overview">
+    <h2>System Overview</h2>
+    <div class="panel">
+      <svg viewBox="0 0 1120 560" role="img" aria-label="Solver and field relationship graph">
+        <defs>
+          <marker id="figure-1-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#56616f"></path>
+          </marker>
+          <style>
+            .node { fill: #fff; stroke: #b8bec5; stroke-width: 1.5; }
+            .title { font: 700 17px system-ui, sans-serif; fill: #171a1f; }
+            .small { font: 12px system-ui, sans-serif; fill: #4d5560; }
+            .edge { fill: none; stroke: #56616f; stroke-width: 2; marker-end: url(#figure-1-arrow); }
+            .soft { stroke-dasharray: 6 5; opacity: 0.8; }
+            .mpm-stroke { stroke: #4067b1; }
+            .sph-stroke { stroke: #0f8a84; }
+            .air-stroke { stroke: #b06125; }
+            .field-stroke { stroke: #6a7f32; }
+            .heat-stroke { stroke: #b43d32; }
+          </style>
+        </defs>
+        <rect x="20" y="20" width="1080" height="520" rx="10" fill="#f8faf8" stroke="#d8dce1"></rect>
+
+        <rect class="node" x="65" y="70" width="190" height="92" rx="8"></rect>
+        <text class="title" x="88" y="105">Creation + Scenes</text>
+        <text class="small" x="88" y="130">material params, batches</text>
+        <text class="small" x="88" y="148">test scenes, cursor tools</text>
+
+        <rect class="node mpm-stroke" x="395" y="70" width="210" height="105" rx="8"></rect>
+        <text class="title" x="425" y="106">MPM Particles</text>
+        <text class="small" x="425" y="131">solids, ferro, charged, bio</text>
+        <text class="small" x="425" y="149">P2G stress, G2P forces</text>
+
+        <rect class="node sph-stroke" x="395" y="255" width="210" height="96" rx="8"></rect>
+        <text class="title" x="432" y="291">SPH Fluids</text>
+        <text class="small" x="432" y="316">density, pressure, viscosity</text>
+        <text class="small" x="432" y="334">CSF surface tension</text>
+
+        <rect class="node sdf-stroke" x="65" y="300" width="190" height="94" rx="8" style="stroke:#6f6b74"></rect>
+        <text class="title" x="108" y="336">SDF World</text>
+        <text class="small" x="108" y="361">rigid collision, heat</text>
+        <text class="small" x="108" y="379">magnetic SDF sources</text>
+
+        <rect class="node air-stroke" x="835" y="70" width="215" height="112" rx="8"></rect>
+        <text class="title" x="874" y="106">Eulerian Air</text>
+        <text class="small" x="874" y="131">temperature, smoke, vapor</text>
+        <text class="small" x="874" y="149">airtight pressure, velocity</text>
+        <text class="small" x="874" y="167">bio + automata fields</text>
+
+        <rect class="node field-stroke" x="830" y="255" width="225" height="118" rx="8"></rect>
+        <text class="title" x="865" y="291">Field Solvers</text>
+        <text class="small" x="865" y="316">magnetic Poisson</text>
+        <text class="small" x="865" y="334">electrostatic Poisson</text>
+        <text class="small" x="865" y="352">SDF, airtight masks</text>
+
+        <rect class="node" x="395" y="425" width="210" height="74" rx="8"></rect>
+        <text class="title" x="443" y="457">Render + UI</text>
+        <text class="small" x="443" y="481">debug views, overlays</text>
+
+        <path class="edge mpm-stroke" d="M255 116 C310 116 335 118 395 121"></path>
+        <path class="edge sdf-stroke" d="M255 345 C320 320 350 285 395 259" style="stroke:#6f6b74"></path>
+        <path class="edge heat-stroke" d="M605 116 C690 105 750 104 835 119"></path>
+        <path class="edge air-stroke" d="M835 154 C735 183 702 196 604 158"></path>
+        <path class="edge field-stroke" d="M605 145 C720 188 770 231 830 291"></path>
+        <path class="edge field-stroke" d="M830 318 C740 276 678 224 604 164"></path>
+        <path class="edge sph-stroke" d="M500 175 L500 255"></path>
+        <path class="edge sph-stroke soft" d="M605 303 C705 291 748 291 830 306"></path>
+        <path class="edge air-stroke soft" d="M835 160 C735 246 694 272 605 299"></path>
+        <path class="edge" d="M500 351 L500 425"></path>
+        <path class="edge" d="M942 373 C852 444 719 460 605 462"></path>
+
+        <text class="small" x="640" y="94">heat, vapor, smoke</text>
+        <text class="small" x="640" y="177">air temp, pressure, bio drive</text>
+        <text class="small" x="668" y="260">charge/M raster inputs</text>
+        <text class="small" x="646" y="326">field force outputs</text>
+        <text class="small" x="284" y="316">collision + SDF heat</text>
+      </svg>
+      <p class="caption">Solid arrows are high-confidence coupling paths. Dashed arrows are softer or more approximate couplings that are useful visually but not fully physical.</p>
+    </div>
+  </section>
+
+  <section id="frame">
+    <h2>Frame Loop</h2>
+    <div class="grid-2">
+      <div class="panel">
+        <!-- Frame-loop schematic, redrawn 2026-09-07 in the figure kit
+             (docs/assets/fig-frame-loop.svg carries the kit rules). The
+             previous figure is preserved directly below, commented out,
+             until this one is confirmed. -->
+        <figure class="schem-fig">
+          <div class="schem">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img"
+               aria-label="The per-frame loop: particles rasterise state into grids, the magnetic and electrostatic Poisson solves run, MPM reads the field back at g2p, post force passes and SPH follow, the Eulerian air solve injects from particles and drags them, then render and UI close the frame.">
+          <defs>
+            <marker id="figure-2-flY" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#FFD264"/></marker>
+            <marker id="figure-2-flB" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#78C8FF"/></marker>
+            <marker id="figure-2-flG" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#DDE3E0" fill-opacity="0.45"/></marker>
+          </defs>
+          <g font-family="ui-monospace, 'Cascadia Mono', Consolas, monospace" font-size="12" fill="#DDE3E0" stroke-width="1.5">
+
+            <!-- in-figure legend -->
+            <rect x="16" y="21" width="18" height="2" fill="#FFD264" stroke="none"/>
+            <text x="40" y="26" fill-opacity="0.75">grid / field state</text>
+            <rect x="176" y="21" width="18" height="2" fill="#78C8FF" stroke="none"/>
+            <text x="200" y="26" fill-opacity="0.75">particle state</text>
+            <circle cx="317" cy="25" r="3" fill="#FF4646"/>
+            <text x="326" y="26" fill-opacity="0.75">coupling</text>
+            <text x="624" y="26" text-anchor="end" fill="#9AA3A0">dt = 1/120 s</text>
+
+            <!-- the substep region -->
+            <rect x="12" y="44" width="608" height="192" rx="6" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.25)"/>
+            <text x="20" y="230" fill-opacity="0.5">physics substep</text>
+
+            <!-- ============ grid lane (row A) ============ -->
+            <text x="20" y="66" fill="#FFD264" fill-opacity="0.85">1</text>
+            <rect x="20" y="72" width="64" height="36" rx="4" fill="rgba(255,255,255,0.06)" stroke="#FFD264" stroke-opacity="0.45"/>
+            <text x="52" y="94" text-anchor="middle">raster</text>
+            <text x="52" y="126" text-anchor="middle" fill-opacity="0.6">M, &#961;, T</text>
+
+            <text x="98" y="66" fill="#FFD264" fill-opacity="0.85">2</text>
+            <rect x="98" y="72" width="76" height="36" rx="4" fill="rgba(255,255,255,0.06)" stroke="#FFD264" stroke-opacity="0.45"/>
+            <text x="136" y="94" text-anchor="middle">Poisson</text>
+            <text x="136" y="126" text-anchor="middle" fill-opacity="0.6">&#8711;&#178;&#966;</text>
+
+            <text x="566" y="66" fill="#FFD264" fill-opacity="0.85">6</text>
+            <rect x="566" y="72" width="46" height="36" rx="4" fill="rgba(255,255,255,0.06)" stroke="#FFD264" stroke-opacity="0.45"/>
+            <text x="589" y="94" text-anchor="middle">air</text>
+
+            <!-- 1 -> 2 -->
+            <path d="M86,90 L96,90" fill="none" stroke="#DDE3E0" stroke-opacity="0.45" marker-end="url(#figure-2-flG)"/>
+
+            <!-- ============ particle lane (row B) ============ -->
+            <text x="182" y="154" fill="#78C8FF" fill-opacity="0.85">3 &#183; MPM</text>
+            <rect x="182" y="160" width="160" height="36" rx="4" fill="rgba(255,255,255,0.06)" stroke="#78C8FF" stroke-opacity="0.45"/>
+            <path d="M235,160 V196 M289,160 V196" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+            <text x="208" y="182" text-anchor="middle">p2g</text>
+            <text x="262" y="182" text-anchor="middle">grid</text>
+            <text x="315" y="182" text-anchor="middle">g2p</text>
+
+            <text x="356" y="154" fill="#78C8FF" fill-opacity="0.85">4 &#183; post forces</text>
+            <rect x="356" y="160" width="132" height="36" rx="4" fill="rgba(255,255,255,0.06)" stroke="#78C8FF" stroke-opacity="0.45"/>
+            <path d="M400,160 V196 M444,160 V196" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+            <text x="378" y="182" text-anchor="middle">qE</text>
+            <text x="422" y="182" text-anchor="middle">chain</text>
+            <text x="466" y="182" text-anchor="middle">XPBD</text>
+
+            <text x="502" y="154" fill="#78C8FF" fill-opacity="0.85">5</text>
+            <rect x="502" y="160" width="50" height="36" rx="4" fill="rgba(255,255,255,0.06)" stroke="#78C8FF" stroke-opacity="0.45"/>
+            <text x="527" y="182" text-anchor="middle">SPH</text>
+
+            <!-- 3 -> 4 -> 5 -->
+            <path d="M344,178 L354,178" fill="none" stroke="#DDE3E0" stroke-opacity="0.45" marker-end="url(#figure-2-flG)"/>
+            <path d="M490,178 L500,178" fill="none" stroke="#DDE3E0" stroke-opacity="0.45" marker-end="url(#figure-2-flG)"/>
+
+            <!-- ============ the three couplings ============ -->
+            <!-- K1  solved field read back at g2p: the thesis of the figure -->
+            <path d="M160,110 V134 H315 V152" fill="none" stroke="#FFD264" marker-end="url(#figure-2-flY)"/>
+            <text x="200" y="130" fill="#FFD264">H = &#8722;&#8711;&#966;</text>
+            <circle cx="315" cy="160" r="4" fill="none" stroke="#FFFFFF" stroke-width="2"/>
+
+            <!-- K2  particles sampled into the air grid -->
+            <path d="M540,156 V134 H578 V114" fill="none" stroke="#78C8FF" marker-end="url(#figure-2-flB)"/>
+            <circle cx="540" cy="158" r="3.2" fill="#FF4646"/>
+            <text x="546" y="150" fill="#78C8FF">inject</text>
+
+            <!-- K3  air drags the particles back -->
+            <path d="M604,112 V178 H558" fill="none" stroke="#FFD264" marker-end="url(#figure-2-flY)"/>
+            <circle cx="552" cy="178" r="3.2" fill="#FF4646"/>
+            <text x="566" y="192" fill="#FFD264">drag</text>
+
+            <!-- substep time axis -->
+            <path d="M20,216 L600,216" fill="none" stroke="#DDE3E0" stroke-opacity="0.35" stroke-width="1" marker-end="url(#figure-2-flG)"/>
+            <text x="600" y="210" text-anchor="end" fill-opacity="0.5">substep order</text>
+
+            <!-- ============ frame close: render, UI, and the return sweep ============ -->
+            <rect x="356" y="250" width="150" height="34" rx="4" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.25)"/>
+            <text x="431" y="272" text-anchor="middle">render passes</text>
+            <rect x="182" y="250" width="150" height="34" rx="4" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.25)"/>
+            <text x="257" y="272" text-anchor="middle">UI &#183; cursor params</text>
+
+            <path d="M431,238 V248" fill="none" stroke="#DDE3E0" stroke-opacity="0.45" marker-end="url(#figure-2-flG)"/>
+            <path d="M354,267 L334,267" fill="none" stroke="#DDE3E0" stroke-opacity="0.45" marker-end="url(#figure-2-flG)"/>
+            <path d="M180,267 H8 V36 H46 V68" fill="none" stroke="#DDE3E0" stroke-opacity="0.35" stroke-width="1" marker-end="url(#figure-2-flG)"/>
+            <text x="16" y="254" fill-opacity="0.5">next frame</text>
+
+            <text x="16" y="306" fill="#9AA3A0">no accumulator: one substep per rendered frame</text>
+
+            <!-- baked-in caption -->
+            <text x="320" y="348" text-anchor="middle">frame loop &#183; particles write the grids, the grids solve, the particles read back</text>
+          </g>
+          </svg>
+          </div>
+          <div class="schem-legend">
+            <span data-k="grid">grid / field state</span>
+            <span data-k="part">particle state</span>
+            <span data-k="mark">sampled coupling</span>
+          </div>
+          <figcaption>One frame, in order. Particles rasterise their state into the grids;
+          the magnetic and electrostatic Poisson solves run on those grids; MPM reads the
+          field back at g2p. Post-force passes and SPH follow, the Eulerian air solve injects
+          from particles and drags them back, then render and UI close the frame.</figcaption>
+        </figure>
+
+        <!-- PREVIOUS FIGURE (kept until the new schematic is confirmed):
+        <svg viewBox="0 0 840 360" role="img" aria-label="Per-frame simulation loop">
+          <defs>
+            <marker id="arrow2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="#4d5560"></path>
+            </marker>
+            <style>
+              .step { fill:#fff; stroke:#cbd1d6; stroke-width:1.4; }
+              .stepText { font:700 14px system-ui,sans-serif; fill:#171a1f; }
+              .subText { font:11px system-ui,sans-serif; fill:#5e6470; }
+              .arr { fill:none; stroke:#4d5560; stroke-width:2; marker-end:url(#arrow2); }
+            </style>
+          </defs>
+          <rect x="16" y="16" width="808" height="328" rx="10" fill="#fbfcfb" stroke="#d8dce1"></rect>
+          <rect class="step" x="52" y="58" width="160" height="64" rx="8"></rect>
+          <text class="stepText" x="83" y="87">Raster Inputs</text>
+          <text class="subText" x="74" y="108">mass, charge, M, heat</text>
+          <rect class="step" x="270" y="58" width="160" height="64" rx="8"></rect>
+          <text class="stepText" x="304" y="87">Field Solve</text>
+          <text class="subText" x="292" y="108">air, magnetic, electric</text>
+          <rect class="step" x="488" y="58" width="160" height="64" rx="8"></rect>
+          <text class="stepText" x="524" y="87">Particle Forces</text>
+          <text class="subText" x="507" y="108">Kelvin, Coulomb, bio</text>
+          <rect class="step" x="488" y="210" width="160" height="64" rx="8"></rect>
+          <text class="stepText" x="532" y="239">P2G Stress</text>
+          <text class="subText" x="508" y="260">constitutive + thermal</text>
+          <rect class="step" x="270" y="210" width="160" height="64" rx="8"></rect>
+          <text class="stepText" x="314" y="239">Grid Ops</text>
+          <text class="subText" x="301" y="260">collision, gravity, drag</text>
+          <rect class="step" x="52" y="210" width="160" height="64" rx="8"></rect>
+          <text class="stepText" x="92" y="239">G2P Update</text>
+          <text class="subText" x="80" y="260">advect + recolor</text>
+          <path class="arr" d="M212 90 L270 90"></path>
+          <path class="arr" d="M430 90 L488 90"></path>
+          <path class="arr" d="M568 122 C594 154 594 178 568 210"></path>
+          <path class="arr" d="M488 242 L430 242"></path>
+          <path class="arr" d="M270 242 L212 242"></path>
+          <path class="arr" d="M132 210 C88 164 88 139 132 122"></path>
+          <path class="arr" d="M648 90 C736 124 736 242 648 242"></path>
+          <text class="subText" x="666" y="165">post passes</text>
+          <text class="subText" x="666" y="181">chain, charge</text>
+        </svg>
+              -->
+</div>
+      <div class="panel">
+        <h3>Why the ordering matters</h3>
+        <p>The simulation is field-mediated. Particles do not only collide with each other; they write state into grids, the grids solve global effects, then particles read those fields back.</p>
+        <table>
+          <tr><th>Stage</th><th>Common failure when misordered</th></tr>
+          <tr><td>Raster before solve</td><td>Stale charge or magnetization makes forces lag and feel like a filter.</td></tr>
+          <tr><td>Scene-only magnetic solve</td><td>Prevents ferro from sustaining its own field after the source is gone.</td></tr>
+          <tr><td>Post force passes</td><td>Keeps SSBO binding pressure low and isolates chain/Coulomb behavior.</td></tr>
+          <tr><td>G2P coloring last</td><td>Debug views see the final force, thermal, and field state for that frame.</td></tr>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section id="atlas">
+    <h2>Mechanics Atlas</h2>
+    <div class="atlas">
+      <div class="mini"><div class="colorbar mpm"></div><strong>MPM materials</strong><p>Elastic, plastic, brittle, thermal, charged, ferro, bio, and foot-demo particles share P2G/G2P plumbing with material-specific stress branches.</p></div>
+      <div class="mini"><div class="colorbar sph"></div><strong>SPH fluids</strong><p>Neighbor-density fluids with pressure, viscosity, XSPH smoothing, CSF surface tension, thermal states, and MPM contact.</p></div>
+      <div class="mini"><div class="colorbar air"></div><strong>Eulerian air</strong><p>MAC-grid velocity, temperature, smoke, vapor, airtight pressure, blast, reaction diffusion, and continuous automata.</p></div>
+      <div class="mini"><div class="colorbar sdf"></div><strong>SDF world</strong><p>Kinematic colliders with friction, thermal diffusion, and magnetic source presets. Mostly one-way collision into particles.</p></div>
+      <div class="mini"><div class="colorbar field"></div><strong>Magnetics</strong><p>SDF/cursor/particle magnetization writes M, Poisson solve gives H, and MPM reads Kelvin force plus surface Maxwell stress.</p></div>
+      <div class="mini"><div class="colorbar field"></div><strong>Electrostatics</strong><p>Charge rasterization, Poisson solve, and post-MPM Coulomb acceleration for positive/negative ion materials.</p></div>
+      <div class="mini"><div class="colorbar heat"></div><strong>Thermal effects</strong><p>Particle heat softens, burns, melts, boils, vents vapor, pressurizes cavities, changes magnetic phases, and drives regrowth.</p></div>
+      <div class="mini"><div class="colorbar debug"></div><strong>Visualization</strong><p>Debug views expose velocity, stress, temperature, magnetic fields, charges, bio fields, automata drive, and authored layer colors.</p></div>
+    </div>
+  </section>
+
+  <section id="relationships">
+    <h2>Coupling Matrix</h2>
+          <figure class="schem-fig">
+        <div class="schem">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img"
+             aria-label="The coupling graph. MPM is the hub every other subsystem exchanges state with. Air, the magnetic solver and the electrostatic solver each close a two-way loop with it. SPH and XPBD couple in one direction. The SDF sends collision, friction and heat into particles but receives no momentum back, which is drawn as an absent return arrow.">
+        <g font-family="ui-monospace, 'Cascadia Mono', Consolas, monospace" font-size="12" fill="#DDE3E0">
+
+            <line x1="24" y1="26" x2="44" y2="26" stroke="#DDE3E0" stroke-width="1.5"/>
+            <text x="50" y="30" fill="#9AA3A0">runs every frame</text>
+            <line x1="196" y1="26" x2="216" y2="26" stroke="#9AA3A0" stroke-width="1.5" stroke-dasharray="4 3"/>
+            <text x="222" y="30" fill="#9AA3A0">does not exist yet</text>
+            <text x="516" y="30" fill="#9AA3A0" text-anchor="end">closed loop = feedback</text>
+
+            <rect x="252" y="150" width="136" height="52" rx="3" fill="none" stroke="#78C8FF" stroke-width="1.5"/>
+            <text x="320" y="172" text-anchor="middle" fill="#78C8FF">MPM particles</text>
+            <text x="320" y="189" text-anchor="middle" fill="#9AA3A0">the hub</text>
+
+            <rect x="252" y="56" width="136" height="44" rx="3" fill="none" stroke="#FFD264" stroke-width="1.5"/>
+            <text x="320" y="83" text-anchor="middle" fill="#FFD264">Eulerian air</text>
+
+            <rect x="452" y="120" width="150" height="44" rx="3" fill="none" stroke="#FFD264" stroke-width="1.5"/>
+            <text x="527" y="147" text-anchor="middle" fill="#FFD264">magnetic solve</text>
+
+            <rect x="452" y="216" width="150" height="44" rx="3" fill="none" stroke="#FFD264" stroke-width="1.5"/>
+            <text x="527" y="243" text-anchor="middle" fill="#FFD264">electrostatic</text>
+
+            <rect x="38" y="120" width="130" height="44" rx="3" fill="none" stroke="#9AA3A0" stroke-width="1.5"/>
+            <text x="103" y="147" text-anchor="middle" fill="#9AA3A0">SDF world</text>
+
+            <rect x="38" y="216" width="130" height="44" rx="3" fill="none" stroke="#78C8FF" stroke-width="1.5"/>
+            <text x="103" y="243" text-anchor="middle" fill="#78C8FF">SPH</text>
+
+            <rect x="252" y="290" width="136" height="44" rx="3" fill="none" stroke="#78C8FF" stroke-width="1.5"/>
+            <text x="320" y="317" text-anchor="middle" fill="#78C8FF">XPBD ropes</text>
+
+            <line x1="300" y1="150" x2="300" y2="106" stroke="#DDE3E0" stroke-width="1.5"/>
+            <path d="M 300 100 L 297 108 L 303 108 z" fill="#DDE3E0"/>
+            <line x1="342" y1="100" x2="342" y2="144" stroke="#DDE3E0" stroke-width="1.5"/>
+            <path d="M 342 150 L 339 142 L 345 142 z" fill="#DDE3E0"/>
+            <text x="248" y="112" fill="#9AA3A0" text-anchor="end">heat, vapor,</text>
+            <text x="248" y="127" fill="#9AA3A0" text-anchor="end">smoke</text>
+            <text x="352" y="112" fill="#9AA3A0">temp,</text>
+            <text x="352" y="127" fill="#9AA3A0">pressure</text>
+
+            <line x1="388" y1="164" x2="446" y2="150" stroke="#DDE3E0" stroke-width="1.5"/>
+            <path d="M 452 148 L 444 147 L 445 153 z" fill="#DDE3E0"/>
+            <line x1="452" y1="160" x2="394" y2="176" stroke="#DDE3E0" stroke-width="1.5"/>
+            <path d="M 388 178 L 396 179 L 395 173 z" fill="#DDE3E0"/>
+            <text x="418" y="200" text-anchor="middle" fill="#9AA3A0">M &#8644; H</text>
+
+            <line x1="388" y1="196" x2="446" y2="226" stroke="#DDE3E0" stroke-width="1.5"/>
+            <path d="M 452 229 L 445 224 L 442 229 z" fill="#DDE3E0"/>
+            <line x1="452" y1="240" x2="394" y2="208" stroke="#DDE3E0" stroke-width="1.5"/>
+            <path d="M 388 205 L 395 210 L 398 205 z" fill="#DDE3E0"/>
+            <text x="420" y="268" text-anchor="middle" fill="#9AA3A0">charge &#8644; E</text>
+
+            <line x1="168" y1="150" x2="246" y2="164" stroke="#DDE3E0" stroke-width="1.5"/>
+            <path d="M 252 165 L 244 162 L 243 168 z" fill="#DDE3E0"/>
+            <text x="190" y="182" text-anchor="middle" fill="#9AA3A0">collision, heat</text>
+
+            <line x1="246" y1="186" x2="174" y2="172" stroke="#9AA3A0" stroke-width="1.5" stroke-dasharray="4 3"/>
+            <path d="M 168 171 L 176 168 L 175 174 z" fill="#9AA3A0"/>
+            <text x="207" y="205" text-anchor="middle" fill="#9AA3A0">no momentum back</text>
+
+            <line x1="168" y1="232" x2="248" y2="196" stroke="#DDE3E0" stroke-width="1.5"/>
+            <path d="M 254 193 L 246 193 L 249 199 z" fill="#DDE3E0"/>
+            <text x="150" y="278" fill="#9AA3A0">contact heat, occupancy</text>
+
+            <line x1="320" y1="290" x2="320" y2="208" stroke="#DDE3E0" stroke-width="1.5"/>
+            <path d="M 320 202 L 317 210 L 323 210 z" fill="#DDE3E0"/>
+            <text x="308" y="250" text-anchor="end" fill="#9AA3A0">constraints, after MPM</text>
+
+            <text x="24" y="348" fill="#9AA3A0">three loops close; the SDF one does not, which is why terrain never moves</text>
+          </g>
+        </svg>
+        </div>
+        <div class="schem-legend">
+          <span data-k="grid">grid / field solver</span>
+          <span data-k="part">particle system</span>
+        </div>
+        <figcaption>Every coupling in the table below, as a graph. MPM is the hub: air, the
+        magnetic solve and the electrostatic solve each close a two-way loop with it. The SDF
+        arrow runs one way only &#8212; particles feel collision, friction and heat, but the
+        terrain never receives momentum back, drawn as the return path that does not exist.</figcaption>
+      </figure>
+
+<table>
+      <tr><th>Producer</th><th>Consumer</th><th>State exchanged</th><th>Relationship</th></tr>
+      <tr><td>MPM</td><td>Eulerian air</td><td>heat, vapor source, smoke source, velocity impulse, bio seed, automata seed</td><td>One-way per frame, then air feeds back through sampled temp/pressure/fields.</td></tr>
+      <tr><td>Eulerian air</td><td>MPM</td><td>air temperature, airtight pressure, bio gradients, automata gradients</td><td>Feedback loop for burning, cooling, puffing, regrowth, and colony steering.</td></tr>
+      <tr><td>MPM ferro and magnetic SDF</td><td>Magnetic solver</td><td>magnetization M, material occupancy, source field</td><td>Two-field solve: scene-only H for Langevin response, total H for force/stress.</td></tr>
+      <tr><td>Magnetic solver</td><td>MPM</td><td>H, |H|, grad |H|^2, occupancy-gradient cues</td><td>Kelvin body force, chain force, surface Maxwell stress, demag pressure, pseudo-thickness support.</td></tr>
+      <tr><td>MPM charged particles</td><td>Electrostatic solver</td><td>charge density</td><td>Poisson solve gives E for Coulomb post-pass. Triboelectric charge generation is still a placeholder.</td></tr>
+      <tr><td>SDF</td><td>MPM/SPH</td><td>distance, normal, friction, heat, material preset</td><td>Kinematic boundary. SDF does not receive momentum back from particles yet.</td></tr>
+      <tr><td>SPH</td><td>MPM</td><td>nearby occupancy and contact heat</td><td>Soft coupling for contact and thermal exchange, not a fully unified pressure solve.</td></tr>
+      <tr><td>XPBD</td><td>MPM particles</td><td>constraint corrections on selected particle graphs</td><td>Distance constraints for rope and future foot/cloth style rigs layered after MPM motion.</td></tr>
+    </table>
+  </section>
+
+  <section id="ferro">
+    <h2>Ferrofluid Lens</h2>
+    <div class="grid-2">
+      <div class="panel">
+        <svg viewBox="0 0 760 420" role="img" aria-label="Ferrofluid force decomposition">
+          <defs>
+            <marker id="figure-4-arrow3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="#41505c"></path>
+            </marker>
+            <style>
+              .line { fill:none; stroke:#4f6f9f; stroke-width:2; marker-end:url(#figure-4-arrow3); }
+              .fieldLine { fill:none; stroke:#7d8f45; stroke-width:2; stroke-dasharray:8 6; }
+              .label { font:12px system-ui,sans-serif; fill:#2d333b; }
+              .labelStrong { font:700 13px system-ui,sans-serif; fill:#171a1f; }
+            </style>
+          </defs>
+          <rect x="14" y="14" width="732" height="392" rx="10" fill="#fbfcfb" stroke="#d8dce1"></rect>
+          <rect x="70" y="322" width="620" height="18" rx="6" fill="#73633a"></rect>
+          <path d="M170 320 C230 260 290 258 344 300 C400 250 480 254 542 318 Z" fill="#99a0a8" stroke="#68707a" stroke-width="2"></path>
+          <path d="M330 300 C345 245 358 205 380 160 C402 205 420 246 434 300" fill="#cbd0d5" stroke="#68707a" stroke-width="2"></path>
+          <path d="M270 286 C280 236 294 212 318 183" class="fieldLine"></path>
+          <path d="M500 286 C490 236 472 212 442 183" class="fieldLine"></path>
+          <circle cx="380" cy="116" r="46" fill="#d9dce1" stroke="#8b929c" stroke-width="2"></circle>
+          <rect x="356" y="62" width="48" height="108" rx="22" fill="#7d4a3f" opacity="0.86"></rect>
+          <text class="labelStrong" x="328" y="46">cursor / scene pole</text>
+          <path class="line" d="M380 166 C380 204 380 236 380 276"></path>
+          <text class="label" x="392" y="224">Kelvin lift: grad |H|^2</text>
+          <path class="line" d="M448 272 C472 238 502 210 536 190"></path>
+          <text class="label" x="520" y="178">surface Maxwell stress</text>
+          <path class="line" d="M305 292 C270 278 238 276 202 284"></path>
+          <text class="label" x="116" y="270">Tait pressure + demag pressure</text>
+          <path class="line" d="M410 318 C455 330 500 330 550 318"></path>
+          <text class="label" x="498" y="357">pseudo-thickness bridge</text>
+        </svg>
+      </div>
+      <!-- Lifted out of the SVG above (2026-09-08): these five lines were prose,
+           not diagram labels. Inside an <svg> they could not wrap, reflow on a
+           narrow screen, or be styled by the stylesheet. -->
+      <div class="note" id="ferro-changed">
+        <strong>What changed in this checkpoint</strong>
+        <ol>
+          <li>Packed magnetic cells add pressure.</li>
+          <li>Thin connected sheets get mild bridge tension.</li>
+          <li>Cursor-follow lift keeps more source force.</li>
+          <li>Spike stress is more surface-weighted.</li>
+        </ol>
+      </div>
+
+      <div class="panel">
+        <h3>What should look physical</h3>
+        <p>Large volumes should climb when the source creates a broad upward gradient. The climb should be a column or wick, not a rigid hook. Stronger fields should increase surface corrugation and spike height before they merely fling isolated grains.</p>
+        <h3>What is still approximate</h3>
+        <p>The ferro free surface is not a full Rosensweig instability solve. It is a stack of practical terms: weakly compressible Tait pressure, Kelvin body force, field-aligned stress, demag pressure, occupancy capillarity, and pseudo-2.5D thickness.</p>
+        <div class="callout">
+          <strong>Reliability of thickness</strong>
+          <p>Thickness is reliable as an art-directable closure for a 2D slice. It helps with tunnels, columns, and fluffy/porous materials. It is not a conserved hidden-volume model, so extreme values can hide real separation or make sheets feel too sticky.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="thermal">
+    <h2>Thermal, Explosion, and Regrowth Lens</h2>
+    <div class="grid-3">
+      <div class="panel">
+        <h3>Thermal chain</h3>
+        <p>Particles carry temperature and material-specific thermal coupling. Hot particles inject heat, vapor, smoke, and sometimes combustion into air. Air temperature then cools or heats particles on the next G2P pass.</p>
+        <svg viewBox="0 0 320 170" role="img" aria-label="Thermal chain">
+          <path d="M35 92 C75 55 112 55 152 92 C190 128 228 128 282 72" fill="none" stroke="#b43d32" stroke-width="4"></path>
+          <circle cx="64" cy="102" r="22" fill="#e86a43"></circle>
+          <circle cx="150" cy="88" r="28" fill="#f2b85b"></circle>
+          <circle cx="242" cy="92" r="22" fill="#8db0c8"></circle>
+          <text x="36" y="148" font-size="12" fill="#4d5560">particle heat -> air -> cooling / pressure</text>
+        </svg>
+      </div>
+      <div class="panel">
+        <h3>Explosion chain</h3>
+        <p>Combustion and sealed-charge materials feed vapor, heat, airtight pressure, and blast impulses. The cavity mask decides whether gas can vent or builds pressure into a local explosion.</p>
+        <svg viewBox="0 0 320 170" role="img" aria-label="Explosion chain">
+          <rect x="58" y="78" width="200" height="22" rx="4" fill="#6f6b74"></rect>
+          <path d="M160 90 L160 36 M160 90 L112 48 M160 90 L210 48 M160 90 L88 106 M160 90 L232 106" stroke="#b43d32" stroke-width="4"></path>
+          <circle cx="160" cy="90" r="32" fill="none" stroke="#f2b85b" stroke-width="5"></circle>
+          <text x="45" y="148" font-size="12" fill="#4d5560">fuel + trapped vapor -> pressure impulse</text>
+        </svg>
+      </div>
+      <div class="panel">
+        <h3>Regrowth chain</h3>
+        <p>Ash now acts mostly as scaffold/support. Live regrowth seeds the bio and automata fields; ash alone no longer seeds a strong dark automata front. Recovery accelerates color restoration.</p>
+        <svg viewBox="0 0 320 170" role="img" aria-label="Regrowth chain">
+          <rect x="42" y="96" width="236" height="24" rx="8" fill="#4f4c43"></rect>
+          <path d="M64 96 C100 52 138 54 160 92 C188 54 222 52 256 96" fill="#cfd9c8" stroke="#7e9771" stroke-width="3"></path>
+          <path d="M75 116 C116 132 196 132 245 116" fill="none" stroke="#6a7f32" stroke-width="4"></path>
+          <text x="47" y="148" font-size="12" fill="#4d5560">ash scaffold + live fronts -> restored color</text>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <section id="debugging">
+    <h2>Debugging Map</h2>
+    <div class="grid-2">
+      <div class="panel">
+        <h3>Useful views when a mechanic feels wrong</h3>
+        <table>
+          <tr><th>Symptom</th><th>First view to check</th><th>Likely subsystem</th></tr>
+          <tr><td>Ferro moves like a filter over the field</td><td>Magnetic field + material occupancy</td><td>External-drive gate, scene-only field, Kelvin cap, field iterations</td></tr>
+          <tr><td>Ferro collapses to a dot</td><td>Material occupancy and stress</td><td>Overpacked cells, insufficient EOS pressure, too much self-field</td></tr>
+          <tr><td>Spikes are too weak</td><td>Magnetic field gradient + surface force toggle</td><td>Surface Maxwell stress, capillary relief, field broadness</td></tr>
+          <tr><td>Regrowth turns black</td><td>Automata colony + material color</td><td>Ash seeding too much automata, recovery too slow, crumble shadow too strong</td></tr>
+          <tr><td>Explosions feel weak or too strong</td><td>Airtight pressure + vapor</td><td>Vent mask, vapor source, combustion heat, blast pass</td></tr>
+        </table>
+      </div>
+      <div class="panel">
+        <h3>Page relationship to the in-app graph</h3>
+        <p>The pipeline graph view is excellent for frame-order debugging. This page is meant to answer a different question: when a material does something surprising, which fields and couplings could be responsible?</p>
+        <p>Use the status report for implementation truth, this page for mental model, and the in-app views for live evidence. The useful workflow is: pick the symptom, identify the field path, toggle one force family, then compare against the expected visual from the diagrams.</p>
+      </div>
+    </div>
+  </section>
+</main>
+</body>
+</html>

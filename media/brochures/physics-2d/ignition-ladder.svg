@@ -1,0 +1,76 @@
+﻿<!--
+  fig-ignition-ladder.svg  ·  noita_gish schematic kit
+  ============================================================================
+  Kit rules live in fig-frame-loop.svg. Obeyed here: viewBox 0 0 640 360, no
+  width/height, no background rect, one font size (12), stroke widths 1 and 1.5
+  only, no filters or gradients, caption at y=348.
+
+  THESIS: one linear kelvin axis, and the whole story is the empty stretch in
+  the middle of it. Everything that STARTS a reaction is crowded into 320-368 K.
+  Everything a reaction LEAVES BEHIND starts at 520 K. Nothing in the family can
+  go off without putting its neighbours over the line.
+
+  Colour is semantic, not categorical:
+    #78C8FF  ignition thresholds  - a per-particle material property
+    #FFD264  vent temperature floors - heat that lands in the air grid
+  ============================================================================
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img"
+     aria-label="One linear kelvin axis from 300 to 1550 K. A magnified inset shows the ignition window between 315 and 375 K, where the sealed charge threshold is a seeded band from 320 to 368 K and flammable fluid, firecracker, peat and reactive burn sit at 338, 340, 360 and 350 K. On the main axis the vent temperature floors are far to the right at 520, 680 and 760 K, with material temperature clamps at 1400 to 1500 K. The gap between the highest ignition threshold and the lowest vent floor is 152 K.">
+<g font-family="ui-monospace, 'Cascadia Mono', Consolas, monospace" font-size="12" fill="#DDE3E0" stroke-width="1.5">
+
+  <text x="16" y="26" fill-opacity="0.75">every number here is read from mpm_p2g.comp</text>
+  <text x="624" y="26" text-anchor="end" fill="#9AA3A0">linear in kelvin throughout</text>
+
+  <text x="90" y="44" fill-opacity="0.5">detail &#183; the ignition window, 315 to 375 K</text>
+  <rect x="90" y="52" width="480" height="118" rx="6" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+
+  <text x="322" y="62" text-anchor="middle" fill="#78C8FF">sealed charge: threshold seeded per particle</text>
+  <rect x="138.3" y="66" width="368" height="10" rx="2" fill="rgba(255,255,255,0.06)" stroke="#78C8FF" stroke-width="1"/>
+  <text x="138" y="90" text-anchor="middle" fill="#9AA3A0">320</text>
+  <text x="506" y="90" text-anchor="middle" fill="#9AA3A0">368</text>
+
+  <line x1="100" y1="124" x2="560" y2="124" stroke="#DDE3E0" stroke-width="1" stroke-opacity="0.35"/>
+
+  <line x1="368.3" y1="124" x2="368.3" y2="102" stroke="#78C8FF" stroke-width="1"/>
+  <text x="368" y="98" text-anchor="middle">reactive burn 350 K</text>
+
+  <line x1="291.7" y1="124" x2="291.7" y2="119" stroke="#78C8FF" stroke-width="1"/>
+  <text x="292" y="112" text-anchor="middle">firecracker 340 K</text>
+  <line x1="445" y1="124" x2="445" y2="119" stroke="#78C8FF" stroke-width="1"/>
+  <text x="445" y="112" text-anchor="middle">peat 360 K</text>
+
+  <line x1="276.3" y1="124" x2="276.3" y2="131" stroke="#78C8FF" stroke-width="1"/>
+  <text x="276" y="144" text-anchor="middle">flammable fluid 338 K</text>
+  <text x="292" y="162" text-anchor="middle" fill="#9AA3A0">tinder sits at 340 K too</text>
+
+  <path d="M 200 170 L 82 240" fill="none" stroke="#9AA3A0" stroke-width="1" stroke-dasharray="2 2"/>
+
+  <rect x="89" y="246" width="62.5" height="8" fill="rgba(255,255,255,0.06)" stroke="none"/>
+  <text x="120" y="240" text-anchor="middle" fill-opacity="0.6">152 K</text>
+
+  <line x1="60" y1="250" x2="580" y2="250" stroke="#DDE3E0" stroke-width="1" stroke-opacity="0.35"/>
+  <line x1="67" y1="250" x2="89" y2="250" stroke="#78C8FF"/>
+  <text x="56" y="254" text-anchor="end" fill="#9AA3A0">300 K</text>
+  <text x="586" y="254" fill="#9AA3A0">1550 K</text>
+
+  <line x1="517.6" y1="250" x2="517.6" y2="242" stroke="#DDE3E0" stroke-width="1" stroke-opacity="0.45"/>
+  <line x1="538.4" y1="250" x2="538.4" y2="242" stroke="#DDE3E0" stroke-width="1" stroke-opacity="0.45"/>
+  <line x1="559.2" y1="250" x2="559.2" y2="242" stroke="#DDE3E0" stroke-width="1" stroke-opacity="0.45"/>
+  <text x="580" y="234" text-anchor="end" fill="#9AA3A0">temp clamps 1400 to 1500 K</text>
+
+  <line x1="151.5" y1="250" x2="151.5" y2="258" stroke="#FFD264"/>
+  <line x1="218.1" y1="250" x2="218.1" y2="258" stroke="#FFD264"/>
+  <line x1="251.4" y1="250" x2="251.4" y2="258" stroke="#FFD264"/>
+
+  <path d="M 148 268 L 151.5 268 L 151.5 258" fill="none" stroke="#FFD264" stroke-width="1" stroke-opacity="0.5"/>
+  <text x="142" y="272" text-anchor="end" fill="#FFD264">reactive 520 K</text>
+  <path d="M 213 284 L 218.1 284 L 218.1 258" fill="none" stroke="#FFD264" stroke-width="1" stroke-opacity="0.5"/>
+  <text x="207" y="288" text-anchor="end" fill="#FFD264">firecracker 680 K</text>
+  <path d="M 251.4 290 L 251.4 258" fill="none" stroke="#FFD264" stroke-width="1" stroke-opacity="0.5"/>
+  <text x="251" y="304" text-anchor="middle" fill="#FFD264">sealed charge 760 K</text>
+
+  <text x="320" y="326" text-anchor="middle" fill-opacity="0.85">368 K is the highest threshold in the family; 520 K is the lowest vent floor</text>
+  <text x="320" y="348" text-anchor="middle">ignition thresholds against vent temperature floors &#183; the gap is the whole mechanism</text>
+</g>
+</svg>

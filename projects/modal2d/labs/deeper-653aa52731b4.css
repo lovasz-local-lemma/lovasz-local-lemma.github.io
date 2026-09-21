@@ -1,0 +1,94 @@
+:root{
+  --bg:#0e1116; --bg2:#141a22; --card:#161d27; --inline:#1c2530;
+  --bd:#243140; --bd2:#1c2632;
+  --tx:#c9d4e0; --dim:#8a99ab; --faint:#5e6e80; --hd:#e8eef5;
+  --ac:#34d3c4; --ac2:#4fd6e8; --acd:#1e3a3a;
+  --warm:#f0a35e; --warmd:#3a2a18; --rose:#ff8a6a; --blue:#5aa9ff;
+  --viol:#b98cff;
+  --mono:'JetBrains Mono',ui-monospace,Consolas,monospace;
+  --sans:'Inter',system-ui,'Segoe UI',Roboto,sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:var(--sans);
+  font-size:16px;line-height:1.75;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto;padding:0 26px}
+header.hero{padding:66px 0 38px;border-bottom:1px solid var(--bd2);
+  background:radial-gradient(1200px 400px at 50% -120px,rgba(185,140,255,.13),transparent 70%)}
+h1{margin:0;font-size:42px;line-height:1.15;letter-spacing:-.02em;color:var(--hd);font-weight:700}
+h1 .g{background:linear-gradient(92deg,var(--viol),var(--ac2));-webkit-background-clip:text;
+  background-clip:text;-webkit-text-fill-color:transparent}
+.tag{margin:14px 0 0;font-size:19px;color:var(--dim);max-width:780px}
+.back{display:inline-block;margin-top:20px;font-size:13.5px;color:var(--ac2);text-decoration:none;
+  border:1px solid var(--bd);padding:7px 14px;border-radius:8px}
+.back:hover{border-color:var(--ac)}
+nav.top{position:sticky;top:0;z-index:50;background:rgba(14,17,22,.92);
+  backdrop-filter:blur(10px);border-bottom:1px solid var(--bd2)}
+nav.top .wrap{display:flex;gap:4px;flex-wrap:wrap;padding-top:9px;padding-bottom:9px}
+nav.top a{font-size:13px;color:var(--dim);text-decoration:none;padding:6px 11px;border-radius:7px}
+nav.top a:hover{color:var(--ac2);background:var(--inline)}
+section{padding:52px 0;border-bottom:1px solid var(--bd2)}
+h2{font-size:29px;margin:0 0 6px;color:var(--hd);letter-spacing:-.01em}
+h2 .n{font-family:var(--mono);font-size:14px;color:var(--viol);margin-right:11px;font-weight:600}
+.lede{font-size:17.5px;color:var(--dim);max-width:830px;margin:0 0 26px}
+h3{font-size:19.5px;color:var(--hd);margin:36px 0 8px}
+p{max-width:840px}
+code{font-family:var(--mono);font-size:.88em;background:var(--inline);
+  padding:2px 6px;border-radius:4px;color:var(--ac2)}
+.eq{background:var(--bg2);border:1px solid var(--bd);border-left:3px solid var(--viol);
+  border-radius:8px;padding:15px 19px;margin:19px 0;font-family:var(--mono);
+  font-size:14.5px;color:var(--hd);overflow-x:auto;max-width:840px}
+.eq .c{color:var(--faint);font-size:12.5px;font-family:var(--sans);display:block;margin-top:7px}
+.note{background:var(--card);border:1px solid var(--bd);border-left:3px solid var(--warm);
+  border-radius:8px;padding:14px 18px;margin:20px 0;max-width:840px;color:var(--dim);font-size:15px}
+.note b{color:var(--warm)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px;margin:24px 0}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:11px;padding:19px}
+.card h4{margin:0 0 7px;font-size:15.5px;color:var(--ac2)}
+.card p{margin:0;font-size:14.5px;color:var(--dim)}
+.demo{background:var(--card);border:1px solid var(--bd);border-radius:13px;margin:26px 0;overflow:hidden}
+.demo .hd{display:flex;align-items:center;gap:11px;padding:13px 18px;
+  background:linear-gradient(180deg,rgba(185,140,255,.10),transparent);border-bottom:1px solid var(--bd)}
+.demo .hd .k{font-family:var(--mono);font-size:11px;color:var(--bg);background:var(--viol);
+  padding:2px 8px;border-radius:5px;font-weight:700}
+.demo .hd h4{margin:0;font-size:16px;color:var(--hd);flex:1}
+.demo .body{padding:18px}
+.demo .exp{font-size:14.5px;color:var(--dim);margin:0 0 15px;max-width:850px}
+.ctl{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin:14px 0 4px;font-size:13px;color:var(--dim)}
+.ctl label{display:flex;align-items:center;gap:7px}
+.ctl input[type=range]{width:130px;accent-color:var(--viol)}
+button.b{font-family:var(--sans);font-size:13px;font-weight:600;color:var(--bg);
+  background:var(--viol);border:0;padding:7px 15px;border-radius:7px;cursor:pointer}
+button.b:hover{filter:brightness(1.12)}
+button.b.alt{background:var(--inline);color:var(--ac2);border:1px solid var(--bd)}
+.seg{display:inline-flex;border:1px solid var(--bd);border-radius:8px;overflow:hidden}
+.seg button{background:var(--inline);color:var(--dim);border:0;padding:6px 12px;
+  font-size:12.5px;cursor:pointer;font-family:var(--sans)}
+.seg button.on{background:var(--viol);color:var(--bg);font-weight:600}
+canvas{display:block;max-width:100%;border-radius:8px;background:#0b0f14}
+.row{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start}
+.val{font-family:var(--mono);color:var(--ac2);font-size:12.5px}
+.hint{font-size:12.5px;color:var(--faint);margin-top:9px;font-style:italic}
+table.t{border-collapse:collapse;margin:20px 0;font-size:14.5px;width:100%;max-width:840px}
+table.t th,table.t td{border:1px solid var(--bd);padding:9px 13px;text-align:left}
+table.t th{background:var(--bg2);color:var(--ac2);font-weight:600}
+table.t td b{color:var(--hd)}
+footer{padding:40px 0 70px;color:var(--faint);font-size:13.5px}
+footer a{color:var(--ac2)}
+
+/* ---- interactive affordances ---- */
+canvas.ia{cursor:grab;transition:box-shadow .2s ease}
+canvas.ia:hover{box-shadow:0 0 0 1px rgba(185,140,255,.5),0 0 26px rgba(185,140,255,.18)}
+canvas.ia:active{cursor:grabbing;box-shadow:0 0 0 1px rgba(185,140,255,.85),0 0 32px rgba(185,140,255,.3)}
+button.b{transition:background .16s,box-shadow .16s,transform .12s,filter .16s}
+button.b:hover{box-shadow:0 0 18px rgba(185,140,255,.4);transform:translateY(-1px)}
+button.b:active{transform:translateY(0)}
+button.b.alt:hover{box-shadow:0 0 16px rgba(79,214,232,.26)}
+.ctl label{transition:color .16s;border-radius:6px;padding:2px 4px}
+.ctl label:hover{color:var(--ac2)}
+.ctl input[type=range]{transition:filter .16s}
+.ctl input[type=range]:hover{filter:brightness(1.28) saturate(1.2)}
+.ctl input[type=checkbox]{accent-color:var(--viol);cursor:pointer}
+.seg button:hover{background:rgba(185,140,255,.18);color:var(--hd)}
+table.t tr{transition:background .15s}
+table.t tbody tr:hover,table.t tr:hover{background:rgba(185,140,255,.06)}

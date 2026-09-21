@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="./../../../portfolio-lab-frame.js"></script><script defer src="./../../../portfolio-document-frame.js"></script><script defer src="./../../../portfolio-media.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Modal Synthesis — Project Structure</title>
+<style>
+  
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{--bg:#0a0a0f;--glass:rgba(255,255,255,0.05);--glass-border:rgba(255,255,255,0.1);--text:#e0e0e8;--dim:#8888a0;--accent:#4ecdc4;--accent2:#ff6b6b;--accent3:#a78bfa;--warn:#f0c040;--glow:rgba(78,205,196,0.25)}
+  body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.7;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 30% 30%,rgba(78,205,196,0.07) 0%,transparent 50%),radial-gradient(ellipse at 70% 70%,rgba(167,139,250,0.05) 0%,transparent 50%);z-index:-1}
+  .container{max-width:1000px;margin:0 auto;padding:2rem}
+  .card{background:var(--glass);border:1px solid var(--glass-border);border-radius:16px;padding:2rem;margin:1.5rem 0;backdrop-filter:blur(20px);transition:transform .3s,box-shadow .3s}
+  .card:hover{transform:translateY(-2px);box-shadow:0 8px 32px var(--glow)}
+  .hero{text-align:center;padding:3rem 0 2rem}
+  .hero h1{font-size:2.8rem;font-weight:900;background:linear-gradient(135deg,var(--accent),var(--accent3));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .hero .sub{color:var(--dim);margin-top:.4rem;font-weight:300}
+  h2{font-size:1.6rem;font-weight:700;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem}
+  h2 .icon{font-size:1.3rem}
+  h3{font-size:1.1rem;font-weight:600;margin:1rem 0 .4rem;color:var(--accent)}
+  code{font-family:'JetBrains Mono',monospace;background:rgba(255,255,255,0.08);padding:.1rem .4rem;border-radius:4px;font-size:.85em}
+  table{width:100%;border-collapse:collapse;margin:.5rem 0}
+  th{text-align:left;padding:.5rem;font-size:.8rem;color:var(--accent);border-bottom:1px solid var(--glass-border);text-transform:uppercase;letter-spacing:1px}
+  td{padding:.4rem .5rem;font-size:.85rem;border-bottom:1px solid rgba(255,255,255,0.03)}
+  .count{font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--accent);text-align:right}
+  .count.big{color:var(--accent2);font-size:1.1rem}
+  .count.warn{color:var(--warn)}
+  .note{font-size:.78rem;color:var(--dim);font-style:italic}
+  .pill{display:inline-block;padding:.15rem .5rem;border-radius:10px;font-size:.7rem;font-weight:600;margin-left:.4rem}
+  .pill.ours{background:rgba(78,205,196,0.2);color:var(--accent);border:1px solid rgba(78,205,196,0.3)}
+  .pill.dep{background:rgba(255,255,255,0.06);color:var(--dim);border:1px solid rgba(255,255,255,0.1)}
+  .pill.cmake{background:rgba(240,192,64,0.15);color:var(--warn);border:1px solid rgba(240,192,64,0.3)}
+  .pill.big{background:rgba(255,107,107,0.15);color:var(--accent2);border:1px solid rgba(255,107,107,0.3)}
+  .grid{display:grid;gap:1.5rem}
+  .grid-2{grid-template-columns:1fr 1fr}
+  .grid-3{grid-template-columns:1fr 1fr 1fr}
+  @media(max-width:768px){.grid-2,.grid-3{grid-template-columns:1fr}}
+  .stat{text-align:center;padding:1.2rem}
+  .stat .num{font-size:2.2rem;font-weight:900;background:linear-gradient(135deg,var(--accent2),var(--warn));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .stat .label{font-size:.8rem;color:var(--dim);margin-top:.2rem}
+  .bar{height:20px;border-radius:10px;overflow:hidden;background:rgba(255,255,255,0.05);margin:.3rem 0;position:relative}
+  .bar-fill{height:100%;border-radius:10px;position:relative;transition:width .5s}
+  .bar-label{position:absolute;right:6px;top:50%;transform:translateY(-50%);font-size:.65rem;font-weight:600;color:#fff}
+  .tree{font-family:'JetBrains Mono',monospace;font-size:.82rem;line-height:2}
+  .tree .dir{color:var(--accent);font-weight:600}
+  .tree .file{color:var(--text);padding-left:1.5rem}
+  .tree .desc{color:#666;font-style:italic;font-size:.75rem}
+  .sep{border:none;border-top:1px solid var(--glass-border);margin:1.5rem 0}
+  footer{text-align:center;padding:2rem 0;color:var(--dim);font-size:.8rem}
+</style>
+<style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head>
+<body><style>.portfolio-document-return{position:relative;z-index:100;display:flex;flex-wrap:wrap;gap:10px;padding:16px 24px;background:#111d25;border-bottom:1px solid #b3ceb74d;font:12px/1.5 Arial,sans-serif}.portfolio-document-return a{color:#cbded2;text-decoration:none;padding:8px 12px;border:1px solid #b3ceb733;border-radius:8px;transition:color .5s,box-shadow .5s,border-color .5s}.portfolio-document-return a:hover{color:#fff;border-color:#d9c18488;box-shadow:0 0 16px #d9c18422}@media(prefers-reduced-motion:reduce){.portfolio-document-return a{transition:none}}</style><link rel="stylesheet" href="./../../../portfolio-controls.css"><aside class="portfolio-document-return"><a href="./../index.html#html-library">← Modal2D brochure</a><a href="./index.html">Document library</a><a href="./../../../index.html">← Back to portfolio</a><a href="project-structure.html.txt" download>Original HTML ↓</a></aside>
+<div class="container">
+
+<div class="hero">
+  <h1>Project Structure</h1>
+  <p class="sub">Understanding the 1500+ projects in the solution file</p>
+</div>
+
+<!-- Summary stats -->
+<div class="grid grid-3">
+  <div class="card stat"><div class="num">1,538</div><div class="label">Total .vcxproj files</div></div>
+  <div class="card stat"><div class="num">13</div><div class="label">Our actual projects</div></div>
+  <div class="card stat"><div class="num">1,525</div><div class="label">From dependencies</div></div>
+</div>
+
+<!-- Why so many -->
+<div class="card">
+  <h2><span class="icon">❓</span> Why 1500+ Projects?</h2>
+  <p>CMake's <code>FetchContent</code> downloads each dependency's <strong>entire</strong> source tree and generates Visual Studio projects for <em>everything</em> — including examples, tests, benchmarks, and documentation targets that we never build or use.</p>
+  <p style="margin-top:.5rem">The biggest culprit is <strong>Eigen</strong> — a header-only math library that ships with 1,400+ example programs, each generating its own .vcxproj. None of these are compiled during a normal build.</p>
+</div>
+
+<!-- Breakdown -->
+<div class="card">
+  <h2><span class="icon">📊</span> Project Count Breakdown</h2>
+
+  <table>
+    <tr><th>Source</th><th>What It Is</th><th style="text-align:right">Projects</th><th>Used?</th></tr>
+    <tr>
+      <td><strong>Eigen</strong></td>
+      <td>Linear algebra (header-only). Projects are examples/tests/demos/BLAS.</td>
+      <td class="count big">1,462</td>
+      <td><span class="pill big">95% unused</span></td>
+    </tr>
+    <tr>
+      <td><strong>Catch2</strong></td>
+      <td>Unit test framework. 2 libs + build helpers.</td>
+      <td class="count">5</td>
+      <td><span class="pill dep">test only</span></td>
+    </tr>
+    <tr>
+      <td><strong>GLFW</strong></td>
+      <td>Window/input library. Main lib + examples.</td>
+      <td class="count">5</td>
+      <td><span class="pill ours">1 used</span></td>
+    </tr>
+    <tr>
+      <td><strong>GLAD</strong></td>
+      <td>OpenGL loader. Single lib + build targets.</td>
+      <td class="count">4</td>
+      <td><span class="pill ours">1 used</span></td>
+    </tr>
+    <tr>
+      <td><strong>PortAudio</strong></td>
+      <td>Cross-platform audio I/O. Static lib + extras.</td>
+      <td class="count">2</td>
+      <td><span class="pill ours">1 used</span></td>
+    </tr>
+    <tr>
+      <td><strong>ImGui</strong></td>
+      <td>Immediate-mode GUI. Compiled as our own static lib.</td>
+      <td class="count">0</td>
+      <td><span class="pill ours">via imgui_lib</span></td>
+    </tr>
+    <tr><td colspan="4"><hr class="sep" style="margin:.5rem 0"></td></tr>
+    <tr>
+      <td><strong>CMake meta</strong></td>
+      <td>ALL_BUILD, INSTALL, ZERO_CHECK — generated by CMake.</td>
+      <td class="count warn">47</td>
+      <td><span class="pill cmake">auto-generated</span></td>
+    </tr>
+    <tr>
+      <td><strong>Our code</strong></td>
+      <td>The actual Modal Synthesis application.</td>
+      <td class="count" style="color:var(--accent);font-size:1.2rem"><strong>13</strong></td>
+      <td><span class="pill ours">all used</span></td>
+    </tr>
+  </table>
+
+  <!-- Visual bar -->
+  <h3 style="margin-top:1.5rem">Visual proportion</h3>
+  <div class="bar" style="height:30px">
+    <div class="bar-fill" style="width:95.1%;background:linear-gradient(90deg,#ff6b6b,#ff8e8e)">
+      <span class="bar-label">Eigen 1,462 (95.1%)</span>
+    </div>
+  </div>
+  <div class="bar" style="height:30px">
+    <div class="bar-fill" style="width:3.9%;background:linear-gradient(90deg,#f0c040,#ffd060);min-width:80px">
+      <span class="bar-label">Other deps + CMake</span>
+    </div>
+  </div>
+  <div class="bar" style="height:30px">
+    <div class="bar-fill" style="width:1%;background:linear-gradient(90deg,#4ecdc4,#45b7aa);min-width:120px">
+      <span class="bar-label">Our code: 13 (0.8%)</span>
+    </div>
+  </div>
+</div>
+
+<!-- Our 13 projects -->
+<div class="card">
+  <h2><span class="icon">🎯</span> Our 13 Projects (The Ones That Matter)</h2>
+
+  <div class="grid grid-2">
+    <div>
+      <h3>Core Library</h3>
+      <div class="tree">
+        <div class="dir">libmodal/</div>
+        <div class="file"><strong>modal_lib</strong> <span class="desc">— Static library. FEM, eigensolver, synthesis, meshing. Links CUDA + Eigen.</span></div>
+      </div>
+
+      <h3 style="margin-top:1.5rem">Application</h3>
+      <div class="tree">
+        <div class="dir">modal_viewer/</div>
+        <div class="file"><strong>modal_viewer</strong> <span class="desc">— The main executable. OpenGL viewer, ImGui UI, PortAudio audio. Links modal_lib + all deps.</span></div>
+      </div>
+
+      <h3 style="margin-top:1.5rem">UI Support</h3>
+      <div class="tree">
+        <div class="file"><strong>imgui_lib</strong> <span class="desc">— Static lib wrapping Dear ImGui (docking branch) + GLFW/OpenGL3 backends.</span></div>
+      </div>
+    </div>
+
+    <div>
+      <h3>Tests (7 projects)</h3>
+      <div class="tree">
+        <div class="dir">tests/</div>
+        <div class="file">test_fem_assembly <span class="desc">— K,M matrix assembly</span></div>
+        <div class="file">test_eigensolve <span class="desc">— GPU/CPU eigensolver</span></div>
+        <div class="file">test_oscillator <span class="desc">— Modal oscillator</span></div>
+        <div class="file">test_audio_synthesis <span class="desc">— CUDA audio kernel</span></div>
+        <div class="file">test_radiation <span class="desc">— Radiation coefficients</span></div>
+        <div class="file">test_triangulator <span class="desc">— Mesh generation</span></div>
+        <div class="file">test_strike_buffer <span class="desc">— Lock-free event queue</span></div>
+      </div>
+
+      <h3 style="margin-top:1.5rem">CMake Generated (3)</h3>
+      <div class="tree">
+        <div class="file" style="color:var(--dim)">ALL_BUILD <span class="desc">— builds everything</span></div>
+        <div class="file" style="color:var(--dim)">ZERO_CHECK <span class="desc">— CMake re-configure check</span></div>
+        <div class="file" style="color:var(--dim)">INSTALL <span class="desc">— install target (unused)</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Dependencies explained -->
+<div class="card">
+  <h2><span class="icon">📦</span> Dependencies Explained</h2>
+
+  <table>
+    <tr><th>Library</th><th>Version</th><th>Role</th><th>How We Use It</th></tr>
+    <tr>
+      <td><strong>Eigen</strong></td>
+      <td>3.4+</td>
+      <td>Linear algebra</td>
+      <td>Sparse matrices (K, M), dense eigensolvers, SimplicialLDLT. <strong>Header-only</strong> — no .lib is compiled from Eigen itself.</td>
+    </tr>
+    <tr>
+      <td><strong>CUDA Toolkit</strong></td>
+      <td>12.6</td>
+      <td>GPU compute</td>
+      <td>cuSOLVER for dense eigenproblems, custom CUDA kernels for audio synthesis. Not fetched by CMake — system install.</td>
+    </tr>
+    <tr>
+      <td><strong>GLFW</strong></td>
+      <td>3.3+</td>
+      <td>Windowing</td>
+      <td>Creates the OpenGL window, handles keyboard/mouse input. Compiles to <code>glfw3.lib</code>.</td>
+    </tr>
+    <tr>
+      <td><strong>GLAD</strong></td>
+      <td>—</td>
+      <td>GL loader</td>
+      <td>Loads OpenGL 4.5 function pointers at runtime. Single C file → <code>glad.lib</code>.</td>
+    </tr>
+    <tr>
+      <td><strong>Dear ImGui</strong></td>
+      <td>docking</td>
+      <td>User interface</td>
+      <td>Toolbar, panels, mode buttons, sliders, charts. Compiled into <code>imgui_lib.lib</code> with GLFW + OpenGL3 backends.</td>
+    </tr>
+    <tr>
+      <td><strong>PortAudio</strong></td>
+      <td>—</td>
+      <td>Audio output</td>
+      <td>Real-time audio callback at 44.1kHz, 512-sample buffer. Compiles to <code>portaudio_static_x64.lib</code>.</td>
+    </tr>
+    <tr>
+      <td><strong>Triangle</strong></td>
+      <td>1.6</td>
+      <td>2D meshing</td>
+      <td>Delaunay triangulation of polygons and rings. Single C file compiled directly into <code>modal_lib</code>.</td>
+    </tr>
+    <tr>
+      <td><strong>Catch2</strong></td>
+      <td>3.x</td>
+      <td>Testing</td>
+      <td>Unit test framework. Only linked by <code>tests/</code> executables, not the main app.</td>
+    </tr>
+  </table>
+</div>
+
+<!-- Build graph -->
+<div class="card">
+  <h2><span class="icon">🔗</span> Build Dependency Graph</h2>
+  <p>What actually gets compiled and linked when you build <code>modal_viewer</code>:</p>
+
+  <div style="font-family:'JetBrains Mono',monospace;font-size:.82rem;line-height:2.2;margin-top:1rem;padding:1rem;background:rgba(0,0,0,0.3);border-radius:8px;overflow-x:auto">
+<span style="color:var(--accent);font-weight:700">modal_viewer.exe</span>
+├── <span style="color:var(--accent3)">modal_lib.lib</span> (our FEM/audio library)
+│   ├── Eigen3 <span style="color:var(--dim)">(headers only, no .lib)</span>
+│   ├── CUDA::cudart, cusolver, cublas <span style="color:var(--dim)">(system)</span>
+│   └── triangle.c <span style="color:var(--dim)">(compiled into modal_lib)</span>
+├── <span style="color:var(--accent3)">imgui_lib.lib</span> (ImGui + backends)
+├── <span style="color:var(--warn)">glfw3.lib</span> <span style="color:var(--dim)">(window/input)</span>
+├── <span style="color:var(--warn)">glad.lib</span> <span style="color:var(--dim)">(OpenGL loader)</span>
+├── <span style="color:var(--warn)">portaudio_static_x64.lib</span> <span style="color:var(--dim)">(audio I/O)</span>
+└── <span style="color:var(--dim)">Windows: opengl32.lib, kernel32.lib, user32.lib, ...</span>
+  </div>
+  <p class="note" style="margin-top:.8rem">Total: 5 static libraries linked. The 1,462 Eigen projects are never compiled — Eigen is header-only. They exist because CMake generates a project for every example in Eigen's source tree.</p>
+</div>
+
+<!-- What to ignore -->
+<div class="card">
+  <h2><span class="icon">🙈</span> What to Ignore in the Solution</h2>
+  <p>When you open <code>ModalSynth.sln</code> in Visual Studio, the Solution Explorer shows ~1500 projects. Here's what to collapse/ignore:</p>
+  <table>
+    <tr><th>Folder / Project</th><th>Action</th><th>Why</th></tr>
+    <tr><td><code>_deps/eigen-build/</code></td><td>🔽 Collapse & ignore</td><td>1,462 examples/tests/demos. Never compiled.</td></tr>
+    <tr><td><code>_deps/catch2-build/</code></td><td>🔽 Collapse</td><td>Test framework internals.</td></tr>
+    <tr><td><code>_deps/*-subbuild/</code></td><td>🔽 Collapse</td><td>CMake FetchContent download helpers.</td></tr>
+    <tr><td><code>ALL_BUILD</code></td><td>Ignore</td><td>Meta-target that builds everything.</td></tr>
+    <tr><td><code>ZERO_CHECK</code></td><td>Ignore</td><td>Triggers CMake reconfigure if CMakeLists changed.</td></tr>
+    <tr><td><code>INSTALL</code></td><td>Ignore</td><td>Install target (we don't use install).</td></tr>
+    <tr><td colspan="3"><hr class="sep" style="margin:.3rem 0"></td></tr>
+    <tr><td><code><strong>modal_viewer</strong></code></td><td>⭐ <strong>Set as Startup</strong></td><td>The main application.</td></tr>
+    <tr><td><code><strong>modal_lib</strong></code></td><td>⭐ Core library</td><td>FEM, synthesis, meshing.</td></tr>
+    <tr><td><code><strong>imgui_lib</strong></code></td><td>⭐ UI library</td><td>Dear ImGui + backends.</td></tr>
+  </table>
+</div>
+
+<!-- Quick build -->
+<div class="card">
+  <h2><span class="icon">🔨</span> Quick Build Commands</h2>
+  <p>You don't need Visual Studio to build — use the batch files:</p>
+  <div style="font-family:'JetBrains Mono',monospace;font-size:.85rem;padding:1rem;background:rgba(0,0,0,0.3);border-radius:8px;margin:.8rem 0">
+    <div><span style="color:var(--accent)">build_release.bat</span> <span style="color:var(--dim)">→ D:\Claude_modal\build\modal_viewer\Release\modal_viewer.exe</span></div>
+    <div><span style="color:var(--accent)">build_debug.bat</span> &nbsp;&nbsp;<span style="color:var(--dim)">→ D:\Claude_modal\build\modal_viewer\Debug\modal_viewer.exe</span></div>
+  </div>
+  <p class="note">These call MSBuild directly on <code>modal_viewer.vcxproj</code>, which builds only the 5 required projects (~30s). Not the 1,500+ unused ones.</p>
+</div>
+
+<footer>
+  <p>Modal Synthesis Project Structure Guide</p>
+</footer>
+
+</div>
+</body>
+</html>

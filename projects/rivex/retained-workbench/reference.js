@@ -1,0 +1,16 @@
+// A geometry reference from actual record occluders, not a replacement transport solver.
+export function createReference(canvas){
+ const gl=canvas.getContext('webgl2',{alpha:true,premultipliedAlpha:true,preserveDrawingBuffer:true});if(!gl)throw Error('Reference layer requires WebGL2');
+ const shader=(type,source)=>{const s=gl.createShader(type);gl.shaderSource(s,source);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(s));return s;};
+ const program=gl.createProgram();gl.attachShader(program,shader(gl.VERTEX_SHADER,`#version 300 es
+ void main(){vec2 p=vec2((gl_VertexID<<1)&2,gl_VertexID&2);gl_Position=vec4(p*2.-1.,0,1);}`));
+ gl.attachShader(program,shader(gl.FRAGMENT_SHADER,`#version 300 es
+ precision highp float;out vec4 outColor;uniform vec2 size;uniform vec3 eye,forward,right,up;uniform int mode,count,sphere;uniform float strength;uniform vec4 center[16],extent[16];
+ void main(){vec2 uv=(gl_FragCoord.xy/size*2.-1.)*tan(.5);uv.x*=size.x/size.y;vec3 d=normalize(forward+uv.x*right+uv.y*up),n=vec3(0);float best=1e20;
+ for(int i=0;i<16;i++){if(i>=count)break;vec3 c=center[i].xyz;float t=1e20;vec3 nn=vec3(0);
+ if(center[i].w<.5){if(sphere==0)continue;vec3 o=eye-c;float b=dot(o,d),cc=dot(o,o)-extent[i].w*extent[i].w,h=b*b-cc;if(h<0.)continue;float q=-b-sqrt(h);if(q<.01)q=-b+sqrt(h);if(q>.01){t=q;nn=normalize(eye+d*t-c);}}
+ else{vec3 inv=1./d,lo=(c-extent[i].xyz-eye)*inv,hi=(c+extent[i].xyz-eye)*inv,t0=min(lo,hi),t1=max(lo,hi);float tn=max(max(t0.x,t0.y),t0.z),tf=min(min(t1.x,t1.y),t1.z);if(tf>max(tn,.01)){t=tf;vec3 p=(eye+d*t-c)/extent[i].xyz,a=abs(p);nn=a.x>a.y&&a.x>a.z?vec3(-sign(p.x),0,0):a.y>a.z?vec3(0,-sign(p.y),0):vec3(0,0,-sign(p.z));}}
+ if(t<best){best=t;n=nn;}}
+ if(best>1e19){outColor=vec4(0);return;}vec3 p=eye+d*best,col=n*.5+.5;if(mode==1){vec3 base=abs(n.x)>.5?(n.x>0.?vec3(.55,.16,.11):vec3(.09,.4,.24)):vec3(.37,.42,.42);float diffuse=.28+.6*max(0.,dot(n,normalize(vec3(-.3,1.,.5))));col=base*diffuse;vec3 grid=abs(fract(p*4.+.5)-.5);float line=1.-smoothstep(.005,.012,min(grid.x,min(grid.y,grid.z)));col=mix(col,col*1.15,line*.35);}outColor=vec4(col*strength,strength);}`));gl.linkProgram(program);if(!gl.getProgramParameter(program,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(program));
+ return {draw(v,mode,strength,sphere){if(canvas.width!==v.width||canvas.height!==v.height){canvas.width=v.width;canvas.height=v.height;}canvas.dataset.mode=mode;gl.viewport(0,0,v.width,v.height);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);if(!mode)return;gl.useProgram(program);const u=n=>gl.getUniformLocation(program,n);gl.uniform2f(u('size'),v.width,v.height);for(const k of ['eye','forward','right','up'])gl.uniform3fv(u(k),v[k]);gl.uniform1i(u('mode'),mode);gl.uniform1i(u('count'),Math.min(16,v.occluders.length));gl.uniform1i(u('sphere'),sphere?1:0);gl.uniform1f(u('strength'),strength);const c=new Float32Array(64),e=new Float32Array(64);v.occluders.slice(0,16).forEach((o,i)=>{c.set([o[1],o[2],o[3],o[0]],i*4);e.set([o[5],o[6],o[7],o[4]],i*4);});gl.uniform4fv(u('center[0]'),c);gl.uniform4fv(u('extent[0]'),e);gl.drawArrays(gl.TRIANGLES,0,3);canvas.dataset.glerror=gl.getError();},dispose(){gl.deleteProgram(program);}};
+}

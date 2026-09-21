@@ -1,0 +1,2869 @@
+/* BalanceForge — modern dark UI */
+
+:root {
+  --bg: #0b0d12;
+  --bg-2: #11141b;
+  --bg-3: #161a23;
+  --panel: #131722;
+  --panel-2: #1b2031;
+  --line: #232838;
+  --line-2: #2c324a;
+  --text: #e6e9f2;
+  --muted: #9aa3bb;
+  --accent: #6aa9ff;
+  --accent-2: #4ee0c0;
+  --warn: #f5b769;
+  --bad: #ff6680;
+  --good: #6ce28a;
+  --shadow: 0 6px 30px rgba(0, 0, 0, 0.45);
+  --radius: 10px;
+  --radius-sm: 6px;
+}
+
+* { box-sizing: border-box; }
+
+/* Preset tags — at-a-glance technical facets of the selected preset. */
+.preset-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin: 4px 0 2px;
+  align-items: center;
+}
+.preset-tags.hidden { display: none; }
+.ptag {
+  font-size: 10px;
+  line-height: 1;
+  letter-spacing: 0.03em;
+  padding: 3px 7px;
+  border-radius: 999px;
+  border: 1px solid var(--line-2);
+  background: var(--bg-3);
+  color: var(--muted);
+  white-space: nowrap;
+}
+.ptag-opt      { color: var(--accent);   border-color: color-mix(in srgb, var(--accent) 45%, var(--line-2)); }
+.ptag-policy   { color: var(--accent-2); border-color: color-mix(in srgb, var(--accent-2) 45%, var(--line-2)); }
+.ptag-method   { color: var(--muted); }
+.ptag-cur      { color: var(--text); }
+.ptag-good     { color: var(--good);  border-color: color-mix(in srgb, var(--good) 45%, var(--line-2)); }
+.ptag-exp      { color: var(--warn);  border-color: color-mix(in srgb, var(--warn) 45%, var(--line-2)); }
+.ptag-special  { color: #bd87ff;      border-color: color-mix(in srgb, #bd87ff 45%, var(--line-2)); }
+.ptag-neutral  { color: var(--muted); }
+/* NEW badge — hot pink, filled (not just outlined) so it reads as a banner
+   rather than another technical facet, and gently pulses so a newly added
+   preset is findable while scrolling a 90-entry dropdown. */
+.ptag-new {
+  color: #14161c; background: #ff7ab8; border-color: #ff7ab8; font-weight: 700;
+  animation: ptagNewPulse 2.4s ease-in-out infinite;
+}
+@keyframes ptagNewPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 122, 184, 0.55); }
+  50%      { box-shadow: 0 0 0 4px rgba(255, 122, 184, 0); }
+}
+@media (prefers-reduced-motion: reduce) { .ptag-new { animation: none; } }
+/* CHANGED badge — amber, outlined (not filled): a preset that already existed
+   but whose behaviour or honesty changed. Deliberately quieter than NEW. */
+.ptag-updated { color: var(--warn); border-color: var(--warn); font-weight: 700; }
+
+/* ---- Selected-preset description panel (renderPresetDesc) ---------------- */
+.preset-desc {
+  margin: 4px 0 6px;
+  padding: 8px 10px;
+  background: rgba(106, 169, 255, 0.05);
+  border: 1px solid rgba(106, 169, 255, 0.15);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius-sm);
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--text);
+  /* The controls sidebar is `display:flex; flex-direction:column`, so a plain
+     block here gets flex-shrunk — measured, this panel collapsed to a single
+     17.6px line while holding 887px of text. flex:0 0 auto opts out of the
+     shrink so max-height + internal scrolling actually govern the size. */
+  flex: 0 0 auto;
+  max-height: 220px;
+  overflow-y: auto;
+  overscroll-behavior: contain;   /* don't scroll the whole sidebar at the ends */
+}
+.preset-desc.hidden { display: none; }
+/* "What's new" banner at the top of a recently added preset's description. */
+.preset-desc .pd-new {
+  display: block;
+  margin: -2px -4px 7px;
+  padding: 5px 8px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 122, 184, 0.13);
+  border-left: 3px solid #ff7ab8;
+  color: #ffd0e6;
+  font-size: 11px;
+}
+.preset-desc .pd-new b { color: #ff7ab8; letter-spacing: 0.03em; }
+.preset-desc .pd-new .pd-date { color: var(--muted); font-weight: 400; }
+/* CHANGED variant of the banner (amber) — see .ptag-updated. */
+.preset-desc .pd-upd {
+  background: rgba(245, 183, 105, 0.12);
+  border-left-color: var(--warn);
+  color: #ffe6c4;
+}
+.preset-desc .pd-upd b { color: var(--warn); }
+/* Inline highlight vocabulary — applied automatically to EVERY description by
+   highlightDescription(), so presets written before this panel existed get
+   colour-coded too (no per-preset markup needed). Mirrors the .algo-explain
+   palette so the two explainer surfaces read as one system. */
+.preset-desc .d-good { color: var(--good);  font-weight: 600; }   /* verified / it works */
+.preset-desc .d-warn { color: var(--warn);  font-weight: 600; }   /* caveat / honest limit */
+.preset-desc .d-kw   { color: #bd87ff;      font-weight: 600; }   /* method + concept terms */
+.preset-desc .d-num  { color: #4ee0c0;      font-weight: 600; }   /* measured values */
+.preset-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  margin: 2px 0 4px;
+  font-size: 9.5px;
+  letter-spacing: 0.02em;
+  opacity: 0.75;
+}
+.preset-legend span { white-space: nowrap; }
+
+/* Differentiable Lab launcher + isolated iframe overlay. */
+.diffsim-lab-btn {
+  margin-top: 8px;
+  width: 100%;
+  background: linear-gradient(100deg, rgba(189,135,255,0.16), rgba(78,224,192,0.14));
+  color: var(--text);
+  border: 1px solid color-mix(in srgb, #bd87ff 45%, var(--line-2));
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  font-size: 12.5px;
+  cursor: pointer;
+}
+.diffsim-lab-btn:hover { border-color: #bd87ff; }
+.dl-overlay {
+  position: fixed; inset: 0; z-index: 9000;
+  background: rgba(4, 6, 11, 0.72);
+  backdrop-filter: blur(3px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+}
+.dl-overlay.hidden { display: none; }
+.dl-modal {
+  position: relative;
+  width: min(860px, 96vw); height: min(920px, 92vh);
+  background: var(--bg); border: 1px solid var(--line-2);
+  border-radius: 14px; box-shadow: var(--shadow); overflow: hidden;
+}
+.dl-close {
+  position: absolute; top: 8px; right: 10px; z-index: 2;
+  width: 30px; height: 30px; line-height: 26px; text-align: center;
+  background: #1b2031; color: var(--text); border: 1px solid var(--line);
+  border-radius: 8px; font-size: 20px; cursor: pointer;
+}
+.dl-close:hover { border-color: var(--bad); color: var(--bad); }
+.dl-frame { width: 100%; height: 100%; border: 0; background: var(--bg); }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: radial-gradient(circle at 30% -10%, #1a2238 0%, #0b0d12 55%) fixed;
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "SF Pro Display", "Inter",
+               "Helvetica Neue", Arial, sans-serif;
+  font-size: 13px;
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+/* ---------- Top bar ---------- */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--line);
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
+  height: 52px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.logo-dot {
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  background: conic-gradient(from 90deg, var(--accent), var(--accent-2), var(--accent));
+  box-shadow: 0 0 14px var(--accent);
+}
+
+.brand-name {
+  flex-shrink: 0;
+  white-space: nowrap;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  font-size: 15px;
+}
+.brand-accent { color: var(--accent); }
+
+.brand-tag {
+  margin-left: 10px;
+  color: var(--muted);
+  font-size: 12px;
+  border-left: 1px solid var(--line-2);
+  padding-left: 10px;
+  min-width: 0;
+  max-width: 280px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Keep control/status space available on laptop-width toolbars. */
+@media (max-width: 1600px) {
+  .brand-tag { display: none; }
+}
+
+/* WASM-active visual indicator.
+ *
+ * We toggle the `.wasm-on` class on document.body when the user
+ * flips the "Use WASM NEAT eval (C++)" checkbox. The reasoning for
+ * giving this a prominent visible signal:
+ *   - The two paths (JS vs WASM) produce numerically identical
+ *     output (modulo IEEE-754 rounding), so the user has no way to
+ *     tell from the simulation alone which engine is running.
+ *   - The interview pitch is "I wrote a C++ port and dispatched
+ *     through WASM" -- the toggle being lit is the proof that's
+ *     actually happening, not just sitting in the build.
+ *
+ * Effect: the "Forge" half of the brand turns amber and gains a
+ * soft pulsing glow, and a small "C++ · WASM" pill badge appears
+ * inline. Subtle enough to live in the topbar without competing with
+ * the status indicator, obvious enough to notice. */
+body.wasm-on .brand-accent {
+  color: var(--warn);
+  text-shadow: 0 0 10px rgba(245, 183, 105, 0.7),
+               0 0 22px rgba(245, 183, 105, 0.35);
+  animation: wasmPulse 2.4s ease-in-out infinite;
+}
+@keyframes wasmPulse {
+  0%, 100% { text-shadow: 0 0 10px rgba(245, 183, 105, 0.7),
+                          0 0 22px rgba(245, 183, 105, 0.35); }
+  50%      { text-shadow: 0 0 14px rgba(245, 183, 105, 0.95),
+                          0 0 30px rgba(245, 183, 105, 0.55); }
+}
+/* Small inline "C++ · WASM" badge that sits right after the brand
+ * name. Hidden by default; revealed via the `.wasm-on` body class so
+ * it disappears the moment the toggle flips off. */
+.wasm-badge {
+  display: none;
+  margin-left: 8px;
+  padding: 2px 7px;
+  border: 1px solid rgba(245, 183, 105, 0.45);
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.6px;
+  color: var(--warn);
+  background: rgba(245, 183, 105, 0.08);
+  box-shadow: 0 0 8px rgba(245, 183, 105, 0.25) inset;
+}
+body.wasm-on .wasm-badge { display: inline-block; }
+
+/* WASM applicability signal (#2): gold-glow the "Use WASM" row when a CNN policy
+ * is selected (where the WASM forward pass is a real win), dim it otherwise so it
+ * reads as "not needed here" without being disabled. Toggled by refreshAlgoUI. */
+.wasm-applicable {
+  border-radius: 5px;
+  padding: 2px 4px;
+  background: rgba(245, 183, 105, 0.10);
+  box-shadow: 0 0 9px rgba(245, 183, 105, 0.35);
+  transition: background 0.2s, box-shadow 0.2s, opacity 0.2s;
+}
+.wasm-applicable label { color: var(--warn); }
+.wasm-dimmed {
+  opacity: 0.42;
+  transition: opacity 0.2s;
+}
+
+/* Big status indicator centered in the topbar between brand + actions.
+ * Glows when training/testing is active so the user can tell at a glance
+ * whether something is happening, even when long synchronous work (e.g.
+ * CMA-ES Jacobi at high CNN resolution) freezes the rest of the UI. */
+.topbar-status {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  min-width: 0;
+}
+.status-big {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: var(--muted);
+  text-transform: uppercase;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", sans-serif;
+  transition: color 200ms ease;
+  line-height: 1;
+}
+.status-big.training {
+  color: var(--good);
+  text-shadow: 0 0 12px rgba(108, 226, 138, 0.85), 0 0 24px rgba(108, 226, 138, 0.4);
+  animation: pulse-text 1.4s infinite ease-in-out;
+}
+.status-big.testing {
+  color: var(--accent-2);
+  text-shadow: 0 0 12px rgba(78, 224, 192, 0.85), 0 0 24px rgba(78, 224, 192, 0.4);
+  animation: pulse-text 1.4s infinite ease-in-out;
+}
+.status-big.paused {
+  color: var(--warn);
+  text-shadow: 0 0 8px rgba(245, 183, 105, 0.6);
+}
+.status-big.stopped {
+  color: var(--accent);
+  text-shadow: 0 0 8px rgba(106, 169, 255, 0.6);
+}
+.status-detail {
+  font-size: 10.5px;
+  color: var(--muted);
+  margin-top: 4px;
+  letter-spacing: 0.4px;
+  font-variant-numeric: tabular-nums;
+  /* Reserve a fixed line height so the badge doesn't reflow when text changes. */
+  height: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 320px;
+}
+@keyframes pulse-text {
+  0%, 100% {
+    text-shadow: 0 0 10px currentColor, 0 0 20px rgba(255, 255, 255, 0.15);
+  }
+  50% {
+    text-shadow: 0 0 18px currentColor, 0 0 36px rgba(255, 255, 255, 0.25);
+  }
+}
+
+.topbar-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.select, .btn, .num-input {
+  background: var(--panel-2);
+  color: var(--text);
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius-sm);
+  padding: 6px 12px;
+  font: inherit;
+  cursor: pointer;
+  transition: all 120ms ease;
+}
+
+.select { padding-right: 24px; }
+.num-input { width: 80px; cursor: text; }
+.num-input.seed-input {
+  width: 92px;
+  font-variant-numeric: tabular-nums;
+  /* Read-only display: not interactive, but still readable. The
+   * subtly-darker background tells the user "this is a value display,
+   * not an input field". */
+  cursor: default;
+  background: rgba(0, 0, 0, 0.25);
+  color: var(--muted);
+}
+.num-input.seed-input:focus { outline: none; }
+/* Compact icon-only button (e.g. seed copy). Just enough padding to
+ * keep the glyph readable without dominating the topbar. */
+.btn.btn-icon {
+  padding: 6px 8px;
+  font-size: 13px;
+  line-height: 1;
+}
+.btn.btn-icon.flash-ok {
+  background: linear-gradient(180deg, #1f4d2c, #154021);
+  border-color: var(--good);
+  color: var(--good);
+  box-shadow: 0 0 8px rgba(108, 226, 138, 0.45);
+}
+
+.btn:hover { background: var(--bg-3); border-color: var(--accent); }
+.btn:active { transform: translateY(1px); }
+
+.btn-primary {
+  background: linear-gradient(180deg, #3a78ff, #2257d6);
+  border-color: #4d8aff;
+  color: white;
+  font-weight: 600;
+  box-shadow: 0 0 20px rgba(58, 120, 255, 0.25);
+}
+.btn-primary:hover { filter: brightness(1.1); }
+
+.btn-warn {
+  background: linear-gradient(180deg, #2a1f12, #1a1208);
+  border-color: var(--warn);
+  color: var(--warn);
+}
+
+.btn-good {
+  background: linear-gradient(180deg, #14241a, #0c180e);
+  border-color: var(--good);
+  color: var(--good);
+  font-weight: 600;
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  filter: grayscale(0.5);
+}
+.btn:disabled:hover { background: var(--panel-2); border-color: var(--line-2); }
+.btn-good.active {
+  background: linear-gradient(180deg, #1f4d2c, #154021);
+  box-shadow: 0 0 20px rgba(108, 226, 138, 0.35);
+}
+/* Active state for the topbar mode buttons (Train / Test / Pause).
+ * Whichever button represents the CURRENT mode gets a colored ring
+ * + soft glow so the user always sees "I'm in Train mode right now"
+ * without having to read the sim title. Each button picks up its own
+ * accent color so the glow matches its existing palette. */
+.btn-primary.active {
+  background: linear-gradient(180deg, #2c4a7d, #1d3658);
+  box-shadow: 0 0 20px rgba(122, 158, 255, 0.45);
+  outline: 1px solid rgba(122, 158, 255, 0.7);
+  outline-offset: 1px;
+}
+.btn-good.active {
+  outline: 1px solid rgba(108, 226, 138, 0.7);
+  outline-offset: 1px;
+}
+/* Pause has no preset color variant -- just outline it when active. */
+#pauseBtn.active {
+  background: linear-gradient(180deg, #4d4022, #3b3119);
+  box-shadow: 0 0 20px rgba(245, 183, 105, 0.4);
+  outline: 1px solid rgba(245, 183, 105, 0.65);
+  outline-offset: 1px;
+}
+/* Per-slider curriculum overlay. The slider input is wrapped in a
+ * .curr-slider-wrap span so we can position decorations relative to
+ * the slider's track. Track height is 4px (set on input[type="range"]
+ * above), and the band/dot/arrow center on that track. */
+.curr-slider-wrap {
+  display: flex;
+  align-items: center;
+  position: relative;
+  width: 100%;
+  /* Match the original bare-slider's intrinsic vertical footprint so
+   * the thumb stays aligned with the row's grid baseline (otherwise
+   * wrapping the slider in a div changes vertical-align defaults and
+   * the thumb drifts a few px off the band). */
+  min-height: 14px;
+  /* Clamp the wrap's min-width to 0 so it doesn't inherit the wrapped
+   * <input type="range">'s UA default min-width (~129px) and re-
+   * expand the slider grid column past its fr share, which would
+   * squeeze the label column and force long labels to wrap. */
+  min-width: 0;
+}
+.curr-slider-wrap input[type="range"] {
+  width: 100%;
+  position: relative;
+  z-index: 2;          /* above the band */
+  background: transparent;
+}
+/* The native blue thumb is ALWAYS hidden on curriculum-able sliders
+ * — regardless of whether curriculum is on, off, or this slider has a
+ * spec applied. The purple "now" orb is rendered in its place as the
+ * visible thumb (positioned at the slider's current value, or at the
+ * curriculum-applied value when a spec is active). One unified visual
+ * across all states; no native-thumb / orb visual switch. The orb's
+ * pointer-events:none lets clicks pass through to the slider track
+ * underneath so dragging still works natively. */
+.curr-slider-wrap input[type="range"]::-webkit-slider-thumb {
+  opacity: 0;
+}
+.curr-slider-wrap input[type="range"]::-moz-range-thumb {
+  opacity: 0;
+}
+/* When a curriculum spec is active, ALSO disable interaction on the
+ * input itself — the from/to drag handles + popup are the edit
+ * surface, not the slider track. The orb visualizes the live
+ * curriculum-applied value (read-only). */
+.curr-slider-wrap.has-spec input[type="range"] {
+  pointer-events: none;
+}
+/* In has-spec mode, the native track represents the area OUTSIDE the
+ * curriculum range — tint it dim green so "everything outside the
+ * range is the wider parameter space" reads at a glance. The colored
+ * band layered on top covers the in-range section with a blue→red
+ * gradient so the selected range is clearly the highlight. */
+.curr-slider-wrap.has-spec input[type="range"]::-webkit-slider-runnable-track {
+  background: rgba(108, 226, 138, 0.30);
+}
+.curr-slider-wrap.has-spec input[type="range"]::-moz-range-track {
+  background: rgba(108, 226, 138, 0.30);
+}
+/* Re-paint the track underneath the band so the band is the dominant
+ * visual when present. The native track is shown via the band div. */
+.curr-slider-wrap input[type="range"]::-webkit-slider-runnable-track {
+  background: var(--line-2);
+  height: 4px;
+  border-radius: 4px;
+}
+.curr-slider-wrap input[type="range"]::-moz-range-track {
+  background: var(--line-2);
+  height: 4px;
+  border-radius: 4px;
+}
+/* Curriculum range band — colored line spanning the selected from→to
+ * range, sits on the slider track. Always reads blue→red across
+ * pixel space (smaller value = blue, larger value = red, since the
+ * slider track is min→max left→right). The arrow direction follows
+ * from→to, but the band's color semantics are by magnitude — so the
+ * blue dot is always at the smaller value, the red dot at the larger.
+ *
+ * The glow is tight so it visually highlights ONLY the selected
+ * range, not the whole slider; the dim green outside-range track
+ * (set on the native track itself in has-spec mode) provides the
+ * contrast surrounding the band. */
+.curr-band {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 4px;
+  border-radius: 2px;
+  pointer-events: none;
+  /* Sit ABOVE the slider input (z-index 2) so the band paints over
+   * the slider's native track in the selected range. Below the dots
+   * (z-index 4) and arrow (z-index 7) so those still float on top. */
+  z-index: 3;
+  /* Tight glow only — the previous wide outer shadow bled across the
+   * whole track and made it look like everything was glowing. Keep
+   * the inner highlight for a slight 3D feel and a small (≤3px)
+   * blue/red aura sized to the range itself. */
+  background-image: linear-gradient(to right,
+    rgba(106, 169, 255, 0.85),
+    rgba(255, 102, 128, 0.85));
+  box-shadow:
+    inset 0 0 2px rgba(255, 255, 255, 0.55),
+    0 0 3px rgba(106, 169, 255, 0.55),
+    0 0 3px rgba(255, 102, 128, 0.40);
+}
+/* From / to / now are three separate position markers. Default sizes
+ * fit "edit mode" (training is paused or not active). Compact mode
+ * for from/to is applied via the .training-mode class on the wrap.
+ * From/to are draggable handles — pointer events enabled, ew-resize
+ * cursor; `now` stays passive (it just visualizes level state). */
+.curr-from, .curr-to, .curr-now {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  transition: width 140ms ease, height 140ms ease,
+              box-shadow 140ms ease;
+}
+.curr-from, .curr-to {
+  pointer-events: auto;
+  cursor: ew-resize;
+}
+.curr-now {
+  pointer-events: none;
+}
+/* From/to dots — color is by VALUE MAGNITUDE, not by from/to identity.
+ * JS toggles .is-low (blue, smaller value) / .is-high (red, larger
+ * value) on each dot every refresh. So if the user reverses the ramp
+ * (from > to), the dot at the smaller value position is still blue
+ * and the dot at the larger value position is still red. */
+.curr-from, .curr-to {
+  width: 10px; height: 10px;
+  z-index: 4;
+}
+.curr-from.is-low, .curr-to.is-low {
+  background: #6aa9ff;
+  box-shadow: 0 0 6px rgba(106, 169, 255, 0.85);
+}
+.curr-from.is-low:hover, .curr-from.is-low.dragging,
+.curr-to.is-low:hover,   .curr-to.is-low.dragging {
+  box-shadow: 0 0 10px rgba(106, 169, 255, 1.0),
+              0 0 18px rgba(106, 169, 255, 0.4);
+  transform: translate(-50%, -50%) scale(1.15);
+}
+.curr-from.is-high, .curr-to.is-high {
+  background: #ff6680;
+  box-shadow: 0 0 6px rgba(255, 102, 128, 0.85);
+}
+.curr-from.is-high:hover, .curr-from.is-high.dragging,
+.curr-to.is-high:hover,   .curr-to.is-high.dragging {
+  box-shadow: 0 0 10px rgba(255, 102, 128, 1.0),
+              0 0 18px rgba(255, 102, 128, 0.4);
+  transform: translate(-50%, -50%) scale(1.15);
+}
+/* The pulsing purple energy orb. Always visible on every curriculum-
+ * able slider; doubles as the visible THUMB (with the native blue
+ * thumb hidden) so the user always sees a single, perfectly-centered
+ * indicator at the live value. Radial gradient gives a hot-center /
+ * cool-edge look so it reads as energy rather than a flat dot. */
+.curr-now {
+  /* Default size = comfortable thumb size. Reduced for has-spec
+   * edit mode (below) so the from/to range dots remain prominent;
+   * bumped back up in training mode so the live applied-value orb
+   * is the focal point as the curriculum advances. */
+  width: 11px; height: 11px;
+  background: radial-gradient(circle,
+    rgba(240, 220, 255, 1.0) 0%,
+    #c084fc 42%,
+    rgba(140, 80, 220, 0.85) 75%,
+    rgba(140, 80, 220, 0) 100%);
+  box-shadow: 0 0 6px rgba(192, 132, 252, 0.75),
+              0 0 14px rgba(192, 132, 252, 0.30);
+  z-index: 6;
+  border: none;
+  animation: curr-now-pulse 2.6s ease-in-out infinite;
+  /* Override the shared transform from .curr-from/to/now block so the
+   * animation can re-express it (animations override only the
+   * transform property they declare). */
+  transform-origin: center;
+}
+/* Has-spec edit mode (paused / not training): from/to dots are at
+ * range edges, orb sits at level=0 inside. Shrink the orb so the
+ * range dots remain the primary visual. */
+.curr-slider-wrap.has-spec:not(.training-mode) .curr-now {
+  width: 8px; height: 8px;
+}
+@keyframes curr-now-pulse {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+    box-shadow: 0 0 5px rgba(192, 132, 252, 0.65),
+                0 0 11px rgba(192, 132, 252, 0.22);
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.35);
+    box-shadow: 0 0 9px rgba(220, 170, 255, 0.95),
+                0 0 18px rgba(192, 132, 252, 0.55);
+  }
+}
+/* Compact (training) mode: from/to recede so the moving `now` orb is
+ * the focal point. Edit mode (default) keeps them prominent so the
+ * user can see where they\'ve set the range. */
+.curr-slider-wrap.training-mode .curr-from,
+.curr-slider-wrap.training-mode .curr-to {
+  width: 5px; height: 5px;
+  box-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
+  opacity: 0.7;
+}
+.curr-slider-wrap.training-mode .curr-now {
+  width: 9px; height: 9px;
+  /* Faster pulse during training so the live indicator visibly
+   * "energizes" while the curriculum is actively advancing. */
+  animation-duration: 1.6s;
+}
+/* Arrowhead — triangle pointing in the direction of travel (from→to),
+ * anchored at the to-end of the band so band+head together read as
+ * one continuous arrow inside the slider's track area. The arrow's
+ * color matches the dot it points TOWARD (the to-side dot). Since
+ * the slider's pixel space is min→max, the dot at the larger value
+ * is always to the right (red) and at the smaller value to the left
+ * (blue) — so .right → red, .left → blue. */
+.curr-arrowhead {
+  position: absolute;
+  top: 50%;
+  width: 8px;
+  height: 7px;
+  pointer-events: none;
+  z-index: 7;
+}
+.curr-arrowhead.right {
+  background: #ff6680;
+  filter: drop-shadow(0 0 3px rgba(255, 102, 128, 0.7));
+  transform: translate(-100%, -50%);
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
+}
+.curr-arrowhead.left {
+  background: #6aa9ff;
+  filter: drop-shadow(0 0 3px rgba(106, 169, 255, 0.7));
+  transform: translate(0, -50%);
+  clip-path: polygon(100% 0, 0 50%, 100% 100%);
+}
+.curr-toggle {
+  width: 18px;
+  height: 18px;
+  margin-left: 4px;
+  font-size: 11px;
+  font-weight: bold;
+  line-height: 1;
+  padding: 0;
+  background: var(--panel-2);
+  color: rgba(154, 163, 187, 0.5);
+  border: 1px solid var(--line-2);
+  border-radius: 3px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+/* Hide the + curriculum toggle when curriculum master is OFF. Without
+ * this, the row's grid still allocates a 22px column for the toggle,
+ * narrowing the label/slider columns versus non-curriculum-able rows
+ * — which makes curriculum-able sliders look "shifted" relative to
+ * ordinary ones in idle (non-edit) mode. The selector reads "a
+ * .curr-toggle that follows a .curr-slider-wrap which is NOT marked
+ * .curr-on" — so when JS removes .curr-on (curriculum off path), the
+ * adjacent toggle disappears entirely and the row's auto column
+ * collapses to 0. */
+.curr-slider-wrap:not(.curr-on) ~ .curr-toggle {
+  display: none;
+}
+/* (No green-glow override needed — the native thumb is hidden on
+ * every curriculum-able slider, and the purple orb stands in as the
+ * visible thumb in both idle and curriculum-edit modes.) */
+.curr-toggle:hover {
+  color: rgba(245, 183, 105, 0.9);
+  border-color: rgba(245, 183, 105, 0.5);
+}
+.curr-toggle.active {
+  background: linear-gradient(180deg, #4d3a1f, #3b2c14);
+  color: #f5b769;
+  border-color: rgba(245, 183, 105, 0.55);
+  box-shadow: 0 0 6px rgba(245, 183, 105, 0.4);
+}
+.control-row { position: relative; }
+
+/* Behavior-space panel: small dropdowns + bin slider stacked tightly above
+ * the heatmap canvas. The control rows here are flex (not the standard
+ * .control-row grid) because the panel is narrower than the left control
+ * column and the grid columns don't divide cleanly. */
+.behavior-canvas {
+  width: 100%;
+  height: 280px;
+  display: block;
+  background: rgba(11, 13, 18, 0.6);
+  border-top: 1px solid var(--line);
+}
+.behavior-controls {
+  padding: 8px 12px 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 11.5px;
+}
+.behavior-controls .bcontrol-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.behavior-controls .bcontrol-row > .control-label {
+  flex: 0 0 36px;
+  font-weight: 600;
+  color: var(--muted);
+}
+.behavior-controls .bcontrol-row > select {
+  flex: 1;
+  min-width: 0;
+  font-size: 11.5px;
+  padding: 4px 8px;
+}
+.behavior-controls .bcontrol-row > input[type="range"] {
+  flex: 1;
+  min-width: 0;
+}
+.behavior-controls .bcontrol-row > .control-value {
+  min-width: 32px;
+}
+.behavior-controls .bcontrol-row-actions {
+  justify-content: flex-end;
+  padding-top: 2px;
+}
+.behavior-controls .bcontrol-row-actions .btn {
+  font-size: 11px;
+  padding: 4px 10px;
+}
+.behavior-empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  font-style: italic;
+  font-size: 11.5px;
+  pointer-events: none;
+}
+
+
+/* Region dividers in the left control panel. The user organized the
+ * panel into three top-level regions (Model, Scene, Display). Each
+ * region's first section starts with a `.panel-region` divider that
+ * stands out from the per-section `.panel-title` headers so the user
+ * can mentally chunk the panel even when scrolling fast.
+ *
+ * Visually: full-width band with bold uppercase text, a thicker top
+ * rule, and a region-specific accent color on the left. The colors
+ * match the existing palette (blue = model/training, green = scene/
+ * world, teal = display/visualization). */
+.panel-region {
+  margin: 22px -16px 8px;
+  padding: 8px 16px 8px 20px;
+  border-top: 2px solid var(--line-2);
+  background: linear-gradient(90deg, rgba(255,255,255,0.03), transparent);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  color: var(--muted);
+  position: relative;
+}
+.panel-region::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 8px; bottom: 8px;
+  width: 4px;
+  background: var(--accent);
+  border-radius: 2px;
+}
+.panel-region.region-scene::before   { background: var(--good); }
+.panel-region.region-display::before { background: var(--accent-2); }
+.panel-region.region-core::before    { background: var(--warn); }
+
+/* Full-power-mode indicator. When body.full-power is set we stop
+ * drawing every visualization canvas to save CPU for the trainer.
+ * The user needs SOMETHING to confirm the viz is intentionally
+ * frozen (rather than the app having crashed) -- we dim the right-
+ * side panels + slap a "FULL POWER" tag on the sim viewer. */
+body.full-power .panel-sim,
+body.full-power .panel-net,
+body.full-power .panel-fitness,
+body.full-power .panel-pop,
+body.full-power .panel-algo-internals,
+body.full-power .panel-lineage,
+body.full-power .panel-behavior,
+body.full-power .panel-genome,
+body.full-power .panel-events,
+body.full-power .panel-linesearch {
+  filter: brightness(0.55) saturate(0.6);
+  position: relative;
+}
+body.full-power .panel-sim::after {
+  content: 'FULL POWER · viz frozen';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 30;
+  padding: 8px 18px;
+  background: rgba(245, 183, 105, 0.18);
+  color: var(--warn);
+  border: 1px solid var(--warn);
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  pointer-events: none;
+  filter: brightness(1.8) saturate(2);  /* lift out of the dim */
+}
+/* During an auto-peek, briefly un-dim the panels + swap the
+ * frozen-tag text so the user sees the snapshot land. The
+ * `peek-flash` class is added for ~220ms each peek. */
+body.full-power.peek-flash .panel-sim,
+body.full-power.peek-flash .panel-net,
+body.full-power.peek-flash .panel-fitness,
+body.full-power.peek-flash .panel-pop,
+body.full-power.peek-flash .panel-algo-internals,
+body.full-power.peek-flash .panel-lineage,
+body.full-power.peek-flash .panel-behavior,
+body.full-power.peek-flash .panel-genome,
+body.full-power.peek-flash .panel-events,
+body.full-power.peek-flash .panel-linesearch {
+  filter: none;
+  transition: filter 0.15s ease-in;
+}
+body.full-power.peek-flash .panel-sim::after {
+  content: 'PEEKING…';
+  background: rgba(108, 226, 138, 0.18);
+  color: var(--good);
+  border-color: var(--good);
+}
+
+/* Auto-peek progress bar. Fixed slim strip at the bottom of the
+ * viewport, just above the statusbar. The fill is animated from
+ * left to right by JS each frame; the bar glows so it reads as an
+ * "active" indicator rather than a static line. Visible only when
+ * body.full-power is set AND auto-peek is on -- we toggle the
+ * `peek-active` class from JS to switch visibility cleanly. */
+.peek-progress {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 24px;  /* sits just above the 24px statusbar */
+  height: 4px;
+  background: rgba(245, 183, 105, 0.08);
+  border-top: 1px solid rgba(245, 183, 105, 0.18);
+  border-bottom: 1px solid rgba(245, 183, 105, 0.18);
+  pointer-events: none;
+  z-index: 90;
+  display: none;  /* shown only when body.peek-active is set */
+}
+body.peek-active .peek-progress { display: block; }
+.peek-progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg,
+    rgba(245, 183, 105, 0.45),
+    rgba(245, 183, 105, 0.95) 60%,
+    rgba(255, 220, 150, 1) 100%);
+  box-shadow:
+    0 0 8px rgba(245, 183, 105, 0.7),
+    0 0 18px rgba(245, 183, 105, 0.45);
+  transition: width 0.08s linear;
+}
+.peek-progress-label {
+  position: absolute;
+  right: 12px;
+  bottom: 6px;  /* sit just above the bar */
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.6px;
+  color: var(--warn);
+  text-shadow: 0 0 6px rgba(245, 183, 105, 0.6);
+  pointer-events: none;
+}
+/* Brief brighter pulse on peek-flash, then fall back to the
+ * normal glow. Reuses the existing 220ms peek-flash window. */
+body.peek-active.peek-flash .peek-progress-fill {
+  background: linear-gradient(90deg,
+    rgba(108, 226, 138, 0.55),
+    rgba(108, 226, 138, 1));
+  box-shadow:
+    0 0 12px rgba(108, 226, 138, 0.9),
+    0 0 28px rgba(108, 226, 138, 0.6);
+}
+.panel-region .region-title {
+  color: var(--text);
+  font-size: 12px;
+}
+.panel-region .region-subtitle {
+  display: block;
+  margin-top: 2px;
+  font-size: 10px;
+  letter-spacing: 0.4px;
+  text-transform: none;
+  color: var(--muted);
+  font-weight: 400;
+}
+.panel-region .region-mode-tag {
+  /* Mode suffix on Core region title -- "(training)" / "(testing)".
+   * Slightly dimmer than the main title so the eye finds Core first
+   * and the parenthetical refines it. */
+  color: var(--muted);
+  font-weight: 400;
+  font-size: 11px;
+}
+/* The testing-mode Core region and its controls are deemphasized --
+ * the user mostly cares about training-mode settings, and the test
+ * set is there for the rare case they want different values. We dim
+ * the row but keep the controls fully interactive (no pointer-events
+ * change). */
+.panel-region.region-core-test {
+  opacity: 0.55;
+}
+.panel-region.region-core-test::before {
+  /* Same warn-colored bar as the training Core, but dimmed to match. */
+  opacity: 0.6;
+}
+.control-row.dim-test-mode .control-label,
+.control-row.dim-test-mode .control-value,
+.control-row.dim-test-mode label {
+  color: rgba(154, 163, 187, 0.65);
+}
+.control-row.dim-test-mode input[type="range"] {
+  opacity: 0.7;
+}
+.control-row.dim-test-mode input[type="checkbox"] {
+  opacity: 0.7;
+}
+
+/* Inline help button — used next to selects/inputs that benefit from a
+ * longer prose explanation than the native title=""'s tooltip can carry.
+ * Toggles a sibling .algo-explain / .control-explain block below the row. */
+.btn.btn-help {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  font-size: 12px;
+  line-height: 1;
+  font-weight: 600;
+  border-radius: 50%;
+  color: var(--muted);
+  background: transparent;
+  border-color: var(--line-2);
+}
+.btn.btn-help:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+.btn.btn-help.active {
+  color: var(--accent);
+  background: rgba(106, 169, 255, 0.12);
+  border-color: var(--accent);
+}
+/* Explainer block (algorithm description, etc.) — small leading panel
+ * with a left rule, sized to match the surrounding control rhythm. */
+.algo-explain {
+  margin: 4px 0 10px;
+  padding: 8px 10px;
+  background: rgba(106, 169, 255, 0.05);
+  border: 1px solid rgba(106, 169, 255, 0.15);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius-sm);
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--text);
+}
+.algo-explain.hidden { display: none; }
+.algo-explain strong { color: var(--accent); }
+.algo-explain .pros { color: var(--good); }
+.algo-explain .cons { color: var(--warn); }
+/* Inline keyword highlights for the richer explainers: .kw = a concept/method
+   term (violet, matches the "differentiable/gradient" family color); .num = a
+   measured value/param (teal). Both bold so they scan out of the prose. */
+.algo-explain .kw { color: #bd87ff; font-weight: 600; }
+.algo-explain .num { color: #4ee0c0; font-weight: 600; }
+/* A callout sub-heading inside an explainer (e.g. the "why it looks like that"
+   note): its own line, bold, slightly warm so it separates from the body. */
+.algo-explain .q { display: block; margin-top: 7px; font-weight: 600; color: var(--warn); }
+
+/* Differentiable-physics mode banner. Hidden unless the app has flipped
+   body.diffsim-mode (one of the exact-gradient backends is selected). Uses a
+   purple accent to match the "differentiable" preset colour family. */
+.diffsim-mode-note { display: none; }
+body.diffsim-mode .diffsim-mode-note {
+  display: block;
+  margin: 4px 0 10px;
+  padding: 8px 10px;
+  background: rgba(189, 135, 255, 0.06);
+  border: 1px solid rgba(189, 135, 255, 0.18);
+  border-left: 3px solid #bd87ff;
+  border-radius: var(--radius-sm);
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--text);
+}
+body.diffsim-mode .diffsim-mode-note strong { color: #bd87ff; }
+
+
+/* Model archive popover — multiple named saves persisted in
+ * localStorage. Anchored under the topbar Saves button. The list grows
+ * with the user's saves; we cap height + scroll so it stays usable. */
+.archive-popover {
+  position: fixed;
+  top: 60px;
+  right: 16px;
+  z-index: 1100;
+  width: 360px;
+  max-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  background: rgba(15, 18, 26, 0.97);
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 12px;
+  font-size: 12px;
+}
+.archive-popover.hidden { display: none; }
+.archive-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.archive-title {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.6px;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+.archive-save-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+.archive-save-row input {
+  flex: 1;
+  background: var(--panel-2);
+  color: var(--text);
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius-sm);
+  padding: 6px 8px;
+  font: inherit;
+  font-size: 12px;
+}
+.archive-save-row input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.archive-hint {
+  color: var(--muted);
+  font-size: 11px;
+  margin: 4px 2px 8px;
+  min-height: 14px;
+}
+/* Inline toggle row right below the archive hint, gating the
+   in-memory HoF sections. Compact so it doesn't push the list
+   down too far. */
+.archive-inline-toggle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0 2px 6px;
+  color: var(--muted);
+  font-size: 11px;
+  cursor: pointer;
+}
+.archive-inline-toggle input { margin: 0; }
+/* In-memory HoF section header within the archive list. */
+.archive-section-header {
+  font-size: 10.5px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 8px 2px 2px;
+  font-weight: 500;
+}
+/* "HoF" tag on in-memory entries (per-level + Pareto). Mint to match
+   the Pareto rank-1 color elsewhere. */
+.archive-item-hoftag {
+  display: inline-block;
+  padding: 1px 5px;
+  margin-right: 4px;
+  font-size: 9px;
+  font-weight: 500;
+  border-radius: 4px;
+  background: rgba(78, 224, 192, 0.18);
+  color: #7ee0c8;
+  border: 1px solid rgba(78, 224, 192, 0.45);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  vertical-align: middle;
+}
+/* Same tag, amber variant for per-level HoF (matches feature C
+   transplant pill color in the lineage viewer). */
+.archive-item-hoftag.per-level {
+  background: rgba(255, 160, 80, 0.18);
+  color: rgb(255, 200, 130);
+  border-color: rgba(255, 160, 80, 0.55);
+}
+.archive-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow-y: auto;
+  flex: 1;
+  padding-right: 2px;
+}
+.archive-item {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 6px;
+  align-items: center;
+  padding: 6px 8px;
+  background: rgba(106, 169, 255, 0.06);
+  border: 1px solid rgba(106, 169, 255, 0.18);
+  border-radius: var(--radius-sm);
+}
+.archive-item:hover {
+  background: rgba(106, 169, 255, 0.10);
+  border-color: rgba(106, 169, 255, 0.4);
+}
+.archive-item-meta { min-width: 0; }
+.archive-item-name {
+  color: var(--text);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.archive-item-detail {
+  color: var(--muted);
+  font-size: 10.5px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.archive-item-detail .badge-fit {
+  color: var(--good);
+  font-weight: 600;
+}
+.archive-item-load,
+.archive-item-delete {
+  padding: 4px 8px;
+  font-size: 11px;
+  font: inherit;
+  cursor: pointer;
+  border-radius: 4px;
+  background: transparent;
+  border: 1px solid var(--line-2);
+  color: var(--text);
+}
+.archive-item-load:hover {
+  background: rgba(108, 226, 138, 0.12);
+  border-color: var(--good);
+  color: var(--good);
+}
+.archive-item-delete {
+  color: rgba(255, 102, 128, 0.85);
+  border-color: rgba(255, 102, 128, 0.3);
+  font-size: 13px;
+  padding: 4px 7px;
+}
+.archive-item-delete:hover {
+  background: rgba(255, 102, 128, 0.15);
+  color: var(--bad);
+  border-color: var(--bad);
+}
+.archive-empty {
+  padding: 16px 8px;
+  text-align: center;
+  color: var(--muted);
+  font-style: italic;
+  font-size: 11.5px;
+}
+.archive-actions-row {
+  display: flex;
+  gap: 6px;
+  margin: 6px 0 2px;
+}
+.archive-actions-row .btn {
+  flex: 1;
+  font-size: 11px;
+  padding: 4px 8px;
+}
+.archive-footnote {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 10.5px;
+  line-height: 1.4;
+}
+.archive-footnote b { color: var(--text); }
+
+/* Experimental card: visually fences off adaptive recovery mechanics that
+ * can produce surprising or harmful behavior when mixed with curriculum,
+ * stochastic starts, and sparse rewards. */
+.experimental-card {
+  border: 1px solid rgba(245, 183, 105, 0.35);
+  background: linear-gradient(180deg, rgba(245, 183, 105, 0.04), rgba(245, 183, 105, 0.01));
+  border-radius: var(--radius-sm);
+  padding: 8px 10px 10px;
+  margin: 8px 0 12px;
+}
+.experimental-card .panel-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 6px;
+  padding: 0 0 6px;
+  border-bottom: 1px solid rgba(245, 183, 105, 0.18);
+}
+.experimental-card .panel-title:first-child { margin-top: 0; }
+.experimental-badge {
+  display: inline-block;
+  padding: 1px 6px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  color: #f5b769;
+  background: rgba(245, 183, 105, 0.12);
+  border: 1px solid rgba(245, 183, 105, 0.45);
+  border-radius: 3px;
+  text-transform: uppercase;
+}
+.experimental-note {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.35;
+  margin: 0 0 8px;
+}
+/* Inline "DEPRECATED" tag rendered next to a dropdown option's label.
+   Red border + red text so the user sees at a glance that this mode
+   isn't going to do what they want; complements the experimental
+   amber warning system (amber = "try at your own risk", red = "we
+   know this is broken / ineffective; kept for comparison only"). */
+.deprecated-tag {
+  display: inline-block;
+  padding: 1px 5px;
+  margin-left: 2px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  color: #ff8aa1;
+  background: rgba(255, 102, 128, 0.12);
+  border: 1px solid rgba(255, 102, 128, 0.55);
+  border-radius: 3px;
+  text-transform: uppercase;
+  vertical-align: middle;
+}
+/* Color-code a deprecated <option> in a <select>. Browsers vary
+   wildly in styling support for <option>, but pinkish-red still
+   reads as "warning" on every engine where it does apply. */
+.deprecated-option {
+  color: #ff8aa1;
+}
+select option.deprecated-option {
+  color: #ff8aa1;
+  background: rgba(255, 102, 128, 0.05);
+}
+
+/* Floating popup for editing a single curriculum spec. Anchored to the
+ * toggle button via positioned coordinates set in JS. */
+.curr-popup {
+  position: fixed;
+  z-index: 1000;
+  background: rgba(11, 13, 18, 0.96);
+  border: 1px solid rgba(245, 183, 105, 0.5);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 11px;
+  color: var(--text);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.6);
+  min-width: 200px;
+}
+.curr-popup .curr-popup-title {
+  font-size: 10px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin-bottom: 4px;
+}
+.curr-popup .curr-popup-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 4px 0;
+}
+.curr-popup label {
+  font-size: 10px;
+  color: var(--muted);
+  width: 38px;
+}
+.curr-popup input[type="number"] {
+  width: 60px;
+  padding: 2px 4px;
+  font-size: 11px;
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--line-2);
+  border-radius: 3px;
+}
+/* Slider row in the popup: label · slider (flex-fills) · value readout. */
+.curr-popup .curr-popup-slider-row {
+  width: 240px;
+}
+.curr-popup .curr-popup-slider-row input[type="range"] {
+  flex: 1;
+  margin: 0 6px;
+  min-width: 100px;
+}
+.curr-popup .curr-popup-num {
+  font-variant-numeric: tabular-nums;
+  font-size: 11px;
+  color: var(--text);
+  min-width: 42px;
+  text-align: right;
+}
+.curr-popup .curr-popup-mode {
+  display: inline-flex;
+  background: var(--bg);
+  border: 1px solid var(--line-2);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.curr-popup .curr-popup-mode button {
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 11px;
+  padding: 2px 8px;
+  cursor: pointer;
+}
+.curr-popup .curr-popup-mode button.active {
+  background: rgba(245, 183, 105, 0.25);
+  color: #f5b769;
+}
+.curr-popup .curr-popup-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+.curr-popup .curr-popup-actions button {
+  font-size: 10px;
+  padding: 3px 8px;
+}
+.curr-popup .curr-popup-delete {
+  color: #ff6680;
+  border-color: rgba(255, 102, 128, 0.5);
+}
+
+/* Curriculum spec list — VIEW-ONLY summary of the active ramps.
+ * Editing happens on the per-slider overlay (drag the from/to dots)
+ * or via the popup (click the slider's + button). Clicking a list
+ * entry scrolls to and flashes its slider so the user can find the
+ * relevant control quickly. */
+/* Curriculum phase row -- holds one or more spec chips that all
+ * ramp together. Stacks chips vertically (one per line) so even
+ * long labels stay readable; the row itself is a block container
+ * that sizes to its content. Active phase (the one currently
+ * advancing) gets the bluish-green glow. Drop target during a drag
+ * gets a faint highlight; the between-phase "drop zones" let the
+ * user split into a new phase. */
+.curr-phase-row {
+  position: relative;
+  display: block;
+  padding: 8px 10px 6px;
+  margin: 6px 0;
+  border-radius: 6px;
+  /* Every phase has a visible box, not just the active one --
+   * makes chips in non-active phases just as easy to grab. The
+   * non-active box uses an amber/orange palette (matching the
+   * curriculum-as-amber color theme); only the ACTIVE phase
+   * upgrades to the bluish-green glow. */
+  border: 1px solid rgba(245, 183, 105, 0.30);
+  background: rgba(245, 183, 105, 0.04);
+  box-shadow: 0 0 6px rgba(245, 183, 105, 0.10) inset;
+}
+.curr-phase-row.is-active {
+  border-color: rgba(78, 224, 192, 0.55);
+  box-shadow:
+    0 0 12px rgba(78, 224, 192, 0.40) inset,
+    0 0 16px rgba(78, 224, 192, 0.30);
+  background: rgba(78, 224, 192, 0.07);
+}
+.curr-phase-row.drag-over {
+  border-color: rgba(106, 169, 255, 0.6);
+  background: rgba(106, 169, 255, 0.08);
+}
+.curr-phase-tag {
+  display: inline-block;
+  margin-right: 6px;
+  padding: 1px 6px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--muted);
+  border: 1px solid var(--line-2);
+  border-radius: 3px;
+  vertical-align: middle;
+}
+.curr-phase-row.is-active .curr-phase-tag {
+  color: var(--accent-2);
+  border-color: rgba(78, 224, 192, 0.6);
+  background: rgba(78, 224, 192, 0.12);
+}
+/* "Drop on me to create a new phase between these two" zone.
+ *
+ * Idle (no drag in progress): slim 4px strip with a faint dashed
+ * border so the user can see WHERE phases can be inserted even
+ * before they pick a chip up.
+ *
+ * Active drag (body.curriculum-dragging is set): the strip
+ * expands to a clearly-visible band -- now 40px tall, big enough
+ * that the user doesn't have to thread the needle. Trello-style:
+ * during a drag, every droppable target is visibly highlighted.
+ *
+ * Dragover (cursor specifically on this zone): GOLD glow so the
+ * user can see "yes, releasing here will create a new phase."
+ * Distinct from the blue-tinted "available drop target" state so
+ * the moment of commit is visually unambiguous. */
+/* Dividers stay a CONSTANT size whether or not a drag is in
+ * progress. Previously they grew from 4px to 56px on drag start
+ * (and 72px on drag-over), which caused a layout shift large
+ * enough that the cursor's page-fixed position often ended up
+ * OUTSIDE the divider it was originally over -- and on the
+ * adjacent phase row instead. The drop then landed on the wrong
+ * target and the user saw "I tried to create a new phase but it
+ * just put the chip back in an existing one." Constant size
+ * means no layout shift, so elementFromPoint reliably points at
+ * the divider the user is hovering. */
+.curr-phase-divider {
+  height: 32px;
+  margin: 3px 0;
+  border-radius: 4px;
+  border: 1px dashed rgba(106, 169, 255, 0.20);
+  background: rgba(106, 169, 255, 0.04);
+  transition:
+    background 120ms ease,
+    border-color 120ms ease,
+    box-shadow 120ms ease;
+  position: relative;
+}
+body.curriculum-dragging .curr-phase-divider {
+  background: rgba(106, 169, 255, 0.12);
+  border-color: rgba(106, 169, 255, 0.55);
+}
+body.curriculum-dragging .curr-phase-divider::after {
+  content: '+ drop here for new phase';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  color: var(--accent);
+  letter-spacing: 0.4px;
+  pointer-events: none;
+}
+/* Active drop target (cursor on this divider). Same SIZE as idle,
+ * only color + glow change -- no layout shift on hover either,
+ * so the cursor never loses its target. */
+.curr-phase-divider.drag-over {
+  background: rgba(245, 183, 105, 0.20);
+  border: 1px solid var(--warn);
+  box-shadow:
+    0 0 10px rgba(245, 183, 105, 0.55) inset,
+    0 0 14px rgba(245, 183, 105, 0.55),
+    0 0 24px rgba(245, 183, 105, 0.30);
+}
+body.curriculum-dragging .curr-phase-divider.drag-over::after {
+  content: '✓ release to create new phase';
+  color: var(--warn);
+  font-weight: 600;
+  text-shadow: 0 0 6px rgba(245, 183, 105, 0.7);
+}
+
+/* No-op drop target during a drag. Dragstart marks every target
+ * where releasing would produce no visible change so the user can
+ * see at a glance which options are meaningful. We DON'T use
+ * pointer-events:none here: that would cascade to children and
+ * disable the source chip's own grab handle (since the source's
+ * phase contains the source itself), killing the drag entirely.
+ * Instead, the dragover handlers themselves short-circuit on no-op
+ * cases (return without preventDefault, so drop can't fire). */
+.curr-phase-divider.drop-disabled,
+.curr-phase-row.drop-disabled,
+.curr-spec-row.drop-disabled {
+  opacity: 0.35;
+  filter: grayscale(0.4);
+}
+/* Source chip override -- it's .dragging AND .drop-disabled; we
+ * want only the .dragging fade, not the additional grayscale. */
+.curr-spec-row.dragging.drop-disabled {
+  opacity: 0.4;
+  filter: none;
+}
+
+/* Spec chip: one row per chip inside its phase, full-width within
+ * the phase. block layout means each chip is its own line and
+ * sized to the phase row's natural width -- no awkward inline-flex
+ * wrapping or label truncation when the panel narrows. */
+.curr-spec-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  margin: 3px 0;
+  background: rgba(80, 60, 30, 0.18);
+  border: 1px solid rgba(245, 183, 105, 0.20);
+  border-radius: 4px;
+  font-size: 11px;
+  /* Chip body is CLICKABLE (flashSlider), not draggable. Only the
+   * .curr-spec-grab handle initiates a drag. */
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease, opacity 120ms ease;
+}
+.curr-spec-row.dragging {
+  opacity: 0.4;
+}
+.curr-spec-row.drag-over {
+  border-color: var(--accent);
+  background: rgba(106, 169, 255, 0.12);
+}
+/* Drag handle. The ONLY drag-initiating region on a chip -- gives
+ * users a clear "this is the drag affordance" target rather than
+ * making the whole chip draggable (which would conflict with
+ * click-to-flash). Amber color matches the curriculum theme; the
+ * handle glows on hover so it reads as "interactive". */
+.curr-spec-row .curr-spec-grab {
+  color: var(--warn);
+  font-size: 13px;
+  letter-spacing: -2px;
+  padding: 2px 6px;
+  margin-right: 2px;
+  user-select: none;
+  cursor: grab;
+  border-radius: 3px;
+  border: 1px solid rgba(245, 183, 105, 0.35);
+  background: rgba(245, 183, 105, 0.06);
+  transition: background 120ms ease, box-shadow 120ms ease, transform 120ms ease;
+}
+.curr-spec-row .curr-spec-grab:hover {
+  background: rgba(245, 183, 105, 0.22);
+  box-shadow:
+    0 0 8px rgba(245, 183, 105, 0.55),
+    0 0 14px rgba(245, 183, 105, 0.30);
+  transform: scale(1.05);
+}
+.curr-spec-row.dragging .curr-spec-grab {
+  cursor: grabbing;
+}
+.curr-spec-row:hover {
+  background: rgba(80, 60, 30, 0.32);
+  border-color: rgba(245, 183, 105, 0.45);
+}
+.curr-spec-row .curr-spec-label {
+  flex: 1.2; min-width: 0;
+  color: var(--text);
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* From/to value readouts — colored by value MAGNITUDE (blue = smaller,
+ * red = larger). Mirrors the on-slider dot color so the user can
+ * visually link list entry → slider overlay at a glance. */
+.curr-spec-row .curr-spec-val {
+  font-variant-numeric: tabular-nums;
+}
+.curr-spec-row .curr-spec-val.is-low  { color: #6aa9ff; }
+.curr-spec-row .curr-spec-val.is-high { color: #ff6680; }
+.curr-spec-row .curr-spec-sep {
+  color: var(--muted);
+  font-size: 11px;
+  margin-left: 1px;
+}
+.curr-spec-row .curr-spec-cur {
+  font-variant-numeric: tabular-nums;
+  color: #c79bff;
+  font-weight: 600;
+  text-shadow: 0 0 4px rgba(199, 155, 255, 0.35);
+}
+.curr-spec-row .curr-spec-arrow {
+  color: var(--muted);
+  font-size: 11px;
+}
+.curr-spec-row .curr-spec-mode-tag {
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 0.4px;
+  margin-left: 2px;
+}
+.curr-spec-row button.curr-spec-delete {
+  width: 20px; height: 20px;
+  padding: 0;
+  margin-left: 2px;
+  font-size: 14px;
+  line-height: 1;
+  background: transparent;
+  color: rgba(255, 102, 128, 0.85);
+  border: 1px solid rgba(255, 102, 128, 0.3);
+  border-radius: 3px;
+  cursor: pointer;
+}
+.curr-spec-row button.curr-spec-delete:hover {
+  background: rgba(255, 102, 128, 0.15);
+}
+
+/* Floating curriculum ramp list — anchored to top-left of the sim
+ * viewer so it stays visible when the user clicks an entry and the
+ * LEFT control panel scrolls to bring the matching slider into view.
+ * Same dark-glass aesthetic as the CNN inset / stability HUD; pointer
+ * events ENABLED so list entries are clickable. */
+.curr-list-floating {
+  position: absolute;
+  top: 56px;        /* clear the badges row, same offset as cnn-inset */
+  left: 14px;
+  background: rgba(11, 13, 18, 0.88);
+  border: 1px solid rgba(245, 183, 105, 0.45);
+  border-radius: 6px;
+  padding: 8px 10px;
+  min-width: 220px;
+  max-width: 260px;
+  max-height: 60%;
+  overflow-y: auto;
+  font-size: 11px;
+  color: var(--text);
+  box-shadow: var(--shadow);
+  z-index: 6;       /* above sim canvas, below modal popups */
+}
+.curr-list-floating-title {
+  font-size: 10px;
+  color: #f5b769;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+.curr-list-floating-body {
+  display: flex;
+  flex-direction: column;
+}
+.curr-list-floating-hint {
+  font-size: 10.5px;
+  color: var(--muted);
+  font-style: italic;
+  padding: 4px 2px 0;
+}
+/* Inside the floating overlay, the spec rows lose their per-row margin
+ * so they pack tightly into the small panel. */
+.curr-list-floating .curr-spec-row {
+  margin: 2px 0;
+}
+
+/* Click-flash: when the user clicks a list entry, the corresponding
+ * slider's wrap briefly pulses with the curriculum amber so the user
+ * can visually locate it after a scroll-into-view. */
+@keyframes curr-flash {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(245, 183, 105, 0);
+    background: transparent;
+  }
+  30% {
+    box-shadow: 0 0 0 3px rgba(245, 183, 105, 0.50),
+                0 0 16px rgba(245, 183, 105, 0.55);
+    background: rgba(245, 183, 105, 0.10);
+  }
+}
+.curr-slider-wrap.flashing {
+  border-radius: 4px;
+  animation: curr-flash 1.0s ease-in-out 1;
+}
+
+/* Topbar curriculum toggle — same warm-amber palette as the per-slider
+ * curriculum overlays so the visual link between the topbar master and
+ * the per-slider ramps is obvious. */
+.btn.curriculum-active {
+  background: linear-gradient(180deg, #4d3a1f, #3b2c14);
+  border-color: rgba(245, 183, 105, 0.55);
+  color: #f5b769;
+  box-shadow: 0 0 12px rgba(245, 183, 105, 0.30);
+}
+
+/* Edit-mode button — warm orange when active to match the ball spawn
+ * marker color, so the visual link between the active toggle and the
+ * draggable handles on the canvas is obvious. */
+.btn.edit-active {
+  background: linear-gradient(180deg, #4d3a1f, #3b2c14);
+  border-color: rgba(245, 183, 105, 0.55);
+  color: #f5b769;
+  box-shadow: 0 0 14px rgba(245, 183, 105, 0.30);
+}
+/* When edit mode is on, the sim canvas swaps cursor based on what's under
+ * the mouse. Default is grab; over a draggable handle it switches to
+ * grabbing. Set via class toggling from app.js. */
+.sim-canvas.edit-mode { cursor: crosshair; }
+.sim-canvas.edit-hover { cursor: grab; }
+.sim-canvas.edit-dragging { cursor: grabbing; }
+
+.select-inline { padding: 4px 24px 4px 8px; font-size: 12px; }
+
+/* ---------- Layout ---------- */
+.layout {
+  display: grid;
+  grid-template-columns: 280px 1fr 360px;
+  gap: 12px;
+  padding: 12px;
+  height: calc(100vh - 52px - 32px);
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.panel-controls { padding: 8px 12px 16px; overflow-y: auto; }
+
+/* Quick-start preset selector at the very top of the controls panel.
+   Visually fenced (mint border) so it reads as a "load this for me"
+   shortcut, not just another slider row. */
+.preset-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  margin: 0 0 12px;
+  background: rgba(78, 224, 192, 0.06);
+  border: 1px solid rgba(78, 224, 192, 0.35);
+  border-radius: var(--radius-sm);
+}
+.preset-row > .control-label {
+  margin: 0;
+  font-weight: 600;
+  color: #7ee0c8;
+  flex: 0 0 auto;
+}
+.preset-row > .select {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* Compare-with selector. Same layout as preset-row but amber-bordered
+   so the two read as related-but-distinct (preset = setup A, compare
+   = setup B). Sits immediately below the preset row. */
+.compare-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  margin: -6px 0 12px;
+  background: rgba(245, 183, 105, 0.06);
+  border: 1px solid rgba(245, 183, 105, 0.35);
+  border-radius: var(--radius-sm);
+}
+.compare-row > .control-label {
+  margin: 0;
+  font-weight: 600;
+  color: #f5b769;
+  flex: 0 0 auto;
+}
+.compare-row > .select {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+/* Two deliberate starts: learning in public, or replaying recorded weights. */
+.start-card {
+  flex: 0 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 7px;
+  margin-bottom: 10px;
+  padding: 12px;
+  border-radius: 15px;
+  background: linear-gradient(135deg, rgba(78,224,192,.11), rgba(13,22,28,.9) 65%);
+  border-color: rgba(135,244,215,.42);
+  box-shadow: inset 0 1px 0 rgba(225,255,245,.16), inset 0 -1px 8px rgba(0,0,0,.3), 0 4px 20px rgba(0,0,0,.18);
+}
+.start-card > .control-label { text-transform: uppercase; letter-spacing: .1em; font-size: 11px; }
+.start-number { display: inline-block; margin-right: 7px; opacity: .65; font-family: monospace; }
+.start-caption { color: #aab8cb; font-size: 11px; line-height: 1.5; margin: 0; }
+.start-card .select { width: 100%; font-size: 11.5px; min-width: 0; }
+.pretrained-start { background: linear-gradient(135deg, rgba(106,169,255,.13), rgba(15,20,34,.92) 65%); border-color: rgba(151,189,255,.4); }
+.pretrained-start > .control-label { color: #b2d0ff; }
+.network-load-row { display: grid; grid-template-columns: minmax(0, 1fr); gap: 7px; }
+.network-load-row .btn { justify-self: end; font-size: 11px; padding: 5px 10px; }
+.model-status { font-size: 10.5px; max-height: 90px; overflow-y: auto; }
+.preset-technical-notes { margin-top: 9px; }
+.preset-technical-notes > summary { color: #96b7d7; font-size: 10.5px; cursor: pointer; }
+.preset-technical-notes[open] > summary { margin-bottom: 9px; }
+.approach-summary { flex: 0 0 auto; display: grid; gap: 4px; padding: 7px 1px 11px; color: var(--muted); font-size: 11px; line-height: 1.5; }
+.approach-summary strong { color: #aeeedb; font-size: 11.5px; }
+.approach-summary[data-approach="planner"] strong,
+.approach-summary[data-approach="classical"] strong,
+.approach-summary[data-approach="analytic"] strong { color: #cfb5f5; }
+.advanced-presets { flex: 0 0 auto; padding: 8px 0; margin: 0 0 7px; border-top: 1px solid rgba(160,180,220,.13); border-bottom: 1px solid rgba(160,180,220,.13); }
+.advanced-presets > summary { color: #adbad0; cursor: pointer; font-size: 11px; letter-spacing: .025em; }
+.advanced-presets > summary:hover { color: #e2eafb; }
+.advanced-presets[open] > summary { margin-bottom: 10px; }
+.advanced-presets .preset-row, .advanced-presets .compare-row { background: rgba(140,154,187,.035); border-color: rgba(145,168,205,.19); margin: 8px 0; padding: 8px; display: grid; gap: 6px; }
+.advanced-presets .control-label { font-size: 11px; color: var(--muted); }
+.advanced-presets .select { width: 100%; }
+.diffsim-lab-btn { background: none; border: 0; padding: 7px 0; margin: 0; width: auto; color: #a89abd; font-size: 11px; text-align: left; }
+.diffsim-lab-btn span { color: var(--muted); }
+.diffsim-lab-btn:hover { color: #e2caff; text-decoration: underline; text-underline-offset: 3px; }
+.training-speed-hint { flex: 0 0 auto; margin: 7px 0; color: #aaaec1; font-size: 10.5px; line-height: 1.5; }
+.training-boost { flex: 0 0 auto; border: 1px solid rgba(156,146,111,.28); border-radius: 11px; padding: 10px 9px; background: rgba(203,165,66,.045); transition: border-color .3s, box-shadow .3s, background .3s; }
+.training-boost label { cursor: pointer; }
+.training-boost strong { color: #e8d6a1; }
+.boost-detail { color: #a89e86; margin-left: 4px; font-size: 10px; }
+body.learning-mode .training-boost { border-color: rgba(255,214,112,.58); background: linear-gradient(110deg, rgba(255,184,47,.13), rgba(255,203,103,.025)); box-shadow: inset 0 1px 0 rgba(255,245,208,.17), 0 0 15px rgba(255,188,62,.11); }
+body.learning-mode .training-boost strong { color: #fff2c2; text-shadow: 0 0 12px rgba(255,207,84,.65); }
+body.learning-mode .training-boost:not(:has(input:checked)) { animation: trainingBoostGlow 3.4s ease-in-out infinite; }
+.training-boost:has(input:checked) { border-color: #e6ce76; box-shadow: inset 0 1px 0 #fff4bd55, 0 0 18px #efbb3820; }
+@keyframes trainingBoostGlow { 50% { box-shadow: inset 0 1px 0 rgba(255,245,208,.25), 0 0 20px rgba(255,188,62,.2); } }
+@media (prefers-reduced-motion: reduce) { body.learning-mode .training-boost:not(:has(input:checked)) { animation: none; } }
+.panel-sim {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Sim-canvases wrapper. Hosts the primary simCanvas + optional B
+ * canvas in a flex row. Off by default; when compare mode is active
+ * (body.compare-on) the wrap goes 50/50 with both panes visible. */
+.sim-canvases {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  min-height: 0;  /* flex-basis 0 + min-height 0 lets the canvases shrink */
+}
+.sim-pane {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.sim-pane-b {
+  display: none;  /* shown only when body.compare-on */
+  border-left: 1px solid rgba(106, 169, 255, 0.25);
+}
+body.compare-on .sim-pane-b {
+  display: flex;
+}
+/* "A" / "B" tag floating in the top-left of each pane. Only visible
+ * when compare mode is active; the single-pane default doesn't need
+ * an "A" label because there's nothing to confuse it with. */
+.sim-pane-tag {
+  display: none;
+  position: absolute;
+  top: 6px; left: 6px;
+  z-index: 4;
+  padding: 2px 8px;
+  border: 1px solid rgba(106, 169, 255, 0.55);
+  border-radius: 4px;
+  background: rgba(11, 13, 18, 0.75);
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.6px;
+  pointer-events: none;
+}
+.sim-pane-tag-b {
+  color: var(--warn);
+  border-color: rgba(245, 183, 105, 0.55);
+}
+body.compare-on .sim-pane-tag { display: inline-block; }
+
+/* CNN trajectory-image inset. Floats top-right of the sim panel; small enough
+ * to not obscure anything, large enough to read. Pixel-art smoothing so the
+ * 16×16 image scales up clearly without antialiasing blur. */
+.cnn-inset {
+  position: absolute;
+  right: 14px;
+  top: 56px;
+  background: rgba(11, 13, 18, 0.85);
+  border: 1px solid var(--line-2);
+  border-radius: 6px;
+  padding: 6px;
+  box-shadow: var(--shadow);
+  z-index: 5;
+  pointer-events: none;
+}
+.cnn-inset canvas {
+  width: 128px;
+  height: 128px;
+  display: block;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  background: var(--bg);
+  border-radius: 3px;
+}
+.cnn-inset-label {
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 4px;
+  letter-spacing: 0.4px;
+  text-align: center;
+}
+/* 3D CNN inset — wider since flipbook/slices/filter viz benefit from
+ * a horizontal layout of multiple sub-images. Sits below the 2D inset. */
+.cnn3d-inset { top: 168px; right: 14px; }
+.cnn3d-inset canvas { width: 200px; height: 80px; }
+
+/* Stability HUD — small floating panel showing live state of the three
+ * anti-regression toggles (Hall of Fame, auto-rollback, mutation
+ * annealing). Sits top-right of the sim panel like the CNN inset, but
+ * narrower and information-dense. Hidden by default unless the user
+ * enables "Stability HUD" in the Display section. */
+.stability-hud {
+  position: absolute;
+  right: 14px;
+  top: 56px;  /* Below the badges row (gen, best, avg, …); same offset as cnn-inset. */
+  background: rgba(11, 13, 18, 0.88);
+  border: 1px solid var(--line-2);
+  border-radius: 6px;
+  padding: 8px 10px;
+  min-width: 200px;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--text);
+  box-shadow: var(--shadow);
+  z-index: 5;
+  pointer-events: none;
+}
+.stability-hud .hud-title {
+  font-size: 10px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  margin-bottom: 4px;
+}
+.stability-hud .hud-section {
+  margin-top: 6px;
+  padding-top: 5px;
+  border-top: 1px solid rgba(154, 163, 187, 0.12);
+}
+.stability-hud .hud-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+.stability-hud .hud-key {
+  color: var(--muted);
+}
+.stability-hud .hud-warn { color: #f5b769; }
+.stability-hud .hud-fire { color: #ff6680; font-weight: bold; }
+.stability-hud .hud-good { color: #6ce28a; }
+.stability-hud .hud-off  { color: rgba(154, 163, 187, 0.45); }
+/* Soft pulsing glow used to signal "interesting" state changes --
+ * curriculum completed all phases, phase wrapped, new best ever. The
+ * keyframes pulse the text-shadow so the row visibly breathes without
+ * jumping in size (no layout shift). */
+@keyframes hud-glow-pulse {
+  0%,100% { text-shadow: 0 0 4px currentColor, 0 0 8px rgba(108,226,138,0.35); }
+  50%     { text-shadow: 0 0 10px currentColor, 0 0 18px rgba(108,226,138,0.7); }
+}
+.stability-hud .hud-glow {
+  animation: hud-glow-pulse 1.8s ease-in-out infinite;
+}
+/* Fire glow uses warmer hues — reserved for warnings (input mismatch,
+ * stuck-escape highest tier). */
+@keyframes hud-glow-fire {
+  0%,100% { text-shadow: 0 0 4px currentColor, 0 0 10px rgba(255,102,128,0.4); }
+  50%     { text-shadow: 0 0 12px currentColor, 0 0 22px rgba(255,102,128,0.85); }
+}
+.stability-hud .hud-glow-fire {
+  animation: hud-glow-fire 1.4s ease-in-out infinite;
+}
+.panel-right {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  overflow-y: auto;
+  overflow-x: hidden;
+  /* Taller diagnostic modes must not change the canvas width after its
+   * backing bitmap has already been fitted for the current paint. */
+  scrollbar-gutter: stable;
+  height: 100%;
+}
+.panel-right .panel-section {
+  flex: 0 0 auto;
+  min-height: 240px;
+}
+
+/* ---------- Right-bar visualisation tabs ----------
+ * The tab strip sticks to the top of the scrolling right column so the
+ * group switcher stays reachable however far down a tall panel you are.
+ * A tab hides/shows only its .viz-tabpanel WRAPPER — every canvas stays
+ * mounted (renderers hold canvas refs) and the per-section inline
+ * display writes app.js already does for mode-conditional panels are
+ * never touched. */
+.viz-tabs {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  flex: 0 0 auto;
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(6px);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+.viz-tab {
+  flex: 1 1 0;
+  min-width: 0;
+  appearance: none;
+  cursor: pointer;
+  font: inherit;
+  font-size: 11px;
+  letter-spacing: 0.03em;
+  padding: 6px 4px;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+.viz-tab:hover:not(:disabled) { background: var(--bg-3); color: var(--text); }
+.viz-tab[aria-selected="true"] {
+  background: var(--panel-2);
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--line-2));
+  color: var(--text);
+  font-weight: 600;
+}
+/* Keyboard focus must be obvious — the tab strip is arrow-key navigable. */
+.viz-tab:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+/* A tab whose sections are ALL currently hidden by the mode-conditional
+ * logic (e.g. Internals outside gradient/planner modes) is disabled
+ * rather than removed, so the strip's geometry doesn't jump around. */
+.viz-tab:disabled {
+  opacity: 0.32;
+  cursor: default;
+}
+.viz-tabpanel {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+}
+.viz-tabpanel[hidden] { display: none; }
+
+.panel-right .panel-section {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ---------- Headers ---------- */
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
+}
+
+.panel-title {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.6px;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+.panel-controls .panel-title {
+  margin: 16px 0 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--line);
+}
+.panel-controls .panel-title:first-child { margin-top: 4px; }
+
+.hint {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+/* ---------- Controls ---------- */
+.control-row {
+  display: grid;
+  /* 4 columns: label, slider, value, optional curriculum toggle.
+   * Both label + slider use minmax(0, 1fr) so they can shrink past
+   * their intrinsic min-content. This is critical for the slider
+   * column: <input type="range"> has a UA default min-width of
+   * ~129px, which without minmax(0,...) would expand its column to
+   * 129px and squeeze the label column down to ~24px, forcing long
+   * labels (e.g. "Cart max accel", "Weight perturb σ") to wrap to
+   * 2-3 lines. The wrap made the whole row taller and visually
+   * offset the slider thumb / curriculum + button below the label
+   * baseline. With minmax(0, 1fr) the label and slider columns
+   * actually split available space 50/50 as visually expected, and
+   * white-space:nowrap + ellipsis on .control-label keeps long
+   * labels on a single line (truncating only when truly necessary).
+   * The 4th column is auto-sized — collapses to 0 when no curriculum
+   * toggle is present, so non-curriculum-able rows look identical. */
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto auto;
+  gap: 8px;
+  align-items: center;
+  margin: 6px 0;
+  font-size: 12px;
+}
+.control-row.checkbox-row { grid-template-columns: 1fr; }
+.control-row.checkbox-row label {
+  display: flex; gap: 6px; align-items: center; cursor: pointer;
+}
+/* Label fits on a single line — truncates with ellipsis if the
+ * column is too narrow for the full text. Hover the row for a
+ * tooltip if the label was truncated. */
+.control-label {
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+/* Sliders inherit a UA min-width that breaks the grid; clamp to 0
+ * so the column can be sized purely by the fr distribution. The
+ * input itself fills its column via width:100% (set below). */
+.control-row input[type="range"] {
+  min-width: 0;
+}
+.control-value {
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  font-size: 11px;
+  text-align: right;
+  min-width: 42px;
+}
+
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  background: var(--line-2);
+  border-radius: 4px;
+  outline: none;
+  cursor: pointer;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px; height: 12px;
+  background: var(--accent);
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 8px rgba(106, 169, 255, 0.55);
+  transition: transform 80ms ease;
+}
+input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+input[type="range"]::-moz-range-thumb {
+  width: 12px; height: 12px;
+  background: var(--accent);
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+}
+
+input[type="checkbox"] {
+  width: 14px; height: 14px;
+  accent-color: var(--accent);
+}
+
+/* ---------- Badges ---------- */
+.badges {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.badge {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  background: var(--bg-3);
+  border: 1px solid var(--line-2);
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+.badge-key {
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 10px;
+}
+.badge-test {
+  border-color: var(--good);
+  color: var(--good);
+  background: rgba(108,226,138,0.08);
+}
+.badge-test .badge-key { color: var(--good); }
+.badge-curr {
+  border-color: var(--accent-2);
+  color: var(--accent-2);
+  background: rgba(78,224,192,0.08);
+}
+.badge-curr .badge-key { color: var(--accent-2); }
+.badge-anneal {
+  border-color: var(--warn);
+  color: var(--warn);
+  background: rgba(245,183,105,0.08);
+}
+.badge-anneal .badge-key { color: var(--warn); }
+.badge-stale {
+  border-color: var(--line-2);
+  color: var(--muted);
+  background: rgba(154,163,187,0.05);
+}
+.badge-stale.warn { border-color: var(--warn); color: var(--warn); background: rgba(245,183,105,0.08); }
+.badge-stale.warn .badge-key { color: var(--warn); }
+/* Stuck-escape badge — visible only when the GA's auto-reheat has
+ * kicked in. Three escalating visuals (low/mid/high) so the user can
+ * see at a glance how panicked the search has gotten. */
+.badge-escape {
+  border-color: rgba(255, 102, 128, 0.55);
+  color: #ff8aa1;
+  background: rgba(255, 102, 128, 0.08);
+}
+.badge-escape .badge-key { color: #ff8aa1; }
+.badge-escape.lvl-low {
+  border-color: rgba(245, 183, 105, 0.55);
+  color: var(--warn);
+  background: rgba(245, 183, 105, 0.08);
+}
+.badge-escape.lvl-low .badge-key { color: var(--warn); }
+.badge-escape.lvl-high {
+  border-color: rgba(255, 102, 128, 0.85);
+  color: #ff6680;
+  background: rgba(255, 102, 128, 0.18);
+  box-shadow: 0 0 8px rgba(255, 102, 128, 0.35);
+  animation: pulse-text 1.6s infinite ease-in-out;
+}
+.badge-escape.lvl-high .badge-key { color: #ff6680; }
+
+/* Dodge "safe" gauge badge. Shows the EMA + rollout-mean safety scalar
+   (1 = clear, 0 = bullet on top of agent). Color shifts from accent-2
+   (safe) toward warn / bad as the value drops, so a quick glance at
+   the header tells you whether the displayed policy is dodging or
+   getting cornered. Color modifiers are toggled from JS based on the
+   live EMA value. */
+.badge-safety {
+  border-color: rgba(96, 220, 200, 0.55);
+  color: #7ee0c8;
+  background: rgba(96, 220, 200, 0.08);
+}
+.badge-safety .badge-key { color: #7ee0c8; }
+.badge-safety.lvl-mid {
+  border-color: rgba(245, 183, 105, 0.55);
+  color: var(--warn);
+  background: rgba(245, 183, 105, 0.08);
+}
+.badge-safety.lvl-mid .badge-key { color: var(--warn); }
+.badge-safety.lvl-low {
+  border-color: rgba(255, 102, 128, 0.65);
+  color: #ff8aa1;
+  background: rgba(255, 102, 128, 0.10);
+}
+.badge-safety.lvl-low .badge-key { color: #ff8aa1; }
+
+/* Retro-eval badge. Shows the latest retro-fitness probe. Color
+   modifier (lvl-low) is toggled from JS when retro lags far behind
+   current-level best, signaling catastrophic forgetting. */
+.badge-retro {
+  border-color: rgba(190, 150, 240, 0.55);
+  color: #c5a8ff;
+  background: rgba(190, 150, 240, 0.08);
+}
+.badge-retro .badge-key { color: #c5a8ff; }
+.badge-retro.lvl-low {
+  border-color: rgba(255, 102, 128, 0.65);
+  color: #ff8aa1;
+  background: rgba(255, 102, 128, 0.10);
+}
+.badge-retro.lvl-low .badge-key { color: #ff8aa1; }
+
+/* Compare-mode badge -- amber to match the compare-row in the controls
+   panel. Shows "gen / best" for the secondary trainer when compare
+   is active. */
+.badge-compare {
+  border-color: rgba(245, 183, 105, 0.55);
+  color: #f5b769;
+  background: rgba(245, 183, 105, 0.08);
+}
+.badge-compare .badge-key { color: #f5b769; }
+
+/* Pareto-aware HoF badge. Shows the live cumulative count of
+   diverse rank-1 reservoir entries. Color = mint (matches Pareto
+   rank-1 in the behavior-heatmap legend). */
+.badge-phof {
+  border-color: rgba(78, 224, 192, 0.55);
+  color: #7ee0c8;
+  background: rgba(78, 224, 192, 0.08);
+}
+.badge-phof .badge-key { color: #7ee0c8; }
+
+/* Lineage panel controls -- small inline row above the canvas for
+   per-renderer toggles. Kept minimal so it doesn't compete visually
+   with the panel header above it. */
+.lineage-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 2px 0 4px;
+  font-size: 11px;
+  color: var(--muted);
+}
+.lineage-toggle { display: inline-flex; align-items: center; gap: 4px; cursor: pointer; }
+.lineage-toggle input { margin: 0; }
+
+/* Per-level chart's "show retro overlay" toggle. Mirrors lineage-toggle
+   styling but sits below the chart canvas. */
+.curriculum-chart-toggle {
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+/* Tilt-angle preset chips. Sit below the tiltDeg slider as small
+   click-to-snap buttons. Restyled to feel like neutral inline chips,
+   not full buttons, so they read as "shortcuts" rather than the
+   primary control (the slider is the source of truth). */
+.tilt-presets-row { gap: 4px; align-items: center; }
+.tilt-presets-label { color: var(--muted); font-size: 11px; }
+.tilt-presets {
+  display: inline-flex;
+  gap: 4px;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+}
+.tilt-preset {
+  font: inherit;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--line-2);
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--text);
+  cursor: pointer;
+  font-size: 11px;
+  line-height: 1.4;
+  transition: background 0.12s ease, border-color 0.12s ease;
+}
+.tilt-preset:hover  { border-color: var(--accent-2); }
+.tilt-preset.active { border-color: var(--accent-2); background: rgba(110, 200, 240, 0.10); color: var(--accent-2); }
+
+.hidden { display: none !important; }
+
+/* Floating tooltip used for network node hover. Positioned via JS. */
+.floating-tooltip {
+  position: fixed;
+  pointer-events: none;
+  background: rgba(11, 13, 18, 0.95);
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--text);
+  box-shadow: var(--shadow);
+  max-width: 240px;
+  z-index: 100;
+  font-variant-numeric: tabular-nums;
+}
+.floating-tooltip .tt-title {
+  font-weight: 600;
+  margin-bottom: 2px;
+  color: var(--accent-2);
+}
+.floating-tooltip .tt-row { color: var(--muted); }
+.floating-tooltip .tt-row b { color: var(--text); font-weight: 500; }
+
+/* Physics feasibility hint — appears under the cart-accel slider and updates
+ * live as gravity, difficulty, and accel change. Uses three states:
+ *  ✓ ok     — controller has headroom for active recovery
+ *  ⚠ warn   — barely enough; controller may struggle on the worst starts
+ *  ⛔ bad   — physically impossible to even hold the angle, let alone recover
+ */
+.phys-hint {
+  font-size: 11px;
+  line-height: 1.45;
+  margin: -2px 0 6px;
+  padding-left: 4px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.phys-hint .ok   { color: var(--good); }
+.phys-hint .warn { color: var(--warn); }
+.phys-hint .bad  { color: var(--bad); font-weight: 500; }
+.phys-hint .info { color: var(--accent-2); }
+.phys-hint .info-link {
+  color: var(--accent);
+  text-decoration: underline;
+  cursor: pointer;
+}
+.phys-hint .info-link:hover { color: var(--text); }
+
+/* Per-level curriculum fitness mini-chart. Sits inside the curriculum
+   panel right under the level hint text. Drawn by app.js from the
+   trainer's curriculum.perLevelStats array; CSS just reserves the
+   space + sets the visual baseline. Height kept short -- this is a
+   secondary "what happened per level" view; the main fitness chart
+   already shows per-gen detail. */
+.curriculum-level-chart {
+  display: block;
+  width: 100%;
+  height: 64px;
+  margin-top: 6px;
+  background: rgba(11, 13, 18, 0.50);
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius-sm);
+}
+
+/* Hole-width preview: a floor stripe with a gap the actual hole width,
+ * plus a ball circle at the same scale, so the user can SEE the
+ * relative hole-vs-ball size as they drag the slider. Both elements
+ * scale by HOLE_PREVIEW_SCALE in app.js (0.6× by default — keeps the
+ * widest 200 px hole within the panel). */
+.hole-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px 8px;
+  margin: 4px 0 8px;
+  background: rgba(245, 183, 105, 0.06);
+  border-left: 2px solid rgba(245, 183, 105, 0.4);
+  border-radius: 4px;
+}
+.hp-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 16px;
+}
+.hp-floor {
+  display: inline-flex;
+  align-items: center;
+  height: 6px;
+  flex: 0 0 auto;
+}
+.hp-floor-bar {
+  height: 5px;
+  background: linear-gradient(180deg, #f5b769, #b8884a);
+  border-radius: 1.5px;
+  flex: 0 0 auto;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+.hp-gap {
+  flex: 0 0 auto;
+  height: 5px;
+  background: rgba(11, 13, 18, 0.6);
+  border-top: 1px dashed rgba(245, 183, 105, 0.5);
+  border-bottom: 1px dashed rgba(245, 183, 105, 0.5);
+  box-sizing: border-box;
+}
+.hp-ball {
+  display: inline-block;
+  border-radius: 50%;
+  background: radial-gradient(circle, #8fc3ff 0%, #3a78ff 60%, #1a47a0 100%);
+  box-shadow: 0 0 6px rgba(106, 169, 255, 0.4);
+  flex: 0 0 auto;
+}
+.hp-text {
+  font-size: 10.5px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.2px;
+}
+
+/* Disabled-looking slider when its parameter is overridden by a higher-level toggle. */
+input[type="range"].disabled-soft {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+/* Slider visually hijacked by the curriculum (or other auto-control). The
+ * user can still drag it — they're setting the target the algorithm is
+ * climbing toward — but it's clear something else is also moving the value. */
+input[type="range"].auto-controlled {
+  background: linear-gradient(90deg, var(--accent-2) 0%, var(--accent-2) 100%);
+  background-size: 100% 50%;
+  background-repeat: no-repeat;
+  background-position: 0 50%;
+  filter: drop-shadow(0 0 6px rgba(78, 224, 192, 0.45));
+}
+input[type="range"].auto-controlled::-webkit-slider-thumb {
+  background: var(--accent-2);
+  box-shadow: 0 0 12px rgba(78, 224, 192, 0.7);
+}
+input[type="range"].auto-controlled::-moz-range-thumb {
+  background: var(--accent-2);
+  box-shadow: 0 0 12px rgba(78, 224, 192, 0.7);
+}
+
+/* Subtle "ramping toward" annotation next to a slider's value when something
+ * is currently sweeping it. */
+.live-suffix {
+  color: var(--accent-2);
+  font-size: 10px;
+  margin-left: 4px;
+}
+
+/* Objective explanation block under the objective selector. */
+.objective-explain {
+  margin: 6px 0 4px;
+  padding: 8px 10px;
+  background: rgba(106, 169, 255, 0.05);
+  border-left: 2px solid var(--accent);
+  border-radius: 4px;
+}
+.objective-formula {
+  font-family: "SF Mono", "Consolas", monospace;
+  font-size: 11px;
+  color: var(--accent);
+  margin-bottom: 4px;
+  word-break: break-word;
+}
+.objective-desc {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+/* ---------- Canvases ---------- */
+.sim-canvas, .net-canvas, .fit-canvas, .pop-canvas {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  display: block;
+  background:
+    radial-gradient(circle at 50% 100%, rgba(106,169,255,0.05), transparent 50%),
+    var(--bg-2);
+}
+/* A bitmap's backing dimensions are not its layout dimensions. In this
+ * auto-height flex section, height:100% + flex:1 let fitCanvas's HiDPI
+ * bitmap feed back into the next layout (especially after the taller dodge
+ * scorer). Keep a definite CSS viewport; the scorer may explicitly override
+ * height, and clearing that override returns here without reading the bitmap. */
+.net-canvas {
+  flex: 0 0 auto;
+  height: clamp(320px, 42vh, 520px);
+  min-width: 0;
+  min-height: 0;
+  background: var(--bg-2);
+}
+.fit-canvas { background: var(--bg-2); }
+.pop-canvas { background: var(--bg-2); }
+
+/* Chord diagram — square-ish so the circle isn't squashed in the 360px
+ * right column. Fixed height (rather than flex:1) because the ribbons are
+ * laid out on a circle inscribed in the smaller dimension. */
+.chord-canvas {
+  flex: 0 0 auto;
+  width: 100%;
+  height: 320px;
+  display: block;
+  background: var(--bg-2);
+  border-top: 1px solid var(--line);
+}
+
+/* Event log: scrollable list of recent significant events. Designed to read
+ * fast — single line per event, time-stamped by generation, kind-colored
+ * leading dot. Newest at top. */
+.event-log {
+  flex: 1;
+  overflow-y: auto;
+  padding: 6px 10px;
+  background: var(--bg-2);
+  font-size: 11px;
+  line-height: 1.55;
+  font-variant-numeric: tabular-nums;
+}
+.event-log:empty::before {
+  content: "no events yet — start training";
+  color: rgba(154, 163, 187, 0.5);
+}
+.event-row {
+  display: flex;
+  gap: 6px;
+  align-items: baseline;
+  padding: 1px 0;
+}
+.event-row .ev-gen {
+  color: var(--muted);
+  flex-shrink: 0;
+  min-width: 38px;
+  font-size: 10px;
+}
+.event-row .ev-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  align-self: center;
+}
+.event-row .ev-text { color: var(--text); }
+.event-row.ev-best .ev-dot { background: var(--good); box-shadow: 0 0 5px var(--good); }
+.event-row.ev-curriculum .ev-dot { background: var(--accent-2); }
+.event-row.ev-topo .ev-dot { background: #a481ff; }
+.event-row.ev-stop .ev-dot { background: var(--warn); }
+.event-row.ev-other .ev-dot { background: var(--muted); }
+
+/* ---------- Status bar ---------- */
+.statusbar {
+  height: 32px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 16px;
+  border-top: 1px solid var(--line);
+  background: rgba(0,0,0,0.2);
+  font-size: 11px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.status-text {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.status-text::before {
+  content: "";
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--muted);
+}
+.status-text.training::before {
+  background: var(--good);
+  box-shadow: 0 0 8px var(--good);
+  animation: pulse 1.2s infinite ease-in-out;
+}
+.status-text.testing::before {
+  background: var(--accent-2);
+  box-shadow: 0 0 8px var(--accent-2);
+  animation: pulse 1.2s infinite ease-in-out;
+}
+.status-text.paused::before { background: var(--warn); }
+.status-spacer { flex: 1; }
+.status-mini { color: var(--text); opacity: 0.85; }
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.85); }
+}
+
+/* ---------- Scrollbar ---------- */
+.panel-controls::-webkit-scrollbar,
+.panel-right::-webkit-scrollbar { width: 8px; }
+.panel-controls::-webkit-scrollbar-track,
+.panel-right::-webkit-scrollbar-track { background: transparent; }
+.panel-controls::-webkit-scrollbar-thumb,
+.panel-right::-webkit-scrollbar-thumb {
+  background: var(--line-2);
+  border-radius: 4px;
+}
+.panel-controls::-webkit-scrollbar-thumb:hover,
+.panel-right::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+/* Compact for narrow screens */
+@media (max-width: 1280px) {
+  .layout { grid-template-columns: 240px 1fr 320px; }
+}
+@media (max-width: 1080px) {
+  .layout {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto;
+    height: auto;
+    overflow: auto;
+  }
+  .panel-controls { grid-column: span 2; max-height: 280px; }
+  body { overflow: auto; }
+}
+
+/* A2 v2 — neuron activation model: glowing, color-coded axes card */
+.mixture-axes-card {
+  margin: 8px 0;
+  padding: 10px 12px;
+  background: var(--bg-2, rgba(255, 255, 255, 0.03));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-sm, 6px);
+  box-shadow: 0 0 20px rgba(122, 158, 255, 0.18);
+}
+.mixture-axes-title {
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.7;
+  margin-bottom: 6px;
+}
+.mixture-axes-card .mx-axis {
+  border-left: 3px solid transparent;
+  padding-left: 8px;
+}
+.mx-axis-regime  > .control-label,
+.mx-axis-regime  > label { color: #4ee0c0; }
+.mx-axis-regime  { border-left-color: #4ee0c0; }
+.mx-axis-palette > .control-label,
+.mx-axis-palette > label { color: #ffd166; }
+.mx-axis-palette { border-left-color: #ffd166; }
+.mx-axis-mutable > .control-label,
+.mx-axis-mutable > label { color: #a481ff; }
+.mx-axis-mutable { border-left-color: #a481ff; }
+/* degenerate/disabled state overrides the axis accent (dimmed) */
+.mixture-axes-card .mx-axis input:disabled,
+.mixture-axes-card select:disabled { opacity: 0.4; }
+
+/* Immediate replay, with training throughput always within reach. */
+body { display: flex; flex-direction: column; height: 100vh; height: 100dvh; }
+body > .topbar { flex: 0 0 auto; display: grid; grid-template-columns: minmax(0,1fr) auto; height: auto; gap: 9px 18px; }
+.topbar-actions { grid-column: 1 / -1; flex-wrap: wrap; min-width: 0; gap: 6px; }
+.topbar-actions .select { max-width: min(380px,100%); }
+body > .layout { flex: 1 1 0; height: auto; min-height: 0; }
+body > .statusbar { flex: 0 0 auto; }
+.training-throughput { grid-column: 1 / -1; display: flex; align-items: center; flex-wrap: wrap; gap: 7px 13px; min-width: 0; }
+.throughput-title { color: #b5ad99; font-size: 11px; font-weight: 650; letter-spacing: .045em; }
+.throughput-context { color: var(--muted); font-size: 10px; margin-right: auto; }
+.training-throughput .training-boost { display: flex; align-items: center; margin: 0; padding: 7px 10px; border-radius: 10px; width: auto; gap: 4px; }
+.training-throughput .training-boost label { white-space: nowrap; font-size: 11px; }
+.training-throughput .boost-detail { display: none; }
+.training-throughput .control-value { width: auto; font-size: 10px; }
+.training-throughput[data-active="false"] .training-boost { opacity: .62; }
+body.learning-mode .throughput-title { color: #fff0b9; text-shadow: 0 0 13px #ffd67888; }
+.pretrained-start { position: relative; border: 1px solid #b9d9ffbb; border-radius: 19px; background: radial-gradient(ellipse at 10% 0%,#9edcff29,transparent 70%),linear-gradient(150deg,#24334af0,#141b2eee); box-shadow: inset 0 1px 0 #ecfaff99,inset 1px 0 0 #d6efff33,inset 0 -3px 9px #0006,0 0 24px #7ab6ff30; }
+.pretrained-start:not(.has-played) { animation: readyBeacon 3.8s ease-in-out infinite; }
+.pretrained-start > .control-label { color: #e6f5ff; text-shadow: 0 0 12px #92c8ff99; line-height: 1.55; white-space: normal; overflow: visible; }
+.pretrained-start .start-invitation { color: #cce5fb; }
+.pretrained-start .network-load-row .btn { justify-self: stretch; padding: 10px; border-radius: 12px; border-color: #e3f2ff9c; background: linear-gradient(160deg,#639adc,#446bb0); color: white; box-shadow: inset 0 1px 0 #ffffffaa,0 0 17px #7cbdff55,0 4px 9px #0005; font-size: 12px; text-shadow: 0 1px 3px #07132f; }
+.pretrained-start .network-load-row .btn:hover { filter: brightness(1.2); transform: translateY(-1px); }
+.pretrained-start[data-kind="reference"] { border-color: #e6bd78bb; background: radial-gradient(ellipse at 10% 0%,#f1c48625,transparent 70%),linear-gradient(150deg,#372b28f0,#1d1925ee); }
+.pretrained-start[data-kind="reference"] > .control-label { color: #ffe6bc; text-shadow: 0 0 12px #ffcf7a77; }
+.pretrained-start[data-kind="reference"] .select { border-color: #b09057; }
+.pretrained-start[data-kind="reference"] .network-load-row .btn { background: linear-gradient(160deg,#99713e,#654d38); border-color: #f9dfaa9c; box-shadow: inset 0 1px 0 #fff3d4aa,0 0 17px #f3c57940,0 4px 9px #0005; }
+@keyframes readyBeacon { 0%,100% { box-shadow: inset 0 1px 0 #ecfaff99,inset 0 -3px 9px #0006,0 0 15px #7ab6ff25; } 50% { box-shadow: inset 0 1px 0 #fff,inset 0 -3px 9px #0006,0 0 27px #7ab6ff5c; } }
+.fourier-explanation { flex: 0 0 auto; border: 1px solid #8c8abe55; border-radius: 12px; padding: 11px; margin-bottom: 12px; font-size: 10.5px; line-height: 1.5; background: #181b2d; }
+.fourier-explanation.hidden { display: none; }
+.fourier-explanation > strong { display: block; color: #d8e3f6; margin-bottom: 8px; }
+.fourier-law { display: grid; gap: 3px; color: #b9aff4; padding-left: 8px; border-left: 2px solid currentColor; margin: 10px 0; }
+.fourier-law.learned { color: #f1c775; }
+.fourier-law code { font-size: 10px; white-space: normal; }
+.fourier-law small, .fourier-explanation p { color: #b4bfd4; }
+.fourier-explanation p { margin-bottom: 0; }
+@media(max-width:1080px) { body { height: auto; min-height:100dvh; } body > .layout { flex:1 0 auto; } .training-throughput .throughput-context { display:none; } }
+@media(prefers-reduced-motion:reduce) { .pretrained-start:not(.has-played) { animation:none; } }
+.page-hidden .pretrained-start, .page-hidden .training-boost { animation-play-state: paused !important; }
+
+/* One compact execution strip, shared by the original controls and listeners. */
+.training-throughput { gap: 6px 9px; padding-top: 3px; border-top: 1px solid #c6d8f314; }
+.throughput-title small { display: block; color: var(--muted); font-size: 9px; font-weight: 400; letter-spacing: .02em; }
+.training-throughput > .control-row { display: flex; align-items: center; flex: 0 1 auto; width: auto; margin: 0; gap: 6px; }
+.training-throughput > .control-row label { font-size: 10px; white-space: nowrap; }
+.training-throughput #trainingSimSpeedRow { gap: 5px; margin-right: 2px; }
+.training-throughput #simSpeed { width: 76px; min-width: 55px; }
+.training-throughput #simSpeedVal { min-width: 33px; }
+.training-throughput #workerBenchRow { font-size: 9px; gap: 3px; }
+.training-throughput #workerBenchBtn { font-size: 9px; padding: 4px 6px; color: #aeb9ce; }
+.training-throughput #workerBenchVal { max-width: 145px; overflow-wrap: anywhere; font-size: 9px; }
+.training-throughput #useWasmEvalRow { padding: 4px 6px; border: 1px solid #798aaf33; border-radius: 9px; }
+.training-throughput #parallelEvalStatus { max-width: 100px; }
+.training-runtime-details { position: relative; margin-left: auto; color: #a8b3c8; font-size: 10px; }
+.training-runtime-details > summary { cursor: pointer; padding: 6px; }
+.runtime-details-body { position: absolute; z-index: 50; right: 0; top: calc(100% + 8px); width: min(390px,85vw); max-height: 65vh; overflow: auto; padding: 13px; border: 1px solid #acbfdf66; border-radius: 13px; background: #151d2bf8; box-shadow: 0 15px 35px #000a, inset 0 1px 0 #ddecff44; }
+.runtime-details-body .control-row { margin: 9px 0; }
+#coreRegion[hidden] { display: none; }
+.technique-legend { display: flex; gap: 6px 12px; flex-wrap: wrap; font-size: 10px; line-height: 1.5; margin: -3px 0 13px; }
+.tech-reference { color: #f4cf93; }.tech-neat { color: #80e7a0; }.tech-cma { color: #91bcff; }.tech-cnn { color: #62e1d5; }
+#showcaseModelSelect { color: #e6e9f2; background: #171d2a; }
+#showcaseModelSelect > option, #selectedPresetSelect > option { color: #cbd3e3; background: #171d2a; }
+.viz-tabpanel.has-explanation > .panel-section { display: none !important; }
+.viz-explanation { padding: 20px 16px; margin: 12px 0; border: 1px solid #8badd03b; border-radius: 14px; background: linear-gradient(140deg,#28334b88,#141a28); color: #b9c9df; font-size: 12px; line-height: 1.8; }
+.viz-explanation[hidden] { display: none; }
+.live-nudge-controls { display:flex; align-items:center; flex-wrap:wrap; gap:5px; font-size:10px; color:#aebbd1; }
+.live-nudge-controls[hidden] { display:none; }
+.live-nudge-controls .btn { font-size:10px; padding:4px 7px; border-color:#f6bc7966; color:#f8d2a0; background:linear-gradient(#413329,#241e24); box-shadow:inset 0 1px 0 #ffe9bf44; }
+.live-nudge-controls small { flex-basis:100%; font-size:9px; color:#c4b9a8; }
+.panel-sim > .panel-header { display:grid; grid-template-columns:minmax(0,1fr); gap:7px; align-items:center; }
+.panel-sim > .panel-header > .panel-title { grid-column:1; grid-row:1; min-width:0; }
+.panel-sim > .panel-header > .badges { grid-column:1; grid-row:2; min-width:0; width:100%; justify-content:flex-start; flex-wrap:wrap; }
+.panel-sim > .panel-header > .live-nudge-controls { grid-column:1; grid-row:3; }
+.live-nudge-controls small { flex-basis:auto; margin-left:5px; }
+.reference-mode .panel-sim > .panel-header > .badges > .badge:not(.badge-test) { display:none; }
+@media(max-width:700px) { .training-throughput { gap: 6px; } .training-throughput #trainingSimSpeedRow { flex: 1 1 160px; } .training-throughput #workerBenchRow { margin-left: auto; } }

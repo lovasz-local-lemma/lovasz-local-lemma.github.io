@@ -1,0 +1,33 @@
+{
+  "format": "RIVX-RELIGHT-RECEIPT-1",
+  "portable": {
+    "file": "glass-light.riv",
+    "renderer": "official Rive WebGL2",
+    "lightSamples": 25,
+    "camera": "fixed",
+    "regions": [
+      "environment",
+      "floor",
+      "brass",
+      "glass",
+      "wall"
+    ],
+    "shading": "keyed images, nearest lower sample; finite 640 x 420 resolution",
+    "marks": "ordinary Rive shapes with keyed transforms"
+  },
+  "shader": {
+    "renderer": "custom WebGL2 + official Rive vector overlay",
+    "officialGpuCanvas": false
+  },
+  "retained": {
+    "renderer": "same analytic WebGL2 scene with live camera + official Rive vector overlay",
+    "scene": "scene.json",
+    "nativeRivxCompatible": false
+  },
+  "approximations": [
+    "Direct illumination and analytic visibility; no indirect path tracing",
+    "Two-interface sphere refraction, Schlick Fresnel, Beer tint; one reflected ray",
+    "Floor caustic is a shaped light-driven lobe, not a photon estimate",
+    "Portable shading is keyed over one light-position arc; material regions are separately named image meshes"
+  ]
+}

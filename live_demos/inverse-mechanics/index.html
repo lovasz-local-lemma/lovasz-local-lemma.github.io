@@ -1,0 +1,1669 @@
+<!doctype html>
+<html lang="en">
+  <head><style id="portfolio-early-paint">html{background:#0b0d0c;color-scheme:dark}html.portfolio-booting body{opacity:0}</style><script src="../../portfolio-navigation.js"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Trajectory Solver — Inverse Physics in WASM</title>
+    <script>
+      // Set the presentation shell before deferred modules or the embed measurer run.
+      if (new URLSearchParams(location.search).get("mode") === "string-study") {
+        document.documentElement.dataset.stringStudyBoot = "true";
+      }
+    </script>
+    <style>
+      html[data-string-study-boot] #app { display: block; height: 100vh; overflow: hidden; background: #0c1012; }
+      html[data-string-study-boot] #app > * { display: none !important; }
+      html[data-string-study-boot] #app::after { content: "Loading Study plate…"; display: block; padding: 64px 32px; color: #dac8a4; font: 24px Georgia, serif; }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;0,900;1,700&display=swap" rel="stylesheet" />
+    <script type="module" crossorigin src="./assets/index-DtWVzc6i.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-DgQcuMrq.css">
+    <link rel="stylesheet" href="./portfolio-return.css">
+<link rel="stylesheet" href="../../portfolio-controls.css"><link rel="stylesheet" href="../../portfolio-demo-return.css"><script defer src="../../portfolio-demo-return.js" data-project="inverse-mechanics" data-title="Inverse Mechanics &amp; Optics" data-overview="projects/inverse-mechanics/overview.html" data-group="signature" data-thumbnail="media/previews/inverse-mechanics/native-flying-target-trajectories.png" data-routes="[{&quot;project&quot;:&quot;inverse-mechanics&quot;,&quot;title&quot;:&quot;Inverse Mechanics &amp; Optics&quot;,&quot;group&quot;:&quot;signature&quot;,&quot;thumbnail&quot;:&quot;media/previews/inverse-mechanics/native-flying-target-trajectories.png&quot;,&quot;overview&quot;:&quot;projects/inverse-mechanics/overview.html&quot;,&quot;path&quot;:&quot;live_demos/inverse-mechanics/index.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:2},{&quot;project&quot;:&quot;inverse-mechanics&quot;,&quot;title&quot;:&quot;Inverse Mechanics &amp; Optics&quot;,&quot;group&quot;:&quot;signature&quot;,&quot;thumbnail&quot;:&quot;media/previews/inverse-mechanics/native-flying-target-trajectories.png&quot;,&quot;overview&quot;:&quot;projects/inverse-mechanics/overview.html&quot;,&quot;path&quot;:&quot;live_demos/inverse-mechanics/index.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:1},{&quot;project&quot;:&quot;inverse-mechanics&quot;,&quot;title&quot;:&quot;Inverse Mechanics &amp; Optics&quot;,&quot;group&quot;:&quot;signature&quot;,&quot;thumbnail&quot;:&quot;media/previews/inverse-mechanics/native-flying-target-trajectories.png&quot;,&quot;overview&quot;:&quot;projects/inverse-mechanics/overview.html&quot;,&quot;path&quot;:&quot;live_demos/inverse-mechanics/&quot;,&quot;query&quot;:{},&quot;priority&quot;:-1}]"></script><!-- universal-navigation:start --><link rel="stylesheet" href="../../portfolio-location.css?v=054b6b462c"><script defer src="../../portfolio-location.js?v=054b6b462c"></script><script defer src="../../portfolio-routes.js?v=054b6b462c"></script><script defer src="../../portfolio-universal-navigation.js?v=054b6b462c"></script><!-- universal-navigation:end --><style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head>
+  <body>
+    <main id="app">
+      <!-- Single-purpose app: only the Plan (Trajectory Solver) mode is shown. The other modes are kept in
+           the DOM (hidden) so they can be re-enabled later by removing `hidden`. -->
+      <nav id="module-rail" aria-label="Research modules">
+        <button class="rail-button" data-module="solver" title="Solver" hidden>
+          <span class="rail-icon">S</span>
+          <span>Solver</span>
+        </button>
+        <button class="rail-button" data-module="inverse" title="Inverse" hidden>
+          <span class="rail-icon">I</span>
+          <span>Inverse</span>
+        </button>
+        <button class="rail-button active" data-module="plan" title="Inverse Mechanics">
+          <span class="rail-icon">M</span>
+          <span>Mechanics</span>
+        </button>
+        <button class="rail-button" data-module="ik" title="IK" hidden>
+          <span class="rail-icon">K</span>
+          <span>IK</span>
+        </button>
+        <button class="rail-button" data-module="fracture" title="Fracture" hidden>
+          <span class="rail-icon">F</span>
+          <span>Break</span>
+        </button>
+        <button class="rail-button" data-module="resting" title="Resting" hidden>
+          <span class="rail-icon">R</span>
+          <span>Rest</span>
+        </button>
+        <button class="rail-button" data-module="fourD" title="4D" hidden>
+          <span class="rail-icon">4</span>
+          <span>4D</span>
+        </button>
+        <button class="rail-button" data-module="optics" title="Inverse Optics (1D)" hidden>
+          <span class="rail-icon">O</span>
+          <span>Optics</span>
+        </button>
+        <button class="rail-button" data-module="shadow" title="3D Shadow Art" hidden>
+          <span class="rail-icon">S</span>
+          <span>Shadow</span>
+        </button>
+        <!-- ORDER IS AN ARGUMENT: the two showpieces (Mechanics, Caustic) lead, String Art follows, and the optical
+             bench sits last behind a divider, marked WIP. Its forward physics is the most rigorous in the app but
+             its INVERSE solve is the thinnest, so it should not be the second thing a visitor clicks. The WIP badge
+             is on the RAIL as well as the title because the rail is where the decision to click is actually made. -->
+        <button class="rail-button" data-module="caustic" title="Inverse Caustic">
+          <span class="rail-icon">C</span>
+          <span>Caustic</span>
+        </button>
+        <button class="rail-button" data-module="strings" title="Inverse String Art">
+          <span class="rail-icon">T</span>
+          <span>Strings</span>
+        </button>
+        <span class="rail-divider" aria-hidden="true"></span>
+        <button class="rail-button rail-secondary" data-module="bench" title="2D inverse setup discovery — experimental">
+          <span class="rail-icon">O</span>
+          <span>Setup</span>
+          <span class="rail-wip" aria-hidden="true">WIP</span>
+        </button>
+      </nav>
+
+      <section id="viewport" aria-label="Simulation viewport">
+        <canvas id="scene-canvas"></canvas>
+        <div id="hud">
+          <div>
+            <span id="module-kicker">CPU/WASM</span>
+            <h1 id="module-title">Solver Zoo</h1>
+            <span id="module-wip" class="wip-badge" hidden>work in progress</span>
+            <p id="module-blurb"></p>
+          </div>
+          <div id="status-pill">Booting</div>
+        </div>
+        <button id="view-toggle" type="button" title="Toggle 2D / 3D view" aria-label="Toggle 2D or 3D view">3D</button>
+        <button id="scheme-cycle" type="button" title="Cycle 2D colour scheme" aria-label="Cycle 2D colour scheme" hidden>Blueprint</button>
+        <button id="help-toggle" type="button" title="What is this? Why WASM?" aria-label="About this solver">?</button>
+
+        <!-- REVIEW DOCK. Deliberately docked to the BOTTOM of the viewport rather than centred: the whole point is to
+             judge what is on screen, and a centred modal would cover the thing being judged. One dock, two drivers
+             (the scene walkthrough and the planet tuner) -- they share the counter, the choice row, the note field
+             and the nav, and differ only in what a "step" is and what a choice means. -->
+        <div id="review-dock" hidden role="region" aria-label="Review">
+          <div class="review-head">
+            <span id="review-count" class="review-count">1 / 1</span>
+            <strong id="review-name">—</strong>
+            <span id="review-tag" class="review-tag"></span>
+            <span id="review-state" class="review-state"></span>
+            <button id="review-quit" class="review-x" type="button" title="Close the review (progress is kept)" aria-label="Close review">✕</button>
+          </div>
+          <p id="review-detail" class="review-detail">—</p>
+          <div id="review-choices" class="segmented review-choices" role="group" aria-label="Verdict"></div>
+          <div class="review-foot">
+            <input id="review-note" type="text" placeholder="note (optional) — saved with the verdict" autocomplete="off" />
+            <button id="review-back" type="button" title="Previous">← Back</button>
+            <button id="review-again" type="button" title="Run this one again">Replay</button>
+            <button id="review-next" type="button" title="Skip without recording a verdict">Skip →</button>
+            <button id="review-export" type="button" title="Copy every verdict so far to the clipboard as JSON">Export</button>
+          </div>
+        </div>
+
+        <div id="help-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="help-title">
+          <div id="help-card">
+            <button id="help-close" type="button" aria-label="Close">×</button>
+            <h2 id="help-title">Four inverse problems — what to look at, and how far each one goes</h2>
+            <p class="help-lede">
+              Every mode here asks the same shape of question backwards. Forward physics says "given the setup,
+              predict what happens." These ask <strong>"given the outcome you want, find the setup"</strong> —
+              find the shove that lands the box, the glass surface that casts the picture, the threads that
+              reconstruct the photo. The modes are <em>ranked in the rail</em>, strongest first, and the two
+              at the top are the ones worth your time.
+            </p>
+            <h3>What's new</h3>
+            <p class="whatsnew-key">
+              Controls added by each batch below are tagged in the panel with a chip that <em>names</em> the batch —
+              <strong>NEW · radiometry</strong>, <strong>NEW · lens</strong>, <strong>NEW · framing</strong>,
+              <strong>NEW · showpiece</strong>, <strong>NEW · scoring</strong> — tinted to match the entry it belongs
+              to here. The tint is a fast
+              visual grouping; the word is the identity, so nothing depends on telling two hues apart. Separately, in
+              descriptions <span class="k-solid">green</span> marks what genuinely works,
+              <span class="k-approx">amber</span> an approximation to read with care, and
+              <span class="k-limit">pink</span> a real limitation.
+            </p>
+            <ul class="whatsnew">
+              <li data-batch="radio">
+                <strong>Absolute radiometry</strong> <em>— Optical Bench</em>
+                <span>The film stopped being a normalized curve. A ray-tube (Jacobian) estimator gives irradiance in
+                real W/m² per unit depth, with per-ray Fresnel losses; the Photo strip is
+                <span class="k-solid">scene-referred</span> with exposure in stops, and a
+                <span class="k-solid">hover probe</span> reads E at any height. The old energy "audit %" is gone — it
+                was an algebraic identity that read 100% even on an all-zero film — replaced by
+                <span class="k-approx">unresolved %</span>, which can actually fail.</span>
+              </li>
+              <li data-batch="lens">
+                <strong>The freeform lens actually works</strong> <em>— Optical Bench</em>
+                <span>Sculpt the glass instead of moving prisms. The old solve was one-shot and paraxial; it now
+                <span class="k-solid">traces and corrects</span> against the real Snell path and can sculpt
+                <span class="k-solid">both faces</span> (1/2 toggle), which beats moving the prisms on 5 of 6 targets
+                and is deterministic. <span class="k-approx">(Its <em>placed</em> readout was briefly retired and is
+                back — see the scoring entry below.)</span>
+                <span class="k-limit">A prism upstream still costs the lens a lot.</span></span>
+              </li>
+              <li data-batch="frame">
+                <strong>Honest framing</strong> <em>— everywhere</em>
+                <span>The rail is <span class="k-solid">ranked</span>, strongest first, with the Optical Bench moved
+                last behind a divider and marked <span class="k-limit">work in progress</span>. Every mode carries a one-line note on what it does and
+                <span class="k-limit">how far it honestly goes</span>. String Art's primitives are tiered
+                <span class="k-solid">Solved</span> / <span class="k-approx">Simulated</span> /
+                <span class="k-limit">Patterned</span>. This overlay became a guided tour with a
+                "what's weaker, and why" section.</span>
+              </li>
+              <li data-batch="show">
+                <strong>The showpieces demo themselves</strong> <em>— Caustic &amp; Mechanics</em>
+                <span>Inverse Caustic <span class="k-solid">solves on entry</span> instead of opening on a flat sheet
+                of glass, and opens on a cross rather than a bright dot (a dot is what any lens does). In Mechanics the
+                first Solve per scene <span class="k-solid">fires itself</span> so the predicted ghost path visibly
+                pays off — with an <strong>Auto-demo</strong> On/Off toggle if you'd rather it didn't.</span>
+              </li>
+              <li data-batch="score">
+                <strong>The match % now shows its own baseline</strong> <em>— Caustic &amp; Optical Bench</em>
+                <span>Correlation has <span class="k-limit">no meaningful zero</span>: a blank screen with no glass
+                at all already scores 28–53% on the four presets at the default setup (up to 56% at other resolutions
+                and light sources), and far more against a target that covers most of the
+                frame — <span class="k-limit">96% on a mostly-white one</span>. (Not a brightness effect: the score is
+                exactly unchanged if you scale the target, since it is a cosine. It is <em>coverage</em> — the closer
+                the target is to a uniform wash, the better a bare screen already matches it.) The readout now prints
+                that <span class="k-solid">blank</span> baseline beside the match, plus
+                <span class="k-solid">skill</span> — how far this surface gets from blank to exact. The
+                <strong>Optical Bench</strong> now prints the same three, against the same lamp with every prism,
+                mirror and lens <em>deleted</em>, and keeps <em>placed</em> beside it. <span class="k-limit">Retiring
+                placed was itself withdrawn</span> — the evidence for it scored a fixed default-lamp baseline rather
+                than the live-lamp one that ships, and against the real metric the two disagree on 22% of comparisons,
+                not 3%. <span class="k-limit">A previous attempt at this was withdrawn too:</span> the mean-subtracted
+                <em>shape</em> number shipped here for one commit and was contrast-blind, scoring a barely-visible
+                caustic 94% against a real solve's 79%.</span>
+              </li>
+            </ul>
+            <h3>Start here</h3>
+            <ul>
+              <li>
+                <strong>Inverse Mechanics</strong> — the deepest one. Search for a shove that lands a rigid
+                body on a target pose <em>through contact</em>: bounces, gates, catapults, a ball knocked into
+                a slot. Each candidate is scored by a full forward rollout in a C++/WASM kernel, so the shot
+                you fire reproduces the predicted ghost path exactly. Try <em>Catapult</em> or <em>Twin
+                Plinko</em> — scenes where the answer has to route through a mechanism, not just fly.
+              </li>
+              <li>
+                <strong>Inverse Caustic</strong> — the prettiest one, and a genuinely hard solve. Sculpt a
+                glass surface so refracted light forms a target image: a 2-D optimal-transport problem on a
+                height field, displayed in 3-D using a paraxial thin-element model. The part worth noticing is the
+                <em>Diffuse</em> source — instead of pretending the blur isn't there, the solver designs
+                <em>through</em> it, which wins 14 of the 16 cells in its gate. It is not a clean sweep: on
+                the smoothest target at the lowest blur it ties or slightly loses to a naive solve, because
+                there is barely any blur to fight.
+              </li>
+            </ul>
+            <h3>Then</h3>
+            <p>
+              <strong>Inverse String Art</strong> — reconstruct an image from straight thread between pegs.
+              The idea worth the visit is the <em>hologram</em>: peg heights are invisible head-on, which makes
+              them a free second channel, so one sculpture shows a different picture to a tilted eye. At the
+              default ring-then-star pair that reads <strong>89% front, 61% from the tilted eye</strong> — the
+              second image is real but clearly the weaker of the two, since it is encoded in whatever freedom
+              the first one left behind. Its primitives are ranked in the panel: <em>Line art</em>,
+              <em>Stipple</em> and <em>TSP</em> search for an arrangement; <em>Hilbert</em>, <em>Spiral</em>
+              and <em>Web</em> do not, and are labelled as such.
+            </p>
+            <h3>What's weaker, and why</h3>
+            <p>
+              Ranking things honestly is more useful than claiming they're all equally good, so:
+            </p>
+            <ul>
+              <li>
+                <strong>The Optical Bench is the weakest mode</strong>, and it's a degrees-of-freedom problem,
+                not a bug. Its <em>forward</em> model is the most rigorous physics in the app — real Snell
+                refraction, total internal reflection, Fresnel transmission, and screen irradiance in absolute
+                W/m² rather than a normalized curve. But the <em>inverse</em> side asks a search to shape a
+                320-bin light pattern with <strong>nine</strong> free parameters — the lamp's height, aim and
+                spread, plus a position and rotation for each of the two prisms. Nine knobs for a
+                three-hundred-dimensional target: there simply isn't enough freedom in the setup, so the solved
+                pattern lands "near enough" and stops. The fix is more freedom, which is what the freeform lens
+                gives you — add one, then <em>Solve shape</em> sculpts a whole surface instead of moving blocks,
+                beating the prism search on five of six targets and doing it deterministically rather than as a
+                stochastic search you press repeatedly.
+              </li>
+              <li>
+                <strong>Three String Art primitives don't solve anything.</strong> Hilbert subdivides a
+                space-filling curve more finely where the image wants ink, Spiral wobbles a groove by local
+                tone, and Web is a static template. Those first two do adapt to the picture — but by a direct
+                rule, not by searching for an arrangement that reconstructs it, which is what the modes above
+                them do. They make a pleasant image and are grouped separately for that reason.
+              </li>
+              <li>
+                <strong>Match percentages flatter, so both modes now show what nothing scores.</strong> Both score
+                with the <em>same</em> raw correlation, and it has no meaningful zero: what a blank result scores is
+                set by how much of the frame the target covers, not by whether anything worked. Measured — a caustic
+                screen with no glass at all scores 28–53% on the presets and <em>96%</em> against a mostly-white
+                target; an optical bench with every element deleted, a flat flood carrying no pattern, still scored
+                <em>93%</em> under the old readout on the Wide target. Both now print that <em>blank</em> baseline
+                beside the match, plus <em>skill</em> — how far the arrangement gets between them, so 0% means "no
+                better than nothing there". On the bench that is unforgiving in the right way: against the
+                <em>Wide</em> target an untouched bench already scores <em>97.5%</em>, and a solved layout there
+                lands at a median <em>50%</em> skill over 12 solves, spread 0–76% — a range the old single
+                number hid completely. (Those two don't chain arithmetically: the solver moves the lamp, so the
+                baseline a solved layout is measured against is its own, not the 97.5%.) The bench keeps <em>placed</em> alongside, because on exactly that
+                target skill cannot tell a layout that puts 96% of the light in the right place from one that
+                puts 17% there. Three withdrawals got here. A mean-subtracted <em>shape</em> number shipped for
+                one commit and was blind to contrast, scoring a barely-visible caustic 94% where the real solve
+                scored 79%; and the bench's <em>placed</em> was retired and then restored, because the measurement
+                that retired it scored a baseline the app does not use. Neither is the search objective.
+              </li>
+              <li>
+                <strong>Two of the ~55 mechanics scenes don't reliably solve</strong>, for two different
+                reasons. In the knock-an-object-off-a-ledge scene the search discovers that doing almost
+                nothing scores acceptably and settles there. In the two-body collide-and-land scene the
+                collision happens but the second body never comes to rest, so it scores 0 on settling. Both
+                are left in and labelled best-effort rather than quietly removed.
+              </li>
+            </ul>
+            <h3>Why the mechanics solver runs in WASM, not on a GPU</h3>
+            <ul>
+              <li>
+                <strong>Each rollout is sequential.</strong> Contacts are resolved in order
+                (sequential-impulse / Gauss–Seidel): every iteration reads the result of the last, and the
+                bottom of a stack changes the contact above it. Step N needs step N−1 — there's nothing to
+                parallelize <em>inside</em> a rollout.
+              </li>
+              <li>
+                <strong>The work is branchy and data-dependent.</strong> Collision narrowphase, the number of
+                contacts, and <em>which</em> bodies touch all change every step. A GPU runs thousands of lanes
+                in lockstep doing the same instruction; here the lanes diverge (one body in contact, its
+                neighbour not; different branches), so most lanes stall. That's the opposite of GPU-shaped work.
+              </li>
+              <li>
+                <strong>Determinism is the point.</strong> The search rolls out hundreds of candidates from one
+                exact saved snapshot (copy/restore), so they're all comparable — and the shot you fire
+                reproduces the predicted ghost path bit-for-bit.
+              </li>
+            </ul>
+            <h3>What "depends on each other"</h3>
+            <p>
+              A moving gate's phase decides whether the box threads it; a contact impulse propagates through
+              the whole constraint graph; the final pose is the end of a <em>chain</em> of collisions, each one
+              conditioning the next. Those dependencies are exactly why it's a stateful, CPU-shaped solve.
+            </p>
+            <p class="help-honest">
+              Honest caveat: the <em>outer</em> search — trying many candidate launches — is embarrassingly
+              parallel and would map fine to a GPU. The defensible WASM win is the <em>per-rollout</em> solver
+              and branchy narrowphase inside each candidate, not the fan-out of the search itself.
+            </p>
+          </div>
+        </div>
+
+        <div id="perf-strip" aria-label="Runtime metrics">
+          <div><span>WASM</span><strong id="wasm-status">loading</strong></div>
+          <div><span>WebGPU</span><strong id="webgpu-status">checking</strong></div>
+          <div><span>Bodies</span><strong id="metric-bodies">0</strong></div>
+          <div><span>Contacts</span><strong id="metric-contacts">0</strong></div>
+          <div><span>Residual</span><strong id="metric-residual">0.000</strong></div>
+          <div><span>Kernel</span><strong id="metric-kernel">0.00 ms</strong></div>
+          <div><span>Frame</span><strong id="metric-frame">0.0 ms</strong></div>
+        </div>
+
+        <div id="gizmo-legend" hidden aria-hidden="true">
+          <div data-leg="a"><span class="dot" style="background:#f0a3ca"></span>Object A</div>
+          <div data-leg="b"><span class="dot" style="background:#ff9a4d"></span>Object B</div>
+          <div data-leg="zone"><span class="dot" style="background:#6fe9ff"></span>Collision zone</div>
+          <div data-leg="target"><span class="dot" style="background:#ead990"></span>Target pose</div>
+          <div data-leg="path"><span class="dot dot-line"></span>Predicted path</div>
+        </div>
+
+        <div id="impact-flash" aria-hidden="true"></div>
+
+        <!-- Cinematic impact-replay overlay: snapshot freeze + matching rate + ribbons -->
+        <div id="cine-overlay" aria-hidden="true">
+          <div class="cine-flash"></div>
+          <div class="cine-frame">
+            <span class="cine-corner tl"></span><span class="cine-corner tr"></span>
+            <span class="cine-corner bl"></span><span class="cine-corner br"></span>
+          </div>
+          <div class="cine-ribbons">
+            <i style="--i:0"></i><i style="--i:1"></i><i style="--i:2"></i><i style="--i:3"></i>
+            <i style="--i:4"></i><i style="--i:5"></i><i style="--i:6"></i><i style="--i:7"></i>
+            <i style="--i:8"></i><i style="--i:9"></i><i style="--i:10"></i><i style="--i:11"></i>
+          </div>
+          <div class="cine-card">
+            <div class="cine-tag">SNAPSHOT</div>
+            <div class="cine-label">MATCHING RATE</div>
+            <div class="cine-rate"><span id="cine-rate-num">0</span><span class="cine-pct">%</span></div>
+            <div class="cine-sub" id="cine-sub">pose locked</div>
+          </div>
+        </div>
+      </section>
+
+      <aside id="panel" aria-label="Simulation controls">
+        <div class="panel-header portfolio-return-header">
+        <a class="portfolio-return" href="../../projects/inverse-mechanics/index.html" aria-label="Back to this project's portfolio page"><span aria-hidden="true">←</span> Project overview</a>
+          <h2 id="panel-title">Trajectory Solver</h2>
+          <button id="reset-button" class="icon-button" title="Reset" type="button">R</button>
+        </div>
+
+        <div id="panel-scroll">
+        <div class="control-block" id="scene-picker-block">
+          <label for="scene-presets">Scene</label>
+          <div id="scene-presets" role="group" aria-label="Scene preset">
+            <p class="scene-cat">Single shots</p>
+            <div class="segmented scenes">
+              <button class="active" data-scene-choice="0" type="button">Tower</button>
+              <button data-scene-choice="2" type="button">Pile</button>
+              <button data-scene-choice="3" type="button" hidden>S4</button>
+              <button data-scene-choice="11" type="button" hidden>S12</button>
+              <button data-scene-choice="12" type="button" hidden>S13</button>
+              <button data-scene-choice="17" type="button" hidden>S18</button>
+              <button data-scene-choice="18" type="button" hidden>S19</button>
+              <button data-scene-choice="19" type="button" hidden>S20</button>
+              <button data-scene-choice="28" type="button" hidden>S29</button>
+              <button data-scene-choice="29" type="button" hidden>S30</button>
+            </div>
+            <p class="scene-cat">Moving obstacles</p>
+            <div class="segmented scenes">
+              <button data-scene-choice="1" type="button">Bridge</button>
+              <button data-scene-choice="4" type="button" hidden>S5</button>
+              <button data-scene-choice="5" type="button" hidden>S6</button>
+              <button data-scene-choice="6" type="button" hidden>S7</button>
+              <button data-scene-choice="7" type="button" hidden>S8</button>
+              <button data-scene-choice="8" type="button" hidden>S9</button>
+              <button data-scene-choice="9" type="button" hidden>S10</button>
+              <button data-scene-choice="10" type="button" hidden>S11</button>
+              <button data-scene-choice="13" type="button" hidden>S14</button>
+              <button data-scene-choice="20" type="button" hidden>S21</button>
+              <button data-scene-choice="21" type="button" hidden>S22</button>
+              <button data-scene-choice="22" type="button" hidden>S23</button>
+              <button data-scene-choice="30" type="button" hidden>S31</button>
+            </div>
+            <p class="scene-cat">Multi-object</p>
+            <div class="segmented scenes">
+              <button data-scene-choice="14" type="button" hidden>S15</button>
+              <button data-scene-choice="15" type="button" hidden>S16</button>
+              <button data-scene-choice="16" type="button" hidden>S17</button>
+              <button data-scene-choice="23" type="button" hidden>S24</button>
+              <button data-scene-choice="24" type="button" hidden>S25</button>
+              <button data-scene-choice="25" type="button" hidden>S26</button>
+              <button data-scene-choice="26" type="button" hidden>S27</button>
+              <button data-scene-choice="27" type="button" hidden>S28</button>
+              <button data-scene-choice="31" type="button">Arrange ABCDE</button>
+            </div>
+            <p class="scene-cat">Mechanisms</p>
+            <div class="segmented scenes">
+              <button data-scene-choice="32" type="button">Catapult</button>
+              <button data-scene-choice="33" type="button">Cascade</button>
+              <button data-scene-choice="34" type="button">Moving mark</button>
+              <button data-scene-choice="35" type="button">Superball</button>
+              <button data-scene-choice="36" type="button">L-piece</button>
+              <button data-scene-choice="49" type="button">Basket</button>
+              <button data-scene-choice="50" type="button">Knock-off</button>
+              <button data-scene-choice="51" type="button">Flying target</button>
+              <button data-scene-choice="52" type="button">Skeet</button>
+              <button data-scene-choice="53" type="button">Trick shot</button>
+            </div>
+            <p class="scene-cat">Pick &amp; redirect</p>
+            <div class="segmented scenes">
+              <button data-scene-choice="37" type="button">Window grid</button>
+              <button data-scene-choice="38" type="button">Pick-a-bin</button>
+              <button data-scene-choice="39" type="button">Moving doors</button>
+              <button data-scene-choice="40" type="button">Plinko sort</button>
+              <button data-scene-choice="41" type="button">Deflector</button>
+              <button data-scene-choice="54" type="button">Twin plinko</button>
+            </div>
+            <p class="scene-cat">Shapes &amp; shots</p>
+            <div class="segmented scenes">
+              <button data-scene-choice="42" type="button">Roll &amp; wedge</button>
+              <button data-scene-choice="43" type="button">Cue knock-in</button>
+              <button data-scene-choice="44" type="button">Uppercut</button>
+              <button data-scene-choice="45" type="button">Hook</button>
+            </div>
+            <p class="scene-cat">Key &amp; lock</p>
+            <div class="segmented scenes">
+              <button data-scene-choice="46" type="button">Dart</button>
+              <button data-scene-choice="47" type="button">Keyhole</button>
+              <button data-scene-choice="48" type="button">Gated vault</button>
+            </div>
+          </div>
+          <button id="scene-review-start" class="module-control plan-control" type="button" title="Walk every scene one at a time — solve, fire, and rate it. Verdicts are saved as you go and the pass resumes where you left off.">Review scenes one by one…</button>
+        </div>
+
+        <p class="section-label">Set up the shot</p>
+
+        <div class="control-block module-control plan-control arrange-control" hidden>
+          <label>Blocks</label>
+          <div class="segmented three" id="opt-arrange-count" role="group" aria-label="Number of blocks to arrange" title="How many blocks (A–E) drop into the arrangement. Rebuilds the scene.">
+            <button data-count="3" type="button">3</button>
+            <button data-count="4" type="button">4</button>
+            <button data-count="5" class="active" type="button">5</button>
+          </div>
+        </div>
+        <div class="control-block module-control plan-control arrange-control" hidden>
+          <label for="arrange-height">Drop height <output id="arrange-height-value">0.6</output></label>
+          <input id="arrange-height" type="range" min="0.35" max="3.0" step="0.05" value="0.6" title="Release-rack height. Low = a gentle, more precise drop; raise it for a more dramatic (but less precise) tumbling fall." />
+        </div>
+
+        <div class="control-block module-control plan-control">
+          <label for="push-count">Pushes</label>
+          <div class="segmented three" id="push-count" role="group" aria-label="Push count">
+            <button class="active" data-push-count="1" type="button">1</button>
+            <button data-push-count="2" type="button">2</button>
+            <button data-push-count="3" type="button">3</button>
+          </div>
+        </div>
+
+        <div class="control-block module-control plan-control match-control">
+          <label for="search-effort">Search effort <output id="search-effort-value">0.20</output></label>
+          <input id="search-effort" type="range" min="0" max="1" step="0.05" value="0.2" title="How hard the solver tries to match exactly: higher = more rollouts (and CMA-ES at the top) for a closer match, but slower; lower = quicker and looser." />
+        </div>
+        <div class="control-block module-control plan-control match-control">
+          <label for="angle-weight">Match priority <output id="angle-weight-value">0.35</output></label>
+          <input id="angle-weight" type="range" min="0" max="1.5" step="0.05" value="0.35" title="Balance position vs angle for a posed target. 0 = match POSITION only (ignore the tilt); higher = prioritise matching the target ANGLE too." />
+        </div>
+        <div class="control-block module-control plan-control">
+          <label>Solver — Deterministic scores one nominal rollout; Robust scores each plan over K jittered rollouts (actuation + scene + physics noise), so it prefers plans that survive being executed slightly wrong</label>
+          <div class="segmented">
+            <button class="active" data-plan-robust="off" type="button">Deterministic</button>
+            <button data-plan-robust="on" type="button">Robust</button>
+          </div>
+          <p id="plan-robust-blocked-note" style="font-size:11px;opacity:0.7;margin:0;" hidden>Robust solving isn't available for Arrange/Multi/Deflector scenes — they use the deterministic path.</p>
+        </div>
+        <div class="control-block module-control plan-control">
+          <label class="prose" data-new="score">Effort gate — every plan is charged a small penalty for how hard it pushes, meant as a tie-break between plans that <em>both work</em>. Where the goal is nearly unreachable that penalty is the <span class="k-limit">only gradient left</span>, so the search slides to a do-nothing plan: Knock-off solves to a push of <em>0.3</em> out of a maximum of 8. <span class="k-solid">On</span> fades the penalty in with achievement — nothing to economise until the plan does something. <span class="k-limit">It is a trade, not an upgrade, and the size of the trade is currently UNVERIFIED.</span> Three all-scene sweeps were withdrawn: the first ran a search budget the app never uses on six scenes; the second solved the wrong objective on every scene whose preset omits an explicit criterion; the third never settled the target, so 24 of the 28 settle scenes were scored against a pose the app never aims at. A faithful re-run is outstanding, so no win/loss tally is quoted here on purpose. What is measured and holds: it lifts scenes out of the do-nothing basin where the goal term is flat, and it removes a regularizer that other scenes rely on. Turn it on for a scene that returns a suspiciously gentle plan; leave it off globally. Off is the historical behaviour, bit-for-bit — verified by bit-comparing the raw cost field against the pre-gate kernel, which caught the two sites where this had quietly stopped being true.</label>
+          <div class="segmented">
+            <button class="active" data-plan-effort="off" type="button">Off</button>
+            <button data-plan-effort="on" type="button">Effort gate</button>
+          </div>
+        </div>
+        <div class="control-block module-control plan-control" id="scene-variant-block" hidden>
+          <label class="prose" data-new="score">Layout — the shipped geometry asks the block to travel <em>0.44 m</em> and only ever reports Best effort. <span class="k-solid">Re-tuned</span> lightens the block, makes it slide more freely and brings the pocket nearer, and it does reach <em>Solved</em>. <span class="k-limit">Treat that verdict with suspicion:</span> my evidence that the block genuinely gets knocked was an invalid comparison — I subtracted two rest-distances measured against <em>different</em> targets — and I never actually ran a zero-force plan to confirm doing nothing fails. The re-tuned layout may be passing on tolerance rather than on the chain firing. Both layouts ship so you can watch which.</label>
+          <div class="segmented">
+            <button class="active" data-scene-variant="0" type="button">Original</button>
+            <button data-scene-variant="1" type="button">Re-tuned</button>
+          </div>
+        </div>
+        <!-- The robust sub-controls hide as ONE unit (labels with their inputs), so no label is ever stranded without
+             its control. Kept a sibling .control-block, not a wrapper inside the block above, because
+             `.control-block[hidden]` is the codebase's established "this actually hides" rule. -->
+        <div class="control-block module-control plan-control" id="plan-robust-sub" hidden>
+          <label for="plan-robust-k">Robustness samples <output id="plan-robust-k-value">5</output> — K rollouts per candidate, so the solve is about K× slower (odd K pairs the jitters best). At LOW search effort a high K can starve the search and do more harm than good — raise effort with K</label>
+          <input id="plan-robust-k" type="range" min="1" max="8" step="1" value="5" />
+          <label for="plan-robust-noise" style="margin-top: 8px;">Noise amount <output id="plan-robust-noise-value">0.60</output> — how hard to shake each rollout (0 = no variation)</label>
+          <input id="plan-robust-noise" type="range" min="0" max="1" step="0.05" value="0.6" />
+          <label style="margin-top: 8px;">Aggregation — how the K costs collapse into one score (CVaR/Worst need K≥4 to differ)</label>
+          <div class="segmented">
+            <button class="active" data-plan-robust-agg="0" type="button">Mean</button>
+            <button data-plan-robust-agg="1" type="button">CVaR</button>
+            <button data-plan-robust-agg="2" type="button">Mean+σ</button>
+            <button data-plan-robust-agg="3" type="button">Worst</button>
+          </div>
+          <label style="margin-top: 8px;">Robustness <output id="plan-robust-readout">—</output></label>
+          <p id="plan-robust-fan-note" style="font-size:11px;opacity:0.7;margin:0;" hidden>Trails show the K jitter fan — the best plan replayed under each perturbation — not the search's elite plans. A tight bundle is a robust plan; spaghetti is a knife-edge one.</p>
+          <button id="plan-robust-ab" class="btn-secondary" type="button" style="margin-top: 8px;">A/B compare vs deterministic</button>
+        </div>
+        <div class="control-block module-control plan-control multi-control" id="free-target-block" hidden>
+          <label for="free-target">Target</label>
+          <div class="segmented two" id="free-target" role="group" aria-label="Snap or free target placement" title="Snap = the target locks to the nearest discrete choice (pocket / bin). Free = drag the target anywhere to explore harder placements (between bins, on a divider, or mid-air — often a Best-effort solve).">
+            <button class="active" data-free-target="0" type="button">Snap</button>
+            <button data-free-target="1" type="button">Free</button>
+          </div>
+        </div>
+        <div class="control-block module-control plan-control multi-control" id="freeze-collision-block" hidden>
+          <label for="freeze-collision">Freeze on collision</label>
+          <div class="segmented two" id="freeze-collision" role="group" aria-label="Freeze the camera on a collision" title="Cinematic replay: when objects collide mid-air, hold/zoom the camera on the impact. Off = let the playback run through the collision; the scoring close-up only plays for reaching a target.">
+            <button class="active" data-freeze-coll="1" type="button">On</button>
+            <button data-freeze-coll="0" type="button">Off</button>
+          </div>
+        </div>
+
+        <div class="control-block module-control plan-control">
+          <!-- `for=` is NOT used: the target is a role=group DIV, which is not a labelable element, so `for` would be
+               inert. aria-labelledby is the correct association and it actually reaches assistive tech. -->
+          <label class="prose" id="plan-autofire-label" data-new="show">Auto-demo the first solve — the first Solve in each scene fires itself after a beat, so the predicted ghost path visibly pays off without hunting for Fire. Off = Solve leaves the plan armed and waits for you.</label>
+          <div class="segmented two" id="plan-autofire" role="group" aria-labelledby="plan-autofire-label">
+            <button class="active" data-autofire="1" type="button">On</button>
+            <button data-autofire="0" type="button">Off</button>
+          </div>
+        </div>
+
+        <div class="control-block module-control plan-control">
+          <label for="plan-goal">Goal</label>
+          <div class="segmented two" id="plan-goal" role="group" aria-label="Goal">
+            <button class="active" data-plan-goal="1" type="button">Pass-thru</button>
+            <button data-plan-goal="0" type="button">Settle</button>
+          </div>
+        </div>
+
+        <div class="control-block module-control plan-control" id="goal-shape-block">
+          <label for="goal-shape">Thrown shape</label>
+          <div class="segmented two" id="goal-shape" role="group" aria-label="Thrown shape">
+            <button data-goal-shape="0" type="button">Disc</button>
+            <button class="active" data-goal-shape="1" type="button">Box</button>
+          </div>
+          <p class="method-note">Box: landing and settling. Disc: the harder rolling-stop case. Changing shape also selects its existing target location; these are distinct tasks.</p>
+        </div>
+
+        <div class="control-block module-control plan-control" id="sustain-block" hidden>
+          <label for="hold-secs">Hold &ge; <output id="hold-secs-value">1.0</output>s</label>
+          <input id="hold-secs" type="range" min="0.3" max="2.5" step="0.1" value="1.0" />
+        </div>
+
+        <div class="button-row module-control plan-control" id="settle-row" hidden>
+          <button id="settle-shot" type="button">Drop &amp; settle target</button>
+        </div>
+
+        <div class="control-block module-control plan-control multi-control">
+          <label for="edit-obj">Editing</label>
+          <div class="segmented three" id="edit-obj" role="group" aria-label="Object being edited">
+            <button class="active" data-edit-obj="0" type="button">A</button>
+            <button data-edit-obj="1" type="button">B</button>
+            <button data-edit-obj="2" type="button">Zone</button>
+          </div>
+        </div>
+
+        <div class="control-block module-control plan-control" id="obj-shape-block">
+          <label for="obj-shape">Shape</label>
+          <select id="obj-shape">
+            <option value="0">Box</option>
+            <option value="1">Disc</option>
+            <option value="3">Triangle</option>
+            <option value="4">Diamond</option>
+            <option value="5">Pentagon</option>
+            <option value="6">Hexagon</option>
+            <option value="8">Octagon</option>
+          </select>
+        </div>
+
+        <div class="control-block module-control plan-control multi-control">
+          <label for="multi-goals">Goals</label>
+          <div class="segmented three" id="multi-goals" role="group" aria-label="Multi-object goals">
+            <button data-goal="a" type="button">A → goal</button>
+            <button data-goal="b" type="button">B → goal</button>
+            <button data-goal="collide" type="button">collide</button>
+          </div>
+        </div>
+
+        <div class="control-block module-control plan-control multi-control" id="collide-mode-block">
+          <label for="collide-mode">Collide</label>
+          <div class="segmented two" id="collide-mode" role="group" aria-label="Collision location">
+            <button class="active" data-collide-mode="0" type="button">anywhere</button>
+            <button data-collide-mode="1" type="button">in zone</button>
+          </div>
+        </div>
+
+        <div class="control-block module-control plan-control multi-control" id="min-impact-block">
+          <label for="min-impact">Min impact <output id="min-impact-value">0.50</output></label>
+          <input id="min-impact" type="range" min="0" max="2" step="0.05" value="0.5" />
+        </div>
+
+        <details id="rewards" class="module-control plan-control">
+          <summary>Interestingness</summary>
+          <p style="font-size:11px;opacity:0.7;margin:0 0 0.4rem;">Scene-wide goals below. For <strong>per-object</strong> control, hover an object in the scene — a ring of metric chips appears; scroll a chip to weight it. The ring's Impact chip measures that object's hardest contact with <strong>any body</strong>.</p>
+          <p class="control-hint">Positive weights prefer more; negative weights prefer less. These are soft preferences. Lower Reach target to let a different motion win, then Solve again.</p>
+          <div class="control-block">
+            <label for="reward-example">Try a setup</label>
+            <select id="reward-example">
+              <option value="">Choose a scene + objective…</option>
+              <option value="impact">Ramp · hard environment strike</option>
+              <option value="scene">Bank shot · more scene hits</option>
+              <option value="objects">Rendezvous · hard A–B strike</option>
+            </select>
+            <p class="control-hint">Loads the named scene, clears ring weights, sets the objective, and enables collision safeguards. Press Solve, then Fire.</p>
+          </div>
+          <div class="control-block">
+            <label for="reward-target">Reach target <output id="reward-target-value">1.00</output></label>
+            <input id="reward-target" type="range" min="0" max="1" step="0.05" value="1" />
+          </div>
+          <div class="control-block">
+            <label for="reward-angle">Tumble (angle) <output id="reward-angle-value">0.00</output></label>
+            <input id="reward-angle" type="range" min="-1" max="1" step="0.05" value="0" />
+          </div>
+          <div class="control-block">
+            <label for="reward-impact">Hard impact <output id="reward-impact-value">0.00</output></label>
+            <input id="reward-impact" type="range" min="-1" max="1" step="0.05" value="0" />
+            <p id="reward-impact-scope" class="control-hint">Peak impulse against the environment. One hard strike is enough.</p>
+          </div>
+          <div class="control-block">
+            <label for="reward-signed">Spin direction <output id="reward-signed-value">0.00</output></label>
+            <input id="reward-signed" type="range" min="-1" max="1" step="0.05" value="0" />
+          </div>
+          <div class="control-block">
+            <label for="reward-scene">Scene collisions <output id="reward-scene-value">0.00</output></label>
+            <input id="reward-scene" type="range" min="-1" max="1" step="0.05" value="0" />
+            <p class="control-hint">Counts separate strikes on fixed or prescribed-motion scenery, including floor and walls. Movable clutter does not count. Raise Bounciness for repeat hits.</p>
+          </div>
+          <div class="control-block multi-control">
+            <label for="reward-obj">A–B collisions <output id="reward-obj-value">0.00</output></label>
+            <input id="reward-obj" type="range" min="-1" max="1" step="0.05" value="0" />
+          </div>
+          <pre id="reward-readout" style="white-space:pre-wrap;font-size:11px;opacity:0.85;margin:0.3rem 0 0;"></pre>
+        </details>
+
+        <details id="appearance" class="module-control viz-control" open>
+          <summary>Appearance</summary>
+
+          <div class="control-block">
+            <label for="fancy-visuals">Glow</label>
+            <div class="segmented two" id="fancy-visuals" role="group" aria-label="Glow">
+              <button data-fancy="0" type="button">Off</button>
+              <button data-fancy="1" class="active" type="button">On</button>
+            </div>
+          </div>
+
+          <div class="control-block">
+            <label for="glow-strength">Glow strength <output id="glow-strength-value">0.42</output></label>
+            <input id="glow-strength" type="range" min="0" max="1.5" step="0.02" value="0.42" />
+            <label for="glow-radius">Glow radius <output id="glow-radius-value">0.75</output></label>
+            <input id="glow-radius" type="range" min="0" max="1.5" step="0.02" value="0.75" />
+            <label for="glow-threshold">Glow threshold <output id="glow-threshold-value">0.78</output></label>
+            <input id="glow-threshold" type="range" min="0" max="1" step="0.02" value="0.78" />
+          </div>
+
+          <div class="control-block">
+            <label for="saturation">Saturation <output id="saturation-value">1.6</output></label>
+            <input id="saturation" type="range" min="1" max="2.6" step="0.05" value="1.6" />
+          </div>
+
+          <div class="control-block">
+            <label for="show-legacy">Show legacy</label>
+            <div class="segmented two" id="show-legacy" role="group" aria-label="Show legacy material + trail controls">
+              <button data-legacy="0" class="active" type="button">Off</button>
+              <button data-legacy="1" type="button">On</button>
+            </div>
+          </div>
+
+          <div class="control-block">
+            <label for="surface-style" title="Material look of the LAUNCHED objects. Mokume = subtle layered-metal grain; Damascus = bolder wavy steel.">Object material</label>
+            <select id="surface-style">
+              <option value="studio" selected>Studio</option>
+              <option value="matte">Matte</option>
+              <option value="glossy">Glossy</option>
+              <option value="toon">Toon / NPR</option>
+              <option value="carpaint">Car paint</option>
+              <option value="iridescent">Iridescent</option>
+              <option value="sss">Subsurface (jade)</option>
+              <option value="volumetric">Volumetric (cloud)</option>
+              <option value="mokume">Mokume</option>
+              <option value="damascus">Damascus</option>
+              <option value="timascus">Timascus</option>
+              <option value="chrome">Chrome</option>
+            </select>
+            <label for="scene-style" title="Material look of the SCENE obstacles/walls, styled independently of the objects.">Scene material</label>
+            <select id="scene-style">
+              <option value="studio" selected>Studio</option>
+              <option value="matte">Matte</option>
+              <option value="glossy">Glossy</option>
+              <option value="toon">Toon / NPR</option>
+              <option value="carpaint">Car paint</option>
+              <option value="iridescent">Iridescent</option>
+              <option value="sss">Subsurface (jade)</option>
+              <option value="volumetric">Volumetric (cloud)</option>
+              <option value="mokume">Mokume</option>
+              <option value="damascus">Damascus</option>
+              <option value="timascus">Timascus</option>
+              <option value="chrome">Chrome</option>
+            </select>
+          </div>
+
+          <div class="control-block legacy-control" hidden>
+            <label for="trail-style">Trail</label>
+            <select id="trail-style">
+              <option value="line" selected>Line</option>
+              <option value="comet">Comet glow</option>
+              <option value="corners">Corner ribbons</option>
+              <option value="weave">4-corner weave</option>
+            </select>
+          </div>
+
+          <div class="control-block legacy-control" hidden>
+            <label for="trail-show">Trail show</label>
+            <div class="segmented two" id="trail-show" role="group" aria-label="When to show the fancy trail">
+              <button class="active" data-trail-persist="1" type="button">Always</button>
+              <button data-trail-persist="0" type="button">While firing</button>
+            </div>
+          </div>
+        </details>
+
+        <details id="lighting" class="module-control viz-control">
+          <summary>Lighting</summary>
+
+          <div class="control-block">
+            <label for="bulb-color">Bulb colour</label>
+            <input id="bulb-color" type="color" value="#ffe2bd" />
+          </div>
+
+          <div class="control-block">
+            <label for="bulb-intensity">Brightness <output id="bulb-intensity-value">2.4</output></label>
+            <input id="bulb-intensity" type="range" min="0.3" max="4" step="0.05" value="2.4" />
+          </div>
+
+          <div class="control-block">
+            <label for="back-light">Back light <output id="back-light-value">0.55</output></label>
+            <input id="back-light" type="range" min="0" max="1.4" step="0.05" value="0.55" />
+          </div>
+
+          <div class="control-block">
+            <label for="glass-backdrop">Chalkboard</label>
+            <div class="segmented two" id="glass-backdrop" role="group" aria-label="Chalkboard backdrop">
+              <button data-glass="0" class="active" type="button">Off</button>
+              <button data-glass="1" type="button">On</button>
+            </div>
+          </div>
+
+          <div class="control-block">
+            <label for="fog-mask-hole">Mask — hollow size <output id="fog-mask-hole-value">0.14</output></label>
+            <input id="fog-mask-hole" type="range" min="0" max="2" step="0.02" value="0.14" />
+            <label for="fog-mask-blur">Mask — edge blur <output id="fog-mask-blur-value">0.41</output></label>
+            <input id="fog-mask-blur" type="range" min="0.01" max="1.5" step="0.02" value="0.41" />
+          </div>
+
+          <div class="control-block">
+            <label>Fog 1 — size · center · rim</label>
+            <input type="range" data-fog-layer="0" data-fog-prop="size" min="0.5" max="6" step="0.1" value="1.7" />
+            <input type="range" data-fog-layer="0" data-fog-prop="center" min="0" max="0.8" step="0.02" value="0.04" />
+            <input type="range" data-fog-layer="0" data-fog-prop="rim" min="0.2" max="1.4" step="0.02" value="0.5" />
+          </div>
+          <div class="control-block">
+            <label>Fog 2 — size · center · rim</label>
+            <input type="range" data-fog-layer="1" data-fog-prop="size" min="0.5" max="6" step="0.1" value="1.7" />
+            <input type="range" data-fog-layer="1" data-fog-prop="center" min="0" max="0.8" step="0.02" value="0.1" />
+            <input type="range" data-fog-layer="1" data-fog-prop="rim" min="0.2" max="1.4" step="0.02" value="0.65" />
+          </div>
+          <div class="control-block">
+            <label>Fog 3 (smoke) — size · center · rim</label>
+            <input type="range" data-fog-layer="2" data-fog-prop="size" min="0.5" max="6" step="0.1" value="2.1" />
+            <input type="range" data-fog-layer="2" data-fog-prop="center" min="0" max="0.8" step="0.02" value="0.14" />
+            <input type="range" data-fog-layer="2" data-fog-prop="rim" min="0.2" max="1.4" step="0.02" value="0.7" />
+          </div>
+          <div class="control-block">
+            <button id="fog-show-values" type="button">Show current values</button>
+            <pre id="fog-values" style="white-space:pre-wrap;font-size:11px;opacity:0.85;margin:0.3rem 0 0;"></pre>
+          </div>
+        </details>
+
+        <details id="bg-planet" class="module-control viz-control" title="Two ambient gas-giants: a 'Front' one framed in the default view and a 'Behind' one you orbit to face. Pick which to edit, then set its style, placement and animation.">
+          <summary>BG planet</summary>
+          <p style="font-size:11px;opacity:0.7;margin:0 0 0.4rem;">Two planets — one framed in front, one behind the camera. Pick which to edit; <strong>Bring to front</strong> swings the selected one head-on.</p>
+          <div class="control-block">
+            <label for="planet-select">Editing</label>
+            <div class="segmented two" id="planet-select" role="group" aria-label="Which planet to edit" title="Choose which planet these controls edit. Front = framed in the default view; Behind = orbit the camera to see it.">
+              <button data-planet="front" class="active" type="button">Front</button>
+              <button data-planet="behind" type="button">Behind</button>
+            </div>
+          </div>
+          <div class="control-block">
+            <label for="planet-visible">Visible</label>
+            <div class="segmented two" id="planet-visible" role="group" aria-label="Back planet visibility" title="Show or hide the selected planet.">
+              <button data-planet-vis="0" type="button">Off</button>
+              <button data-planet-vis="1" class="active" type="button">On</button>
+            </div>
+          </div>
+          <div class="control-block">
+            <label for="planet-style">Style</label>
+            <select id="planet-style" title="Surface look of the selected planet. 'Jupiter II' is a thin-banded Jupiter with no storm spot.">
+              <option value="0" selected>Jupiter</option>
+              <option value="1">Fluid</option>
+              <option value="2">Iridescent</option>
+              <option value="3">Molten</option>
+              <option value="4">Aurora</option>
+              <option value="5">Ice</option>
+              <option value="6">Marble</option>
+              <option value="7">Neptune</option>
+              <option value="8">Jupiter II</option>
+            </select>
+            <label for="planet-anim" title="How fast the surface flows/churns. 0 freezes it.">Anim speed <output id="planet-anim-value">1.0</output></label>
+            <input id="planet-anim" type="range" min="0" max="3" step="0.05" value="1" />
+            <label for="planet-spin" title="How fast the planet rotates. Negative reverses the spin direction.">Spin speed <output id="planet-spin-value">1.0</output></label>
+            <input id="planet-spin" type="range" min="-3" max="3" step="0.05" value="1" />
+          </div>
+          <div class="control-block">
+            <label for="planet-brightness">Brightness <output id="planet-brightness-value">0.72</output></label>
+            <input id="planet-brightness" type="range" min="0.2" max="1.4" step="0.02" value="0.72" />
+            <label for="planet-size">Size <output id="planet-size-value">1.00</output></label>
+            <input id="planet-size" type="range" min="0.3" max="3" step="0.05" value="1" />
+            <label for="planet-glow">Atmosphere <output id="planet-glow-value">0.12</output></label>
+            <input id="planet-glow" type="range" min="0" max="0.6" step="0.02" value="0.12" />
+          </div>
+          <div class="control-block">
+            <label for="planet-distance" title="How far the selected planet sits from the scene centre (far-clip is 100).">Distance <output id="planet-distance-value">75</output></label>
+            <input id="planet-distance" type="range" min="10" max="95" step="1" value="75" />
+            <label for="planet-azimuth" title="Horizontal angle around the scene: 0° = in front of the camera, 180° = behind it.">Direction <output id="planet-azimuth-value">186</output></label>
+            <input id="planet-azimuth" type="range" min="0" max="360" step="2" value="186" />
+            <label for="planet-elevation" title="Vertical angle: negative dips it into view (the camera looks down), positive lifts it into the sky.">Height <output id="planet-elevation-value">14</output></label>
+            <input id="planet-elevation" type="range" min="-40" max="80" step="1" value="14" />
+          </div>
+          <div class="control-block">
+            <button id="planet-front" type="button" title="Swing the selected planet directly in front of the camera so you can see it head-on.">Bring to front (test)</button>
+            <button id="planet-tune-start" type="button" title="Face the BACK planet and walk its height up and down until you pick one. Restores the camera when you are done.">Tune back planet height…</button>
+            <pre id="planet-status" style="white-space:pre-wrap;font-size:11px;opacity:0.85;margin:0.3rem 0 0;"></pre>
+          </div>
+          <div class="control-block">
+            <button id="planet-export" type="button" title="Dump BOTH planets' full settings so you can report them and have them baked in as defaults.">Show values (both planets)</button>
+            <pre id="planet-values" style="white-space:pre-wrap;font-size:11px;opacity:0.85;margin:0.3rem 0 0;"></pre>
+          </div>
+        </details>
+
+        <div class="control-block module-control bench-control">
+          <label>Drag the light source or a prism in the viewport — or pick a target pattern and press Solve to arrange them automatically. A prism you grab becomes the selected one below.</label>
+        </div>
+
+        <div class="control-block module-control bench-control">
+          <label>Target pattern</label>
+          <div class="segmented" id="bench-targets">
+            <button class="active" data-bench-target="0" type="button">Single focus</button>
+            <button data-bench-target="1" type="button">Two spots</button>
+            <button data-bench-target="2" type="button">Wide</button>
+            <button data-bench-target="3" type="button">Off-center</button>
+            <button data-bench-target="4" type="button">Spot + ramp</button>
+            <button data-bench-target="5" type="button">Gradient</button>
+          </div>
+        </div>
+
+        <div class="control-block module-control bench-control">
+          <button id="bench-solve" class="btn-primary btn-solve" type="button">Solve layout</button>
+          <label class="prose" style="margin-top: 8px;" data-new="score">Pattern match <output id="bench-match">press Solve</output> — <span class="k-approx">match</span> is the correlation the search maximizes; it has <span class="k-limit">no meaningful zero</span>, so <span class="k-solid">blank</span> shows what this same lamp scores with every prism, mirror, occluder and lens <em>deleted</em> (42–98% on the untouched bench, but the solver aims the lamp too, so it ranges <span class="k-limit">0–99% once solved</span> — which means the baseline moves under you). <span class="k-solid">skill</span> is how far the arrangement gets between them: 0% means the optics earned nothing, negative means worse than an empty bench. <span class="k-solid">placed</span> is the share of light that actually landed where the target wants it — it is <span class="k-limit">not implied by the other three</span>: on Wide, where the blank is already 97%, skill rates a 96%-placed and a 17%-placed layout the same.</label>
+        </div>
+
+        <div class="control-block module-control bench-control">
+          <label class="prose" data-new="lens">Freeform lens — sculpt the glass itself (not moving parts) so it bends the beam into the target: caustic design. <span class="k-solid">Beats moving the prisms on 5 of 6 targets, and it is deterministic</span> — no press-Solve-again-and-hope. <span class="k-limit">A prism upstream costs it a lot</span> (it scatters light the lens can no longer place), so a clean beam is best.</label>
+          <div style="display: flex; gap: 6px;">
+            <button id="bench-add-glass" class="ghost-button" type="button" style="flex: 1;">Freeform lens</button>
+            <button id="bench-solve-shape" class="btn-primary" type="button" style="flex: 1;" disabled>Solve shape</button>
+          </div>
+          <label class="prose" style="margin-top: 6px;" data-new="lens">Sculpted faces — <span class="k-solid">two</span> splits the bend across both surfaces, so each is half as steep and stays inside the <span class="k-approx">paraxial design's accuracy</span>. Try 1 vs 2 and re-Solve to see the difference.</label>
+          <div class="seg-group" id="bench-lens-faces">
+            <button data-bench-faces="1" type="button">1 face</button>
+            <button data-bench-faces="2" class="active" type="button">2 faces</button>
+          </div>
+        </div>
+
+        <div class="control-block module-control bench-control">
+          <button id="bench-drop" class="btn-secondary" type="button">Drop prisms</button>
+          <label style="margin-top: 8px;">Physics — the prisms fall &amp; settle, then refract <output id="bench-drop-state">ready</output></label>
+        </div>
+
+        <div class="control-block module-control bench-control">
+          <label>Light model — Wave shows interference from the light + its mirror images (add a mirror)</label>
+          <div class="segmented">
+            <button class="active" data-bench-model="geo" type="button">Geometric</button>
+            <button data-bench-model="wave" type="button">Wave</button>
+          </div>
+        </div>
+
+        <div class="control-block module-control bench-control">
+          <label for="bench-wavelength">Wavelength <output id="bench-wavelength-value">0.080</output></label>
+          <input id="bench-wavelength" type="range" min="0.03" max="0.25" step="0.005" value="0.08" />
+        </div>
+
+        <div class="control-block module-control bench-control">
+          <label>Screen readout — the light landing on the screen (its irradiance). Bars = the quantitative profile; Photo = a tone-mapped HDR photo of it. With no glass in the path a point source falls off toward the edges (the cos² law); adding prisms/glass then redistributes that light into the refracted bands you're shaping toward the target.</label>
+          <div class="segmented">
+            <button class="active" data-bench-viz="bars" type="button">Radiance bars</button>
+            <button data-bench-viz="hdr" type="button">Photo (HDR)</button>
+          </div>
+        </div>
+
+        <div class="control-block module-control bench-control">
+          <label class="prose" for="bench-hdr-exposure" data-new="radio">Photo exposure <output id="bench-hdr-exposure-value">+1.00</output> stops — the film is <span class="k-solid">scene-referred</span>: it tone-maps the absolute irradiance, so lamp power and Fresnel losses really change the picture (it used to be pinned to peak=1, i.e. identical at any power)</label>
+          <input id="bench-hdr-exposure" type="range" min="-2" max="6" step="0.25" value="1" />
+          <label class="prose" style="margin-top: 6px;" data-new="radio">Radiance probe — hover to read the film's <span class="k-solid">absolute</span> irradiance at the pointer's height (W/m² per unit depth, from a ray-tube Jacobian estimator with Fresnel losses). <span class="k-approx">unresolved</span> is flux the estimator could not place on the film — it replaced an energy "audit %" that was an algebraic identity and so could never fail.</label>
+          <output id="bench-radiance" class="readout">—</output>
+        </div>
+
+        <div class="control-block module-control bench-control">
+          <label>Light medium — render the 2D light field as glowing fog</label>
+          <div class="segmented">
+            <button class="active" data-bench-media="off" type="button">Off</button>
+            <button data-bench-media="fog" type="button">Fog</button>
+          </div>
+        </div>
+
+        <div class="control-block module-control bench-control">
+          <label>Wave study — a scalar Schrödinger field illustrates propagation and phase (phase = colour). This is an optical analogy, not a literal photon model or a Maxwell solver.</label>
+          <div class="segmented">
+            <button class="active" data-bench-wave="rays" type="button">Rays</button>
+            <button data-bench-wave="wave" type="button">Wave</button>
+          </div>
+        </div>
+
+        <div class="control-block module-control bench-control">
+          <label>2D inverse setup discovery — fit the light deposited through participating media to a target image</label>
+          <p class="method-note">Experimental, gradient-free evolutionary search over the source and element poses. Few optical elements cannot reproduce an arbitrary image; the achieved film and its target remain visible for comparison.</p>
+          <div class="segmented">
+            <button class="active" data-bench-film="none" type="button">None</button>
+            <button data-bench-film="blob" type="button">Blob</button>
+            <button data-bench-film="twoBlobs" type="button">Two blobs</button>
+            <button data-bench-film="bar" type="button">Bar</button>
+            <button data-bench-film="ring" type="button">Ring</button>
+          </div>
+          <button id="bench-solve-film" class="btn-primary" type="button" style="margin-top: 8px;" disabled>Solve film</button>
+          <label style="margin-top: 8px;">Film match <output id="bench-film-match">pick a film</output></label>
+        </div>
+
+        <div class="control-block module-control bench-control">
+          <label for="bench-spread">Beam spread <output id="bench-spread-value">0.70</output></label>
+          <input id="bench-spread" type="range" min="0" max="1.6" step="0.02" value="0.7" />
+        </div>
+
+        <div class="control-block module-control bench-control">
+          <label for="bench-angle">Beam angle <output id="bench-angle-value">0.00</output></label>
+          <input id="bench-angle" type="range" min="-0.8" max="0.8" step="0.02" value="0" />
+        </div>
+
+        <div class="control-block module-control bench-control">
+          <label>Optical elements — reflectors &amp; blockers (drag &amp; rotate them like prisms)</label>
+          <div style="display: flex; gap: 6px;">
+            <button id="bench-add-mirror" class="ghost-button" type="button" style="flex: 1;">+ Mirror</button>
+            <button id="bench-add-occluder" class="ghost-button" type="button" style="flex: 1;">+ Occluder</button>
+            <button id="bench-remove" class="ghost-button" type="button" style="flex: 1;" disabled>Remove</button>
+          </div>
+        </div>
+
+        <div class="control-block module-control bench-control">
+          <label for="bench-rotate">Selected · rotate <output id="bench-rotate-value">--</output></label>
+          <input id="bench-rotate" type="range" min="-3.14" max="3.14" step="0.02" value="0" disabled />
+        </div>
+
+        <div class="control-block module-control bench-control">
+          <label for="bench-index">Selected prism · index <output id="bench-index-value">--</output></label>
+          <input id="bench-index" type="range" min="1.1" max="2.4" step="0.02" value="1.5" disabled />
+        </div>
+
+        <div class="control-block module-control bench-control">
+          <button id="bench-reset" class="ghost-button" type="button">Reset layout</button>
+        </div>
+
+        <div class="control-block module-control caustic-control">
+          <label>Caustic target — shape ONE glass surface so a collimated beam forms this bright pattern on the screen (drag-orbit the 3D lens)</label>
+          <div class="segmented" id="caustic-targets">
+            <button class="active" data-caustic-target="0" type="button">Spot</button>
+            <button data-caustic-target="1" type="button">Two spots</button>
+            <button data-caustic-target="2" type="button">Ring</button>
+            <button data-caustic-target="3" type="button">Cross</button>
+          </div>
+          <button id="caustic-image" class="btn-secondary" type="button" style="margin-top: 8px;">Load image…</button>
+          <input id="caustic-image-input" type="file" accept="image/*" hidden />
+          <label style="margin-top: 8px;">Image processing (for a loaded image)</label>
+          <div class="segmented">
+            <button data-caustic-invert="on" type="button">Invert</button>
+            <button class="active" data-caustic-invert="off" type="button">Normal</button>
+          </div>
+          <label for="caustic-img-contrast" style="margin-top: 6px;">Contrast <output id="caustic-img-contrast-value">1.0</output></label>
+          <input id="caustic-img-contrast" type="range" min="0.4" max="3" step="0.1" value="1" />
+          <p class="method-note">Not every image is a good glass target. Clipping contrast removes intermediate tones and demands bright peaks beside nearly empty regions; this smooth, finite-resolution surface may not realize that transport. Start with broad shapes and gentle gradients, then try lower contrast or a little blur. Source extent and the diffuse model also limit sharpness. Compare the reconstructed light, not just the target preview.</p>
+          <label for="caustic-img-blur" style="margin-top: 6px;">Blur <output id="caustic-img-blur-value">0</output></label>
+          <input id="caustic-img-blur" type="range" min="0" max="4" step="1" value="0" />
+          <label style="margin-top: 6px;">Edge detect — Sobel outlines (bright lines on black; caustics concentrate into lines)</label>
+          <div class="segmented">
+            <button data-caustic-edge="on" type="button">Edge</button>
+            <button class="active" data-caustic-edge="off" type="button">Off</button>
+          </div>
+          <label for="caustic-img-edgestr" style="margin-top: 6px;">Edge strength <output id="caustic-img-edgestr-value">1.5</output></label>
+          <input id="caustic-img-edgestr" type="range" min="0.5" max="4" step="0.1" value="1.5" />
+          <label for="caustic-img-bright" style="margin-top: 6px;">Brightness <output id="caustic-img-bright-value">0.00</output></label>
+          <input id="caustic-img-bright" type="range" min="-0.5" max="0.5" step="0.02" value="0" />
+          <label for="caustic-img-gamma" style="margin-top: 6px;">Gamma <output id="caustic-img-gamma-value">1.00</output></label>
+          <input id="caustic-img-gamma" type="range" min="0.3" max="3" step="0.05" value="1" />
+          <label for="caustic-img-posterize" style="margin-top: 6px;">Posterize <output id="caustic-img-posterize-value">off</output></label>
+          <input id="caustic-img-posterize" type="range" min="1" max="8" step="1" value="1" />
+        </div>
+
+        <div class="control-block module-control caustic-control">
+          <label>Glass model — single sheet (1 refraction) / thick (flat back, refract twice) / double (both faces morph)</label>
+          <div class="segmented three">
+            <button class="active" data-caustic-mode="single" type="button">Single</button>
+            <button data-caustic-mode="thick" type="button">Thick</button>
+            <button data-caustic-mode="double" type="button">Double</button>
+          </div>
+        </div>
+
+        <div class="control-block module-control caustic-control">
+          <label>Solver — Transport uses iterative Poisson corrections; Differentiable initializes from that surface and refines through the scalar image model. RGB dispersion uses Transport.</label>
+          <div class="segmented">
+            <button class="active" data-caustic-method="transport" type="button">Transport</button>
+            <button data-caustic-method="diff" type="button">Differentiable</button>
+          </div>
+          <p class="method-note">Transport: iterative Poisson corrections from the forward image residual. Differentiable: analytic gradients through the paraxial ray splat, followed by Adam refinement. Diffuse handling adds a source-blur approximation; these are model-based fits, not learned networks or full-wave lens design.</p>
+        </div>
+
+        <div class="control-block module-control caustic-control">
+          <button id="caustic-solve" class="btn-primary btn-solve" type="button">Solve surface</button>
+          <label class="prose" style="margin-top: 8px;" data-new="score">Caustic match <output id="caustic-match">press Solve</output> — <span class="k-approx">match</span> is the correlation the solver maximizes; it has <span class="k-limit">no meaningful zero</span>, so <span class="k-solid">blank</span> shows what a bare screen with no glass at all scores against this same target — 28–57% across the presets at any resolution or light source (the top is Ring at the lowest resolution under a Diffuse source, where the baseline is blurred like the image), and rising toward 100% the more of the frame the target covers. <span class="k-solid">skill</span> is how far this surface gets between the two: 0% is no better than no glass, 100% is exact, negative is <span class="k-limit">worse than no glass</span>. It <span class="k-limit">cannot re-rank two surfaces</span> against one target — for a fixed target it is match on a fixed scale, and the point is where the zero sits.</label>
+        </div>
+
+        <div class="control-block module-control caustic-control">
+          <label>Light model — Geometric rays, or a 3D scalar Schrödinger wave study with phase coloring. The wave view illustrates diffraction and focusing through a potential-field analogy; it is not photon quantum electrodynamics or a Maxwell simulation.</label>
+          <div class="segmented">
+            <button class="active" data-caustic-light="geo" type="button">Geometric</button>
+            <button data-caustic-light="wave" type="button">Wave</button>
+          </div>
+          <label for="caustic-wavelength" style="margin-top: 8px;">Wavelength <output id="caustic-wavelength-value">particle ↔ wave</output> — short λ = high momentum ⇒ ray-like/sharp (≈ the geometric caustic); long λ ⇒ strong diffraction &amp; wave optics</label>
+          <input id="caustic-wavelength" type="range" min="0" max="1" step="0.05" value="0.4" />
+        </div>
+
+        <div class="control-block module-control caustic-control">
+          <label>Shoot rays — draw the beam bending through the glass onto the screen</label>
+          <div class="segmented">
+            <button class="active" data-caustic-rays="off" type="button">Off</button>
+            <button data-caustic-rays="on" type="button">On</button>
+          </div>
+          <label for="caustic-ray-density" style="margin-top: 8px;">Ray density <output id="caustic-ray-density-value">22</output></label>
+          <input id="caustic-ray-density" type="range" min="6" max="60" step="2" value="22" />
+        </div>
+
+        <div class="control-block module-control caustic-control">
+          <label>Light source — Laser (collimated, sharp caustic) / Spotlight (a bulb → diverging cone) / Diffuse (an area source → soft, blurred caustic). The glowing emitter + its arrow show the beam; watch the caustic change.</label>
+          <div class="segmented three">
+            <button class="active" data-caustic-source="laser" type="button">Laser</button>
+            <button data-caustic-source="spotlight" type="button">Spotlight</button>
+            <button data-caustic-source="diffuse" type="button">Diffuse</button>
+          </div>
+        </div>
+
+        <div class="control-block module-control caustic-control" id="caustic-diffuse-block" hidden>
+          <label>Diffuse handling — a diffuse source blurs the caustic; fight it. Naive (ignore it) / Pre-warp (deconvolve the target; asks for light a caustic can't make → the blue overlay) / Blur-aware (solve through the blur — the honest best).</label>
+          <div class="segmented">
+            <button data-caustic-diffuse="naive" type="button">Naive</button>
+            <button data-caustic-diffuse="prewarp" type="button">Pre-warp</button>
+            <button class="active" data-caustic-diffuse="bluraware" type="button">Blur-aware</button>
+          </div>
+          <label for="caustic-soft" style="margin-top:8px;">Source softness <output id="caustic-soft-value">0.06</output> — how wide the area source is; higher = blurrier, less recoverable (the étendue floor)</label>
+          <input id="caustic-soft" type="range" min="0" max="0.15" step="0.01" value="0.06" />
+        </div>
+
+        <div class="control-block module-control caustic-control">
+          <label for="caustic-glass">Glass position — slide the lens along the beam; the screen stays put <output id="caustic-glass-value">0.00</output></label>
+          <input id="caustic-glass" type="range" min="-0.8" max="0.8" step="0.05" value="0" />
+          <label for="caustic-dispersion" style="margin-top: 6px;">Dispersion Δn — split R/G/B; Solve fits ALL three (colored caustic) <output id="caustic-dispersion-value">0.00</output></label>
+          <input id="caustic-dispersion" type="range" min="0" max="0.12" step="0.01" value="0" />
+        </div>
+
+        <div class="control-block module-control caustic-control">
+          <label>Screen brightness — a filmic tone curve (highlights roll off, so a concentrated spot no longer blooms out; the toe lifts faint structure). Auto sets the exposure from the image; Manual uses the slider. Display only — the match % is unaffected.</label>
+          <div class="segmented" id="caustic-autoexp">
+            <button class="active" data-caustic-autoexp="on" type="button">Auto</button>
+            <button data-caustic-autoexp="off" type="button">Manual</button>
+          </div>
+          <label for="caustic-exposure" style="margin-top:8px;">Exposure <output id="caustic-exposure-value">1.50</output></label>
+          <input id="caustic-exposure" type="range" min="0.3" max="3" step="0.05" value="1.5" />
+        </div>
+
+        <div class="control-block module-control caustic-control">
+          <label>Ray color — beam (warm) or direction (hue by which way the exit face tilts each ray: N/S/E/W)</label>
+          <div class="segmented">
+            <button class="active" data-caustic-raycolor="beam" type="button">Beam</button>
+            <button data-caustic-raycolor="dir" type="button">Direction</button>
+          </div>
+        </div>
+
+        <div class="control-block module-control caustic-control">
+          <label>Deformation arrows — blue (surface rose) / red (surface sank)</label>
+          <div class="segmented">
+            <button data-caustic-arrows="on" type="button">On</button>
+            <button class="active" data-caustic-arrows="off" type="button">Off</button>
+          </div>
+        </div>
+
+        <div class="control-block module-control caustic-control">
+          <label>Volumetric caustic — a dense photon beam ray-marched into glowing 3D fog (orbit to see it)</label>
+          <div class="segmented">
+            <button class="active" data-caustic-volume="off" type="button">Off</button>
+            <button data-caustic-volume="on" type="button">On</button>
+          </div>
+        </div>
+
+        <div class="control-block module-control caustic-control">
+          <label for="caustic-res">Resolution — render + solver grid (≥256 solves slower) <output id="caustic-res-value">64</output></label>
+          <input id="caustic-res" type="range" min="32" max="512" step="32" value="64" />
+        </div>
+
+        <div class="control-block module-control strings-control">
+          <label>Front image — one thread walks peg to peg; where its chords pile up, the picture glows</label>
+          <div class="segmented three">
+            <button class="active" data-string-target="0" type="button">Ring</button>
+            <button data-string-target="1" type="button">Heart</button>
+            <button data-string-target="2" type="button">Star</button>
+          </div>
+          <div class="segmented three" style="margin-top: 6px;">
+            <button data-string-target="3" type="button">Shaded forms</button>
+            <button data-string-target="4" type="button">Straight light</button>
+            <button data-string-target="5" type="button">Fine weave</button>
+          </div>
+          <button id="string-image" class="btn-secondary" type="button" style="margin-top: 8px;">Load image…</button>
+          <input id="string-image-input" type="file" accept="image/*" hidden />
+          <label style="margin-top: 8px;">Pre-process — punch up a loaded photo before threading (invert / contrast about mid-grey)</label>
+          <div class="segmented">
+            <button class="active" data-string-invert="off" type="button">Normal</button>
+            <button data-string-invert="on" type="button">Invert</button>
+          </div>
+          <label for="string-contrast" style="margin-top: 8px;">Contrast <output id="string-contrast-value">1.0</output></label>
+          <input id="string-contrast" type="range" min="0.4" max="3" step="0.1" value="1" />
+          <label for="string-tone" style="margin-top: 8px;">Tone (gamma) — open midtones (&lt;1) or deepen shadows (&gt;1) <output id="string-tone-value">1.00</output></label>
+          <input id="string-tone" type="range" min="0.4" max="2.5" step="0.05" value="1" />
+        </div>
+
+        <div class="control-block module-control strings-control" id="string-suitability">
+          <label>Will this image work as thread?</label>
+          <p class="method-note">Broad shading and long aligned features often survive. Tiny isolated marks need chords that also cross the background. A sharp straight feature can fit better than a soft but isolated spot.</p>
+          <button id="string-check" class="btn-secondary" type="button">Check this image</button>
+          <p id="string-check-status" class="method-note" role="status">Check the current image and peg layout before a longer solve.</p>
+          <div id="string-check-results" hidden>
+            <div id="string-check-rows" aria-label="Tone comparison"></div>
+            <div class="diagnostic-labels"><span>Target tone</span><span>Pilot density</span><span>Difference</span></div>
+            <canvas id="string-check-canvas" width="288" height="96" aria-label="Small chord fit and its residual"></canvas>
+            <p id="string-check-caption" class="method-note"></p>
+            <button id="string-check-apply" class="btn-secondary" type="button">Use this tone</button>
+          </div>
+          <details class="supporting-patterns">
+            <summary>What this check measures</summary>
+            <p class="method-note">A small run of the actual continuous-thread greedy solver, using this peg layout. Error is ‖target − gain × density‖ / ‖target‖ with one fitted gain. Spill is the share of fitted density in regions below 8% of the target peak. Lower is better for each fixed target; changing tone changes the target, so the lowest number is not automatically the best picture.</p>
+            <p class="method-note">This is a screening experiment, not a success probability or a proof that an image is impossible. It does not rate Stipple, Flow, Ridge, weighted least squares, color layers, physical threads, or glow. Fine detail below this pilot grid may disappear; inspect the full solve too. Contrast can remove useful midtones and demand empty regions a continuous thread cannot avoid.</p>
+            <p class="method-note">The connection to Fourier is directional: scoring a chord resembles a line integral (Radon transform). Threads add positive density, so they cannot cancel unwanted crossings the way signed Fourier components can.</p>
+          </details>
+        </div>
+
+        <div class="control-block module-control strings-control">
+          <label class="prose" data-new="frame"><strong class="k-solid">Solved</strong> — these search for an arrangement that reconstructs the image. Line art optimizes the thread layout itself (greedy chord density, or a global least-squares sub-mode). Stipple and TSP share a capacity-constrained optimal-transport point set: Stipple draws it as dots, TSP threads one continuous stroke through the same points.</label>
+          <div class="segmented">
+            <button class="active" data-string-prim="chords" type="button">Line art</button>
+            <button data-string-prim="stipple" type="button">Stipple</button>
+            <button data-string-prim="tsp" type="button">TSP</button>
+          </div>
+          <label class="prose" style="margin-top: 8px;" data-new="frame"><strong class="k-approx">Simulated</strong> — a real process the image steers, rather than a solve: Growth is a differential-growth folding sim, Flow is edge-tangent flow-field hatching, Ripple/Ridge displace scanlines with front-to-back hidden-line removal.</label>
+          <div class="segmented">
+            <button data-string-prim="growth" type="button">Growth</button>
+            <button data-string-prim="flow" type="button">Flow</button>
+            <button data-string-prim="ripple" type="button">Ripple</button>
+            <button data-string-prim="ridge" type="button">Ridge</button>
+          </div>
+          <details class="supporting-patterns">
+          <summary>Supporting constructions · Hilbert, Spiral, Web</summary>
+          <p class="method-note">Deterministic tone-to-geometry mappings. Hilbert adapts subdivision, Spiral modulates a groove, and Web uses a fixed template. These provide construction baselines alongside the image-fitting solvers.</p>
+          <div class="segmented tier-minor">
+            <button data-string-prim="hilbert" type="button">Hilbert</button>
+            <button data-string-prim="spiral" type="button">Spiral</button>
+            <button data-string-prim="web" type="button">Web</button>
+          </div>
+          </details>
+        </div>
+
+        <div class="control-block module-control strings-control" id="string-diagnostics" hidden>
+          <div class="diagnostic-labels"><span>Target</span><span>Density</span><span>Difference</span></div>
+          <canvas id="string-diagnostic-canvas" width="384" height="128" aria-label="Solver target, reconstructed thread density and absolute difference"></canvas>
+          <p class="method-note">The actual solver rasters, each peak-normalized before comparison. Difference is absolute normalized error, not the reported correlation. No exposure, glow or color tint is applied here.</p>
+        </div>
+
+        <div class="control-block module-control strings-control" id="stipple-method-block" hidden>
+          <label>Stipple points — Lloyd (density-weighted centroids) / Power (equal ink per dot via optimal transport) / Swap (capacity-constrained assignments)</label>
+          <div class="segmented">
+            <button data-stipple-method="lloyd" type="button">Lloyd</button>
+            <button data-stipple-method="power" type="button">Power</button>
+            <button class="active" data-stipple-method="swap" type="button">Swap</button>
+          </div>
+        </div>
+        <div class="control-block module-control strings-control" id="stipple-ink-block" hidden>
+          <label>Dot ink — Uniform (every dot the same brightness) / Weighted (dims any dot owning less ink than average; never brightens one owning more — an aesthetic tweak, not proof of anything: about half the dots get dimmed under every method including Swap, the darkest to ~58% brightness under Swap and ~28% under Lloyd, so it visibly darkens roughly half the picture)</label>
+          <div class="segmented">
+            <button class="active" data-stipple-ink="uniform" type="button">Uniform</button>
+            <button data-stipple-ink="weighted" type="button">Weighted</button>
+          </div>
+        </div>
+        <div class="control-block module-control strings-control" id="string-disp-block" hidden>
+          <label>Displacement — Flat draws the relief in the plane (the lumps are just a vertical lift). Real makes those lumps a true 3-D relief popping toward you: head-on the picture is identical, so you only see it when you orbit the camera.</label>
+          <div class="segmented">
+            <button class="active" data-string-disp="off" type="button">Flat</button>
+            <button data-string-disp="on" type="button">Real</button>
+          </div>
+        </div>
+
+        <div class="control-block module-control strings-control">
+          <label>Layout — flat disc / woven volume / anamorphic (2nd image hidden at a 28° tilt) / cube (2nd image on the orthogonal side face — front &amp; side are independent)</label>
+          <div class="segmented">
+            <button class="active" data-string-layout="flat" type="button">Flat</button>
+            <button data-string-layout="volume" type="button">Volume</button>
+            <button data-string-layout="holo" type="button">Anamorph</button>
+            <button data-string-layout="cube" type="button">Cube</button>
+          </div>
+        </div>
+
+        <div class="control-block module-control strings-control">
+          <label>Second image — what the tilted (anamorph) or 90° side (cube) view shows</label>
+          <div class="segmented three">
+            <button data-string-target2="0" type="button">Ring</button>
+            <button data-string-target2="1" type="button">Heart</button>
+            <button class="active" data-string-target2="2" type="button">Star</button>
+          </div>
+          <button id="string-image2" class="btn-secondary" type="button" style="margin-top: 8px;">Load image…</button>
+          <input id="string-image2-input" type="file" accept="image/*" hidden />
+        </div>
+
+        <div class="control-block module-control strings-control">
+          <label>Detail — raster + pegs + thread fineness (higher = sharper &amp; denser; Ultra ~a few s, Max ~10s)</label>
+          <div class="segmented">
+            <button class="active" data-string-detail="standard" type="button">Standard</button>
+            <button data-string-detail="high" type="button">High</button>
+            <button data-string-detail="ultra" type="button">Ultra</button>
+            <button data-string-detail="max" type="button">Max</button>
+          </div>
+          <label for="string-lines" style="margin-top: 8px;">Max threads / density <output id="string-lines-value">1800</output> — thread budget for the solvers; strand/turn/point/row density for the deterministic types</label>
+          <input id="string-lines" type="range" min="400" max="12000" step="200" value="1800" />
+          <label style="margin-top: 8px;">Solver — Greedy (fast) or Least-sq (global fit: weighted lines, best fidelity on photos, ~3s; grayscale, flat, own resolution)</label>
+          <div class="segmented">
+            <button class="active" data-string-method="greedy" type="button">Greedy</button>
+            <button data-string-method="lsq" type="button">Least-sq</button>
+          </div>
+          <p class="method-note">Greedy chooses the next connected chord from the remaining image residual. Least-sq jointly adjusts nonnegative chord weights using multiplicative updates: a weighted line set, not one continuous strand. Anamorph and Cube use a separate discrete endpoint-height search to fit their second projection.</p>
+        </div>
+
+        <div class="control-block module-control strings-control">
+          <label>Peg frame — the vertices sit on a circle or a square perimeter</label>
+          <div class="segmented">
+            <button class="active" data-string-pegshape="circle" type="button">Circle</button>
+            <button data-string-pegshape="square" type="button">Square</button>
+          </div>
+          <label for="string-jitter" style="margin-top: 8px;">Jitter — organic (uneven) peg spacing <output id="string-jitter-value">0.00</output></label>
+          <input id="string-jitter" type="range" min="0" max="1" step="0.05" value="0" />
+          <label for="string-arc" style="margin-top: 8px;">Arc — fraction of the ring the pegs span (1 = full, &lt;1 = a fan/gap) <output id="string-arc-value">1.00</output></label>
+          <input id="string-arc" type="range" min="0.3" max="1" step="0.05" value="1" />
+        </div>
+
+        <div class="control-block module-control strings-control">
+          <label for="string-bias">Chord bias — favour long bold strokes (&gt;0) or short fine detail (&lt;0) <output id="string-bias-value">0.00</output></label>
+          <input id="string-bias" type="range" min="-0.6" max="0.6" step="0.05" value="0" />
+          <label for="string-sym" style="margin-top: 8px;">Symmetry — N-fold mandala mirror (1 = off) <output id="string-sym-value">1</output></label>
+          <input id="string-sym" type="range" min="1" max="8" step="1" value="1" />
+        </div>
+
+        <div class="control-block module-control strings-control">
+          <label for="string-exposure">Exposure — per-thread brightness (additive: many threads add up) <output id="string-exposure-value">0.160</output></label>
+          <input id="string-exposure" type="range" min="0.02" max="0.6" step="0.005" value="0.16" />
+          <label for="string-glow" style="margin-top: 8px;">Glow — bloom bleed around bright regions <output id="string-glow-value">0.60</output></label>
+          <input id="string-glow" type="range" min="0" max="1.6" step="0.05" value="0.6" />
+          <label for="string-width" style="margin-top: 8px;">Line width — thread thickness (hairline → bold ribbon) <output id="string-width-value">0.008</output></label>
+          <input id="string-width" type="range" min="0.003" max="0.06" step="0.001" value="0.008" />
+          <label style="margin-top: 8px;">Colour — Tint recolours one grayscale solve; Layers runs a TRUE per-channel R/G/B solve (real colour, ~3× slower, needs a colour image, flat only)</label>
+          <div class="segmented three">
+            <button class="active" data-string-color="mono" type="button">Mono</button>
+            <button data-string-color="tint" type="button">Tint</button>
+            <button data-string-color="layers" type="button">Layers</button>
+          </div>
+          <label style="margin-top: 8px;">Blend — Glow (neon threads on black) or Ink (real string-art look: dark threads on light paper)</label>
+          <div class="segmented">
+            <button class="active" data-string-blend="glow" type="button">Glow</button>
+            <button data-string-blend="ink" type="button">Ink</button>
+          </div>
+          <label style="margin-top: 8px;">Web fill — brighten threads through dense regions (cohesion / auto-fill, like a spider web or the SH2 logo)</label>
+          <div class="segmented">
+            <button class="active" data-string-web="off" type="button">Even</button>
+            <button data-string-web="on" type="button">Web</button>
+          </div>
+        </div>
+
+        <div class="control-block module-control strings-control">
+          <label>View — fly the camera head-on (front image) or to the 2nd-view eye (anamorph tilt / cube side)</label>
+          <div class="segmented">
+            <button data-string-view="front" type="button">Front</button>
+            <button data-string-view="holo" type="button">2nd view</button>
+          </div>
+          <label style="margin-top: 8px;">2nd-view inset — a live little window showing the encoded second image</label>
+          <div class="segmented">
+            <button class="active" data-string-inset="on" type="button">On</button>
+            <button data-string-inset="off" type="button">Off</button>
+          </div>
+        </div>
+
+        <div class="control-block module-control strings-control">
+          <button id="string-solve" class="btn-primary btn-solve" type="button">Solve threads</button>
+          <!-- Solve progress. Hidden unless a solve is in flight. `data-state="busy"` is the INDETERMINATE look (a
+               sweeping band) for phases with no counted loop; `data-state="run"` fills to --p. -->
+          <div id="string-progress" class="solve-progress" hidden>
+            <div class="solve-progress-bar" role="progressbar" aria-labelledby="string-progress-note" aria-valuemin="0" aria-valuemax="100"><span id="string-progress-fill"></span></div>
+            <span id="string-progress-note" class="solve-progress-note">working…</span>
+          </div>
+          <label style="margin-top: 8px;">Front match <output id="string-match">press Solve</output></label>
+          <label>2nd-view match <output id="string-match2">—</output></label>
+        </div>
+
+        <div class="control-block module-control strings-control">
+          <label>Fabrication export — take the current piece off-screen: a real-size <b>SVG</b> (print / pen-plot / laser) or the physical <b>winding</b> instructions (peg-wrap order for chords, a plot path for the generative fills)</label>
+          <div class="segmented">
+            <button id="string-export-svg" type="button">SVG</button>
+            <button id="string-export-wind" type="button">Winding list</button>
+          </div>
+          <label for="string-export-size" style="margin-top: 8px;">Hoop diameter (mm) — sets the real-world scale of the exported files</label>
+          <input id="string-export-size" type="number" min="20" max="2000" step="10" value="300" />
+        </div>
+
+        <details id="advanced">
+          <summary>Advanced</summary>
+
+        <div class="control-block module-control plan-control">
+          <label for="max-force">Max kick impulse <output id="max-force-value">8.0</output></label>
+          <input id="max-force" type="range" min="2" max="20" step="0.5" value="8" />
+          <p class="control-hint">Upper search bound per kick (N·s), not a force applied every frame. A larger bound can reach farther but enlarges the search and may need more effort; it does not force a harder hit. Speed is capped at 18 m/s.</p>
+          <p class="control-hint">Fast or rapidly rotating bodies can cross thin obstacles at low precision. Enable Auto-substep and solve again. It is capped at 16 substeps and does not guarantee no tunnelling. The arena is open above its side walls.</p>
+        </div>
+
+        <div class="control-block module-control plan-control">
+          <label for="restitution">Bounciness <output id="restitution-value">0.00</output></label>
+          <input id="restitution" type="range" min="0" max="0.9" step="0.01" value="0" />
+        </div>
+
+        <div class="control-block module-control plan-control">
+          <label>Sleep at rest</label>
+          <div class="segmented two" id="opt-sleep" role="group" aria-label="Sleep resting bodies" title="Freeze bodies once they settle, so they stop micro-wobbling on the ground forever. Re-solves on change.">
+            <button data-on="0" type="button">Off</button>
+            <button data-on="1" class="active" type="button">On</button>
+          </div>
+        </div>
+
+        <div class="control-block module-control plan-control">
+          <label>Speculative CCD</label>
+          <div class="segmented two" id="opt-ccd" role="group" aria-label="Speculative contacts" title="Early-contact approximation for box–box pairs only; discs and polygons use discrete contacts. Can alter near-miss trajectories. Solve again after changing.">
+            <button data-on="0" class="active" type="button">Off</button>
+            <button data-on="1" type="button">On</button>
+          </div>
+        </div>
+
+        <div class="control-block module-control plan-control">
+          <label>Auto-substep</label>
+          <div class="segmented two" id="opt-autosub" role="group" aria-label="Auto-substep fast bodies" title="Smaller steps for relative motion, rotating tips and thin geometry; at most 16 per frame. Applies to every shape. Reduces tunnelling, increases solve time, and changes the trajectory. Solve again after changing.">
+            <button data-on="0" class="active" type="button">Off</button>
+            <button data-on="1" type="button">On</button>
+          </div>
+        </div>
+
+        <div class="control-block module-control plan-control">
+          <label>Thicken chain</label>
+          <div class="segmented two" id="opt-thickchain" role="group" aria-label="Thicken the Chain Gate links" title="Scene mitigation for the Chain Gate: rebuild it with thicker, heavier links the shot can't slip through. Re-inits the scene.">
+            <button data-on="0" class="active" type="button">Off</button>
+            <button data-on="1" type="button">On</button>
+          </div>
+        </div>
+
+        <div class="control-block module-control rigid-control">
+          <label for="run-mode">Run</label>
+          <div class="segmented two" id="run-mode" role="group" aria-label="Run mode">
+            <button id="run-button" class="active" type="button">Pause</button>
+            <button id="step-button" type="button">Step</button>
+          </div>
+        </div>
+
+        <div class="control-block" hidden>
+          <label for="solver-mode">Solver</label>
+          <div class="segmented three" id="solver-mode" role="group" aria-label="Solver mode">
+            <button class="active" data-solver="0" type="button">PGS</button>
+            <button data-solver="1" type="button">Jacobi</button>
+            <button data-solver="2" type="button">TGS</button>
+          </div>
+        </div>
+
+        <div class="control-block" hidden>
+          <label for="iterations">Iterations <output id="iterations-value">12</output></label>
+          <input id="iterations" type="range" min="1" max="32" step="1" value="12" />
+        </div>
+
+        <div class="control-block module-control rigid-control">
+          <label for="complexity">Complexity <output id="complexity-value">9</output></label>
+          <input id="complexity" type="range" min="5" max="13" step="1" value="9" />
+        </div>
+
+        <div class="control-block module-control rigid-control">
+          <label for="gravity">Gravity <output id="gravity-value">9.8</output></label>
+          <input id="gravity" type="range" min="0" max="18" step="0.2" value="9.8" />
+        </div>
+
+        <div class="control-block module-control rigid-control">
+          <label for="friction">Friction <output id="friction-value">1.00</output></label>
+          <input id="friction" type="range" min="0.1" max="1.6" step="0.02" value="1" />
+        </div>
+
+        <div class="control-block module-control inverse-control">
+          <label for="inverse-mode">Control</label>
+          <div class="segmented two" id="inverse-mode" role="group" aria-label="Control mode">
+            <button class="active" data-inverse-mode="ballistic" type="button">Ballistic</button>
+            <button data-inverse-mode="feedback" type="button">Feedback</button>
+          </div>
+        </div>
+
+        <div class="control-block module-control plan-control">
+          <label for="start-tilt">Start tilt</label>
+          <div class="segmented two" id="start-tilt" role="group" aria-label="Start tilt">
+            <button class="active" data-start-tilt="0" type="button">Auto</button>
+            <button data-start-tilt="1" type="button">Set</button>
+          </div>
+        </div>
+
+        <div class="control-block module-control plan-control">
+          <label for="replay-mode">Replay</label>
+          <div class="segmented two" id="replay-mode" role="group" aria-label="Replay mode">
+            <button data-replay="0" type="button">Normal</button>
+            <button class="active" data-replay="1" type="button">Cinematic</button>
+          </div>
+        </div>
+
+        <div class="control-block module-control plan-control">
+          <label for="precision-mode">Precision</label>
+          <div class="segmented three" id="precision-mode" role="group" aria-label="Simulation precision">
+            <button class="active" data-precision="0" type="button">60 Hz</button>
+            <button data-precision="1" type="button">120 Hz</button>
+            <button data-precision="2" type="button">240 Hz</button>
+          </div>
+        </div>
+
+        <div class="control-block module-control plan-control">
+          <label for="timing-mode">Timing</label>
+          <div class="segmented two" id="timing-mode" role="group" aria-label="Launch timing">
+            <button class="active" data-timing="1" type="button">Wait for it</button>
+            <button data-timing="0" type="button">Fire now</button>
+          </div>
+        </div>
+
+        <div class="control-block module-control plan-control">
+          <label for="search-viz">Show search</label>
+          <div class="segmented two" id="search-viz" role="group" aria-label="Show search internals">
+            <button class="active" data-search-viz="1" type="button">On</button>
+            <button data-search-viz="0" type="button">Off</button>
+          </div>
+        </div>
+
+        <p class="control-hint module-control inverse-control">
+          <strong>Ballistic</strong>: one solved impulse on frame 0, then pure physics &mdash; no steering.
+          <strong>Feedback</strong>: a corrective nudge every frame, so it homes to (and chases) the target.
+          Drag the cyan <strong>start</strong> and gold <strong>target</strong> rings.
+        </p>
+
+        <div class="control-block module-control search-control">
+          <label for="solve-method">Search method</label>
+          <select id="solve-method">
+            <option value="0">CEM</option>
+            <option value="1">Random</option>
+            <option value="2">CMA-ES</option>
+            <option value="3">Simulated annealing</option>
+            <option value="4">Differential evolution</option>
+            <option value="5">Gradient descent</option>
+            <option value="6">Manifold walk</option>
+            <option value="7">Particle swarm</option>
+          </select>
+          <p class="method-note">Finite-horizon shooting: search release time, kick direction, magnitude and application point, then replay the resulting contact dynamics. CEM and evolutionary methods are gradient-free. “Gradient descent” uses finite differences, not backpropagation through contacts. Thorough mode can add its own refinement, so the selector does not describe every stage.</p>
+        </div>
+
+        <div class="control-block module-control plan-control" id="plan-axes">
+          <label>Projection axes</label>
+          <div class="segmented two">
+            <select id="axis-a"></select>
+            <select id="axis-b"></select>
+          </div>
+        </div>
+
+        <div class="control-block module-control search-control" id="solution-space">
+          <label>Solution space <output id="solve-stats">press Solve</output>
+            <button id="reach-map" type="button" class="view-toggle-mini" title="Reachability map: sweep the target over the whole scene and colour each spot by how well the solver can hit it (green = easy, red = hard). Reveals that 'easy-looking' spots can be hard and vice-versa. Takes a few seconds.">Reach</button>
+            <button id="cost-3d-toggle" type="button" class="view-toggle-mini">3D</button>
+          </label>
+          <canvas id="cost-canvas" width="260" height="260"></canvas>
+          <canvas id="conv-canvas" width="260" height="62"></canvas>
+        </div>
+
+        <div class="control-block module-control start-control">
+          <label for="start-x">Start X <output id="start-x-value">-3.75</output></label>
+          <input id="start-x" type="range" min="-3.9" max="3.9" step="0.05" value="-3.75" />
+        </div>
+
+        <div class="control-block module-control start-control">
+          <label for="start-y">Start Y <output id="start-y-value">0.42</output></label>
+          <input id="start-y" type="range" min="0.3" max="3" step="0.05" value="0.42" />
+        </div>
+
+        <div class="control-block module-control plan-control multi-control" id="zone-radius-block">
+          <label for="zone-radius">Zone radius <output id="zone-radius-value">0.60</output></label>
+          <input id="zone-radius" type="range" min="0.1" max="2.5" step="0.05" value="0.6" />
+        </div>
+
+        <div class="control-block module-control target-control">
+          <label for="target-x">Target X <output id="target-x-value">2.85</output></label>
+          <input id="target-x" type="range" min="-5.1" max="5.1" step="0.05" value="2.85" />
+        </div>
+
+        <div class="control-block module-control target-control">
+          <label for="target-y">Target Y <output id="target-y-value">0.54</output></label>
+          <input id="target-y" type="range" min="0.05" max="3.7" step="0.05" value="0.54" />
+        </div>
+
+        <div class="control-block module-control plan-control" id="start-angle-block">
+          <label for="start-angle">Start pose <output id="start-angle-value">0.00</output></label>
+          <input id="start-angle" type="range" min="-3.14" max="3.14" step="0.02" value="0" />
+        </div>
+
+        <div class="control-block module-control plan-control" id="target-pose-block">
+          <label for="target-angle">Target pose <output id="target-angle-value">0.00</output></label>
+          <input id="target-angle" type="range" min="-3.14" max="3.14" step="0.02" value="0" />
+        </div>
+
+        <div class="control-block module-control rest-control">
+          <label for="com-bias">COM Bias <output id="com-bias-value">0.22</output></label>
+          <input id="com-bias" type="range" min="-0.8" max="0.8" step="0.01" value="0.22" />
+        </div>
+
+        <div class="control-block module-control rest-control">
+          <label for="shape-skew">Skew <output id="shape-skew-value">0.36</output></label>
+          <input id="shape-skew" type="range" min="0" max="0.8" step="0.01" value="0.36" />
+        </div>
+
+        <div class="control-block module-control fourd-control">
+          <label for="slice-w">Slice W <output id="slice-w-value">0.12</output></label>
+          <input id="slice-w" type="range" min="-0.8" max="0.8" step="0.01" value="0.12" />
+        </div>
+
+        <div class="control-block module-control fourd-control">
+          <label for="spin4d">SO(4) Spin <output id="spin4d-value">0.78</output></label>
+          <input id="spin4d" type="range" min="0" max="1.8" step="0.02" value="0.78" />
+        </div>
+
+        <div class="control-block module-control optics-control">
+          <label>Target pattern</label>
+          <div class="segmented" id="optics-targets">
+            <button class="active" data-optics-preset="0" type="button">Two spots</button>
+            <button data-optics-preset="1" type="button">Three bars</button>
+            <button data-optics-preset="2" type="button">Edge</button>
+            <button data-optics-preset="3" type="button">Wide</button>
+          </div>
+        </div>
+
+        <div class="control-block module-control optics-control">
+          <label>Physics model</label>
+          <div class="segmented">
+            <button class="active" data-optics-mode="geo" type="button">Geometric</button>
+            <button data-optics-mode="wave" type="button">Wave</button>
+          </div>
+        </div>
+
+        <div class="control-block module-control optics-control">
+          <label for="optics-index">Refractive index <output id="optics-index-value">1.50</output></label>
+          <input id="optics-index" type="range" min="1.1" max="2.4" step="0.02" value="1.5" />
+        </div>
+
+        <div class="control-block module-control optics-control">
+          <label for="optics-distance">Screen distance <output id="optics-distance-value">3.00</output></label>
+          <input id="optics-distance" type="range" min="1.5" max="5" step="0.1" value="3" />
+        </div>
+
+        <div class="control-block module-control shadow-control">
+          <label>Shadow target — arrange the 3D bars so their cast shadow forms this silhouette (drag-orbit to see the 3D scene)</label>
+          <div class="segmented" id="shadow-targets">
+            <button class="active" data-shadow-target="0" type="button">Cross</button>
+            <button data-shadow-target="1" type="button">Two bars</button>
+            <button data-shadow-target="2" type="button">Disc</button>
+            <button data-shadow-target="3" type="button">Ring</button>
+          </div>
+        </div>
+
+        <div class="control-block module-control shadow-control">
+          <button id="shadow-solve" class="btn-primary btn-solve" type="button">Solve arrangement</button>
+          <label style="margin-top: 8px;">Shadow match <output id="shadow-match">press Solve</output></label>
+        </div>
+
+        <dl id="metrics">
+          <div>
+            <dt id="metric-impulse-label">Solver impulse</dt>
+            <dd id="metric-impulse">0.000</dd>
+          </div>
+          <div>
+            <dt id="metric-breakage-label">Joint breakage</dt>
+            <dd id="metric-breakage">0%</dd>
+          </div>
+          <div>
+            <dt id="metric-score-label">Inverse score</dt>
+            <dd id="metric-score">--</dd>
+          </div>
+          <div>
+            <dt id="metric-lane-label">Kernel lane</dt>
+            <dd id="metric-lane">C++ SIMD</dd>
+          </div>
+        </dl>
+
+        <section id="wasm-explanation" aria-label="WASM fit explanation">
+          <label>Why WASM</label>
+          <p id="wasm-reason">Contact solving depends on immediate constraint feedback, island state, and branch-heavy collision handling.</p>
+          <p id="gpu-limit">GPU-style parallel Jacobi updates can run many contacts at once, but they often need more iterations and converge poorly on stacks.</p>
+        </section>
+        </details>
+        </div>
+
+        <div id="action-bar">
+          <p class="control-hint" id="plan-readout">Set a posed target, choose pushes &amp; a search method, then Solve.</p>
+          <div class="actions">
+            <button id="solve-shot" class="btn-primary btn-solve" type="button">Solve</button>
+            <button id="fire-shot" class="btn-primary btn-fire" type="button">Fire</button>
+            <button id="clear-shot" class="btn-secondary" type="button">Prime</button>
+          </div>
+        </div>
+      </aside>
+    </main>
+  </body>
+</html>

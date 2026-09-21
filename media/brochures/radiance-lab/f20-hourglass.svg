@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360">
+<defs>
+<marker id="mY" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#FFD264"/></marker>
+<marker id="mT" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#FFD264" fill-opacity="0.6"/></marker>
+<marker id="mG" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#DDE3E0" fill-opacity="0.35"/></marker>
+</defs>
+<g font-family="'JetBrains Mono', ui-monospace, monospace" font-size="12" fill="#DDE3E0" stroke-width="1.5">
+<!-- medium (fog) -->
+<rect x="14" y="78" width="612" height="246" rx="6" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.25)"/>
+<text x="22" y="316" fill-opacity="0.5">medium</text>
+<!-- axis a = normalize(C - y) -->
+<line x1="48" y1="200" x2="622" y2="200" stroke="#DDE3E0" stroke-opacity="0.35" stroke-width="1" marker-end="url(#mG)"/>
+<text x="609" y="194" fill-opacity="0.7">a</text>
+<!-- cap of directions that hit the ball: psi_max (faint) -->
+<path d="M48,200 L227,151.7 M48,200 L227,248.3" fill="none" stroke="#FFD264" stroke-opacity="0.3" stroke-width="1" stroke-dasharray="4 3"/>
+<text x="140" y="160" fill="#FFD264" fill-opacity="0.55">ψ<tspan font-size="9" dy="3">max</tspan></text>
+<!-- glass ball on the axis -->
+<circle cx="240" cy="200" r="50" fill="rgba(255,255,255,0.06)" stroke="#FFFFFF" stroke-opacity="0.55"/>
+<circle cx="240" cy="200" r="1.6" fill="#DDE3E0"/>
+<text x="245" y="214">C</text>
+<text x="206" y="266" fill-opacity="0.7">glass ball</text>
+<!-- entry ring (the chain revolves rigidly) -->
+<ellipse cx="197.5" cy="200" rx="5.8" ry="26.4" fill="none" stroke="#FFD264" stroke-opacity="0.3" stroke-width="1" stroke-dasharray="3 3"/>
+<!-- the swept sheet: exit ray revolved about a = double cone, waist at the focus -->
+<path d="M286.8,182.1 L334,200 L580,106.5 A20.6,93.5 0 0 1 580,293.5 L334,200 L286.8,217.9 A4,17.9 0 0 1 286.8,182.1 Z" fill="#FFD264" fill-opacity="0.18" stroke="none"/>
+<path d="M286.8,182.1 L334,200 L580,106.5 M286.8,217.9 L334,200 L580,293.5" fill="none" stroke="#FFD264" stroke-opacity="0.7"/>
+<path d="M580,106.5 A20.6,93.5 0 0 1 580,293.5 M286.8,182.1 A4,17.9 0 0 1 286.8,217.9" fill="none" stroke="#FFD264" stroke-opacity="0.7"/>
+<path d="M580,106.5 A20.6,93.5 0 0 0 580,293.5 M286.8,182.1 A4,17.9 0 0 0 286.8,217.9" fill="none" stroke="#FFD264" stroke-opacity="0.3" stroke-width="1" stroke-dasharray="3 3"/>
+<ellipse cx="395" cy="200" rx="5.1" ry="23.2" fill="none" stroke="#FFD264" stroke-opacity="0.35" stroke-width="1"/>
+<ellipse cx="455" cy="200" rx="10.1" ry="46" fill="none" stroke="#FFD264" stroke-opacity="0.35" stroke-width="1"/>
+<path d="M455,246 A10.1,46 0 0 0 455,154" fill="none" stroke="#FFD264" stroke-opacity="0.9" marker-end="url(#mY)"/>
+<text x="463" y="150" fill="#FFD264">φ</text>
+<text x="322" y="230" fill-opacity="0.6">waist</text>
+<!-- meridian chain at phi = 0: y -> x1 -> x2 -> exit ray -->
+<line x1="53.9" y1="199" x2="197.5" y2="173.6" stroke="#FFD264"/>
+<path d="M118,200 A70,70 0 0 0 116.9,187.8" fill="none" stroke="#FFD264" stroke-opacity="0.8" stroke-width="1"/>
+<text x="122" y="197" fill="#FFD264">ψ</text>
+<circle cx="134" cy="193" r="2" fill="#FF4646"/>
+<line x1="197.5" y1="173.6" x2="286.8" y2="182.1" stroke="#FFD264" stroke-opacity="0.9"/>
+<path d="M286.8,182.1 L575,291.5" fill="none" stroke="#FFD264" marker-end="url(#mY)"/>
+<path d="M209.4,181 L187.3,167.3 M273.7,187.1 L298,177.8" fill="none" stroke="#FFFFFF" stroke-opacity="0.35" stroke-width="1" stroke-dasharray="2 2"/>
+<circle cx="197.5" cy="173.6" r="3.2" fill="#FF4646"/>
+<circle cx="286.8" cy="182.1" r="3.2" fill="#FF4646"/>
+<text x="168" y="168">x<tspan font-size="9" dy="3">1</tspan></text>
+<text x="296" y="170">x<tspan font-size="9" dy="3">2</tspan></text>
+<text x="372" y="236" fill="#FFD264">r</text>
+<text x="446" y="264" fill="#FFD264" fill-opacity="0.85">ω<tspan font-size="9" dy="3">out</tspan></text>
+<!-- camera ray -->
+<circle cx="582" cy="44" r="6" fill="none" stroke="#78C8FF" stroke-dasharray="3 2"/>
+<text x="572" y="48" text-anchor="end">eye</text>
+<line x1="578.8" y1="49.1" x2="512" y2="155" stroke="#78C8FF"/>
+<line x1="512" y1="155" x2="477.8" y2="209.1" stroke="#78C8FF" stroke-opacity="0.35" stroke-dasharray="3 3"/>
+<text x="558" y="96" fill="#78C8FF">d</text>
+<!-- crossing x and the two tangents -->
+<line x1="513.1" y1="159.9" x2="519.3" y2="188.2" stroke="#FFD264" stroke-opacity="0.6" marker-end="url(#mT)"/>
+<line x1="516.9" y1="153.8" x2="545.7" y2="146.5" stroke="#FFD264" stroke-opacity="0.6" marker-end="url(#mT)"/>
+<text x="523" y="198" fill="#FFD264" fill-opacity="0.8">a</text>
+<text x="549" y="143" fill="#FFD264" fill-opacity="0.8">b</text>
+<circle cx="512" cy="155" r="4" fill="none" stroke="#FFFFFF" stroke-width="2"/>
+<text x="506" y="148" text-anchor="end">x</text>
+<!-- Jacobian -->
+<text x="296" y="46">J = |((a×(x−y))×ω<tspan font-size="9" dy="3">out</tspan><tspan font-size="12" dy="-3">)·d|</tspan></text>
+<text x="296" y="64" fill-opacity="0.75">a = ∂x/∂φ = a×(x−y)   b = ∂x/∂r = ω<tspan font-size="9" dy="3">out</tspan></text>
+<!-- caption -->
+<text x="320" y="348" text-anchor="middle">20 · photon hourglass · sample ψ on the cap, sweep φ, r</text>
+</g>
+</svg>

@@ -1,0 +1,2113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><style id="portfolio-early-paint">html{background:#0b0d0c;color-scheme:dark}html.portfolio-booting body{opacity:0}</style><script src="../../portfolio-navigation.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BalanceForge — A Studio for Learned Control</title>
+  <link rel="stylesheet" href="css/styles.css?v=20260909-rate-2" />
+  <link rel="stylesheet" href="css/control_diagnostics.css?v=20260909-rate-2" />
+  <link rel="stylesheet" href="css/control_header.css?v=20260920-demo-camera" />
+  <link rel="stylesheet" href="portfolio.css">
+<link rel="stylesheet" href="../../portfolio-controls.css"><link rel="stylesheet" href="../../portfolio-demo-return.css"><script defer src="../../portfolio-demo-return.js" data-project="balanceforge" data-title="BalanceForge" data-overview="projects/balanceforge/overview.html" data-group="signature" data-thumbnail="media/previews/balanceforge/native-dodge-spatial-neat-circuit.png" data-routes="[{&quot;project&quot;:&quot;balanceforge&quot;,&quot;title&quot;:&quot;BalanceForge&quot;,&quot;group&quot;:&quot;signature&quot;,&quot;thumbnail&quot;:&quot;media/previews/balanceforge/native-dodge-spatial-neat-circuit.png&quot;,&quot;overview&quot;:&quot;projects/balanceforge/overview.html&quot;,&quot;path&quot;:&quot;live_demos/balanceforge/index.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:2},{&quot;project&quot;:&quot;balanceforge&quot;,&quot;title&quot;:&quot;BalanceForge&quot;,&quot;group&quot;:&quot;signature&quot;,&quot;thumbnail&quot;:&quot;media/previews/balanceforge/native-dodge-spatial-neat-circuit.png&quot;,&quot;overview&quot;:&quot;projects/balanceforge/overview.html&quot;,&quot;path&quot;:&quot;live_demos/balanceforge/index.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:1},{&quot;project&quot;:&quot;balanceforge&quot;,&quot;title&quot;:&quot;BalanceForge&quot;,&quot;group&quot;:&quot;signature&quot;,&quot;thumbnail&quot;:&quot;media/previews/balanceforge/native-dodge-spatial-neat-circuit.png&quot;,&quot;overview&quot;:&quot;projects/balanceforge/overview.html&quot;,&quot;path&quot;:&quot;live_demos/balanceforge/control-study.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:1},{&quot;project&quot;:&quot;balanceforge&quot;,&quot;title&quot;:&quot;BalanceForge&quot;,&quot;group&quot;:&quot;signature&quot;,&quot;thumbnail&quot;:&quot;media/previews/balanceforge/native-dodge-spatial-neat-circuit.png&quot;,&quot;overview&quot;:&quot;projects/balanceforge/overview.html&quot;,&quot;path&quot;:&quot;live_demos/balanceforge/report.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:1},{&quot;project&quot;:&quot;balanceforge&quot;,&quot;title&quot;:&quot;BalanceForge&quot;,&quot;group&quot;:&quot;signature&quot;,&quot;thumbnail&quot;:&quot;media/previews/balanceforge/native-dodge-spatial-neat-circuit.png&quot;,&quot;overview&quot;:&quot;projects/balanceforge/overview.html&quot;,&quot;path&quot;:&quot;live_demos/balanceforge/diffsim-balance.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:1},{&quot;project&quot;:&quot;balanceforge&quot;,&quot;title&quot;:&quot;BalanceForge&quot;,&quot;group&quot;:&quot;signature&quot;,&quot;thumbnail&quot;:&quot;media/previews/balanceforge/native-dodge-spatial-neat-circuit.png&quot;,&quot;overview&quot;:&quot;projects/balanceforge/overview.html&quot;,&quot;path&quot;:&quot;live_demos/balanceforge/&quot;,&quot;query&quot;:{},&quot;priority&quot;:-1}]"></script><!-- universal-navigation:start --><link rel="stylesheet" href="../../portfolio-location.css?v=054b6b462c"><script defer src="../../portfolio-location.js?v=054b6b462c"></script><script defer src="../../portfolio-routes.js?v=054b6b462c"></script><script defer src="../../portfolio-universal-navigation.js?v=054b6b462c"></script><!-- universal-navigation:end --><style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head>
+<body class="portfolio-balanceforge">
+  <div class="portfolio-return" data-theme="dark" role="navigation" aria-label="Portfolio"><a class="portfolio-return-link" href="../../projects/balanceforge/index.html" target="_top"><span aria-hidden="true">←</span> Project overview</a></div>
+  <header class="topbar">
+    <div class="brand">
+      <svg class="forge-emblem" viewBox="0 0 48 48" aria-hidden="true"><circle class="emblem-orbit" cx="24" cy="24" r="20"/><path class="emblem-link" d="M13 34L24 14L35 28"/><path class="emblem-rail" d="M8 36H40"/><circle class="emblem-joint" cx="24" cy="14" r="3.5"/><circle class="emblem-tip" cx="35" cy="28" r="4"/></svg>
+      <span class="brand-name">Balance<span class="brand-accent">Forge</span></span>
+      <!-- Hidden until the WASM toggle lights up (body gets .wasm-on).
+           Visual cue that the C++ port is running, not the JS reference. -->
+      <span class="wasm-badge" title="NEAT forward passes are running through the C++/WASM module.">C++&nbsp;·&nbsp;WASM</span>
+      <span class="brand-tag" title="Compare learned controllers, explicit physics models and engineered baselines.">A studio for learned control</span>
+    </div>
+    <div class="topbar-status">
+      <div class="status-big" id="statusBig">IDLE</div>
+      <div class="status-detail" id="statusDetail">no run started</div>
+    </div>
+    <div class="controller-ribbon" aria-label="Active controller and replay status">
+      <span class="ribbon-caption">ON STAGE</span>
+      <strong id="activeControllerName">Choose a ready-to-play controller</strong>
+      <span id="controllerKindBadge" class="controller-kind-badge" hidden></span>
+      <span id="pendulumPhaseBadge" class="controller-kind-badge" hidden></span>
+      <span id="controllerTimeBadge" class="controller-kind-badge" hidden></span>
+      <div id="physicsRateControl" class="physics-rate-control" data-override="false" title="Physics stepping for this demo. The recorded controller decision rate is preserved.">
+        <svg class="physics-rate-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M1 11h3V5h3v6h3V5h3v6h2"/><path d="M2 2h12M2 14h12"/></svg>
+        <select id="physicsRateSelect" aria-label="Playback physics rate" aria-describedby="physicsRateNote">
+          <option value="">Physics · loading</option>
+        </select>
+        <span id="physicsRateNote" class="physics-rate-note" role="status"></span>
+      </div>
+      <button id="arcadeToggle" class="arcade-toggle" type="button" aria-pressed="false" title="Rotate through recorded controllers. Any click, key or scroll takes control and stops rotation.">▶ Demo mode</button>
+      <span id="arcadeNotice" class="arcade-notice" hidden>Click on anything to stop demo mode.</span>
+    </div>
+    <div class="topbar-actions">
+      <select id="setupSelect" class="select" title="Choose a setup"></select>
+      <button id="trainBtn" class="btn btn-primary">Train</button>
+      <button id="testBtn" class="btn btn-good" title="Replay the selected trained policy with its scene settings. Model-based modes replay their current trajectory; inspect the reported hold or catch metric.">Test</button>
+      <button id="pauseBtn" class="btn">Pause</button>
+      <button id="saveBtn" class="btn" title="Snapshot the entire trainer state (population, best-ever, curriculum, CMA-ES state). Single slot — overwritten by next save.">Save</button>
+      <button id="restoreBtn" class="btn" title="Roll back to the last saved snapshot. Useful when training degrades and you want to retry from a known good point." disabled>Restore</button>
+      <button id="exportBestBtn" class="btn" title="Download the trained policy, weights, architecture and scene settings as JSON for reproducible replay. Supported neural policies retain their actual parameters.">Export best</button>
+      <button id="importBestBtn" class="btn" title="Load a saved trained policy together with its architecture, weights and scene settings. The saved scene is restored before replay.">Import best</button>
+      <input id="importBestInput" type="file" accept="application/json,.json" class="hidden" />
+      <button id="archiveBtn" class="btn" title="Open the model archive — multiple named slots persisted in your browser (localStorage). Save the current best-ever under a name, then load it back later or in a new browser tab without keeping the JSON file around. Each slot stores the same data the Export best button writes, so saves are interchangeable with downloaded JSON files.">Saves</button>
+      <button id="curriculumTopbarBtn" class="btn" title="Toggle curriculum on/off. When on, configure ramp ranges directly on each slider via the orange '+' button next to it. The default state is a gravity ramp (0.18×target → target × multiplicative); add more by clicking '+' on other sliders.">Curriculum: off</button>
+      <button id="curriculumListBtn" class="btn hidden" title="Show / hide the floating curriculum-ramp list (anchored to the simulation viewer). Each entry is clickable — clicking scrolls to the matching slider and briefly flashes it.">List</button>
+      <button id="editBtn" class="btn" title="Edit mode: pause the sim and drag elements (ball spawn position, exit gates, etc.) directly on the canvas. Click again to exit.">Edit</button>
+      <button id="resetBtn" class="btn">Reset</button>
+      <button id="newRunBtn" class="btn btn-warn">New run</button>
+      <input id="seedInput" type="text" readonly class="num-input seed-input" placeholder="seed" title="RNG seed in use for the current trainer. Read-only — auto-generated each New run, displayed here so you know what produced the trajectory you're seeing. Click the copy button to copy it to the clipboard." />
+      <button id="seedCopyBtn" class="btn btn-icon" title="Copy the current trainer seed to the clipboard">⧉</button>
+    </div>
+    <div id="trainingThroughput" class="training-throughput" aria-label="Core training and playback controls">
+      <span class="throughput-title">⚡ Core <small>training</small></span>
+      <details id="trainingRuntimeDetails" class="training-runtime-details"><summary>Preview &amp; timing</summary><div class="runtime-details-body"></div></details>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="panel panel-controls">
+      <!-- Quick-start preset selector. Sits ABOVE everything else so it's
+           the first thing a new user can reach. Picking a preset applies
+           a full pipeline configuration in one shot; the dropdown
+           auto-resets to "(custom)" when anything in the snapshot is
+           manually edited afterward. -->
+      <!-- Curated "these work" quick-pick, populated from SHOWCASE_PRESET_IDS.
+           The full "Preset" dropdown below still lists EVERYTHING (variants +
+           experimental); this one surfaces the short, scoped starting route. -->
+      <div class="preset-row start-card training-start">
+        <label for="selectedPresetSelect" class="control-label"><span class="start-number">02</span> Training presets</label>
+        <span class="start-caption">Watch topology evolve, or follow a policy’s gradient updates.</span>
+        <select id="selectedPresetSelect" class="select select-inline">
+          <option value="">Choose a learning experiment…</option>
+        </select>
+      </div>
+      <div class="preset-row start-card pretrained-start" id="pretrainedStart">
+        <label for="showcaseModelSelect" class="control-label"><span class="start-number">01</span> Pretrained &amp; ready to play</label>
+        <span class="start-caption start-invitation">Start here. See a controller working immediately.</span>
+        <div class="network-load-row">
+          <select id="showcaseModelSelect" class="select select-inline" aria-label="Pretrained network or reference controller">
+            <option value="">Choose a ready-to-play example…</option>
+          </select>
+          <button id="loadShowcaseBtn" type="button" class="btn btn-primary" disabled>▶ Load &amp; play</button>
+        </div>
+        <div id="showcaseModelStatus" class="start-caption model-status" role="status">Recorded training, architecture, and measured limits travel with each model.</div>
+      </div>
+      <div id="approachSummary" class="approach-summary" aria-live="polite"></div>
+      <details id="dodgeMethodNote" class="method-note" hidden>
+        <summary>Why this dodger works ↗</summary>
+        <p><strong>Forecast → measure → rank.</strong> The supplied physics model predicts nine candidate headings for 1.2 s. A small trained network scores their clearance, wall margin and motion. It replans every 0.05 s.</p>
+        <p>A temporal CNN would learn motion and useful features from successive images. Here, velocity and a physical forecast are supplied explicitly: learning only has to rank the alternatives. The history thumbnails are explanatory, not network inputs.</p>
+        <p>Removing velocity reduces fresh-test survival from 33/40 to 0/40. That supports the importance of motion information; it does not show that a properly trained temporal CNN would be worse.</p>
+        <a href="control-study.html#dodge-study" target="_blank" rel="noopener">Read the model, comparison and limitations →</a>
+      </details>
+      <details id="golfCourseNote" class="method-note" hidden>
+        <summary>Course rules &amp; obstacles ↗</summary>
+        <p><strong>The ceiling can be touched.</strong> It is a passive rebound surface, not a touch-to-lose zone. The attempt ends when the ball sinks, escapes the course or runs out of time.</p>
+        <ul><li><strong>Two ramps:</strong> change the launch and landing angles.</li><li><strong>Movable bumper:</strong> exchanges momentum with the ball.</li><li><strong>Low beam:</strong> limits high arcs; a rebound changes speed and direction.</li><li><strong>Single strike:</strong> after impact, the club freezes and the ball continues under physics.</li></ul>
+        <p>The policy observes ball and hole state, not an arbitrary obstacle map. It is trained for this particular layout. Watch actual sinks; a high fitness is not a success percentage.</p>
+        <a href="control-study.html#golf-study" target="_blank" rel="noopener">See the contact fix and fresh-shot validation →</a>
+      </details>
+      <details id="signingMethodNote" class="method-note" hidden>
+        <summary>Why the first word works better ↗</summary>
+        <p><strong>Acquire first, then refine.</strong> The previous search ignored the poor first loop and kept a saturated cart/joint network. This controller learns from neutral commands and is scored on the entire first word.</p>
+        <p>We tested fixed and shrinking tolerance with the same starts and training budget. Both worked; the selected shrinking run kept every complete loop's mean error below 20 px on 40 fresh nearby starts. That is approximate tracing, not exact handwriting.</p>
+        <p>The word and future-target cues are known. Thirteen learned coefficients control the cart and telescopes; the existing physical joint servo holds its neutral bend. No planner draws the actual pen trace.</p>
+        <a href="control-study.html#signing-study" target="_blank" rel="noopener">Compare curricula and see the remaining limits →</a>
+      </details>
+      <div id="momentumStartNote" class="momentum-start-note" hidden><strong>Initial energy is supplied</strong><span>Both rods start below horizontal, already rotating inward. PPO controls only cart acceleration after release; there is no further state correction.</span><small id="momentumStartValues"></small></div>
+      <div id="pendulumReplayControls" class="pendulum-replay-controls" hidden>
+        <button type="button" id="pendulumReleaseBtn" class="btn">Swing-up / recovery</button>
+        <button type="button" id="pendulumHoldBtn" class="btn">Hold + nudges</button>
+        <label><input type="checkbox" id="pendulumRandomNudges" checked> Random nudges</label>
+        <a class="actuation-study-link" href="control-study.html#acceleration-study" target="_blank" rel="noopener">Does more acceleration help? ↗</a>
+        <small id="pendulumReplayNote"></small>
+      </div>
+      <div class="technique-legend" aria-label="Technique colors"><span class="tech-reference">● Reference</span><span class="tech-neat">● NEAT</span><span class="tech-cma">● CMA-ES</span><span class="tech-cnn">● CNN</span><span style="color:#cca5ff">● Backprop / imitation</span></div>
+      <div id="ppoTrainingStatus" class="fourier-explanation hidden" role="status"></div>
+      <p class="start-caption"><a href="control-study.html" target="_blank" rel="noopener">Control study ↗</a> · What is hard, what needs tuning, and what the measurements show.</p>
+      <div id="fourierExplanation" class="fourier-explanation hidden">
+        <strong>Same fixed lengths. Different control.</strong>
+        <div class="fourier-law"><span>Analytic Fourier</span><code>θⱼ(t) = φⱼ + 2πkⱼt / T</code><small>Constant harmonic speeds; phases supplied.</small></div>
+        <div class="fourier-law learned"><span>Learned controller</span><code>θ̇ⱼ = ωmax · πⱼ(observation)</code><small>Variable speeds from feedback; phases start at zero.</small></div>
+        <p><strong>Geometry knows the curve:</strong> fixed arm lengths come from the complete curve’s Fourier coefficients. <strong>The controller sees</strong> the arm angles, current tip-to-target error and a loop-phase clock. It learns variable angular rates on this repeated curve; it does not receive the complete curve at each step. This is curve-specific feedback, not a claim of unseen-curve tracking. The arms use velocity servos.</p>
+      </div>
+      <details class="advanced-presets" id="advancedPresets">
+        <summary>Advanced experiments &amp; comparators</summary>
+        <p class="start-caption">The complete catalog, engineered baselines, and paired comparisons.</p>
+      <div class="preset-row advanced-preset-row">
+        <label for="runPresetSelect" class="control-label" title="Full experiment catalog. Applies setup, algorithm, policy, curriculum and scene controls together.">Full catalog</label>
+        <select id="runPresetSelect" class="select select-inline">
+          <option value="">(custom)</option>
+        </select>
+      </div>
+      </details>
+      <!-- At-a-glance technical tags for the selected preset (optimizer,
+           policy, gradient class, curriculum, and editorial status like
+           solved/experimental/differentiable). Populated by renderPresetTags. -->
+      <div class="preset-tags hidden" id="presetTags"></div>
+      <!-- Full description of the selected preset, colour-coded (see
+           renderPresetDesc / highlightDescription in the app script). Descriptions
+           used to be reachable ONLY as a native `title` tooltip on the <option>,
+           which is plain text, hover-only, and unusable for the 1000+ character
+           write-ups these presets carry — so nobody read them. This panel
+           renders them properly and highlights measurements / method terms /
+           caveats, and carries the explicit "what's new" note for recent presets. -->
+      <div class="preset-desc hidden" id="presetDesc"></div>
+      <!-- Color legend for the dropdown option colors (primary technical facet). -->
+      <div class="preset-legend" id="presetLegend">
+        <span style="color:#ff7ab8">★ new</span>
+        <span style="color:#f5b769">● changed</span>
+        <span style="color:#bd87ff">● differentiable</span>
+        <span style="color:#4ee0c0">● CNN</span>
+        <span style="color:#f5b769">● experimental</span>
+        <span style="color:#6ce28a">● solved</span>
+      </div>
+      <!-- Differentiable Lab: the model-based backends (exact-gradient neural +
+           analytic LQR) live in an isolated iframe panel (js/diffsim_lab.js). -->
+      <button type="button" id="diffsimLabBtn" class="diffsim-lab-btn" title="Supporting study: compare exact-gradient training and analytic feedback on their stated model. Opens an isolated panel.">↗ Differentiable Lab <span>· supporting theory</span></button>
+      <!-- Compare-with selector. Picks a SECOND preset to train in
+           parallel with the current one. Both trainers run alternating
+           gens; their fitness curves are drawn on the same chart so the
+           user can see training speed AND final performance side by
+           side. Empty selection = compare mode off. -->
+      <div class="compare-row">
+        <label class="control-label" title="Run a second trainer alongside the current one for direct A/B comparison. The fitness chart overlays both curves (A solid, B dashed); the sim viewer toggle below lets you switch which agent's behavior is shown. Empty = compare mode off.">Compare with</label>
+        <select id="compareWithPresetSelect" class="select select-inline">
+          <option value="">(off)</option>
+        </select>
+      </div>
+
+      <!-- Core region. Hosts the cross-cutting knobs that don't fit
+           model/scene/display: sim-speed (playback rate) and the
+           WASM toggle (execution path). Both are settings about HOW
+           the sandbox runs rather than WHAT it's running. Region
+           banner is always visible; the WASM row inside hides until
+           BF.wasm.ready flips true. -->
+      <div class="panel-region region-core" id="coreRegion">
+        <span class="region-title">Core <span class="region-mode-tag">(training)</span></span>
+        <span class="region-subtitle">sim speed · execution path · used while training</span>
+      </div>
+      <div class="control-row" id="trainingSimSpeedRow">
+        <label class="control-label" title="Playback rate of the displayed simulation. 1× is real-time; up to 32× lets you skim through long rollouts quickly. Training runs at full CPU speed regardless of this slider — it only affects how fast the visible sim ticks.">Sim speed</label>
+        <input id="simSpeed" type="range" min="0.25" max="32" step="0.25" value="1" />
+        <span class="control-value" id="simSpeedVal">1.00x</span>
+      </div>
+      <!-- Full power mode. When on:
+             * trainer.step is called with yieldEveryMs=0 -- the
+               browser only sees control between generations, not
+               mid-gen, so the JIT can run flat-out.
+             * The per-frame tickDisplay + drawAll pair is skipped --
+               no display-sim physics tick and no canvas paint. The
+               sim viewer "freezes" (intentionally) until the user
+               flips this back off OR the auto-peek timer fires.
+             * Compare mode's secondary step also goes yield-free.
+           Trade-off: max training throughput, no live preview unless
+           auto-peek (below) is on. Best used after the user has
+           confirmed a config is working and just wants to grind out
+           generations. -->
+      <p class="training-speed-hint" id="trainingSpeedHint">Inspect slowly when needed. Full power and parallel evaluation are in the top row for faster training.</p>
+      <div class="control-row checkbox-row training-boost" id="fullPowerRow">
+        <label title="Disable display rendering AND inter-eval yields so training runs at max CPU throughput. The sim viewer freezes; only text/badges update. Best when you've confirmed the config works and just want gens/sec. Flip off to resume live preview.">
+          <input id="fullPowerMode" type="checkbox" /> <strong>Full power</strong> <span class="boost-detail">prioritize training</span>
+        </label>
+      </div>
+      <!-- Auto-peek: when full power is on, render ONE display frame
+           every N seconds so the user can periodically glance at the
+           sim without losing most of the throughput. With a 5-second
+           interval, ~one rAF frame (~16ms) of work per 5s = ~0.3%
+           rendering overhead. Hidden when full-power is off; the row
+           is structural so we can show/hide as a unit. -->
+      <div class="control-row checkbox-row" id="autoPeekRow" style="display:none;">
+        <label title="When full-power mode is on, periodically render one display frame so you can spot-check what the current best agent looks like. Cheap (single rAF burst per interval) but breaks the strictly-no-viz guarantee -- expect a tiny dip in gens/sec at each peek. Disable entirely for absolute max throughput.">
+          <input id="autoPeek" type="checkbox" checked /> Auto-peek
+        </label>
+      </div>
+      <div class="control-row" id="autoPeekIntervalRow" style="display:none;">
+        <label class="control-label" title="Seconds between display refreshes when auto-peek is on. Higher = less rendering overhead, but you wait longer between glimpses.">Peek interval (s)</label>
+        <input id="autoPeekInterval" type="range" min="1" max="30" step="1" value="5" />
+        <span class="control-value" id="autoPeekIntervalVal">5s</span>
+      </div>
+      <div class="control-row checkbox-row" id="useWasmEvalRow" style="display:none;">
+        <label title="Dispatch the numerical hot paths (NEAT forward pass, multi-scale CNN forward pass, CMA-ES Jacobi eigendecomposition) through the C++/WASM module instead of the JS reference. Same numerical output (modulo float rounding); flip on/off mid-run to compare. Hidden when the WASM bundle isn't loaded -- run `cd wasm && python build.py` to build it.">
+          <input id="useWasmEval" type="checkbox" /> Use WASM (C++ accelerated)
+        </label>
+        <button id="wasmHelpBtn" class="btn btn-icon btn-help" type="button"
+                title="Show per-preset speedup expectations and run a live JS-vs-WASM benchmark."
+                aria-label="Show WASM perf expectations">?</button>
+      </div>
+      <!-- WASM perf explainer panel; opened by the ? button above. -->
+      <div class="algo-explain hidden" id="wasmExplain"></div>
+      <!-- Multi-core parallel eval. When on, each generation's
+           population is split across a Web Worker pool (one per
+           hardware thread minus the UI) instead of evaluated serially
+           on the main thread. Falls back to serial when workers aren't
+           available (file:// blocks Worker construction) OR when the
+           run uses features not supported by the parallel path yet
+           (adversarial co-evolution). Toggle off + on after changing
+           setup/algo so the pool re-inits with the new params. -->
+      <div class="control-row checkbox-row training-boost" id="parallelEvalRow">
+        <label title="Distribute per-generation rollouts across Web Workers, one per hardware thread (minus the UI). Real speedup depends on per-rollout compute (CNN heavy = much better speedup; tiny NEAT genome = postMessage overhead caps the win). Serial fallback when file:// blocks workers or features (adversarial) aren't supported.">
+          <input id="parallelEvalOn" type="checkbox" /> <strong>Parallel eval</strong> <span class="boost-detail">use more cores</span>
+        </label>
+        <span class="control-value" id="parallelEvalStatus" style="margin-left:8px;color:var(--muted);">—</span>
+      </div>
+      <!-- Multi-core benchmark. Same pool as above, but a one-shot
+           timing test. Useful to confirm Web Workers actually work in
+           your environment before flipping the toggle. -->
+      <div class="control-row checkbox-row" id="workerBenchRow">
+        <button id="workerBenchBtn" class="btn" type="button"
+                title="Spawn a worker pool and benchmark serial vs parallel evaluation on the current best agent. Useful to confirm Web Workers are enabled in your environment.">Benchmark</button>
+        <span class="control-value" id="workerBenchVal" style="margin-left:8px;color:var(--muted);">—</span>
+      </div>
+
+      <!-- Second Core region: same three knobs but applied when the
+           user is in test mode. The active set depends on app.testing;
+           the inactive set still shows so the user can pre-configure
+           "what should test mode look like" while still training.
+           Visually dimmed via .region-core-test so it doesn't compete
+           for attention with the primary training set. -->
+      <div class="panel-region region-core region-core-test" id="coreTestRegion">
+        <span class="region-title">Core <span class="region-mode-tag">(testing)</span></span>
+        <span class="region-subtitle">used while in test mode · usually you don't need these different</span>
+      </div>
+      <div class="control-row dim-test-mode">
+        <label class="control-label" title="Playback rate while in test mode. Independent from the training-mode sim speed so you can train at 8× and still watch tests at 1×.">Sim speed</label>
+        <input id="simSpeedTest" type="range" min="0.25" max="32" step="0.25" value="1" />
+        <span class="control-value" id="simSpeedTestVal">1.00x</span>
+      </div>
+      <div class="control-row checkbox-row dim-test-mode">
+        <label title="Full-power mode while in test mode. Usually you want this OFF during testing -- the whole point of test mode is to watch the agent perform.">
+          <input id="fullPowerModeTest" type="checkbox" /> Full power (no viz throttle)
+        </label>
+      </div>
+      <div class="control-row checkbox-row dim-test-mode" id="useWasmEvalTestRow" style="display:none;">
+        <label title="WASM toggle while in test mode. Independent from the training-mode WASM toggle. Usually you want the same value in both modes; this is here for completeness.">
+          <input id="useWasmEvalTest" type="checkbox" /> Use WASM (C++ accelerated)
+        </label>
+      </div>
+
+      <div class="panel-region region-model">
+        <span class="region-title">Model</span>
+        <span class="region-subtitle">algorithm · training · stability · mutation · objective</span>
+      </div>
+      <h2 class="panel-title">Training</h2>
+
+      <div class="control-row">
+        <label class="control-label">Algorithm</label>
+        <select id="modeSelect" class="select select-inline">
+          <optgroup label="Strong (recommended)">
+            <option value="neat-full" selected>Full NEAT (species + crossover)</option>
+            <option value="cmaes">CMA-ES (fixed topology, full covariance)</option>
+            <option value="sep-cmaes">sep-CMA-ES (diagonal covariance, scales to big networks)</option>
+            <option value="de">Differential Evolution</option>
+            <option value="pso">Particle Swarm (PSO)</option>
+            <option value="cem">Cross-Entropy Method (CEM)</option>
+          </optgroup>
+          <optgroup label="Educational / comparison">
+            <option value="neat">NEAT-simplified (mutation only — likely worse)</option>
+            <option value="annealing">Simulated annealing (N chains)</option>
+            <option value="pt">Parallel tempering (replica exchange)</option>
+          </optgroup>
+          <optgroup label="Backpropagation · model-free reinforcement learning">
+            <option value="ppo">PPO (actor–critic · backprop + Adam)</option>
+          </optgroup>
+          <optgroup label="Gradient estimates (finite differences / perturbations)">
+            <option value="fdgd">FD-GD (finite-difference gradient + backtracking line search)</option>
+            <option value="spsa">SPSA (simultaneous perturbation gradient)</option>
+            <option value="adam">Adam (SPSA gradient + per-dim adaptive step)</option>
+            <option value="lbfgs">L-BFGS (quasi-Newton, two-loop recursion + line search)</option>
+            <option value="nes">NES / OpenAI-ES (REINFORCE on μ)</option>
+            <option value="xnes">xNES (NES + diagonal exp-scale, per-dim variance)</option>
+          </optgroup>
+          <optgroup label="Differentiable physics (exact-gradient · double pendulum)">
+            <option value="diffsim-adam">Exact-gradient neural (backprop through the simulator)</option>
+            <option value="diffsim-memetic">Memetic (population + exact-gradient refinement — GA × grad)</option>
+            <option value="diffsim-trajopt">Spring-model trajectory search + LQR catch (experimental)</option>
+            <option value="diffsim-lqr">Spring-model LQR (local feedback controller)</option>
+          </optgroup>
+          <optgroup label="Rigid point-mass models (classical control · two or three links)">
+            <option value="rigid-reference">Double reference (nonlinear swing-up → LQR hold)</option>
+            <option value="rigid-triple-reference">Triple reference (nonlinear swing-up → LQR hold)</option>
+            <option value="rigid-swingup">Rigid double trajectory search → LQR catch (experimental)</option>
+            <option value="single-energy-lqr">Single swing-up (energy shaping → LQR)</option>
+            <option value="rigid-lqr">Rigid double LQR (local upright balance)</option>
+            <option value="rigid-triple-swingup">Rigid TRIPLE trajectory search → LQR (classical experiment)</option>
+            <option value="rigid-triple-lqr">Rigid triple LQR (local upright balance)</option>
+          </optgroup>
+          <optgroup label="Planning, imitation and analytic reconstruction">
+            <option value="dodge-planner">Mixed-bullet planner (model-based avoidance)</option>
+            <option value="dodge-distill">Distill planner → network (behavioral cloning + DAgger — watch it learn)</option>
+            <option value="dodge-scorer" hidden>Saved CMA-ES scorer + physical lookahead</option>
+            <option value="signing-planner">Signing-machine planner (approximate physical tracking)</option>
+            <!-- Epicycle: the one mode here that does not even SEARCH. The arms
+                 are the curve's DFT coefficients, so the drawing is closed-form.
+                 Needs js/curve_fourier.js (loaded before setups.js below) and
+                 the `epicycle` setup; eval_worker.js mirrors the arm-count
+                 parity so a worker can never build a differently-sized machine. -->
+            <option value="epicycle-analytic">Fourier arms (analytic curve approximation)</option>
+          </optgroup>
+          <optgroup label="Naive baselines">
+            <option value="random">Random search (no learning)</option>
+          </optgroup>
+          <optgroup label="Swarm metaheuristics (most → least distinct from PSO)">
+            <option value="cuckoo">Cuckoo Search (Lévy flights)</option>
+            <option value="whale">Whale Optimization (spiral hunting)</option>
+            <option value="fish">Fish Swarm / AFSA (crowding-aware)</option>
+            <option value="greywolf">Grey Wolf (α/β/δ leader hierarchy)</option>
+            <option value="aco">ACO_R (continuous ant colony)</option>
+            <option value="firefly">Firefly (pairwise brightness)</option>
+            <option value="bat">Bat (echolocation)</option>
+          </optgroup>
+        </select>
+        <button id="modeHelpBtn" class="btn btn-icon btn-help" title="Show a longer description of the selected algorithm" type="button" aria-label="Show algorithm description">?</button>
+      </div>
+      <!-- Per-algorithm explainer. Hidden by default; toggled by the ? button next to the
+           algorithm select. The text is mode-keyed and lives in app.js so updates don't
+           require touching this template. -->
+      <div class="algo-explain hidden" id="algoExplain"></div>
+      <!-- Shown ONLY in a differentiable-physics mode (body.diffsim-mode). The
+           population controls below don't apply to the exact-gradient backends,
+           so this explains what drives the chart + live view instead. -->
+      <div class="diffsim-mode-note" id="diffsimModeNote">
+        <strong>Differentiable-physics mode.</strong> This backend learns by
+        backpropagating through the simulator (or, for LQR, solving analytically),
+        not by evolving a population — so the population, mutation, speciation and
+        curriculum controls below are ignored here. The fitness chart plots
+        <em>mean-upright over the training horizon</em> each step, and the live
+        view replays the differentiable rollout balancing a double pendulum.
+      </div>
+      <div class="control-row" id="neatInitialHiddenRow">
+        <label class="control-label" title="Seed every gen-0 NEAT genome with this many fully-connected hidden tanh nodes. Default 0 = canonical NEAT (start linear, complexify on demand). Bump to 4-8 for sparse-reward / deceptive tasks (golf, ball-strike) where the linear policy class is at a fitness plateau and any single add-node mutation looks worse than the linear elite — gives the GA architectural breathing room from gen 0. Wasted bloat for dense-reward control like pendulum.">Initial hidden (NEAT)</label>
+        <input id="neatInitialHidden" type="range" min="0" max="16" step="1" value="0" />
+        <span class="control-value" id="neatInitialHiddenVal">0</span>
+      </div>
+      <div class="control-row" id="neatTopologyRow">
+        <label class="control-label" title="NEAT starting topology. Minimal uses the legacy initial-hidden slider above. Wide / deep presets pre-seed a fully-connected MLP so tasks where the architecture-discovery tax dominates training (golf, ball-hit) start with usable representational capacity instead of waiting hundreds of generations for add-node mutations to grow it. Topology can still evolve from any starting point.">Initial topology</label>
+        <select id="neatTopologyPreset" class="select select-inline"></select>
+      </div>
+      <div class="phys-hint" id="neatTopologyHint"></div>
+      <!-- Activation function for every new hidden NEAT node (initial
+           seed AND addNode split-mutations during training). Tanh
+           (default) is smooth + bounded -- classic NEAT choice, never
+           saturates beyond ±1. ReLU is unbounded above + identity on
+           positive inputs, biasing splits toward one-sided
+           contributions (matches the reference Pendulum-NEAT project's
+           hidden activation). Sigmoid is rarely useful but kept for
+           completeness. Changes apply to genomes built AFTER the
+           change -- existing genomes keep whatever activation their
+           nodes were created with. -->
+      <div class="control-row" id="neatHiddenActivationRow">
+        <label class="control-label" title="Activation function for new NEAT hidden nodes. Tanh: classic, smooth, bounded. ReLU: unbounded above, identity on positive inputs (matches reference Pendulum-NEAT). Sigmoid: rarely useful. Changes apply to FUTURE node creations only -- existing genomes keep their original activations.">Hidden activation</label>
+        <select id="neatHiddenActivation" class="select select-inline"></select>
+      </div>
+      <div class="control-row checkbox-row">
+        <label><input id="showExperimentalActs" type="checkbox" /> Show experimental activations</label>
+      </div>
+      <div class="mixture-axes-card" id="mixtureAxesCard">
+        <div class="mixture-axes-title">Neuron activation model</div>
+        <div class="control-row mx-axis mx-axis-regime">
+          <label class="control-label" title="pure: single-activation nodes. mixed: every node is always a mixture (born k=1 == pure). pure+mixed: experimental — nodes can transition pure↔mixed both ways.">Regime</label>
+          <select id="mixtureRegime" class="select select-inline">
+            <option value="pure" selected>pure</option>
+            <option value="mixed">mixed</option>
+            <option value="pure+mixed">pure+mixed (experimental)</option>
+          </select>
+        </div>
+        <div class="control-row mx-axis mx-axis-palette">
+          <label class="control-label" title="legacy: the classic 5 (tanh/relu/sigm/sin/gauss) — default, unchanged. single: just the chosen hidden activation. all: full palette (experimental-aware via 'Show experimental activations').">Palette</label>
+          <select id="actPalette" class="select select-inline">
+            <option value="legacy" selected>legacy (5)</option>
+            <option value="single">single</option>
+            <option value="all">all</option>
+          </select>
+        </div>
+        <div class="control-row checkbox-row mx-axis mx-axis-mutable" id="actMutableRow">
+          <label title="When on (default = legacy behavior), an existing node may change its activation/mix over evolution. Off freezes existing-node type. Not applicable to pure+mixed (always all changes)."><input id="actMutable" type="checkbox" checked /> Existing nodes can change activation</label>
+        </div>
+      </div>
+      <div class="control-row">
+        <label class="control-label" title="Max activations blended per node (k cap). Birth is k=1; grow adds up to this. (mixed / pure+mixed only.)">Max funcs / node</label>
+        <input id="maxFunctionsPerNode" type="range" min="1" max="6" step="1" value="3" />
+        <span class="control-value" id="maxFunctionsPerNodeVal">3</span>
+      </div>
+      <div class="control-row">
+        <label class="control-label" title="raw: Σ wᵢ·actᵢ (unbounded, GA-friendly). normalized: Σ softmax(w)ᵢ·actᵢ (bounded convex blend). (mixed / pure+mixed only.)">Mixture combine</label>
+        <select id="mixtureCombine" class="select select-inline">
+          <option value="raw" selected>raw (linear)</option>
+          <option value="normalized">normalized (softmax)</option>
+        </select>
+      </div>
+      <!-- NEAT-CNN hybrid: prepend a frozen, random-initialized CNN
+           front-end before the NEAT network. The CNN extracts features
+           from the dodge multi-scale grid; NEAT evolves topology over
+           those features + agent state (+ optionally top-K bullets).
+           Drops NEAT's input count from ~516 to ~20-36 -- inside NEAT's
+           comfort zone -- while preserving spatial-aware features.
+           NEAT-on-dodge only; hidden in other contexts. -->
+      <div class="control-row checkbox-row" id="useHybridCnnRow" style="display:none;">
+        <label title="Prepend a frozen, random-initialized CNN front-end before the NEAT network. The CNN turns the dodge multi-scale grid into a small pooled-feature vector that NEAT then learns to combine. The CNN weights are sampled once at trainer init and NEVER updated -- only NEAT evolves. Trick: random conv kernels produce a useful structured projection (shared weights = spatial invariance for free); NEAT picks which projections matter. Dropping from 516 to 20 inputs makes NEAT's local mutations actually informative on bullet patterns where pure NEAT-on-grid plateaus.">
+          <input id="useHybridCnn" type="checkbox" /> NEAT + frozen CNN front-end (hybrid)
+        </label>
+      </div>
+      <div class="control-row checkbox-row" id="hybridIncludeTopKRow" style="display:none;">
+        <label title="Also feed the K nearest bullets (dx, dy, vx, vy each) into the NEAT input alongside the CNN's pooled features. The CNN sees the WHOLE field at coarse resolution; topK gives NEAT explicit threat awareness for the closest hazards. Useful when bullets get dense -- the CNN's pool layer can blur close threats together, while topK keeps them distinct.">
+          <input id="hybridIncludeTopK" type="checkbox" /> Also include top-K bullets in NEAT input
+        </label>
+      </div>
+      <div class="control-row" id="cmaesHiddenRow" style="display:none;">
+        <label class="control-label" title="Width of each hidden layer (number of tanh units). Combine with Hidden layers below for an MLP of (layers × this) hidden nodes total. 0 = linear policy (every input directly to every output).">Hidden units</label>
+        <input id="cmaesHidden" type="range" min="0" max="32" step="1" value="6" />
+        <span class="control-value" id="cmaesHiddenVal">6</span>
+      </div>
+      <div class="control-row" id="cmaesLayersRow" style="display:none;">
+        <label class="control-label" title="Number of hidden layers stacked between input and output. 1 = legacy single hidden layer. 2-3 useful when a single layer's policy class plateaus (e.g. single-pendulum CMA-ES swing-up underperforms the same task in NEAT, which is free to add depth). Param count grows as L × (in*H + H*H + ...), so keep H small when L > 2.">Hidden layers</label>
+        <input id="cmaesLayers" type="range" min="1" max="4" step="1" value="1" />
+        <span class="control-value" id="cmaesLayersVal">1</span>
+      </div>
+      <div class="control-row" id="cmaesSigmaRow" style="display:none;">
+        <label class="control-label">Initial σ</label>
+        <input id="cmaesSigma" type="range" min="0.05" max="2.0" step="0.05" value="0.5" />
+        <span class="control-value" id="cmaesSigmaVal">0.50</span>
+      </div>
+      <div class="control-row" id="cnnPolicyRow" style="display:none;">
+        <label class="control-label" title="Policy architecture for the CMA-ES search. MLP is the default flat-layer NN. 2D CNN reads a phase-space image of recent state. 3D CNN reads a spatio-temporal volume. CNN (grid) is the dodge-specific variant that reads the setup's pre-built danger grid directly — only shown when the active setup is 'dodge'.">Policy</label>
+        <select id="policyTypeSelect" class="select select-inline">
+          <option value="mlp" selected>MLP — flat layers (works for any setup)</option>
+          <option value="cnn">CNN — phase-space (pendulum / golf only)</option>
+          <option value="cnn3d">3D CNN — spatio-temporal (pendulum only)</option>
+          <option value="cnn-multiscale">CNN — multi-scale local+global (dodge — recommended)</option>
+          <option value="cnn-grid">CNN — danger grid 16×16 single-scale (dodge — baseline)</option>
+          <option value="recurrent">Recurrent — leaky-integrator memory (single pendulum · dropout task)</option>
+        </select>
+      </div>
+      <!-- Recurrent-policy config block: shows when policyType = 'recurrent'.
+           The genome is still an ordinary feed-forward MLP; these knobs size
+           the EXTRA inputs/outputs the wrapper feeds back to itself. -->
+      <div id="recurrentConfigBlock" style="display:none;">
+        <div class="control-row">
+          <label class="control-label" title="H — how many recurrent channels the policy carries from one control step to the next. The genome gains H extra INPUTS and H extra OUTPUTS; the wrapper copies outputs[n..n+H) of step t into inputs[obs..obs+H) of step t+1. H = 0 makes the policy memoryless (an ordinary MLP). Measured: H=8 works; H=16 was no better.">Memory channels (H)</label>
+          <input id="recurrentMem" type="range" min="0" max="16" step="1" value="8" />
+          <span class="control-value" id="recurrentMemVal">8</span>
+        </div>
+        <div class="control-row">
+          <label class="control-label" title="Hidden units in the wrapped MLP (tanh). 0 = linear policy. The shipped preset uses 16, giving 393 parameters — the parameter-matched memoryless comparison is a 6→49→1 MLP, also 393.">Hidden units</label>
+          <input id="recurrentHidden" type="range" min="0" max="48" step="1" value="16" />
+          <span class="control-value" id="recurrentHiddenVal">16</span>
+        </div>
+        <div class="control-row">
+          <label class="control-label" title="Leak rate of the integrator: mem ← (1−leak)·mem + leak·out. 1.0 = no integration (pure one-step feedback). 0.2 is the shipped setting and it does help — but only modestly. RE-MEASURED on the SHIPPED config (DE pop 40, 1600 generations, the same 3 seeds both ways): leak 0.2 scores 0.965 (0.996 / 0.898 / 1.000) against 0.867 at leak 1.0 (0.992 / 0.610 / 1.000), so pure one-step feedback still solves 2 of those 3 seeds. This tooltip used to claim '0.79 vs 0.20' — that came from a sep-CMA-ES screening sweep at a different optimiser and budget and does NOT reproduce on the shipped configuration.">Leak rate</label>
+          <input id="recurrentLeak" type="range" min="0.05" max="1.0" step="0.05" value="0.2" />
+          <span class="control-value" id="recurrentLeakVal">0.20</span>
+        </div>
+        <div class="control-row checkbox-row">
+          <label title="THE ABLATION. Forces the memory inputs to 0 while leaving every weight untouched — the policy still computes its memory outputs, it just can never read them back. Flip this on a TRAINED recurrent champion and watch it fall: measured 0.955 → 0.087 over one block of 15 fresh seeds and reproduced at 0.929 → 0.081 over a second, independent block, i.e. at or below the do-nothing floor of 0.123 on 30 of 30 seeds. Note it also applies to further training, so pause first if you only want to watch.">
+            <input id="recurrentSever" type="checkbox" /> Cut memory (severed-memory ablation)
+          </label>
+        </div>
+        <div class="phys-hint" id="recurrentParamsHint"></div>
+      </div>
+      <div id="cnnConfigBlock" style="display:none;">
+        <div class="control-row" id="cnnImageSizeRow">
+          <label class="control-label" title="Phase-space image resolution. Higher = more spatial detail but quadratically more parameters; CMA-ES Jacobi gets slow past ~1000 dims. Above 32 use sep-CMA-ES (diagonal covariance) for tractable scaling. WASM (Core panel) accelerates the conv path so 48-64 stays usable.">Resolution</label>
+          <input id="cnnImageSize" type="range" min="6" max="64" step="2" value="10" />
+          <span class="control-value" id="cnnImageSizeVal">10×10</span>
+        </div>
+        <div class="control-row" id="cnnFiltersRow">
+          <label class="control-label" title="Number of conv kernels. Each filter learns a different pattern in phase space.">Filters</label>
+          <input id="cnnFilters" type="range" min="1" max="6" step="1" value="2" />
+          <span class="control-value" id="cnnFiltersVal">2</span>
+        </div>
+        <div class="control-row" id="cnnDenseRow">
+          <label class="control-label">Hidden units</label>
+          <input id="cnnDense" type="range" min="2" max="32" step="2" value="4" />
+          <span class="control-value" id="cnnDenseVal">4</span>
+        </div>
+        <div class="control-row" id="cnnHistoryRow">
+          <label class="control-label" title="How many recent observations are aggregated into the phase-space image each frame.">History (frames)</label>
+          <input id="cnnHistory" type="range" min="5" max="60" step="5" value="30" />
+          <span class="control-value" id="cnnHistoryVal">30</span>
+        </div>
+        <div class="control-row" id="cnnChannelsRow">
+          <label class="control-label" title="1 = single phase-space image (legacy). 2 = current image + frame-difference (current minus previous), which gives the CNN temporal awareness at roughly half the cost of stacking T frames into a 3D conv. Recommended for any cart-pole task where the policy needs to react to motion, not just position.">Channels</label>
+          <select id="cnnChannels" class="select select-inline">
+            <option value="1" selected>1 (position only)</option>
+            <option value="2">2 (position + frame-difference)</option>
+          </select>
+        </div>
+        <div class="phys-hint" id="cnnParamsHint"></div>
+      </div>
+      <div id="cnn3dConfigBlock" style="display:none;">
+        <div class="control-row">
+          <label class="control-label" title="Temporal: depth axis is time — T frames stacked. Each slice is a phase-space image of one timestep; the conv learns spatio-temporal patterns. Spatial: depth axis is cart-x — a single 3D occupancy in (cart-x × sin θ × ang-vel) state space, recency-weighted.">Input mode</label>
+          <select id="cnn3dInputMode" class="select select-inline">
+            <option value="temporal" selected>Temporal stack (T frames)</option>
+            <option value="spatial">Spatial volume (3D state)</option>
+          </select>
+        </div>
+        <div class="control-row" id="cnn3dDepthRow">
+          <label class="control-label" title="Depth-axis size: number of time slices (temporal) or cart-x bins (spatial). Defaults reduced to 3 -- larger depths blow up the 3D conv cost and the CMA-ES Jacobi eigendecomp roughly cubically.">Depth size</label>
+          <input id="cnn3dDepth" type="range" min="3" max="10" step="1" value="3" />
+          <span class="control-value" id="cnn3dDepthVal">3</span>
+        </div>
+        <div class="control-row">
+          <label class="control-label" title="Spatial resolution per slice (height = width). Param count scales as resolution² × depth × filters; use sep-CMA-ES for resolution ≥ 12. WASM accelerates the 3D conv path so 16-32 stays usable when WASM is on.">Resolution</label>
+          <input id="cnn3dImageSize" type="range" min="4" max="32" step="1" value="5" />
+          <span class="control-value" id="cnn3dImageSizeVal">5×5</span>
+        </div>
+        <div class="control-row">
+          <label class="control-label" title="Number of 3D conv kernels.">Filters</label>
+          <input id="cnn3dFilters" type="range" min="1" max="4" step="1" value="2" />
+          <span class="control-value" id="cnn3dFiltersVal">2</span>
+        </div>
+        <div class="control-row">
+          <label class="control-label" title="Depth-axis kernel size — how many adjacent slices each filter sees. Default reduced to 1; with depth=3 the conv reads each slice independently. Increasing this is the cheapest way to add genuine 3D awareness at the cost of more params.">Filter depth</label>
+          <input id="cnn3dFilterDepth" type="range" min="1" max="4" step="1" value="1" />
+          <span class="control-value" id="cnn3dFilterDepthVal">1</span>
+        </div>
+        <div class="control-row">
+          <label class="control-label">Hidden units</label>
+          <input id="cnn3dDense" type="range" min="2" max="12" step="1" value="2" />
+          <span class="control-value" id="cnn3dDenseVal">2</span>
+        </div>
+        <div class="control-row">
+          <label class="control-label" title="Visualization for the 3D CNN inset: flipbook cycles through slices over time, slices shows them side-by-side, filter highlights the most-active conv kernel.">Viz mode</label>
+          <select id="cnn3dVizMode" class="select select-inline">
+            <option value="flipbook" selected>Flipbook (animated)</option>
+            <option value="slices">3-axis slices (side-by-side)</option>
+            <option value="filter">Most-active filter</option>
+            <option value="volumetric">Volumetric stack (depth-cued)</option>
+          </select>
+        </div>
+        <div class="phys-hint" id="cnn3dParamsHint"></div>
+      </div>
+      <!-- Multi-scale CNN config block: shows when policyType =
+           'cnn-multiscale'. The single "Resolution" slider scales both
+           the local and global branches together; advanced users can
+           still override the full config via cnnMultiscaleConfigOverride
+           in saved presets. -->
+      <div id="cnnMultiscaleConfigBlock" style="display:none;">
+        <div class="control-row">
+          <label class="control-label" title="Grid resolution for both the local (near-agent) and global (whole-field) branches. Default 16. Higher = more spatial detail but quadratically more conv work; the pool layer downscales before the dense head so param count stays manageable. 32 is a reasonable upper bound with sep-CMA-ES.">Resolution</label>
+          <input id="cnnMultiscaleSize" type="range" min="8" max="32" step="2" value="16" />
+          <span class="control-value" id="cnnMultiscaleSizeVal">16×16</span>
+        </div>
+        <div class="control-row">
+          <label class="control-label" title="Number of conv kernels per branch (local + global each get this many). Each filter learns a different spatial pattern.">Filters</label>
+          <input id="cnnMultiscaleFilters" type="range" min="1" max="6" step="1" value="2" />
+          <span class="control-value" id="cnnMultiscaleFiltersVal">2</span>
+        </div>
+        <div class="control-row">
+          <label class="control-label" title="Hidden units in the dense head that combines the pooled local + global features + agent state into the output.">Hidden units</label>
+          <input id="cnnMultiscaleDense" type="range" min="2" max="32" step="2" value="8" />
+          <span class="control-value" id="cnnMultiscaleDenseVal">8</span>
+        </div>
+        <div class="phys-hint" id="cnnMultiscaleParamsHint"></div>
+      </div>
+      <div class="control-row" id="annealingT0Row" style="display:none;">
+        <label class="control-label">Initial T</label>
+        <input id="annealingT0" type="range" min="0.1" max="3.0" step="0.1" value="1.0" />
+        <span class="control-value" id="annealingT0Val">1.00</span>
+      </div>
+      <div class="control-row" id="annealingCoolingRow" style="display:none;">
+        <label class="control-label">Cooling rate</label>
+        <input id="annealingCooling" type="range" min="0.85" max="0.999" step="0.005" value="0.97" />
+        <span class="control-value" id="annealingCoolingVal">0.970</span>
+      </div>
+      <div class="control-row" id="ptTminRow" style="display:none;">
+        <label class="control-label">T min (cold chain)</label>
+        <input id="ptTmin" type="range" min="0.01" max="0.5" step="0.01" value="0.05" />
+        <span class="control-value" id="ptTminVal">0.05</span>
+      </div>
+      <div class="control-row" id="ptTmaxRow" style="display:none;">
+        <label class="control-label">T max (hot chain)</label>
+        <input id="ptTmax" type="range" min="0.5" max="5.0" step="0.1" value="2.0" />
+        <span class="control-value" id="ptTmaxVal">2.00</span>
+      </div>
+      <div class="control-row" id="ptSwapRow" style="display:none;">
+        <label class="control-label">Swap interval (gens)</label>
+        <input id="ptSwapInterval" type="range" min="1" max="20" step="1" value="4" />
+        <span class="control-value" id="ptSwapIntervalVal">4</span>
+      </div>
+      <div class="control-row" id="deFRow" style="display:none;">
+        <label class="control-label" title="DE mutation factor F. Scales the difference vector (a-b). Typical range 0.4–1.0; 0.5 is a robust default.">F (mutation factor)</label>
+        <input id="deF" type="range" min="0.1" max="1.5" step="0.05" value="0.5" />
+        <span class="control-value" id="deFVal">0.50</span>
+      </div>
+      <div class="control-row" id="deCRRow" style="display:none;">
+        <label class="control-label" title="DE crossover rate. Probability each coord takes the donor's value (vs target's). Higher CR = more aggressive recombination.">CR (crossover rate)</label>
+        <input id="deCR" type="range" min="0.1" max="1.0" step="0.05" value="0.9" />
+        <span class="control-value" id="deCRVal">0.90</span>
+      </div>
+      <div class="control-row" id="gdEpsilonRow" style="display:none;">
+        <label class="control-label" title="Finite-difference probe size ε. Smaller = more accurate gradient but worse signal-to-noise. Default 0.05 — tune lower if the problem is very smooth.">Probe ε</label>
+        <input id="gdEpsilon" type="range" min="0.005" max="0.20" step="0.005" value="0.05" />
+        <span class="control-value" id="gdEpsilonVal">0.050</span>
+      </div>
+      <div class="control-row" id="gdAlphaInitRow" style="display:none;">
+        <label class="control-label" title="Initial line-search step size α. Adapts up/down each gen — this is just where it starts. The line-search panel shows what α values get tried each gen.">Initial α</label>
+        <input id="gdAlphaInit" type="range" min="0.005" max="0.50" step="0.005" value="0.05" />
+        <span class="control-value" id="gdAlphaInitVal">0.050</span>
+      </div>
+      <div class="control-row" id="nesSigmaRow" style="display:none;">
+        <label class="control-label" title="NES isotropic σ — search distribution width. Larger = more aggressive exploration but noisier gradient. Stays fixed throughout (vanilla NES; sNES would adapt it).">NES σ</label>
+        <input id="nesSigma" type="range" min="0.05" max="1.0" step="0.05" value="0.30" />
+        <span class="control-value" id="nesSigmaVal">0.30</span>
+      </div>
+      <div class="control-row" id="nesLRRow" style="display:none;">
+        <label class="control-label" title="NES learning rate. Update size on μ each gen. Step actually applied is α·σ·∇.">NES α</label>
+        <input id="nesLR" type="range" min="0.01" max="0.5" step="0.01" value="0.10" />
+        <span class="control-value" id="nesLRVal">0.10</span>
+      </div>
+
+      <div class="control-row">
+        <label class="control-label">Population</label>
+        <input id="popSize" type="number" min="8" max="2000" step="8" value="120" class="num-input" />
+      </div>
+      <div class="control-row">
+        <label class="control-label">Elite ratio</label>
+        <input id="eliteRatio" type="range" min="0.05" max="0.6" step="0.05" value="0.2" />
+        <span class="control-value" id="eliteRatioVal">0.20</span>
+      </div>
+      <div class="control-row">
+        <label class="control-label">Tournament size</label>
+        <input id="tournamentSize" type="range" min="2" max="10" step="1" value="3" />
+        <span class="control-value" id="tournamentSizeVal">3</span>
+      </div>
+      <div class="control-row">
+        <label class="control-label">Eval seconds</label>
+        <input id="evalSeconds" type="range" min="2" max="120" step="1" value="8" />
+        <span class="control-value" id="evalSecondsVal">8</span>
+      </div>
+      <!-- Breadcrumb for the old sim-speed location. The slider was
+           moved to the Core region (alongside the WASM toggle) since
+           it's a how-the-sandbox-runs setting, not a training knob.
+           This pointer + click-to-focus link guides users who
+           remember the old home to the new one. -->
+      <div class="control-row phys-hint">
+        <span class="info">Sim speed moved to
+          <a href="#simSpeed" class="info-link" onclick="document.getElementById('simSpeed') && document.getElementById('simSpeed').focus();">Core panel</a> ·
+          now goes up to 32×</span>
+      </div>
+      <div class="control-row">
+        <label class="control-label">Rollouts/agent</label>
+        <input id="rollouts" type="range" min="1" max="12" step="1" value="2" />
+        <span class="control-value" id="rolloutsVal">2</span>
+      </div>
+      <div class="control-row checkbox-row">
+        <label title="Stops training when fitness is BOTH stable (variance over recent gens is small) AND good enough (above the threshold of theoretical max). Both conditions must hold for the configured number of generations.">
+          <input id="autoStopOn" type="checkbox" /> Auto-stop on convergence
+        </label>
+      </div>
+      <div class="control-row" id="autoStopGensRow" style="display:none;">
+        <label class="control-label" title="Generations both 'stable' and 'good enough' must hold simultaneously before training halts.">Converged gens</label>
+        <input id="autoStopGens" type="range" min="5" max="100" step="5" value="20" />
+        <span class="control-value" id="autoStopGensVal">20</span>
+      </div>
+      <div class="control-row" id="autoStopGoodRow" style="display:none;">
+        <label class="control-label" title="'Good enough' threshold as a fraction of theoretical max fitness. 0.6 means stop only if best ≥ 60% of max — prevents stopping in a bad local optimum.">Min fitness</label>
+        <input id="autoStopGood" type="range" min="0.30" max="0.95" step="0.05" value="0.60" />
+        <span class="control-value" id="autoStopGoodVal">0.60</span>
+      </div>
+      <div class="control-row" id="autoStopTolRow" style="display:none;">
+        <label class="control-label" title="Stability tolerance — best fitness must vary by less than this fraction across the recent window to count as 'plateaued'. Higher = more permissive. NEAT typically needs ≥10% because of bad-sibling noise; CMA-ES can use much tighter (≤3%).">Stability tol</label>
+        <input id="autoStopTol" type="range" min="0.02" max="0.30" step="0.01" value="0.10" />
+        <span class="control-value" id="autoStopTolVal">0.10</span>
+      </div>
+
+      <h2 class="panel-title" title="Top-K best-ever genome preservation. K=1 is the original single-best-ever rescue. K>1 keeps runner-up champions so a fluky high-fitness eval can't dominate the rescue slot.">Stability</h2>
+      <div class="control-row">
+        <label class="control-label" title="How many top-K best-ever genomes to keep + re-evaluate + inject as unmutated rescue clones each generation. K=1 is the original single-best-ever rescue. K>1 protects against fluky champions whose fitness can't be reproduced — a single bad re-eval doesn't lose them. Costs K extra evaluations per generation.">Hall of Fame</label>
+        <input id="hallOfFameSize" type="range" min="1" max="10" step="1" value="1" />
+        <span class="control-value" id="hallOfFameSizeVal">1</span>
+      </div>
+
+      <div class="experimental-card">
+        <h2 class="panel-title" title="Adaptive recovery mechanics for late-NEAT regression: auto-rollback to a silent checkpoint, mutation annealing on plateau, and stuck-state escape (mutation reheat + diversity injection). All three interact in non-obvious ways and can mask or amplify other bugs — keep them off unless you're investigating a specific failure mode.">
+          Adaptive recovery <span class="experimental-badge">experimental</span>
+        </h2>
+        <div class="experimental-note">
+          These mechanics auto-modify mutation rates and roll back the population on
+          their own. They interact with each other and with curriculum / disturbances
+          in surprising ways. Off by default; turn on individually to investigate.
+        </div>
+        <div class="control-row checkbox-row">
+          <label title="When best-of-current-gen drops below threshold·best-ever for N consecutive generations, automatically restore from a silent checkpoint taken at the last best-ever update. Fixes the late-NEAT failure mode where converged genomes get wrecked by accumulated topology bloat.">
+            <input id="autoRollbackOn" type="checkbox" /> Auto-rollback on regression
+          </label>
+        </div>
+        <div class="control-row" id="autoRollbackThresholdRow" style="display:none;">
+          <label class="control-label" title="Regression trigger — current-gen best below this fraction of best-ever counts as 'regressed'. 0.50 = best-of-gen needs to drop below half of best-ever before the counter starts.">Regression %</label>
+          <input id="autoRollbackThreshold" type="range" min="0.20" max="0.95" step="0.05" value="0.50" />
+          <span class="control-value" id="autoRollbackThresholdVal">0.50</span>
+        </div>
+        <div class="control-row" id="autoRollbackGensRow" style="display:none;">
+          <label class="control-label" title="Number of consecutive 'regressed' generations before auto-rollback fires. Smaller = trigger sooner (less tolerant of noise); larger = wait for genuine collapse.">Trigger gens</label>
+          <input id="autoRollbackGens" type="range" min="5" max="50" step="1" value="15" />
+          <span class="control-value" id="autoRollbackGensVal">15</span>
+        </div>
+        <div class="control-row checkbox-row">
+          <label title="As fitness plateaus, scale down mutation σ + add-conn + add-node + activation-mut probabilities. Reduces late-game search radius so good genomes are less likely to be wrecked. Resets to user values on next best-ever improvement.">
+            <input id="annealMutationOn" type="checkbox" /> Anneal mutation when stale
+          </label>
+        </div>
+        <div class="control-row" id="annealAfterGensRow" style="display:none;">
+          <label class="control-label" title="Generations of no improvement before mutation annealing kicks in.">After gens</label>
+          <input id="annealAfterGens" type="range" min="10" max="100" step="5" value="30" />
+          <span class="control-value" id="annealAfterGensVal">30</span>
+        </div>
+        <div class="control-row" id="annealFactorRow" style="display:none;">
+          <label class="control-label" title="Multiplicative factor applied to mutation rates once annealing is active. 0.5 = halve all rates.">Factor</label>
+          <input id="annealFactor" type="range" min="0.1" max="0.9" step="0.05" value="0.50" />
+          <span class="control-value" id="annealFactorVal">0.50</span>
+        </div>
+        <div class="control-row checkbox-row">
+          <label title="Stuck-state escape: when best-ever doesn't improve for N gens, automatically heat up mutation rates (x factor, escalating in tiers) and inject fresh / heavily-perturbed genomes to break out of converged weight space. Antithetical to anneal; only one is active at a time.">
+            <input id="stuckEscapeOn" type="checkbox" /> Stuck-state escape (auto-reheat)
+          </label>
+        </div>
+        <div class="control-row" id="stuckEscapeAfterGensRow" style="display:none;">
+          <label class="control-label" title="Generations of no best-ever improvement before stuck-escape engages. Tier 1 fires at this many gens; tier 2 at 2×; tier 3 at 4× (which also injects diversity).">After gens</label>
+          <input id="stuckEscapeAfterGens" type="range" min="10" max="200" step="5" value="25" />
+          <span class="control-value" id="stuckEscapeAfterGensVal">25</span>
+        </div>
+        <div class="control-row" id="stuckEscapeFactorRow" style="display:none;">
+          <label class="control-label" title="Base multiplier applied to mutation rates at tier 1. Tier 2 = ×1.5×factor, tier 3 = ×2×factor.">Factor</label>
+          <input id="stuckEscapeFactor" type="range" min="1.1" max="3.0" step="0.1" value="2.0" />
+          <span class="control-value" id="stuckEscapeFactorVal">2.0</span>
+        </div>
+      </div>
+
+      <!-- Mutation knobs. Moved up here to sit with the other MODEL
+           sections; was previously buried after Bullet hell, which
+           visually placed it in the SCENE region. NEAT-only knobs --
+           hidden for non-NEAT modes by refreshAlgoUI. -->
+      <h2 class="panel-title">Mutation</h2>
+
+      <div class="control-row checkbox-row">
+        <label><input id="mutTopology" type="checkbox" checked /> Mutate topology (NEAT-style)</label>
+      </div>
+      <div class="control-row">
+        <label class="control-label">Weight perturb σ</label>
+        <input id="weightSigma" type="range" min="0.01" max="1.0" step="0.01" value="0.15" />
+        <span class="control-value" id="weightSigmaVal">0.15</span>
+      </div>
+      <div class="control-row">
+        <label class="control-label">Weight reset prob</label>
+        <input id="weightResetProb" type="range" min="0" max="0.5" step="0.01" value="0.05" />
+        <span class="control-value" id="weightResetProbVal">0.05</span>
+      </div>
+      <div class="control-row">
+        <label class="control-label">Add-conn prob</label>
+        <input id="addConnProb" type="range" min="0" max="1" step="0.01" value="0.30" />
+        <span class="control-value" id="addConnProbVal">0.30</span>
+      </div>
+      <div class="control-row">
+        <label class="control-label">Add-node prob</label>
+        <input id="addNodeProb" type="range" min="0" max="1" step="0.01" value="0.03" />
+        <span class="control-value" id="addNodeProbVal">0.03</span>
+      </div>
+      <div class="control-row">
+        <label class="control-label">Toggle-conn prob</label>
+        <input id="toggleConnProb" type="range" min="0" max="0.5" step="0.01" value="0.02" />
+        <span class="control-value" id="toggleConnProbVal">0.02</span>
+      </div>
+      <div class="control-row">
+        <label class="control-label">Activation mut prob</label>
+        <input id="actMutProb" type="range" min="0" max="0.5" step="0.01" value="0.03" />
+        <span class="control-value" id="actMutProbVal">0.03</span>
+      </div>
+      <div class="control-row">
+        <label class="control-label">Complexity penalty</label>
+        <input id="complexityPenalty" type="range" min="0" max="0.05" step="0.001" value="0" />
+        <span class="control-value" id="complexityPenaltyVal">0.000</span>
+      </div>
+      <div class="control-row">
+        <label class="control-label" title="Fitness penalty per EXTRA mixture component (Σ max(0,k-1)). Values simplicity: a plain or k=1 node costs 0.">Mixture penalty</label>
+        <input id="mixturePenalty" type="range" min="0" max="0.05" step="0.001" value="0" />
+        <span class="control-value" id="mixturePenaltyVal">0.000</span>
+      </div>
+
+      <h2 class="panel-title">Objective</h2>
+      <div class="control-row">
+        <label class="control-label">What to optimize</label>
+        <select id="objectiveSelect" class="select select-inline"></select>
+      </div>
+      <div class="control-row">
+        <label class="control-label" for="objectiveShowAll" title="Unchecked (default): show only the objectives that fit the selected setup. Check to show every objective regardless of setup.">Show all objectives</label>
+        <input id="objectiveShowAll" type="checkbox" title="Checked = show every objective regardless of setup" />
+      </div>
+      <div class="control-row" id="targetAngleRow" style="display:none;">
+        <label class="control-label">Target angle (°)</label>
+        <input id="targetAngle" type="range" min="-180" max="180" step="5" value="45" />
+        <span class="control-value" id="targetAngleVal">45°</span>
+      </div>
+      <div class="control-row" id="ballSpeedBonusRow" style="display:none;">
+        <label class="control-label" title="Per-step continuous reward proportional to ball speed (after first strike): r += coef × |ball.v| / 400 × dt. Default 0 = original sparse-reward shape. Set to 1-5 to give the GA a smooth gradient between 'barely-struck ball' and 'well-struck ball' that doesn't depend on aim — useful when stuck on a 'spin in place' local optimum and the GA needs to discover stronger strikes before learning to aim. Once the agent strikes hard, the existing closest-approach + sunk rewards take over to teach aim. Only meaningful for ball_in_hole objective.">Ball-speed bonus</label>
+        <input id="ballSpeedBonus" type="range" min="0" max="10" step="0.5" value="0" />
+        <span class="control-value" id="ballSpeedBonusVal">0.0</span>
+      </div>
+      <!-- Optional ball_in_hole reward extras. Hidden unless the active
+           objective is ball_in_hole. The default (off) keeps the shaping
+           identical to what we ship today; users turn these on for harder
+           curriculum stages where the base reward isn't selective enough. -->
+      <div id="ballInHoleExtrasBlock" style="display:none;">
+        <div class="control-row checkbox-row">
+          <label title="When the ball sinks, add a bonus that scales with how centered the entry was. Centered = full bonus; rim entry = ~zero. Squared falloff so the gradient is sharpest near the middle. Useful once the policy reliably sinks the ball — pushes it toward 'sink in the middle' over 'scrape past the lip'.">
+            <input id="rewardCenterBonusOn" type="checkbox" /> Reward center-of-hole accuracy
+          </label>
+        </div>
+        <div class="control-row" id="centerBonusWeightRow" style="display:none;">
+          <label class="control-label" title="Maximum extra reward when the ball sinks dead-center. Scaled by (1 - x_offset/half_width)² so a center hit pays the full weight; a rim hit pays ~0.">Center bonus weight</label>
+          <input id="centerBonusWeight" type="range" min="0" max="20" step="0.5" value="8" />
+          <span class="control-value" id="centerBonusWeightVal">8</span>
+        </div>
+        <div class="control-row checkbox-row">
+          <label title="Subtract a per-bounce penalty for every floor bounce after the first. Discourages noisy multi-bounce shots; makes 'land it cleanly' a measurable preference. The first bounce often can't be avoided on a chip shot, so it's free.">
+            <input id="bouncePenaltyOn" type="checkbox" /> Penalize ground bounces
+          </label>
+        </div>
+        <div class="control-row" id="bouncePenaltyWeightRow" style="display:none;">
+          <label class="control-label" title="Reward subtracted per floor bounce after the first. 1.0 is a meaningful nudge; higher values strongly prefer direct rolls over bouncy chips.">Penalty per bounce</label>
+          <input id="bouncePenaltyWeight" type="range" min="0" max="5" step="0.25" value="1" />
+          <span class="control-value" id="bouncePenaltyWeightVal">1.00</span>
+        </div>
+        <div class="control-row checkbox-row">
+          <label title="Sink only counts when the ball reaches the hole WITHOUT touching the floor. The +30 sunk reward is gated; everything else (closest-approach, near-miss, strike-energy floor) still applies. Use after the policy can reliably sink — forces it to learn an in-air trajectory.">
+            <input id="directShotOnly" type="checkbox" /> Require direct shot (no bounces)
+          </label>
+        </div>
+        <div class="control-row checkbox-row">
+          <label title="One-shot reward at first strike, scaled by how well the ball's post-strike velocity points TOWARD the hole. Pays full when the ball flies directly at the hole; pays zero if it goes the wrong way. The bob is one-hit-locked so the first strike's direction usually determines the outcome — this surfaces that as a clear signal rather than waiting for closest-approach to register the (lack of) progress.">
+            <input id="strikeDirectionRewardOn" type="checkbox" /> Reward strike toward hole
+          </label>
+        </div>
+        <div class="control-row" id="strikeDirectionWeightRow" style="display:none;">
+          <label class="control-label" title="Max reward when the ball flies directly at the hole at high speed. Scaled by max(0, ball_v · ball_to_hole_unit) / 400, so a perfect head-on launch at 400 px/s pays the full weight; slow or off-axis strikes pay proportionally less; wrong-direction strikes pay 0.">Strike-direction weight</label>
+          <input id="strikeDirectionWeight" type="range" min="0" max="20" step="0.5" value="8" />
+          <span class="control-value" id="strikeDirectionWeightVal">8</span>
+        </div>
+      </div>
+      <div class="control-row checkbox-row">
+        <label title="Per-step penalty proportional to |Δcommand|. Off by default — turn on to see whether smoothness changes the discovered policy. Can produce a 'frozen cart' if too strong: tune the magnitude.">
+          <input id="smoothnessOn" type="checkbox" /> Penalize twitchy control
+        </label>
+      </div>
+      <div class="control-row">
+        <label class="control-label">Smoothness magnitude</label>
+        <input id="smoothnessPenalty" type="range" min="0" max="0.05" step="0.002" value="0.008" />
+        <span class="control-value" id="smoothnessPenaltyVal">0.008</span>
+      </div>
+      <div class="objective-explain" id="objectiveExplain">
+        <div class="objective-formula" id="objectiveFormula">—</div>
+        <div class="objective-desc" id="objectiveDesc">—</div>
+      </div>
+
+      <div class="panel-region region-scene">
+        <span class="region-title">Scene</span>
+        <span class="region-subtitle">physics · ball · hole · bullet hell · disturbances · adversarial</span>
+      </div>
+      <!-- Ball-hit params: visible only when the ball-single setup is active. -->
+      <div id="ballParamsBlock" style="display:none;">
+        <h2 class="panel-title">Ball</h2>
+        <div class="control-row">
+          <label class="control-label" title="Spawn behavior. Fixed: ball appears immediately at a static position. Drift: ball enters from one edge with a slow lateral velocity (slow pitch). Timed: ball appears at a static position after a delay — forces 'wait, then strike'.">Spawn mode</label>
+          <select id="ballMode" class="select select-inline">
+            <option value="fixed" selected>Fixed (immediate, static, falls)</option>
+            <option value="drift">Drift (enters from edge)</option>
+            <option value="timed">Timed (appears after delay)</option>
+            <option value="dormant">Dormant (frozen until first hit)</option>
+            <option value="pitched">Pitched (incoming from right — hit it back!)</option>
+          </select>
+        </div>
+        <div class="control-row">
+          <label class="control-label" title="Horizontal spawn position. Right end of the rail is +260; the slider goes well past the rail so the ball can spawn off-screen and enter the scene mid-rollout (e.g. for a pitched ball coming in from far right).">Spawn x</label>
+          <input id="ballSpawnX" type="range" min="-450" max="450" step="10" value="220" />
+          <span class="control-value" id="ballSpawnXVal">220</span>
+        </div>
+        <div class="control-row">
+          <label class="control-label" title="Vertical spawn position. y=0 is the rail (cart level); negative y is above (closer to the upright bob), positive y is below the rail. Range allows full off-screen spawns above and below.">Spawn y</label>
+          <input id="ballSpawnY" type="range" min="-350" max="350" step="1" value="40" />
+          <span class="control-value" id="ballSpawnYVal">40</span>
+        </div>
+        <div class="control-row" id="ballSpawnDelayRow" style="display:none;">
+          <label class="control-label" title="Seconds before the ball appears (timed mode only).">Spawn delay (s)</label>
+          <input id="ballSpawnDelay" type="range" min="0" max="6" step="0.25" value="1.0" />
+          <span class="control-value" id="ballSpawnDelayVal">1.00</span>
+        </div>
+        <div class="control-row" id="ballDriftSpeedRow" style="display:none;">
+          <label class="control-label" title="Lateral entry velocity in drift / pitched mode. Higher = faster pitch. Top end of the range is genuinely fast (≈800 px/s) — ball flies across the scene in well under a second, requiring early swing commitment.">Drift / pitch speed</label>
+          <input id="ballDriftSpeed" type="range" min="20" max="800" step="20" value="60" />
+          <span class="control-value" id="ballDriftSpeedVal">60</span>
+        </div>
+        <div class="control-row">
+          <label class="control-label">Mass</label>
+          <input id="ballMass" type="range" min="0.1" max="2.0" step="0.1" value="0.4" />
+          <span class="control-value" id="ballMassVal">0.40</span>
+        </div>
+        <div class="control-row">
+          <label class="control-label">Radius</label>
+          <input id="ballRadius" type="range" min="6" max="24" step="1" value="14" />
+          <span class="control-value" id="ballRadiusVal">14</span>
+        </div>
+        <div class="control-row">
+          <label class="control-label" title="Bounce coefficient. 0 = perfectly inelastic (ball sticks); 1 = perfectly elastic (no energy lost on collision). 0.7 is a typical baseball / racquet feel.">Restitution</label>
+          <input id="ballRestitution" type="range" min="0" max="1" step="0.05" value="0.7" />
+          <span class="control-value" id="ballRestitutionVal">0.70</span>
+        </div>
+      </div>
+
+      <!-- Golf params: visible only when the golf or putt setup is active.
+           Hole width is the headline curriculum knob — start with a wide
+           forgiving hole, ramp narrower over the course of training. -->
+      <div id="golfParamsBlock" style="display:none;">
+        <h2 class="panel-title">Hole</h2>
+        <div class="control-row">
+          <label class="control-label" title="Width of the hole gap in the floor. Smaller = harder to sink. Pair with a curriculum ramp (click + on this slider) to start wide and shrink over training.">Hole width</label>
+          <input id="holeWidth" type="range" min="20" max="500" step="2" value="80" />
+          <span class="control-value" id="holeWidthVal">50</span>
+        </div>
+        <!-- Live preview: floor stripe with a gap of the actual hole width
+             alongside a circle the actual ball diameter, both at the same
+             scale so the user can compare hole vs ball at a glance. -->
+        <div class="phys-hint hole-preview" id="holePreview">
+          <span class="hp-row">
+            <span class="hp-floor">
+              <span class="hp-floor-bar hp-left"></span>
+              <span class="hp-gap"></span>
+              <span class="hp-floor-bar hp-right"></span>
+            </span>
+            <span class="hp-ball" title="Ball at the same scale"></span>
+          </span>
+          <span class="hp-text" id="hpText">—</span>
+        </div>
+        <div class="control-row">
+          <label class="control-label" title="Horizontal center of the hole. Negative is left of cart-rail center, positive right. Curriculum-able (e.g. ramp from near-cart to far-right) for moving-target practice.">Hole center</label>
+          <input id="holeCenter" type="range" min="-300" max="350" step="5" value="305" />
+          <span class="control-value" id="holeCenterVal">305</span>
+        </div>
+        <div class="control-row checkbox-row">
+          <label title="Jitter the hole's x by a fresh sample from [-mag, +mag] every rollout. All agents in a gen see the same jitter sequence so selection is still apples-to-apples — but the policy has to be position-robust, not just memorize one trajectory. Useful late in training to harden against scene memorization.">
+            <input id="holeCenterJitterOn" type="checkbox" /> Jitter hole position per rollout
+          </label>
+        </div>
+        <div class="control-row" id="holeCenterJitterMagRow" style="display:none;">
+          <label class="control-label" title="Maximum offset in pixels applied to holeCenter per rollout. The jitter is symmetric (uniform in [-mag, +mag]).">Jitter magnitude</label>
+          <input id="holeCenterJitterMag" type="range" min="0" max="200" step="5" value="50" />
+          <span class="control-value" id="holeCenterJitterMagVal">50</span>
+        </div>
+        <div class="control-row" id="golfObstaclesRow">
+          <label class="control-label" title="Number of obstacle balls placed between the cart and the hole in the GOLF setup (not putt). Each obstacle is a 14px ball resting on the floor; the moving ball can knock them aside but loses energy doing it. Higher counts force the policy to find a clean lane. Default 2; set 0 for no obstacles, up to 6.">Obstacles (golf)</label>
+          <input id="golfObstacles" type="range" min="0" max="6" step="1" value="2" />
+          <span class="control-value" id="golfObstaclesVal">2</span>
+        </div>
+      </div>
+
+      <!-- Task difficulty knobs. Sliders for every curriculum-able parameter
+           that doesn't already have a dedicated control above (arm / chain /
+           demo-task / golf-obstacle knobs). Rows are GENERATED at boot from
+           BF.trainer.CURRICULUM_KNOBS by buildCurriculumKnobSliders() so the
+           list can never drift from the curriculum registry — and so every
+           curriculum param is manually adjustable AND its "+" / cur-val /
+           click-to-scroll works (those key off the slider existing). -->
+      <div class="panel-section" id="curriculumKnobSection">
+        <div class="panel-header">
+          <h2 class="panel-title">Task difficulty knobs</h2>
+          <span class="hint">every curriculum-able parameter · manual + "+"</span>
+        </div>
+        <div id="curriculumKnobSliders"></div>
+      </div>
+
+      <!-- Dodge-only knobs. Visible only when the active setup is 'dodge'.
+           The pattern dropdown is qualitative; everything else is a
+           difficulty lever that curriculum can ramp. -->
+      <div id="dodgeParamsBlock" style="display:none;">
+        <h2 class="panel-title">Bullet hell</h2>
+        <div class="control-row">
+          <label class="control-label" title="Attack pattern. Rain = bullets fall from the top. Sweep = horizontal walls with gaps. Aimed = bullets fire at the agent's current position. Predict-and-aim = bullets extrapolate the agent's motion forward by leadTime seconds (linear or quadratic) and fire at the predicted spot.">Pattern</label>
+          <select id="dodgePattern" class="select select-inline">
+            <option value="rain">Rain (falling bullets)</option>
+            <option value="sweep">Sweep (horizontal walls)</option>
+            <option value="aimed">Aimed (fires at current pos)</option>
+            <option value="predict_and_aimed">Predict-and-aim</option>
+            <option value="spiral">Spiral (rotating emitter)</option>
+            <option value="mixed" selected>Mixed (rain + aimed)</option>
+          </select>
+        </div>
+        <div class="control-row">
+          <label class="control-label" title="Bullets emitted per second by the pattern controller. Curriculum-able for difficulty ramps. Minimum is 1.0 (below that the playfield is empty most of the time and the gradient vanishes).">Spawn rate (/s)</label>
+          <input id="dodgeSpawnRate" type="range" min="1" max="10" step="0.1" value="1.5" />
+          <span class="control-value" id="dodgeSpawnRateVal">1.5</span>
+        </div>
+        <div class="control-row">
+          <label class="control-label" title="Bullet velocity magnitude in pixels per second. Slower bullets are easier to read; faster bullets demand quicker reaction.">Bullet speed</label>
+          <input id="dodgeBulletSpeed" type="range" min="50" max="600" step="10" value="220" />
+          <span class="control-value" id="dodgeBulletSpeedVal">220</span>
+        </div>
+        <div class="control-row">
+          <label class="control-label" title="Bullet radius in pixels. Bigger bullets reduce the dodge margin.">Bullet radius</label>
+          <input id="dodgeBulletRadius" type="range" min="2" max="14" step="1" value="6" />
+          <span class="control-value" id="dodgeBulletRadiusVal">6</span>
+        </div>
+        <div class="control-row" id="dodgeLeadTimeRow" style="display:none;">
+          <label class="control-label" title="Predict-and-aim only: how many seconds AHEAD the pattern extrapolates the agent's motion before firing. Larger values lead more aggressively (harder if the agent moves in straight lines, but lets the agent juke).">Predict lead (s)</label>
+          <input id="dodgeLeadTime" type="range" min="0" max="2" step="0.05" value="0.6" />
+          <span class="control-value" id="dodgeLeadTimeVal">0.60</span>
+        </div>
+        <div class="control-row" id="dodgePredictOrderRow" style="display:none;">
+          <label class="control-label" title="Predict-and-aim only: linear uses velocity from last 2 samples; quadratic also estimates acceleration from last 3. Higher-order tends to overshoot when the agent juke-changes.">Predict order</label>
+          <select id="dodgePredictOrder" class="select select-inline">
+            <option value="linear" selected>Linear (velocity)</option>
+            <option value="quadratic">Quadratic (+ acceleration)</option>
+          </select>
+        </div>
+        <div class="control-row" id="dodgeBulletsPerWaveRow" style="display:none;">
+          <label class="control-label" title="Sweep only: number of bullets in each horizontal wall. The wall always leaves a gap (~30% of vertical span) at a random y.">Bullets per wave</label>
+          <input id="dodgeBulletsPerWave" type="range" min="3" max="20" step="1" value="8" />
+          <span class="control-value" id="dodgeBulletsPerWaveVal">8</span>
+        </div>
+        <!-- No-die mode: collisions register a penalty but the rollout
+             continues. Now ON by default: at the moment of spawn, bullets
+             are clustered at the emitter and need time to fan out across
+             the playfield. Without a no-die regime, agents that happen to
+             spawn near the emitter die in the first ~half-second through
+             no fault of their own, which makes the early-training reward
+             surface flat and noisy. Survive-on-hit gives the agent a full
+             rollout's worth of feedback even when the early frames are
+             unfair. -->
+        <div class="control-row checkbox-row">
+          <label title="When on, a bullet collision registers a per-hit penalty but the rollout continues. A short invulnerability window prevents one cluster from charging the agent on every overlapping frame. ON by default: bullets need time to fan out from the emitter, so early-rollout deaths are noise rather than signal.">
+            <input id="dodgeNoDie" type="checkbox" checked /> Survive on hit (no-die)
+          </label>
+        </div>
+        <!-- Lifespan-focused reward shape. When on, fitness is dominated
+             by raw aliveTime (1.0/s) instead of the mixture of safety +
+             streak + near-miss + alive bonuses. Cleaner signal for the
+             "stay alive as long as possible" objective; the mixed reward
+             can be gamed by sitting in an empty corner racking up
+             near-miss credits without actually surviving longer. -->
+        <div class="control-row checkbox-row">
+          <label title="When on, the dodge reward is reshaped so that aliveTime dominates: +1.0 per second alive, near-zero shaping bonuses, no death cliff. Fitness ≈ how long the agent stayed alive. The default mixed-reward shape gives the policy more gradient hints (safety distance, streak, near-miss) but it can be gamed -- this toggle ensures the optimizer can only maximize raw survival.">
+            <input id="dodgeLifespanMode" type="checkbox" /> Lifespan-focused reward
+          </label>
+        </div>
+        <div class="control-row checkbox-row">
+          <label title="When on, the displayed simulation NEVER auto-resets at evalSeconds. Training keeps running in the background; the policy is hot-swapped at gen end without rebuilding the world. The user watches one continuous rollout with bullets streaming in indefinitely. Combine with no-die for a continuous stress-test view. Click Reset to manually restart the scene.">
+            <input id="dodgeNoReset" type="checkbox" /> Continuous sim (no-reset)
+          </label>
+        </div>
+        <div class="control-row" id="dodgeNoDiePenaltyRow" style="display:none;">
+          <label class="control-label" title="Reward subtracted per hit in no-die mode. Smaller than the -10 terminal because the agent has many more chances over a single rollout.">Hit penalty</label>
+          <input id="dodgeNoDiePenalty" type="range" min="0" max="10" step="0.5" value="3" />
+          <span class="control-value" id="dodgeNoDiePenaltyVal">3.0</span>
+        </div>
+        <div class="control-row" id="dodgeInvulnSecondsRow" style="display:none;">
+          <label class="control-label" title="Seconds of invulnerability after a hit in no-die mode. Prevents a tight cluster from charging the agent on every overlapping frame.">Invuln (s)</label>
+          <input id="dodgeInvulnSeconds" type="range" min="0" max="2" step="0.05" value="0.6" />
+          <span class="control-value" id="dodgeInvulnSecondsVal">0.60</span>
+        </div>
+
+        <!-- Experimental: grid observation encoding. Visually fenced with
+             the same .experimental-card styling used for the unstuck /
+             anneal / rollback toggles so users see the trade-off clearly. -->
+        <div class="experimental-card">
+          <h2 class="panel-title">
+            Observation encoding <span class="experimental-badge">experimental</span>
+          </h2>
+          <div class="experimental-note">
+            <b>Top-K</b> (default): agent state + 4 nearest bullets (20
+            inputs). Fast and usually enough for sparse patterns.<br>
+            <b>Grid 16×16 flat</b> <span class="deprecated-tag">DEPRECATED</span>:
+            agent state + flat 256-cell grid (260 inputs). Was a stepping
+            stone toward CNN; in practice the high input count hurts NEAT's
+            local-mutation search (no spatial prior) and the single resolution
+            misses both close-quarters and global structure. Kept for
+            education / regression comparison only — don't expect it to
+            actually solve dodge.<br>
+            <b>Multi-scale grid</b>: two grids per tick — a 16×16 LOCAL view
+            (±80px around the agent) for fine maneuvering, plus a 16×16
+            GLOBAL view of the whole playfield for big-picture awareness.
+            Designed to feed a CNN policy (use with policy = "CNN — multi-
+            scale" on the left). 516 flat inputs is way too many for NEAT
+            or MLP — pick Top-K if you're not on a CNN. Toggling rebuilds
+            the trainer (different input count).<br>
+            <span style="color:#f5b769">⚠ Grid encodings are compute-heavy
+            (~10× more inputs than Top-K).</span> For the CMA-ES + CNN
+            path that's fine because conv weights are shared across cells
+            -- the multi-scale CNN preset uses pop=30, rollouts=1, ~2s
+            per gen. For NEAT-on-multi-scale (no spatial prior, 516 flat
+            inputs feeding directly into the network), it's impractical
+            -- stick to Top-K for NEAT.
+          </div>
+          <div class="control-row">
+            <label class="control-label" title="topk: agent state + 4 nearest bullets (20 inputs total). grid: agent state + 16x16 agent-centered bullet-danger grid (260 inputs total -- deprecated, kept for comparison). multiscale: agent state + 16x16 local + 16x16 global grids (516 inputs total), intended for the CNN multi-scale policy.">Encoding</label>
+            <select id="dodgeObservationMode" class="select select-inline">
+              <option value="topk" selected>Top-K nearest (20 inputs)</option>
+              <option value="topk-danger">Top-K + 9-way lookahead danger (45 inputs — planner-grade prior)</option>
+              <option value="radar">Angular danger radar — 16 sectors, wall-aware + temporal (56 inputs)</option>
+              <option value="multiscale">Multi-scale grid (16×16 local + 16×16 global)</option>
+              <option value="grid" class="deprecated-option">Grid 16×16 flat (deprecated)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div id="chainParamsBlock" style="display:none;">
+        <div class="control-row">
+          <label class="control-label" title="Number of chain segments (links). Changing this resizes the policy input and rebuilds the trainer.">Chain segments</label>
+          <input id="chainNumSegments" type="number" min="2" max="10" step="1" value="4" />
+        </div>
+        <div class="control-row">
+          <label class="control-label" title="Spring material. Stiffer ≈ rigid rods (harder, chaotic); softer = floppier. Re-tunes springs without resetting the population.">Material</label>
+          <select id="chainMaterial" class="select select-inline">
+            <option value="rigid">Rigid (≈ rods)</option>
+            <option value="springy" selected>Springy (whip)</option>
+            <option value="elastic">Elastic (bouncy)</option>
+            <option value="rope">Rope (droopy)</option>
+          </select>
+        </div>
+        <div class="control-row">
+          <label class="control-label" title="How many chain joints the policy actuates (the k joints nearest the cart). 0 = base-only (cart only). Raising this resizes the policy output and rebuilds the trainer.">Actuated joints</label>
+          <input id="chainNumActuated" type="number" min="0" max="3" step="1" value="0" />
+        </div>
+        <div class="control-row">
+          <label class="control-label" title="How a joint's policy output is interpreted. Torque = direct force couple (keeps the springy character). Servo = the output is a target angle held by a PD controller. Switching does not rebuild the population.">Joint control</label>
+          <select id="chainJointMode" class="select select-inline">
+            <option value="torque" selected>Torque</option>
+            <option value="servo">Servo</option>
+          </select>
+        </div>
+        <div class="control-row checkbox-row">
+          <label title="Telescoping segments (chain-trace): each segment's REST LENGTH becomes a policy action (0.5×–1.6× base, rate-limited servo). With actuated joints this approximates a Fourier-style trace machine — per-segment angle AND amplitude control with a fixed segment count. Resizes the policy output and rebuilds the trainer.">
+            <input id="chainTelescope" type="checkbox" /> Telescoping segment lengths
+          </label>
+        </div>
+        <div class="control-row" id="chainCurveRow">
+          <label class="control-label" for="chainCurve" title="Which signature curve the tip traces (chain-trace only).">Curve</label>
+          <!-- Grouped and ordered by MEASURED steady-state planner tip error
+               (r140, period 10, tilts +/-0.1, 3 loops with the first skipped,
+               AT THE SETUP'S AUTO-PLACEMENT; do-nothing floor is 115-158 px on
+               those scenes). The px in each title is that number, so the
+               dropdown cannot promise more than the machine delivers. The floor
+               range moved with the 2026-08 reach clamp - it read 119-165 px when
+               every curve was staged at y 257 - so it is quoted here and in
+               chain_trace_curves.js from the same measurement. Every value here
+               must be a key of BF.chainTraceCurves and vice versa - smoke-tested
+               both ways. -->
+          <select id="chainCurve" class="select select-inline">
+            <option value="balance">Balance · connected English word</option>
+            <optgroup label="Geometric (warm-up)">
+              <option value="line" title="Historical initial-tip benchmark: 8.5 px. Zero vertical extent, shortest arc - the floor.">Line (easiest)</option>
+              <option value="ellipse" title="Historical initial-tip benchmark: 10.1 px. Short arc, small vertical span.">Wide loop</option>
+              <option value="triangle" selected title="Historical initial-tip benchmark: 14.0 px. Corners cost less than length does. (16.5 px before the 2026-08 placement clamp.)">Triangle</option>
+              <option value="circle" title="Historical initial-tip benchmark: 16.2 px. The largest vertical span in the set (2.0), and 22.9 px before the placement clamp - a 6.7 px gain, second only to Square's 7.3 px.">Circle</option>
+              <option value="square" title="Historical initial-tip benchmark: 16.8 px. Corners plus a large vertical span. 24.1 px before the placement clamp - the biggest single gain in the set, 7.3 px.">Square</option>
+              <option value="figure8" title="Historical initial-tip benchmark: 17.9 px. The long-standing hard-but-solvable scene.">Figure-8</option>
+              <option value="wave" title="Historical initial-tip benchmark: 26.6 px mean, 172.9 px worst - OPEN stroke, the cursor teleports at the wrap.">Wave (open stroke)</option>
+            </optgroup>
+            <optgroup label="Signature strokes">
+              <option value="swash" title="Historical initial-tip benchmark: 10.9 px. Flattest stroke in this group (span 0.49) and second-shortest arc in the whole registry - the best signature-like curve measured. Only the degenerate line is flatter or shorter.">Swash (flat flourish)</option>
+              <option value="monogram" title="Historical initial-tip benchmark: 16.4 px. Two capitals joined by a crossing loop.">Monogram (linked initials)</option>
+              <option value="longhand" title="Historical initial-tip benchmark: 19.6 px. Five humps closed by an underline - the flagship signing scene.">Longhand (name + underline)</option>
+              <option value="flourish" title="Historical initial-tip benchmark: 20.5 px. Closed stroke-and-return.">Flourish + underline</option>
+              <option value="ascender" title="Historical initial-tip benchmark: 19.5 px auto-placed, but the reach clamp puts it 22 px deeper than its twin at this radius. Matched to Descender at one centre (set Trace centre y to 257) it is 20.8 vs 21.5 - same arc, span and turning.">Ascender loops (mirror pair)</option>
+              <option value="autograph" title="Historical initial-tip benchmark: 21.2 px. Closed C&#185; spline scrawl.">Autograph (spline scrawl)</option>
+              <option value="descender" title="Historical initial-tip benchmark: 21.5 px. The same stroke with the loops BELOW the baseline. The 0.7 px gap to Ascender at a matched centre is the whole depth effect.">Descender loops (mirror pair)</option>
+              <option value="copperplate" title="Historical initial-tip benchmark: 25.7 px. Longest (9.56) and tallest (1.77) of the six added signature strokes - the honest limit. Cursive has a longer arc still (10.34) and measures worse. (27.3 px at the older placement, which the two copperplate presets pin.)">Copperplate (tall ornate)</option>
+              <option value="scriptS" title="Historical initial-tip benchmark: 16.8 px mean, 164.0 px worst - OPEN stroke.">Script S (open stroke)</option>
+              <option value="signature" title="Historical initial-tip benchmark: 21.0 px mean, 152.6 px worst - OPEN stroke.">Signature (open stroke)</option>
+              <option value="cursive" title="Historical initial-tip benchmark: 28.9 px. Longest arc in the set; give it a longer period and it becomes one of the easiest.">Cursive loops ("eee")</option>
+            </optgroup>
+          </select>
+        </div>
+      </div>
+
+      <h2 class="panel-title">Physics</h2>
+
+      <div class="control-row">
+        <label class="control-label">Gravity</label>
+        <input id="gravity" type="range" min="0" max="2000" step="10" value="900" />
+        <span class="control-value" id="gravityVal">900</span>
+      </div>
+      <div class="control-row">
+        <label class="control-label">Damping</label>
+        <input id="damping" type="range" min="0" max="0.1" step="any" value="0.005" />
+        <span class="control-value" id="dampingVal">0.005</span>
+      </div>
+      <!-- Initial-tilt controls. Moved here (from the Training section)
+           because the start angle is a SCENE / scenario property: it
+           defines the initial condition of the world, not anything
+           about the model that's being trained on it. Tilt magnitude +
+           direction stay tightly linked to physics knobs above (gravity
+           sets recovery feasibility; tilt sets how far you start). -->
+      <div class="control-row">
+        <label class="control-label" title="Central initial tilt (degrees). The pendulum starts EXACTLY at this angle (or -this angle for tiltDirection=both) on each rollout. 0° = always upright, 180° = full swing-up start. Combine with Tilt spread (below) for a fan around the center. Curriculum can ramp it (e.g. 5° → 180°): start near-balanced, progressively widen the start until the agent has to swing all the way up.">Tilt (°)</label>
+        <input id="tiltDeg" type="range" min="0" max="180" step="any" value="20" />
+        <span class="control-value" id="tiltDegVal">20°</span>
+      </div>
+      <div class="control-row">
+        <label class="control-label" title="Random fan around the central tilt. 0° = deterministic (every rollout starts at exactly ±Tilt). 30° = uniform jitter in ±30° around the center, so the policy must handle a small range of poses. Easier to learn from 0 (single pose) and gradually open up via curriculum than to force the policy to generalize across a wide fan from gen 0.">Tilt spread (°)</label>
+        <input id="tiltSpreadDeg" type="range" min="0" max="90" step="any" value="0" />
+        <span class="control-value" id="tiltSpreadDegVal">0°</span>
+      </div>
+      <div class="control-row tilt-presets-row">
+        <label class="control-label tilt-presets-label" title="Quick-set the tilt slider to one of the four legacy difficulty levels. Just snaps the slider — the underlying property is the continuous degrees value.">Presets</label>
+        <span class="tilt-presets">
+          <button type="button" class="tilt-preset" data-deg="5">5°</button>
+          <button type="button" class="tilt-preset" data-deg="20">20°</button>
+          <button type="button" class="tilt-preset" data-deg="60">60°</button>
+          <button type="button" class="tilt-preset" data-deg="180">180°</button>
+        </span>
+      </div>
+      <div class="control-row">
+        <label class="control-label" title="Which side of vertical the pendulum tilts on at start. Both = uniform across the full ±range each gen. Left/right biases the random initial angle to one side — useful for asymmetric tasks (e.g. always hit a ball on the right with the bob starting on the left).">Tilt direction</label>
+        <select id="tiltDirection" class="select select-inline">
+          <option value="both" selected>Both (default ± random)</option>
+          <option value="left">Left only (negative)</option>
+          <option value="right">Right only (positive)</option>
+        </select>
+      </div>
+      <div class="control-row">
+        <label class="control-label" title="How the network output drives the agent (the cart on rail-based setups, the free 2D agent on dodge). Accel: output is a TARGET VELOCITY (× max speed) the agent approaches at a bounded rate, then hard-clamped (the historical default, physically plausible). Velocity: agent velocity = output × max speed INSTANTLY, no inertia (non-physical, reference-style, easiest — for benchmark comparison). Force + drag: output is an applied ACCELERATION; the agent also feels real linear drag, so a terminal velocity emerges from the physics with NO artificial speed cap (most physical — what a real motor-against-friction actually does).">Agent control</label>
+        <select id="cartControlMode" class="select select-inline">
+          <option value="accel" selected>Accel (bounded target vel, default)</option>
+          <option value="velocity">Velocity (instant, simplified)</option>
+          <option value="force">Force + drag (physical, no cap)</option>
+        </select>
+      </div>
+      <div class="control-row checkbox-row">
+        <label title="When off, the cart can travel arbitrarily far on the rail. Camera follows the cart with damping. Useful when wall bounces are interfering with swing-up dynamics.">
+          <input id="wallsOn" type="checkbox" checked /> Rail walls (left/right limits)
+        </label>
+      </div>
+      <!-- Single-pendulum observation encoding. 'blind-dropout' is the MEMORY
+           task: both velocity channels are killed AND a fresh reading arrives
+           only every K-th control step (everything zero but the bias in
+           between, with the dead cart-velocity channel reused as a 1/0
+           "this reading is fresh" flag). Width stays 6 in both modes. -->
+      <div id="singleObsBlock" style="display:none;">
+        <div class="control-row">
+          <label class="control-label" title="Full: the classic 6-channel reactive observation. Blind + dropout: velocity channels zeroed AND a fresh reading only every K-th control step — on the stale steps a memoryless policy sees a LITERALLY IDENTICAL input and can only emit a constant, so holding a command across the gap requires memory. Use with policy = 'Recurrent'.">Observation</label>
+          <select id="singleObservationMode" class="select select-inline">
+            <option value="full" selected>Full — position + velocity every step</option>
+            <option value="blind-dropout">Blind + dropout — memory required</option>
+          </select>
+        </div>
+        <div class="control-row" id="singleDropoutKRow">
+          <label class="control-label" title="Control steps between fresh readings. 1 = no dropout. K=4 is the shipped setting and it IS the widest separation between the two arms — but not for the reason this tooltip used to give. RE-MEASURED on the SHIPPED config (DE pop 40, 1600 generations, 3 seeds per cell, same 8 held-out angles): recurrent 1.000 / 0.958 / 0.929 at K = 2 / 3 / 4 against memoryless 0.334 / 0.179 / 0.137, i.e. a gap of 0.67 / 0.78 / 0.79. The recurrent arm does NOT get worse at small K — the old '0.81/0.87 vs 0.92–0.97' came from a sep-CMA-ES screening sweep at a different budget and is refuted here; what K actually changes is how much the MEMORYLESS arm can still do. The do-nothing floor is 0.123 at every K, and a hand-written controller that simply HOLDS its command between readings scores 1.000 at every K from 1 to 8.">Reading every</label>
+          <input id="singleDropoutK" type="range" min="1" max="8" step="1" value="4" />
+          <span class="control-value" id="singleDropoutKVal">4 steps</span>
+        </div>
+      </div>
+      <!-- The curriculum master toggle is in the topbar (curriculumTopbarBtn).
+           This checkbox stays for state binding but is hidden — the topbar
+           button just clicks it to keep the existing wiring intact. -->
+      <div class="control-row checkbox-row" style="display:none;">
+        <label>
+          <input id="curriculumOn" type="checkbox" /> Curriculum
+        </label>
+      </div>
+      <div class="control-row" id="curriculumStartFracRow" style="display:none;">
+        <label class="control-label" title="Starting gravity as a fraction of target. Smaller = easier start.">Start fraction</label>
+        <input id="curriculumStartFrac" type="range" min="0.05" max="0.6" step="0.01" value="0.18" />
+        <span class="control-value" id="curriculumStartFracVal">0.18</span>
+      </div>
+      <div class="control-row" id="curriculumRampRow" style="display:none;">
+        <label class="control-label" title="Per-step multiplicative ramp on gravity. 1.05 = 5% increase per level-up.">Ramp factor</label>
+        <input id="curriculumRamp" type="range" min="1.005" max="1.20" step="0.005" value="1.05" />
+        <span class="control-value" id="curriculumRampVal">1.050</span>
+      </div>
+      <div class="control-row" id="curriculumThresholdRow" style="display:none;">
+        <label class="control-label" title="Fraction of theoretical max fitness needed to advance. Higher = stricter.">Level-up threshold</label>
+        <input id="curriculumThreshold" type="range" min="0.30" max="0.95" step="0.05" value="0.70" />
+        <span class="control-value" id="curriculumThresholdVal">0.70</span>
+      </div>
+      <div class="control-row" id="curriculumConsecRow" style="display:none;">
+        <label class="control-label" title="How many consecutive gens above threshold before levelling up.">Stable gens</label>
+        <input id="curriculumConsec" type="range" min="1" max="10" step="1" value="2" />
+        <span class="control-value" id="curriculumConsecVal">2</span>
+      </div>
+      <div class="control-row" id="curriculumMaxLevelRow" style="display:none;">
+        <label class="control-label" title="How many level-ups before all curriculum specs reach their `to` value. Higher = more gradual ramp; lower = faster. Hard ramps with abrupt strategy changes (e.g. small-tilt balance → 180° swing-up) often need >50 to keep each step's fitness drop survivable. Range goes up to 200 because some tasks really do need that fine a ramp.">Levels to target</label>
+        <input id="curriculumMaxLevel" type="range" min="3" max="200" step="1" value="10" />
+        <span class="control-value" id="curriculumMaxLevelVal">10</span>
+      </div>
+      <!-- The active curriculum ramp list lives as a floating overlay
+           anchored to the sim viewer (#curriculumListFloating, see the
+           panel-sim section). The user adds ramps via the per-slider +
+           buttons (no "Add" button here) and the list is view-only. We
+           keep the level-progress hint here so it stays close to the
+           per-slider configuration UI. -->
+      <div id="curriculumSpecsBlock" style="display:none;">
+        <div class="phys-hint" id="curriculumLevelHint">
+          <span class="info">level 0/10 · curriculum is on but no spec applied yet</span>
+        </div>
+        <!-- Per-level fitness summary mini-chart. One vertical band per
+             level, height = best fitness reached at that level, with a
+             secondary marker for the median. Drawn by app.js whenever
+             curriculum is on and at least one level-up has happened.
+             Gives a quick "where did the score climb / crash" timeline
+             alongside the main fitness chart's per-gen view. -->
+        <canvas id="curriculumLevelChart" class="curriculum-level-chart" title="Per-curriculum-level fitness summary. Each bar = one level; bar height = max best fitness reached, dot = max median. Lavender dot + tick = max / mean retro fitness probed while at this level (when retro-eval is on). Hover the bars for the level's gen range."></canvas>
+        <!-- Retro overlay toggle for the per-level chart. Only meaningful
+             when retro-eval (feature A) is on -- without retro data the
+             dots/ticks have nothing to draw. Defaults to ON so users who
+             enable retro get the diagnostic automatically. -->
+        <label class="lineage-toggle curriculum-chart-toggle" title="Overlay retro-eval results on the per-level chart: lavender dot = max retro fitness recorded at this level; thin tick = mean retro fitness. A retro dot far below the bar's top means policies at this level were specialized and forgot prior levels.">
+          <input id="curriculumChartShowRetro" type="checkbox" checked /> Show retro overlay</label>
+        <!-- Retro-eval (catastrophic forgetting). Every N gens, the
+             current top-K policies are re-evaluated at a random prior
+             curriculum level. The retro fitness reveals whether a policy
+             still works on earlier levels or has specialized so hard on
+             the current one that it forgot the basics. Off by default
+             because it adds eval cost; turn on after you have at least
+             2-3 levels of curriculum history. -->
+        <div class="bcontrol-row checkbox-row" id="retroEvalEnabledRow" style="margin-top:8px;">
+          <label title="Every retroEvalEveryGens gens, re-evaluate the top-N policies on a uniformly-sampled prior curriculum level. Catches catastrophic forgetting: a policy that crushes level 5 but can no longer balance from level 0 scores low on retro. Selection weight (below) controls whether retro fitness is also used to demote forgetful policies, or just shown for diagnosis.">
+            <input id="retroEvalEnabled" type="checkbox" /> Retro-eval (catastrophic forgetting)
+          </label>
+        </div>
+        <div class="bcontrol-row" id="retroEvalEveryGensRow" style="display:none;">
+          <label class="control-label" title="Run retro-eval every N main generations. Lower = more frequent / costlier; higher = cheaper but less responsive. 5 keeps overhead at ~4% of total evals on a default-size population.">Retro cadence</label>
+          <input id="retroEvalEveryGens" type="range" min="1" max="20" step="1" value="5" />
+          <span class="control-value" id="retroEvalEveryGensVal">5</span>
+        </div>
+        <div class="bcontrol-row" id="retroEvalTopNRow" style="display:none;">
+          <label class="control-label" title="How many top policies to retro-evaluate each retro gen. Bigger = denser robustness signal but more eval cost. 5 is enough to drive selection on the elite slice without ballooning runtime.">Top-N retro</label>
+          <input id="retroEvalTopN" type="range" min="1" max="20" step="1" value="5" />
+          <span class="control-value" id="retroEvalTopNVal">5</span>
+        </div>
+        <div class="bcontrol-row" id="retroEvalSelectionWeightRow" style="display:none;">
+          <label class="control-label" title="How much of selection comes from retro fitness. 0 = display-only (chart + badge show retro, selection ignores it). 1 = pure retro (selection sorts by old-level robustness alone). 0.3 = sane mix: most pressure from current level, but forgetful policies pay a real price.">Retro weight</label>
+          <input id="retroEvalSelectionWeight" type="range" min="0" max="1" step="0.05" value="0.3" />
+          <span class="control-value" id="retroEvalSelectionWeightVal">0.30</span>
+        </div>
+        <!-- Per-level Hall of Fame + boundary transplant. Tracks the top
+             genome at each curriculum level, then injects it into the
+             next-gen population when the curriculum advances so the
+             level-up doesn't erase the lineage that mastered the prior
+             level. The defense against the "drop 100 -> 0 at level-up"
+             failure mode. -->
+        <div class="bcontrol-row checkbox-row" style="margin-top:8px;">
+          <label title="Keep a small Hall of Fame per curriculum level. When the curriculum advances, the previous level's top genomes are automatically transplanted into the next-gen population (configurable below). Survives the level-up so the genome that mastered level 5 keeps participating in the search at level 6, instead of being wiped out by the new difficulty.">
+            <input id="levelHoFEnabled" type="checkbox" /> Per-level HoF + transplant
+          </label>
+        </div>
+        <div class="bcontrol-row" id="levelHoFSizeRow" style="display:none;">
+          <label class="control-label" title="How many champions to retain per curriculum level. 2 keeps memory + checkpoint size bounded; the top genome is usually all that matters, but a second slot helps when fitness is noisy or there are two competing strategies at a single level.">HoF per level</label>
+          <input id="levelHoFSize" type="range" min="1" max="200" step="1" value="2" />
+          <span class="control-value" id="levelHoFSizeVal">2</span>
+        </div>
+        <div class="bcontrol-row checkbox-row" id="levelTransplantOnRow" style="display:none;">
+          <label title="When the curriculum advances, copy the previous level's top HoF entries into the next-gen population. Off = HoF is recorded but never transplanted (useful for diagnosis without changing selection pressure). On = transplant fires automatically at each level-up.">
+            <input id="levelTransplantOn" type="checkbox" checked /> Transplant on level-up
+          </label>
+        </div>
+        <div class="bcontrol-row" id="levelTransplantCountRow" style="display:none;">
+          <label class="control-label" title="How many of the prior level's HoF entries to inject at each level-up. Bounded by HoF-per-level above. 2 keeps the transplant pressure modest -- the new level still has to be solved by NEW lineage, the transplants are an insurance reservoir, not the main drive.">Transplant count</label>
+          <input id="levelTransplantCount" type="range" min="1" max="200" step="1" value="2" />
+          <span class="control-value" id="levelTransplantCountVal">2</span>
+        </div>
+      </div>
+      <div class="control-row">
+        <label class="control-label" title="Maximum rate the cart can change its velocity (px/s²). Higher = snappier direction reversals. A very large value lets the cart reach max speed almost instantly, approximating direct velocity control while staying physically plausible (the motion is still bounded-accel, not teleporting). Range raised well past the old 8000 cap so the swing-up presets can exploit fast-twitch reversals.">Cart max accel</label>
+        <input id="cartAccel" type="range" min="200" max="200000" step="100" value="1600" />
+        <span class="control-value" id="cartAccelVal">1600</span>
+      </div>
+      <div class="phys-hint" id="cartAccelHint"></div>
+      <div class="control-row">
+        <label class="control-label" title="Speed cap for the cart (px/s). In velocity-control mode this is the scale: cart velocity = network output × this. In accel mode it bounds the top speed the accel integrator can reach. Curriculum-able. (Previously hard-coded to 600 internally — presets that asked for a different value were silently ignored; now it threads through.)">Cart max speed</label>
+        <input id="cartMaxSpeed" type="range" min="100" max="4000" step="50" value="600" />
+        <span class="control-value" id="cartMaxSpeedVal">600</span>
+      </div>
+      <div class="control-row">
+        <label class="control-label" title="FORCE-mode only (ignored by accel/velocity modes). Linear viscous drag coefficient on the cart, like rolling friction / air resistance. The cart's terminal velocity at full command emerges as cartAccel ÷ cartDrag — this is what physically bounds the speed instead of a hard cap. Higher = more friction = lower top speed + snappier stop when the command is released; lower = faster, longer coast. Time constant ≈ 1/cartDrag seconds. 0 = frictionless (only a far-off numerical safety guard remains).">Cart drag (force mode)</label>
+        <input id="cartDrag" type="range" min="0" max="100" step="any" value="8" />
+        <span class="control-value" id="cartDragVal">8</span>
+      </div>
+      <div class="control-row">
+        <label class="control-label" title="Geometric assistance for the constrained pendulum setups: each step nudges links toward upright. This changes the simulated motion directly; it is not a physical torsion spring or an unaided control result. Zero disables the helper. Compare against a zero-policy baseline to measure how much work the learned controller contributes.">Upright assist (geometric)</label>
+        <input id="uprightAssist" type="range" min="0" max="1" step="0.005" value="0" />
+        <span class="control-value" id="uprightAssistVal">0.000</span>
+      </div>
+      <div class="control-row">
+        <label class="control-label" title="DOUBLE PENDULUM only. Per-joint hinge friction (bearing friction at the pivots): a damping torque opposing each link's swing speed. Bleeds the chaotic relative-link energy that makes the double pendulum hard, so it's easier to coordinate and hold -- a real physical entity, not a reward hack. Curriculum-able (ramped strong -> 0, or -> a small floor in the assisted preset). 0 = frictionless joints (off).">Joint friction (2-seg)</label>
+        <input id="jointDamping" type="range" min="0" max="30" step="0.5" value="0" />
+        <span class="control-value" id="jointDampingVal">0.0</span>
+      </div>
+
+      <h2 class="panel-title">Disturbances</h2>
+      <div class="control-row checkbox-row">
+        <label><input id="useDisturb" type="checkbox" /> Random pushes during eval</label>
+      </div>
+      <div class="control-row">
+        <label class="control-label">Target</label>
+        <select id="pushTarget" class="select select-inline">
+          <option value="tip" selected>Tip (last bob)</option>
+          <option value="cart">Cart</option>
+          <option value="mid-joint">Mid-joint (multi-link only)</option>
+          <option value="random">Random free node</option>
+        </select>
+      </div>
+      <div class="control-row">
+        <label class="control-label">Strength</label>
+        <input id="pushStrength" type="range" min="0" max="800" step="1" value="200" />
+        <span class="control-value" id="pushStrengthVal">200</span>
+      </div>
+      <div class="control-row">
+        <label class="control-label" title="0 = instant impulse (snap velocity). >0 = sustained force lasting this many seconds.">Duration (s)</label>
+        <input id="pushDuration" type="range" min="0" max="2.0" step="0.05" value="0" />
+        <span class="control-value" id="pushDurationVal">0.00</span>
+      </div>
+      <div class="control-row">
+        <label class="control-label" title="Trapezoidal envelope: ramp-up + hold + ramp-down. Capped at duration/2.">Smoothing (s)</label>
+        <input id="pushSmoothing" type="range" min="0" max="1.0" step="0.05" value="0" />
+        <span class="control-value" id="pushSmoothingVal">0.00</span>
+      </div>
+      <div class="control-row">
+        <label class="control-label">Interval min (s)</label>
+        <input id="pushIntervalMin" type="range" min="0.5" max="10" step="0.1" value="1.0" />
+        <span class="control-value" id="pushIntervalMinVal">1.0</span>
+      </div>
+      <div class="control-row">
+        <label class="control-label">Interval max (s)</label>
+        <input id="pushIntervalMax" type="range" min="0.5" max="10" step="0.1" value="3.0" />
+        <span class="control-value" id="pushIntervalMaxVal">3.0</span>
+      </div>
+
+      <h2 class="panel-title">Adversarial environments</h2>
+      <div class="control-row checkbox-row">
+        <label title="Co-evolve a population of environments alongside controllers. Each rollout samples one env from this population, applies its multipliers (gravity / damping / cart accel / start angle / push strength) on top of your nominal physics, and the env that defeats controllers most gains higher env-fitness. Result: controllers learn to be ROBUST across an evolving difficulty distribution rather than over-fitting to your nominal physics.">
+          <input id="adversarialOn" type="checkbox" /> Adversarial env co-evolution
+        </label>
+      </div>
+      <div class="control-row" id="adversarialEnvPopSizeRow" style="display:none;">
+        <label class="control-label" title="Number of envs in the co-evolved env pop. More = richer difficulty distribution, but each env gets less signal per gen.">Env pop size</label>
+        <input id="adversarialEnvPopSize" type="range" min="2" max="32" step="1" value="8" />
+        <span class="control-value" id="adversarialEnvPopSizeVal">8</span>
+      </div>
+      <div class="control-row" id="adversarialMutationSigmaRow" style="display:none;">
+        <label class="control-label" title="Per-gen Gaussian mutation σ on env knobs (multipliers). Higher = envs explore wider; lower = pop converges to stable hard configurations.">Env mutation σ</label>
+        <input id="adversarialMutationSigma" type="range" min="0.02" max="0.40" step="0.02" value="0.10" />
+        <span class="control-value" id="adversarialMutationSigmaVal">0.10</span>
+      </div>
+      <div class="phys-hint" id="adversarialHint" style="display:none;"></div>
+
+      <div class="panel-region region-display">
+        <span class="region-title">Display</span>
+        <span class="region-subtitle">visualization toggles</span>
+      </div>
+      <h2 class="panel-title">Display</h2>
+      <div class="control-row checkbox-row">
+        <label title="Render the top-N runner-up policies alongside the primary, all on the same starting conditions. Useful to compare how alternative siblings approach the same problem from frame 1.">
+          <input id="showGhosts" type="checkbox" /> Show top-N ghosts
+        </label>
+      </div>
+      <div class="control-row" id="ghostCountRow" style="display:none;">
+        <label class="control-label" title="How many runner-up policies to render alongside the primary. Each ghost adds one full physics+policy step per display tick; cheap up to ~12 on modern hardware. Total visible = ghosts + 1 (the primary).">Ghost count</label>
+        <input id="ghostCount" type="range" min="1" max="16" step="1" value="5" />
+        <span class="control-value" id="ghostCountVal">5</span>
+      </div>
+      <div class="control-row checkbox-row">
+        <label><input id="showTrail" type="checkbox" checked /> Tip trail</label>
+      </div>
+      <div class="control-row checkbox-row">
+        <label><input id="showHelpers" type="checkbox" checked /> Show helper indicators</label>
+      </div>
+      <div class="control-row checkbox-row">
+        <label><input id="showActivations" type="checkbox" checked /> Live activations</label>
+      </div>
+      <div class="control-row checkbox-row">
+        <label title="Use straight lines (instead of bezier curves) and uniform thin grey stroke (instead of per-connection weight color) when drawing the network panel. Much faster on genomes with hundreds of connections -- e.g. dodge + 16x16 grid input where the input layer alone has 256 nodes. Default off (full fidelity). Turn on if the network panel feels laggy; turn back off when inspecting weight magnitudes.">
+          <input id="simplifiedNetRender" type="checkbox" /> Simplified network rendering
+        </label>
+      </div>
+      <div class="control-row checkbox-row">
+        <label><input id="showGenomeSpace" type="checkbox" checked /> Show solution space</label>
+      </div>
+      <div class="control-row checkbox-row">
+        <label title="Floating panel in the top-right of the simulation showing live GA state: stuck-escape mode (normal / escape-low/mid/high), current mutation multiplier, gens-since-last-meaningful-improvement, Hall of Fame size, auto-rollback countdown, and mutation annealing status. The single best place to see 'is the GA actually making progress, or just spinning?'.">
+          <input id="showStabilityHUD" type="checkbox" checked /> Show GA state HUD
+        </label>
+      </div>
+      <div class="control-row" id="projectionModeRow">
+        <label class="control-label" title="How to compress high-dim parameter space to 2D. PCA picks max-variance directions (linear); Random picks an arbitrary 2D slice; Distance matrix shows all pairwise distances; MDS preserves pairwise distances via Sammon stress; t-SNE preserves local neighborhoods (cluster-emphasizing); Behavior projects WHAT policies do (cart-x, control-twitch, upTime, …) instead of WHICH weights they use.">Projection</label>
+        <select id="projectionMode" class="select select-inline">
+          <optgroup label="Linear">
+            <option value="pca" selected>PCA (max variance)</option>
+            <option value="random">Random projection (re-rollable)</option>
+          </optgroup>
+          <optgroup label="Nonlinear (heavier)">
+            <option value="mds">MDS / Sammon (preserve distances)</option>
+            <option value="tsne">t-SNE (preserve neighborhoods)</option>
+            <option value="umap">UMAP (k-NN graph + neg sampling)</option>
+          </optgroup>
+          <optgroup label="No projection / different space">
+            <option value="distmatrix">Distance matrix (N×N heatmap)</option>
+            <option value="behavior">Behavior-space (what policies DO)</option>
+          </optgroup>
+        </select>
+      </div>
+      <div class="control-row" id="rerollRandomRow" style="display:none;">
+        <button id="rerollRandomBtn" class="btn" title="Resample the random 2D basis. PCA stays fixed across reruns; random projection picks a new arbitrary slice.">Reroll random basis</button>
+      </div>
+      <div class="control-row checkbox-row">
+        <label title="Paint a KDE-style density heatmap underneath the scatter dots. Hot cells = many individuals. Useful to see when the swarm has split into clusters or formed a tight blob."><input id="showDensity" type="checkbox" checked /> Density heatmap</label>
+      </div>
+      <div class="control-row checkbox-row">
+        <label title="1σ + 2σ ellipse around the swarm's empirical 2D covariance. Shrinks as the algorithm converges."><input id="showSpreadEllipse" type="checkbox" checked /> Spread ellipse</label>
+      </div>
+    </aside>
+
+    <section class="panel panel-sim">
+      <div class="panel-header">
+        <h2 class="panel-title" id="simTitle">Live simulation — best agent</h2>
+        <div id="liveNudgeControls" class="live-nudge-controls" hidden>
+          <span>Test recovery</span>
+          <button id="nudgeLeftBtn" type="button" class="btn" title="Apply a physical disturbance to the live controller">← Push</button>
+          <button id="nudgeRightBtn" type="button" class="btn" title="Apply a physical disturbance to the live controller">Push →</button>
+          <small id="liveNudgeStatus" role="status"></small>
+        </div>
+        <div class="badges">
+          <span class="badge"><span class="badge-key">gen</span><span id="genBadge">0</span></span>
+          <span class="badge"><span class="badge-key">best</span><span id="bestBadge">0.000</span></span>
+          <span class="badge"><span class="badge-key">avg</span><span id="avgBadge">0.000</span></span>
+          <span class="badge"><span class="badge-key" id="nodesBadgeKey">nodes</span><span id="nodesBadge">0</span></span>
+          <span class="badge"><span class="badge-key" id="connsBadgeKey">conns</span><span id="connsBadge">0</span></span>
+          <span class="badge"><span class="badge-key">species</span><span id="speciesBadge">1</span></span>
+          <!-- Compare-mode summary badge. Shows the secondary trainer's
+               current gen + best fitness so the user can read A vs B
+               side by side from the header. Hidden when compare is off. -->
+          <span class="badge badge-compare hidden" id="compareBadge" title="Compare-mode trainer B. Format: gen / best fitness. The fitness chart shows both A (solid) and B (dashed) curves -- this badge surfaces just the current-gen summary so it fits in the header."><span class="badge-key">B</span><span id="compareBadgeText">—</span></span>
+          <span class="badge badge-test hidden" id="testBadge"><span class="badge-key">test</span><span id="testBadgeText">0/0</span></span>
+          <span class="badge badge-curr hidden" id="currBadge"><span class="badge-key">curr</span><span id="currBadgeText">g=900 d=0.005</span></span>
+          <span class="badge badge-anneal hidden" id="annealBadge"><span class="badge-key">T</span><span id="annealBadgeText">1.00 · 0/0 acc</span></span>
+          <span class="badge badge-stale hidden" id="staleBadge"><span class="badge-key">stale</span><span id="staleBadgeText">0</span></span>
+          <span class="badge badge-escape hidden" id="escapeBadge" title="Stuck-escape: the GA is automatically reheating mutation rates because best-ever hasn't improved in a while. ×N is the multiplier on the mutation knobs; +inject means fresh random genomes were also injected this gen to break out of converged weight space."><span class="badge-key">escape</span><span id="escapeBadgeText">×1.0</span></span>
+          <span class="badge badge-ball hidden" id="ballBadge"><span class="badge-key">ball</span><span id="ballBadgeText">—</span></span>
+          <span class="badge badge-ball" id="courseRuleBadge" hidden title="The ceiling is a passive rebound surface. A contact is not a loss; sink, escape or timeout ends the attempt.">Beam rebounds allowed</span>
+          <!-- Dodge-only "performance gauge": exponential moving average of
+               the safety scalar (1 = clear of bullets, 0 = bullet on top of
+               agent) over ~1.5 s, plus the rollout-mean in parentheses.
+               Hidden unless the active setup is 'dodge'. -->
+          <span class="badge badge-safety hidden" id="safetyBadge" title="Recent safety (1.5 s EMA of distance to nearest bullet, normalized). 1.00 = no bullets within safeDistPx. Parenthesized value is the rollout-mean safety, useful as a per-rollout performance summary."><span class="badge-key">safe</span><span id="safetyBadgeText">—</span></span>
+          <!-- Dodge survival stats: current run's survival time, the best (longest)
+               survival seen this run, and hits taken. Hidden unless the setup is
+               'dodge'. Reads app.showState.dodge each frame. -->
+          <span class="badge badge-safety hidden" id="dodgeStatsBadge" title="Elapsed replay time is distinct from survival. Streak is the time since the last registered hit; best is the longest such streak in this rollout. Continuous mode uses the recorded invulnerability interval after a hit. Counters reset with the displayed scene."><span class="badge-key">dodge</span><span id="dodgeStatsBadgeText">—</span></span>
+          <!-- Retro-eval badge. Shows the last gen's top-N retro fitness
+               (at a sampled prior curriculum level) so the user can see
+               whether elites still work on old difficulties. Hidden
+               unless retro-eval has fired at least once this run. -->
+          <span class="badge badge-retro hidden" id="retroBadge" title="Most recent retro-eval result: top-N policies re-evaluated at the indicated prior curriculum level. Compares against the current-level best to surface catastrophic forgetting. Updates only on retro gens (every retroEvalEveryGens generations)."><span class="badge-key">retro</span><span id="retroBadgeText">—</span></span>
+          <!-- Pareto-aware HoF count. Hidden unless feature D's HoF
+               variant is on and has at least one entry. Format:
+               "P-HoF 3/8" = 3 occupants of 8-slot reservoir. -->
+          <span class="badge badge-phof hidden" id="paretoHoFBadge" title="Cumulative Pareto-aware Hall of Fame: rank-1 individuals across gens, behavior-diversity gated. N/cap shows current size."><span class="badge-key">P-HoF</span><span id="paretoHoFBadgeText">—</span></span>
+        </div>
+      </div>
+      <!-- Side-by-side sim canvases. simCanvas is always visible; the
+           second canvas (simCanvasB) is shown only when compare mode is
+           on (the .compare-on body class flips the .sim-canvases
+           wrapper into a 50/50 flex row + reveals the B canvas).
+           When compare is off, simCanvas fills the entire panel and
+           the B canvas is hidden. The "A" / "B" tags float in the
+           top-left of each pane only when compare is on. -->
+      <div class="sim-canvases">
+        <div class="sim-pane sim-pane-a">
+          <canvas id="simCanvas" class="sim-canvas"></canvas>
+          <span class="sim-pane-tag sim-pane-tag-a" id="simPaneTagA">A</span>
+        </div>
+        <div class="sim-pane sim-pane-b">
+          <canvas id="simCanvasB" class="sim-canvas sim-canvas-b"></canvas>
+          <span class="sim-pane-tag sim-pane-tag-b" id="simPaneTagB">B</span>
+        </div>
+      </div>
+      <!-- Floating curriculum ramp list. Anchored to the top-left of the
+           sim viewer so it stays visible when the user clicks an entry
+           and the LEFT control panel scrolls to bring the matching
+           slider into view. View-only — entries scroll-to-flash on
+           click; ramps are added/edited via the per-slider + buttons.
+           Hidden by default; shown when curriculum is on AND the user
+           has the topbar "List" toggle enabled. -->
+      <div class="curr-list-floating hidden" id="curriculumListFloating">
+        <div class="curr-list-floating-title">Curriculum ramps</div>
+        <div id="curriculumSpecsList" class="curr-list-floating-body"></div>
+        <div class="curr-list-floating-hint" id="curriculumListEmpty">
+          No ramps yet — click <b>+</b> next to any parameter slider.
+        </div>
+      </div>
+      <!-- Phase-space trajectory image — only visible in CNN policy mode.
+           Shows what the CNN actually "sees" as input each frame: a phase-
+           space rendering of recent state history (sin θ on x, ang. velocity
+           on y, recent points brighter). -->
+      <div class="cnn-inset hidden" id="cnnInset">
+        <canvas id="cnnInsetCanvas"></canvas>
+        <div class="cnn-inset-label">CNN input · phase space</div>
+      </div>
+      <!-- 3D CNN inset — wider to accommodate flipbook / slices / filter
+           viz modes. Hidden unless policyType === 'cnn3d'. -->
+      <div class="cnn-inset cnn3d-inset hidden" id="cnn3dInset">
+        <canvas id="cnn3dInsetCanvas"></canvas>
+        <div class="cnn-inset-label" id="cnn3dInsetLabel">3D CNN · flipbook</div>
+      </div>
+      <!-- Live diagnostics for the three anti-regression toggles. Updates
+           every render frame from trainer state. Hidden until the user
+           enables "Stability HUD" in the Display section. -->
+      <div class="stability-hud hidden" id="stabilityHUD">
+        <div class="hud-title">GA state</div>
+        <div id="hudEscape"></div>
+        <div id="hudHallOfFame" class="hud-section"></div>
+        <div id="hudRollback" class="hud-section"></div>
+        <div id="hudAnneal" class="hud-section"></div>
+      </div>
+    </section>
+
+    <aside class="panel panel-right">
+      <!-- Right-bar visualisation tabs. A tab hides/shows only its
+           .viz-tabpanel WRAPPER — every canvas stays in the DOM (the
+           renderers hold canvas refs) and the per-panel mode-conditional
+           show/hide logic in app.js keeps writing each SECTION's own
+           inline display, untouched. A tab whose sections are all
+           currently hidden is itself disabled. Selection persists across
+           preset/mode switches via localStorage. -->
+      <div class="viz-tabs" id="vizTabs" role="tablist" aria-label="Right-bar visualisations">
+        <button type="button" class="viz-tab" id="vizTabBtn-network" role="tab" data-viz-tab="network" aria-controls="vizTabPanel-network" aria-selected="true" tabindex="0" title="Topology + what drives each action">Network</button>
+        <button type="button" class="viz-tab" id="vizTabBtn-population" role="tab" data-viz-tab="population" aria-controls="vizTabPanel-population" aria-selected="false" tabindex="-1" title="Population fitness, lineage, behaviour + solution space">Population</button>
+        <button type="button" class="viz-tab" id="vizTabBtn-progress" role="tab" data-viz-tab="progress" aria-controls="vizTabPanel-progress" aria-selected="false" tabindex="-1" title="Fitness over generations, algorithm internals, event log">Progress</button>
+        <button type="button" class="viz-tab" id="vizTabBtn-internals" role="tab" data-viz-tab="internals" aria-controls="vizTabPanel-internals" aria-selected="false" tabindex="-1" title="Mode-conditional diagnostics: line search, backprop, planner">Internals</button>
+        <button type="button" class="viz-tab" id="vizTabBtn-control" role="tab" data-viz-tab="control" aria-controls="vizTabPanel-control" aria-selected="false" tabindex="-1" title="Physical link angles, control authority, observations and neural activity">Control</button>
+      </div>
+      <div class="viz-tabpanel" id="vizTabPanel-network" role="tabpanel" data-viz-tab="network" aria-labelledby="vizTabBtn-network">
+      <div class="viz-motion-toolbar"><span>Live instruments</span><button id="vizSmoothingToggle" type="button" aria-pressed="false" title="Compare exact frame values with gentle visual easing. Only colors, maps and bar lengths ease; scores, choices and physical motion stay exact."><span aria-hidden="true">◈</span> Smoothing: Off</button></div>
+      <div class="panel-section" id="netPanel">
+        <div class="panel-header">
+          <h2 class="panel-title">Network topology</h2>
+          <span class="hint" id="netHint">tanh / relu / sigmoid / lin</span>
+          <button type="button" id="networkDensityToggle" class="network-density-toggle" aria-pressed="false" title="Use a shorter, more compact topology viewport">Spacing: Loose</button>
+        </div>
+        <canvas id="netCanvas" class="net-canvas"></canvas>
+      </div>
+      <details class="panel-section perception-panel" id="perceptionPanel" hidden open>
+        <summary><span>◈ Perception circuit</span><span class="circuit-live">LIVE</span></summary>
+        <p id="perceptionDescription"></p>
+        <canvas id="perceptionCanvas" aria-label="Live perception intermediates"></canvas>
+        <p class="circuit-caption">The last real policy decision. Pixels and bars show actual values; drifting embers decorate the glass.</p>
+      </details>
+      <!-- Input -> action influence chord. For the CURRENT champion genome,
+           this aggregates EVERY path from each observation input to each
+           action output — sum over paths of the product of |weight|, computed
+           as a DAG dynamic program in topological order, not by enumerating
+           paths — then normalises per action so a ribbon's width answers
+           "how much of THIS action is driven by THAT input". Setup-agnostic:
+           the arc labels come from the setup's own observationAbbr /
+           actionAbbr, so it works on every preset with no extra wiring. -->
+      <div class="panel-section" id="chordPanel">
+        <div class="panel-header">
+          <h2 class="panel-title">Input → action influence</h2>
+          <span class="hint" id="chordHint">Σ over paths of Π|w|, normalised per action</span>
+        </div>
+        <canvas id="chordCanvas" class="chord-canvas"></canvas>
+      </div>
+      </div>
+      <div class="viz-tabpanel" id="vizTabPanel-population" role="tabpanel" data-viz-tab="population" aria-labelledby="vizTabBtn-population">
+      <div class="panel-section" id="popPanel">
+        <div class="panel-header">
+          <h2 class="panel-title">Population fitness</h2>
+          <span class="hint">elites outlined · hue = node count</span>
+        </div>
+        <canvas id="popCanvas" class="pop-canvas"></canvas>
+      </div>
+      <div class="panel-section" id="lineagePanel">
+        <div class="panel-header">
+          <h2 class="panel-title">Lineage (NEAT)</h2>
+          <span class="hint">parents → children · last generation</span>
+        </div>
+        <!-- Extended origin tags: when ON, parentless lineage children
+             (best-ever inject, MAP-Elites archive draws, per-level HoF
+             transplants) each render as their own colored pill. When
+             OFF, they collapse into a single "rescue" pill so the panel
+             matches its pre-features look. Toggleable so users who don't
+             use those features aren't visually distracted. -->
+        <div class="lineage-controls">
+          <label class="lineage-toggle" title="Show separate colored pills for each parentless lineage origin: ★ best-ever inject (mint), ? random inject (grey), Q MAP-Elites archive draw (lavender), T per-level HoF transplant (amber). Turn off to collapse everything into a single rescue pill.">
+            <input id="lineageShowExtendedTags" type="checkbox" checked /> Show origin tags
+          </label>
+        </div>
+        <canvas id="lineageCanvas" class="pop-canvas"></canvas>
+      </div>
+      <!-- Behavior-space heatmap. Each cell = one bin in the (X, Y)
+           descriptor space the user picks. Color = best fitness ever
+           found in that bin; current-generation individuals are
+           overlaid as dots. Answers the question PCA can't: which
+           regions of behavior is the search exploring vs ignoring? -->
+      <div class="panel-section" id="behaviorPanel">
+        <div class="panel-header">
+          <h2 class="panel-title">Behavior space</h2>
+          <span class="hint" id="behaviorHint">color = best fitness · dots = current gen</span>
+        </div>
+        <div class="behavior-controls">
+          <div class="bcontrol-row">
+            <label class="control-label" title="Horizontal axis: a per-rollout descriptor that reduces the trajectory to a scalar.">X</label>
+            <select id="behaviorXSelect" class="select select-inline"></select>
+          </div>
+          <div class="bcontrol-row">
+            <label class="control-label" title="Vertical axis.">Y</label>
+            <select id="behaviorYSelect" class="select select-inline"></select>
+          </div>
+          <div class="bcontrol-row">
+            <label class="control-label" title="Resolution of the binning grid. 16x16 is the default; higher resolutions resolve finer differences but need more rollouts before each cell has a meaningful visit count.">Bins</label>
+            <input id="behaviorBins" type="range" min="4" max="64" step="2" value="16" />
+            <span class="control-value" id="behaviorBinsVal">16</span>
+          </div>
+          <!-- MAP-Elites parent selection. When on, a fraction of NEAT
+               parents are drawn from the behavior archive instead of
+               pure tournament — niches the live population isn't
+               currently representing still contribute lineage. Useful
+               when fitness alone keeps the search converging on one
+               behavior; QD parents push it sideways into unexplored
+               bins. NEAT-only (other modes have their own sampling). -->
+          <div class="bcontrol-row checkbox-row">
+            <label title="Use the behavior archive as a parent source (MAP-Elites). A fraction of NEAT children mutate from random archive cells instead of tournament-selected population members, mixing exploit and explore-by-rarity sampling. Off by default — flip on once the archive has a few cells populated. NEAT modes only.">
+              <input id="qdParentEnabled" type="checkbox" /> MAP-Elites parents
+            </label>
+          </div>
+          <div class="bcontrol-row" id="qdSampleFractionRow" style="display:none;">
+            <label class="control-label" title="Fraction of NEAT children whose parent comes from the behavior archive (vs tournament). 0.5 is the canonical QD recipe — half quality, half diversity. Lower = more conservative; higher = more aggressive niche exploration.">QD fraction</label>
+            <input id="qdSampleFraction" type="range" min="0.05" max="0.95" step="0.05" value="0.5" />
+            <span class="control-value" id="qdSampleFractionVal">0.50</span>
+          </div>
+          <!-- Quality-Diversity escape boost. When the stuck-escape
+               system fires (escape-low / -mid / -high badge), automatically
+               sample parents from the behavior archive at the boost rate
+               below, regardless of whether normal MAP-Elites parenting is
+               on. The archive is built up from past evaluations, so it
+               always has SOMETHING to draw from when the population gets
+               stuck. Independent of the normal "MAP-Elites parents" toggle
+               above — turn this off if you want stuck-escape to use only
+               σ widening + injection, with no QD shift. -->
+          <div class="bcontrol-row checkbox-row">
+            <label title="When the stuck-escape system fires, raise the effective QD parent-sample fraction to the boost rate (below). The behavior archive becomes a diversity reservoir exactly when the population needs it most: when small mutations can't reach the new basin. Independent of normal MAP-Elites parenting -- this kicks in even with QD parents off.">
+              <input id="qdEscapeBoostEnabled" type="checkbox" checked /> QD boost during escape
+            </label>
+          </div>
+          <div class="bcontrol-row" id="qdEscapeBoostRow">
+            <label class="control-label" title="Effective QD sample fraction while in escape mode. 0.5 = half of NEAT children mutate from random archive cells. Higher = more aggressive sideways exploration. Reverts to the normal QD fraction (or 0 if normal QD is off) once the escape badge clears.">Escape boost</label>
+            <input id="qdEscapeBoost" type="range" min="0.05" max="0.95" step="0.05" value="0.5" />
+            <span class="control-value" id="qdEscapeBoostVal">0.50</span>
+          </div>
+          <!-- Pareto (NSGA-II) selection over (fitness, novelty).
+               Replaces the fitness-only tournament with a non-dominated
+               sort + crowding distance. Pushes selection sideways into
+               unexplored behavior regions even when fitness alone would
+               converge. Complementary to MAP-Elites parenting above:
+               MAP-Elites draws from a fixed-bin archive; Pareto rewards
+               novelty relative to the LIVE population. Both can be on
+               simultaneously. NEAT-only (other modes have their own
+               selection paths). -->
+          <div class="bcontrol-row checkbox-row">
+            <label title="Use NSGA-II non-dominated sort + crowding distance for tournament selection. Replaces fitness-only comparison with (fitness, novelty) Pareto rank. Novelty = average L2 distance to k nearest neighbors in 6-D behavior space (normalized per-dim). Off by default -- opt in once you suspect fitness alone is causing convergence on one strategy. NEAT modes only.">
+              <input id="paretoSelectionEnabled" type="checkbox" /> Pareto selection (NSGA-II)
+            </label>
+          </div>
+          <div class="bcontrol-row" id="paretoNoveltyKRow" style="display:none;">
+            <label class="control-label" title="Novelty k-nearest-neighbor window. Each individual's novelty = average L2 distance to its k nearest behavior neighbors. 15 is the canonical Lehman-Stanley default; smaller k = sharper local novelty, larger k = smoother global novelty.">Novelty k</label>
+            <input id="paretoNoveltyK" type="range" min="3" max="30" step="1" value="15" />
+            <span class="control-value" id="paretoNoveltyKVal">15</span>
+          </div>
+          <!-- Third Pareto axis: rollout consistency (negative std-dev
+               of per-rollout fitness). Only meaningful when rollouts>=2.
+               Genomes with high mean fitness but noisy per-rollout
+               variance get demoted to lower fronts; tight-variance
+               policies are preferred. -->
+          <div class="bcontrol-row checkbox-row" id="paretoUseConsistencyRow" style="display:none;">
+            <label title="Add rollout consistency as a third Pareto objective. Consistency = -std-dev(per-rollout fitness), so higher is better (lower variance). A 'lucky' policy that crushes one rollout and tanks another is now dominated by a steadier-but-comparable-mean policy. Requires rolloutsPerAgent >= 2.">
+              <input id="paretoUseConsistency" type="checkbox" /> 3rd axis: rollout consistency
+            </label>
+          </div>
+          <!-- Pareto-aware Hall of Fame. Cumulative reservoir of rank-1
+               individuals across gens, gated by behavior diversity so
+               it doesn't fill with near-duplicates. Decouples "best
+               ever" from a single scalar -- two genomes with different
+               (fitness, novelty) profiles can both live in the HoF if
+               they cover distinct behavior regions. Requires Pareto
+               selection (above); inactive otherwise. -->
+          <div class="bcontrol-row checkbox-row" id="paretoHoFEnabledRow" style="display:none;">
+            <label title="Keep a cumulative Hall of Fame of Pareto rank-1 individuals across gens, with a behavior-diversity gate so the HoF doesn't fill up with near-duplicate genomes. A diverse 'best of all time' collection that survives the front churning each gen.">
+              <input id="paretoHoFEnabled" type="checkbox" /> Pareto-aware HoF
+            </label>
+          </div>
+          <div class="bcontrol-row" id="paretoHoFSizeRow" style="display:none;">
+            <label class="control-label" title="Cap on the cumulative Pareto-HoF size. When full, the lowest-fitness entry is evicted to make room for diverse newcomers. 8 keeps memory bounded; the value is also visible on the Pareto HoF badge in the sim header.">Pareto-HoF size</label>
+            <input id="paretoHoFSize" type="range" min="2" max="32" step="1" value="8" />
+            <span class="control-value" id="paretoHoFSizeVal">8</span>
+          </div>
+          <div class="bcontrol-row" id="paretoHoFMinDistRow" style="display:none;">
+            <label class="control-label" title="Minimum L2 distance in normalized behavior space below which two HoF entries are 'too similar'. Lower = HoF can keep behaviorally-close near-duplicates (more entries, less diverse); higher = HoF only keeps entries from clearly distinct behavior regions (fewer entries, more diverse).">Min behavior dist</label>
+            <input id="paretoHoFMinDist" type="range" min="0.1" max="2" step="0.05" value="0.5" />
+            <span class="control-value" id="paretoHoFMinDistVal">0.50</span>
+          </div>
+          <div class="bcontrol-row bcontrol-row-actions">
+            <button id="behaviorResetBtn" class="btn" title="Drop all archived bins for this run. Useful when you've changed objective or curriculum and want a fresh exploration map without restarting the run.">Clear archive</button>
+          </div>
+          <!-- Pareto rank overlay for the behavior heatmap. When Pareto
+               selection (above) is on, dots in the live-population
+               scatter are colored by NSGA-II rank: bright mint = Pareto
+               front (rank 1), fading grey = deeper ranks. Lets the user
+               see at a glance which BEHAVIOR REGIONS the front is
+               actually preserving. Auto-suppressed when Pareto is off
+               (no rank data to render); toggle defaults ON so opting
+               into Pareto gives you the diagnostic for free. -->
+          <div class="bcontrol-row checkbox-row">
+            <label title="Color the live scatter dots on the behavior heatmap by Pareto rank (when Pareto selection is on). Rank 1 = mint, deeper ranks fade to grey. Off = uniform white dots (the pre-feature look).">
+              <input id="behaviorShowParetoRank" type="checkbox" checked /> Color dots by Pareto rank
+            </label>
+          </div>
+        </div>
+        <canvas id="behaviorCanvas" class="behavior-canvas"></canvas>
+      </div>
+      <div class="panel-section" id="genomePanel">
+        <div class="panel-header">
+          <h2 class="panel-title">Solution space (PCA)</h2>
+          <span class="hint">connection-weight space, projected to 2D</span>
+        </div>
+        <canvas id="genomeCanvas" class="pop-canvas"></canvas>
+      </div>
+      </div>
+      <div class="viz-tabpanel" id="vizTabPanel-progress" role="tabpanel" data-viz-tab="progress" aria-labelledby="vizTabBtn-progress">
+      <div class="panel-section" id="fitPanel">
+        <div class="panel-header">
+          <h2 class="panel-title">Fitness over generations</h2>
+          <span class="hint">best · avg · worst</span>
+        </div>
+        <canvas id="fitCanvas" class="fit-canvas"></canvas>
+      </div>
+      <div class="panel-section" id="topoPanel">
+        <div class="panel-header">
+          <h2 class="panel-title" id="algoInternalsTitle">Algorithm internals</h2>
+          <span class="hint" id="algoInternalsHint">topology growth</span>
+        </div>
+        <canvas id="topoCanvas" class="fit-canvas"></canvas>
+      </div>
+      <div class="panel-section" id="eventLogPanel">
+        <div class="panel-header">
+          <h2 class="panel-title">Event log</h2>
+          <span class="hint">significant happenings, newest first</span>
+        </div>
+        <div class="event-log" id="eventLog"></div>
+      </div>
+      </div>
+      <div class="viz-tabpanel" id="vizTabPanel-internals" role="tabpanel" data-viz-tab="internals" aria-labelledby="vizTabBtn-internals">
+      <div class="panel-section" id="lineSearchPanel" style="display:none;">
+        <div class="panel-header">
+          <h2 class="panel-title">Line search</h2>
+          <span class="hint" id="lineSearchHint">α candidates this gen · green = accepted</span>
+        </div>
+        <canvas id="lineSearchCanvas" class="pop-canvas"></canvas>
+      </div>
+      <!-- Backprop-through-time — grad-exact modes only. Bars = dLoss/dAction at
+           each control step of the champion's rollout: literally WHERE the
+           gradient blames the controller. Hidden unless a diffsim grad mode is
+           active (LQR has no gradient). -->
+      <div class="panel-section" id="gradFlowPanel" style="display:none;">
+        <div class="panel-header">
+          <h2 class="panel-title">Backprop through time</h2>
+          <span class="hint" id="gradFlowHint">∂loss/∂action per control step — blue pushes +, red pushes −</span>
+        </div>
+        <canvas id="gradFlowCanvas" class="pop-canvas"></canvas>
+      </div>
+      <!-- Planner lookahead — dodge-planner mode only. Top-down of the field:
+           bullets + their predicted straight-line futures (the planner knows
+           exactly where every bullet is going), and the chosen escape path it
+           picked this step. This is "how the planner decides" — no training,
+           just model-based lookahead. -->
+      <div class="panel-section" id="plannerVizPanel" style="display:none;">
+        <div class="panel-header">
+          <h2 class="panel-title">Planner lookahead</h2>
+          <span class="hint" id="plannerVizHint">predicted bullet paths (red) · chosen escape route (green) · ~1.2s ahead</span>
+        </div>
+        <canvas id="plannerVizCanvas" class="pop-canvas"></canvas>
+      </div>
+      </div>
+      <div class="viz-tabpanel" id="vizTabPanel-control" role="tabpanel" data-viz-tab="control" aria-labelledby="vizTabBtn-control">
+        <section class="panel-section" id="controlPanel">
+          <div class="panel-header">
+            <h2 class="panel-title">What limits the controller?</h2>
+            <a class="hint" href="control-study.html" target="_blank" rel="noopener">Open control study ↗</a>
+          </div>
+          <div id="controlDiagnostics"></div>
+        </section>
+      </div>
+    </aside>
+
+    <div class="floating-tooltip hidden" id="netTooltip"></div>
+
+    <!-- Model archive popover. Anchored to the topbar Saves button. Each
+         slot is a named champion genome stored in localStorage: same
+         schema as the Export-best JSON download, so saves round-trip
+         with files. The full trainer population is NOT saved — that
+         would blow the localStorage quota fast — only the bestEver
+         genome + minimal context. -->
+    <div class="archive-popover hidden" id="archivePopover">
+      <div class="archive-header">
+        <h2 class="archive-title">Saved models</h2>
+        <button id="archiveCloseBtn" class="btn btn-icon" title="Close">×</button>
+      </div>
+      <div class="archive-save-row">
+        <input id="archiveNameInput" type="text" maxlength="64" placeholder="name this save…" />
+        <button id="archiveSaveBtn" class="btn btn-good" title="Save the current trained policy, weights, architecture and scene settings under this name. Existing entries ask before being replaced.">Save current</button>
+      </div>
+      <div class="archive-actions-row">
+        <button id="archiveExportAllBtn" class="btn" title="Download every save in this archive as one JSON bundle. Use as a backup if your browser doesn't persist localStorage across reloads (e.g. file:// URLs in some browsers, or when running on different ports).">Export all</button>
+        <button id="archiveImportBundleBtn" class="btn" title="Load a saves bundle previously exported. Existing saves with the same name are overwritten.">Import bundle…</button>
+        <input id="archiveImportBundleInput" type="file" accept="application/json,.json" class="hidden" />
+      </div>
+      <div class="archive-hint" id="archiveHint">—</div>
+      <!-- Toggle for the in-memory HoF sections (per-level HoF from
+           feature C, Pareto HoF from feature D). When ON, the archive
+           list also shows these in-memory champions (each marked with
+           an [HoF] tag), each loadable like the localStorage saves.
+           When OFF, only localStorage saves render. Default ON since
+           opting into HoF/Pareto means you want to see/inspect them. -->
+      <label class="archive-inline-toggle" title="Include in-memory champions from per-level HoF (feature C) and Pareto-aware HoF (feature D) in this list. Each is marked with an [HoF] tag and loadable like the persistent saves.">
+        <input id="archiveShowMemHoF" type="checkbox" checked /> Include in-memory HoFs
+      </label>
+      <div class="archive-list" id="archiveList"></div>
+      <div class="archive-footnote">
+        Saves persist in browser localStorage. If they vanish across reloads,
+        the page's origin probably changed (different port, different file://
+        path, or private mode) — use <b>Export all</b> as a backup.
+      </div>
+    </div>
+  </main>
+
+  <!-- Auto-peek progress bar. Fixed at the bottom of the viewport,
+       just above the statusbar. Width fills 0%→100% across the
+       current peek interval; resets each time a peek fires. Visible
+       only when full-power + auto-peek are both on (CSS gates on
+       body.full-power, and we set width=0 / hide when disabled). -->
+  <div id="peekProgressBar" class="peek-progress" aria-hidden="true">
+    <div class="peek-progress-fill" id="peekProgressFill"></div>
+    <div class="peek-progress-label" id="peekProgressLabel">next peek in 5.0s</div>
+  </div>
+
+  <footer class="statusbar">
+    <span id="statusText" class="status-text">idle</span>
+    <span class="status-spacer"></span>
+    <span class="status-mini" id="cartTel">cart x=0 v=0</span>
+    <span class="status-mini" id="tipTel">tip h=0</span>
+    <span class="status-mini" id="evalTel">eval 0.0s</span>
+    <span class="status-mini" id="rateTel">0 evals/s</span>
+    <span class="status-mini" id="paceTel" title="Estimated wall-clock pace based on live evals/s and population x rollouts/agent. The forecast assumes the current rate holds; it drifts as deeper genomes evaluate slower.">- gens/min</span>
+  </footer>
+
+  <script src="js/util.js?v=20260909-rate-2"></script>
+  <script src="js/physics.js?v=20260909-rate-2"></script>
+  <script src="js/chain_joint.js?v=20260909-rate-2"></script>
+  <script src="js/chain_materials.js?v=20260909-rate-2"></script>
+  <script src="js/chain_trace_curves.js?v=20260909-rate-2"></script>
+  <!-- Fourier/epicycle decomposition — MUST load before setups.js, whose
+       `epicycle` buildWorld calls BF.curveFourier.analyze(). -->
+  <script src="js/curve_fourier.js?v=20260909-rate-2"></script>
+  <script src="js/objective_filter.js?v=20260909-rate-2"></script>
+  <script src="js/pendulum_initial_state.js?v=20260909-rate-2"></script>
+  <script src="js/setups.js?v=20260909-rate-2"></script>
+  <script src="js/neat.js?v=20260909-rate-2"></script>
+  <script src="js/objectives.js?v=20260909-rate-2"></script>
+  <script src="js/ball.js?v=20260909-rate-2"></script>
+  <script src="js/behaviors.js?v=20260909-rate-2"></script>
+  <script src="js/dodge_patterns.js?v=20260909-rate-2"></script>
+  <script src="js/adversarial.js?v=20260909-rate-2"></script>
+  <script src="js/pca.js?v=20260909-rate-2"></script>
+  <script src="js/cmaes.js?v=20260909-rate-2"></script>
+  <script src="js/annealing.js?v=20260909-rate-2"></script>
+  <script src="js/parallel_tempering.js?v=20260909-rate-2"></script>
+  <script src="js/de.js?v=20260909-rate-2"></script>
+  <script src="js/pso.js?v=20260909-rate-2"></script>
+  <script src="js/random_search.js?v=20260909-rate-2"></script>
+  <script src="js/naive_baselines.js?v=20260909-rate-2"></script>
+  <script src="js/swarms.js?v=20260909-rate-2"></script>
+  <script src="js/cnn_policy.js?v=20260909-rate-2"></script>
+  <script src="js/cnn3d_policy.js?v=20260909-rate-2"></script>
+  <script src="js/cnn_grid_policy.js?v=20260909-rate-2"></script>
+  <script src="js/cnn_multiscale_policy.js?v=20260909-rate-2"></script>
+  <script src="js/cnn_neat_hybrid_policy.js?v=20260909-rate-2"></script>
+  <script src="js/recurrent_policy.js?v=20260909-rate-2"></script>
+  <script src="js/baseline_policy.js?v=20260909-rate-2"></script>
+  <!-- Lazy WASM loader. Boots in the background; if wasm/dist/ exists
+       and ABI matches, BF.wasm.ready flips to true and the eval path
+       can opt in to the C++/WASM forward pass. Stays JS-only if the
+       bundle is absent (build not run, etc.) -- silent fallback. -->
+  <script src="js/wasm_loader.js?v=20260909-rate-2"></script>
+  <script src="js/disturbances.js?v=20260909-rate-2"></script>
+  <script src="js/trainer.js?v=20260909-rate-2"></script>
+  <script src="js/diff_simulator.js?v=20260909-rate-2"></script>
+  <script src="js/diffsim_trainer.js?v=20260909-rate-2"></script>
+  <script src="js/diffsim_lqr.js?v=20260909-rate-2"></script>
+  <script src="js/diffsim_trajopt.js?v=20260909-rate-2"></script>
+  <script src="js/rigid_double.js?v=20260909-rate-2"></script>
+  <script src="js/rigid_triple.js?v=20260909-rate-2"></script>
+  <script src="js/rigid_reference.js?v=20260909-rate-2"></script>
+  <script src="js/pendulum_reference_data.js?v=20260909-rate-2"></script>
+  <script src="js/pendulum_reference.js?v=20260909-rate-2"></script>
+  <script src="js/diffsim_mode.js?v=20260909-rate-2"></script>
+  <script src="js/dodge_planner.js?v=20260909-rate-2"></script>
+  <!-- Engineered signing controller (receding-horizon planner + a cheap reactive
+       feedback law). Must load AFTER physics/setups/chain_trace_curves and
+       BEFORE app.js. Deliberately NOT in eval_worker's importScripts: planner
+       modes never evaluate a genome (the generation dispatch early-returns), so
+       the worker pool never touches it — same as dodge_planner.js. -->
+  <script src="js/chain_trace_planner.js?v=20260909-rate-2"></script>
+  <script src="js/dodge_distill.js?v=20260909-rate-2"></script>
+  <script src="js/dodge_temporal_policy.js?v=20260909-rate-2"></script>
+  <script src="js/dodge_scorer_view.js?v=20260909-rate-2"></script>
+  <script src="js/eval_pool.js?v=20260909-rate-2"></script>
+  <script src="js/canvas-sim.js?v=20260920-demo-camera"></script>
+  <script src="js/visual_motion.js?v=20260909-rate-2"></script>
+  <script src="js/canvas-network.js?v=20260909-rate-2"></script>
+  <script src="js/perception_circuit.js?v=20260909-rate-2"></script>
+  <link rel="stylesheet" href="css/neural_circuit.css?v=20260909-rate-2">
+  <script src="js/canvas-chart.js?v=20260909-rate-2"></script>
+  <script src="js/canvas-population.js?v=20260909-rate-2"></script>
+  <script src="js/canvas-lineage.js?v=20260909-rate-2"></script>
+  <script src="js/canvas-genome-space.js?v=20260909-rate-2"></script>
+  <script src="js/canvas-behavior-space.js?v=20260909-rate-2"></script>
+  <script src="js/canvas-line-search.js?v=20260909-rate-2"></script>
+  <script src="js/canvas-chord.js?v=20260909-rate-2"></script>
+  <script src="js/canvas-cnn3d-inset.js?v=20260909-rate-2"></script>
+  <script src="js/replay_metrics.js?v=20260909-rate-2"></script>
+  <script src="js/single_swingup.js?v=20260909-rate-2"></script>
+  <script src="js/champion_io.js?v=20260909-rate-2"></script>
+  <script src="js/showcase_models.js?v=20260909-rate-2"></script>
+  <script src="js/learned_models.js?v=20260909-rate-2"></script>
+  <script src="js/preset_navigation.js?v=20260909-rate-2"></script>
+  <script src="js/arcade_preview.js?v=20260920-demo-camera"></script>
+  <script src="js/control_analysis.js?v=20260909-rate-2"></script>
+  <script src="js/control_diagnostics.js?v=20260909-rate-2"></script>
+  <link rel="stylesheet" href="css/pendulum-playback.css?v=20260909-rate-2">
+  <script src="js/pendulum_playback.js?v=20260909-rate-2"></script>
+  <script src="js/ppo_policy.js?v=20260909-rate-2"></script>
+  <script src="js/ppo_trainer.js?v=20260909-rate-2"></script>
+  <script src="js/playback_physics.js?v=20260909-rate-2"></script>
+  <script src="js/app.js?v=20260920-demo-camera"></script>
+
+  <!-- Differentiable Lab overlay: an isolated iframe of the diffsim demo
+       (exact-gradient neural + analytic LQR + backprop-through-time viz).
+       Its own document; cannot affect app.js or the population trainer. -->
+  <div id="diffsimLab" class="dl-overlay hidden">
+    <div class="dl-modal">
+      <button type="button" id="dlClose" class="dl-close" title="Close (Esc)">×</button>
+      <iframe id="dlFrame" class="dl-frame" title="Differentiable Lab" loading="lazy"></iframe>
+    </div>
+  </div>
+  <script src="js/diffsim_lab.js?v=20260909-rate-2"></script>
+</body>
+</html>

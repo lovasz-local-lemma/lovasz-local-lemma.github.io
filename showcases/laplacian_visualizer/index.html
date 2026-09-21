@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+<head><style id="portfolio-early-paint">html{background:#0b0d0c;color-scheme:dark}html.portfolio-booting body{opacity:0}</style><script src="../../portfolio-navigation.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Laplace Transform Visualizer - Building Geometric Intuition</title>
@@ -8,49 +8,51 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../symbolic_math_showcase/styles.css">
+    <link rel="stylesheet" href="laplace-lab.css?v=a8be8bb9b201">
+    <script type="module" src="laplace-lab.js?v=a8be8bb9b201"></script>
     <style>
         .hero-card {
-            background: linear-gradient(135deg, 
-                rgba(15, 15, 32, 0.7) 0%, 
+            background: linear-gradient(135deg,
+                rgba(15, 15, 32, 0.7) 0%,
                 rgba(10, 10, 24, 0.5) 100%);
             border: 1px solid rgba(212, 175, 55, 0.25);
             border-radius: 16px;
             padding: 3rem;
             margin-bottom: 3rem;
-            box-shadow: 
-                0 8px 32px rgba(212, 175, 55, 0.1), 
+            box-shadow:
+                0 8px 32px rgba(212, 175, 55, 0.1),
                 0 0 40px rgba(212, 175, 55, 0.15),
                 inset 0 1px 0 rgba(212, 175, 55, 0.05);
         }
-        
+
         .hero-card p {
             font-size: 1.15rem;
             line-height: 1.8;
             color: var(--text-secondary);
         }
-        
+
         .video-showcase {
-            background: linear-gradient(135deg, 
-                rgba(15, 15, 32, 0.7) 0%, 
+            background: linear-gradient(135deg,
+                rgba(15, 15, 32, 0.7) 0%,
                 rgba(10, 10, 24, 0.5) 100%);
             border: 1px solid rgba(212, 175, 55, 0.25);
             border-radius: 16px;
             padding: 2.5rem;
             margin: 3rem 0;
-            box-shadow: 
-                0 8px 32px rgba(212, 175, 55, 0.1), 
+            box-shadow:
+                0 8px 32px rgba(212, 175, 55, 0.1),
                 0 0 40px rgba(212, 175, 55, 0.15);
             transition: all 0.4s ease;
         }
-        
+
         .video-showcase:hover {
             transform: translateY(-4px);
-            box-shadow: 
-                0 12px 40px rgba(212, 175, 55, 0.2), 
+            box-shadow:
+                0 12px 40px rgba(212, 175, 55, 0.2),
                 0 0 50px rgba(212, 175, 55, 0.25);
             border-color: rgba(212, 175, 55, 0.4);
         }
-        
+
         .video-showcase h3 {
             font-family: 'Playfair Display', serif;
             color: var(--gold-light);
@@ -58,18 +60,18 @@
             font-size: 1.8rem;
             font-weight: 600;
         }
-        
+
         video {
             width: 100%;
             border-radius: 12px;
             border: 1px solid rgba(212, 175, 55, 0.3);
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
         }
-        
+
         .theory-section {
             margin: 4rem 0;
         }
-        
+
         .theory-section > h2 {
             font-family: 'Playfair Display', serif;
             font-size: 2.5rem;
@@ -89,10 +91,10 @@
             margin: 2rem auto;
             box-shadow: 0 10px 40px rgba(212, 175, 55, 0.2);
         }
-        
+
         .theory-card {
-            background: linear-gradient(135deg, 
-                rgba(15, 15, 32, 0.6) 0%, 
+            background: linear-gradient(135deg,
+                rgba(15, 15, 32, 0.6) 0%,
                 rgba(10, 10, 24, 0.4) 100%);
             border: 1px solid rgba(212, 175, 55, 0.2);
             border-radius: 12px;
@@ -103,7 +105,7 @@
             position: relative;
             overflow: hidden;
         }
-        
+
         .theory-card::before {
             content: '';
             position: absolute;
@@ -115,17 +117,17 @@
             opacity: 0;
             transition: opacity 0.4s ease;
         }
-        
+
         .theory-card:hover::before {
             opacity: 1;
         }
-        
+
         .theory-card:hover {
             transform: translateY(-4px);
             border-color: rgba(212, 175, 55, 0.4);
             box-shadow: 0 8px 30px rgba(212, 175, 55, 0.25);
         }
-        
+
         .theory-card h3 {
             font-family: 'Playfair Display', serif;
             color: var(--gold-light);
@@ -136,14 +138,14 @@
 
         /* Styled Page Header */
         .page-header {
-            background: linear-gradient(135deg, 
-                rgba(15, 15, 32, 0.8) 0%, 
+            background: linear-gradient(135deg,
+                rgba(15, 15, 32, 0.8) 0%,
                 rgba(10, 10, 24, 0.6) 100%);
             border: 1px solid rgba(212, 175, 55, 0.3);
             border-radius: 16px;
             padding: 2.5rem 3rem;
             margin-bottom: 3rem;
-            box-shadow: 
+            box-shadow:
                 0 8px 32px rgba(212, 175, 55, 0.15),
                 0 0 60px rgba(212, 175, 55, 0.1);
             text-align: center;
@@ -213,8 +215,8 @@
 
         .content-section > p,
         .content-section > ul {
-            background: linear-gradient(135deg, 
-                rgba(15, 15, 32, 0.5) 0%, 
+            background: linear-gradient(135deg,
+                rgba(15, 15, 32, 0.5) 0%,
                 rgba(10, 10, 24, 0.3) 100%);
             border: 1px solid rgba(212, 175, 55, 0.15);
             border-radius: 12px;
@@ -240,8 +242,8 @@
         }
 
         .footnote {
-            background: linear-gradient(135deg, 
-                rgba(15, 15, 32, 0.6) 0%, 
+            background: linear-gradient(135deg,
+                rgba(15, 15, 32, 0.6) 0%,
                 rgba(10, 10, 24, 0.4) 100%);
             border: 1px solid rgba(212, 175, 55, 0.2);
             border-radius: 12px;
@@ -251,49 +253,227 @@
             line-height: 1.7;
         }
     </style>
-</head>
+    <script type="module" src="laplace-polarization.js?v=a8be8bb9b201"></script>
+<link data-project-motivation-style rel="stylesheet" href="../../portfolio-motivations.css?v=ccc1c1d866"><!-- project-context-style:start --><style>
+.project-context{box-sizing:border-box;min-width:0;max-width:1120px;margin:22px auto;padding:17px 20px;border:1px solid rgba(218,190,120,.3);border-left:3px solid #d7bc77;border-radius:12px;background:rgba(20,29,29,.9);color:#dfdfd5;font-family:Inter,Arial,sans-serif;text-align:left}
+.project-context>p{display:grid;grid-template-columns:7.5rem minmax(0,1fr);gap:12px;margin:0;font-size:.94rem;line-height:1.6;letter-spacing:normal}
+.project-context>p+p{margin-top:8px}
+.project-context>p>strong{color:#e3ca88;font-size:.75rem;font-weight:600;line-height:2;letter-spacing:.04em}
+.project-context>p>span{min-width:0;overflow-wrap:anywhere}
+.project-context-links{display:flex;flex-wrap:wrap;gap:10px 22px;margin-top:12px;padding-top:11px;border-top:1px solid rgba(218,190,120,.18)}
+.project-context-links>a{max-width:100%;color:#e3ca88;font-size:.86rem;line-height:1.5;text-decoration:underline;text-underline-offset:3px;overflow-wrap:anywhere}
+.project-context-links>a>small{display:block;color:#b6bdb6;font-size:.74rem;text-decoration:none}
+.project-context-links>a:focus-visible{outline:2px solid #f4d98c;outline-offset:4px;border-radius:2px}
+.overview-masthead .project-context{margin:18px 0 0;padding:13px 15px}
+.overview-masthead .project-context>p{grid-template-columns:1fr;gap:2px;font-size:.88rem}
+.overview-masthead .project-context-links>a{font-size:.82rem}
+@media(max-width:600px){.project-context{padding:14px;margin:18px 0}.project-context>p{grid-template-columns:1fr;gap:2px}.project-context>p+p{margin-top:10px}}
+</style><!-- project-context-style:end --><link rel="stylesheet" href="../../portfolio-controls.css"><link rel="stylesheet" href="../../portfolio-demo-return.css"><script defer src="../../portfolio-demo-return.js" data-project="laplacian" data-title="Laplace transform studies" data-overview="projects/laplacian/overview.html" data-group="mathematics" data-thumbnail="media/projects/laplacian/live-weight-and-wind.jpg" data-routes="[{&quot;project&quot;:&quot;laplacian&quot;,&quot;title&quot;:&quot;Laplace transform studies&quot;,&quot;group&quot;:&quot;mathematics&quot;,&quot;thumbnail&quot;:&quot;media/projects/laplacian/live-weight-and-wind.jpg&quot;,&quot;overview&quot;:&quot;projects/laplacian/overview.html&quot;,&quot;path&quot;:&quot;showcases/laplacian_visualizer/index.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:2},{&quot;project&quot;:&quot;laplacian&quot;,&quot;title&quot;:&quot;Laplace transform studies&quot;,&quot;group&quot;:&quot;mathematics&quot;,&quot;thumbnail&quot;:&quot;media/projects/laplacian/live-weight-and-wind.jpg&quot;,&quot;overview&quot;:&quot;projects/laplacian/overview.html&quot;,&quot;path&quot;:&quot;showcases/laplacian_visualizer/index.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:1},{&quot;project&quot;:&quot;laplacian&quot;,&quot;title&quot;:&quot;Laplace transform studies&quot;,&quot;group&quot;:&quot;mathematics&quot;,&quot;thumbnail&quot;:&quot;media/projects/laplacian/live-weight-and-wind.jpg&quot;,&quot;overview&quot;:&quot;projects/laplacian/overview.html&quot;,&quot;path&quot;:&quot;showcases/laplacian_visualizer/index.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:3}]"></script><!-- universal-navigation:start --><link rel="stylesheet" href="../../portfolio-location.css?v=054b6b462c"><script defer src="../../portfolio-location.js?v=054b6b462c"></script><script defer src="../../portfolio-routes.js?v=054b6b462c"></script><script defer src="../../portfolio-universal-navigation.js?v=054b6b462c"></script><!-- universal-navigation:end --><style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head>
 <body>
     <a href="../../index.html" class="back-button">Back to Portfolio</a>
     <div class="background-gradient"></div>
-    
+
     <main class="container">
         <header class="page-header">
-            <div class="header-badge">Experimental / Exploratory <span class="language-badge">Ruby (OpenGL)</span></div>
-            <h1>Laplace Transform Visualizer</h1>
-            <p class="subtitle">Building geometric intuition for complex-domain transforms</p>
-        </header>
+            <div class="header-badge">A browser instrument · an earlier desktop prototype <span class="language-badge">JavaScript · Ruby archive</span></div>
+            <h1>The complex-frequency observatory</h1>
+            <p class="subtitle">One signal. A landscape of Fourier spectra.</p>
+        </header><!-- project-context:start --><aside class="project-context" aria-label="Start here: the idea and what to watch"><p><strong>The idea</strong><span>The Laplace transform examines a signal using both oscillation and exponential growth or decay. That extra weighting connects time-dependent behavior to a landscape of complex frequencies and determines where the transform converges.</span></p><p class="project-context-watch"><strong>What to watch</strong><span>Change the exponential weighting and see how the wound signal, spectrum and convergence region relate.</span></p><div class="project-context-links" aria-label="Optional background resources"><a href="https://www.youtube.com/watch?v=j0wJBEZdwLs" target="_blank" rel="noopener noreferrer">An introduction to the Laplace transform ↗<small>3Blue1Brown · explanatory video · external</small></a></div></aside><!-- project-context:end --><!-- project-motivation:start --><aside class="project-motivation" id="project-motivation" data-motivation-status="user-grounded" aria-label="The idea behind the project"><div class="motivation-heading"><span>The idea behind it</span></div><p class="motivation-copy">Fourier has wonderfully intuitive visual explanations; I wanted to see how far that intuition could extend to Laplace. This remains an open notebook of attempts to make growth, decay and convergence feel like geometry you can manipulate.</p><p class="motivation-takeaway"><span>Working intuition</span> Exponential weighting changes both the winding picture and which signals can be transformed.</p></aside><!-- project-motivation:end -->
 
         <div class="hero-card">
-            <p style="font-style: italic; color: var(--gold-light); margin-bottom: 1.5rem;">
-                The Laplace transform is fundamental to control systems, signal processing, and differential 
-                equations—building geometric intuition makes these applications more accessible.
-            </p>
-            
-            <h2>The Challenge</h2>
-            <p>
-                The <strong>Fourier transform</strong> has excellent visual intuitions: rotating vectors, 
-                periodic decomposition, frequency spectra (see the 
-                <a href="../fourier_art_generator/index.html" style="color: var(--gold-light);">Fourier Art Generator</a>). 
-                The <strong>Laplace transform</strong> is harder—it introduces growth, decay, and complex 
-                scaling that don't map as naturally to physical intuition.
-            </p>
-            
-            <p>
-                This project experiments with interactive visual mappings to reveal how structure in the 
-                <strong>time domain</strong> is reflected in the <strong>s-domain</strong>. The visualizations 
-                work, but honestly <em>still don't feel as intuitive as Fourier</em>—this remains an open problem.
-            </p>
-            
-            <div class="code-block">
-                <pre><code style="font-size:x-large;">F(s) = ∫₀^∞ f(t)·e^(-st) dt    where s = σ + iω</code></pre>
-            </div>
+            <h2>Fourier is one slice. What happens when we move it?</h2>
+            <p>Exponential weighting makes late events quieter or louder. Take the Fourier transform of that reweighted signal, and each choice of decay coordinate σ becomes another vertical slice of the Laplace landscape.</p>
+            <p><strong>Try it:</strong> drag the gold slice, compare the weighted signal with its spectrum, then select <em>Fourier section · σ = 0</em>. Choose the growing signal to see why a finite recording can have a spectrum even when the infinite-time Fourier integral does not converge.</p>
+            <div class="code-block"><code>F(σ + iω) = ∫₀^∞ [e^(−σt) f(t)] e^(−iωt) dt</code></div>
         </div>
 
-        <section class="content-section">
-            <h2>Interactive Visualization</h2>
+<nav class="lab-jump" aria-label="Laplace instruments"><a href="#laplace-observatory">Echo studio</a><a href="#memory-sculpture">Memory sculpture</a><a href="#transform-studies">Transform studies</a><a href="#pole-time">Poles &amp; time</a><a href="#polarization-studio">Polarization side study</a></nav><section class="laplace-lab" id="laplace-observatory" data-initial-mode="system" aria-label="Echo studio"><p class="lab-kicker">01 · Main exploration · convolution</p><h2>Echo studio</h2><p class="lab-lead">The main piece: every input sample leaves a fading echo, and the ribbons add up to the system’s response. Choose a signal, orbit the scene, or inspect one echo’s Fourier response.</p>            <div class="lab-steps" role="group" aria-label="Transform studies" hidden>
+                <button data-laplace-mode="weight">01 · Weight & wind</button>
+                <button data-laplace-mode="spectrum">02 · A family of spectra</button>
+                <button data-laplace-mode="inverse">03 · Return from a contour</button>
+            </div>
+            <div class="laplace-controls">
+                <label data-modes="volume" hidden>Kernel function<select name="kernel" aria-label="Kernel function"><option value="exponential">Exponential</option></select></label>
+<label data-modes="weight" hidden>Complex drawing<select name="complexView" aria-label="Complex drawing"><option value="both">Integrand + accumulated sum</option><option value="integrand">Instantaneous integrand</option><option value="sum">Accumulated integral</option></select></label>
+<label data-modes="weight spectrum inverse system">Signal<select name="key" aria-label="Signal"><option value="oscillator">Decaying resonance</option><option value="growth">Growing exponential</option><option value="delayed">Delayed resonance</option></select></label>
+                <label data-modes="weight spectrum inverse system roc">Decay coordinate σ <output data-value="sigma">0.15</output><input aria-label="Decay coordinate sigma" name="sigma" type="range" min="-1.5" max="2" step="0.01" value="0.15"></label>
+                <label data-modes="weight spectrum system roc volume"><span data-role="omega-label" id="laplace-observatory-omega-label">Inspect frequency ω</span> <output data-value="omega">2.40</output><input aria-label="Angular frequency omega" name="omega" type="range" min="-5" max="5" step="0.02" value="2.4"></label>
+                <label data-modes="weight spectrum inverse roc">Time horizon T <output data-value="T">18</output><input aria-label="Time horizon" name="T" type="range" min="4" max="36" step="1" value="18"></label>
+                <label data-modes="inverse" hidden>Inverse bandwidth Ω <output data-value="band">16</output><input aria-label="Inverse bandwidth" name="band" type="range" min="3" max="40" step="1" value="16"></label>
+                <label data-modes="system volume" hidden>Memory decay λ <output data-value="rate">0.70</output><input aria-label="Memory decay lambda" name="rate" type="range" min="0.1" max="2" step="0.01" value="0.7"></label>
+                <label data-modes="system" hidden>Inspect output time <output data-value="inspect">3.20</output><input aria-label="Inspect output time" name="inspect" type="range" min="0.1" max="8" step="0.02" value="3.2"></label>
+                <label data-modes="roc" hidden>Pole real part p <output data-value="pole">−0.50</output><input aria-label="Real pole location" name="pole" type="range" min="-0.8" max="0.8" step="0.01" value="-0.5"></label>
+                <label data-modes="roc" hidden>Function family<select name="family" aria-label="Function family"><option value="exponential">Exponential · simple pole</option><option value="repeated">Time × exponential · double pole</option><option value="triple">Time² × exponential · triple pole</option><option value="timecosine">Time × cosine · double pole pair</option><option value="cosine">Cosine · conjugate poles</option><option value="sine">Sine · conjugate poles</option></select></label>
+<label data-modes="roc" data-role="beta-control" id="laplace-observatory-beta-control" hidden>Oscillation β <output data-value="beta">2.00</output><input name="beta" aria-label="Oscillation beta" type="range" min="0.4" max="4" step="0.05" value="2"></label>
+<label data-modes="roc" hidden>Time support<select name="side" aria-label="Time support"><option value="causal">Right-sided · causal</option><option value="anticausal">Left-sided · anti-causal</option></select></label>
+                            <label data-modes="system">Ribbon density <output data-value="density">36</output><input name="density" aria-label="Ribbon density" type="range" min="12" max="96" step="4" value="36"></label>
+                <label data-modes="system">Inspect an echo<select name="fourier" aria-label="Echo inspection"><option value="0">Convolution contributions</option><option value="1">Fourier on hover / tap</option></select></label>
+                <label data-modes="system" data-role="echo-time-control" id="laplace-observatory-echo-time-control" hidden>Echo time τ <output data-value="echoTime">1.33</output><input name="echoTime" aria-label="Echo time" type="range" min="0" max="8" step="0.01" value="1.33"></label>
+                <label data-modes="weight spectrum inverse system volume">Camera<select name="camera" aria-label="Camera"><option value="free">Orbit · two axes</option><option value="turntable">Turntable · one axis</option></select></label>
+                <label data-modes="volume">Ray quality<select name="quality" aria-label="Ray quality"><option value="256">Preview · 256 steps</option><option value="512" selected>Smooth · 512 steps</option><option value="768">Fine · 768 steps</option></select></label>
+                <label data-modes="volume">Tube width <output data-value="thickness">0.05</output><input name="thickness" aria-label="Tube width" type="range" min="0.025" max="0.12" step="0.005" value="0.05"></label>
+            </div>
+
+            <div class="slice-tools" data-modes="spectrum"><button type="button" data-fourier-section>Fourier section · σ = 0</button><p data-role="slice-identity" id="laplace-observatory-slice-identity" role="status"></p></div>
+
+
+            <div class="lab-links" data-modes="volume" hidden><a href="../../projects/field-4d/index.html">Related · ray-marched higher-dimensional fields ↗</a><a href="../../projects/complex_function/index.html">Related · complex functions and their geometry ↗</a></div>
+
+
+
+<div class="function-banner"><div class="function-pair"><span class="function-label">Selected function · transform pair</span><div data-role="selected-time" id="laplace-observatory-selected-time"></div><strong data-role="selected-transform" id="laplace-observatory-selected-transform"></strong></div><figure class="s-probe-panel" data-modes="weight spectrum system"><canvas data-role="s-probe" id="laplace-observatory-s-probe" tabindex="0" aria-label="Complex s control: drag to change sigma and omega, or use arrow keys"></canvas><figcaption>Drag s · shade = convergence region</figcaption></figure></div><p data-role="control-feedback" id="laplace-observatory-control-feedback" class="lab-readout" aria-live="polite"></p><div data-role="laplace-metrics" id="laplace-observatory-laplace-metrics" class="laplace-metrics" hidden aria-label="Linked transform values"></div><div class="lab-workspace"><div class="lab-main"><figure class="surface"><canvas data-role="laplace-volume" id="laplace-observatory-laplace-volume" hidden tabindex="0" aria-label="Ray-marched memory kernel, drag horizontally to orbit"></canvas><canvas data-role="laplace-surface" id="laplace-observatory-laplace-surface" tabindex="0" aria-label="Draggable three-dimensional magnitude and phase surface of the Laplace transform"></canvas><figcaption data-role="laplace-surface-cap" id="laplace-observatory-laplace-surface-cap"><strong>The surface is a map of a complex function, not a physical volume.</strong>Height encodes log(1 + |F|); color encodes phase. Pole peaks are capped for display. The dim region shows the algebraic continuation outside the causal signal’s region of convergence. The gold curve is your constant-σ section.</figcaption></figure><figure data-modes="system" class="slice-time" hidden><canvas data-role="memory-kernel" id="laplace-observatory-memory-kernel" aria-label="Memory decay compared with a fixed reference"></canvas><figcaption>Gold: current memory h(t). Mint: λ = 0.70 reference. Fixed axes make the effect of decay visible.</figcaption></figure><figure data-modes="spectrum" class="slice-time"><canvas data-role="laplace-weighted" id="laplace-observatory-laplace-weighted" aria-label="Original signal and exponentially weighted signal"></canvas><figcaption><strong>Change the signal before taking its Fourier transform</strong>Muted: original signal. Mint: e^(−σt)f(t). The gold plane and spectrum below use this same σ. Dashed mint on the landscape marks σ = 0; it is a Fourier integral only where convergence permits.</figcaption></figure></div><div class="laplace-plots"><figure><canvas data-role="laplace-a" id="laplace-observatory-laplace-a" aria-label="Signal and transform comparison"></canvas><figcaption data-role="laplace-cap-a" id="laplace-observatory-laplace-cap-a"></figcaption></figure><figure><canvas data-role="laplace-b" id="laplace-observatory-laplace-b" aria-label="Complex accumulation or inverse integrand"></canvas><figcaption data-role="laplace-cap-b" id="laplace-observatory-laplace-cap-b"></figcaption></figure></div></div><div class="lab-equation"><span data-role="laplace-formula" id="laplace-observatory-laplace-formula">f(t) = e⁻⁰·²⁵ᵗ sin(2.4t) · u(t)</span></div>
+            <p data-role="laplace-status" id="laplace-observatory-laplace-status" class="lab-readout" role="status" aria-live="polite">Preparing the linked experiments.</p>
+
+
+
+<details><summary>Why ribbons become multiplication</summary><p>Each ribbon is a delayed impulse response weighted by f(τ)Δτ. Density changes Δτ and the number of quadrature samples; the exact output curve does not change. In Fourier inspection, the full echo transforms to f(τ)Δτ e⁻ⁱωτ/(λ+iω), including its tail beyond the displayed eight seconds.</p><p>Two-axis orbit responds to both horizontal and vertical dragging. Turntable locks elevation. Drag right to turn the near side right.</p></details></section>
+<section class="laplace-lab" id="memory-sculpture" data-initial-mode="volume" aria-label="Memory sculpture"><p class="lab-kicker">02 · Geometric companion · kernel geometry</p><h2>Memory sculpture</h2><p class="lab-lead">A geometric companion to Echo studio: lift a complex winding into time. Choose a kernel with ringing, beating or a soft onset; frequency changes its turns and decay shapes its envelope. The GPU samples the glowing field along each viewing ray.</p>            <div class="lab-steps" role="group" aria-label="Transform studies" hidden>
+                <button data-laplace-mode="weight">01 · Weight & wind</button>
+                <button data-laplace-mode="spectrum">02 · A family of spectra</button>
+                <button data-laplace-mode="inverse">03 · Return from a contour</button>
+            </div>
+            <div class="laplace-controls">
+                <label data-modes="volume" hidden>Kernel function<select name="kernel" aria-label="Kernel function"><option value="exponential">Exponential</option></select></label>
+<label data-modes="weight" hidden>Complex drawing<select name="complexView" aria-label="Complex drawing"><option value="both">Integrand + accumulated sum</option><option value="integrand">Instantaneous integrand</option><option value="sum">Accumulated integral</option></select></label>
+<label data-modes="weight spectrum inverse system">Signal<select name="key" aria-label="Signal"><option value="oscillator">Decaying resonance</option><option value="growth">Growing exponential</option><option value="delayed">Delayed resonance</option></select></label>
+                <label data-modes="weight spectrum inverse system roc">Decay coordinate σ <output data-value="sigma">0.15</output><input aria-label="Decay coordinate sigma" name="sigma" type="range" min="-1.5" max="2" step="0.01" value="0.15"></label>
+                <label data-modes="weight spectrum system roc volume"><span data-role="omega-label" id="memory-sculpture-omega-label">Inspect frequency ω</span> <output data-value="omega">2.40</output><input aria-label="Angular frequency omega" name="omega" type="range" min="-5" max="5" step="0.02" value="2.4"></label>
+                <label data-modes="weight spectrum inverse roc">Time horizon T <output data-value="T">18</output><input aria-label="Time horizon" name="T" type="range" min="4" max="36" step="1" value="18"></label>
+                <label data-modes="inverse" hidden>Inverse bandwidth Ω <output data-value="band">16</output><input aria-label="Inverse bandwidth" name="band" type="range" min="3" max="40" step="1" value="16"></label>
+                <label data-modes="system volume" hidden>Memory decay λ <output data-value="rate">0.70</output><input aria-label="Memory decay lambda" name="rate" type="range" min="0.1" max="2" step="0.01" value="0.7"></label>
+                <label data-modes="system" hidden>Inspect output time <output data-value="inspect">3.20</output><input aria-label="Inspect output time" name="inspect" type="range" min="0.1" max="8" step="0.02" value="3.2"></label>
+                <label data-modes="roc" hidden>Pole real part p <output data-value="pole">−0.50</output><input aria-label="Real pole location" name="pole" type="range" min="-0.8" max="0.8" step="0.01" value="-0.5"></label>
+                <label data-modes="roc" hidden>Function family<select name="family" aria-label="Function family"><option value="exponential">Exponential · simple pole</option><option value="repeated">Time × exponential · double pole</option><option value="triple">Time² × exponential · triple pole</option><option value="timecosine">Time × cosine · double pole pair</option><option value="cosine">Cosine · conjugate poles</option><option value="sine">Sine · conjugate poles</option></select></label>
+<label data-modes="roc" data-role="beta-control" id="memory-sculpture-beta-control" hidden>Oscillation β <output data-value="beta">2.00</output><input name="beta" aria-label="Oscillation beta" type="range" min="0.4" max="4" step="0.05" value="2"></label>
+<label data-modes="roc" hidden>Time support<select name="side" aria-label="Time support"><option value="causal">Right-sided · causal</option><option value="anticausal">Left-sided · anti-causal</option></select></label>
+                            <label data-modes="system">Ribbon density <output data-value="density">36</output><input name="density" aria-label="Ribbon density" type="range" min="12" max="96" step="4" value="36"></label>
+                <label data-modes="system">Inspect an echo<select name="fourier" aria-label="Echo inspection"><option value="0">Convolution contributions</option><option value="1">Fourier on hover / tap</option></select></label>
+                <label data-modes="system" data-role="echo-time-control" id="memory-sculpture-echo-time-control" hidden>Echo time τ <output data-value="echoTime">1.33</output><input name="echoTime" aria-label="Echo time" type="range" min="0" max="8" step="0.01" value="1.33"></label>
+                <label data-modes="weight spectrum inverse system volume">Camera<select name="camera" aria-label="Camera"><option value="free">Orbit · two axes</option><option value="turntable">Turntable · one axis</option></select></label>
+                <label data-modes="volume">Ray quality<select name="quality" aria-label="Ray quality"><option value="256">Preview · 256 steps</option><option value="512" selected>Smooth · 512 steps</option><option value="768">Fine · 768 steps</option></select></label>
+                <label data-modes="volume">Tube width <output data-value="thickness">0.05</output><input name="thickness" aria-label="Tube width" type="range" min="0.025" max="0.12" step="0.005" value="0.05"></label>
+            </div>
+
+            <div class="slice-tools" data-modes="spectrum"><button type="button" data-fourier-section>Fourier section · σ = 0</button><p data-role="slice-identity" id="memory-sculpture-slice-identity" role="status"></p></div>
+
+
+            <div class="lab-links" data-modes="volume" hidden><a href="../../projects/field-4d/index.html">Related · ray-marched higher-dimensional fields ↗</a><a href="../../projects/complex_function/index.html">Related · complex functions and their geometry ↗</a></div>
+
+
+
+<div class="function-banner"><div class="function-pair"><span class="function-label">Selected function · transform pair</span><div data-role="selected-time" id="memory-sculpture-selected-time"></div><strong data-role="selected-transform" id="memory-sculpture-selected-transform"></strong></div><figure class="s-probe-panel" data-modes="weight spectrum system"><canvas data-role="s-probe" id="memory-sculpture-s-probe" tabindex="0" aria-label="Complex s control: drag to change sigma and omega, or use arrow keys"></canvas><figcaption>Drag s · shade = convergence region</figcaption></figure></div><p data-role="control-feedback" id="memory-sculpture-control-feedback" class="lab-readout" aria-live="polite"></p><div data-role="laplace-metrics" id="memory-sculpture-laplace-metrics" class="laplace-metrics" hidden aria-label="Linked transform values"></div><div class="lab-workspace"><div class="lab-main"><figure class="surface"><canvas data-role="laplace-volume" id="memory-sculpture-laplace-volume" hidden tabindex="0" aria-label="Ray-marched memory kernel, drag horizontally to orbit"></canvas><canvas data-role="laplace-surface" id="memory-sculpture-laplace-surface" tabindex="0" aria-label="Draggable three-dimensional magnitude and phase surface of the Laplace transform"></canvas><figcaption data-role="laplace-surface-cap" id="memory-sculpture-laplace-surface-cap"><strong>The surface is a map of a complex function, not a physical volume.</strong>Height encodes log(1 + |F|); color encodes phase. Pole peaks are capped for display. The dim region shows the algebraic continuation outside the causal signal’s region of convergence. The gold curve is your constant-σ section.</figcaption></figure><figure data-modes="system" class="slice-time" hidden><canvas data-role="memory-kernel" id="memory-sculpture-memory-kernel" aria-label="Memory decay compared with a fixed reference"></canvas><figcaption>Gold: current memory h(t). Mint: λ = 0.70 reference. Fixed axes make the effect of decay visible.</figcaption></figure><figure data-modes="spectrum" class="slice-time"><canvas data-role="laplace-weighted" id="memory-sculpture-laplace-weighted" aria-label="Original signal and exponentially weighted signal"></canvas><figcaption><strong>Change the signal before taking its Fourier transform</strong>Muted: original signal. Mint: e^(−σt)f(t). The gold plane and spectrum below use this same σ. Dashed mint on the landscape marks σ = 0; it is a Fourier integral only where convergence permits.</figcaption></figure></div><div class="laplace-plots"><figure><canvas data-role="laplace-a" id="memory-sculpture-laplace-a" aria-label="Signal and transform comparison"></canvas><figcaption data-role="laplace-cap-a" id="memory-sculpture-laplace-cap-a"></figcaption></figure><figure><canvas data-role="laplace-b" id="memory-sculpture-laplace-b" aria-label="Complex accumulation or inverse integrand"></canvas><figcaption data-role="laplace-cap-b" id="memory-sculpture-laplace-cap-b"></figcaption></figure></div></div><div class="lab-equation"><span data-role="laplace-formula" id="memory-sculpture-laplace-formula">f(t) = e⁻⁰·²⁵ᵗ sin(2.4t) · u(t)</span></div>
+            <p data-role="laplace-status" id="memory-sculpture-laplace-status" class="lab-readout" role="status" aria-live="polite">Preparing the linked experiments.</p>
+
+
+
+<details><summary>A winding is not its accumulated sum</summary><p>The sculpture lifts h(t)e⁻ⁱωt into three dimensions with time as height. The adjacent complex-plane walk accumulates this kernel instead. Tube thickness and glow are display parameters. Higher ray quality reduces quadrature bands; this is an analytic signal visualization, not a physical participating medium.</p></details></section>
+<section class="laplace-lab" id="transform-studies" data-initial-mode="spectrum" aria-label="Fourier gives us a frequency axis. Laplace gives us a landscape."><p class="lab-kicker">03 · Three linked studies · classical foundations</p><h2>Fourier gives us a frequency axis. Laplace gives us a landscape.</h2><p class="lab-lead">Three established ideas, connected by one selected function: weight and wind a signal, move a Fourier slice, then reconstruct from a contour. The draggable s-plane carries the original six-panel notebook’s coordinated interaction into these views.</p>            <div class="lab-steps" role="group" aria-label="Transform studies" hidden>
+                <button data-laplace-mode="weight">01 · Weight & wind</button>
+                <button data-laplace-mode="spectrum">02 · A family of spectra</button>
+                <button data-laplace-mode="inverse">03 · Return from a contour</button>
+            </div>
+            <div class="laplace-controls">
+                <label data-modes="volume" hidden>Kernel function<select name="kernel" aria-label="Kernel function"><option value="exponential">Exponential</option></select></label>
+<label data-modes="weight" hidden>Complex drawing<select name="complexView" aria-label="Complex drawing"><option value="both">Integrand + accumulated sum</option><option value="integrand">Instantaneous integrand</option><option value="sum">Accumulated integral</option></select></label>
+<label data-modes="weight spectrum inverse system">Signal<select name="key" aria-label="Signal"><option value="oscillator">Decaying resonance</option><option value="growth">Growing exponential</option><option value="delayed">Delayed resonance</option></select></label>
+                <label data-modes="weight spectrum inverse system roc">Decay coordinate σ <output data-value="sigma">0.15</output><input aria-label="Decay coordinate sigma" name="sigma" type="range" min="-1.5" max="2" step="0.01" value="0.15"></label>
+                <label data-modes="weight spectrum system roc volume"><span data-role="omega-label" id="transform-studies-omega-label">Inspect frequency ω</span> <output data-value="omega">2.40</output><input aria-label="Angular frequency omega" name="omega" type="range" min="-5" max="5" step="0.02" value="2.4"></label>
+                <label data-modes="weight spectrum inverse roc">Time horizon T <output data-value="T">18</output><input aria-label="Time horizon" name="T" type="range" min="4" max="36" step="1" value="18"></label>
+                <label data-modes="inverse" hidden>Inverse bandwidth Ω <output data-value="band">16</output><input aria-label="Inverse bandwidth" name="band" type="range" min="3" max="40" step="1" value="16"></label>
+                <label data-modes="system volume" hidden>Memory decay λ <output data-value="rate">0.70</output><input aria-label="Memory decay lambda" name="rate" type="range" min="0.1" max="2" step="0.01" value="0.7"></label>
+                <label data-modes="system" hidden>Inspect output time <output data-value="inspect">3.20</output><input aria-label="Inspect output time" name="inspect" type="range" min="0.1" max="8" step="0.02" value="3.2"></label>
+                <label data-modes="roc" hidden>Pole real part p <output data-value="pole">−0.50</output><input aria-label="Real pole location" name="pole" type="range" min="-0.8" max="0.8" step="0.01" value="-0.5"></label>
+                <label data-modes="roc" hidden>Function family<select name="family" aria-label="Function family"><option value="exponential">Exponential · simple pole</option><option value="repeated">Time × exponential · double pole</option><option value="triple">Time² × exponential · triple pole</option><option value="timecosine">Time × cosine · double pole pair</option><option value="cosine">Cosine · conjugate poles</option><option value="sine">Sine · conjugate poles</option></select></label>
+<label data-modes="roc" data-role="beta-control" id="transform-studies-beta-control" hidden>Oscillation β <output data-value="beta">2.00</output><input name="beta" aria-label="Oscillation beta" type="range" min="0.4" max="4" step="0.05" value="2"></label>
+<label data-modes="roc" hidden>Time support<select name="side" aria-label="Time support"><option value="causal">Right-sided · causal</option><option value="anticausal">Left-sided · anti-causal</option></select></label>
+                            <label data-modes="system">Ribbon density <output data-value="density">36</output><input name="density" aria-label="Ribbon density" type="range" min="12" max="96" step="4" value="36"></label>
+                <label data-modes="system">Inspect an echo<select name="fourier" aria-label="Echo inspection"><option value="0">Convolution contributions</option><option value="1">Fourier on hover / tap</option></select></label>
+                <label data-modes="system" data-role="echo-time-control" id="transform-studies-echo-time-control" hidden>Echo time τ <output data-value="echoTime">1.33</output><input name="echoTime" aria-label="Echo time" type="range" min="0" max="8" step="0.01" value="1.33"></label>
+                <label data-modes="weight spectrum inverse system volume">Camera<select name="camera" aria-label="Camera"><option value="free">Orbit · two axes</option><option value="turntable">Turntable · one axis</option></select></label>
+                <label data-modes="volume">Ray quality<select name="quality" aria-label="Ray quality"><option value="256">Preview · 256 steps</option><option value="512" selected>Smooth · 512 steps</option><option value="768">Fine · 768 steps</option></select></label>
+                <label data-modes="volume">Tube width <output data-value="thickness">0.05</output><input name="thickness" aria-label="Tube width" type="range" min="0.025" max="0.12" step="0.005" value="0.05"></label>
+            </div>
+
+            <div class="slice-tools" data-modes="spectrum"><button type="button" data-fourier-section>Fourier section · σ = 0</button><p data-role="slice-identity" id="transform-studies-slice-identity" role="status"></p></div>
+
+
+            <div class="lab-links" data-modes="volume" hidden><a href="../../projects/field-4d/index.html">Related · ray-marched higher-dimensional fields ↗</a><a href="../../projects/complex_function/index.html">Related · complex functions and their geometry ↗</a></div>
+
+
+
+<div class="function-banner"><div class="function-pair"><span class="function-label">Selected function · transform pair</span><div data-role="selected-time" id="transform-studies-selected-time"></div><strong data-role="selected-transform" id="transform-studies-selected-transform"></strong></div><figure class="s-probe-panel" data-modes="weight spectrum system"><canvas data-role="s-probe" id="transform-studies-s-probe" tabindex="0" aria-label="Complex s control: drag to change sigma and omega, or use arrow keys"></canvas><figcaption>Drag s · shade = convergence region</figcaption></figure></div><p data-role="control-feedback" id="transform-studies-control-feedback" class="lab-readout" aria-live="polite"></p><div data-role="laplace-metrics" id="transform-studies-laplace-metrics" class="laplace-metrics" hidden aria-label="Linked transform values"></div><div class="lab-workspace"><div class="lab-main"><figure class="surface"><canvas data-role="laplace-volume" id="transform-studies-laplace-volume" hidden tabindex="0" aria-label="Ray-marched memory kernel, drag horizontally to orbit"></canvas><canvas data-role="laplace-surface" id="transform-studies-laplace-surface" tabindex="0" aria-label="Draggable three-dimensional magnitude and phase surface of the Laplace transform"></canvas><figcaption data-role="laplace-surface-cap" id="transform-studies-laplace-surface-cap"><strong>The surface is a map of a complex function, not a physical volume.</strong>Height encodes log(1 + |F|); color encodes phase. Pole peaks are capped for display. The dim region shows the algebraic continuation outside the causal signal’s region of convergence. The gold curve is your constant-σ section.</figcaption></figure><figure data-modes="system" class="slice-time" hidden><canvas data-role="memory-kernel" id="transform-studies-memory-kernel" aria-label="Memory decay compared with a fixed reference"></canvas><figcaption>Gold: current memory h(t). Mint: λ = 0.70 reference. Fixed axes make the effect of decay visible.</figcaption></figure><figure data-modes="spectrum" class="slice-time"><canvas data-role="laplace-weighted" id="transform-studies-laplace-weighted" aria-label="Original signal and exponentially weighted signal"></canvas><figcaption><strong>Change the signal before taking its Fourier transform</strong>Muted: original signal. Mint: e^(−σt)f(t). The gold plane and spectrum below use this same σ. Dashed mint on the landscape marks σ = 0; it is a Fourier integral only where convergence permits.</figcaption></figure></div><div class="laplace-plots"><figure><canvas data-role="laplace-a" id="transform-studies-laplace-a" aria-label="Signal and transform comparison"></canvas><figcaption data-role="laplace-cap-a" id="transform-studies-laplace-cap-a"></figcaption></figure><figure><canvas data-role="laplace-b" id="transform-studies-laplace-b" aria-label="Complex accumulation or inverse integrand"></canvas><figcaption data-role="laplace-cap-b" id="transform-studies-laplace-cap-b"></figcaption></figure></div></div><div class="lab-equation"><span data-role="laplace-formula" id="transform-studies-laplace-formula">f(t) = e⁻⁰·²⁵ᵗ sin(2.4t) · u(t)</span></div>
+            <p data-role="laplace-status" id="transform-studies-laplace-status" class="lab-readout" role="status" aria-live="polite">Preparing the linked experiments.</p>
+
+
+
+<details><summary>Try these experiments · from intuition to a counterexample</summary>
+                <ol><li>Choose the growing exponential and set σ = 0. The ordinary Fourier integral fails to converge. Raise σ above 0.30: exponential weighting makes an integrable signal.</li><li>With the decaying resonance, bring σ towards −0.25 and ω towards ±2.4. The sum takes longer to settle as you approach a pole. Increase T and compare the numerical integral to the gold analytic value.</li><li>Choose the delayed resonance. Its magnitude along a constant-σ section changes only by e⁻¹·²σ, while the phase winds faster. The delay lives in phase, not just the height of the surface.</li><li>Open the contour experiment. Increase bandwidth to recover the delayed onset, then move σ too far right: the exponential prefactor magnifies finite-band errors. Move it outside the ROC and the reconstruction has the wrong meaning altogether.</li></ol>
+            </details><details><summary>Theory · convergence belongs to the signal, not just its formula</summary>
+                <div class="lab-equation">F(σ + iω) = ∫₀∞ [f(t)e⁻σᵗ] e⁻ⁱωᵗ dt<br>f(t) = eᶜᵗ/π · ∫₀∞ Re[F(c + iω)eⁱωᵗ] dω</div>
+                <p>These examples are causal, so the one-sided integral agrees with the bilateral transform of their zero extension to t &lt; 0. The inverse contour must lie inside the region of convergence. A rational expression can remain finite elsewhere without representing the defining integral there; the ROC distinguishes different possible time-domain signals.</p>
+                <p>The browser evaluates the forward integral by trapezoidal quadrature and the inverse by a finite frequency integral. Neither is an exact inverse solver. At a jump, the limiting Fourier inversion gives the midpoint of the two one-sided limits. More bandwidth resolves shorter features but cannot remove all truncation or floating-point error.</p>
+                <p>The 3D display uses a sampled mesh with logarithmic height; it is an explanatory visualization, not a volumetric simulation. It redraws only when controls or the camera change and suspends outside the viewport.</p>
+                <div class="lab-links"><a href="https://ocw.mit.edu/courses/res-6-007-signals-and-systems-spring-2011/resources/lecture-20-the-laplace-transform/" target="_blank" rel="noopener">MIT · Laplace and the ROC ↗</a><a href="https://web.mit.edu/2.14/www/Handouts/FreqDom.pdf" target="_blank" rel="noopener">MIT · frequency-domain inversion ↗</a><a href="../../live_demos/visualizations/DFT_DCT/index.html">Compare Fourier drawing ↗</a></div>
+            </details></section>
+<section class="laplace-lab" id="pole-time" data-initial-mode="roc" aria-label="Same poles. Different time."><p class="lab-kicker">04 · Bilateral signals</p><h2>Same poles. Different time.</h2><p class="lab-lead">Choose an exponential, repeated pole or oscillating pair. Keep the rational formula fixed while switching the supported half of time.</p>            <div class="lab-steps" role="group" aria-label="Transform studies" hidden>
+                <button data-laplace-mode="weight">01 · Weight & wind</button>
+                <button data-laplace-mode="spectrum">02 · A family of spectra</button>
+                <button data-laplace-mode="inverse">03 · Return from a contour</button>
+            </div>
+            <div class="laplace-controls">
+                <label data-modes="volume" hidden>Kernel function<select name="kernel" aria-label="Kernel function"><option value="exponential">Exponential</option></select></label>
+<label data-modes="weight" hidden>Complex drawing<select name="complexView" aria-label="Complex drawing"><option value="both">Integrand + accumulated sum</option><option value="integrand">Instantaneous integrand</option><option value="sum">Accumulated integral</option></select></label>
+<label data-modes="weight spectrum inverse system">Signal<select name="key" aria-label="Signal"><option value="oscillator">Decaying resonance</option><option value="growth">Growing exponential</option><option value="delayed">Delayed resonance</option></select></label>
+                <label data-modes="weight spectrum inverse system roc">Decay coordinate σ <output data-value="sigma">0.15</output><input aria-label="Decay coordinate sigma" name="sigma" type="range" min="-1.5" max="2" step="0.01" value="0.15"></label>
+                <label data-modes="weight spectrum system roc volume"><span data-role="omega-label" id="pole-time-omega-label">Inspect frequency ω</span> <output data-value="omega">2.40</output><input aria-label="Angular frequency omega" name="omega" type="range" min="-5" max="5" step="0.02" value="2.4"></label>
+                <label data-modes="weight spectrum inverse roc">Time horizon T <output data-value="T">18</output><input aria-label="Time horizon" name="T" type="range" min="4" max="36" step="1" value="18"></label>
+                <label data-modes="inverse" hidden>Inverse bandwidth Ω <output data-value="band">16</output><input aria-label="Inverse bandwidth" name="band" type="range" min="3" max="40" step="1" value="16"></label>
+                <label data-modes="system volume" hidden>Memory decay λ <output data-value="rate">0.70</output><input aria-label="Memory decay lambda" name="rate" type="range" min="0.1" max="2" step="0.01" value="0.7"></label>
+                <label data-modes="system" hidden>Inspect output time <output data-value="inspect">3.20</output><input aria-label="Inspect output time" name="inspect" type="range" min="0.1" max="8" step="0.02" value="3.2"></label>
+                <label data-modes="roc" hidden>Pole real part p <output data-value="pole">−0.50</output><input aria-label="Real pole location" name="pole" type="range" min="-0.8" max="0.8" step="0.01" value="-0.5"></label>
+                <label data-modes="roc" hidden>Function family<select name="family" aria-label="Function family"><option value="exponential">Exponential · simple pole</option><option value="repeated">Time × exponential · double pole</option><option value="triple">Time² × exponential · triple pole</option><option value="timecosine">Time × cosine · double pole pair</option><option value="cosine">Cosine · conjugate poles</option><option value="sine">Sine · conjugate poles</option></select></label>
+<label data-modes="roc" data-role="beta-control" id="pole-time-beta-control" hidden>Oscillation β <output data-value="beta">2.00</output><input name="beta" aria-label="Oscillation beta" type="range" min="0.4" max="4" step="0.05" value="2"></label>
+<label data-modes="roc" hidden>Time support<select name="side" aria-label="Time support"><option value="causal">Right-sided · causal</option><option value="anticausal">Left-sided · anti-causal</option></select></label>
+                            <label data-modes="system">Ribbon density <output data-value="density">36</output><input name="density" aria-label="Ribbon density" type="range" min="12" max="96" step="4" value="36"></label>
+                <label data-modes="system">Inspect an echo<select name="fourier" aria-label="Echo inspection"><option value="0">Convolution contributions</option><option value="1">Fourier on hover / tap</option></select></label>
+                <label data-modes="system" data-role="echo-time-control" id="pole-time-echo-time-control" hidden>Echo time τ <output data-value="echoTime">1.33</output><input name="echoTime" aria-label="Echo time" type="range" min="0" max="8" step="0.01" value="1.33"></label>
+                <label data-modes="weight spectrum inverse system volume">Camera<select name="camera" aria-label="Camera"><option value="free">Orbit · two axes</option><option value="turntable">Turntable · one axis</option></select></label>
+                <label data-modes="volume">Ray quality<select name="quality" aria-label="Ray quality"><option value="256">Preview · 256 steps</option><option value="512" selected>Smooth · 512 steps</option><option value="768">Fine · 768 steps</option></select></label>
+                <label data-modes="volume">Tube width <output data-value="thickness">0.05</output><input name="thickness" aria-label="Tube width" type="range" min="0.025" max="0.12" step="0.005" value="0.05"></label>
+            </div>
+
+            <div class="slice-tools" data-modes="spectrum"><button type="button" data-fourier-section>Fourier section · σ = 0</button><p data-role="slice-identity" id="pole-time-slice-identity" role="status"></p></div>
+
+
+            <div class="lab-links" data-modes="volume" hidden><a href="../../projects/field-4d/index.html">Related · ray-marched higher-dimensional fields ↗</a><a href="../../projects/complex_function/index.html">Related · complex functions and their geometry ↗</a></div>
+
+
+
+<div class="function-banner"><div class="function-pair"><span class="function-label">Selected function · transform pair</span><div data-role="selected-time" id="pole-time-selected-time"></div><strong data-role="selected-transform" id="pole-time-selected-transform"></strong></div><figure class="s-probe-panel" data-modes="weight spectrum system"><canvas data-role="s-probe" id="pole-time-s-probe" tabindex="0" aria-label="Complex s control: drag to change sigma and omega, or use arrow keys"></canvas><figcaption>Drag s · shade = convergence region</figcaption></figure></div><p data-role="control-feedback" id="pole-time-control-feedback" class="lab-readout" aria-live="polite"></p><div data-role="laplace-metrics" id="pole-time-laplace-metrics" class="laplace-metrics" hidden aria-label="Linked transform values"></div><div class="lab-workspace"><div class="lab-main"><figure class="surface"><canvas data-role="laplace-volume" id="pole-time-laplace-volume" hidden tabindex="0" aria-label="Ray-marched memory kernel, drag horizontally to orbit"></canvas><canvas data-role="laplace-surface" id="pole-time-laplace-surface" tabindex="0" aria-label="Draggable three-dimensional magnitude and phase surface of the Laplace transform"></canvas><figcaption data-role="laplace-surface-cap" id="pole-time-laplace-surface-cap"><strong>The surface is a map of a complex function, not a physical volume.</strong>Height encodes log(1 + |F|); color encodes phase. Pole peaks are capped for display. The dim region shows the algebraic continuation outside the causal signal’s region of convergence. The gold curve is your constant-σ section.</figcaption></figure><figure data-modes="system" class="slice-time" hidden><canvas data-role="memory-kernel" id="pole-time-memory-kernel" aria-label="Memory decay compared with a fixed reference"></canvas><figcaption>Gold: current memory h(t). Mint: λ = 0.70 reference. Fixed axes make the effect of decay visible.</figcaption></figure><figure data-modes="spectrum" class="slice-time"><canvas data-role="laplace-weighted" id="pole-time-laplace-weighted" aria-label="Original signal and exponentially weighted signal"></canvas><figcaption><strong>Change the signal before taking its Fourier transform</strong>Muted: original signal. Mint: e^(−σt)f(t). The gold plane and spectrum below use this same σ. Dashed mint on the landscape marks σ = 0; it is a Fourier integral only where convergence permits.</figcaption></figure></div><div class="laplace-plots"><figure><canvas data-role="laplace-a" id="pole-time-laplace-a" aria-label="Signal and transform comparison"></canvas><figcaption data-role="laplace-cap-a" id="pole-time-laplace-cap-a"></figcaption></figure><figure><canvas data-role="laplace-b" id="pole-time-laplace-b" aria-label="Complex accumulation or inverse integrand"></canvas><figcaption data-role="laplace-cap-b" id="pole-time-laplace-cap-b"></figcaption></figure></div></div><div class="lab-equation"><span data-role="laplace-formula" id="pole-time-laplace-formula">f(t) = e⁻⁰·²⁵ᵗ sin(2.4t) · u(t)</span></div>
+            <p data-role="laplace-status" id="pole-time-laplace-status" class="lab-readout" role="status" aria-live="polite">Preparing the linked experiments.</p>
+
+
+
+<details><summary>The region is part of the transform</summary><p>For the exponential and double-pole families, the pole is at p. The cosine and sine families have poles at p ± iβ. All poles share real part p, so the two regions are σ &gt; p for right-sided signals and σ &lt; p for left-sided signals. The left-sided signal is the negative of the displayed analytic time expression, restricted to t ≤ 0. Both sides produce the same rational formula in their respective regions.</p><p>Absolute integrability, not merely boundedness, determines BIBO stability. An anti-causal stable response depends on future input; it is not a real-time causal system.</p></details></section>
+        <section class="content-section" id="related-perspectives"><h2>One object, several representations</h2>
+<p>A complex function has two input coordinates and two output coordinates. This landscape uses height for magnitude and color for phase; a moving slice exposes another view of the same four-real-coordinate graph.</p>
+<ul><li><a href="../../projects/dft_dct/index.html">Drawing with harmonics</a>: compare a moving time window (STFT) with the exponential reweighting used here. These are different ways to change the signal before Fourier analysis.</li>
+<li><a href="../../projects/complex_function/index.html">Complex functions</a>: inspect phase and magnitude as complementary information, rather than treating the surface height as the whole function.</li>
+<li><a href="../../projects/field-4d/index.html">High-dimensional fields</a>: changing a slice reveals hidden coordinates. The shared idea is representation; the underlying mathematical objects differ.</li>
+<li><a href="../../projects/modal2d/index.html">Modal2D</a>: decaying oscillations become audible physical modes. This observatory isolates the transform of a simple resonance; Modal derives modes from geometry and material.</li></ul></section>
+        <!-- current-interface-captures:start --><details class="content-section" id="current-interface-captures"><summary>Current browser interface · recorded views</summary><p>Saved views of the live observatory above. The desktop notebook below documents the earlier implementation.</p><figure><a href="../../media/projects/laplacian/live-weight-and-wind.jpg"><img src="../../media/projects/laplacian/live-weight-and-wind.jpg" alt="Live Laplace observatory: the decaying signal, exponential weighting and complex-plane accumulation share one transform surface. Height encodes log(1 + |F|), not physical geometry." loading="lazy" style="display:block;width:100%;height:auto;border-radius:12px"></a><figcaption>Live Laplace observatory: the decaying signal, exponential weighting and complex-plane accumulation share one transform surface. Height encodes log(1 + |F|), not physical geometry.</figcaption></figure><figure><a href="../../media/projects/laplacian/live-contour-inversion.jpg"><img src="../../media/projects/laplacian/live-contour-inversion.jpg" alt="Finite-band contour inversion in the current browser observatory. Original and reconstructed signals are compared with the cancelling frequency contributions; the example uses inverse bandwidth 16." loading="lazy" style="display:block;width:100%;height:auto;border-radius:12px"></a><figcaption>Finite-band contour inversion in the current browser observatory. Original and reconstructed signals are compared with the cancelling frequency contributions; the example uses inverse bandwidth 16.</figcaption></figure></details><!-- current-interface-captures:end --><section class="content-section" id="native-notebook"><p><strong>Earlier desktop prototype.</strong> The original Ruby notebook explored several visual mappings. The later browser version uses linked views and direct manipulation to make the relationships easier to inspect. The recording below preserves that earlier stage; it is not a recording of the current web instrument.</p>
+            <h2>📹 Video · the original six-panel experiment</h2>
             <div class="section-note">
-                <strong>Note:</strong> This is a pre-rendered video from the original native implementation. 
-                The full interactive visualizer has not yet been ported to the web.
+                <strong>Note:</strong> This is a pre-rendered video from the original native implementation.
+                The browser observatory above tests the same mathematical questions through new linked views; the original native interface below remains a separate experiment.
             </div>
 
             <video controls preload="metadata">
@@ -305,7 +485,7 @@
         <!-- Six-Panel Layout Explanation -->
         <section class="theory-section">
             <h2>The Six-Panel Layout</h2>
-            
+
             <div class="theory-card">
                 <p>
                     This layout presents the Laplace transform through coordinated views, each revealing a different aspect of the computation:</p>
@@ -317,7 +497,7 @@
                     <li><strong>Panel 3 (Riemann sum):</strong> The accumulating integral F(s)—rectangles sum to give the final transform value</li>
                 </ul>
                 <p>
-                    The power is in the <strong>coordination</strong>: adjusting s in one panel immediately updates 
+                    The power is in the <strong>coordination</strong>: adjusting s in one panel immediately updates
                     all others, revealing how the abstract integral formula manifests geometrically.
                 </p>
             </div>
@@ -326,20 +506,20 @@
         <!-- Global Operator View (moved up) -->
         <section class="theory-section">
             <h2>Global Operator View</h2>
-            
+
             <div class="hero-card">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
                     <div>
-                        <img src="../../live_demos/visualizations/to_be_ported/laplacian/View-Single.png" 
-                             alt="Single s-value view" 
+                        <img src="../../live_demos/visualizations/to_be_ported/laplacian/View-Single.png"
+                             alt="Single s-value view"
                              style="width: 100%; border-radius: 12px; border: 1px solid rgba(212, 175, 55, 0.3);">
                         <p style="text-align: center; color: var(--text-secondary); margin-top: 0.5rem; font-size: 0.9rem;">
                             Single s-value: detailed integrand view
                         </p>
                     </div>
                     <div>
-                        <img src="../../live_demos/visualizations/to_be_ported/laplacian/View-Grid.png" 
-                             alt="Grid view across s-plane" 
+                        <img src="../../live_demos/visualizations/to_be_ported/laplacian/View-Grid.png"
+                             alt="Grid view across s-plane"
                              style="width: 100%; border-radius: 12px; border: 1px solid rgba(212, 175, 55, 0.3);">
                         <p style="text-align: center; color: var(--text-secondary); margin-top: 0.5rem; font-size: 0.9rem;">
                             Grid view: transform evaluated across s-plane
@@ -347,160 +527,61 @@
                     </div>
                 </div>
                 <p style="margin-top: 1rem;">
-                    The visualizer supports both detailed single-point analysis and a global view that evaluates 
-                    the transform across a grid of s-values, revealing how oscillation, decay, and amplification 
+                    The visualizer supports both detailed single-point analysis and a global view that evaluates
+                    the transform across a grid of s-values, revealing how oscillation, decay, and amplification
                     interact across the complex plane.
                 </p>
             </div>
         </section>
 
         <!-- Polarization Section -->
-        <section class="theory-section">
-            <h2>Polarization Interpretation</h2>
-            
-            <div class="hero-card">
-                <h3>The Laplace Integrand as Polarized Motion</h3>
-    <p>
-        The Laplace integrand
-        <code>f(t)·e<sup>−st</sup></code>, with <code>s = σ + iω</code>,
-        can be interpreted geometrically as a trajectory in the complex plane.
-    </p>
-
-    <p>
-        The complex exponential decomposes as
-        <code>e<sup>−st</sup> = e<sup>−σt</sup> · e<sup>−iωt</sup></code>,
-        combining two distinct motions:
-    </p>
-
-    <ul>
-        <li>
-            <strong>Rotation</strong>
-            (<code>e<sup>−iωt</sup></code>): uniform phase rotation in the complex plane at angular frequency ω
-        </li>
-        <li>
-            <strong>Decay</strong>
-            (<code>e<sup>−σt</sup></code>): a radially shrinking amplitude envelope with decay rate σ
-        </li>
-    </ul>
-
-    <p>
-        Together, these generate a <strong>contracting spiral</strong>.
-        When modulated by <code>f(t)</code>, the resulting motion is analogous to
-        <strong>elliptically polarized light with decaying intensity</strong> — a geometric,
-        optics - inspired view.
-    </p>
-                <!-- <p>
-                    The integrand <code>f(t)·e^(-st)</code> traces a path in the complex plane. 
-                    The complex exponential <code>e^(-st) = e^(-σt)·e^(-iωt)</code> combines:
-                </p>
-                <ul>
-                    <li><strong>Rotation</strong> (<code>e^(-iωt)</code>): spinning in the complex plane at frequency ω</li>
-                    <li><strong>Decay</strong> (<code>e^(-σt)</code>): shrinking amplitude envelope</li>
-                </ul>
-                <p>
-                    Together, these produce a <strong>spiral</strong>.  
-                    with decaying intensity.
-                </p> -->
-            </div>
-
-            <div class="hero-card">
-                <img src="../../live_demos/visualizations/to_be_ported/laplacian/Polarization.png" 
-                     alt="Polarization visualization of Laplace integrand" 
-                     style="width: 100%; border-radius: 12px; border: 1px solid rgba(212, 175, 55, 0.3); margin-bottom: 1rem;">
-                <p style="text-align: center; color: var(--text-secondary);">
-                    The Laplace integrand visualized as polarized wave motion: rotation + decay creates 
-                    spiraling trajectories in the complex plane.
-                </p>
-            </div>
-
-            <div class="theory-card">
-                <h3>How the Polarization Mode Works</h3>
-                <p>
-                    The visualizer displays four simultaneous views of the same integrand <code>f(t)·e^(-st)</code>:
-                </p>
-                <ul>
-                    <li><strong>Polarization Ellipse</strong>: The instantaneous "shape" of the integrand. 
-                        Size = |f(t)|·e^(-σt) (decaying amplitude), rotation = -ωt (phase). 
-                        Shows a rotating, shrinking ellipse with fading history.</li>
-                    <li><strong>Circular Decomposition</strong>: Splits the motion into two counter-rotating 
-                        circles—<em>left-handed</em> (+ω, counterclockwise) and <em>right-handed</em> (-ω, clockwise). 
-                        For real f(t): both components have equal magnitude A₊ = A₋ = amplitude/2.</li>
-                    <li><strong>Spiral Path</strong>: The full 3D trajectory with time as depth. The spiral 
-                        tightness is controlled by ω, shrinkage by σ.</li>
-                    <li><strong>Phasor Diagram</strong>: Shows the decomposition e^(-st) = e^(-σt) · e^(-iωt) 
-                        with reference and decayed circles, plus the rotating phasor vector.</li>
-                </ul>
-            </div>
-
-            <div class="theory-card">
-                <h3>The Light Analogy</h3>
-                <p>
-                    This connects directly to <strong>polarized light</strong>:
-                </p>
-                <div class="code-block">
-                    <pre><code># Polarization decomposition (like optics)
-Linear polarization  ↕  =  ↻ + ↺    (equal left + right circular)
-Elliptical          ⬮  =  a·↻ + b·↺  (unequal components)
-Circular            ↻  or  ↺        (pure single-handed rotation)
-
-# For real f(t), the Laplace integrand is "linearly polarized":
-f(t)·e^(-st) = A₊(t)·e^(-iωt) + A₋(t)·e^(+iωt)
-               ↓                ↓
-           Left-handed      Right-handed
-           (positive ω)     (negative ω)</code></pre>
-                </div>
-                <p>
-                    The two counter-rotating components sum to produce the observed linear/elliptical motion, 
-                    just as left and right circularly polarized light combine to form other polarization states.
-                </p>
-            </div>
-
-            <div class="theory-card">
-                <h3>Generalizing the Spinner Model</h3>
-                <p>
-                    Fourier's "rotating vector" intuition (the spinner) works because <code>e^(-iωt)</code> 
-                    stays on the unit circle. The Laplace generalization allows the spinner to:
-                </p>
-                <ul>
-                    <li><strong>Shrink</strong> (σ > 0): spiral inward, converging to origin</li>
-                    <li><strong>Grow</strong> (σ < 0): spiral outward, diverging</li>
-                    <li><strong>Stay constant</strong> (σ = 0): pure rotation (Fourier case)</li>
-                </ul>
-                <p>
-                    The <strong>Region of Convergence</strong> becomes visually intuitive: it's the set of σ values 
-                    where the polarization ellipse shrinks to a point as t → ∞. The ellipse must decay—σ must be 
-                    large enough to overcome any growth in f(t).
-                </p>
-            </div>
+        <section class="laplace-lab polar-studio" id="polarization-studio" aria-label="Polarization interpretation">
+          <p class="lab-kicker">Side study · polarization interpretation</p>
+          <h2>Two rotations. A ribbon through time.</h2>
+          <p class="lab-lead">Two circles can add up to a straight line. Balance the counter-rotating vectors, watch their sum change shape, then lift its history into three dimensions. Switch to the actual Laplace integrand to see where the analogy ends.</p>
+          <div class="polar-presets" aria-label="Circular component presets"><button data-polar-mix="0">Single spinner</button><button data-polar-mix="0.24">Ellipse</button><button data-polar-mix="0.5">Equal pair · line</button><button data-polar-mix="1">Reverse rotation</button></div>
+          <div class="laplace-controls">
+            <label>Interpretation<select name="mode" aria-label="Polarization interpretation"><option value="optics">Two circular components</option><option value="laplace">Actual Laplace integrand</option></select></label>
+            <label data-polar-optics>Circular balance b <output data-polar-value="mix"></output><input name="mix" aria-label="Circular balance" type="range" min="0" max="1" step="0.01" value="0.24"></label>
+            <label data-polar-signal hidden>Signal<select name="signal" aria-label="Polarization signal"></select></label>
+            <label>Envelope σ <output data-polar-value="sigma"></output><input name="sigma" aria-label="Polarization envelope sigma" type="range" min="-0.12" max="0.8" step="0.01" value="0.12"></label>
+            <label>Rotation ω <output data-polar-value="omega"></output><input name="omega" aria-label="Polarization rotation omega" type="range" min="0.2" max="6" step="0.05" value="2.4"></label>
+            <label>Analyzer angle <output data-polar-value="analyzer"></output><input name="analyzer" aria-label="Analyzer angle" type="range" min="0" max="180" step="1" value="30"></label>
+          </div>
+          <div class="polar-transport"><button data-polar-play>Play motion</button><label>Inspect time <output data-polar-value="time"></output><input name="time" aria-label="Polarization time" type="range" min="0" max="10" step="0.01" value="3"></label><button data-polar-reset>Reset time &amp; camera</button></div>
+          <div class="polar-views"><figure><canvas data-polar-scene tabindex="0" aria-label="Polarization time sweep: drag or use arrow keys to orbit"></canvas><figcaption><strong>A frozen history, with a moving cross-section.</strong>Gold: the sum. Mint and violet: its circular components. Height is time, not propagation distance. The translucent ribbon connects each vector to its own time-axis origin.</figcaption></figure><div class="polar-side"><figure><canvas data-polar-plane aria-label="Current circular vector addition and analyzer projection"></canvas><figcaption>Arrows add head to tail. The dashed analyzer axis measures one signed component; the white point is its projection.</figcaption></figure><figure><canvas data-polar-projection aria-label="Time history of the analyzer projection"></canvas><figcaption>This curve is the same motion viewed through the analyzer. Rotate it by 90° to extinguish an equal-pair horizontal oscillation.</figcaption></figure></div></div>
+          <div class="lab-equation" data-polar-equation></div><p class="lab-readout" data-polar-reading></p>
+          <details><summary>The useful connection—and its limit</summary><p>With the envelope frozen, equal-frequency counter-rotating circles of unequal weight trace an ellipse. Equal weights cancel one component and leave a line; a single component traces a circle. With σ ≠ 0 the envelope changes, so the full history is no longer a closed ellipse. The gray cross-section freezes the amplitude at the selected time.</p><p>The Laplace integrand for a real signal is a <em>single</em> complex spinner, z(t) = f(t)e⁻σᵗe⁻ⁱωᵗ. Its real projection can be written as an equal counter-rotating pair. That pair reproduces Re z, not the complete complex z. A changing real signal does not automatically create elliptical polarization.</p><p>This is a geometric analogy, not an electromagnetic simulation. The analyzer plot shows signed amplitude rather than measured optical intensity. All panels share the same sampled trajectory; the third coordinate records time. <a href="https://www.feynmanlectures.caltech.edu/I_33.html" target="_blank" rel="noopener">Reference: Feynman, Polarization ↗</a></p></details>
+          <details><summary>Earlier prototype · recorded polarization display</summary><img src="../../live_demos/visualizations/to_be_ported/laplacian/Polarization.png" alt="Archived polarization interpretation from the original desktop notebook" loading="lazy" style="width:100%;height:auto;border-radius:12px"><p>The desktop prototype explored spinning and decaying vectors. The live study above separates the circular-component analogy from the actual Laplace integrand and exposes the time sweep directly.</p></details>
         </section>
 
         <!-- Fourier Scanline Section (experimental/incomplete) -->
         <section class="theory-section">
             <h2>Fourier Scanline Interpretation</h2>
-            
+
             <div class="section-note">
-                <strong>Status:</strong> This interpretation is less developed than the others—included here 
+                <strong>Status:</strong> This interpretation is less developed than the others—included here
                 as a direction for future exploration.
             </div>
 
             <div class="hero-card">
                 <p>
-                    One way to build intuition: the <strong>Fourier transform</strong> evaluates 
+                    One way to build intuition: the <strong>Fourier transform</strong> evaluates
                     <code>F(iω) = ∫f(t)e^(-iωt)dt</code>—it samples along the <em>imaginary axis</em> of the s-plane.
                 </p>
                 <p>
-                    The <strong>Laplace transform</strong> generalizes this to the entire complex plane. 
-                    Each horizontal line <code>s = σ + iω</code> (fixed σ, varying ω) is like a "Fourier scanline" 
+                    The <strong>Laplace transform</strong> generalizes this to the entire complex plane.
+                    Each vertical line <code>s = σ + iω</code> (fixed σ, varying ω in the usual s-plane axes) is like a "Fourier scanline"
                     with an exponential envelope <code>e^(-σt)</code> applied first.
                 </p>
             </div>
 
             <div class="hero-card">
-                <img src="../../live_demos/visualizations/to_be_ported/laplacian/Fourier_Scanline.png" 
-                     alt="Fourier Scanline interpretation" 
+                <img src="../../live_demos/visualizations/to_be_ported/laplacian/Fourier_Scanline.png"
+                     alt="Fourier Scanline interpretation"
                      style="width: 100%; border-radius: 12px; border: 1px solid rgba(212, 175, 55, 0.3); margin-bottom: 1rem;">
                 <p style="text-align: center; color: var(--text-secondary);">
-                    Visualizing the Laplace transform as Fourier analysis performed after exponential windowing. 
+                    Visualizing the Laplace transform as Fourier analysis performed after exponential windowing.
                     Different σ values reveal different aspects of the signal's structure.
                 </p>
             </div>
@@ -508,16 +589,16 @@ f(t)·e^(-st) = A₊(t)·e^(-iωt) + A₋(t)·e^(+iωt)
             <div class="theory-card">
                 <h3>The Idea</h3>
                 <p>
-                    This perspective clarifies why the <strong>region of convergence</strong> matters: 
-                    the integral only converges for σ values where <code>e^(-σt)</code> decays faster than 
-                    <code>f(t)</code> grows. The Fourier transform (σ = 0) only works for bounded signals; 
+                    This perspective clarifies why the <strong>region of convergence</strong> matters:
+                    the integral only converges for σ values where <code>e^(-σt)</code> decays faster than
+                    <code>f(t)</code> grows. The Fourier transform (σ = 0) only works for bounded signals;
                     Laplace extends to exponentially growing signals by "damping" them first.
                 </p>
                 <div class="code-block">
                     <pre><code># Fourier: only works if f(t) is bounded
 F(iω) = ∫ f(t) · e^(-iωt) dt
 
-# Laplace: works for exponentially growing f(t) if σ > growth rate  
+# Laplace: works for exponentially growing f(t) if σ > growth rate
 F(σ + iω) = ∫ f(t) · e^(-σt) · e^(-iωt) dt
           = ∫ [f(t)·e^(-σt)] · e^(-iωt) dt   ← Fourier of damped signal</code></pre>
                 </div>
@@ -529,8 +610,8 @@ F(σ + iω) = ∫ f(t) · e^(-σt) · e^(-iωt) dt
             <div class="theory-card">
                 <h3>Planned Extensions</h3>
                 <ul>
-                    <li><strong>Inverse transform visualization:</strong> Contour integration in the s-plane</li>
-                    <li><strong>Pole-zero dynamics:</strong> Interactive exploration of system behavior</li>
+                    <li><strong>Beyond the current contour experiment:</strong> adaptive inversion and explicit numerical conditioning</li>
+                    <li><strong>Pole-zero dynamics:</strong> move arbitrary poles and zeros, beyond the current analytic signal family</li>
                     <li><strong>Transfer function view:</strong> Input → system → output with Laplace</li>
                     <li><strong>Z-transform bridge:</strong> Connecting continuous and discrete domains</li>
                 </ul>
@@ -539,9 +620,8 @@ F(σ + iω) = ∫ f(t) · e^(-σt) · e^(-iωt) dt
 
         <section class="content-section" style="margin-top: 4rem;">
             <div class="footnote">
-                <strong>Project Status:</strong> This is an experimental/exploratory visualization project. 
-                The native Ruby implementation provides real-time interaction; web port is planned 
-                for future development. The goal is building intuition, not replacing formal analysis tools.
+                <strong>Project Status:</strong> This is an experimental/exploratory visualization project.
+                The native Ruby implementation and the browser observatory explore complementary visual mappings. The browser includes exponential weighting, convergence and finite-band inverse reconstruction; arbitrary systems remain work in progress. The goal is building intuition, not replacing formal analysis tools.
             </div>
         </section>
     </main>

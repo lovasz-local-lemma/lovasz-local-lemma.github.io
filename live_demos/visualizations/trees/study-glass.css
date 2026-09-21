@@ -1,0 +1,21 @@
+/* Keep the original charcoal, indigo and brass palette.
+   These additions dress the reading guide and retain accessibility. */
+header { padding:42px 24px 24px; }
+.study-route { display:flex; flex-wrap:wrap; justify-content:center; gap:10px; margin:22px auto 0; max-width:1100px; text-align:left; }
+.study-route > div { flex:1 1 220px; border:1px solid #d4af3740; border-left:3px solid #d4af37; border-radius:10px; padding:12px 16px; background:linear-gradient(115deg,#d4af3714,#15151f55); box-shadow:inset 0 1px #f6d86018,0 8px 20px #0003; }
+.study-route strong { display:block; color:#f6d860; font-size:.88rem; margin-bottom:4px; }
+.study-route p, .study-note { font:400 .83rem/1.6 'Source Code Pro',monospace; color:#b0b0b8; text-shadow:none; }
+button, a, select { transition:box-shadow .2s,border-color .2s,background-color .2s,color .2s; }
+button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible { outline:2px solid #f6d860; outline-offset:3px; }
+select { color-scheme:dark; }
+select option { background:#191922; color:#e8e8e8; }
+* { scrollbar-width:thin; scrollbar-color:#b8941f #15151e; }
+@media(max-width:650px) { header { padding:74px 8px 20px; } .study-route { gap:8px; } .study-route > div { flex-basis:100%; } }
+@media(prefers-reduced-motion:reduce) { *, *::before, *::after { animation:none!important; transition:none!important; scroll-behavior:auto!important; } }
+.tree-grid { grid-template-columns:repeat(3,minmax(0,1fr)); }
+.tree-grid.layout-2 { grid-template-columns:repeat(2,minmax(0,1fr)); }
+.tree-container { min-width:0; }
+.tree-canvas { width:100%; height:auto; aspect-ratio:5/6; }
+@media(max-width:1200px) { .tree-grid, .tree-grid.layout-2 { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media(max-width:700px) { .tree-grid, .tree-grid.layout-2 { grid-template-columns:minmax(0,1fr); } .heatmap-header, .heatmap-legend { flex-wrap:wrap; } .tree-container { padding:18px; } }
+@media(max-width:700px) { .controls { padding:18px; width:100%; } .input-section, .range-control { display:flex; flex-wrap:wrap; justify-content:center; width:100%; min-width:0; } .speed-control { flex-wrap:wrap; justify-content:center; min-width:0; } }

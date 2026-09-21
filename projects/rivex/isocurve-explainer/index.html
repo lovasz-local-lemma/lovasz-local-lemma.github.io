@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>From light samples to Rive paths · RIVX</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="style.css">
+  <script src="../lab-health.js"></script>
+<!-- universal-navigation:start --><link rel="stylesheet" href="../../../portfolio-location.css?v=054b6b462c"><script defer src="../../../portfolio-location.js?v=054b6b462c"></script><script defer src="../../../portfolio-routes.js?v=054b6b462c"></script><script defer src="../../../portfolio-universal-navigation.js?v=054b6b462c"></script><!-- universal-navigation:end --><style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head>
+<body>
+<main>
+  <header><div><span class="eyebrow">THE ISOCURVE STEP</span><h1>Trace the tone. Keep the paths.</h1></div><a href="../iso-studio/index.html" target="_blank" rel="noopener">Try the full scene ↗</a></header>
+  <p class="intro">Choose a brightness threshold. The same crossing points become connected contours, then ordinary filled shapes.</p>
+  <div class="controls">
+    <label for="threshold">Threshold τ <input id="threshold" type="range" min="0.12" max="0.9" step="0.01" value="0.45"><output id="threshold-value" for="threshold">0.45</output></label>
+    <label for="bands">Tone bands <input id="bands" type="range" min="3" max="12" step="1" value="7"><output id="bands-value" for="bands">7</output></label>
+    <label class="check"><input id="smooth" type="checkbox"> Smooth final paths</label>
+  </div>
+  <section class="steps" aria-label="Isocurve construction">
+    <figure><figcaption><b><span>01</span> Sample a field</b><small>Gold square: the cell enlarged next.</small></figcaption><svg id="field" viewBox="0 0 280 192" role="img" aria-label="Sample lattice with the selected threshold contour and a highlighted crossing cell"></svg><p>Samples at or above τ belong inside. A zero border closes curves at the image edge.</p></figure>
+    <figure><figcaption><b><span>02</span> Interpolate the crossing</b><small>t is the fraction along the gold edge, from a to b.</small></figcaption><svg id="cell" viewBox="0 0 280 192" role="img" aria-label="One marching-squares cell with scalar samples and interpolated threshold crossings"></svg><p class="formula">t = (τ − a) / (b − a)<br><span id="calculation">Computing the highlighted edge…</span></p></figure>
+    <figure><figcaption><b><span>03</span> Stack filled contours</b><small>Repeat the construction at several levels.</small></figcaption><svg id="paths" viewBox="0 0 280 192" role="img" aria-label="Nested contour fills, with an inner hole preserved and the selected threshold outlined"></svg><p>Bright bands cover dark bands. Compound paths preserve holes; smoothing is optional.</p></figure>
+  </section>
+  <footer><span id="status" role="status" aria-live="polite"></span><span>Cyan = selected threshold; it need not coincide with a tone band.</span></footer>
+  <p class="scope">Synthetic light field; real contour extraction. RIVX applies this to sampled splats or render fields, using premultiplied luminance and source colors. This diagram isolates the geometry; it does not render through Rive or export a file.</p>
+</main>
+<script type="module" src="app.js"></script>
+</body>
+</html>

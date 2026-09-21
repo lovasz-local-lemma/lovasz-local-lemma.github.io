@@ -1,0 +1,451 @@
+{{SECTION:_head.html}}
+{{NAV}}
+
+<!-- ================= HERO ================= -->
+<header class="hero">
+  <div class="hero-img">{{IMG:prism_fan}}</div>
+  <div class="wrap hero-in">
+    <p class="eyebrow">A real-time ray-tracing framework, built from scratch · light transport research</p>
+    <h1>Radiance<i>Lab</i></h1>
+    <p class="thesis">For the light paths that sampling only finds by accident.</p>
+    <div class="spectrum"></div>
+    <div class="stats">
+      <div class="stat"><span class="k">Per pass, analytic caustic</span>
+        <div class="v"><span class="from">7.05</span><span class="arr">→</span><span class="to">1.17 ms</span></div>
+        <div class="sub">kernel-free on the sheet, no neural network, consistent as a pair; 0.76 ms of it is estimation &middot; 217×140 film, good to about 10 % within a session</div></div>
+      <div class="stat"><span class="k">Strategy slots in the picker</span>
+        <div class="v"><span class="to">31</span></div>
+        <div class="sub">3–24 and 26–30 are the family; 21 of the slots are analytic swept manifolds</div></div>
+      <div class="stat"><span class="k">Worst-pixel outlier</span>
+        <div class="v"><span class="from">6291</span><span class="arr">→</span><span class="to">1</span></div>
+        <div class="sub">removed by mixing three primitives</div></div>
+      <div class="stat"><span class="k">Equal-pass caustic error</span>
+        <div class="v"><span class="to">2.1×</span></div>
+        <div class="sub">lower than the stochastic estimator</div></div>
+      <div class="stat"><span class="k">Catalogued features</span>
+        <div class="v"><span class="to">549</span></div>
+        <div class="sub">493 work; 116 have never been deliberately rendered</div></div>
+    </div>
+  </div>
+</header>
+
+<!-- ================= THE TEN-SECOND ANSWER ================= -->
+<section id="answer" style="--secc:var(--l400)" data-nav="What this is">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">The ten-second answer</p>
+      <h2>Can you compute a caustic instead of gathering one?</h2>
+      <p class="lead">RadianceLab may be the most feature-rich open real-time ray-tracing framework on GitHub. I have not found another that ships bidirectional path tracing inside its real-time kernel, interactive Metropolis, VCM, photon mapping and a full-reservoir ReSTIR next to fourteen material models, 157 image operators and a node graph, in one binary. The one open repository with comparable transport breadth (yuphin/Lumen) lists no participating media and no analytic estimators; the one with comparable material and volume breadth (LuxCore) is offline.</p>
+      <p>The research question underneath all of it is the one above. A refractive caustic in fog is the light path standard sampling cannot reach: next-event estimation cannot connect through a glass sphere, because the refraction is a delta, and path sampling finds it only by chance. The usual answer is to stop connecting and gather instead, with a kernel, and accept the blur. RadianceLab asks the other question. Sample some dimensions of a light path, sweep the rest into a geometric surface, intersect the camera ray with that surface in closed form, and divide by the co-area Jacobian of the sweep. No kernel, no radius, no blur. The answer is a family of twenty-one analytic swept manifolds &mdash; fix one of the photon’s three coordinates and sweep the other two, and fix two and sweep one for the three members that close the lattice &mdash; one of which carries a photon through two refractions and lands a volumetric caustic exactly; paired with the stochastic beam it converges to 1.0000 against a traced reference. The family is not a better way to sample what is already easy, and the site says so: where a connection exists, the camera walk's next-event estimate beats every swept member. It exists for the paths that have no connection to make &mdash; the caustic through glass, the emitter too sharp to sample, the light with more dimensions than a point sample covers &mdash; and there it lands what path sampling finds only by chance and kernels can only blur.</p>
+      <p>Sweeping a photon's free dimensions into an analytic manifold is an older idea than this project &mdash; Bitterli and Jarosz's photon planes, Deng et al.'s photon surfaces &mdash; and it was proven at offline cost: minutes to over an hour per image on sixteen Xeon threads for the planes, and no wall-clock published at all for the surfaces. This project does not implement either paper's primitive. It shows what the idea does when the implementation is fast: 1.17 ms per pass, no neural network anywhere, and a caustic waist nine times narrower than the kernel estimator's at equal passes. That is the true power of the idea, and the recording on the estimator page is built to show it. Every number on this site carries the measurement that settled it, and where a measurement contradicted something written earlier, the correction is on the page rather than quietly removed.</p>
+    </div>
+    <div class="spectrum" style="margin-top:40px"></div>
+  </div>
+</section>
+
+<!-- ================= THE SYSTEM ================= -->
+<section id="system" style="--secc:var(--l460)" data-nav="The system">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">Shape of the thing</p>
+      <h2>One scene, two render paths, one measured film</h2>
+      <p>A scene is built procedurally from analytic shapes. It feeds two independent renderers that share nothing but the scene and the film format: a GPU megakernel that renders in real time, with bidirectional path tracing inside it, and a CPU integrator bank &mdash; Metropolis, VCM, UPBP, the photon primitives &mdash; that runs interactively. Sharing nothing is exactly what makes them useful as checks on each other. Agreement between two independent estimators is the strongest kind of evidence here, and where a claim rests on something weaker &mdash; a numpy port of the estimator, or a single run with no partner &mdash; the page that makes it says so.</p>
+    </div>
+    <figure>
+      <div class="schem">
+        <svg viewBox="0 0 920 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="System diagram: one scene feeding a GPU megakernel and a CPU integrator bank, both writing a linear HDR film that is measured by a Python oracle">
+          <defs>
+            <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+              <path d="M0 0 L10 5 L0 10 z" fill="#7f8b89"/>
+            </marker>
+            <style>
+              .bx{fill:rgba(255,255,255,.035);stroke:#3a4442;stroke-width:1;rx:9}
+              .hl{fill:rgba(237,164,87,.09);stroke:#EDA457;stroke-width:1.3}
+              .t{fill:#d5dedc;font-family:Georgia,serif;font-size:15px}
+              .s{fill:#8b9795;font-family:ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:.06em}
+              .e{stroke:#7f8b89;stroke-width:1.1;fill:none;marker-end:url(#ah)}
+              .lbl{fill:#7f8b89;font-family:ui-monospace,Menlo,monospace;font-size:9.5px;letter-spacing:.1em}
+            </style>
+          </defs>
+
+          <rect class="bx" x="18" y="128" width="150" height="74" rx="9"/>
+          <text class="t" x="93" y="158" text-anchor="middle">Scene</text>
+          <text class="s" x="93" y="177" text-anchor="middle">analytic shapes only</text>
+          <text class="s" x="93" y="191" text-anchor="middle">no meshes</text>
+
+          <path class="e" d="M170 150 L246 88"/>
+          <path class="e" d="M170 180 L246 242"/>
+
+          <rect class="bx" x="250" y="40" width="232" height="96" rx="9"/>
+          <text class="t" x="366" y="70" text-anchor="middle">GPU megakernel</text>
+          <text class="s" x="366" y="90" text-anchor="middle">one dispatch · recompiles itself</text>
+          <text class="s" x="366" y="106" text-anchor="middle">to the live feature mask</text>
+          <text class="s" x="366" y="122" text-anchor="middle">14 materials · 7 outputs</text>
+
+          <rect class="hl" x="250" y="196" width="232" height="96" rx="9"/>
+          <text class="t" x="366" y="226" text-anchor="middle">CPU integrator bank</text>
+          <text class="s" x="366" y="246" text-anchor="middle">10 transport modes</text>
+          <text class="s" x="366" y="262" text-anchor="middle">31 photon-primitive slots</text>
+          <text class="s" x="366" y="278" text-anchor="middle">25 closed-form &middot; 6 kernel</text>
+
+          <path class="e" d="M484 88 L572 148"/>
+          <path class="e" d="M484 244 L572 184"/>
+
+          <rect class="bx" x="576" y="128" width="150" height="74" rx="9"/>
+          <text class="t" x="651" y="158" text-anchor="middle">Linear film</text>
+          <text class="s" x="651" y="177" text-anchor="middle">32-bit, untonemapped</text>
+          <text class="s" x="651" y="191" text-anchor="middle">one dump per run</text>
+
+          <path class="e" d="M728 165 L800 165"/>
+          <rect class="bx" x="804" y="128" width="100" height="74" rx="9"/>
+          <text class="t" x="854" y="158" text-anchor="middle">Oracle</text>
+          <text class="s" x="854" y="177" text-anchor="middle">ratio, energy,</text>
+          <text class="s" x="854" y="191" text-anchor="middle">byte identity</text>
+
+          <text class="lbl" x="366" y="313" text-anchor="middle">THE RESEARCH LIVES HERE</text>
+          <path d="M300 300 L432 300" stroke="#EDA457" stroke-width="1" opacity=".5"/>
+        </svg>
+      </div>
+      <figcaption><b>Two paths, one film</b><span>The two renderers share the scene and the film format and nothing else. That independence is what lets one be used as evidence about the other, and it is why the strongest numbers here are ratios between two estimators rather than single numbers that look plausible.</span></figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ================= FEATURES ================= -->
+<section id="features" style="--secc:var(--l500)" data-nav="Features">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">The sixty-second answer</p>
+      <h2>Eleven threads</h2>
+      <p>The first ten are built and running. The first of those is a research result with a measured reference behind every member; the next nine are the framework it runs in, and several of them would be a project on their own. What differs is how much of each has been photographed, and the second tag on every card says so. The eleventh is the complement: everything the other ten passed over, including the modules that do not work yet.</p>
+    </div>
+
+    <div class="cards">
+
+      <a class="card" href="photon-hourglass.html" style="--cc:var(--accent,#EDA457)">
+        <div class="card-in">
+          <p class="eyebrow">01 · Estimators</p>
+          <h3>Caustics without a kernel</h3>
+          <p>Twenty-one analytic swept manifolds &mdash; a lattice that now closes &mdash; and a volumetric caustic through glass solved in closed form on its sheet: kernel-free there, consistent as a pair, no neural network, 1.17 ms a pass.</p>
+          <div class="card-thumb">{{IMG:hourglass}}</div>
+          <div class="card-num"><b>1.0000</b><span>converged ratio against the stochastic reference</span></div>
+          <div class="card-st"><span class="st st-a">page written</span><span class="st st-a">12 measured</span></div>
+        </div>
+      </a>
+
+      <a class="card" href="where-the-fireflies-come-from.html" style="--cc:var(--l500)">
+        <div class="card-in">
+          <p class="eyebrow">02 · Visualisation</p>
+          <h3>Where the fireflies come from</h3>
+          <p>Tools that trace the sampling geometry itself and colour it by its own singularity.</p>
+          <div class="card-thumb">{{SVG:f13-direction-trio.svg}}</div>
+          <div class="card-num"><b>6291 → 1</b><span>worst pixel, before and after mixing</span></div>
+          <div class="card-st"><span class="st st-a">page written</span><span class="st st-b">9 tool figures</span></div>
+        </div>
+      </a>
+
+      <a class="card" href="how-i-know.html" style="--cc:var(--l540)">
+        <div class="card-in">
+          <p class="eyebrow">03 · Evidence</p>
+          <h3>How I know the pictures are right</h3>
+          <p>A variance theory, a film format, a Python oracle, and a document that records where I was wrong.</p>
+          <div class="card-thumb">{{SVG:fs1-surface-nee.svg}}</div>
+          <div class="card-num"><b>15</b><span>variance rules, each cited to a run</span></div>
+          <div class="card-st"><span class="st st-a">page written</span><span class="st st-a">3 measured films</span></div>
+        </div>
+      </a>
+
+      <a class="card" href="ten-integrators-one-scene.html" style="--cc:var(--l460)">
+        <div class="card-in">
+          <p class="eyebrow">04 · Engine</p>
+          <h3>Ten integrators, one scene</h3>
+          <p>A real-time GPU megakernel that recompiles itself to the render state, fourteen material models, seven ways to make fog.</p>
+          <div class="card-thumb">{{IMG:caustic_room}}</div>
+          <div class="card-num"><b>276</b><span>shaders across the render stack</span></div>
+          <div class="card-st"><span class="st st-a">page written</span><span class="st st-b">every number source-anchored</span></div>
+        </div>
+      </a>
+
+      <a class="card" href="seeing-light-arrive.html" style="--cc:var(--l400)">
+        <div class="card-in">
+          <p class="eyebrow">05 · Imaging</p>
+          <h3>Seeing light arrive</h3>
+          <p>A holography bench that walks the inverse problem in fourteen displayable stages, scores itself in wraps against ground truth, and names ten setup faults. Never once photographed.</p>
+          <div class="card-thumb">{{SVG:f17-camera-sphere.svg}}</div>
+          <div class="card-num"><b>0</b><span>figures shot; the page is the shooting list</span></div>
+          <div class="card-st"><span class="st st-a">page written</span><span class="st st-c">unphotographed</span></div>
+        </div>
+      </a>
+
+      <a class="card" href="the-transport-zoo.html" style="--cc:var(--l620)">
+        <div class="card-in">
+          <p class="eyebrow">06 · Transport</p>
+          <h3>Every way to connect a path</h3>
+          <p>Real-time BDPT with every (s,t) family and a clickable strategy pyramid; interactive Metropolis, VCM and UPBP; and a ReSTIR that is a real reservoir implementation &mdash; RIS, temporal and spatial reuse &mdash; not a filter. Plus a precisely scoped claim about what the estimator family does and does not contain.</p>
+          <div class="card-thumb">{{SVG:f20b-flavours.svg}}</div>
+          <div class="card-num"><b>10</b><span>transport algorithms, each graded by what it really implements</span></div>
+          <div class="card-st"><span class="st st-a">page written</span><span class="st st-c">4 found inert</span></div>
+        </div>
+      </a>
+
+      <a class="card" href="the-instrument-panel.html" style="--cc:var(--l580)">
+        <div class="card-in">
+          <p class="eyebrow">07 · Authoring</p>
+          <h3>The instrument panel</h3>
+          <p>The node editor, the comparison report and the ray tree — the apparatus that decided which picture to take.</p>
+          <div class="card-thumb">
+            <svg viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Schematic of a node graph: three source nodes feeding a combiner, which feeds a preview">
+              <defs><style>
+                .nb{fill:rgba(255,255,255,.05);stroke:#3a4442;stroke-width:1}
+                .nw{stroke:#5FDD9B;stroke-width:1.2;fill:none;opacity:.75}
+                .np{fill:#E3C55F}
+              </style></defs>
+              <path class="nw" d="M96 44 C132 44 128 84 164 84"/>
+              <path class="nw" d="M96 90 C132 90 132 90 164 90"/>
+              <path class="nw" d="M96 136 C132 136 128 96 164 96"/>
+              <path class="nw" d="M232 90 C252 90 252 90 268 90"/>
+              <rect class="nb" x="30" y="30" width="66" height="28" rx="5"/>
+              <rect class="nb" x="30" y="76" width="66" height="28" rx="5"/>
+              <rect class="nb" x="30" y="122" width="66" height="28" rx="5"/>
+              <rect class="nb" x="164" y="66" width="68" height="48" rx="6"/>
+              <rect class="nb" x="268" y="70" width="24" height="40" rx="5"/>
+              <circle class="np" cx="96" cy="44" r="2.6"/>
+              <circle class="np" cx="96" cy="90" r="2.6"/>
+              <circle class="np" cx="96" cy="136" r="2.6"/>
+              <circle class="np" cx="232" cy="90" r="2.6"/>
+            </svg>
+          </div>
+          <div class="card-num"><b>57</b><span>node types; 32 controls that do nothing, published</span></div>
+          <div class="card-st"><span class="st st-a">page written</span><span class="st st-c">unphotographed</span></div>
+        </div>
+      </a>
+
+      <a class="card" href="one-hundred-and-fifty-seven-ways.html" style="--cc:var(--l500)">
+        <div class="card-in">
+          <p class="eyebrow">08 · Image operators</p>
+          <h3>One hundred and fifty-seven ways to ruin a render</h3>
+          <p>Ricci flow, Hodge decomposition and walk-on-spheres share a combo box with halftone. Nineteen of them read the renderer, not the image.</p>
+          <div class="card-thumb">
+            <svg viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Schematic of a stack of image operators applied in sequence to one frame">
+              <defs><style>
+                .sl{fill:rgba(255,255,255,.045);stroke:#3a4442;stroke-width:1}
+                .sa{fill:none;stroke:#3FD0D4;stroke-width:1.2;opacity:.8}
+              </style></defs>
+              <rect class="sl" x="34" y="28" width="150" height="86" rx="7"/>
+              <rect class="sl" x="52" y="44" width="150" height="86" rx="7"/>
+              <rect class="sl" x="70" y="60" width="150" height="86" rx="7"/>
+              <path class="sa" d="M234 103 L272 103"/>
+              <path class="sa" d="M264 96 L272 103 L264 110"/>
+              <rect class="sl" x="276" y="76" width="14" height="54" rx="4"/>
+              <path class="sa" d="M86 92 L110 74 L134 100 L158 68 L182 88"/>
+            </svg>
+          </div>
+          <div class="card-num"><b>0 of 157</b><span>operators ever deliberately photographed</span></div>
+          <div class="card-st"><span class="st st-a">page written</span><span class="st st-c">unphotographed</span></div>
+        </div>
+      </a>
+
+      <a class="card" href="things-that-move.html" style="--cc:var(--l540)">
+        <div class="card-in">
+          <p class="eyebrow">09 · Simulation</p>
+          <h3>Things that move on their own</h3>
+          <p>Five solvers, reaction–diffusion, and seventeen shaders that carry state between frames. Three of the solvers reach the traced image.</p>
+          <div class="card-thumb">
+            <svg viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Schematic of particles advected along a curved velocity field into a density grid">
+              <defs><style>
+                .fl{fill:none;stroke:#3a4442;stroke-width:1}
+                .fp{fill:#5FDD9B;opacity:.85}
+                .fg{fill:none;stroke:#4E93F5;stroke-width:1;opacity:.55}
+              </style></defs>
+              <path class="fl" d="M22 132 C74 132 84 52 138 52 C186 52 190 118 244 118"/>
+              <path class="fl" d="M22 152 C78 152 90 78 144 78 C192 78 198 140 250 140"/>
+              <path class="fl" d="M22 112 C70 112 78 28 132 28 C182 28 184 98 238 98"/>
+              <circle class="fp" cx="88" cy="112" r="3"/>
+              <circle class="fp" cx="138" cy="52" r="3"/>
+              <circle class="fp" cx="176" cy="60" r="3"/>
+              <circle class="fp" cx="206" cy="132" r="3"/>
+              <circle class="fp" cx="118" cy="146" r="3"/>
+              <rect class="fg" x="256" y="46" width="44" height="88" rx="4"/>
+              <path class="fg" d="M256 75 L300 75 M256 104 L300 104 M270 46 L270 134 M285 46 L285 134"/>
+            </svg>
+          </div>
+          <div class="card-num"><b>3 of 5</b><span>solvers whose state reaches the traced image</span></div>
+          <div class="card-st"><span class="st st-a">page written</span><span class="st st-c">unphotographed</span></div>
+        </div>
+      </a>
+
+      <a class="card" href="the-camera-is-not-a-viewpoint.html" style="--cc:var(--l680)">
+        <div class="card-in">
+          <p class="eyebrow">10 · The camera</p>
+          <h3>The camera is not a viewpoint</h3>
+          <p>An aperture with a measure: it adds a strategy to the BDPT mixture, five rejection-sampled bokeh shapes, and a second complete lens model that has never rendered a pixel.</p>
+          <div class="card-thumb">
+            <svg viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Schematic of a camera as a finite aperture: a cone of rays converging through a bladed aperture onto a film plane">
+              <defs><style>
+                .cr{fill:none;stroke:#3a4442;stroke-width:1}
+                .cb{fill:none;stroke:#F2685C;stroke-width:1.2;opacity:.85}
+                .cf{fill:rgba(255,255,255,.045);stroke:#3a4442;stroke-width:1}
+                .cd{fill:#E3C55F}
+              </style></defs>
+              <rect class="cf" x="252" y="46" width="12" height="88" rx="3"/>
+              <path class="cr" d="M40 34 L196 90 M40 62 L196 90 M40 90 L196 90 M40 118 L196 90 M40 146 L196 90"/>
+              <path class="cr" d="M196 90 L258 52 M196 90 L258 90 M196 90 L258 128"/>
+              <path class="cb" d="M196 62 L215 79 L215 101 L196 118 L177 101 L177 79 Z"/>
+              <circle class="cd" cx="196" cy="90" r="2.6"/>
+              <circle class="cd" cx="40" cy="90" r="2.6"/>
+            </svg>
+          </div>
+          <div class="card-num"><b>0</b><span>lens samples ever drawn by the C++ camera</span></div>
+          <div class="card-st"><span class="st st-a">page written</span><span class="st st-c">unphotographed</span></div>
+        </div>
+      </a>
+
+      <a class="card" href="everything-else.html" style="--cc:var(--l600)">
+        <div class="card-in">
+          <p class="eyebrow">11 &middot; The residue</p>
+          <h3>Everything that did not get a page</h3>
+          <p>The complement of the other ten: thirteen half-built modules named without softening, the second projector's baking mode, the fields declared and never read, and the headless vocabulary every figure was made with.</p>
+          <div class="card-thumb">{{SVG:f30-subsystem-map.svg}}</div>
+          <div class="card-num"><b>0 of 18</b><span>controls in the WIP tab that reach a backend</span></div>
+          <div class="card-st"><span class="st st-a">page written</span><span class="st st-c">unphotographed</span></div>
+        </div>
+      </a>
+
+    </div>
+  </div>
+</section>
+
+<!-- ================= THE LEDGER ================= -->
+<section id="ledger" style="--secc:var(--l580)" data-nav="The ledger">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">Every claim, graded</p>
+      <h2>The honest ledger</h2>
+      <p>A renderer portfolio usually shows the good renders and stays quiet about the rest. This one publishes the whole catalogue: <b>549 features</b>, of which 494 work and <b>116 have never been deliberately rendered</b> — nearly a quarter of the working surface, which is what a framework this size looks like when it is counted honestly rather than curated. The table below is the part worth a reader’s time; the exhaustive version, every row with a source anchor, is in the repository. What backs each row is shown here. The most interesting grade is not the top one. <b>Built but never looked at</b> is where the surprises live, and three of the rows below were validated against a reference that nobody has yet seen an image of.</p>
+      <p class="note" style="margin-top:18px">
+        <span class="st st-a">measured</span> &nbsp; a number, with the run behind it &nbsp;·&nbsp;
+        <span class="st st-b">seen</span> &nbsp; looked at, not quantified &nbsp;·&nbsp;
+        <span class="st st-c">never viewed</span> &nbsp; shipped, never rendered on purpose &nbsp;·&nbsp;
+        <span class="st st-d">design only</span> &nbsp; specified, not built
+      </p>
+    </div>
+
+    <div class="chips" id="ledgerchips">
+      <button class="chip" data-f="all" aria-pressed="true">All</button>
+      <button class="chip" data-f="a" aria-pressed="false">Measured</button>
+      <button class="chip" data-f="b" aria-pressed="false">Seen</button>
+      <button class="chip" data-f="c" aria-pressed="false">Never viewed</button>
+      <button class="chip" data-f="d" aria-pressed="false">Design only</button>
+    </div>
+
+    <div class="tw"><table class="ledger" id="ledgertable">
+      <thead><tr><th>Feature</th><th>What it does</th><th>Evidence</th><th>Grade</th></tr></thead>
+      <tbody>
+        <tr data-g="a"><td>Photon-primitive roster</td><td>Analytic caustics by sweeping a light path</td><td>per-row median 1.000</td><td><span class="st st-a">measured</span></td></tr>
+        <tr data-g="a"><td>Three-plane mixture</td><td>Removes the grazing singularity</td><td>worst pixel 259 → 1</td><td><span class="st st-a">measured</span></td></tr>
+        <tr data-g="a"><td>Direction-sweep trio</td><td>Sphere, disk and cone mixed</td><td>worst pixel 6291 → 1</td><td><span class="st st-a">measured</span></td></tr>
+        <tr data-g="a"><td>Cross-family mixture</td><td>The three planes and the direction trio under one light-area measure, six closed-form densities</td><td>lowest per-pass variance at every emitter size; energy agrees with 12 and 13 to 0.1 %</td><td><span class="st st-a">measured</span></td></tr>
+        <tr data-g="a"><td>Light-size series</td><td>One glass ball, five emitter sizes from 2° to 77°, every estimator timed</td><td>both written crossovers falsified inside the range</td><td><span class="st st-a">measured</span></td></tr>
+        <tr data-g="a"><td>Surface caustic photon map</td><td>The photons the beam walk already traces, deposited at the first diffuse hit behind glass and gathered by the camera walk; the floor under every glass ball lights up</td><td>energy within 2 % of a first-principles trace on a receiver 62 % hidden by the ball; 21 pinned films byte-identical with it off</td><td><span class="st st-a">measured</span></td></tr>
+        <tr data-g="a"><td>Direction-preserving surfaces</td><td>Not only the estimator's probes: <b>every integrator in the mode menu</b> now sees through a passthrough wall, so the camera stands outside the fog box on all of them</td><td>preset 63 renders the Reliquary from outside on modes 2 through 8 — means 0.1988 and 3.47 to 8.89, against exactly 0.000000 through the same wall left opaque on every one of them whose control finished; 21 pinned films byte-identical</td><td><span class="st st-a">measured</span></td></tr>
+        <tr data-g="a"><td>Continuous-orientation planes</td><td>Closed-form envelope over the sweep angle</td><td>median 0.999</td><td><span class="st st-a">measured</span></td></tr>
+        <tr data-g="a"><td>Photon hourglass</td><td>Caustic through a dielectric sphere</td><td>median 0.976</td><td><span class="st st-a">measured</span></td></tr>
+        <tr data-g="a"><td>Hourglass and beam mixed</td><td>Spectral, relay-aware pairing</td><td>1.0000 against the beam at the same radius; 2.1× lower error; consistent, not unbiased — its energy reads +0.9 % at r = 0.15 against its own r = 0.0375 rung</td><td><span class="st st-a">measured</span></td></tr>
+        <tr data-g="a"><td>Vertex hourglass, entry-seeded</td><td>Seeds on the glass, not the light</td><td>energy 1.007 / 1.020</td><td><span class="st st-a">measured</span></td></tr>
+        <tr data-g="a"><td>Exit refraction cone</td><td>Two cones apex-to-apex at the vertex</td><td>1.0001 against the hourglass</td><td><span class="st st-a">measured</span></td></tr>
+        <tr data-g="a"><td>Reflection cone</td><td>First analytic reflection caustic here</td><td>0.998 against the beam</td><td><span class="st st-a">measured</span></td></tr>
+        <tr data-g="a"><td>Stochastic photon beam</td><td>The kernel reference the rest is judged against</td><td>1.048 against next-event</td><td><span class="st st-a">measured</span></td></tr>
+        <tr data-g="a"><td>Surface next-event reference</td><td>One Lambertian connection at a hit</td><td>1.0005 against the GPU</td><td><span class="st st-a">measured</span></td></tr>
+        <tr data-g="a"><td>Variance study</td><td>Why each estimator fails, and where</td><td>15 rules, each cited</td><td><span class="st st-a">measured</span></td></tr>
+        <tr data-g="a"><td>Byte-identical regression</td><td>A feature off must change nothing</td><td>8 films, two resolutions</td><td><span class="st st-a">measured</span></td></tr>
+        <tr data-g="a"><td>Behaviour triage document</td><td>Symptom, expected, bug — with corrections</td><td>6 corrections in one day</td><td><span class="st st-a">measured</span></td></tr>
+        <tr data-g="a"><td>The in-engine gate stack</td><td>Four logs behind one config key: an analytic airlight gate, an exact-L<sub>e</sub> camera gate, a relL2 against a GPU film, and two brute-force oracles at five named probe pixels that cross-check each other at one bounce</td><td>Gate C caught the 1/cos&thinsp;&theta;<sub>L</sub> over-brightness on preset 34 that the analytic gate structurally could not see — the source says so at the line it fixed</td><td><span class="st st-a">measured</span></td></tr>
+        <tr data-g="a"><td>Mirror relays</td><td>Caustics that arrive by reflection</td><td>+0.16% of frame energy</td><td><span class="st st-a">measured</span></td></tr>
+        <tr data-g="a"><td>Photon ring-alt</td><td>The family's first <b>glossy</b> vertex: the reflection cone taken off the delta, five free dimensions instead of three, the BRDF evaluated at every crossing</td><td>1.0005 ± 0.0088 against the camera walk isolated to the same class at roughness 0.16; 2.2–3.1× lower variance per pass and 6.6–8.3× on equal time, with no crossover in range</td><td><span class="st st-a">measured</span></td></tr>
+        <tr data-g="a"><td>The one-dimensional group</td><td>The <b>user’s</b> photon ring and photon arc, and their mixture with the tracer beam. Fix one of (θ,φ,t) and sweep two and you get the kernel-free cone, disk and sphere; fix two and sweep one and you get these — <b>the lattice closes</b>, and the beam’s familiar 1/sin θ turns out to be the same expression at unit speed</td><td>worst pixel 545.7 → 5.0, lower than the beam’s own, and 2.7× the best single member per pass at r = 0.15, 2.5× at r = 0.05, at three draws per pass against that member's one; bias ladder over five kernel radii, every rung with its own bar; <b>consistent, not unbiased</b> — 0.33 % high at r = 0.30 where the ring alone is 33 % high</td><td><span class="st st-a">measured</span></td></tr>
+        <tr data-g="a"><td>The float32 cliff it found</td><td>A lobe-sampled cosine pins one coefficient to 1 and the cone quadric's leading term cancels in single precision</td><td>81.5× / 108.8× / 8.7× invented energy at roughness 0.05 / 0.09 / 0.16 before the shared solver was moved to double</td><td><span class="st st-a">measured</span></td></tr>
+        <tr data-g="a"><td>The refraction chain</td><td>The swept sheet pushed through a <b>chain</b> of glass balls instead of one — exact where the chain is collinear, and refused by name where it is not</td><td>60.4×/116× lower variance per pass than the stochastic beam and 35.5×/48.5× on equal time; energy on the caustic mask 1.0023 ± 0.0061; the off-axis pair renders exactly zero with one refusal line</td><td><span class="st st-a">measured</span></td></tr>
+        <tr data-g="a"><td>Post-ball planar mirror</td><td>Light → ball → fog → mirror → eye: a reflection is an isometry, so the camera ray is reflected and the same quadric is solved against it</td><td>0.9979 ± 0.0017 against the same scene shot from the eye's mirror image; 14.5–28.3× the beam per pass on that view</td><td><span class="st st-a">measured</span></td></tr>
+        <tr data-g="a"><td>BSDF-general surface shading</td><td>The estimator's camera walk shades every non-delta surface, not only Lambertian ones — Metal, Anisotropic, CoatedDiffuse and the Airy film, with the delta rule taken from the megakernel's own source</td><td>Metal 1.0133 / 1.0096 / 1.0111 against the GPU at roughness 0.10 / 0.15 / 0.30, inside the band two Lambertian controls set at 1.0008 and 1.0141 in the same frame; reciprocity and white-furnace tables computed by the rendering binary itself; 21 pinned films identical with it off and on</td><td><span class="st st-a">measured</span></td></tr>
+        <tr data-g="a"><td>The gate family</td><td>One lamp, one gobo plane, four apertures: a slot, an annulus, a grille and a dispersive slit</td><td>the annulus matches the slot's aperture area to 1.4 % (2.98 cone² against 2.94) and still drives the shaft's core-to-limb ratio from 0.94 down to 0.40; the open variant's film mean falls 5.9× while its shaft-to-surround contrast rises 4.8× → 10.1×</td><td><span class="st st-a">measured</span></td></tr>
+        <tr data-g="b"><td>GPU megakernel tracer</td><td>One dispatch for the whole transport, in real time</td><td>seen; fallback ladder in source</td><td><span class="st st-b">seen</span></td></tr>
+        <tr data-g="b"><td>Real-time bidirectional path tracing</td><td>BDPT inside the megakernel — eye and light subpaths, interior connections, all six (s,t) cells, MIS method B — with a clickable strategy pyramid</td><td>seen; each cell isolable from the pyramid overlay</td><td><span class="st st-b">seen</span></td></tr>
+        <tr data-g="b"><td>ReSTIR direct lighting</td><td>Resampled importance sampling into per-pixel reservoirs, temporal reuse against the previous frame's reservoirs, then spatial reuse from neighbours — the full construction, not a filter, replacing the tracer's direct term</td><td>907 lines of GLSL across two compute passes; seen</td><td><span class="st st-b">seen</span></td></tr>
+        <tr data-g="b"><td>Interactive Metropolis</td><td>Kelemen primary-sample-space MLT with lazy per-coordinate mutation, in the CPU integrator bank</td><td>seen; interactive, not real-time</td><td><span class="st st-b">seen</span></td></tr>
+        <tr data-g="b"><td>Self-recompiling kernel</td><td>Specialises to the live render state</td><td>seen; measured instruction ceiling</td><td><span class="st st-b">seen</span></td></tr>
+        <tr data-g="b"><td>Material models</td><td>14 types, Lambertian through hair, subsurface and dispersive glass</td><td>all 14 reachable from a preset; 56 covers the last four</td><td><span class="st st-b">seen</span></td></tr>
+        <tr data-g="b"><td>Spectral dispersion</td><td>Per-object wavelength-dependent index</td><td>seen in the prism preset</td><td><span class="st st-b">seen</span></td></tr>
+        <tr data-g="b"><td>Participating media</td><td>Homogeneous and noise-modulated</td><td>seen; inert in the CPU integrator</td><td><span class="st st-b">seen</span></td></tr>
+        <tr data-g="b"><td>Solid-angle sphere sampling</td><td>No wasted samples near the silhouette</td><td>seen; variance-only comparison</td><td><span class="st st-b">seen</span></td></tr>
+        <tr data-g="b"><td>The prism is two solids</td><td>Preset 30's dispersive prism is a 45&deg; box to the path tracer and a 45&deg; mesh to the rasteriser — and the tracer's half-extents were pre-fattened to the rotated bounding box before the GPU learned to rotate the ray, so the fattening is applied on top of the rotation it was compensating for</td><td>0.5 &rarr; 0.7071 in X and Z: &radic;2 wider, twice the volume. Read from source, not measured</td><td><span class="st st-b">seen</span></td></tr>
+        <tr data-g="b"><td>Node-graph material bake</td><td>Ten channels of a graph baked per entity into three RGBA8 layers the megakernel samples — and a twelfth slot booked twice: the dispersive gate reads the same alpha as the dispersion spread it gates</td><td>the layer comment says anisotropy angle, the write stores <span class="mono">dispersionSpread / 10</span>, and three of the eleven seeded BSDF inputs have no mask bit at all</td><td><span class="st st-b">seen</span></td></tr>
+        <tr data-g="b"><td>VCM &ldquo;Fix Bias&rdquo;</td><td>The checkbox reaches <span class="mono">VCMConfig::fixBias</span> and the field is read nowhere in the integrator — its own declaration says &ldquo;always enabled; kept for UI compat&rdquo;. The greyed MIS-mode selector beside it names this control as the live one</td><td>zero references to <span class="mono">fixBias</span> in <span class="mono">VCMIntegrator.cpp</span>; the catalogue grades the row seen and describes it as toggling the weights</td><td><span class="st st-b">seen</span></td></tr>
+        <tr data-g="c"><td>Time-of-flight, three systems</td><td>Modulation carried along the traced path, four-phase continuous wave off the depth buffer, and a geometric-path post-process with five light shapes</td><td>implemented, unphotographed; the path-length gate is a fourth, separate thing</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr data-g="c"><td>Off-axis holography</td><td>With a live error readout</td><td>implemented, unphotographed</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr data-g="c"><td>Structured light</td><td>Pattern projection; what gets decoded is phase, never pattern index</td><td>implemented, unphotographed; no pattern decoder exists</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr data-g="c"><td>Two emission profiles</td><td>Cone and ring emitters</td><td>no preset uses them</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr data-g="c"><td>Photon Primitive Validator</td><td>Pick a camera pixel and a photon on a light, budget the two legs against one total, sweep any vertex, and ask a zero pairing why it is zero</td><td>eleven rows in the inventory and not one of them has been on a screen</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr data-g="c"><td>Time-of-flight noise models</td><td>An ambient term and a &ldquo;shot noise&rdquo; term on both synthetic time-of-flight ladders</td><td>read from source: ambient is added to all four shots and cancels exactly in both differences the recovery is built from, and the noise term is uniform, signal-independent and frame-frozen. One capture would settle it, and the imaging page carries the recipe</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr data-g="c"><td>Bilateral-grid preview</td><td>A live-parametrised diagram of the bilateral grid drawn from the filter's own sliders, with the support ellipse at the cursor</td><td>read from source: it splats and draws; the blur and the slice its own footer names are not performed</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr data-g="a"><td>Complement mode</td><td>A primary estimator plus a backup for the transport it does not own, partitioned by path class and never mixed</td><td>built; the backup walk reads 1.0008 on the diffuse half and 0.9949 on the glass against the GPU, preset 0</td><td><span class="st st-a">measured</span></td></tr>
+        <tr data-g="a"><td>Correlated primitives</td><td>One batch of primitives, every camera ray</td><td>12 films byte-identical off; converges to the uncorrelated energy</td><td><span class="st st-a">measured</span></td></tr>
+        <tr data-g="d"><td>Gaussian-process surfaces</td><td>Microfacet and medium from one object</td><td>both blocking gates passed</td><td><span class="st st-d">design only</span></td></tr>
+        <tr data-g="a"><td>Camera-side primitives</td><td>Sweep the camera path instead of the light, and splat the result onto the film</td><td>PP strategy 17; 0.992 against the camera walk on preset 48, both legs shadow-tested since 2026-09-05</td><td><span class="st st-a">measured</span></td></tr>
+        <tr data-g="c"><td>Node-based material and medium authoring</td><td>57 node types, live 2-D and orbiting 3-D previews, evaluated per entity by the GPU tracer. Its medium half is a different machine from its surface half, and neither reaches any CPU integrator</td><td>fourteen of the nineteen node-editor rows in the catalogue are graded never viewed, the canvas among them; the five that are not describe what the graph reaches rather than the editor being looked at. Reachability is not viewing, and this row said otherwise until 2026-09-06</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr data-g="c"><td>Structured-light projector</td><td>Four delta geometries with four falloff laws, seven patterns, a beam angle derived from a quad you size; a real next-event light, and on two of the four shapes a real emission disk, so it appears in mirrors</td><td>implemented, unphotographed — this row read <em>seen</em> until 2026-09-06 on the strength of the ToF work, which uses the projector as a carrier and never as a lamp</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr data-g="c"><td>The projector's top-down setup view</td><td>A draggable plan of the whole rig — scene, camera frustum, image and focal planes, the effective quad, the emitter, and the time-of-flight wavefront as an arc for a point source and a straight line for a panel</td><td>implemented, unphotographed; the difference it draws is the one the imaging page currently asserts in prose</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr data-g="c"><td>Photograph-to-light</td><td>A captured pose paints a photo into the tracer’s albedo array, where it then receives correct global illumination</td><td>implemented, unphotographed</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr data-g="b"><td>157 stackable image operators</td><td>Over 21 non-photorealistic modes — Ricci flow and persistent homology share a combo with halftone</td><td>grouped, mostly unphotographed</td><td><span class="st st-b">seen</span></td></tr>
+        <tr data-g="c"><td>Integrator comparison report</td><td>Renders each configuration, writes PNGs and a browsable HTML report, round-trips the run as JSON</td><td>the only working image export in the program &mdash; and nobody has generated a report and looked at it. This row read <em>measured</em> until 2026-09-06; the catalogue grades it never viewed and the catalogue is right, because writing a file is not a measurement</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr data-g="a"><td>Unit test suite</td><td>61 assertions over the shape classifier and the evaluator; exit code 1 on failure</td><td>already a CI gate</td><td><span class="st st-a">measured</span></td></tr>
+        <tr data-g="a"><td>Comp-mode class counters</td><td>Hunt double counts and holes that the mean, the median and a seam shift all miss</td><td>wired to the guard that can actually fire</td><td><span class="st st-a">measured</span></td></tr>
+        <tr data-g="c"><td>Three holographic reconstructions</td><td>Off-axis synthesis, GPU FFT sideband crop, and a WLS-PCG Poisson phase unwrapper</td><td>self-scored in wraps against ground truth</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr data-g="c"><td>Scene-setup advisor</td><td>Ten rows naming each way your interference fringes fail &mdash; nine two-state, one warn-only</td><td>nothing else here diagnoses its own setup</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr data-g="b"><td>Non-standard-state alarm</td><td>The renderer notices it is in a diagnostic configuration and offers a one-click way out</td><td>seen</td><td><span class="st st-b">seen</span></td></tr>
+        <tr data-g="c"><td>Interactive ray tree</td><td>Walk a single path’s branching structure in the viewport</td><td>implemented, unphotographed</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr data-g="b"><td>Cone sphere and volume emitter sampling</td><td>Solid-angle sampling with its legacy alternative kept beside it for comparison</td><td>a variance-only A/B</td><td><span class="st st-b">seen</span></td></tr>
+        <tr data-g="b"><td>Five physics solvers</td><td>Coupled to a path-traced medium — though only the Euler solver feeds the grid</td><td>seen</td><td><span class="st st-b">seen</span></td></tr>
+        <tr data-g="c"><td>Classical vision bank</td><td>GPU Hough with compute non-maximum suppression, epipolar geometry, stereo, four-mode reconstruction</td><td>implemented, unphotographed</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr data-g="b"><td>A finite aperture as a transport object</td><td>Opening the pinhole adds a light-tracer connection strategy to the bidirectional MIS count, so a camera control changes which paths exist</td><td>the strategy counter reads the aperture radius directly; the panel warns in red when it is zero</td><td><span class="st st-b">seen</span></td></tr>
+        <tr data-g="b"><td>Shaped-aperture bokeh</td><td>Circle, polygon, star, cross and ellipse, rejection-sampled in the shader, with blades, tilt, inner radius, arm width and aspect</td><td>seen; GPU only — every CPU integrator rebuilds a bare pinhole</td><td><span class="st st-b">seen</span></td></tr>
+        <tr data-g="d"><td>Two aperture implementations</td><td>A complete C++ lens model beside the megakernel's own, with a different shape set</td><td>every call site passes a zero lens sample, so the C++ aperture sampler has never produced a pixel and its shape enum has no writer outside its own directory</td><td><span class="st st-d">unreachable</span></td></tr>
+        <tr data-g="a"><td>The projection self-check</td><td>The rasterised gather establishes that the camera it was handed really is the inverse of the projection it is about to use</td><td>15 probes at 0.05 px; on failure it refuses and names the camera, and the tracing gather runs instead</td><td><span class="st st-a">measured</span></td></tr>
+        <tr data-g="d"><td>Goldstein branch-cut unwrapping</td><td>A second phase-unwrapping algorithm</td><td>the function body is empty and its selector has no writer</td><td><span class="st st-d">design only</span></td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</section>
+
+<!-- ================= SCOPE ================= -->
+<section id="scope" style="--secc:var(--l680)" data-nav="What this is not">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">Stated, not discovered</p>
+      <h2>What this is not</h2>
+      <div class="scope">
+        <p><b>There is no mesh loading, by decision.</b> Analytic primitives give exact ray intersections, and exactness is the whole point: the hourglass estimator depends on rotational symmetry about the axis from the light to the sphere's centre, and a tessellated sphere destroys it. Spheres, planes, boxes, fog and light is the entire palette, and the scenes are composed for it.</p>
+        <p><b>There is no acceleration structure on the GPU.</b> Every ray tests every primitive. With scenes of a few dozen analytic shapes that is the right trade, and the tree code that exists is used by the photon mapper rather than the tracer.</p>
+        <p><b>There is no dedicated denoiser, no image export from the viewport, and no temporal accumulation across camera moves.</b> No OIDN, no OptiX denoiser, no A&#8209;SVGF: those three names occur in this repository only in the comment that says they are absent, and the two blurs in the post panel are blurs — the panel prints &ldquo;Blurs, not a denoiser. There is no denoiser here.&rdquo; in its own header. The one route a picture takes out of this program is the comparison report, which writes PNGs. A denoiser in particular would undermine the argument: this project is about where the noise comes from, and every comparison on this site is readable because nothing hides it.</p>
+        <p><b>There is no caustic on a surface in the analytic family.</b> It deposits only at scattering vertices in the medium, so the bright pool a real glass ball throws on a floor is absent by construction. It is the largest hole in the family and the next one to fill, and it is named here rather than cropped out of the renders.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<script>
+(function(){
+  var chips = Array.prototype.slice.call(document.querySelectorAll('#ledgerchips .chip'));
+  var rows  = Array.prototype.slice.call(document.querySelectorAll('#ledgertable tbody tr'));
+  if (!chips.length || !rows.length) return;
+  chips.forEach(function(c){
+    c.addEventListener('click', function(){
+      var f = c.dataset.f;
+      chips.forEach(function(o){ o.setAttribute('aria-pressed', String(o === c)); });
+      rows.forEach(function(r){ r.hidden = (f !== 'all' && r.dataset.g !== f); });
+    });
+  });
+})();
+</script>
+
+{{SECTION:_foot.html}}

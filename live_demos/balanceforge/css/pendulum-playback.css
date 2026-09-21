@@ -1,0 +1,15 @@
+.controller-kind-badge{border:1px solid #efce87;border-radius:999px;padding:6px 12px;color:#ffe5ac;background:#372b1bd9;font-size:12px;box-shadow:inset 0 1px 0 #fff4d73b,0 0 18px #ffbf4926}
+.controller-kind-badge[data-phase="acquiring"]{color:#edc4ff;border-color:#ac76d9;background:#33233f}
+.controller-kind-badge[data-phase="holding"]{color:#a1f4d2;border-color:#60c69f;background:#173a30}
+.controller-kind-badge[data-phase="recovering"]{color:#ffd0a6;border-color:#e69552;background:#40291b}
+.pendulum-replay-controls{padding:12px 14px;border-radius:16px;border:1px solid #6489b66b;background:linear-gradient(135deg,#24344b99,#191f31);display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:10px 0}
+.pendulum-replay-controls[hidden],.controller-kind-badge[hidden]{display:none}
+.pendulum-replay-controls small{flex-basis:100%;line-height:1.45;color:#b5c3d6}
+.pendulum-replay-controls .active{box-shadow:0 0 18px #74dbb849;border-color:#94f3c5;color:#c4ffe3;background:#24463a}
+.pendulum-replay-controls label{font-size:12px;display:flex;gap:7px;align-items:center}
+.actuation-study-link{font-size:12px;color:#c8dcf8;text-underline-offset:3px}
+.actuation-study-link:hover{color:#f7e4b0;text-shadow:0 0 12px #edc57460}
+#ppoTrainingStatus{line-height:1.65;color:#dbc8fc}
+.training-throughput[data-playback="true"]>[data-core-mode="training"],.training-throughput:not([data-playback="true"])>[data-core-mode="test"],#coreTestRegion[hidden]{display:none!important}
+.training-throughput #simSpeedTest{width:76px;min-width:55px}
+.training-throughput[data-playback="true"]>.dim-test-mode{opacity:1}

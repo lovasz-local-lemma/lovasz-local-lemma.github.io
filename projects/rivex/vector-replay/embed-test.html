@@ -1,0 +1,21 @@
+<style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style><!doctype html><html lang="en"><meta charset="utf-8"><title>RIVX lifecycle test</title>
+<!-- universal-navigation:start --><link rel="stylesheet" href="../../../portfolio-location.css?v=054b6b462c"><script defer src="../../../portfolio-location.js?v=054b6b462c"></script><script defer src="../../../portfolio-routes.js?v=054b6b462c"></script><script defer src="../../../portfolio-universal-navigation.js?v=054b6b462c"></script><!-- universal-navigation:end --><body style="margin:0;background:#101b1c;color:#eee;font:15px system-ui"><div style="padding:12px">
+<button id="resume">Resume embedded demo</button> <button id="pause">Suspend embedded demo</button>
+<output id="result">Waiting for initial preview</output></div>
+<iframe id="demo" src="index.html?portfolio-preview=1" title="Embedded vector replay" style="width:100%;height:800px;border:0"></iframe>
+<script>
+const frame=document.getElementById('demo');
+const send=visible=>frame.contentWindow.postMessage({type:'portfolio-lab-visibility',visible},location.origin);
+frame.onload=()=>send(false);
+document.getElementById('resume').onclick=()=>send(true);
+document.getElementById('pause').onclick=()=>send(false);
+window.onmessage=e=>{if(e.source===frame.contentWindow&&e.origin===location.origin&&e.data?.type==='portfolio-lab-preview-ready')document.getElementById('result').textContent='Initial preview ready';};
+</script></body></html>

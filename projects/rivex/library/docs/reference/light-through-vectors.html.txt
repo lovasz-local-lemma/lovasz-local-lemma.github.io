@@ -1,0 +1,689 @@
+<title>Light Through Vectors</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+:root{
+  --ground:#F7F5F1; --raised:#FFFFFFCC; --edge:#17151E1A; --edge-lit:#B8791F55;
+  --ink:#17151E; --ink-soft:#433E52; --muted:#5A5566;
+  --accent:#9C6414; --accent-soft:#B8791F1F;
+  --wall-r:#A83F3C; --wall-g:#357041; --spec-a:#B0413E; --spec-b:#8A7A22; --spec-c:#2F6E86;
+  --shadow:0 1px 2px #17151E0F, 0 12px 32px -12px #17151E1F;
+  --measure:66ch;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#0B0A12; --raised:#FFFFFF0B; --edge:#FFFFFF14; --edge-lit:#FFC96B4D;
+    --ink:#ECE6DC; --ink-soft:#C6BFD0; --muted:#948DA3;
+    --accent:#FFC96B; --accent-soft:#FFC96B1A;
+    --wall-r:#C64B4B; --wall-g:#4FA05B; --spec-a:#E0605C; --spec-b:#E8C55A; --spec-c:#5EC0DE;
+    --shadow:0 1px 0 #FFFFFF0A inset, 0 24px 64px -24px #000000CC;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0B0A12; --raised:#FFFFFF0B; --edge:#FFFFFF14; --edge-lit:#FFC96B4D;
+  --ink:#ECE6DC; --ink-soft:#C6BFD0; --muted:#948DA3;
+  --accent:#FFC96B; --accent-soft:#FFC96B1A;
+  --wall-r:#C64B4B; --wall-g:#4FA05B; --spec-a:#E0605C; --spec-b:#E8C55A; --spec-c:#5EC0DE;
+  --shadow:0 1px 0 #FFFFFF0A inset, 0 24px 64px -24px #000000CC;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--ground); color:var(--ink);
+  font-family:"IBM Plex Sans",ui-sans-serif,system-ui,sans-serif;
+  font-size:17px; line-height:1.65; -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1060px;margin:0 auto;padding:0 24px}
+.prose{max-width:var(--measure)}
+h1,h2,h3{font-family:Fraunces,Georgia,serif;font-weight:600;text-wrap:balance;margin:0}
+h1{font-size:clamp(2.6rem,6.2vw,4.3rem);line-height:1.02;letter-spacing:-.02em}
+h2{font-size:clamp(1.7rem,3.2vw,2.3rem);line-height:1.14;letter-spacing:-.01em}
+h3{font-size:1.1rem;font-weight:600;letter-spacing:-.005em;margin:1.9rem 0 .5rem}
+p{margin:0 0 1.1em}
+a{color:var(--accent)}
+strong{font-weight:600;color:var(--ink)}
+em{font-style:italic}
+code,.mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.88em}
+code{background:var(--accent-soft);padding:.1em .35em;border-radius:3px;color:var(--ink)}
+.eyebrow{
+  font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--muted);margin:0 0 .9rem
+}
+.hero{position:relative;min-height:80vh;display:flex;align-items:flex-end;overflow:hidden}
+#front{position:absolute;inset:0;width:100%;height:100%;display:block}
+.hero-in{position:relative;padding:0 0 5rem;width:100%}
+.hero h1{max-width:14ch}
+.hero .lede{max-width:54ch;font-size:1.16rem;color:var(--ink-soft);margin-top:1.4rem}
+.rule{height:1px;background:var(--edge);border:0;margin:0}
+.panel{
+  background:var(--raised);
+  border:1px solid var(--edge);
+  border-radius:14px;
+  box-shadow:var(--shadow);
+  backdrop-filter:blur(16px) saturate(1.3);
+  -webkit-backdrop-filter:blur(16px) saturate(1.3);
+  padding:2rem clamp(1.2rem,3vw,2.4rem);
+  position:relative;
+}
+.panel::before{
+  content:"";position:absolute;inset:0;border-radius:14px;pointer-events:none;
+  background:linear-gradient(140deg,var(--edge-lit),transparent 38%,transparent 64%,var(--edge-lit));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;padding:1px;
+}
+section{padding:4.5rem 0}
+.dive{margin:0 0 2.4rem}
+.hook{font-size:1.14rem;color:var(--ink-soft);max-width:58ch;margin:.9rem 0 0}
+.chip{
+  display:inline-flex;align-items:center;gap:.45em;
+  font-family:"IBM Plex Mono",monospace;font-size:.68rem;letter-spacing:.08em;
+  text-transform:uppercase;padding:.24em .65em;border-radius:99px;
+  border:1px solid var(--edge);color:var(--muted);white-space:nowrap;
+}
+.chip b{font-weight:500;color:var(--ink-soft)}
+.chip::before{content:"";width:6px;height:6px;border-radius:99px;background:currentColor}
+.chip.gate{color:var(--wall-g)}
+.chip.code{color:var(--accent)}
+.chip.cmt{color:var(--wall-r)}
+.chips{display:flex;flex-wrap:wrap;gap:.5rem;margin:1.6rem 0 0}
+.figs{display:grid;gap:1px;background:var(--edge);border:1px solid var(--edge);border-radius:10px;overflow:hidden;margin:1.9rem 0 0}
+.fig{background:var(--ground);padding:.95rem 1.1rem;display:grid;grid-template-columns:minmax(0,11rem) 1fr;gap:1.1rem;align-items:baseline}
+.fig .v{font-family:"IBM Plex Mono",monospace;font-size:.9rem;color:var(--accent);font-variant-numeric:tabular-nums;word-break:break-word}
+.fig .m{font-size:.94rem;color:var(--ink-soft)}
+@media(max-width:640px){.fig{grid-template-columns:1fr;gap:.3rem}}
+.limits{margin:1.9rem 0 0;padding:1.1rem 1.3rem;border-left:2px solid var(--wall-r);background:var(--accent-soft);border-radius:0 8px 8px 0}
+.limits h3{font-family:"IBM Plex Sans",sans-serif;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 .6rem}
+.limits ul{margin:0;padding-left:1.1rem}
+.limits li{margin:.45rem 0;color:var(--ink-soft);font-size:.95rem}
+.eq{
+  font-family:"IBM Plex Mono",monospace;font-size:.95rem;line-height:1.5;
+  padding:1rem 1.2rem;border-radius:8px;background:var(--accent-soft);
+  border:1px solid var(--edge);margin:1.3rem 0;overflow-x:auto;color:var(--ink)
+}
+.eq .note{display:block;font-family:"IBM Plex Sans",sans-serif;font-size:.86rem;line-height:1.6;color:var(--muted);margin-top:.6rem;white-space:normal}
+nav.toc{position:sticky;top:0;z-index:5;background:var(--ground);border-bottom:1px solid var(--edge)}
+nav.toc ul{display:flex;gap:1.4rem;list-style:none;margin:0 auto;padding:.85rem 24px;max-width:1060px;overflow-x:auto}
+nav.toc a{font-family:"IBM Plex Mono",monospace;font-size:.76rem;letter-spacing:.05em;text-decoration:none;color:var(--muted);white-space:nowrap}
+nav.toc a:hover,nav.toc a:focus-visible{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:3px}
+.spectral{background:linear-gradient(90deg,var(--spec-a),var(--spec-b),var(--spec-c));-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:600}
+footer{padding:3.5rem 0 6rem;color:var(--muted);font-size:.94rem}
+footer .prose p{color:var(--muted)}
+.reveal{opacity:0;transform:translateY(14px);transition:opacity .7s ease,transform .7s ease}
+.reveal.in{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}}
+/* theme switch */
+.themer{display:flex;gap:2px;align-items:center;margin-left:auto;padding:2px;border:1px solid var(--edge);border-radius:99px;background:var(--raised)}
+.theme-btn{
+  font-family:"IBM Plex Mono",monospace;font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;
+  background:none;border:0;color:var(--muted);cursor:pointer;padding:.3em .7em;border-radius:99px;line-height:1.4;
+}
+.theme-btn[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent)}
+.theme-btn:hover{color:var(--ink)}
+/* figures */
+figure{margin:2.2rem 0 0;max-width:100%}
+figure svg{display:block;width:100%;max-width:640px;height:auto;color:var(--ink-soft)}
+figcaption{font-size:.9rem;color:var(--muted);margin-top:.8rem;max-width:60ch;line-height:1.6}
+figcaption b{color:var(--ink-soft);font-weight:600}
+.svg-accent{color:var(--accent)}
+.shot{
+  margin:2.2rem 0 0;border:1px dashed var(--edge);border-radius:12px;
+  background:repeating-linear-gradient(135deg,transparent,transparent 9px,var(--accent-soft) 9px,var(--accent-soft) 10px);
+  padding:2.2rem 1.4rem;text-align:center;
+}
+.shot .tag{
+  font-family:"IBM Plex Mono",monospace;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--accent);display:block;margin-bottom:.5rem
+}
+.shot .what{font-size:.95rem;color:var(--ink-soft);max-width:52ch;margin:0 auto;line-height:1.6}
+.shot .how{font-family:"IBM Plex Mono",monospace;font-size:.78rem;color:var(--muted);margin-top:.7rem}
+
+</style>
+
+<header class="hero">
+  <canvas id="front" aria-hidden="true"></canvas>
+  <div class="wrap hero-in">
+    <p class="eyebrow">A renderer that draws 3D through a 2D vector engine</p>
+    <h1>Light Through Vectors</h1>
+    <p class="lede">A glass ball with no shader. A lightmap that conserves energy without normalising anything. Four rounds of &ldquo;the renderer is broken&rdquo; that were all geometry. How this system works &mdash; and how it decides what is true.</p>
+  </div>
+</header>
+
+<nav class="toc" aria-label="Sections">
+  <ul>
+    <li><a href="#spine">The spine</a></li>
+    <li><a href="#glass">Glass</a></li>
+    <li><a href="#bake">The bake</a></li>
+    <li><a href="#splats">Splats</a></li>
+    <li><a href="#riv">Writing .riv</a></li>
+    <li><a href="#truth">What is true</a></li>
+    <li class="themer" role="group" aria-label="Colour theme">
+      <button class="theme-btn" data-mode="system" aria-pressed="true">Auto</button>
+      <button class="theme-btn" data-mode="light" aria-pressed="false">Light</button>
+      <button class="theme-btn" data-mode="dark" aria-pressed="false">Dark</button>
+    </li>
+  </ul>
+</nav>
+
+<main class="wrap">
+
+<section id="intro">
+  <div class="prose">
+    <p>This repository is a Rive-compatible vector player that grew a second renderer, and then a 3D engine to feed them both. That sounds like duplication. It is closer to an experiment under controlled conditions: <strong>one scene description is rasterised three ways</strong> &mdash; through a hand-written GL pipeline, through the stock Rive runtime, and through a hand-rolled serialiser that writes the bytes of a real <code>.riv</code> file &mdash; and the three can be compared pixel for pixel on the same frame. Because every arm consumes the same list, a new primitive is written once and inherited everywhere, and a disagreement between arms is a measurable defect rather than a matter of opinion.</p>
+    <p>What makes it worth reading is not the plumbing but the derivations inside it. A glass ball is not a shader; it is a texture whose every texel is one ray solved in closed form, and the absence of a total-internal-reflection branch is a two-line algebraic collapse rather than an optimisation. A photon lightmap conserves energy not because a Gaussian was normalised analytically but because each deposit divides by the weights it actually managed to deposit. An animated export keys node transforms rather than path vertices &mdash; and under an orthographic camera those transform channels <em>are</em> the exact analytic screen shape, so the fast fix and the correct fix turn out to be the same fix.</p>
+    <p>The third unusual thing is this project&rsquo;s relationship with its own mistakes. Several of the most instructive mechanisms here are corrections, and they are left in place rather than tidied away.</p>
+  </div>
+  <div class="chips">
+    <span class="chip gate"><b>gate-asserted</b> &mdash; a test pins it</span>
+    <span class="chip code"><b>code-read</b> &mdash; the implementation says so</span>
+    <span class="chip cmt"><b>comment-only</b> &mdash; weakest evidence</span>
+  </div>
+  <div class="prose"><p style="margin-top:1.2rem;color:var(--muted);font-size:.95rem">That distinction is not pedantry. This codebase has shipped a comment asserting both render arms honoured an opacity one shader never read; another calling a hardware clamp a tonemap after the target became 16-bit float; and a constant whose banner carried three different values at once.</p></div>
+</section>
+
+<hr class="rule">
+
+<section id="spine">
+  <p class="eyebrow">The spine</p>
+  <h2>Five stages, one vocabulary</h2>
+  <div class="prose">
+    <p>A render is described by a node graph. The graph compiles to an ordered execution plan. Each technique node emits a layer. The layers flatten into one flat list of drawables. Three independent consumers rasterise or serialise that identical list. Everything else hangs off that spine.</p>
+    <p>Wires carry one of four types &mdash; <strong>Geometry</strong> (a filtered set of scene surfaces), <strong>Camera</strong> (the live orbit pose), <strong>Layer</strong> (a rendered slice), and <strong>Clock</strong> (a scalar time-of-flight in nanoseconds). A Layer satisfies a Geometry or Camera input, because a Layer carries that context &mdash; but Clock is deliberately excluded from that widening, so a clock wire cannot cross-contaminate another port. The header calls this <em>free isolation</em>.</p>
+    <p>The subtlety is in what counts as <em>declared</em>. Optional Clock inputs are intentionally absent from each node&rsquo;s port spec, because declaring them would make the &ldquo;every input must be connected&rdquo; rule require them, and that would break every clock-free photon subgraph. Membership lives in one exported predicate &mdash; adopted after three stale copies of the same list quietly cost two node types their clock sockets.</p>
+    <p>The plan also tags each node <em>static</em> or <em>dynamic</em>, which is what lets an orbit avoid recomputing anything pose-free. A baked-faces node takes a Camera input yet is tagged static by type, because its bake does not depend on the pose &mdash; the camera only re-projects a cheap quad over it.</p>
+  </div>
+  <div class="figs">
+    <div class="fig"><span class="v">34</span><span class="m">node types, <code>Scene = 0</code> through <code>Cel = 33</code>, pinned by a gate on the last ordinal so appending one is a visible act rather than silent drift</span></div>
+    <div class="fig"><span class="v">15</span><span class="m">layer-consuming types that fully re-express their input, and so take their own export tier rather than the weakest-link fold &mdash; not the three named by two stale comments</span></div>
+    <div class="fig"><span class="v">64</span><span class="m">cap on Display inputs. Unbounded, a crafted file could drive a ~50&nbsp;million-entry allocation loop in the editor canvas</span></div>
+  </div>
+</section>
+
+<hr class="rule">
+
+<section id="glass">
+  <div class="dive">
+    <p class="eyebrow">Deep dive &mdash; refraction</p>
+    <h2>The glass ball is a texture, and its ray problem has no branches</h2>
+    <p class="hook">A glass sphere here is a 128&times;128 texture rebuilt on the CPU when the camera settles, drawn as a single quad. There is no glass shader. And the reason there is no total-internal-reflection branch is not an optimisation &mdash; it is an algebraic collapse that makes TIR impossible at a sphere&rsquo;s exit.</p>
+  </div>
+
+  <div class="panel">
+    <div class="prose">
+      <h3>Why a texture at all</h3>
+      <p>A closed-form GLSL glass ball would exist only on the GL arm. As a texture on a quad, the same appearance is drawn by the depth-buffer renderer, by the stock Rive runtime, and can be written into a <code>.riv</code> file. That single decision is why glass survives export.</p>
+      <p>The build is keyed on a hash folding the <em>quantised</em> eye position, the ball list, refraction mode, bounce depth and blur roughness. An orbit re-solves roughly four thousand rays per moving frame and re-uploads one small texture &mdash; and never touches the walls, whose bake is pose-free.</p>
+
+      <h3>The environment lookup is exact, not approximated</h3>
+      <p>Box-projected environment mapping is normally a parallax correction applied to a cubemap, to fake a roughly box-shaped room. Here <strong>the environment <em>is</em> the room box</strong>, so intersecting the reflected ray with it is the first bounce&rsquo;s true geometry. That one observation deletes an entire asset class: no cube capture, no six extra passes, no seam filtering.</p>
+      <p>Sampling happens in linear and is tone-mapped afterwards, which is not a stylistic preference. At the midpoint of a <code>4.0 | 0.01</code> linear pair, tone(mean) is 212 where mean(tone) is 131 &mdash; a gap of 81 code values.</p>
+
+      <h3>The collapse</h3>
+      <p>At entry with outward normal <em>n</em> and view direction <em>w</em>, write c&#7522; = &minus;n&middot;w and &eta; = 1/ior, so the transmitted cosine is c&#8348; = &radic;(1 &minus; &eta;&sup2;(1 &minus; c&#7522;&sup2;)). Because both radii of a sphere make the same angle with a chord, the interior triangle is isoceles &mdash; and everything follows from that:</p>
+      <div class="eq">
+s = 2R &middot; c&#8348;
+<span class="note">Every chord has this same length &mdash; including every internal one. The incidence cosine at the exit is that same c&#8348;, so the exit discriminant is k&#8322; = 1 &minus; ior&sup2;(1 &minus; c&#8348;&sup2;) = 1 &minus; ior&sup2;&eta;&sup2;(1 &minus; c&#7522;&sup2;) = <strong>c&#7522;&sup2;, exactly</strong>. The exit angle equals the entry angle and the outgoing ray is always a valid refraction. A general routine needs a total-internal-reflection branch; a sphere entered from outside forces the interior sine below 1/n, so that branch would be dead code &mdash; costing a compare per texel and inviting a wrong fallback.</span>
+      </div>
+      <p>The isoceles property <em>propagates</em>: every internal chord is the same length, every internal incidence is the same angle, every exit discriminant is the same value. That is what makes the entire Fresnel tail closed-form, and the internal-bounce loop three branch-free lines &mdash; reflect, step one chord, exit.</p>
+
+
+      <figure>
+        <svg viewBox="0 0 480 250" role="img" aria-label="Cross-section of a glass sphere: a ray enters, crosses a chord of length 2R cos theta-t, and exits at the same angle it entered, because the interior triangle is isoceles.">
+          <defs>
+            <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0 0 L10 5 L0 10 z" fill="currentColor"/>
+            </marker>
+          </defs>
+          <circle cx="240" cy="150" r="95" fill="none" stroke="currentColor" stroke-opacity=".35"/>
+          <circle cx="240" cy="150" r="2.5" fill="currentColor" fill-opacity=".5"/>
+          <text x="248" y="156" font-size="12" fill="currentColor" fill-opacity=".6">C</text>
+          <!-- outward normals at the two interface points -->
+          <line x1="154" y1="110" x2="100" y2="85" stroke="currentColor" stroke-opacity=".45" stroke-dasharray="4 3"/>
+          <line x1="326" y1="110" x2="380" y2="85" stroke="currentColor" stroke-opacity=".45" stroke-dasharray="4 3"/>
+          <text x="76" y="80" font-size="12" fill="currentColor" fill-opacity=".7">n</text>
+          <text x="386" y="80" font-size="12" fill="currentColor" fill-opacity=".7">n&#8322;</text>
+          <!-- incoming and outgoing rays -->
+          <line x1="52" y1="52" x2="154" y2="110" stroke="currentColor" marker-end="url(#ah)"/>
+          <line x1="326" y1="110" x2="428" y2="52" stroke="currentColor" marker-end="url(#ah)"/>
+          <text x="44" y="44" font-size="12" fill="currentColor">w</text>
+          <!-- the chord: the element the whole claim rests on -->
+          <g class="svg-accent">
+            <line x1="154" y1="110" x2="326" y2="110" stroke="currentColor" stroke-width="2"/>
+            <circle cx="154" cy="110" r="3.5" fill="currentColor"/>
+            <circle cx="326" cy="110" r="3.5" fill="currentColor"/>
+            <text x="196" y="100" font-size="13" fill="currentColor">s = 2R&#183;cos&#952;&#8348;</text>
+          </g>
+          <!-- equal angle marks -->
+          <path d="M170 108 a18 18 0 0 0 -6 -12" fill="none" stroke="currentColor" stroke-opacity=".8"/>
+          <path d="M310 108 a18 18 0 0 1 6 -12" fill="none" stroke="currentColor" stroke-opacity=".8"/>
+          <text x="176" y="126" font-size="12" fill="currentColor">&#952;&#8348;</text>
+          <text x="296" y="126" font-size="12" fill="currentColor">&#952;&#8348;</text>
+          <path d="M138 96 a20 20 0 0 1 8 -14" fill="none" stroke="currentColor" stroke-opacity=".8"/>
+          <path d="M342 96 a20 20 0 0 0 -8 -14" fill="none" stroke="currentColor" stroke-opacity=".8"/>
+          <text x="126" y="104" font-size="12" fill="currentColor">&#952;&#7522;</text>
+          <text x="348" y="104" font-size="12" fill="currentColor">&#952;&#7522;</text>
+          <text x="130" y="212" font-size="12" fill="currentColor" fill-opacity=".75">entry</text>
+          <text x="322" y="212" font-size="12" fill="currentColor" fill-opacity=".75">exit &#8212; same angle</text>
+        </svg>
+        <figcaption><b>Both radii make the same angle with the chord.</b> That single fact forces the exit incidence to equal the interior angle, which collapses the exit discriminant to c&#7522;&#178; and makes total internal reflection impossible for a ray entering from outside. The same isoceles property holds for every internal bounce, so the whole Fresnel tail stays closed-form.</figcaption>
+      </figure>
+
+      <h3>Why the room appears upside down</h3>
+      <p>The ball is a thick lens of focal length f = nR / (2(n&minus;1)), which at n = 1.5 is 1.5R. The walls sit around 2.5R. Everything beyond the focal length images <strong>real and inverted</strong> &mdash; so the upside-down room is a lens doing its job, not a bug to be fixed.</p>
+      <p>With per-channel IOR the three <span class="spectral">wavelengths</span> exit at slightly different angles and the rim picks up chromatic fringes, out of the same closed form.</p>
+    </div>
+
+
+      <div class="shot">
+        <span class="tag">Screenshot &mdash; to add</span>
+        <p class="what">The glass ball as the renderer draws it: the room visibly <em>inverted</em> through the sphere, the bright Fresnel rim in the outer tenth of the disc, and the chromatic fringes that per-channel IOR produces at the edge.</p>
+        <p class="how">Presets &rarr; Specular &amp; look &rarr; &ldquo;Glass: refraction + dispersion&rdquo;</p>
+      </div>
+    <div class="figs">
+      <div class="fig"><span class="v">k&#8322; = c&#7522;&sup2;</span><span class="m">the exit discriminant, collapsed &mdash; checked numerically across a 39-angle sweep out to about 89&deg;</span></div>
+      <div class="fig"><span class="v">128 / 64</span><span class="m">texture side when settled / while the camera moves. An export request forces the full tier, so a <code>.riv</code> never captures the draft</span></div>
+      <div class="fig"><span class="v">0.02</span><span class="m">world units per eye quantum in the cache key &mdash; what makes an orbit re-solve in steps rather than thrash every frame</span></div>
+      <div class="fig"><span class="v">F&#8320; = 0.04</span><span class="m">Schlick dielectric. Along the disc radius F runs 0.0400 at centre, 0.161 at 90%, 0.863 at 99% &mdash; the bright rim is the outer tenth</span></div>
+      <div class="fig"><span class="v">1.485 / 1.500 / 1.520</span><span class="m">per-channel IOR for dispersion (crown glass)</span></div>
+      <div class="fig"><span class="v">25% &rarr; 10.6%</span><span class="m">energy left behind by truncating the internal reflection series at zero orders versus two</span></div>
+    </div>
+
+    <div class="limits">
+      <h3>Stated limits</h3>
+      <ul>
+        <li><strong>Fresnel is not dispersed.</strong> F is computed once and reused for all three channels while only the IOR varies. Physically F&#8320; would differ by about 6% relative across them. No comment states this.</li>
+        <li><strong>The IOR is not a scene property.</strong> The call site hard-codes 1.5, so the focal-length derivation describes about the only glass this renderer has.</li>
+        <li><strong>The environment walk ignores room rotation.</strong> A rotated room would silently read the wrong wall. The rooms are axis-aligned, so it has never mattered.</li>
+        <li><strong>The texel map is orthographic while shading is perspective.</strong> Stated as an approximation, exact in the limit &mdash; and it is exactly what keeps the texture a fixed, cacheable square grid.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<hr class="rule">
+
+<section id="bake">
+  <div class="dive">
+    <p class="eyebrow">Deep dive &mdash; baking</p>
+    <h2>A lightmap that conserves energy without ever normalising a Gaussian</h2>
+    <p class="hook">The splat kernel&rsquo;s radius is not a brightness knob &mdash; and the reason is that nothing here is normalised analytically. Each deposit divides by the weights it actually managed to deposit, so conservation survives any kernel shape, any grid resolution, and a kernel clipped in half at a wall corner.</p>
+  </div>
+
+  <div class="panel">
+    <div class="prose">
+      <h3>The discrete renormalisation</h3>
+      <p>The obvious way to conserve energy under a Gaussian splat is to normalise the Gaussian analytically and hope the discretisation is fine enough. This does the opposite. It stamps the kernel, sums the weights that actually landed in texels, and divides by <em>that</em>.</p>
+      <div class="eq">
+scale = invN / (wSum &middot; texelArea)
+<span class="note">The sum over kept texels of K&middot;texelArea is then exactly 1 &mdash; by construction, not by analysis. A deposit whose lobe is two-thirds outside the wall at a corner deposits exactly the same total energy as one in the middle of the wall. That is the difference between a normalisation that is true <em>if the discretisation is fine</em> and one that is simply true.</span>
+      </div>
+      <p>It is also why the radius can be exposed as a look control at all: a gate shows that halving it leaves the baked mean <strong>bit-identical</strong>. A kernel redistributes light; it does not create it.</p>
+
+
+      <figure>
+        <svg viewBox="0 0 480 210" role="img" aria-label="Two Gaussian stamps on a texel grid: one in the wall interior, one clipped by the wall edge. Both deposit the same total energy because each divides by the weights it actually deposited.">
+          <g stroke="currentColor" stroke-opacity=".22" fill="none">
+            <path d="M20 40 h180 M20 68 h180 M20 96 h180 M20 124 h180 M20 152 h180"/>
+            <path d="M20 40 v112 M48 40 v112 M76 40 v112 M104 40 v112 M132 40 v112 M160 40 v112 M188 40 v112"/>
+            <path d="M280 40 h180 M280 68 h180 M280 96 h180 M280 124 h180 M280 152 h180"/>
+            <path d="M280 40 v112 M308 40 v112 M336 40 v112 M364 40 v112 M392 40 v112 M420 40 v112"/>
+          </g>
+          <!-- interior stamp -->
+          <circle cx="104" cy="96" r="40" fill="currentColor" fill-opacity=".10" stroke="currentColor" stroke-opacity=".5" stroke-dasharray="4 3"/>
+          <circle cx="104" cy="96" r="15" fill="currentColor" fill-opacity=".18"/>
+          <text x="104" y="176" font-size="12" text-anchor="middle" fill="currentColor" fill-opacity=".8">interior</text>
+          <!-- clipped stamp: the wall edge cuts it -->
+          <g class="svg-accent">
+            <line x1="420" y1="30" x2="420" y2="162" stroke="currentColor" stroke-width="2.5"/>
+            <text x="428" y="28" font-size="12" fill="currentColor">wall edge</text>
+          </g>
+          <circle cx="406" cy="96" r="40" fill="currentColor" fill-opacity=".10" stroke="currentColor" stroke-opacity=".5" stroke-dasharray="4 3"/>
+          <circle cx="406" cy="96" r="15" fill="currentColor" fill-opacity=".18"/>
+          <text x="392" y="176" font-size="12" text-anchor="middle" fill="currentColor" fill-opacity=".8">clipped at a corner</text>
+          <text x="104" y="196" font-size="12.5" text-anchor="middle" fill="currentColor">deposits &#934;/N</text>
+          <text x="392" y="196" font-size="12.5" text-anchor="middle" fill="currentColor">deposits &#934;/N</text>
+          <text x="240" y="100" font-size="15" text-anchor="middle" fill="currentColor" fill-opacity=".55">=</text>
+        </svg>
+        <figcaption><b>The stamp on the right loses a third of its lobe over the wall edge, and still deposits exactly the same energy.</b> Because the divisor is the sum of the weights that actually landed in texels, not an analytic normalisation, conservation holds for any kernel shape, any grid resolution, and any clipping &mdash; rather than holding only when the discretisation is fine enough.</figcaption>
+      </figure>
+
+      <h3>The texel&ndash;world map must be an exact inverse</h3>
+      <p>A texel&rsquo;s coordinates and the scene pattern&rsquo;s coordinates must name the same surface point, or baked light lands beside the pattern it belongs to. The round trip is gated to within 1e-5 across two rooms, six faces and five samples &mdash; including a rotated, non-uniformly scaled box.</p>
+
+      <h3>The display tail, and why the dither goes last</h3>
+      <p>Cavity, then exposure, then linear radiance, then tone and dither into an 8-bit store. The ordered dither is applied <em>after</em> the tone transform, because its job is to de-band the quantisation step; its offsets have mean exactly zero, so it moves no radiometric claim.</p>
+      <p>This is worth stating plainly because an earlier round claimed the dither had fixed a banding artifact. Two measurements showed the banding was a depth fight between coplanar geometry, and the retraction was left in the source rather than quietly deleted.</p>
+
+      <h3>Becoming a Rive texture</h3>
+      <p>Each baked face is uploaded twice &mdash; once as a GL texture for the native arm, once as a runtime image for Rive &mdash; because both arms must be able to draw the same wall. The honest note that ships alongside it: the real GPU footprint is about twice the modelled budget.</p>
+    </div>
+
+
+      <div class="shot">
+        <span class="tag">Screenshot &mdash; to add</span>
+        <p class="what">Two frames of the same baked wall at different clock times, showing the light-in-flight sweep: the wavefront reaching the far wall, then the first indirect bounce arriving after it.</p>
+        <p class="how">Presets &rarr; Light in flight &rarr; any TOF tile, then drag the Clock&rsquo;s time</p>
+      </div>
+    <div class="figs">
+      <div class="fig"><span class="v">&sigma; = r / 2&radic;2</span><span class="m">taken verbatim from the on-screen photon-dot splat, so the baked and live kernels are provably the same Gaussian</span></div>
+      <div class="fig"><span class="v">&lt; 2e-4</span><span class="m">energy-conservation bound for a known deposit &mdash; re-asserted for a corner deposit whose kernel is clipped by the wall edge</span></div>
+      <div class="fig"><span class="v">&lt; 1e-5</span><span class="m">worst texel-to-world round-trip error, including a rotated non-uniform box</span></div>
+      <div class="fig"><span class="v">15/16 LSB</span><span class="m">dither peak-to-peak, mean exactly zero, applied after the tone transform</span></div>
+      <div class="fig"><span class="v">bit-identical</span><span class="m">the baked mean when the kernel radius is halved &mdash; the strongest available statement that radius is not a brightness knob</span></div>
+    </div>
+
+    <div class="limits">
+      <h3>Stated limits</h3>
+      <ul>
+        <li><strong>The partition law is a law of the splat, not of the wall you see.</strong> The analytic direct term is added to the integrated grid only, never to the time slices &mdash; and it is the dominant term, so the shipped integrated texture is not the sum of the shipped slices.</li>
+        <li><strong>The 8-bit slices do not sum even where the linear grids do</strong>, because the tone curve is nonlinear. The linear half is gated; the 8-bit non-summation is asserted only in tooltip text.</li>
+        <li><strong>The bake refuses a rotated room</strong>, by its own typed reason code, because the splat has no inverse rotation and would stamp into the wrong texels.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<hr class="rule">
+
+<section id="splats">
+  <div class="dive">
+    <p class="eyebrow">Deep dive &mdash; gaussian splats</p>
+    <h2>Four rounds of &ldquo;the renderer is wrong&rdquo;, and four times it was geometry</h2>
+    <p class="hook">Round splats. Unobserved ceilings. Floaters. Fog. Each arrived as a rendering complaint, and each turned out to be a property of camera positions, seed points, capture flatness, or a diagnostic reading the wrong ratio.</p>
+  </div>
+
+  <div class="panel">
+    <div class="prose">
+      <h3>The ring that could not see the ceiling</h3>
+      <p>Dense fits came back with holes at every quality setting. The rig was a ring: twenty-four cameras on <em>one circle at one elevation</em>, which is a 1-DOF sample of a 2-DOF viewing sphere. It interpolates beautifully along the ring and extrapolates the moment you tilt off it. Surfaces no camera ever sees receive no gradient and therefore no gaussians &mdash; holes by construction, not by undertraining.</p>
+      <p>The tell was a reported PSNR of 45.8, implausibly good for a real fit: the images were <em>easy</em>. The fix was a full-sphere layout, and the gate states the property as arithmetic rather than as a picture &mdash; a ring&rsquo;s eye-height span is under 1e-3, where a sphere&rsquo;s exceeds 4.0.</p>
+
+
+      <figure>
+        <svg viewBox="0 0 480 220" role="img" aria-label="A ring rig places every camera at one elevation, leaving the ceiling unobserved; a sphere rig spreads cameras over two degrees of freedom and covers it.">
+          <g fill="none" stroke="currentColor" stroke-opacity=".3">
+            <circle cx="120" cy="112" r="72"/><ellipse cx="120" cy="112" rx="72" ry="22"/>
+            <circle cx="360" cy="112" r="72"/><ellipse cx="360" cy="112" rx="72" ry="22"/>
+          </g>
+          <g fill="currentColor">
+            <circle cx="48" cy="112" r="3.5"/><circle cx="84" cy="122" r="3.5"/><circle cx="120" cy="126" r="3.5"/>
+            <circle cx="156" cy="122" r="3.5"/><circle cx="192" cy="112" r="3.5"/><circle cx="156" cy="101" r="3.5"/>
+            <circle cx="120" cy="98" r="3.5"/><circle cx="84" cy="101" r="3.5"/>
+          </g>
+          <g fill="currentColor">
+            <circle cx="288" cy="112" r="3.5"/><circle cx="432" cy="112" r="3.5"/><circle cx="360" cy="126" r="3.5"/>
+            <circle cx="360" cy="98" r="3.5"/><circle cx="316" cy="70" r="3.5"/><circle cx="404" cy="70" r="3.5"/>
+            <circle cx="360" cy="46" r="3.5"/><circle cx="322" cy="152" r="3.5"/><circle cx="398" cy="152" r="3.5"/>
+            <circle cx="360" cy="176" r="3.5"/><circle cx="304" cy="126" r="3.5"/><circle cx="416" cy="98" r="3.5"/>
+          </g>
+          <g class="svg-accent">
+            <path d="M78 52 h84" stroke="currentColor" stroke-width="2" stroke-dasharray="5 4" fill="none"/>
+            <text x="120" y="42" font-size="12" text-anchor="middle" fill="currentColor">ceiling: never observed</text>
+          </g>
+          <text x="120" y="204" font-size="12.5" text-anchor="middle" fill="currentColor">ring &#8212; 1&#8209;DOF, eye-height span &lt; 1e&#8209;3</text>
+          <text x="360" y="204" font-size="12.5" text-anchor="middle" fill="currentColor">sphere &#8212; 2&#8209;DOF, span &gt; 4.0</text>
+        </svg>
+        <figcaption><b>A ring is a one-dimensional sample of a two-dimensional viewing sphere.</b> It interpolates beautifully along itself, which is why the fit reported an implausible PSNR of 45.8 &mdash; the images were easy. Surfaces no camera ever sees receive no gradient and therefore no gaussians, so the holes were built in from the rig, not from undertraining.</figcaption>
+      </figure>
+
+      <h3>Anisotropy is a product of training, not a render setting</h3>
+      <p>Clouds came back looking round, and the renderer was the natural suspect. The measurement was that anisotropy <em>grows with optimisation</em> &mdash; about 1.34 at 500 steps against 2.78 at 5000. A second finding explained the rest: an unpersisted &ldquo;fast&rdquo; default had silently overwritten a 30k-step fit.</p>
+      <p>The diagnostic itself had been lying. A single needle ratio reads about 1.0 for a healthy <em>plate</em>, which is exactly the shape a surface fit should produce &mdash; so the old verdict accused the renderer precisely when the trainer was working. Two ratios separate them, because a plate is flat but not needly.</p>
+
+      <h3>The capture was the problem</h3>
+      <p>A 256-view dense capture measured <strong>0.32% gradient content</strong> &mdash; 98.9% flat, 4.6 distinct colours per image &mdash; against 54.7% for a properly shaded render. A gaussian fit on flat fill can only ever be flat.</p>
+    </div>
+
+
+      <div class="shot">
+        <span class="tag">Screenshot &mdash; to add</span>
+        <p class="what">The same scene fitted from a ring rig and from a full-sphere rig, side by side &mdash; the holes in the ring fit are the argument the diagram above makes geometrically.</p>
+        <p class="how">Presets &rarr; Gsplat: train from any chain, versus the DENSE rig tile</p>
+      </div>
+    <div class="figs">
+      <div class="fig"><span class="v">2&radic;2 &sigma;</span><span class="m">quad half-extent, because the fragment gaussian equals the screen-space covariance form exactly under that mapping</span></div>
+      <div class="fig"><span class="v">0.3 px&sup2;</span><span class="m">screen-covariance dilation matching the reference renderer; the minor eigenvalue is then floored at 0.09 px&sup2;</span></div>
+      <div class="fig"><span class="v">0.018315639</span><span class="m">the exp(&minus;4) fragment pedestal, subtracted and renormalised so the quad edge reaches zero without a visible seam</span></div>
+      <div class="fig"><span class="v">1.34 &rarr; 2.78</span><span class="m">median anisotropy at 500 versus 5000 training steps &mdash; the number that moved the blame from the renderer to the fit</span></div>
+      <div class="fig"><span class="v">0.32% / 54.7%</span><span class="m">gradient content in the dense capture versus a properly shaded render</span></div>
+    </div>
+
+    <div class="limits">
+      <h3>Stated limits</h3>
+      <ul>
+        <li><strong>Most figures here are recorded measurements, not gated constants</strong> &mdash; the PSNR ladder, the seed comparison, the floater counts. Only the two ratios pushed through the verdict are re-driven by a gate.</li>
+        <li><strong>The thin axis is dropped in the isotropic radius:</strong> a plate renders as a disc of the right <em>area</em>, not as a plate. Only the covariance path un-spheres it.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<hr class="rule">
+
+<section id="riv">
+  <div class="dive">
+    <p class="eyebrow">Deep dive &mdash; export</p>
+    <h2>Writing real Rive files by hand, where a valid file is a wrong file</h2>
+    <p class="hook">The worst bug in this module produces a perfectly valid file. It imports without error, the artboard exists, the animation exists &mdash; and the animation is empty, because one type key named an abstract class the runtime&rsquo;s factory has no case for.</p>
+  </div>
+
+  <div class="panel">
+    <div class="prose">
+      <h3>No structural check of your own bytes can see it</h3>
+      <p>Emitting type key <strong>139</strong> instead of <strong>28</strong> names a class the core registry has no case for. The file is well-formed. Every field is where the specification says it should be. The tracks are silently dropped on import.</p>
+      <p>The only gate that catches this class of defect is importing through the official runtime and counting what survived &mdash; which is why export parity here is asserted as a rendered image comparison rather than as a schema check.</p>
+
+      <h3>Transform-keying, and why the fast fix was also the correct one</h3>
+      <p>Keying an animation as per-vertex positions re-tessellates the path every frame and writes an enormous file. Keying the node <em>transform</em> instead writes a handful of channels. The elegant part is that this is not a compression trade-off: under an orthographic camera a projected circle is exactly an ellipse, so the transform channels <em>are</em> the analytic screen shape. The cheap encoding and the exact one coincide.</p>
+      <p>Where they stop coinciding is stated rather than hidden: a perspective divide is not affine, so a perspective motion is a <em>fit</em> with an error rather than an identity &mdash; and the response is to subdivide time until the error falls under tolerance.</p>
+
+
+      <figure>
+        <svg viewBox="0 0 480 220" role="img" aria-label="Vertex-keyed animation writes a track per vertex and re-tessellates every frame; transform-keyed animation writes a handful of channels on one static shape.">
+          <defs>
+            <marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0 0 L10 5 L0 10 z" fill="currentColor"/>
+            </marker>
+          </defs>
+          <text x="112" y="26" font-size="12.5" text-anchor="middle" fill="currentColor" fill-opacity=".75">vertex-keyed</text>
+          <text x="368" y="26" font-size="12.5" text-anchor="middle" fill="currentColor" fill-opacity=".75">transform-keyed</text>
+          <g stroke="currentColor" fill="none">
+            <ellipse cx="112" cy="86" rx="52" ry="34" stroke-opacity=".5"/>
+            <g fill="currentColor">
+              <circle cx="164" cy="86" r="3"/><circle cx="60" cy="86" r="3"/><circle cx="112" cy="52" r="3"/>
+              <circle cx="112" cy="120" r="3"/><circle cx="149" cy="62" r="3"/><circle cx="75" cy="110" r="3"/>
+              <circle cx="149" cy="110" r="3"/><circle cx="75" cy="62" r="3"/>
+            </g>
+          </g>
+          <text x="112" y="150" font-size="11.5" text-anchor="middle" fill="currentColor" fill-opacity=".8">N &#215; (x, y) tracks</text>
+          <line x1="112" y1="158" x2="112" y2="180" stroke="currentColor" marker-end="url(#ah2)"/>
+          <text x="112" y="198" font-size="11.5" text-anchor="middle" fill="currentColor" fill-opacity=".8">re-tessellate every frame</text>
+          <g class="svg-accent">
+            <ellipse cx="368" cy="86" rx="52" ry="34" fill="none" stroke="currentColor" stroke-width="2"/>
+            <text x="368" y="150" font-size="11.5" text-anchor="middle" fill="currentColor">x, y, rotation, width, height</text>
+            <line x1="368" y1="158" x2="368" y2="180" stroke="currentColor" marker-end="url(#ah2)"/>
+            <text x="368" y="198" font-size="11.5" text-anchor="middle" fill="currentColor">one static shape, five channels</text>
+          </g>
+        </svg>
+        <figcaption><b>The cheap encoding and the exact one turn out to be the same encoding.</b> Under an orthographic camera a projected circle is exactly an ellipse, so those five transform channels are not an approximation of the motion &mdash; they are its analytic screen shape. Under perspective the equivalence breaks, and the honest answer there is a fit with a stated error, subdivided in time until it is under tolerance.</figcaption>
+      </figure>
+
+      <h3>What the format cannot say</h3>
+      <p>Colour is a 32-bit integer <em>by format</em>. No amount of internal precision changes that, which is why high-dynamic-range rendering here is labelled a live-view affordance rather than something the export promises. A feathered fill is silently dropped unless the fill rule is clockwise &mdash; adding those two bytes took a fixture from zero painted pixels to roughly 335,000.</p>
+    </div>
+
+    <div class="figs">
+      <div class="fig"><span class="v">28 vs 139</span><span class="m">concrete versus abstract interpolator type key &mdash; a valid file with an empty animation</span></div>
+      <div class="fig"><span class="v">0 &rarr; 335,000</span><span class="m">painted pixels after adding the clockwise fill rule to a feathered fixture</span></div>
+      <div class="fig"><span class="v">27.4 &rarr; 1.05</span><span class="m">mean absolute error (of 255) after reversing emission order &mdash; Rive paints earlier-in-file on top, so export order is the reverse of painter order</span></div>
+      <div class="fig"><span class="v">599 bytes</span><span class="m">byte-identity lock on the legacy animated path, with a pinned hash &mdash; every writer feature added since must not move it by one byte</span></div>
+      <div class="fig"><span class="v">&sigma; = strength / 2</span><span class="m">feather conversion, derived rather than tuned: the feather radius spans three standard deviations</span></div>
+    </div>
+
+    <div class="limits">
+      <h3>Stated limits</h3>
+      <ul>
+        <li><strong>An asymmetric cubic vertex loses a handle.</strong> The format carries a single rotation, so a vertex whose handles are not collinear is quantised to collinear on export. No comment or gate states this loss.</li>
+        <li><strong>The curve fit has a tolerance hole:</strong> a monotonic run with no interior sample is accepted even when its error exceeds tolerance, because there is no key to subdivide at.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<hr class="rule">
+
+<section id="truth">
+  <div class="dive">
+    <p class="eyebrow">The method</p>
+    <h2>How the project decides what is true</h2>
+    <p class="hook">The interesting response to a false comment was not to write better comments. It was to make the claims executable &mdash; and, where a claim turned out wrong, to leave the retraction in the source.</p>
+  </div>
+
+  <div class="panel">
+    <div class="prose">
+      <p>A worked example. Two estimators bake the same wall from opposite ends &mdash; photons travelling forward from the light, camera paths travelling backward from the surface. They disagreed by 36%. Five hypotheses died against measurements: kernel edge loss, kernel width, the emission convention, the visibility lattice, and a missing albedo fold.</p>
+      <p>What identified the culprit was not the size of the disagreement but its <em>shape</em>. Swept against bounce depth, the ratio <strong>plateaued</strong> at 1.363 instead of converging toward 1. No amount of sampling or kernel tuning produces a plateau; only a per-bounce error does. The cause was a per-face colour read as a whole-object colour &mdash; 0.80 where the transport folded 0.73, compounding once per bounce. The arithmetic predicted the observation before the fix was run:</p>
+      <div class="eq">
+(1 / (1 &minus; 0.80)) / (1 / (1 &minus; 0.73)) = 1.35&nbsp;&nbsp;versus&nbsp;&nbsp;measured 1.363
+<span class="note">After the fix the same sweep converges: 1.549, 1.121, 0.985, 0.967. The gate now asserts <em>convergence</em> at a deep bounce cap rather than any absolute value &mdash; because the absolute band had passed happily at 1.554 the whole time.</span>
+      </div>
+
+      <figure>
+        <svg viewBox="0 0 480 290" role="img" aria-label="Cross-estimator ratio against bounce cap. Before the fix the ratio plateaus at 1.363; after the fix it converges through 1.0.">
+          <g stroke="currentColor" stroke-opacity=".35" fill="none">
+            <line x1="72" y1="36" x2="72" y2="250"/>
+            <line x1="72" y1="250" x2="440" y2="250"/>
+          </g>
+          <line x1="72" y1="235" x2="440" y2="235" stroke="currentColor" stroke-opacity=".45" stroke-dasharray="5 4"/>
+          <text x="446" y="239" font-size="11.5" fill="currentColor" fill-opacity=".7">1.0</text>
+          <text x="446" y="89" font-size="11.5" fill="currentColor" fill-opacity=".45">2.0</text>
+          <line x1="68" y1="85" x2="72" y2="85" stroke="currentColor" stroke-opacity=".45"/>
+          <!-- before: plateaus -->
+          <polyline points="80,51.8 196,147.4 312,177.4 428,180.5" fill="none" stroke="currentColor" stroke-opacity=".55" stroke-width="2"/>
+          <g fill="currentColor" fill-opacity=".55">
+            <circle cx="80" cy="51.8" r="4"/><circle cx="196" cy="147.4" r="4"/>
+            <circle cx="312" cy="177.4" r="4"/><circle cx="428" cy="180.5" r="4"/>
+          </g>
+          <text x="330" y="166" font-size="12" fill="currentColor" fill-opacity=".8">before &#8212; plateaus at 1.363</text>
+          <!-- after: converges -->
+          <g class="svg-accent">
+            <polyline points="80,152.6 196,216.8 312,237.3 428,240" fill="none" stroke="currentColor" stroke-width="2.5"/>
+            <circle cx="80" cy="152.6" r="4" fill="currentColor"/><circle cx="196" cy="216.8" r="4" fill="currentColor"/>
+            <circle cx="312" cy="237.3" r="4" fill="currentColor"/><circle cx="428" cy="240" r="4" fill="currentColor"/>
+            <text x="300" y="262" font-size="12" fill="currentColor">after &#8212; converges through 1.0</text>
+          </g>
+          <g font-size="11.5" fill="currentColor" fill-opacity=".7" text-anchor="middle">
+            <text x="80" y="270">2</text><text x="196" y="270">4</text>
+            <text x="312" y="270">8</text><text x="428" y="270">12</text>
+          </g>
+          <text x="256" y="286" font-size="11.5" text-anchor="middle" fill="currentColor" fill-opacity=".6">bounce cap</text>
+          <text x="30" y="140" font-size="11.5" fill="currentColor" fill-opacity=".6" transform="rotate(-90 30 140)" text-anchor="middle">ratio</text>
+        </svg>
+        <figcaption><b>The bug was found by the shape of the curve, not the size of the gap.</b> A loose absolute band passed happily at 1.554 the whole time. What no amount of sampling or kernel tuning can produce is a <em>plateau</em> &mdash; only a per-bounce error does that. The gate now asserts convergence at a deep cap rather than any single value.</figcaption>
+      </figure>
+
+      <p>That is the pattern throughout: prefer a property that <em>cannot</em> be satisfied by accident. A cap that must be bit-identical to a smaller trace. A kernel radius that must not move a mean. A dither whose offsets must sum to zero. A file that must import through someone else&rsquo;s runtime and still count.</p>
+    </div>
+    <div class="figs">
+      <div class="fig"><span class="v">128 vs 155</span><span class="m">an 8-bit store of linear 0.5 with the display transform off and on. The closed form gives 155, checked to &plusmn;2 for the dither and the half-float store</span></div>
+      <div class="fig"><span class="v">2.0 vs 1.0</span><span class="m">the same clear of 2.0 read back from a 16-bit-float target and an 8-bit control &mdash; the format claim, in both directions</span></div>
+      <div class="fig"><span class="v">1.363 &rarr; 0.985</span><span class="m">the cross-estimator ratio before and after the per-face albedo fix, at a deep bounce cap</span></div>
+    </div>
+  </div>
+</section>
+
+<footer class="wrap">
+  <div class="prose">
+    <p><strong>On evidence.</strong> Every mechanism above was read from source and independently fact-checked before it was written down. Where the only support was a comment, that is said out loud. Where a number is a recorded measurement rather than a gated constant &mdash; most of the splat-training figures &mdash; that is said too.</p>
+    <p>Performance figures are deliberately absent. One build configuration links an unoptimised runtime, and only same-session paired sweeps are comparable, so quoting absolutes without that caveat would be exactly the kind of claim this document is about.</p>
+  </div>
+</footer>
+</main>
+
+<script>
+(function(){
+  // Theme: three states. "Auto" removes the stamp and lets prefers-color-scheme decide;
+  // Light/Dark stamp data-theme so an explicit choice beats the OS in both directions.
+  var root=document.documentElement, KEY='ltv-theme';
+  function apply(mode){
+    if(mode==='light'||mode==='dark') root.setAttribute('data-theme',mode);
+    else root.removeAttribute('data-theme');
+    var bs=document.querySelectorAll('.theme-btn');
+    for(var i=0;i<bs.length;i++)
+      bs[i].setAttribute('aria-pressed', String(bs[i].getAttribute('data-mode')===mode));
+    if(window.__ltvRedraw) window.__ltvRedraw();
+  }
+  var saved=null;
+  try{ saved=localStorage.getItem(KEY); }catch(e){}
+  apply(saved==='light'||saved==='dark'?saved:'system');
+  document.querySelectorAll('.theme-btn').forEach(function(b){
+    b.addEventListener('click',function(){
+      var m=b.getAttribute('data-mode');
+      apply(m);
+      try{ localStorage.setItem(KEY,m); }catch(e){}
+    });
+  });
+})();
+
+(function(){
+  var c=document.getElementById('front');
+  if(!c) return;
+  var x=c.getContext('2d');
+  var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var dpr=Math.min(window.devicePixelRatio||1,2), W=0, H=0;
+  function ink(){
+    var v=getComputedStyle(document.documentElement).getPropertyValue('--accent');
+    return (v&&v.trim())||'#FFC96B';
+  }
+  function size(){
+    W=c.clientWidth; H=c.clientHeight;
+    c.width=Math.max(1,W*dpr); c.height=Math.max(1,H*dpr);
+    x.setTransform(dpr,0,0,dpr,0,0);
+  }
+  size();
+  addEventListener('resize',function(){ size(); if(reduce) draw(1400); });
+
+  // A Cornell-box cross-section with a wavefront expanding from the light quad:
+  // the single most characteristic image this renderer produces.
+  function draw(t){
+    x.clearRect(0,0,W,H);
+    var s=Math.min(W,H)*0.30, cx=W*0.68, cy=H*0.50, a=ink();
+    x.save(); x.translate(cx,cy); x.strokeStyle=a; x.lineWidth=1;
+    x.globalAlpha=0.16; x.strokeRect(-s,-s,s*2,s*2);
+    x.globalAlpha=0.10; x.strokeRect(-s*0.55,-s*0.55,s*1.1,s*1.1);
+    x.beginPath();
+    x.moveTo(-s,-s); x.lineTo(-s*0.55,-s*0.55);
+    x.moveTo(s,-s);  x.lineTo(s*0.55,-s*0.55);
+    x.moveTo(-s,s);  x.lineTo(-s*0.55,s*0.55);
+    x.moveTo(s,s);   x.lineTo(s*0.55,s*0.55);
+    x.stroke();
+    var lightY=-s*0.78, lw=s*0.34;
+    x.globalAlpha=0.80; x.fillStyle=a;
+    x.fillRect(-lw/2,lightY,lw,s*0.045);
+    var period=5600, ph=(t%period)/period;
+    for(var k=0;k<3;k++){
+      var p=ph-k*0.15; if(p<0) p+=1;
+      var fade=Math.max(0,1-p)*(1-k*0.28);
+      if(fade<=0.01) continue;
+      x.beginPath(); x.arc(0,lightY,p*s*2.7,0,Math.PI*2);
+      x.globalAlpha=fade*0.28; x.lineWidth=1.6-k*0.4; x.stroke();
+    }
+    x.globalAlpha=0.18; x.beginPath();
+    x.arc(-s*0.18,s*0.34,s*0.26,0,Math.PI*2); x.stroke();
+    x.restore();
+  }
+  window.__ltvRedraw=function(){ if(reduce) draw(1400); };
+  if(reduce){ draw(1400); }
+  else{ requestAnimationFrame(function loop(ts){ draw(ts||0); requestAnimationFrame(loop); }); }
+
+  if('IntersectionObserver' in window){
+    var io=new IntersectionObserver(function(es){
+      es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+    },{threshold:0.08});
+    document.querySelectorAll('.panel,.figs,section>.dive').forEach(function(el){
+      el.classList.add('reveal'); io.observe(el);
+    });
+  }
+})();
+</script>

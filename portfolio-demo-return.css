@@ -1,0 +1,40 @@
+.compiled-portfolio-navigation{box-sizing:border-box;position:fixed;inset:auto auto max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));z-index:2147483000;display:flex;flex-direction:column;align-items:stretch;gap:2px;width:min(420px,calc(100vw - 24px));max-width:calc(100vw - 24px);margin:0;padding:4px;border:1px solid #dbc07c88;border-radius:13px;background:linear-gradient(135deg,#28332df2,#151b1af2);color:#efd9a4;box-shadow:inset 0 1px #ffffff26,0 7px 24px #0006;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);font:600 12px/1.4 system-ui,sans-serif;isolation:isolate}
+.compiled-portfolio-navigation .compiled-navigation-actions{display:flex;align-items:stretch;gap:3px;min-width:0;margin:0;padding:0}
+.compiled-portfolio-navigation .compiled-navigation-actions :is(a,button){box-sizing:border-box;position:static;display:inline-flex;align-items:center;justify-content:center;flex:1 1 auto;min-width:0;min-height:30px;width:auto;max-width:none;height:auto;margin:0;padding:6px 9px;border:1px solid transparent;border-radius:9px;background:transparent;color:#efd9a4;font:600 11px/1.4 system-ui,sans-serif;letter-spacing:0;text-transform:none;text-decoration:none;white-space:nowrap;cursor:pointer;box-shadow:none;transition:color .5s,border-color .5s,box-shadow .5s,background .5s}
+.compiled-portfolio-navigation .compiled-overview-open{color:#c4dfd4;border-left-color:#d8d0a629}
+.compiled-portfolio-navigation .compiled-navigation-actions :is(a,button):hover{color:#fff0c3;border-color:#edcd8677;background:#e9d7a00c;box-shadow:inset 0 1px #fff6d012,0 0 16px #d8b85e18}
+.compiled-portfolio-navigation :focus-visible,.compiled-project-overview :is(button,a):focus-visible{outline:2px solid #e9cf91;outline-offset:3px}
+/* Common location component, constrained here rather than restyling every app nav. */
+.compiled-portfolio-navigation .portfolio-route.route-compact{position:relative;inset:auto;display:flex;flex-direction:row;align-items:center;width:100%;max-width:100%;min-width:0;min-height:39px;height:auto;margin:0;padding:2px 3px;gap:0;border:0;background:transparent;box-shadow:none;overflow:hidden}
+.compiled-portfolio-navigation .portfolio-route:after{display:none}
+.compiled-portfolio-navigation .portfolio-route .route-path{display:flex;align-items:center;flex:1;min-width:0;margin:0;padding:0;gap:0}
+.compiled-portfolio-navigation .portfolio-route .route-node{box-sizing:border-box;display:flex;align-items:center;position:relative;inset:auto;min-height:0;min-width:0;margin:0;padding:3px 4px;gap:5px;border-radius:8px;text-decoration:none;white-space:nowrap}
+.compiled-portfolio-navigation .portfolio-route .route-home{flex:0 0 auto}
+.compiled-portfolio-navigation .portfolio-route .route-mark{display:block;width:26px;height:26px;min-width:26px;max-width:26px;margin:0;padding:0}
+.compiled-portfolio-navigation .portfolio-route .route-copy{display:flex;flex-direction:column;min-width:0;margin:0;padding:0;gap:0}
+.compiled-portfolio-navigation .portfolio-route .route-copy small,.compiled-portfolio-navigation .portfolio-route .route-end{display:none}
+.compiled-portfolio-navigation .portfolio-route .route-copy strong{display:block;margin:0;padding:0;font:500 12px/1.3 Georgia,serif;letter-spacing:0;text-transform:none;white-space:nowrap;text-overflow:ellipsis;overflow:hidden}
+.compiled-portfolio-navigation .portfolio-route .route-group{flex:0 1 auto;max-width:100px}
+.compiled-portfolio-navigation .portfolio-route .route-group .route-glyph{display:none}
+.compiled-portfolio-navigation .portfolio-route .route-project{flex:1 1 0;max-width:none;min-width:0}
+.compiled-portfolio-navigation .portfolio-route .route-thumb{display:block;flex:0 0 26px;width:26px;height:26px;min-width:26px;max-width:26px;margin:0;padding:0;border-radius:7px;object-fit:cover}
+.compiled-portfolio-navigation .portfolio-route .route-glyph{display:grid;flex:0 0 23px;min-width:23px;width:23px;height:23px;font-size:14px}
+.compiled-portfolio-navigation .portfolio-route .route-wire{display:block;flex:0 0 14px;min-width:14px;width:14px;height:24px;margin:0;padding:0}
+.compiled-portfolio-navigation [hidden],a[data-portfolio-return-duplicate="true"]{display:none!important}
+.portfolio-return:has(>a[data-portfolio-return-duplicate="true"]:only-child){display:none!important}
+.compiled-project-overview{box-sizing:border-box;position:fixed;inset:0;width:min(1220px,calc(100vw - 40px));height:min(940px,calc(100dvh - 48px));max-width:none;max-height:none;margin:auto;padding:0;overflow:hidden;border:1px solid #cfb58199;border-radius:20px;background:#11191b;color:#eee5d0;box-shadow:inset 0 1px #fff2,0 24px 90px #0009;opacity:0;transform:translateY(10px);transition:opacity .5s,transform .5s;font:14px/1.5 system-ui,sans-serif}
+.compiled-project-overview[open]{display:flex;flex-direction:column}
+.compiled-project-overview.is-visible{opacity:1;transform:translateY(0)}
+.compiled-project-overview::backdrop{background:#04091000;backdrop-filter:blur(0);transition:background .5s,backdrop-filter .5s}
+.compiled-project-overview.is-visible::backdrop{background:#040910a8;backdrop-filter:blur(8px)}
+.compiled-overview-header{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:13px 19px;border-bottom:1px solid #c1b28635;background:linear-gradient(110deg,#32362a,#15212a)}
+.compiled-overview-header h2{margin:0;padding:0;font:500 clamp(17px,2vw,23px)/1.3 Georgia,serif;color:#f1dfb6;text-transform:none;letter-spacing:0}
+.compiled-overview-close{flex:0 0 auto;margin:0;padding:8px 12px;border:1px solid #e8cb8466;border-radius:9px;background:#10171d80;color:#f2deab;font:600 12px/1.3 system-ui,sans-serif;cursor:pointer;transition:border-color .5s,box-shadow .5s,background .5s}
+.compiled-overview-close:hover{border-color:#f1d59b;background:#d0b47113;box-shadow:0 0 18px #e5bf6626}
+.compiled-overview-status{flex:0 0 auto;margin:0;padding:7px 19px;font:11px/1.5 system-ui,sans-serif;color:#bdc7bb;background:#111a1d}
+.compiled-overview-frame{display:block;flex:1 1 auto;width:100%;min-height:0;margin:0;padding:0;border:0;background:#11151a;color-scheme:dark}
+.compiled-project-overview .compiled-overview-fallback{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;align-self:flex-end;min-height:30px;margin:7px 18px 10px;padding:5px 10px;border:1px solid #d8bc7660;border-radius:8px;background:#b79e5210;color:#dbe5d6;font:600 11px/1.5 system-ui,sans-serif;text-decoration:none;text-underline-offset:3px;transition:color .5s,border-color .5s,box-shadow .5s}
+.compiled-project-overview .compiled-overview-fallback:hover{color:#f0dbab;border-color:#ecd08d;box-shadow:0 0 14px #dbc4771a}
+@media(max-width:520px){.compiled-portfolio-navigation{left:8px;bottom:max(8px,env(safe-area-inset-bottom));width:min(420px,calc(100vw - 16px));max-width:calc(100vw - 16px)}.compiled-project-overview{width:calc(100vw - 16px);height:calc(100dvh - 20px);border-radius:14px}.compiled-overview-header{padding:11px 13px;gap:12px}.compiled-overview-status{padding:6px 13px}}
+@media(max-width:390px){.compiled-portfolio-navigation .portfolio-route .route-home .route-copy{display:none}.compiled-portfolio-navigation .portfolio-route .route-group{max-width:92px}}
+@media(prefers-reduced-motion:reduce){.compiled-portfolio-navigation *,.compiled-project-overview,.compiled-project-overview::backdrop,.compiled-project-overview *{transition:none!important;animation:none!important}.compiled-project-overview{transform:none}}

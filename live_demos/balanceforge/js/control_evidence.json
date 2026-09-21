@@ -1,0 +1,953 @@
+{
+  "method": {
+    "plant": "Actual BalanceForge PBD forward step, direct acceleration, no helpers.",
+    "gravity": 1000,
+    "physicsDt": 0.008333333333333333,
+    "coordinates": "[cart x/railHalfWidth, cart vx/sqrt(gL), theta1, omega1/sqrt(g/L), ...]; L110double/L80triple",
+    "linearization": "Central finite difference around upright; holdinputconstant for6physicssteps=0.05s. Reachability matrix[B,AB,...,A^(n−1)B]. Rank computed by SVD tol1e−10.",
+    "caveat": "Reduced constrained angular-state linearization neglects tiny radial PBD residuals. Full local rank does not prove boundedglobal reachability or that any learned policy can swing up. Conditioning depends on scales and chosen horizon.",
+    "observation": "Instantaneous observation Jacobian in the same scaled coordinates; rank tolerance1e−8. Rank loss identifies hidden instantaneous directions, not impossibility for a history-dependent observer."
+  },
+  "controllability": [
+    {
+      "setup": "double",
+      "epsilon": 0.001,
+      "dimension": 6,
+      "singular": [
+        5.1245263963431515,
+        2.4597296882556052,
+        0.40602034726644615,
+        0.03172779244424339,
+        0.0007732112861116659,
+        0.000015635029517251516
+      ],
+      "rank": 6,
+      "condition": 327759.30423980375
+    },
+    {
+      "setup": "double",
+      "epsilon": 0.0001,
+      "dimension": 6,
+      "singular": [
+        5.124528343689226,
+        2.459732896146361,
+        0.40602068254170315,
+        0.03172783434638859,
+        0.0007732126364118545,
+        0.000015635055633096873
+      ],
+      "rank": 6,
+      "condition": 327758.8813206032
+    },
+    {
+      "setup": "double",
+      "epsilon": 0.00001,
+      "dimension": 6,
+      "singular": [
+        5.124528363162661,
+        2.4597329282251748,
+        0.40602068589444,
+        0.03172783476540427,
+        0.0007732126499151739,
+        0.000015635055894246156
+      ],
+      "rank": 6,
+      "condition": 327758.8770916089
+    },
+    {
+      "setup": "triple",
+      "epsilon": 0.001,
+      "dimension": 8,
+      "singular": [
+        21.098991549926655,
+        4.987412829868723,
+        1.3775565540660049,
+        0.2635490378412731,
+        0.030434173903618186,
+        0.0015493092936495459,
+        0.00004045904293166395,
+        6.986180196290252e-7
+      ],
+      "rank": 8,
+      "condition": 30201041.137087304
+    },
+    {
+      "setup": "triple",
+      "epsilon": 0.0001,
+      "dimension": 8,
+      "singular": [
+        21.099122175646794,
+        4.987414874919461,
+        1.3775597540017228,
+        0.2635498796661399,
+        0.030434281451011635,
+        0.001549318507669817,
+        0.000040459255220867505,
+        6.986214455474154e-7
+      ],
+      "rank": 8,
+      "condition": 30201080.01281618
+    },
+    {
+      "setup": "triple",
+      "epsilon": 0.00001,
+      "dimension": 8,
+      "singular": [
+        21.099123481914624,
+        4.987414895370035,
+        1.3775597860012396,
+        0.2635498880844173,
+        0.030434282526490216,
+        0.0015493185998101701,
+        0.0000404592573441735,
+        6.986214795652963e-7
+      ],
+      "rank": 8,
+      "condition": 30201080.412018172
+    }
+  ],
+  "observations": [
+    {
+      "setup": "double",
+      "mode": "legacy",
+      "angles": [
+        0,
+        0
+      ],
+      "rank": 6,
+      "singular": [
+        1.0833333333333333,
+        0.9999999983333334,
+        0.9999999983333332,
+        0.414578098794425,
+        0.414578098794425,
+        0.20976176963403032
+      ]
+    },
+    {
+      "setup": "double",
+      "mode": "legacy",
+      "angles": [
+        1.5707963267948966,
+        1.5707963267948966
+      ],
+      "rank": 4,
+      "singular": [
+        1.0833333333333333,
+        0.9999999983332231,
+        0.9999999983332231,
+        0.20976176963403032,
+        2.538558708425939e-17,
+        2.538558708425939e-17
+      ]
+    },
+    {
+      "setup": "double",
+      "mode": "angular",
+      "angles": [
+        0,
+        0
+      ],
+      "rank": 6,
+      "singular": [
+        1.0833333333333333,
+        0.9999999983333334,
+        0.9999999983333332,
+        0.9045340337332908,
+        0.9045340337332908,
+        0.20976176963403032
+      ]
+    },
+    {
+      "setup": "double",
+      "mode": "angular",
+      "angles": [
+        1.5707963267948966,
+        1.5707963267948966
+      ],
+      "rank": 6,
+      "singular": [
+        1.0833333333333333,
+        0.9999999983332231,
+        0.9999999983332231,
+        0.9045340337332908,
+        0.9045340337332908,
+        0.20976176963403032
+      ]
+    },
+    {
+      "setup": "triple",
+      "mode": "legacy",
+      "angles": [
+        0,
+        0,
+        0
+      ],
+      "rank": 7,
+      "singular": [
+        1.0833333333333333,
+        0.9999999983333335,
+        0.9999999983333335,
+        0.9999999983333335,
+        0.5000000000000001,
+        0.47140452079103173,
+        0.35355339059327384,
+        0
+      ]
+    },
+    {
+      "setup": "triple",
+      "mode": "legacy",
+      "angles": [
+        1.5707963267948966,
+        1.5707963267948966,
+        1.5707963267948966
+      ],
+      "rank": 5,
+      "singular": [
+        1.0833333333333333,
+        0.9999999983332231,
+        0.9999999983332231,
+        0.9999999983332231,
+        0.47140452079103173,
+        3.061616997868383e-17,
+        2.1648901405887335e-17,
+        0
+      ]
+    },
+    {
+      "setup": "triple",
+      "mode": "angular",
+      "angles": [
+        0,
+        0,
+        0
+      ],
+      "rank": 8,
+      "singular": [
+        1.0833333333333333,
+        1.0606601717798214,
+        1.0606601717798214,
+        1.0606601717798214,
+        0.9999999983333335,
+        0.9999999983333335,
+        0.9999999983333335,
+        0.17888543819998323
+      ]
+    },
+    {
+      "setup": "triple",
+      "mode": "angular",
+      "angles": [
+        1.5707963267948966,
+        1.5707963267948966,
+        1.5707963267948966
+      ],
+      "rank": 8,
+      "singular": [
+        1.0833333333333333,
+        1.0606601717798214,
+        1.0606601717798214,
+        1.0606601717798214,
+        0.9999999983332231,
+        0.9999999983332231,
+        0.9999999983332231,
+        0.17888543819998323
+      ]
+    }
+  ],
+  "lqr": [
+    {
+      "setup": "double",
+      "angle": 5,
+      "converged": true,
+      "rows": [
+        {
+          "success": true,
+          "hold": 59.999999999997236,
+          "contacts": 0,
+          "saturation": 0,
+          "rodError": 0.0009465650100679568
+        },
+        {
+          "success": true,
+          "hold": 59.999999999997236,
+          "contacts": 0,
+          "saturation": 0,
+          "rodError": 0.0009465650100679568
+        }
+      ]
+    },
+    {
+      "setup": "double",
+      "angle": 15,
+      "converged": true,
+      "rows": [
+        {
+          "success": true,
+          "hold": 43.80833333333149,
+          "contacts": 25,
+          "saturation": 0.24569444444444444,
+          "rodError": 0.10174211018092194
+        },
+        {
+          "success": true,
+          "hold": 43.80833333333149,
+          "contacts": 25,
+          "saturation": 0.24569444444444444,
+          "rodError": 0.10174211018092194
+        }
+      ]
+    },
+    {
+      "setup": "double",
+      "angle": 30,
+      "converged": true,
+      "rows": [
+        {
+          "success": true,
+          "hold": 55.22499999999751,
+          "contacts": 11,
+          "saturation": 0.07875,
+          "rodError": 0.16190226950818953
+        },
+        {
+          "success": true,
+          "hold": 55.22499999999751,
+          "contacts": 11,
+          "saturation": 0.07875,
+          "rodError": 0.16190226950818953
+        }
+      ]
+    },
+    {
+      "setup": "double",
+      "angle": 60,
+      "converged": true,
+      "rows": [
+        {
+          "success": true,
+          "hold": 56.19999999999745,
+          "contacts": 9,
+          "saturation": 0.06027777777777778,
+          "rodError": 0.12764473134316745
+        },
+        {
+          "success": true,
+          "hold": 56.19999999999745,
+          "contacts": 9,
+          "saturation": 0.06027777777777778,
+          "rodError": 0.12764473134316745
+        }
+      ]
+    },
+    {
+      "setup": "double",
+      "angle": 140,
+      "converged": true,
+      "rows": [
+        {
+          "success": false,
+          "hold": 0,
+          "contacts": 96,
+          "saturation": 0.9438888888888889,
+          "rodError": 0.16726610655555874
+        },
+        {
+          "success": false,
+          "hold": 0,
+          "contacts": 96,
+          "saturation": 0.9438888888888889,
+          "rodError": 0.16726610655555874
+        }
+      ]
+    },
+    {
+      "setup": "triple",
+      "angle": 5,
+      "converged": true,
+      "rows": [
+        {
+          "success": true,
+          "hold": 59.999999999997236,
+          "contacts": 0,
+          "saturation": 0,
+          "rodError": 0.008431586064318708
+        },
+        {
+          "success": true,
+          "hold": 59.999999999997236,
+          "contacts": 0,
+          "saturation": 0,
+          "rodError": 0.008431586064318708
+        }
+      ]
+    },
+    {
+      "setup": "triple",
+      "angle": 15,
+      "converged": true,
+      "rows": [
+        {
+          "success": true,
+          "hold": 59.999999999997236,
+          "contacts": 0,
+          "saturation": 0,
+          "rodError": 0.025253506263510417
+        },
+        {
+          "success": true,
+          "hold": 59.999999999997236,
+          "contacts": 0,
+          "saturation": 0,
+          "rodError": 0.025253506263510417
+        }
+      ]
+    },
+    {
+      "setup": "triple",
+      "angle": 30,
+      "converged": true,
+      "rows": [
+        {
+          "success": false,
+          "hold": 0,
+          "contacts": 100,
+          "saturation": 0.9711111111111111,
+          "rodError": 0.8180450526978831
+        },
+        {
+          "success": false,
+          "hold": 0,
+          "contacts": 100,
+          "saturation": 0.9711111111111111,
+          "rodError": 0.8180450526978831
+        }
+      ]
+    },
+    {
+      "setup": "triple",
+      "angle": 60,
+      "converged": true,
+      "rows": [
+        {
+          "success": false,
+          "hold": 0,
+          "contacts": 95,
+          "saturation": 0.9683333333333334,
+          "rodError": 0.6517908041864473
+        },
+        {
+          "success": false,
+          "hold": 0,
+          "contacts": 95,
+          "saturation": 0.9683333333333334,
+          "rodError": 0.6517908041864473
+        }
+      ]
+    },
+    {
+      "setup": "triple",
+      "angle": 140,
+      "converged": true,
+      "rows": [
+        {
+          "success": false,
+          "hold": 0,
+          "contacts": 109,
+          "saturation": 0.9736111111111111,
+          "rodError": 1.020293292174614
+        },
+        {
+          "success": false,
+          "hold": 0,
+          "contacts": 109,
+          "saturation": 0.9736111111111111,
+          "rodError": 1.020293292174614
+        }
+      ]
+    }
+  ],
+  "counterfactuals": [
+    {
+      "angle": 10,
+      "kind": "baseline",
+      "rows": [
+        {
+          "success": true,
+          "hold": 59.999999999997236,
+          "contacts": 0,
+          "saturation": 0,
+          "clips": 0,
+          "peakEnergy": 1.0500259660359372
+        },
+        {
+          "success": true,
+          "hold": 59.999999999997236,
+          "contacts": 0,
+          "saturation": 0,
+          "clips": 0,
+          "peakEnergy": 1.0507198729580463
+        }
+      ]
+    },
+    {
+      "angle": 10,
+      "kind": "finer2",
+      "rows": [
+        {
+          "success": true,
+          "hold": 59.999999999997236,
+          "contacts": 0,
+          "saturation": 0,
+          "clips": 0,
+          "peakEnergy": 1.0479483690763622
+        },
+        {
+          "success": true,
+          "hold": 59.999999999997236,
+          "contacts": 0,
+          "saturation": 0,
+          "clips": 0,
+          "peakEnergy": 1.0486219871247695
+        }
+      ]
+    },
+    {
+      "angle": 10,
+      "kind": "finer4",
+      "rows": [
+        {
+          "success": true,
+          "hold": 59.999999999997236,
+          "contacts": 0,
+          "saturation": 0,
+          "clips": 0,
+          "peakEnergy": 1.0469121514610051
+        },
+        {
+          "success": true,
+          "hold": 59.999999999997236,
+          "contacts": 0,
+          "saturation": 0,
+          "clips": 0,
+          "peakEnergy": 1.0475755022726527
+        }
+      ]
+    },
+    {
+      "angle": 10,
+      "kind": "authority2",
+      "rows": [
+        {
+          "success": false,
+          "hold": 0,
+          "contacts": 25,
+          "saturation": 0,
+          "clips": 0.0926388888888889,
+          "peakEnergy": 47.08522000876533
+        },
+        {
+          "success": false,
+          "hold": 0,
+          "contacts": 24,
+          "saturation": 0,
+          "clips": 0.07791666666666666,
+          "peakEnergy": 47.13426137275625
+        }
+      ]
+    },
+    {
+      "angle": 10,
+      "kind": "authority2-fixed-observation",
+      "rows": [
+        {
+          "success": false,
+          "hold": 0,
+          "contacts": 2,
+          "saturation": 0,
+          "clips": 0.0002777777777777778,
+          "peakEnergy": 21.863066606650225
+        },
+        {
+          "success": false,
+          "hold": 0,
+          "contacts": 4,
+          "saturation": 0,
+          "clips": 0.0002777777777777778,
+          "peakEnergy": 23.32226639856267
+        }
+      ]
+    },
+    {
+      "angle": 10,
+      "kind": "rail600",
+      "rows": [
+        {
+          "success": false,
+          "hold": 0,
+          "contacts": 2,
+          "saturation": 0,
+          "clips": 0,
+          "peakEnergy": 9.761750423136542
+        },
+        {
+          "success": false,
+          "hold": 0,
+          "contacts": 2,
+          "saturation": 0,
+          "clips": 0,
+          "peakEnergy": 8.706492041840141
+        }
+      ]
+    },
+    {
+      "angle": 10,
+      "kind": "rail600-fixed-observation",
+      "rows": [
+        {
+          "success": true,
+          "hold": 59.999999999997236,
+          "contacts": 0,
+          "saturation": 0,
+          "clips": 0,
+          "peakEnergy": 1.0500259660359372
+        },
+        {
+          "success": true,
+          "hold": 59.999999999997236,
+          "contacts": 0,
+          "saturation": 0,
+          "clips": 0,
+          "peakEnergy": 1.0507198729580463
+        }
+      ]
+    },
+    {
+      "angle": 30,
+      "kind": "baseline",
+      "rows": [
+        {
+          "success": true,
+          "hold": 59.999999999997236,
+          "contacts": 0,
+          "saturation": 0,
+          "clips": 0,
+          "peakEnergy": 1.7019316975215584
+        },
+        {
+          "success": true,
+          "hold": 59.999999999997236,
+          "contacts": 0,
+          "saturation": 0,
+          "clips": 0,
+          "peakEnergy": 1.8191449046417534
+        }
+      ]
+    },
+    {
+      "angle": 30,
+      "kind": "finer2",
+      "rows": [
+        {
+          "success": true,
+          "hold": 59.999999999997236,
+          "contacts": 0,
+          "saturation": 0,
+          "clips": 0,
+          "peakEnergy": 1.6661619955456086
+        },
+        {
+          "success": true,
+          "hold": 59.999999999997236,
+          "contacts": 0,
+          "saturation": 0,
+          "clips": 0,
+          "peakEnergy": 1.7767785413625643
+        }
+      ]
+    },
+    {
+      "angle": 30,
+      "kind": "finer4",
+      "rows": [
+        {
+          "success": true,
+          "hold": 59.999999999997236,
+          "contacts": 0,
+          "saturation": 0,
+          "clips": 0,
+          "peakEnergy": 1.6483795744082126
+        },
+        {
+          "success": true,
+          "hold": 59.999999999997236,
+          "contacts": 0,
+          "saturation": 0,
+          "clips": 0,
+          "peakEnergy": 1.755711124669721
+        }
+      ]
+    },
+    {
+      "angle": 30,
+      "kind": "authority2",
+      "rows": [
+        {
+          "success": false,
+          "hold": 0,
+          "contacts": 21,
+          "saturation": 0,
+          "clips": 0.058888888888888886,
+          "peakEnergy": 47.22965712047236
+        },
+        {
+          "success": false,
+          "hold": 0,
+          "contacts": 7,
+          "saturation": 0,
+          "clips": 0.01,
+          "peakEnergy": 44.03451998839091
+        }
+      ]
+    },
+    {
+      "angle": 30,
+      "kind": "authority2-fixed-observation",
+      "rows": [
+        {
+          "success": false,
+          "hold": 0,
+          "contacts": 3,
+          "saturation": 0,
+          "clips": 0.01,
+          "peakEnergy": 44.259902553464585
+        },
+        {
+          "success": false,
+          "hold": 0,
+          "contacts": 4,
+          "saturation": 0,
+          "clips": 0.010138888888888888,
+          "peakEnergy": 44.61163076254668
+        }
+      ]
+    },
+    {
+      "angle": 30,
+      "kind": "rail600",
+      "rows": [
+        {
+          "success": false,
+          "hold": 0,
+          "contacts": 2,
+          "saturation": 0,
+          "clips": 0,
+          "peakEnergy": 8.852620437773773
+        },
+        {
+          "success": false,
+          "hold": 0,
+          "contacts": 2,
+          "saturation": 0,
+          "clips": 0.0004166666666666667,
+          "peakEnergy": 9.25687904340946
+        }
+      ]
+    },
+    {
+      "angle": 30,
+      "kind": "rail600-fixed-observation",
+      "rows": [
+        {
+          "success": true,
+          "hold": 59.999999999997236,
+          "contacts": 0,
+          "saturation": 0,
+          "clips": 0,
+          "peakEnergy": 1.7019316975215584
+        },
+        {
+          "success": true,
+          "hold": 59.999999999997236,
+          "contacts": 0,
+          "saturation": 0,
+          "clips": 0,
+          "peakEnergy": 1.8191449046417534
+        }
+      ]
+    },
+    {
+      "angle": 140,
+      "kind": "baseline",
+      "rows": [
+        {
+          "success": false,
+          "hold": 0,
+          "contacts": 2,
+          "saturation": 0,
+          "clips": 0.00125,
+          "peakEnergy": 10.12245758981337
+        },
+        {
+          "success": false,
+          "hold": 0,
+          "contacts": 1,
+          "saturation": 0,
+          "clips": 0.003472222222222222,
+          "peakEnergy": 8.373609139756272
+        }
+      ]
+    },
+    {
+      "angle": 140,
+      "kind": "finer2",
+      "rows": [
+        {
+          "success": false,
+          "hold": 0,
+          "contacts": 2,
+          "saturation": 0,
+          "clips": 0.002638888888888889,
+          "peakEnergy": 11.423129736017977
+        },
+        {
+          "success": false,
+          "hold": 0,
+          "contacts": 5,
+          "saturation": 0,
+          "clips": 0.0038888888888888888,
+          "peakEnergy": 12.824076393609765
+        }
+      ]
+    },
+    {
+      "angle": 140,
+      "kind": "finer4",
+      "rows": [
+        {
+          "success": false,
+          "hold": 0,
+          "contacts": 1,
+          "saturation": 0,
+          "clips": 0,
+          "peakEnergy": 6.988893482239495
+        },
+        {
+          "success": false,
+          "hold": 0,
+          "contacts": 4,
+          "saturation": 0,
+          "clips": 0.002916666666666667,
+          "peakEnergy": 13.270319224506501
+        }
+      ]
+    },
+    {
+      "angle": 140,
+      "kind": "authority2",
+      "rows": [
+        {
+          "success": false,
+          "hold": 0,
+          "contacts": 7,
+          "saturation": 0,
+          "clips": 0.01513888888888889,
+          "peakEnergy": 46.3087839428371
+        },
+        {
+          "success": false,
+          "hold": 0,
+          "contacts": 5,
+          "saturation": 0,
+          "clips": 0.02847222222222222,
+          "peakEnergy": 44.71104352291195
+        }
+      ]
+    },
+    {
+      "angle": 140,
+      "kind": "authority2-fixed-observation",
+      "rows": [
+        {
+          "success": false,
+          "hold": 0,
+          "contacts": 7,
+          "saturation": 0,
+          "clips": 0.014444444444444444,
+          "peakEnergy": 44.12073415381534
+        },
+        {
+          "success": false,
+          "hold": 0,
+          "contacts": 28,
+          "saturation": 0,
+          "clips": 0.09805555555555556,
+          "peakEnergy": 45.87732769571348
+        }
+      ]
+    },
+    {
+      "angle": 140,
+      "kind": "rail600",
+      "rows": [
+        {
+          "success": false,
+          "hold": 0,
+          "contacts": 0,
+          "saturation": 0,
+          "clips": 0,
+          "peakEnergy": 5.764788852778395
+        },
+        {
+          "success": false,
+          "hold": 0,
+          "contacts": 0,
+          "saturation": 0,
+          "clips": 0,
+          "peakEnergy": 5.322072791440203
+        }
+      ]
+    },
+    {
+      "angle": 140,
+      "kind": "rail600-fixed-observation",
+      "rows": [
+        {
+          "success": false,
+          "hold": 0,
+          "contacts": 0,
+          "saturation": 0,
+          "clips": 0,
+          "peakEnergy": 5.727042109039517
+        },
+        {
+          "success": false,
+          "hold": 0,
+          "contacts": 0,
+          "saturation": 0,
+          "clips": 0,
+          "peakEnergy": 5.281620230822536
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "title": "MIT Underactuated: local controllability and swing-up",
+      "url": "https://underactuated.mit.edu/acrobot.html"
+    },
+    {
+      "title": "MIT Underactuated: trajectory optimization",
+      "url": "https://underactuated.mit.edu/trajopt.html"
+    },
+    {
+      "title": "MIT Underactuated: LQR",
+      "url": "https://underactuated.mit.edu/lqr.html"
+    },
+    {
+      "title": "Reverse Curriculum Generation for Reinforcement Learning",
+      "url": "https://arxiv.org/abs/1707.05300"
+    }
+  ]
+}

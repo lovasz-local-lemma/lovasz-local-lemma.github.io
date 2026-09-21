@@ -1,0 +1,297 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head><style id="portfolio-early-paint">html{background:#0b0d0c;color-scheme:dark}html.portfolio-booting body{opacity:0}</style><script src="../../portfolio-navigation.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Symbolic Math Engine - History Part 3</title>
+    <style>
+        :root {
+            --bg: #0f172a; --bg2: #1e293b; --bg3: #334155;
+            --text: #f1f5f9; --muted: #94a3b8; --accent: #667eea;
+            --green: #4ade80; --red: #f87171; --yellow: #fbbf24;
+            --purple: #a78bfa; --cyan: #22d3ee; --pink: #f472b6;
+            --orange: #fb923c;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; line-height: 1.6; }
+        .container { max-width: 1100px; margin: 0 auto; padding: 2rem; }
+        h1 { font-size: 2.2rem; margin-bottom: 0.5rem; background: linear-gradient(135deg, var(--accent), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        h2 { font-size: 1.5rem; margin-top: 2.5rem; margin-bottom: 1rem; color: var(--cyan); border-bottom: 1px solid var(--bg3); padding-bottom: 0.5rem; }
+        h3 { font-size: 1.15rem; margin-top: 1.5rem; margin-bottom: 0.5rem; color: var(--purple); }
+        p, li { color: var(--muted); margin-bottom: 0.5rem; }
+        a { color: var(--accent); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        code { background: var(--bg2); padding: 2px 6px; border-radius: 4px; font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 0.9em; color: var(--cyan); }
+        .back-link { display: inline-block; margin-bottom: 1.5rem; padding: 8px 16px; background: var(--bg2); border-radius: 8px; color: var(--accent); }
+        .card { background: var(--bg2); border-radius: 12px; padding: 1.5rem; margin: 1rem 0; border: 1px solid var(--bg3); }
+        .card-green { border-color: rgba(74,222,128,0.3); }
+        .card-red { border-color: rgba(248,113,113,0.3); }
+        .card-purple { border-color: rgba(167,139,250,0.3); }
+        .card-cyan { border-color: rgba(34,211,238,0.3); }
+        .card-yellow { border-color: rgba(251,191,36,0.3); }
+        .card-orange { border-color: rgba(251,146,60,0.3); }
+        .tag { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; margin-right: 4px; }
+        .tag-green { background: rgba(74,222,128,0.15); color: var(--green); }
+        .tag-red { background: rgba(248,113,113,0.15); color: var(--red); }
+        .tag-yellow { background: rgba(251,191,36,0.15); color: var(--yellow); }
+        .tag-purple { background: rgba(167,139,250,0.15); color: var(--purple); }
+        .tag-cyan { background: rgba(34,211,238,0.15); color: var(--cyan); }
+        .tag-pink { background: rgba(244,114,182,0.15); color: var(--pink); }
+        .tag-orange { background: rgba(251,146,60,0.15); color: var(--orange); }
+        table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+        th, td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--bg3); }
+        th { color: var(--cyan); font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        td { color: var(--muted); font-size: 0.9rem; }
+        tr:hover td { color: var(--text); }
+        .yes { color: var(--green); font-weight: 600; }
+        .no { color: var(--red); }
+        .partial { color: var(--yellow); }
+        .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin: 1.5rem 0; }
+        .stat { background: var(--bg2); border-radius: 10px; padding: 1rem; text-align: center; }
+        .stat-num { font-size: 2rem; font-weight: 700; background: linear-gradient(135deg, var(--accent), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .stat-label { font-size: 0.8rem; color: var(--muted); margin-top: 4px; }
+        .bug-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1rem 0; }
+        @media (max-width: 768px) { .bug-grid { grid-template-columns: 1fr; } }
+        .bug-card { background: var(--bg2); border-radius: 10px; padding: 1.25rem; border: 1px solid var(--bg3); border-left: 3px solid var(--red); }
+        .bug-card h4 { font-size: 0.95rem; color: var(--text); margin-bottom: 0.5rem; }
+        .bug-card p { font-size: 0.85rem; margin-bottom: 0.4rem; }
+        .bug-card .what strong { color: var(--red); }
+        .bug-card .why strong { color: var(--yellow); }
+        .bug-card .fix strong { color: var(--green); }
+        .commit-quote { display: block; margin-top: 0.5rem; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--muted); background: var(--bg); border-radius: 6px; padding: 6px 10px; border: 1px solid var(--bg3); }
+        .commit-quote::before { content: 'commit \2014  '; color: var(--bg3); }
+        .verdict { font-size: 1.05rem; color: var(--text); background: rgba(251,191,36,0.08); border: 1px solid rgba(251,191,36,0.25); border-radius: 10px; padding: 1rem 1.25rem; margin: 1rem 0; }
+        .formula { font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; color: var(--text); background: var(--bg); border: 1px solid var(--bg3); border-radius: 8px; padding: 0.75rem 1rem; margin: 0.75rem 0; overflow-x: auto; white-space: nowrap; }
+        ol.ranked { padding-left: 1.5rem; }
+        ol.ranked li { margin-bottom: 0.75rem; }
+        ol.ranked li strong { color: var(--text); }
+    </style>
+  <link rel="stylesheet" href="portfolio.css">
+<link rel="stylesheet" href="../../portfolio-controls.css"><link rel="stylesheet" href="../../portfolio-demo-return.css"><script defer src="../../portfolio-demo-return.js" data-project="symbolic_math" data-title="Symbolic Unfolded" data-overview="projects/symbolic_math/overview.html" data-group="signature" data-thumbnail="media/brochures/symbolic_math/residue-theorem-contour.png" data-routes="[{&quot;project&quot;:&quot;symbolic_math&quot;,&quot;title&quot;:&quot;Symbolic Unfolded&quot;,&quot;group&quot;:&quot;signature&quot;,&quot;thumbnail&quot;:&quot;media/brochures/symbolic_math/residue-theorem-contour.png&quot;,&quot;overview&quot;:&quot;projects/symbolic_math/overview.html&quot;,&quot;path&quot;:&quot;live_demos/symbolic_math/index.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:2},{&quot;project&quot;:&quot;symbolic_math&quot;,&quot;title&quot;:&quot;Symbolic Unfolded&quot;,&quot;group&quot;:&quot;signature&quot;,&quot;thumbnail&quot;:&quot;media/brochures/symbolic_math/residue-theorem-contour.png&quot;,&quot;overview&quot;:&quot;projects/symbolic_math/overview.html&quot;,&quot;path&quot;:&quot;live_demos/symbolic_math/index.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:1},{&quot;project&quot;:&quot;symbolic_math&quot;,&quot;title&quot;:&quot;Symbolic Unfolded&quot;,&quot;group&quot;:&quot;signature&quot;,&quot;thumbnail&quot;:&quot;media/brochures/symbolic_math/residue-theorem-contour.png&quot;,&quot;overview&quot;:&quot;projects/symbolic_math/overview.html&quot;,&quot;path&quot;:&quot;live_demos/symbolic_math/technical.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:1},{&quot;project&quot;:&quot;symbolic_math&quot;,&quot;title&quot;:&quot;Symbolic Unfolded&quot;,&quot;group&quot;:&quot;signature&quot;,&quot;thumbnail&quot;:&quot;media/brochures/symbolic_math/residue-theorem-contour.png&quot;,&quot;overview&quot;:&quot;projects/symbolic_math/overview.html&quot;,&quot;path&quot;:&quot;live_demos/symbolic_math/&quot;,&quot;query&quot;:{},&quot;priority&quot;:-1}]"></script><!-- universal-navigation:start --><link rel="stylesheet" href="../../portfolio-location.css?v=054b6b462c"><script defer src="../../portfolio-location.js?v=054b6b462c"></script><script defer src="../../portfolio-routes.js?v=054b6b462c"></script><script defer src="../../portfolio-universal-navigation.js?v=054b6b462c"></script><!-- universal-navigation:end --><style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head>
+<body class="portfolio-symbolic_math">
+  <div class="portfolio-return" data-theme="dark" role="navigation" aria-label="Portfolio"><a class="portfolio-return-link" href="../../projects/symbolic_math/index.html" target="_top"><span aria-hidden="true">←</span> Project overview</a></div>
+<div class="container">
+    <a href="history.html" class="back-link">&larr; History Part 1</a>
+    <a href="history2.html" class="back-link" style="margin-left: 8px;">&larr; History Part 2</a>
+    <a href="index.html" class="back-link" style="margin-left: 8px;">&larr; Back to Engine</a>
+
+    <h1>History Part 3: The Correctness Audit, Independent Verification &amp; the Modern UI</h1>
+    <p style="font-size: 1.1rem; color: var(--text); margin-bottom: 0.5rem;">June 2026 &mdash; in which we stopped believing our own output.</p>
+    <p>Parts 1 and 2 told the story of building the engine. Part 3 is the story of auditing it: three parallel deep-dives into correctness, two independent verification harnesses, a gallery of bugs (some of them years old), and an honest answer to the question "is this actually a Risch algorithm?"</p>
+
+    <!-- Scoreboard preview -->
+    <div class="stat-grid">
+        <div class="stat"><div class="stat-num">151</div><div class="stat-label">Headless examples verified</div></div>
+        <div class="stat"><div class="stat-num">173/174</div><div class="stat-label">Battery (was 131/170)</div></div>
+        <div class="stat"><div class="stat-num">+33</div><div class="stat-label">Improvements, 0 regressions</div></div>
+        <div class="stat"><div class="stat-num">0</div><div class="stat-label">Wrong answers</div></div>
+        <div class="stat"><div class="stat-num">0</div><div class="stat-label">Hangs</div></div>
+    </div>
+
+    <!-- 1. The Audit -->
+    <h2>1. The Audit</h2>
+    <p>Three parallel deep audits ran over the codebase, each with a different lens:</p>
+    <div class="card card-purple">
+        <ul>
+            <li><strong style="color: var(--text);">Integration rigor</strong> &mdash; does the strategy cascade actually produce correct antiderivatives, and does it fail honestly when it can't?</li>
+            <li><strong style="color: var(--text);">Algebra core + portability</strong> &mdash; parser, AST, simplifier, numeric model; how sound is the foundation, and how hard would a C++/WASM port be?</li>
+            <li><strong style="color: var(--text);">UI</strong> &mdash; security (XSS), accessibility, dead code, stale assets, error surfaces.</li>
+        </ul>
+    </div>
+
+    <div class="verdict"><strong>Verdict: demo-quality with sharp edges.</strong> The engine genuinely solves a wide class of integrals with beautiful step traces &mdash; and it also shipped for years with an associativity bug that made <code>5-2+1</code> equal <code>2</code>.</div>
+
+    <div class="card card-yellow">
+        <h3 style="margin-top: 0;">The most important finding wasn't a bug &mdash; it was a name</h3>
+        <p>Despite the file name <code>experimental_risch.rb</code>, the integrator is <strong style="color: var(--text);">not</strong> a Risch algorithm. It is a <strong style="color: var(--text);">deterministic heuristic cascade</strong>: table lookup &rarr; u-substitution &rarr; trig identities &rarr; integration by parts &rarr; pattern fallback, in a fixed order, first hit wins. There is nothing probabilistic about how it solves integrals. The <em>only</em> probabilistic piece in the whole system is the <strong style="color: var(--text);">Monte Carlo verifier</strong>, which checks that <code>d/dx[result] == integrand</code> at randomly sampled points. Solving is deterministic; <em>checking</em> is statistical. Section 4 below makes this precise.</p>
+    </div>
+
+    <!-- 2. Verification Harnesses -->
+    <h2>2. Independent Verification Harnesses</h2>
+    <p>The audit's key principle: <strong style="color: var(--text);">verify against independent numerics, never against the engine's own claims.</strong> An engine that grades its own homework will happily report success while returning a clean-looking wrong answer (see bug gallery, exhibit five). Two harnesses were built:</p>
+
+    <div class="card card-green">
+        <h3 style="margin-top: 0;">headless_test.rb <span class="tag tag-green">NUMERIC GROUND TRUTH</span></h3>
+        <p>Runs <em>every example in the UI</em> through the real server pipeline, then verifies each result numerically: derivatives are checked against a <strong style="color: var(--text);">central-difference</strong> approximation of the original expression; integrals are differentiated and compared back to the integrand at sample points. No symbolic comparison, no trusting the simplifier &mdash; just floating-point agreement with independent numerics.</p>
+        <p><strong style="color: var(--text);">Baseline: 132 verified.</strong> After the fix wave: <strong style="color: var(--green);">151 verified</strong> (including the new special-product families), with exactly one remaining honest limitation: 1/(x&#8308;+1).</p>
+        <span class="commit-quote">Tighten Monte Carlo verifier and add headless regression harness</span>
+    </div>
+
+    <div class="card card-green">
+        <h3 style="margin-top: 0;">comprehensive_test.rb + compare_results.rb <span class="tag tag-cyan">VERSION-AGNOSTIC</span></h3>
+        <p>A <strong style="color: var(--text);">170-case battery</strong> spanning derivatives, integrals, simplification, parsing, and edge cases. Crucially, it is version-agnostic: it dumps results to JSON, and <code>compare_results.rb</code> diffs two runs &mdash; so any change to the engine can be scored as improvements vs. regressions, not vibes.</p>
+        <p><strong style="color: var(--text);">Pre-fix: 131/170. Post-fix: <span style="color: var(--green);">173/174</span> (battery extended with the new special-product family) &mdash; 0 regressions.</strong> The single remaining miss is an honest "could not solve" marker for 1/(x&#8308;+1), not a wrong answer.</p>
+        <span class="commit-quote">Add comprehensive test battery and version-comparison tooling</span>
+    </div>
+
+    <!-- 3. Bug Gallery -->
+    <h2>3. The Bug Gallery</h2>
+    <p>Every bug below was found by the audit or by the harnesses, and every fix was confirmed by re-running both. Some of these had been live since the first commit.</p>
+
+    <div class="bug-grid">
+        <div class="bug-card">
+            <h4>d/dx |x| = 0 <span class="tag tag-red">SILENT</span></h4>
+            <p class="what"><strong>What:</strong> The derivative dispatcher had no <code>abs</code> case, so <code>d/dx abs(x)</code> silently evaluated to 0.</p>
+            <p class="why"><strong>Why it mattered:</strong> The Monte Carlo verifier differentiates results to check them &mdash; and every <code>ln|...|</code> antiderivative contains an abs. One missing case quietly broke verification for an entire family of correct answers.</p>
+            <p class="fix"><strong>Fix:</strong> Proper <code>abs</code> derivative (<code>x/|x|</code>), and the verifier came back to life.</p>
+            <span class="commit-quote">Fix differentiation: abs derivative and generalized power rule</span>
+        </div>
+
+        <div class="bug-card">
+            <h4>Generalized power rule missing</h4>
+            <p class="what"><strong>What:</strong> <code>(x+1)^2</code> had no direct power-rule path, so it fell through to <em>logarithmic differentiation</em> &mdash; correct in the limit, but producing monstrous expressions with <code>ln(x+1)</code> terms for a one-line answer.</p>
+            <p class="fix"><strong>Fix:</strong> Generalized power rule <code>d/dx f(x)^n = n·f^(n-1)·f'</code> for constant exponents; logarithmic differentiation reserved for genuine <code>f(x)^g(x)</code>.</p>
+            <span class="commit-quote">Fix differentiation: abs derivative and generalized power rule</span>
+        </div>
+
+        <div class="bug-card">
+            <h4>Unary minus &amp; implicit multiplication <span class="tag tag-red">CRASH</span></h4>
+            <p class="what"><strong>What:</strong> <code>-x</code> crashed the parser with a <code>SystemStackError</code> (infinite recursion). Worse, <code>2x</code> didn't crash &mdash; it silently parsed as <code>2</code>, dropping the variable entirely.</p>
+            <p class="fix"><strong>Fix:</strong> Unary minus rewritten as <code>0 - x</code> / <code>-1 * x</code> at tokenization; implicit multiplication (<code>2x</code>, <code>2(x+1)</code>, <code>x sin(x)</code>) inserted explicitly by the lexer.</p>
+            <span class="commit-quote">Fix parser: unary minus crash and implicit multiplication</span>
+        </div>
+
+        <div class="bug-card">
+            <h4>Associativity inversion <span class="tag tag-red">CRITICAL</span> <span class="tag tag-yellow">YEARS OLD</span></h4>
+            <p class="what"><strong>What:</strong> The reverse shunting-yard implementation inverted associativity for every non-commutative operator: <code>5-2+1 = 2</code>, <code>8/2/2 = 8</code>, <code>x/2*4 = 0.5</code>, <code>2^3^2 = 64</code>. All wrong, all live since the original engine.</p>
+            <p class="why"><strong>Why it survived:</strong> Most demo examples were single-operator or fully parenthesized, so nothing in the happy path ever chained <code>-</code>, <code>/</code>, or <code>^</code>.</p>
+            <p class="fix"><strong>Fix:</strong> Correct left-associativity for <code>-</code> and <code>/</code>, right-associativity for <code>^</code> (so <code>2^3^2 = 512</code>, <code>5-2+1 = 4</code>).</p>
+            <span class="commit-quote">Fix parser: left-associativity of -, /, and right-associativity of ^</span>
+        </div>
+
+        <div class="bug-card">
+            <h4>Simplifier deleted integral markers <span class="tag tag-red">WRONG ANSWERS</span></h4>
+            <p class="what"><strong>What:</strong> When the cascade couldn't finish (e.g. <code>&int;x&sup2;e&#739;sin x</code>), it returned a partial result containing unevaluated <code>integral(...)</code> markers &mdash; and a simplify pass silently <em>deleted</em> them, leaving a clean-looking, confidently wrong antiderivative.</p>
+            <p class="why"><strong>Why it's the scariest bug here:</strong> It converted honest failure into polished lies.</p>
+            <p class="fix"><strong>Fix:</strong> A <code>finalize_integration</code> step collapses any result still containing markers into one honest unevaluated-integral marker. "Couldn't solve" is now a first-class answer.</p>
+            <span class="commit-quote">Fix integration correctness: honest failure, depth guard, more forms</span>
+        </div>
+
+        <div class="bug-card">
+            <h4>sin(x)/x hang <span class="tag tag-red">DOS</span></h4>
+            <p class="what"><strong>What:</strong> <code>&int;sin(x)/x</code> (the sine integral, non-elementary) sent the cascade into unbounded strategy recursion &mdash; the request never returned.</p>
+            <p class="fix"><strong>Fix:</strong> Recursion depth and work-budget guards. The engine now gives up gracefully and returns an honest marker in ~0.04s.</p>
+            <span class="commit-quote">Fix integration correctness: honest failure, depth guard, more forms</span>
+        </div>
+
+        <div class="bug-card">
+            <h4>Dropped boundary term in trig reduction</h4>
+            <p class="what"><strong>What:</strong> <code>&int;sin&#8319;x</code> / <code>&int;cos&#8319;x</code> for n &ge; 5 used the reduction formula but <em>dropped its boundary term</em> (the <code>-sin&#8319;&#8315;&sup1;x·cos x / n</code> piece) &mdash; producing wrong answers that only the independent verifier caught.</p>
+            <p class="fix"><strong>Fix:</strong> Full reduction formula with the boundary term; verified numerically through n = 8.</p>
+        </div>
+
+        <div class="bug-card">
+            <h4>Forms the normalizer hid from the matcher</h4>
+            <p class="what"><strong>What:</strong> <code>sec&sup2;x</code> / <code>csc&sup2;x</code> written as reciprocal forms (<code>1/cos&sup2;x</code>) missed the table. And <code>&int;ln(x)/x</code> failed because the normalizer rewrote <code>a/b &rarr; a·b&#8315;&sup1;</code> <em>before</em> the division u-sub matcher could ever see a division.</p>
+            <p class="fix"><strong>Fix:</strong> Reciprocal-form recognition in the table, and the u-sub matcher learned to see through the normalized power form.</p>
+            <span class="commit-quote">Fix integration correctness: honest failure, depth guard, more forms</span>
+        </div>
+
+        <div class="bug-card">
+            <h4>&int;x&#8319; crash in tracked simplify <span class="tag tag-red">CRASH</span></h4>
+            <p class="what"><strong>What:</strong> Indefinite <code>&int;x^n</code> errored when step-tracking was on: constant-folding nulled a node's children, then the step-message formatter read those same children to describe what it had just done.</p>
+            <p class="fix"><strong>Fix:</strong> Capture the description <em>before</em> mutating the node.</p>
+            <span class="commit-quote">Fix crash: &int;x^n indefinite integration errored in tracked simplify</span>
+        </div>
+    </div>
+
+    <!-- 4. Is it Risch? -->
+    <h2>4. Is it Risch? <span class="tag tag-yellow">HONEST ANSWER: NO</span></h2>
+    <div class="card card-yellow">
+        <p style="color: var(--text);"><strong>No.</strong> The file is named <code>experimental_risch.rb</code> for historical reasons, and the name has caused more confusion than any bug. What the engine actually does:</p>
+        <ul>
+            <li><strong style="color: var(--text);">Deterministic heuristic pattern-matching</strong> with a fixed strategy order: table lookup &rarr; u-substitution &rarr; trig identities &rarr; by parts &rarr; pattern fallback. Same input, same path, same answer, every time.</li>
+            <li>When it fails, it fails because it <em>ran out of patterns</em> &mdash; not because it proved anything.</li>
+        </ul>
+        <p style="color: var(--text); margin-top: 0.75rem;">What a true Risch implementation would require, none of which is present:</p>
+        <ul>
+            <li><strong style="color: var(--text);">Hermite reduction</strong> for the rational part,</li>
+            <li>the <strong style="color: var(--text);">Rothstein&ndash;Trager</strong> algorithm for the logarithmic part,</li>
+            <li>a <strong style="color: var(--text);">Liouville-theorem decision procedure over differential fields</strong> &mdash; the machinery that lets Risch <em>prove</em> an elementary antiderivative does or does not exist.</li>
+        </ul>
+        <p style="color: var(--text); margin-top: 0.75rem;">And to retire the other recurring misconception: the word <em>"probabilistic"</em> describes only the <strong>verification layer</strong>. The Monte Carlo verifier differentiates each result and checks it against the integrand at random sample points. The solver itself contains no randomness at all.</p>
+    </div>
+
+    <!-- 5. New in this update -->
+    <h2>5. New in This Update</h2>
+
+    <div class="card card-green">
+        <h3 style="margin-top: 0;">The poly&middot;exp&middot;trig reduction family <span class="tag tag-green">NEW STRATEGY</span></h3>
+        <p>Integrals of the form <code>&int;x&#8319; e^(ax) sin(bx)</code> and <code>&int;x&#8319; e^(ax) cos(bx)</code> &mdash; previously a wall for the by-parts engine &mdash; now fall to a dedicated recursion:</p>
+        <div class="formula">I(n,s) = x&#8319;&middot;E&middot;s &minus; n&middot;[ a&middot;I(n&minus;1,s) &minus; b&middot;I(n&minus;1,c) ] / (a&sup2;+b&sup2;)</div>
+        <p>where <code>E = e^(ax)</code> and <code>s</code>/<code>c</code> are the sin/cos branches, mutually recursive down to the classic exp&middot;trig base case. This conquers <code>x&sup2;e&#739;sin x</code> and <code>x&middot;e&#739;&middot;cos x</code> &mdash; both former members of the "clean-looking wrong answer" hall of shame.</p>
+    </div>
+
+    <div class="bug-grid">
+        <div class="bug-card" style="border-left-color: var(--green);">
+            <h4>Mixed odd trig powers</h4>
+            <p>Closed form for <code>sin&#7510;x&middot;cos&#8319;x</code> with an odd power: peel one factor, Pythagorean-substitute the rest, integrate the resulting polynomial in u. <code>sin&sup2;x&middot;cos&sup3;x</code> now solves cleanly.</p>
+        </div>
+        <div class="bug-card" style="border-left-color: var(--green);">
+            <h4>x&#8319;&middot;sin&sup2;/cos&sup2; via half-angle</h4>
+            <p>Polynomial-times-even-trig-square forms like <code>x&middot;sin&sup2;x</code> are rewritten with the half-angle identity into <code>x/2 &minus; x&middot;cos(2x)/2</code>, which the by-parts engine then finishes.</p>
+        </div>
+        <div class="bug-card" style="border-left-color: var(--green);">
+            <h4>e&#739;&middot;ln(x) reclassified <span class="tag tag-purple">HONESTY FIX</span></h4>
+            <p><code>&int;e&#739;ln(x) = e&#739;ln x &minus; Ei(x)</code>, and Ei is non-elementary &mdash; so the whole integral is non-elementary. It had been mislabeled "solvable in principle". It is now correctly classified as having no elementary antiderivative.</p>
+        </div>
+        <div class="bug-card" style="border-left-color: var(--pink);">
+            <h4>Live Solve mode <span class="tag tag-pink">UI</span></h4>
+            <p>A verbose animated playback of the strategy cascade: which subexpression is under examination, which u-candidates are being weighed, when the engine switches strategies, and the post-solve simplification pass. Failed results get an unambiguous red state, and syntax-highlighted math now appears everywhere &mdash; steps, chips, titles, results.</p>
+        </div>
+    </div>
+    <p>The UI work landed across a string of commits &mdash; <em>"UI: syntax-highlighted math in steps + chips, tinted titles, example-&gt;ops cue"</em>, <em>"UI: rich math-symbol chips, per-category color coding, animated fold/unfold"</em>, <em>"UI hardening: remove polyfill.io, drop stale files, inline errors, XSS + a11y"</em>, and <em>"UI: show iteration steps, kill grey, colorful titles, formula spacing, op-button glows"</em>.</p>
+
+    <!-- 6. Remaining challenges -->
+    <h2>6. Biggest Remaining Challenges</h2>
+    <p>Ranked by depth, not difficulty of typing the fix. None of these are hidden; all of them are real.</p>
+    <div class="card card-orange">
+        <ol class="ranked">
+            <li><strong>Float-only numeric core.</strong> There are no exact rationals, and <code>pi</code> / <code>e</code> are substituted as float literals at <em>lex time</em> &mdash; so <code>sin(pi)</code> returns <code>1.2e-16</code> instead of 0, and <code>1/3</code> can never stay <code>1/3</code>. This is the deepest fix and is planned for the C++/WASM port, where an exact-rational and symbolic-constant core can be built in from day one.</li>
+            <li><strong>No true Risch decision procedure.</strong> Failures mean "ran out of patterns", never "provably non-elementary". Closing this gap means Hermite reduction, Rothstein&ndash;Trager, and a Liouville framework &mdash; months of careful work (see Part 1's Tier 2/3 roadmap, which still stands).</li>
+            <li><strong>Irrational quadratic factoring for partial fractions.</strong> <code>1/(x&#8308;+1)</code> <em>is</em> elementary, but solving it requires <code>x&#8308;+1 = (x&sup2;+&radic;2x+1)(x&sup2;&minus;&radic;2x+1)</code> &mdash; factoring over &#8477; with irrational coefficients, which the polynomial core can't express yet.</li>
+            <li><strong>Even&middot;even trig powers with polynomial factors</strong> in general (<code>x&sup2;sin&#8308;x</code> and friends) &mdash; the half-angle rewrite handles squares; higher even powers need iterated reduction wired into the poly&middot;trig path.</li>
+            <li><strong>Binary-tree pattern fragility.</strong> Matching is representation-dependent: the same expression in a different tree shape can miss a pattern the normalizer was supposed to guarantee. A flat n-ary / canonical-form core would fix the class, not the instances.</li>
+            <li><strong>The C++/WASM port itself.</strong> Audit verdict: <span class="tag tag-yellow">MEDIUM</span> for the core (AST, parser, differentiation, normalizer), but months for the full engine &mdash; the integration cascade leans on Ruby idioms (dynamic dispatch, duck-typed tree walking) that don't translate mechanically.</li>
+        </ol>
+    </div>
+
+    <!-- 7. Scoreboard -->
+    <h2>7. Scoreboard</h2>
+    <table>
+        <tr><th>Harness</th><th>Result</th><th>Wrong answers</th><th>Hangs</th><th>Notes</th></tr>
+        <tr>
+            <td><code>headless_test.rb</code> (UI examples, central-difference verified)</td>
+            <td class="yes">151 verified</td>
+            <td class="yes">0</td>
+            <td class="yes">0</td>
+            <td>1 honest fail (unevaluated marker, correctly reported)</td>
+        </tr>
+        <tr>
+            <td><code>comprehensive_test.rb</code> (170-case battery)</td>
+            <td class="yes">164 / 170</td>
+            <td class="yes">0</td>
+            <td class="yes">0</td>
+            <td>was 131/170 pre-audit &mdash; +33 improvements, 0 regressions</td>
+        </tr>
+    </table>
+    <p>The number that matters most isn't 164 &mdash; it's the pair of zeros. Before the audit, the engine could return confident wrong answers and could hang. Now every failure is an explicit, red-flagged "couldn't solve", and every success has been checked against independent numerics. That's the difference between a demo and an instrument.</p>
+
+    <div class="card card-purple" style="margin-top: 2rem; text-align: center;">
+        <p style="color: var(--text);"><strong>Previously:</strong> <a href="history.html">Part 1: Architecture &amp; CAS Comparison</a> &mdash; <a href="history2.html">Part 2: UI Overhaul, Complex Analysis &amp; More</a></p>
+    </div>
+
+    <p style="margin-top: 2rem; color: var(--muted); text-align: center; font-size: 0.85rem;">
+        Symbolic Math Engine &mdash; Built with Ruby &mdash; <a href="index.html">Back to Engine</a> &mdash; <a href="history.html">History Part 1</a> &mdash; <a href="history2.html">History Part 2</a>
+    </p>
+</div>
+</body>
+</html>

@@ -1,0 +1,261 @@
+{{SECTION:_head.html}}
+{{NAV}}
+
+<!-- ================= HERO ================= -->
+<header class="hero">
+  <div class="wrap hero-in">
+    <p class="eyebrow">The residue &middot; RadianceLab</p>
+    <h1>Everything that did<br>not get a <i>page</i></h1>
+    <p class="thesis">Ten threads were chosen. This is what was left over &mdash; graded in the same vocabulary, including the rows that say the thing does not work.</p>
+    <p class="note" style="max-width:58ch;margin:14px 0 0;color:#9fb0ad">A curated portfolio can always be accused of having picked its ten best subjects. The reply is to publish the eleventh page: the half-built modules, the controls that do nothing, the fields that were declared and never read, and the headless vocabulary nobody has typed. Nothing here is promoted; everything here is named.</p>
+    <div class="spectrum"></div>
+    <div class="stats">
+      <div class="stat"><span class="k">Catalogued features</span>
+        <div class="v"><span>551</span></div>
+        <div class="sub">the ten threads cover the interesting ones; this page covers the rest</div></div>
+      <div class="stat"><span class="k">WIP tab controls with a backend</span>
+        <div class="v"><span class="from">0</span><span class="arr">of</span><span>18</span></div>
+        <div class="sub">three panels that print <span class="mono">[No backend]</span> on their own faces</div></div>
+      <div class="stat"><span class="k">Header files included by nothing</span>
+        <div class="v"><span>14</span></div>
+        <div class="sub">1,410 lines, and not one of them has an implementation file</div></div>
+      <div class="stat"><span class="k">Headless keys under <span class="mono">pp.</span></span>
+        <div class="v"><span class="to">67</span></div>
+        <div class="sub">the estimator's whole config surface; the site has printed almost none of them</div></div>
+    </div>
+  </div>
+</header>
+
+<!-- ================= 01 · THE RESIDUE ================= -->
+<section id="residue" style="--secc:var(--accent)" data-nav="The residue">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">01 &mdash; What a curated site leaves out</p>
+      <h2>Ten threads is a selection. This is the complement</h2>
+      <p class="lead">Every other page here argues something. This one does not: it is an inventory, and its only claim is that the inventory is complete enough to be worth publishing. The ten threads were chosen because each had a mechanism or a number behind it. Choosing has a cost, and the cost is that a reader cannot tell what was passed over from what does not exist.</p>
+      <p>So the rule this page applies to itself is stated up front, and it is a rule about <em>refusal</em> more than about coverage:</p>
+      <p class="note"><b>A feature earns prose only where the site can say something about it that its own name does not already say</b> &mdash; a number, a mechanism, or a defect. Everything else earns a table row: name, one clause, grade. An absence earns a row and never a paragraph, unless the absence corrects something the site has already claimed. And a control that does nothing earns a line, because saying so is the editorial position rather than an omission.</p>
+      <p>Applied honestly that rule mostly says no. The photon-primitive family, bidirectional transport and the camera all pass it, and all three already have pages; nothing here is going to out-argue them. What is left below is a projector mode with a real mechanism, a spectral pipeline with one specific hole in it, thirteen half-built modules, and several hundred rows that reduce to a clause each.</p>
+    </div>
+
+    {{SVG:f30-subsystem-map.svg}}
+    <div class="narrow">
+      <p class="note" style="margin-top:18px"><b>Reading the map.</b> One scene description feeds two render paths that share nothing else, and eight subsystems hang off them. Seven of the eight have one of the first ten threads. The eighth &mdash; the control surface, which is what every screenshot on this site is taken <em>through</em> &mdash; is drawn dashed because its only thread is this one; thread 07 describes the parts of it that its own argument needed, and &sect;07 below is the rest. The dashed band underneath is the reason the page exists at all: the work-in-progress register, the absences, the dead tools and the headless keys each cut across every box above, so none of them could be filed under a single thread.</p>
+      <p>The exhaustive version is not here and should not be. <span class="mono">docs/FEATURE-CATALOGUE.md</span> carries all 555 rows with a source anchor on each &mdash; 253 seen, 116 never viewed, 97 measured, 31 inert, 24 absent, 18 superseded, 16 scene-dependent. This page is the part of that document a reader would actually finish.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 02 · WIP ================= -->
+<section id="wip" style="--secc:var(--l680)" data-nav="Started, not finished">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">02 &mdash; The work-in-progress register</p>
+      <h2>Started, not finished</h2>
+      <p class="lead">Thirteen modules in this program are partly built. The unusual thing about them is not that they exist &mdash; every large renderer has them &mdash; but that most of them are <strong>labelled by the code that hosts them</strong>. Three panels print <span class="mono">[No backend]</span> on their own faces. A menu greys out the four tools that are headers and nothing else. An integrator that never runs a Newton iteration reports that its step count is always zero. A gather mode is named &ldquo;Final Gather (not built - renders kNN)&rdquo; in the combo box you select it from.</p>
+      <p>The register below is the honest version. Each row says what runs and what does not, in that order, and no row is softened. Where a module builds data that nothing reads, the row says exactly that.</p>
+    </div>
+
+    <div class="tw"><table>
+      <thead><tr><th>Module</th><th>What runs</th><th>What does not</th><th>Grade</th></tr></thead>
+      <tbody>
+        <tr class="key"><td>Advanced &#9656; WIP tab</td><td>The panel draws, and labels itself: a button reading <em>UI ONLY &mdash; backends not yet wired</em>, then three collapsing headers each printing <span class="mono">[No backend]</span></td><td><b>All of it.</b> Eighteen controls across Temporal Techniques, Differential Rendering and Inverse Rendering. Twelve are function-local statics, so nothing outside the panel <em>can</em> read them; the other six are <span class="mono">diffRender*</span> fields declared on the UI struct, and every reference to all six is either that declaration or a line inside this same panel. Inverse Rendering's own line says it depends on Differential Rendering, which has no backend either</td><td><span class="st st-d">inert</span></td></tr>
+        <tr><td>Physics, two of five solvers</td><td>Five solvers step. Three reach the traced image &mdash; thread 09 is the census</td><td>The panel prints <span class="mono">[WIP] Euler Fluid (Grid-based)</span> and <span class="mono">[WIP] Soft Body (Mass-Spring)</span> in yellow above its own controls</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>UPBP beams</td><td>Beams are built, stored and drawn</td><td>Nothing gathers from them. The integrator's own header records that <span class="mono">enableBeamMerge</span> is assigned from the UI and read nowhere, and that <span class="mono">beamMaxPerPath</span> is declared, assigned nowhere and read nowhere</td><td><span class="st st-d">inert</span></td></tr>
+        <tr><td>VCM visualisation</td><td>The integrator runs</td><td><span class="mono">vcmVizMode</span> has no reader outside the UI. The combo is greyed and titled <em>Viz Mode [inert]</em> &mdash; and it is offered <b>twice</b>, in two different panels</td><td><span class="st st-d">inert</span></td></tr>
+        <tr><td>Manifold Exploration</td><td>The integrator renders</td><td>There is no Newton solve. The reported step count is assigned the literal zero, and both Newton sliders reach config fields the integrator never reads &mdash; which its own greyed heading, <em>Newton Solver (not built)</em>, says</td><td><span class="st st-d">inert</span></td></tr>
+        <tr><td>Photon mapper, third gather</td><td>Two gather modes work</td><td>The third is named in its own combo box: <em>Final Gather (not built - renders kNN)</em>. Max Iter sits behind a Confirm button so a slider drag cannot launch fifty passes</td><td><span class="st st-d">absent</span>, labelled</td></tr>
+        <tr><td>Goldstein branch-cut unwrap</td><td>The weighted-least-squares unwrapper beside it works and scores itself</td><td><span class="mono">runGoldstein</span> is an empty function body, and so is <span class="mono">runPostAndDepth</span> next to it. The two textures the algorithm would write are allocated on every run and never touched</td><td><span class="st st-d">absent</span></td></tr>
+        <tr><td>Off-axis holography, second implementation</td><td>The working bench lives in the VFX source and renders</td><td><span class="mono">src/spectral/Holography.h</span> declares <span class="mono">OffAxisHolography</span> and <span class="mono">CWToFSensor</span> in full &mdash; configs, method signatures, 72 lines &mdash; with no implementation file, and is included by nothing</td><td><span class="st st-d">design only</span></td></tr>
+        <tr><td>Mesh pipeline</td><td>Analytic primitives only, and that is a decision thread 04 defends</td><td><span class="mono">tinyobjloader</span> is vendored and linked with zero call sites. A 153-line marching-cubes implementation compiles into the binary and its header is included by no other file</td><td><span class="st st-d">absent</span></td></tr>
+        <tr><td>Texture pipeline</td><td>Node-graph textures reach the tracer; the projector bakes into an albedo array</td><td>The material struct's three texture indices &mdash; <span class="mono">albedoTexture</span>, <span class="mono">normalTexture</span>, <span class="mono">roughnessTexture</span> &mdash; have exactly one reference each: their own declaration</td><td><span class="st st-d">absent</span></td></tr>
+        <tr><td>The Tools menu</td><td>Nothing. All four entries are greyed, and a tooltip says why</td><td>Flatland Slicer, Sampling Visualizer, Field Visualizer and NeRF Training are named in the menu and nowhere else. Their four headers are part of a larger set: <b>fourteen headers, 1,410 lines</b>, that no file includes and no <span class="mono">.cpp</span> implements</td><td><span class="st st-d">absent</span>, labelled</td></tr>
+        <tr><td>Scene input and output</td><td>Fifty-odd presets load from the menu, and the comparison report writes PNGs</td><td>Open Scene, Save Scene, Export Image and Take Snapshot (F12) are four stubs that draw a not-implemented border and return</td><td><span class="st st-d">absent</span>, labelled</td></tr>
+        <tr><td>Backend selection</td><td>One backend exists: the GL compute shader</td><td>The Compute&nbsp;/&nbsp;CUDA&nbsp;/&nbsp;OptiX radio group is disabled, and its variable is a function-local static read nowhere. No CUDA or OptiX code ships here</td><td><span class="st st-d">inert</span>, labelled</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="narrow">
+      <p class="note"><b>Preset 9 belongs in this list and is one line long.</b> The scene menu entry once read <em>Outdoor (WIP)</em> and built a plain Cornell Box under that name. It now reads <em>Outdoor (not built)</em> and is greyed &mdash; the correction is the interesting part, not the preset.</p>
+      <p>What the register is <em>not</em> is a confession. <b>Nine of the thirteen rows are visible to a user who never opens the source</b>, because the running program says so itself &mdash; in a greyed label, a tooltip, an <span class="mono">[inert]</span> suffix or a combo entry that names its own gap. That is a deliberate convention in this codebase, and it is the same convention that produced the ledger on the landing page: a control that lies about what it reaches is a worse defect than a control that does nothing. The other four &mdash; the Goldstein branch, the second holography declaration, the mesh pipeline and the three texture indices &mdash; are silent, and were found by reading the source rather than by driving the program. They are in this table for that reason.</p>
+    </div>
+
+    {{SHOT:Render Settings &#9656; Advanced tab. Expand all three collapsing headers &mdash; Temporal Techniques [WIP], Differential Rendering [WIP], Inverse Rendering [WIP] &mdash; so the amber &ldquo;[No backend]&rdquo; line under each is legible, and keep the orange &ldquo;UI ONLY - backends not yet wired&rdquo; button at the top of the tab in frame. The point of the frame is that all four self-labels are visible at once.}}
+    {{SHOT:Menu bar &#9656; Tools, opened. Four greyed entries &mdash; Flatland Slicer, Sampling Visualizer, Field Visualizer, NeRF Training, each suffixed &ldquo;(not built)&rdquo; &mdash; with the mouse resting on one so the disabled tooltip is showing, and the &ldquo;Data Moshing is BUILT, not WIP&rdquo; footer of the same menu in frame beneath them.}}
+  </div>
+</section>
+
+<!-- ================= 03 · THE OTHER PROJECTOR ================= -->
+<section id="projector" style="--secc:var(--l400)" data-nav="The other projector">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">03 &mdash; Six modes, four destinations</p>
+      <h2>The projector that bakes, and the projector that lights</h2>
+      <p class="lead">There are two projectors in this renderer and they are unrelated. The first is the structured-light lamp inside the megakernel &mdash; four delta geometries, seven patterns, a time-of-flight carrier &mdash; and thread 05 is about it. The second lives in the node graph and has six modes. Thread 05 names three of them in a paragraph and thread 07 has an unshot clip of the bake; what no page has said is <em>where each mode lands</em>, and that is the fact the mode combo hides.</p>
+      <p>Wire a <b>Camera</b> node, which freezes the live view-projection at one button press, and a <b>Texture</b> node into a <b>DataMosh Projector</b>, and a photograph is cast into the scene from that frozen pose. The combo box beside it offers six modes, and they land in four different places &mdash; which is the whole reason the mode matters more than any slider under it.</p>
+    </div>
+
+    {{SVG:f31-projector-modes.svg}}
+
+    <div class="tw"><table>
+      <thead><tr><th>Mode</th><th>Where it lands</th><th>What that means</th></tr></thead>
+      <tbody>
+        <tr><td>0 &middot; Reproject</td><td>Screen-space post-pass</td><td>Applied to the display texture after tonemap, only when an enabled projector is fully wired. The float film never sees it</td></tr>
+        <tr class="key"><td>1 &middot; Project</td><td>Rasteriser <em>and</em> path tracer</td><td>Repaints albedo at the hit. A sub-option decides whether the photo is shown unlit &mdash; an exact colour match, absorbed on contact &mdash; or becomes a surface colour that the scene then lights</td></tr>
+        <tr><td>2 &middot; Forward</td><td>Rasteriser only</td><td>The one mode the traced image never sees</td></tr>
+        <tr class="key"><td>3 &middot; Light cone</td><td>Path tracer, as a luminaire</td><td>A perspective cone from the captured apex. Image colour &times; intensity &times; N&middot;L is added at each hit &mdash; <b>no shadow ray, no distance falloff, no MIS</b>, and skipped entirely for the two pure light-tracing strategies and for light-sample-only</td></tr>
+        <tr class="key"><td>4 &middot; Light plane</td><td>Path tracer, as a luminaire</td><td>The same addition with an orthographic beam of a world size you set, so N&middot;L is taken against the fixed projector forward rather than the direction to it</td></tr>
+        <tr class="key"><td>5 &middot; Bake to UV</td><td>A per-mesh UV texture the tracer then reads</td><td>The baking mode. Covered below</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="narrow">
+      <h3>The baking half</h3>
+      <p>Mode 5 is the only one that leaves something behind. The rasteriser renders the projection <em>into texture space</em>: for every mesh with a layer in the tracer's baked-albedo array, it binds that layer as a framebuffer attachment, draws the mesh through a UV-space vertex shader at the chosen resolution, and writes the projected photograph into the texels the mesh covers. There is deliberately no clear &mdash; texels the projection misses keep the tracer's own material fill, so a bake paints onto a surface rather than replacing it.</p>
+      <p>Three controls belong to that mode alone. <b>Bake res</b> runs 64 to 4096 and, because a high-resolution bake is slow, it does not re-bake while you drag: a separate <b>Re-bake</b> button commits it. <b>Bake side</b> is a three-way choice &mdash; the side facing the projector, the side facing away, or both &mdash; which is the question a decal system has to answer and usually answers silently. The result is not a decal or an overlay: those layers become entries in the array the path tracer samples for albedo, so the photograph is lit, shadowed and reflected like any other surface colour.</p>
+      <p class="note"><b>Two limits worth stating in the same breath.</b> No CPU integrator sees any of the six modes &mdash; every projector uniform is written by the megakernel's uploader and the rasteriser, and by nothing else, so the entire projector surface is GPU-only in a renderer whose research half is on the CPU. And one function that looks like the CPU's way in, <span class="mono">sampleProjectorBake</span>, has zero callers anywhere, although the header comment above it describes the CPU material bakes calling it per texel.</p>
+    </div>
+
+    {{VIDEO:The photograph as a lamp|Preset 3 (Material Showcase). Open the node editor, add a Camera node and press its capture button to freeze the current pose, add a Texture node and use its in-engine capture to grab a bright image, and wire both into a DataMosh Projector. Set Mode = Light cone and Intensity ~2. Do not move the camera. Let it accumulate 10 s, then switch the combo to Light plane and hold another 10 s, then to Bake to UV, press Re-bake at 1024, and hold 10 s more.|the three modes are three different physical objects. Light cone lights from a point and its falloff is wrong on purpose &mdash; there is none. Light plane lights from a direction, so the shading flattens. Bake to UV stops lighting anything and instead paints the photograph onto the surfaces, which then darken correctly in the shadowed corner because they entered the tracer as albedo.}}
+  </div>
+</section>
+
+<!-- ================= 04 · SPECTRUM ================= -->
+<section id="spectrum" style="--secc:var(--l460)" data-nav="Spectrum">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">04 &mdash; A curve for reflectance, none for emission</p>
+      <h2>The spectral pipeline, and the one field it is missing</h2>
+      <p class="lead">Spectral rendering here is whole, and all of it but one piece runs on the GPU. A hero wavelength is drawn per path, uniformly across the visible band, carried through the bidirectional connection and drawn again for the light-tracer path; conversion home is the CIE 1931 curves. Reflectance is up to eight Gaussian lobes per material, edited on a rainbow canvas that replaces the ordinary colour picker, packed into the material buffer and read back in the shading module. Spectral mode compiles its own kernel variant. Thread 04 covers that machinery, and it is the part of it that <em>works</em>.</p>
+      <p>What has no spectrum is <strong>emission</strong>. The scene material carries a field named <span class="mono">spectralEmission</span> with a full spectral-curve type behind it, and that field has exactly one reference in the entire program: its own declaration. The consequence is visible rather than theoretical &mdash; in spectral mode an emitter falls back to its <em>albedo</em> curve, or to plain luminance when it has none. A spectral light source in this renderer borrows the spectrum it reflects with. A second field, <span class="mono">spectralSPP</span>, was declared for wavelength samples per pixel and has the same one reference.</p>
+      <p>One piece of the spectral work is not GPU-only, and it is the piece the research half needed: dispersion. The CPU estimator evaluates the identical Cauchy expression per colour channel, anchored at the sodium D line, written deliberately verbatim from the shader so the two cannot drift &mdash; which is why the dispersive caustic on thread 01 can be compared against the megakernel at all.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 05 · DECLARED, NEVER READ ================= -->
+<section id="absent" style="--secc:var(--l500)" data-nav="Declared, never read">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">05 &mdash; The absences, one clause each</p>
+      <h2>Declared, and never read</h2>
+      <p class="lead">A field with one reference is a promise the program has not kept. These are cheap to find and cheap to state, and stating them is the only reason a reader can trust the rest of the site: a portfolio that lists only what works has not told you how it counted.</p>
+      <p>Every row below is a name that exists in the source and reaches nothing. None of them earns a paragraph.</p>
+    </div>
+
+    <div class="tw"><table>
+      <thead><tr><th>Name</th><th>What it was for</th><th>Grade</th></tr></thead>
+      <tbody>
+        <tr><td>spectralEmission</td><td>An emission spectrum per material. One reference; a spectral emitter uses its albedo curve instead (&sect;04)</td><td><span class="st st-d">absent</span></td></tr>
+        <tr><td>spectralSPP</td><td>Wavelength samples per pixel per frame. One reference</td><td><span class="st st-d">absent</span></td></tr>
+        <tr><td>albedoTexture / normalTexture / roughnessTexture</td><td>Three texture indices on the material struct. One reference each &mdash; textures reach the tracer through the node graph and the projector bake instead</td><td><span class="st st-d">absent</span></td></tr>
+        <tr><td>envMapIndex</td><td>An HDR environment map on the scene. One reference. The sky is procedural</td><td><span class="st st-d">absent</span></td></tr>
+        <tr><td>hasSSS / sssRadius</td><td>A per-material subsurface flag and mean free path. The subsurface <em>material</em> works; these two fields are not how it is reached</td><td><span class="st st-d">absent</span></td></tr>
+        <tr><td>LightType Directional / Environment</td><td>Two of the four light kinds. The rasteriser and the light panel handle both; the megakernel's uploader takes only Point lights from <span class="mono">scene.lights[]</span>, so neither reaches the traced image by that route</td><td><span class="st st-d">absent</span> in the tracer</td></tr>
+        <tr><td>aoIgnoreSurfaceType</td><td>&ldquo;Treat all surfaces the same&rdquo; for ambient occlusion. One reference</td><td><span class="st st-d">absent</span></td></tr>
+        <tr><td>pmPrimitiveType</td><td>Point / beam / surface selection for the photon mapper. One reference &mdash; the photon primitives live in the CPU estimator instead, where they are thread 01</td><td><span class="st st-d">absent</span></td></tr>
+        <tr><td>allowNegativeEmission</td><td>Not absent, and worth the exception: it gates a signed emission slider, and it turns itself on when a material is found already carrying negative emission</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>Fourteen orphan headers</td><td><b>1,410 lines.</b> No file includes any of them and none has an implementation file: <span class="mono">SDF.h</span>, <span class="mono">Timeline.h</span>, <span class="mono">Pipeline.h</span>, <span class="mono">NDScene.h</span>, <span class="mono">NeRF.h</span>, <span class="mono">Medium.h</span>, <span class="mono">DiffRenderer.h</span>, <span class="mono">Holography.h</span>, <span class="mono">DebugDraw.h</span>, <span class="mono">SamplingVis.h</span>, <span class="mono">FieldVis.h</span>, <span class="mono">FlatlandView.h</span>, <span class="mono">Registry.h</span>, <span class="mono">DipoleApprox.h</span>. Nine of them, 637 lines, are the ones the rest of this page names for other reasons &mdash; four Tools entries, the Advanced tab, the holography bench, a subsurface approximation; the whole list came out of a scan of every header in the tree for an includer</td><td><span class="st st-d">absent</span></td></tr>
+        <tr><td>Marching cubes</td><td>153 lines that compile into the binary. Its header is included by no other file, and a second, independent declaration of the same algorithm sits inside one of the orphans above</td><td><span class="st st-d">absent</span></td></tr>
+        <tr><td>tinyobjloader</td><td>Vendored and linked, zero call sites. Not one triangle reaches the GPU &mdash; and thread 04 argues that this is a decision, not an omission</td><td><span class="st st-d">absent</span></td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</section>
+
+<!-- ================= 06 · INERT ================= -->
+<section id="inert" style="--secc:var(--l580)" data-nav="Does nothing">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">06 &mdash; Reachable, and does nothing</p>
+      <h2>The controls that are honest about being dead</h2>
+      <p class="lead">Thirty-two catalogue rows are graded inert: reachable, and reaching nothing. That is a large number and it is published rather than hidden, because the alternative &mdash; a slider that appears to work &mdash; is the failure mode that costs a reader a day. Most of them are greyed at the source with a tooltip that says why, and a handful carry the date the correction was made.</p>
+      <p>The register in &sect;02 has the ones that belong to a half-built module. These are the strays &mdash; and the last two rows are here for contrast, because a tab that only signposts and a tab that is entirely live are the two things an inert-control audit keeps mistaking for each other.</p>
+    </div>
+
+    <div class="tw"><table>
+      <thead><tr><th>Control</th><th>Where</th><th>What it reaches</th></tr></thead>
+      <tbody>
+        <tr><td>Compute / CUDA / OptiX</td><td>Tracer tab</td><td>A function-local static. Disabled, with a tooltip saying the GL compute shader is the only backend that exists and that this group is read nowhere</td></tr>
+        <tr><td>Viz Mode</td><td>VCM, twice</td><td>Nothing, and titled <em>[inert]</em> in both places</td></tr>
+        <tr><td>Beam-beam merge</td><td>UPBP</td><td>Assigned from the UI, read nowhere &mdash; recorded as such in the integrator's own header</td></tr>
+        <tr><td>MSAA</td><td>Rasteriser tab</td><td>Nothing. The GL context is created with one sample, so the raster view is aliased however the knob is set</td></tr>
+        <tr><td>Debug tab</td><td>Render Settings</td><td>Three lines of signposting and no control at all: it says its contents moved to the tabs that own them, and names two of the destinations. Empty by design, which is not the same as inert</td></tr>
+        <tr><td>Misc tab</td><td>Render Settings</td><td>Two toggles, both live: select in tracer mode, select in FPS mode with a crosshair. The smallest tab in the program, and it is in this table only to be the row that is fine</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</section>
+
+<!-- ================= 07 · CONTROL SURFACE ================= -->
+<section id="surface" style="--secc:var(--l540)" data-nav="Control surface">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">07 &mdash; What every screenshot is taken through</p>
+      <h2>The rest of the control surface</h2>
+      <p class="lead">Thread 07 covers the authoring apparatus &mdash; the node editor, the picker, the gizmo, the alarms, and the hotkey collision it found by reading both handlers. What it does not cover is the surface the <em>camera work</em> runs through, and that surface is not incidental to the research: a hotkey that switches the view mode without touching the accumulation buffer, or a clean-view key that hides every overlay, is the difference between a usable frame and a re-run. Everything below has been seen in the running program &mdash; that is what the grade means &mdash; and none of it has ever appeared in a figure. These are one line each, and the line is the point.</p>
+    </div>
+
+    <div class="tw"><table>
+      <thead><tr><th>Surface</th><th>What it is</th><th>Grade</th></tr></thead>
+      <tbody>
+        <tr><td>F1 &ndash; F8</td><td>Eight view modes &mdash; shaded, wireframe, normals, UV, depth, tangent, material ID, checker &mdash; each logging its own name as it switches</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>E / R / Q, in FPS capture</td><td>Projector on, wind on, dolly zoom on. The dolly key stores the camera's original position, look-at and focal length, and puts them back on release if the dolly moved the camera. The projector half is the one piece here the catalogue still grades <span class="st st-c">never viewed</span></td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>Ctrl+1 / 2 / 3</td><td>Pinhole, thin lens, tilt-shift on the C++ camera &mdash; which the megakernel does not read (thread 10)</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>Window title</td><td>Frame rate, active renderer, camera type and frame number, rewritten every frame. A screenshot of the title bar dates and identifies the run</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>UI Test panel</td><td>A gallery of the custom widget set &mdash; eight knob styles, eight toggle styles, meters, LEDs and progress bars, the parts the rest of the panels are built from &mdash; kept as a live reference under View</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>Style Editor</td><td>Global and per-panel header style overrides, small-widget vertical alignment in absolute pixels and as a factor, and a box-label mode, in its own window</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>Scene Hierarchy</td><td>The entity tree, docked left, and the route into the node editor's focus-on-node request</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>Background depth prepass</td><td>The rasteriser renders a linear-depth buffer every frame <em>whichever</em> integrator is active, before the image-operator chain runs. That is why a depth-driven operator and the exact selection overlay both work while a CPU integrator with no depth buffer of its own is the one drawing the picture</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>Ambient Occlusion</td><td><b>A separate GPU render mode, not a post-process.</b> The megakernel replaces its whole shading path with a cosine-weighted hemisphere visibility test &mdash; radius, sample count and intensity &mdash; and returns white where nothing is hit. This page is the first place on the site that names it</td><td><span class="st st-b">seen</span></td></tr>
+      </tbody>
+    </table></div>
+
+    {{SHOT:View &#9656; UI Test, with the panel undocked and made tall enough that the fancy borders, the styled toggles, the knobs and the LED indicators are all on screen at once. Put Render Settings beside it showing any tab that uses the same widgets, so the gallery and its use are in the same frame.}}
+    {{SHOT:Preset 0. Render Settings &#9656; Visualization &#9656; Ambient Occlusion, Enable AO on, Radius 2.0, Samples 64, Intensity 1.0. Shoot the viewport and the AO block together. Then a second frame at Radius 0.2 with everything else identical, for the local-crevice versus global comparison the tooltip describes.}}
+  </div>
+</section>
+
+<!-- ================= 08 · HEADLESS ================= -->
+<section id="headless" style="--secc:var(--l620)" data-nav="The headless keys">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">08 &mdash; The vocabulary nobody has typed</p>
+      <h2>Sixty-seven keys, and the site has printed almost none</h2>
+      <p class="lead">Every number on thread 01 came out of a headless run, and a headless run is a config file. The estimator's configuration surface is <b>67 distinct keys under the <span class="mono">pp.</span> prefix</b>, read in one block when the config selects the estimator mode. Most of the concepts are described elsewhere on this site; the keys are the part that would let somebody else reproduce a figure, and until this table they had not been printed.</p>
+      <p>They are worth one table because the shape of the list is itself the argument: a research estimator needs a switch for every claim it makes, including the switches that exist only to turn a claim <em>off</em> and prove the film does not change.</p>
+    </div>
+
+    <div class="tw"><table>
+      <thead><tr><th>Key</th><th>What it selects</th></tr></thead>
+      <tbody>
+        <tr class="key"><td>pp.strategy</td><td>Which of the 31 slots runs. 0&ndash;2 are the baselines, 25 is the rasterised gather, the rest are the primitive family</td></tr>
+        <tr><td>pp.misMask</td><td>A bitmask choosing the subset of primitives that enter the mixture, so any sub-combination is one integer</td></tr>
+        <tr><td>pp.misBalance</td><td>Balance heuristic on or off, which is how a mixture is compared against its own members</td></tr>
+        <tr><td>pp.surfaceNEE / pp.surfaceBSDF / pp.surfaceSpec / pp.specNEE</td><td>The camera walk's shading: one Lambertian connection, the BSDF-general version, specular chains, and next-event through them</td></tr>
+        <tr><td>pp.surfPhotons / pp.surfPhotonCount / pp.surfPhotonRadius / pp.surfPhotonKMask</td><td>The surface caustic photon map, its budget, its fixed radius, and the bounce-class mask that isolates one contribution for validation</td></tr>
+        <tr><td>pp.hgChain / pp.hgChainTol / pp.hgPostMirror / pp.hgRelay / pp.hgGuard / pp.hgJMin</td><td>The refraction chain and its collinearity tolerance, the post-ball mirror, relays, and the two guards that decide when the estimator refuses rather than draws</td></tr>
+        <tr><td>pp.correlated / pp.primCount / pp.freezePool / pp.corrRecords / pp.corrViz</td><td>Correlated mode: one batch of primitives shared across camera rays, its size, a batch frozen across passes so the sheets stop flickering and can be studied (its film then stops converging, and says so), the record-versus-rebuild switch, and the visualiser</td></tr>
+        <tr><td>pp.compBackup / pp.compSeam / pp.compClassLog</td><td>Complement mode &mdash; the backup estimator that owns the transport the primary does not, the seam policy, and the class counters</td></tr>
+        <tr><td>pp.b&hellip; (ten keys)</td><td>The B side of the strategy, the comp mode, the surface shading and the photon map, for split A/B rendering: two estimator configurations in one file</td></tr>
+        <tr><td>pp.raster / pp.rasterFamily</td><td>The rasterised gather and which primitive family it draws</td></tr>
+        <tr><td>pp.emitLambertian / pp.emitterCos</td><td>How many cosines an area light contributes in next-event &mdash; the area-to-solid-angle Jacobian is always one of them, the emitter's own directional term is the choice &mdash; and, on the photon side, whether the emitter is Lambertian. Two estimators cannot be compared until they agree what the lamp <em>is</em>, and this is where that agreement is set</td></tr>
+        <tr><td>pp.passesPerFrame</td><td>Accumulation passes per rendered frame. 0 is auto; 1 is the historical behaviour, where every pass paid a full frame of vsync, GL and UI &mdash; 7.0 ms against 0.7 ms of actual estimation. Byte-identical by construction at any value</td></tr>
+        <tr><td>pp.camPos / pp.camLookAt / pp.camFarCap</td><td>A headless camera override, so a figure is a config rather than a remembered mouse drag</td></tr>
+        <tr><td>pp.dumpCpuAt / pp.dumpGpuRefAt / pp.dumpPpRefAt / pp.compareMode</td><td>Write the film at a named pass, from the estimator, from the GPU reference, or both &mdash; which is where every ratio on this site comes from</td></tr>
+        <tr><td>pp.vizPrimitive / pp.vizSize / pp.vizGridN</td><td>Draw the swept manifolds themselves. Thread 02 is made of these</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="narrow">
+      <p class="note"><b>One key outside the prefix, for the same reason.</b> <span class="mono">window.vsync</span> exists because a per-pass timing measurement taken with vsync on measures the display, not the estimator.</p>
+      <h3>Three strays that belong nowhere else</h3>
+      <p>A <b>standalone crossing harness</b> is a single translation unit that links nothing from the renderer and re-implements the general refraction chain's per-pixel crossing exactly as its specification describes it, so the cost of a design can be measured before it is built. It was written because the specification had <em>withdrawn</em> an earlier cost estimate whose two factors were both assumed, and then forbade replacing it with another guess. Its verdict on the off-axis pair, at the same resolution the rest of the family is measured at, is that the general chain would cost 14 to 42 times the one-ball estimator per pass &mdash; so that tier is a no-go, and the harness is the reason it was never started.</p>
+      <p>Two presets carry a correction in their own menu label rather than in a document. <em>Jellyfish Giant (FBM, not SmoothLife)</em> renames itself after the thing it actually builds. <em>Caustic Room (enclosed, roam inside)</em> says in its own entry that it must be viewed from within, which is the answer to the question its earlier name provoked every time somebody rendered it from outside and got a black frame.</p>
+      <p>Two more of the same kind sit in the scene layer rather than the estimator: <span class="mono">vclGateGeom</span> and <span class="mono">vclGoboSlab</span>, the shared aperture vocabulary the gate presets are built from &mdash; four apertures across five scenes: a slot, an annulus, a grille and a dispersive slit, all derived from one light position, one ball and one gobo height rather than typed in as coordinates. That is why the annulus can be said to match the slot's aperture area to 1.4 %: the two were computed from the same geometry, not eyeballed into agreement.</p>
+      <p class="note" style="border-color:var(--muted-2)"><b>What this page does not do.</b> It does not reprint the catalogue, and it does not re-grade anything: wherever <span class="mono">docs/FEATURE-CATALOGUE.md</span> carries a row, the grade shown here is that row's. Two entries have no catalogue row and are graded here for the first time &mdash; the second holography declaration, and the projector's mode-by-mode destinations. The <em>counts</em> are a different matter and were re-derived rather than copied, which is how the orphan-header figure moved from the catalogue's ten to fourteen. It does not claim the residue is complete: 551 is a floor, and the catalogue says so itself, because the 157 image operators are filed as 22 grouped rows and the 31 estimator slots as a far smaller number of grouped ones. And it does not photograph anything &mdash; the two schematics above were drawn, and the other five slots are four screenshot recipes and a clip that will stay recipes until somebody runs the program and follows them.</p>
+    </div>
+  </div>
+</section>
+
+{{SECTION:_foot.html}}

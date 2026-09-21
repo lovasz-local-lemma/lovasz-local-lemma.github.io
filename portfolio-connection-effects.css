@@ -1,0 +1,46 @@
+/* Opt-in finishes. With Original selected and the effects off, no baseline
+   paint or layout properties change. All decoration is pointer-transparent. */
+.pc-diagram {
+  --pc-finish-specular:0;
+  --pc-finish-glow:0;
+  --pc-finish-light:#ffe6a9;
+  --pc-finish-rgb:244,183,87;
+}
+.pc-diagram .pc-finish { pointer-events:none; }
+.pc-diagram .pc-finish-body { stroke:none; opacity:0; }
+.pc-diagram[data-finish="original"] .pc-finish-body { opacity:var(--pc-brass-mix,0); }
+.pc-diagram .pc-finish-specular { stroke:none; opacity:var(--pc-finish-specular); mix-blend-mode:screen; }
+.pc-diagram .pc-finish-bloom { fill:none; stroke:var(--pc-finish-light); stroke-width:5; opacity:calc(var(--pc-finish-glow) * .7); }
+.pc-diagram :is(.pc-finish-rails,.pc-finish-ticks,.pc-finish-filament,.pc-finish-hot-wire) { fill:none; stroke-linecap:round; opacity:0; }
+.pc-diagram .pc-finish-rails { stroke:#ffedb9; stroke-width:.65; }
+.pc-diagram .pc-finish-ticks { stroke:#ffe8b1; stroke-width:.85; }
+.pc-diagram .pc-finish-filament { stroke:#fcb56b; stroke-width:.85; }
+.pc-diagram .pc-finish-hot-wire { stroke:#ffecb3; stroke-width:1.1; }
+.pc-diagram.pc-finish-etched .pc-finish-rails { opacity:.58; }
+.pc-diagram.pc-finish-etched .pc-finish-ticks { opacity:.72; }
+.pc-diagram[data-finish="brass"] .pc-finish-body { opacity:.76; }
+.pc-diagram[data-finish="glass"] { --pc-finish-light:#c8ffec; --pc-finish-rgb:144,229,218; }
+.pc-diagram[data-finish="glass"] .pc-finish-body { opacity:.39; }
+.pc-diagram[data-finish="glass"] .pc-finish-specular { mix-blend-mode:screen; }
+.pc-diagram[data-finish="nixie"] { --pc-finish-light:#ffc07b; --pc-finish-rgb:255,150,63; }
+.pc-diagram[data-finish="nixie"] .pc-finish-body { opacity:.56; }
+.pc-diagram[data-finish="nixie"] .pc-finish-filament { opacity:.85; }
+.pc-diagram[data-finish="nixie"] .pc-finish-hot-wire { opacity:.88; }
+.pc-diagram[data-finish="nixie"] .pc-ribbon-light { stroke:#fff3d3; }
+.pc-diagram[data-finish="nixie"] .pc-finish-bloom { opacity:calc(.15 + var(--pc-finish-glow) * .7); }
+.pc-diagram.pc-finish-lit .pc-node-orb {
+  filter:drop-shadow(0 0 7px rgba(var(--pc-finish-rgb),calc(var(--pc-finish-glow) * .72))) drop-shadow(0 0 17px rgba(var(--pc-finish-rgb),calc(var(--pc-finish-glow) * .3)));
+}
+.pc-diagram.pc-finish-rimmed .pc-node-orb::after {
+  content:""; position:absolute; inset:0; z-index:3; border-radius:inherit;
+  pointer-events:none; border:1px solid #fff1c28c;
+  box-shadow:inset 0 1px 2px #fffbdd,inset 0 -1px 1px #a57335b3,inset 1px 0 4px #ffe8a95c;
+  background:linear-gradient(135deg,#fff8d866,transparent 24%,transparent 71%,#e5ba742b);
+}
+.pc-diagram[data-finish="glass"].pc-finish-rimmed .pc-node-orb::after {
+  border-color:#d7fff0b3; box-shadow:inset 0 1px 3px #f3fff8,inset 0 -1px 2px #a6b9e66b;
+  background:linear-gradient(135deg,#d9ffec4d,transparent 24%,transparent 71%,#bcb0e52b);
+}
+.pc-diagram[data-finish="nixie"].pc-finish-rimmed .pc-node-orb::after {
+  border-color:#ffd1a5c4; box-shadow:inset 0 1px 3px #ffe8b9,inset 0 -1px 3px #ff9b5280;
+}

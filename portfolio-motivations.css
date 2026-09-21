@@ -1,0 +1,74 @@
+/* Light blue marks the author's motivation layer while its wording is reviewed. */
+.project-motivation {
+  color: #b9dcf5;
+  border: 1px solid #7bc4f63b;
+  border-left: 3px solid #8ecfff;
+  border-radius: 6px 20px 20px 6px;
+  background: linear-gradient(110deg, #203d4c70, #14262e30 75%);
+  padding: clamp(20px, 2.3vw, 32px);
+  margin: 22px 0 32px;
+  text-align: left;
+  box-shadow: inset 1px 0 16px #8bcfff08;
+}
+.project-motivation .motivation-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 20px;
+  color: #99d3ff;
+  font: 600 12px/1.6 Inter, system-ui, sans-serif;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.project-motivation .motivation-review {
+  color: #afd2e9;
+  border: 1px dashed #8ccaff5c;
+  padding: 2px 9px;
+  border-radius: 20px;
+  font-size: 10px;
+  letter-spacing: .035em;
+}
+.project-motivation p.motivation-copy {
+  color: #b9dcf5;
+  font: 400 clamp(16px, 1.2vw, 19px)/1.75 Inter, system-ui, sans-serif;
+  text-shadow: 0 0 22px #75bdff18;
+  max-width: 94ch;
+  margin: 0;
+}
+.project-motivation p.motivation-copy + p.motivation-copy {
+  margin-top: .85em;
+}
+.project-motivation p.motivation-takeaway {
+  color: #a9cde5;
+  font: 400 14px/1.7 Inter, system-ui, sans-serif;
+  margin: 17px 0 0;
+  padding-top: 13px;
+  border-top: 1px solid #90cbf326;
+  max-width: none;
+}
+.motivation-takeaway > span, .motivation-scope > span {
+  color: #cfecff;
+  font-weight: 600;
+  margin-right: 8px;
+}
+.project-motivation p.motivation-scope {
+  color: #b3cfe1;
+  font: 400 14px/1.75 Inter, system-ui, sans-serif;
+  margin: 12px 0 0;
+  max-width: 108ch;
+}
+.project-motivation .motivation-references {
+  display: inline-block;
+  color: #c3e6ff;
+  font: 500 13px/1.7 Inter, system-ui, sans-serif;
+  margin-top: 16px;
+  text-underline-offset: 4px;
+}
+.project-motivation .motivation-references:hover { color: #e3f4ff; }
+.overview-content .project-motivation { margin: 0 0 28px; }
+.research-page > .project-motivation { max-width: 1500px; margin-inline: auto; }
+@media (max-width: 640px) {
+  .project-motivation { padding: 19px; }
+  .project-motivation .motivation-heading { gap: 8px; }
+}

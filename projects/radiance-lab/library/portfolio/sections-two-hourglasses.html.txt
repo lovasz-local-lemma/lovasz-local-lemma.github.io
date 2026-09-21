@@ -1,0 +1,39 @@
+<!-- ================= TWO HOURGLASSES (slots after #flavours, before #surfaces) ================= -->
+<section id="vertex" style="--secc:var(--l580)" data-nav="Vertex hourglass">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">05c — The other hourglass</p>
+      <h2>Seed at the glass, not at the light</h2>
+      <p class="lead">The shipped hourglass keeps its free angle on the light side and derives the entry point. Turn that around — sample the entry point on the glass and an incoming angle about its normal — and you get a simpler object with a different reach.</p>
+      <p>Sample <code>x₁</code> on the ball and a polar angle <code>θ_in</code> about the normal <code>n(x₁)</code>. Snell fixes <code>θ_out</code>; incident and refracted rays share one azimuth. Revolving that azimuth sweeps two cones apex-to-apex at <code>x₁</code>. For a sphere the normal passes through the centre, so the revolution is a symmetry of the ball and the whole chain — entry, chord, exit — rotates rigidly. The exit rays sweep a surface of revolution about <code>C–x₁</code>, and the camera ray meets it by the same revolved-quadric solve the first hourglass already uses.</p>
+    </div>
+    <figure>
+      {{SVG:f22-vertex-hourglass.svg}}
+      <figcaption><b>Schematic</b><span>The seeded vertex <code>x₁</code> (red), its incident cone opening into air, the chord and exit family revolved about the axis through <code>C</code>, and the camera ray meeting the exit sheet in fog. At the crossing azimuth the incident ray is <em>one</em> ray — so it is traced back, and here it hits the emissive quad.</span></figcaption>
+    </figure>
+    <div class="narrow">
+      <p>That last clause is the whole story of when this member applies. Count dimensions: <code>x₁</code> (2) + <code>θ_in</code> (1) = 3 sampled, and the camera ray consumes the two swept ones. Nothing is left for the light side. With an <strong>area emitter</strong> the incident ray simply hits it; with <strong>fog before the glass</strong> it becomes a beam to connect along — a double-scatter caustic nothing renders analytically today. With a <strong>point light</strong> a single ray cannot hit, and the classic single-scatter caustic has no analytic vertex-seeded member at all. That class belongs to the light-seeded hourglass — which is exactly what its axis-revolution trick buys. The two are complementary, and the availability matrix by surface type and medium per side is written out in <code>docs/hourglass/VERTEX-HOURGLASS.md</code>.</p>
+      <div class="readout">
+        <div class="row"><span class="lbl">Same chain code as strategy 20</span><span class="val">seed and axis differ, nothing else</span></div>
+        <div class="row"><span class="lbl">Strategy 20 refactored through the shared helper</span><span class="val">{{S22_REFACTOR}}</span></div>
+        <div class="row hi"><span class="lbl">22a / 20 on the shared class, presets 47 · 52</span><span class="val">{{S22_RESULT}}</span></div>
+      </div>
+
+      <h3>Two cones at the vertex — the form that was actually meant</h3>
+      <p>The member above is not quite the sketch it came from. Seeded at the <em>entry</em>, it lets the camera meet the exit family only after a <em>second</em> refraction — so the sheet is a hyperboloid whose waist sits out in the fog, not at any vertex. The sketch had the waist <strong>at the sampled vertex</strong>, and that is a cleaner object: given <code>θ_in</code>, the interface law fixes <code>θ_out</code> and the two directions share an azimuth, so the admissible pairs are exactly two cones apex-to-apex at the vertex — same side and same angle for reflection, opposite sides and different angles for refraction. The camera meets the <em>outgoing cone itself</em>, and a cone's intersection and Jacobian are strategy 9's, verbatim, with the apex moved onto the glass.</p>
+    </div>
+    <figure>
+      {{SVG:f22b-vertex-cones.svg}}
+      <figcaption><b>Schematic</b><span>Left, refraction: the outgoing cone of an entry vertex would live inside the glass, so the seed goes on the <em>exit</em> — the cone opens into the fog, and the light half is the chord back through the ball, refracted out and traced. Right, reflection: both cones on the outside, same half-angle — the specular-reflection caustic of a sphere, which nothing renders analytically today.</span></figcaption>
+    </figure>
+    <div class="narrow">
+      <div class="readout">
+        <div class="row"><span class="lbl">23 · exit-seeded cone vs 20 / 22a / 18</span><span class="val">{{S23_RESULT}}</span></div>
+        <div class="row"><span class="lbl">24 · reflection cone vs reference</span><span class="val">{{S24_RESULT}}</span></div>
+        <div class="row hi"><span class="lbl">Coverage at equal passes, 23 vs 22a vs 20</span><span class="val">{{S23_COVERAGE}}</span></div>
+      </div>
+      <p><b>What the two cone members measured.</b> Both converge to 20's energy — 23/20 reads 1.000 once its tail has settled (48k passes against 20's converged 12k) and inherits 20's ~1% residual against the beam to four digits — but standalone, the exit cone is <em>not</em> the more efficient member: at equal passes it lights 50–60% as many pixels as 20 with the heaviest tail of the three (its worst pixel 20× 20's), and its own 12k/48k ratio is 0.985. The reflection cone is the real gain: it is the first analytic member of the <code>L S<sub>refl</sub> V E</code> class, matches the beam's reflection branch at 0.998 on a single glass ball, and fills 1.5× the beam's pixels. The variance study says why — the vertex members are light-trace-limited, and the exit cone also pays a chord back through the glass. Its remaining case is the {20, 22a, 23} mixture: three members with <em>different</em> singular loci (waist fold, sheet tangency, cone tangency), untested until the shared-measure ledger lands.</p>
+      <p class="note" style="margin-top:22px"><b>This is the member that earns the word "tridirectional".</b> Light subpath, sensor subpath, and the two-segment dielectric chain seeded independently and joined at two constraints. Used for the family, defined on first use, it is a definition rather than a claim about connection edges.</p>
+    </div>
+  </div>
+</section>

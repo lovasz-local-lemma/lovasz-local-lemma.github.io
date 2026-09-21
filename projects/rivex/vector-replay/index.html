@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Retained light, live Rive vectors</title><link rel="stylesheet" href="style.css"><!-- universal-navigation:start --><link rel="stylesheet" href="../../../portfolio-location.css?v=054b6b462c"><script defer src="../../../portfolio-location.js?v=054b6b462c"></script><script defer src="../../../portfolio-routes.js?v=054b6b462c"></script><script defer src="../../../portfolio-universal-navigation.js?v=054b6b462c"></script><!-- universal-navigation:end --><style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head>
+<body><main>
+<header><span class="eyebrow">RIVX · representation laboratory</span><h1>Keep the path. Draw the moment.</h1><p>Orbit a retained 3D path set and slide its time window. A small pool of ordinary Rive shapes changes live—no image per angle, no frame per time step.</p></header>
+<div class="layout"><section class="viewport"><div class="status"><span class="badge">Official Rive · WebGL2</span><span id="status" role="status">Loading the local Rive runtime…</span></div>
+<div class="stage"><canvas id="view" aria-label="Interactive three dimensional light path view" tabindex="0"></canvas><div class="hint">Drag to orbit · wheel to zoom</div><div id="error" hidden></div></div>
+<div class="metrics"><div><b id="drawn">—</b><span>visible Rive shapes</span></div><div><b id="legs">—</b><span>retained path legs</span></div><div><b id="cost">—</b><span>CPU submission ms</span></div><div><b id="frames">0</b><span>frame images stored</span></div></div>
+<p id="caption" class="caption">The same world-space data is reprojected for every camera pose.</p></section>
+<aside><h2>Choose the representation</h2>
+<label>Representation<select id="representation"><option value="beams">Truncated beams</option><option value="points">Sampled points</option><option value="paths">Whole path · no time gate</option></select></label>
+<label>Time window <output id="gate-value"></output><input id="gate" type="range" min="0" max="1000" value="470"></label>
+<label>Window width <output id="width-value"></output><input id="width" type="range" min="10" max="450" value="160"></label>
+<label>Vector budget <output id="budget-value">320</output><input id="budget" type="range" min="24" max="384" value="320" step="4"></label>
+<label>Stroke width <output id="stroke-value">2.3 px</output><input id="stroke" type="range" min="6" max="60" value="23"></label>
+<div class="buttons"><button id="play">Pause time</button><button id="reset">Reset camera</button></div>
+<label class="check"><input id="orbit" type="checkbox"> Auto orbit</label><label class="check"><input id="guides" type="checkbox" checked> Room guides</label>
+<div class="source"><b id="source-name">Geometric timing fixture</b><p id="source-note">Constructed paths explain the representation. They are not a measured caustic or a physically evaluated radiance estimator.</p><label class="load">Load native path cache<input id="file" type="file" accept=".json,application/json"></label><button id="fixture">Restore example</button><p id="file-status" role="status"></p></div>
+</aside></div>
+<section class="explanation"><article><span class="symbol">3D → ∿</span><h2>A vector renderer has a useful job</h2><p>Keep spatial and temporal logic outside the drawing backend. Turn selected structures into a compact set of paths, strokes and shapes that stay crisp as the canvas grows. Here, the official Rive runtime—not an imitation—draws all the geometry.</p></article>
+<article><span class="symbol">t ∩ [a,b]</span><h2>One segment replaces many points</h2><p>A beam's endpoints carry arrival times. Intersect that interval with the shutter window and interpolate the two cut positions. Points instead need many separate shapes. Compare the live counts at the same budget; overflow is reported, never silently claimed as full data.</p></article>
+<article><span class="symbol">.riv + data</span><h2>Preserve what must remain editable</h2><p>The .riv file is a reusable drawing pool. Camera and time remain host-controlled over retained world geometry. This is a bounded hybrid player, not a universal .rivx loader or a full glass renderer. Its four-color, hard-gated strokes are a schematic display; changing the light or material requires retracing the native cache.</p></article></section>
+<details><summary>What the counters measure and what remains limited</summary><p>The CPU time includes projection, clipping, Rive node updates, artboard advance and draw submission. It excludes asynchronous GPU completion and is not a universal Rive performance limit. The drawing pool contains 384 shapes even when fewer are visible; invisible nodes are scaled to zero. Rendering is skipped while unchanged or suspended.</p><p>The example uses a fixed four-color palette, constant artboard-space stroke width, a rectangular temporal kernel and opaque strokes in fixed pool paint order. It does not solve camera visibility, scattering weights, medium extinction or refraction. Native path-cache colors are assigned to the nearest palette color. Sampling points is a display discretization, not a Monte Carlo estimator.</p><p>Native interchange: <code>RIVX-PATHS-1</code> JSON stores paths with <code>vertices[{position:[x,y,z],timeNs,color:[r,g,b]}]</code>. Files stay local in this page. Camera pose and display knobs are not baked into the cache.</p></details>
+<footer>Rive runtime 2.37.8 · locally bundled · <a href="vendor/LICENSE">MIT license</a></footer>
+</main><script type="module" src="app.js"></script></body></html>

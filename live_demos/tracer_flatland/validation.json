@@ -1,0 +1,508 @@
+{
+  "title": "Flatland corrected Ruby surface estimator audit",
+  "engineVersion": "1.0.0",
+  "generatedAt": "2026-09-10T22:42:20Z",
+  "rubyVersion": "3.2.2",
+  "platform": "x64-mingw-ucrt",
+  "model": "True 2D angular radiance, diffuse f=rho/2, one-sided line emitters, pinhole angular film",
+  "finitePathTarget": {
+    "maxDiffuseBounces": 4,
+    "pixels": 64,
+    "rr": false
+  },
+  "normalization": "Every launch counts, including zero-contribution paths. Multiple light-tracer splats sum per launch before moments.",
+  "uncertainty": "standardError is sample standard deviation / sqrt(launches), for image-wide mean radiance. It is estimated, not a certified interval.",
+  "scope": "Surface subset only. Not the legacy medium, glass, aperture, ray marcher or full BDPT.",
+  "seedRows": [
+    {
+      "scene": "direct",
+      "seed": 17,
+      "launchesPerEstimator": 8192,
+      "methods": {
+        "pt": {
+          "count": 8192,
+          "rays": 8192,
+          "mean": 0.8719482421875,
+          "standardError": 0.015051091069721167,
+          "positive": 2381,
+          "nonzeroFraction": 0.2906494140625
+        },
+        "mis": {
+          "count": 8192,
+          "rays": 8192,
+          "mean": 0.9122314453125,
+          "standardError": 0.015248433580729597,
+          "positive": 2491,
+          "nonzeroFraction": 0.3040771484375
+        },
+        "lt": {
+          "count": 8192,
+          "rays": 16384,
+          "mean": 0.9110944563983868,
+          "standardError": 0.0005134671516215256,
+          "positive": 8192,
+          "nonzeroFraction": 1.0
+        }
+      },
+      "elapsedAllMethodsSeconds": 0.14928740001050755
+    },
+    {
+      "scene": "direct",
+      "seed": 311,
+      "launchesPerEstimator": 8192,
+      "methods": {
+        "pt": {
+          "count": 8192,
+          "rays": 8192,
+          "mean": 0.90380859375,
+          "standardError": 0.015208459946724484,
+          "positive": 2468,
+          "nonzeroFraction": 0.30126953125
+        },
+        "mis": {
+          "count": 8192,
+          "rays": 8192,
+          "mean": 0.9166259765625,
+          "standardError": 0.015269022666893024,
+          "positive": 2503,
+          "nonzeroFraction": 0.3055419921875
+        },
+        "lt": {
+          "count": 8192,
+          "rays": 16384,
+          "mean": 0.9109526763838758,
+          "standardError": 0.0005178431173936496,
+          "positive": 8192,
+          "nonzeroFraction": 1.0
+        }
+      },
+      "elapsedAllMethodsSeconds": 0.14554870000574738
+    },
+    {
+      "scene": "direct",
+      "seed": 918,
+      "launchesPerEstimator": 8192,
+      "methods": {
+        "pt": {
+          "count": 8192,
+          "rays": 8192,
+          "mean": 0.94189453125,
+          "standardError": 0.01538390141117196,
+          "positive": 2572,
+          "nonzeroFraction": 0.31396484375
+        },
+        "mis": {
+          "count": 8192,
+          "rays": 8192,
+          "mean": 0.895751953125,
+          "standardError": 0.015169591479613906,
+          "positive": 2446,
+          "nonzeroFraction": 0.298583984375
+        },
+        "lt": {
+          "count": 8192,
+          "rays": 16384,
+          "mean": 0.9105477388879247,
+          "standardError": 0.0005176996134589334,
+          "positive": 8192,
+          "nonzeroFraction": 1.0
+        }
+      },
+      "elapsedAllMethodsSeconds": 0.1456250000046566
+    },
+    {
+      "scene": "courtyard",
+      "seed": 17,
+      "launchesPerEstimator": 8192,
+      "methods": {
+        "pt": {
+          "count": 8192,
+          "rays": 39683,
+          "mean": 0.08155041456864376,
+          "standardError": 0.0034909619233833267,
+          "positive": 738,
+          "nonzeroFraction": 0.090087890625
+        },
+        "mis": {
+          "count": 8192,
+          "rays": 57891,
+          "mean": 0.0835451585435967,
+          "standardError": 0.0009903839859756066,
+          "positive": 6246,
+          "nonzeroFraction": 0.762451171875
+        },
+        "lt": {
+          "count": 8192,
+          "rays": 52438,
+          "mean": 0.08159389557992328,
+          "standardError": 0.0012581386546202137,
+          "positive": 4403,
+          "nonzeroFraction": 0.5374755859375
+        }
+      },
+      "elapsedAllMethodsSeconds": 1.2287786000524648
+    },
+    {
+      "scene": "courtyard",
+      "seed": 311,
+      "launchesPerEstimator": 8192,
+      "methods": {
+        "pt": {
+          "count": 8192,
+          "rays": 39732,
+          "mean": 0.07904974958883497,
+          "standardError": 0.003423677476900817,
+          "positive": 726,
+          "nonzeroFraction": 0.088623046875
+        },
+        "mis": {
+          "count": 8192,
+          "rays": 57756,
+          "mean": 0.08267183479067819,
+          "standardError": 0.0009863705551546825,
+          "positive": 6232,
+          "nonzeroFraction": 0.7607421875
+        },
+        "lt": {
+          "count": 8192,
+          "rays": 52502,
+          "mean": 0.08295910356549618,
+          "standardError": 0.0012469193390997708,
+          "positive": 4530,
+          "nonzeroFraction": 0.552978515625
+        }
+      },
+      "elapsedAllMethodsSeconds": 1.2302919999929145
+    },
+    {
+      "scene": "courtyard",
+      "seed": 918,
+      "launchesPerEstimator": 8192,
+      "methods": {
+        "pt": {
+          "count": 8192,
+          "rays": 39778,
+          "mean": 0.07945376770046805,
+          "standardError": 0.003450604509658262,
+          "positive": 743,
+          "nonzeroFraction": 0.0906982421875
+        },
+        "mis": {
+          "count": 8192,
+          "rays": 57752,
+          "mean": 0.0808810175877411,
+          "standardError": 0.000978496400315512,
+          "positive": 6143,
+          "nonzeroFraction": 0.7498779296875
+        },
+        "lt": {
+          "count": 8192,
+          "rays": 52163,
+          "mean": 0.0809625949132961,
+          "standardError": 0.0012329348839488993,
+          "positive": 4433,
+          "nonzeroFraction": 0.5411376953125
+        }
+      },
+      "elapsedAllMethodsSeconds": 1.2626111000427045
+    },
+    {
+      "scene": "small_light",
+      "seed": 17,
+      "launchesPerEstimator": 8192,
+      "methods": {
+        "pt": {
+          "count": 8192,
+          "rays": 40656,
+          "mean": 0.017694949113432137,
+          "standardError": 0.001701974863453279,
+          "positive": 149,
+          "nonzeroFraction": 0.0181884765625
+        },
+        "mis": {
+          "count": 8192,
+          "rays": 59188,
+          "mean": 0.016873604982877228,
+          "standardError": 0.00020347888472689165,
+          "positive": 6217,
+          "nonzeroFraction": 0.7589111328125
+        },
+        "lt": {
+          "count": 8192,
+          "rays": 56944,
+          "mean": 0.01621964772455778,
+          "standardError": 0.0002382463871648155,
+          "positive": 4768,
+          "nonzeroFraction": 0.58203125
+        }
+      },
+      "elapsedAllMethodsSeconds": 1.6774515000288375
+    },
+    {
+      "scene": "small_light",
+      "seed": 311,
+      "launchesPerEstimator": 8192,
+      "methods": {
+        "pt": {
+          "count": 8192,
+          "rays": 40684,
+          "mean": 0.01533436278597963,
+          "standardError": 0.0015892501378081557,
+          "positive": 140,
+          "nonzeroFraction": 0.01708984375
+        },
+        "mis": {
+          "count": 8192,
+          "rays": 59151,
+          "mean": 0.017023302273584725,
+          "standardError": 0.00020718413364021962,
+          "positive": 6215,
+          "nonzeroFraction": 0.7586669921875
+        },
+        "lt": {
+          "count": 8192,
+          "rays": 57183,
+          "mean": 0.016943366649991697,
+          "standardError": 0.00025191425190697613,
+          "positive": 4814,
+          "nonzeroFraction": 0.587646484375
+        }
+      },
+      "elapsedAllMethodsSeconds": 1.4078893999685533
+    },
+    {
+      "scene": "small_light",
+      "seed": 918,
+      "launchesPerEstimator": 8192,
+      "methods": {
+        "pt": {
+          "count": 8192,
+          "rays": 40638,
+          "mean": 0.01745260366150605,
+          "standardError": 0.0016486792874433299,
+          "positive": 160,
+          "nonzeroFraction": 0.01953125
+        },
+        "mis": {
+          "count": 8192,
+          "rays": 59165,
+          "mean": 0.016800762220840808,
+          "standardError": 0.0002043736695579991,
+          "positive": 6149,
+          "nonzeroFraction": 0.7506103515625
+        },
+        "lt": {
+          "count": 8192,
+          "rays": 56979,
+          "mean": 0.016608691430749077,
+          "standardError": 0.00024048188066364942,
+          "positive": 4861,
+          "nonzeroFraction": 0.5933837890625
+        }
+      },
+      "elapsedAllMethodsSeconds": 1.4709696000209078
+    },
+    {
+      "scene": "baffle",
+      "seed": 17,
+      "launchesPerEstimator": 8192,
+      "methods": {
+        "pt": {
+          "count": 8192,
+          "rays": 40702,
+          "mean": 0.023846644148752687,
+          "standardError": 0.0018020891198491334,
+          "positive": 243,
+          "nonzeroFraction": 0.0296630859375
+        },
+        "mis": {
+          "count": 8192,
+          "rays": 59350,
+          "mean": 0.019963939034875422,
+          "standardError": 0.0007111160539425973,
+          "positive": 2180,
+          "nonzeroFraction": 0.26611328125
+        },
+        "lt": {
+          "count": 8192,
+          "rays": 51302,
+          "mean": 0.020425559782413446,
+          "standardError": 0.0005393159732097827,
+          "positive": 1887,
+          "nonzeroFraction": 0.2303466796875
+        }
+      },
+      "elapsedAllMethodsSeconds": 1.554081100039184
+    },
+    {
+      "scene": "baffle",
+      "seed": 311,
+      "launchesPerEstimator": 8192,
+      "methods": {
+        "pt": {
+          "count": 8192,
+          "rays": 40704,
+          "mean": 0.0223273071336117,
+          "standardError": 0.0017015599083815129,
+          "positive": 242,
+          "nonzeroFraction": 0.029541015625
+        },
+        "mis": {
+          "count": 8192,
+          "rays": 59329,
+          "mean": 0.02060506893361085,
+          "standardError": 0.0007204210771450038,
+          "positive": 2273,
+          "nonzeroFraction": 0.2774658203125
+        },
+        "lt": {
+          "count": 8192,
+          "rays": 50950,
+          "mean": 0.020439905962957042,
+          "standardError": 0.0005425935735108333,
+          "positive": 1850,
+          "nonzeroFraction": 0.225830078125
+        }
+      },
+      "elapsedAllMethodsSeconds": 1.457932899997104
+    },
+    {
+      "scene": "baffle",
+      "seed": 918,
+      "launchesPerEstimator": 8192,
+      "methods": {
+        "pt": {
+          "count": 8192,
+          "rays": 40738,
+          "mean": 0.020791259409843017,
+          "standardError": 0.0016357488852614128,
+          "positive": 230,
+          "nonzeroFraction": 0.028076171875
+        },
+        "mis": {
+          "count": 8192,
+          "rays": 59419,
+          "mean": 0.021570926215444555,
+          "standardError": 0.000744298489781757,
+          "positive": 2191,
+          "nonzeroFraction": 0.2674560546875
+        },
+        "lt": {
+          "count": 8192,
+          "rays": 51342,
+          "mean": 0.020382020259069267,
+          "standardError": 0.0005398417132254712,
+          "positive": 1847,
+          "nonzeroFraction": 0.2254638671875
+        }
+      },
+      "elapsedAllMethodsSeconds": 1.5427204000297934
+    },
+    {
+      "scene": "rgb",
+      "seed": 17,
+      "launchesPerEstimator": 8192,
+      "methods": {
+        "pt": {
+          "count": 8192,
+          "rays": 38559,
+          "mean": 0.07736149225229186,
+          "standardError": 0.0032330697226523246,
+          "positive": 1341,
+          "nonzeroFraction": 0.1636962890625
+        },
+        "mis": {
+          "count": 8192,
+          "rays": 56626,
+          "mean": 0.07798370811703617,
+          "standardError": 0.0024739383966930427,
+          "positive": 6041,
+          "nonzeroFraction": 0.7374267578125
+        },
+        "lt": {
+          "count": 8192,
+          "rays": 51202,
+          "mean": 0.07778352032785264,
+          "standardError": 0.0015849487585342208,
+          "positive": 4290,
+          "nonzeroFraction": 0.523681640625
+        }
+      },
+      "elapsedAllMethodsSeconds": 1.6452017000410706
+    },
+    {
+      "scene": "rgb",
+      "seed": 311,
+      "launchesPerEstimator": 8192,
+      "methods": {
+        "pt": {
+          "count": 8192,
+          "rays": 38656,
+          "mean": 0.07416061104046379,
+          "standardError": 0.003055118972607525,
+          "positive": 1340,
+          "nonzeroFraction": 0.16357421875
+        },
+        "mis": {
+          "count": 8192,
+          "rays": 56372,
+          "mean": 0.079972320651581,
+          "standardError": 0.002723958925069525,
+          "positive": 6012,
+          "nonzeroFraction": 0.73388671875
+        },
+        "lt": {
+          "count": 8192,
+          "rays": 51382,
+          "mean": 0.07827273518015117,
+          "standardError": 0.0016022172137933523,
+          "positive": 4385,
+          "nonzeroFraction": 0.5352783203125
+        }
+      },
+      "elapsedAllMethodsSeconds": 1.7903009000001475
+    },
+    {
+      "scene": "rgb",
+      "seed": 918,
+      "launchesPerEstimator": 8192,
+      "methods": {
+        "pt": {
+          "count": 8192,
+          "rays": 38453,
+          "mean": 0.0820841526972265,
+          "standardError": 0.0033470669922336005,
+          "positive": 1387,
+          "nonzeroFraction": 0.1693115234375
+        },
+        "mis": {
+          "count": 8192,
+          "rays": 56634,
+          "mean": 0.07851416618841837,
+          "standardError": 0.0026027937428755228,
+          "positive": 5972,
+          "nonzeroFraction": 0.72900390625
+        },
+        "lt": {
+          "count": 8192,
+          "rays": 51058,
+          "mean": 0.0792938914852259,
+          "standardError": 0.0016071562508668568,
+          "positive": 4351,
+          "nonzeroFraction": 0.5311279296875
+        }
+      },
+      "elapsedAllMethodsSeconds": 1.8922185000265017
+    }
+  ],
+  "checks": {
+    "nativeTests": "tests/transport_test.rb",
+    "wasmParity": "tests/wasm-parity.mjs",
+    "browserWorker": "tests/worker-smoke.mjs"
+  },
+  "references": [
+    "https://pbr-book.org/4ed/Light_Transport_I_Surface_Reflection/A_Better_Path_Tracer",
+    "https://www.pbr-book.org/3ed-2018/Light_Transport_III_Bidirectional_Methods/Bidirectional_Path_Tracing",
+    "https://github.com/ruby/ruby.wasm"
+  ]
+}

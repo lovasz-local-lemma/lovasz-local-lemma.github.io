@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><script src="../../../portfolio-lab-frame.js"></script><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark"><title>Cool before the elastic memory is lost.</title><link rel="stylesheet" href="recording-recovery.css"><style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head>
+<body><main>
+<header><p class="eyebrow">Crucible / recovery window · computed explanation</p><h1>Cool before the elastic memory is lost.</h1><p>Hold the same distortion in two samples. Heat one longer, cool both completely, then release the load. Stiffness returns in both; their ability to spring back can differ.</p></header>
+<div class="controls">
+<label for="heat-duration"><span>Right sample: heating duration <output id="heat-duration-value">32 updates</output></span><input id="heat-duration" type="range" min="1" max="60" value="32" step="1"></label>
+<label for="heat-level"><span>Heat level → target liquid fraction <output id="heat-level-value">75%</output></span><input id="heat-level" type="range" min="0" max="1" value="0.75" step="0.01"></label>
+<label for="shear"><span>Same imposed shear in both <output id="shear-value">0.65</output></span><input id="shear" type="range" min="0.1" max="1" value="0.65" step="0.05"></label>
+</div>
+<div class="comparison">
+<section class="sample"><header><p class="eyebrow">Early cooling / 8 heated updates</p><h2>Keep the elastic memory.</h2></header><canvas id="reference-view" role="img" aria-label="Early-cooled sample, compared with its original square shape"></canvas><div class="readouts"><p><output id="reference-memory"></output><span>Elastic memory retained</span></p><p><output id="reference-set"></output><span>Shear after release</span></p></div></section>
+<section class="sample selected"><header><p class="eyebrow" id="selected-duration">Your pulse / 32 heated updates</p><h2 id="selected-title">Leave a permanent distortion.</h2></header><canvas id="selected-view" role="img" aria-label="Selected heating duration, compared with its original square shape"></canvas><div class="readouts"><p><output id="selected-memory"></output><span>Elastic memory retained</span></p><p><output id="selected-set"></output><span>Shear after release</span></p></div></section>
+</div>
+<div class="timeline"><label for="time"><span>Inspect the sequence <output id="time-value">120 / 120</output></span><input id="time" type="range" min="0" max="120" value="120" step="1"></label><div class="actions"><button type="button" data-time="6">While heating</button><button type="button" data-time="99">Both cooled, load held</button><button type="button" data-time="120">After release</button></div><p id="sequence-note" aria-live="polite"></p></div>
+<figure><canvas id="history-view" role="img" aria-label="Elastic memory and phase fraction over the two prescribed heating and cooling histories"></canvas><figcaption>Solid lines: elastic memory remaining. Dotted lines: liquid fraction. Mint is the early-cooled reference; gold is your pulse. The vertical marker follows the inspected update.</figcaption></figure>
+<p class="boundary">A local constitutive experiment, not the native particle simulation. Both samples have the same imposed shear; their reaction forces can differ. After release, the drawing shows an ideal unloaded state: the remaining elastic shear returns and the relaxed part stays.</p>
+<details><summary>Why cooling cannot rewind the deformation</summary><p>The native <code>MAT_PHASE</code> branch reverses its liquid fraction φ as it cools, but it also relaxes the deformation gradient toward an isotropic state while hot. This removes recoverable distortion; there is no separate saved target shape in this branch.</p><pre>φ ← φ + clamp(φ_target − φ, −2Δt, 2Δt)
+E_eff / E = max((1 − φ)³, 0.02)
+r = 0.3 · smoothstep(0.3, 0.9, φ)
+F ← (1 − r)F + r√J I
+
+Simple shear, J = 1: γ_elastic ← (1 − r)γ_elastic
+After ideal release: γ_remaining = γ_imposed − γ_elastic</pre><p>The simple-shear reduction reproduces that reset exactly for a held local deformation. It uses prescribed phase targets and Δt = 0.02 per teaching update; the native reset is per solver substep, so this is not a clock calibrated to the recording. Heat transport, latent heat, gravity, contact, cracks and spatial flow are omitted. The unloaded shape is a small-strain explanatory reconstruction, not an MPM solution.</p><p>The author describes <em>recover.mp4</em> as an early-cooling recovery window followed by prolonged heating that loses structure. The visible material picker does not identify the specimen. This source branch explains a compatible mechanism; its exact identity in the recording remains unverified.</p></details>
+</main><script src="recording-recovery-core.js"></script><script src="recording-recovery.js"></script></body></html>

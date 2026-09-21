@@ -899,8 +899,8 @@ class MinHeap {
     bubbleUp(index) {
         while (index > 0) {
             const parentIndex = Math.floor((index - 1) / 2);
-            const key = this.heap[index].distance || this.heap[index].key;
-            const parentKey = this.heap[parentIndex].distance || this.heap[parentIndex].key;
+            const key = this.heap[index].distance ?? this.heap[index].key;
+            const parentKey = this.heap[parentIndex].distance ?? this.heap[parentIndex].key;
             
             if (key >= parentKey) break;
 
@@ -915,18 +915,18 @@ class MinHeap {
             const leftChild = 2 * index + 1;
             const rightChild = 2 * index + 2;
 
-            const currentKey = this.heap[minIndex].distance || this.heap[minIndex].key;
+            const currentKey = this.heap[minIndex].distance ?? this.heap[minIndex].key;
 
             if (leftChild < this.heap.length) {
-                const leftKey = this.heap[leftChild].distance || this.heap[leftChild].key;
+                const leftKey = this.heap[leftChild].distance ?? this.heap[leftChild].key;
                 if (leftKey < currentKey) {
                     minIndex = leftChild;
                 }
             }
 
             if (rightChild < this.heap.length) {
-                const minKey = this.heap[minIndex].distance || this.heap[minIndex].key;
-                const rightKey = this.heap[rightChild].distance || this.heap[rightChild].key;
+                const minKey = this.heap[minIndex].distance ?? this.heap[minIndex].key;
+                const rightKey = this.heap[rightChild].distance ?? this.heap[rightChild].key;
                 if (rightKey < minKey) {
                     minIndex = rightChild;
                 }

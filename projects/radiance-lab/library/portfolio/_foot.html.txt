@@ -1,0 +1,61 @@
+<footer>
+  <div class="wrap">
+    <div class="spectrum" style="margin-bottom:34px"></div>
+    <h2 style="font-size:28px;margin:0 0 10px">RadianceLab</h2>
+    <p style="color:var(--muted);max-width:56ch;margin:0">A from-scratch physically-based renderer in C++ and OpenGL compute, written to make estimator research directly visible.</p>
+    <div class="fgrid">
+      <div><span class="k">Renderer</span><span class="v">GPU megakernel path tracer, rasterizer, and seven CPU integrators — photon mapping, VCM, MLT, PSSMLT, UPBP, path guiding</span></div>
+      <div><span class="k">This work</span><span class="v">31 strategy slots in the picker: 0–2 are the baselines the rest are measured against, 3–24 and 26–30 are the photon-primitive family, 25 is a rasterised gather, and 21 of the slots are analytic swept manifolds sharing one MIS network</span></div>
+      <div><span class="k">Validation</span><span class="v">Ratio and byte-identical harnesses, degenerate-limit pins, standalone numerical gates in Python</span></div>
+      <div><span class="k">Media</span><span class="v">Homogeneous and heterogeneous participating media, Henyey–Greenstein and Mie phase functions, dispersive dielectrics</span></div>
+    </div>
+    <div class="scope">
+      <b>Scope note.</b> This page covers one subsystem. The renderer also carries a structured-light projector and time-of-flight pipeline, off-axis holography with a GPU FFT and phase unwrapping, five physics solvers coupled to volumetric density, a node-graph material and projection editor with texture-space baking, and roughly 140 post-process and NPR passes. Those are documented separately.
+    </div>
+    {{HOME}}
+  </div>
+</footer>
+
+<script>
+(function(){
+  var links = Array.prototype.slice.call(document.querySelectorAll('#rail a'));
+  var secs  = links.map(function(a){ return document.getElementById(a.dataset.s); });
+  var fill  = document.getElementById('railfill');
+  var track = document.getElementById('railtrack');
+
+  links.forEach(function(a){
+    a.addEventListener('click', function(e){
+      var t = document.getElementById(a.dataset.s);
+      if (!t) return;
+      e.preventDefault();
+      t.scrollIntoView({ behavior:'smooth', block:'start' });
+      if (history.replaceState) history.replaceState(null, '', '#' + a.dataset.s);
+    });
+  });
+
+  function progress(){
+    if (!fill || !track) return;
+    var h = document.documentElement.scrollHeight - window.innerHeight;
+    var p = h > 0 ? Math.min(1, Math.max(0, window.scrollY / h)) : 0;
+    fill.style.height = (p * track.offsetHeight) + 'px';
+  }
+  var queued = false;
+  window.addEventListener('scroll', function(){
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(function(){ progress(); queued = false; });
+  }, { passive:true });
+  window.addEventListener('resize', progress, { passive:true });
+  progress();
+
+  if (!('IntersectionObserver' in window)) return;
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      var i = secs.indexOf(e.target);
+      if (i < 0) return;
+      links[i].classList.toggle('on', e.isIntersecting && e.intersectionRatio > 0.12);
+    });
+  }, { threshold:[0, .12, .5] });
+  secs.forEach(function(s){ if (s) io.observe(s); });
+})();
+</script>

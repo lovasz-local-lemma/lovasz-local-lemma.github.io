@@ -1,0 +1,1082 @@
+<title>Seeing light arrive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300&display=swap">
+
+<style>
+/* ============================================================
+   Single-theme dark by deliberate commitment: this is a page about
+   light transport, and the renders are dark. Every colour is painted
+   explicitly so the page holds on any host ground.
+   ============================================================ */
+:root{
+  color-scheme: dark;
+  --bg:#070a0c; --bg-deep:#040607; --bg-lift:#0b1013;
+  --surface:rgba(255,255,255,.035);
+  --surface-2:rgba(255,255,255,.06);
+  --line:rgba(255,255,255,.10);
+  --line-2:rgba(255,255,255,.18);
+  --text:#eef2f0; --muted:#98a5a8; --muted-2:#6c797d;
+
+  /* Literal wavelength ramp — these are the section identities, not decoration */
+  --l400:#7B6CF6; --l460:#4E93F5; --l500:#3FD0D4;
+  --l540:#5FDD9B; --l560:#A9D877; --l580:#E3C55F; --l600:#EDA457; --l620:#F09A4E; --l680:#F2685C;
+
+  --accent:#E3B45F;            /* caustic gold: the light itself */
+  --accent-soft:rgba(227,180,95,.13);
+  --good:#5FDD9B; --bad:#F2685C;
+  --shadow:0 28px 80px rgba(0,0,0,.55), 0 3px 18px rgba(0,0,0,.4);
+
+  --sans:Inter,ui-sans-serif,-apple-system,"Segoe UI",sans-serif;
+  --display:Newsreader,"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--text);
+  font-family:var(--sans); font-size:16.5px; line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1140px;margin:0 auto;padding:0 32px}
+.narrow{max-width:720px}
+
+h1,h2,h3{font-family:var(--display);font-weight:400;letter-spacing:-.01em;text-wrap:balance}
+.mono{font-family:var(--mono)}
+em{font-style:italic;color:#cfd8d6}
+
+/* ---------------- side navigation ---------------- */
+#rail{
+  position:fixed;left:22px;top:50%;transform:translateY(-50%);z-index:50;
+  display:flex;flex-direction:column;gap:15px;align-items:flex-start
+}
+#railtrack,#railfill{position:absolute;left:4px;width:1px;top:3px;pointer-events:none}
+#railtrack{bottom:3px;background:rgba(255,255,255,.10)}
+#railfill{height:0;background:linear-gradient(to bottom,var(--l460),var(--l620));
+  transition:height .18s linear;box-shadow:0 0 8px rgba(255,255,255,.18)}
+#rail a{
+  display:flex;align-items:center;gap:11px;position:relative;text-decoration:none;
+  opacity:.34;transition:opacity .35s
+}
+#rail a::before{
+  content:"";width:9px;height:9px;border-radius:50%;background:var(--dot,#444);flex:none;
+  transition:transform .35s, box-shadow .35s
+}
+#rail a:hover,#rail a.on{opacity:1}
+#rail a.on::before{transform:scale(1.5);box-shadow:0 0 14px var(--dot)}
+#rail a span{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--dot);white-space:nowrap
+}
+@media (max-width:1439px){#rail a span{display:none}#rail{gap:16px}}
+@media (max-width:1180px){#rail{display:none}}
+
+/* ---------------- video placeholder: a shooting instruction, not a grey box ---------------- */
+.vslot{
+  border:1px dashed rgba(255,255,255,.22);border-radius:12px;padding:18px 20px;margin:22px 0;
+  background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.012))
+}
+.vslot-h{
+  font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--secc,#9fb0ad);margin-bottom:9px
+}
+.vslot-r{font-size:13.5px;color:#c8d2d0;line-height:1.55}
+.vslot-n{font-size:12.5px;color:var(--muted);margin-top:8px}
+.vslot-n b{color:#c8d2d0;font-weight:600}
+
+/* ---------------- hero ---------------- */
+.hero{position:relative;overflow:hidden;border-bottom:1px solid var(--line)}
+.hero-img{position:absolute;inset:0;z-index:0}
+.hero-img img{width:100%;height:100%;object-fit:cover;opacity:.62;filter:saturate(1.15)}
+.hero-img::after{
+  content:"";position:absolute;inset:0;
+  background:
+    radial-gradient(120% 90% at 50% 42%, rgba(7,10,12,0) 0%, rgba(7,10,12,.55) 48%, var(--bg) 88%),
+    linear-gradient(to bottom, rgba(7,10,12,.75) 0%, rgba(7,10,12,0) 25%, rgba(7,10,12,.9) 100%);
+}
+.hero-in{position:relative;z-index:1;padding:132px 0 70px}
+.eyebrow{
+  font-family:var(--mono);font-size:11px;letter-spacing:.26em;text-transform:uppercase;
+  color:var(--accent);margin:0 0 26px
+}
+.hero h1{
+  font-size:clamp(46px,8.2vw,96px);line-height:.96;margin:0 0 26px;
+  font-weight:300;letter-spacing:-.025em
+}
+.hero h1 i{font-style:italic;color:var(--accent)}
+.thesis{
+  font-family:var(--display);font-size:clamp(19px,2.4vw,25px);line-height:1.5;
+  color:#d3dbd9;max-width:30ch;margin:0 0 46px;font-weight:300
+}
+.spectrum{
+  height:2px;width:100%;margin:0 0 40px;border-radius:2px;
+  background:linear-gradient(90deg,var(--l400),var(--l460),var(--l500),var(--l540),var(--l580),var(--l620),var(--l680))
+}
+.stats{display:flex;flex-wrap:wrap;gap:14px}
+.stat{
+  background:var(--surface);border:1px solid var(--line);border-radius:11px;
+  padding:15px 20px 16px;backdrop-filter:blur(9px);min-width:168px;flex:1 1 168px
+}
+.stat .k{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--muted-2);display:block;margin-bottom:9px
+}
+.stat .v{
+  font-family:var(--mono);font-size:23px;font-weight:700;font-variant-numeric:tabular-nums;
+  letter-spacing:-.02em;display:flex;align-items:baseline;gap:8px
+}
+.stat .from{color:var(--bad)}
+.stat .arr{color:var(--muted-2);font-size:14px;font-weight:400}
+.stat .to{color:var(--good)}
+.stat .sub{font-size:12px;color:var(--muted-2);margin-top:5px;line-height:1.4}
+
+/* ---------------- sections ---------------- */
+section{padding:104px 0;border-bottom:1px solid var(--line)}
+section:last-of-type{border-bottom:0}
+.sec-label{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--secc,var(--accent));margin:0 0 16px;display:flex;align-items:center;gap:11px
+}
+.sec-label::before{content:"";width:22px;height:1px;background:var(--secc,var(--accent));opacity:.65}
+h2{font-size:clamp(30px,4.4vw,46px);line-height:1.1;margin:0 0 22px;font-weight:300}
+h3{font-size:22px;margin:44px 0 12px;font-weight:400;color:#e6ece9}
+p{margin:0 0 19px;color:#c2ccca}
+.lead{font-size:19px;line-height:1.62;color:#d5ddda;font-family:var(--display);font-weight:300}
+strong{color:var(--text);font-weight:600}
+code{
+  font-family:var(--mono);font-size:.85em;background:var(--surface-2);
+  padding:2px 6px;border-radius:4px;color:#d6e0dd;border:1px solid var(--line)
+}
+
+/* ---------------- schematics + screenshot slots ---------------- */
+.schem{
+  border:1px solid var(--line);border-radius:12px;background:var(--bg-lift);
+  padding:14px 10px;overflow-x:auto
+}
+.schem svg{width:100%;height:auto;display:block;max-width:900px;margin:0 auto}
+.slot{
+  border:1px dashed var(--line-2);border-radius:12px;min-height:180px;
+  display:flex;align-items:center;justify-content:center;text-align:center;
+  padding:28px 24px;font-family:var(--mono);font-size:12.5px;line-height:1.7;
+  color:var(--muted-2);background:var(--surface)
+}
+
+/* ---------------- figures ---------------- */
+figure{margin:44px 0}
+figure img{width:100%;display:block;border-radius:12px;border:1px solid var(--line);background:#000}
+figcaption{
+  margin-top:13px;font-size:13.5px;color:var(--muted);line-height:1.55;
+  display:flex;gap:9px;align-items:baseline
+}
+figcaption b{color:var(--muted-2);font-family:var(--mono);font-size:10px;letter-spacing:.14em;
+  text-transform:uppercase;white-space:nowrap;padding-top:2px}
+
+.paircap{margin-top:13px;font-size:13.5px;color:var(--muted);line-height:1.55;display:flex;gap:9px;align-items:baseline}
+.paircap b{color:var(--muted-2);font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap;padding-top:2px}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:760px){.pair{grid-template-columns:1fr}}
+.pane{position:relative}
+.pane img{width:100%;display:block;border-radius:11px;border:1px solid var(--line);background:#000}
+.tag{
+  position:absolute;top:11px;left:11px;font-family:var(--mono);font-size:10px;
+  letter-spacing:.12em;text-transform:uppercase;padding:4px 9px;border-radius:5px;
+  background:rgba(4,6,7,.8);border:1px solid var(--line-2);backdrop-filter:blur(6px)
+}
+.tag.a{color:var(--bad)} .tag.b{color:var(--good)}
+
+/* measured readout rows — straight from the reference UI */
+.readout{
+  margin:22px 0 0;border:1px solid var(--line);border-radius:11px;overflow:hidden;
+  background:var(--surface)
+}
+.readout .row{
+  display:flex;justify-content:space-between;align-items:center;gap:18px;
+  padding:11px 17px;border-bottom:1px solid var(--line);font-size:13.5px
+}
+.readout .row:last-child{border-bottom:0}
+.readout .row .lbl{color:var(--muted)}
+.readout .row .val{
+  font-family:var(--mono);font-variant-numeric:tabular-nums;font-weight:500;
+  font-size:13.5px;white-space:nowrap
+}
+.readout .row.hi .val{color:var(--accent);font-weight:700}
+.readout .row .val .d{color:var(--muted-2)}
+
+/* ---------------- roster table ---------------- */
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface);margin:34px 0}
+table{border-collapse:collapse;width:100%;min-width:640px;font-size:13.5px}
+th{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.15em;text-transform:uppercase;
+  text-align:left;color:var(--muted-2);padding:13px 16px;border-bottom:1px solid var(--line);
+  white-space:nowrap;font-weight:500
+}
+td{padding:11px 16px;border-bottom:1px solid rgba(255,255,255,.055);color:#bcc6c4;vertical-align:top}
+tr:last-child td{border-bottom:0}
+td:first-child{font-family:var(--mono);color:var(--text);font-weight:500;white-space:nowrap}
+td b{color:var(--text);font-weight:600}
+tr.key td{background:var(--accent-soft)}
+tr.key td:first-child{color:var(--accent)}
+
+/* ---------------- formula ---------------- */
+.formula{
+  margin:30px 0;padding:26px 28px;border-radius:12px;
+  background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.02));
+  border:1px solid var(--line);text-align:center
+}
+.formula .f{
+  font-family:var(--mono);font-size:clamp(14px,2.1vw,19px);color:var(--text);
+  letter-spacing:.01em;line-height:1.75
+}
+.formula .f .hl{color:var(--accent)}
+.formula .n{margin-top:14px;font-size:13px;color:var(--muted-2);line-height:1.5}
+
+/* ---------------- notes / honesty ---------------- */
+.note{
+  border-left:2px solid var(--secc,var(--accent));padding:3px 0 3px 22px;margin:30px 0;
+  color:var(--muted);font-size:15px
+}
+.note b{color:#dbe3e0}
+ul.clean{padding-left:0;list-style:none;margin:26px 0}
+ul.clean li{
+  padding:15px 0 15px 26px;border-bottom:1px solid var(--line);position:relative;
+  color:#bcc6c4;font-size:15px
+}
+ul.clean li:last-child{border-bottom:0}
+ul.clean li::before{
+  content:"";position:absolute;left:0;top:24px;width:7px;height:7px;border-radius:50%;
+  background:var(--secc,var(--accent));opacity:.75
+}
+ul.clean li b{color:var(--text)}
+
+/* ---------------- footer ---------------- */
+footer{padding:76px 0 96px;background:var(--bg-deep)}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:30px;margin-top:36px}
+.fgrid div .k{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--muted-2);display:block;margin-bottom:8px
+}
+.fgrid div .v{font-size:14.5px;color:#c2ccca;line-height:1.55}
+.scope{
+  margin-top:52px;padding:22px 26px;border:1px solid var(--line);border-radius:12px;
+  background:var(--surface);font-size:14.5px;color:var(--muted)
+}
+.scope b{color:var(--text)}
+
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media (max-width:640px){
+  .wrap{padding:0 20px}
+  .hero-in{padding:92px 0 54px}
+  section{padding:72px 0}
+}
+
+/* ---------------- index: card grid ---------------- */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:22px;margin:44px 0 10px}
+.card{
+  display:block;text-decoration:none;color:inherit;position:relative;overflow:hidden;
+  border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.022);
+  transition:border-color .3s, transform .3s, background .3s
+}
+.card:hover{border-color:var(--cc,#7a8a88);transform:translateY(-3px);background:rgba(255,255,255,.045)}
+.card::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:var(--cc,#666)}
+.card-in{padding:20px 22px 22px}
+.card .eyebrow{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.17em;text-transform:uppercase;
+  color:var(--cc,#8fa09d);opacity:.9
+}
+.card h3{font-family:var(--display),serif;font-size:22px;line-height:1.2;margin:9px 0 8px;font-weight:500}
+.card p{font-size:13.5px;line-height:1.6;color:var(--muted);margin:0 0 14px}
+.card-thumb{
+  border-radius:9px;overflow:hidden;border:1px solid var(--line);margin:0 0 14px;
+  background:#0c100f;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center
+}
+.card-thumb img,.card-thumb svg{width:100%;height:100%;object-fit:cover;display:block}
+.card-num{display:flex;align-items:baseline;gap:9px;margin-bottom:12px}
+.card-num b{font-family:var(--mono);font-size:19px;color:var(--cc,#d8e0de);font-weight:600;letter-spacing:-.01em}
+.card-num span{font-size:11.5px;color:var(--muted-2,#7f8b89)}
+.card-st{display:flex;gap:13px;flex-wrap:wrap;font-family:var(--mono);font-size:9.5px;
+  letter-spacing:.09em;color:var(--muted-2,#7f8b89);border-top:1px solid var(--line);padding-top:11px}
+
+/* ---------------- status marks: same object as a rail dot ---------------- */
+.st{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.st::before{content:"";width:9px;height:9px;border-radius:50%;flex:none;box-sizing:border-box}
+.st-a::before{background:var(--good,#7BD88F)}
+.st-b::before{background:linear-gradient(90deg,var(--l500) 50%,transparent 50%);border:1px solid var(--l500)}
+.st-c::before{border:1px solid var(--l580);background:none}
+.st-d::before{border:1px solid var(--muted-2,#7f8b89);background:none;border-radius:2px;transform:rotate(45deg)}
+
+/* ---------------- index: the honest ledger ---------------- */
+.chips{display:flex;gap:9px;flex-wrap:wrap;margin:26px 0 16px}
+.chip{
+  font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  padding:7px 13px;border-radius:999px;border:1px solid var(--line);background:none;color:var(--muted);
+  cursor:pointer;transition:border-color .25s,color .25s
+}
+.chip:hover{color:#d5dedc}
+.chip[aria-pressed="true"]{border-color:var(--accent,#EDA457);color:#e9efee}
+table.ledger{width:100%;border-collapse:collapse;font-size:13px}
+table.ledger th{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--muted-2,#7f8b89);text-align:left;padding:0 14px 9px 0;border-bottom:1px solid var(--line);font-weight:500
+}
+table.ledger td{padding:9px 14px 9px 0;border-bottom:1px solid rgba(255,255,255,.045);vertical-align:top}
+table.ledger td:nth-child(2){color:var(--muted)}
+table.ledger td:nth-child(3){font-family:var(--mono);font-size:11.5px;color:#c3ceccff}
+</style>
+<nav id="rail" aria-label="Sections">
+  <i id="railtrack"></i><i id="railfill"></i>
+  <a href="#claim" style="--dot:var(--l400)" data-s="claim"><span>The claim</span></a>
+  <a href="#lamp" style="--dot:var(--l460)" data-s="lamp"><span>The lamp</span></a>
+  <a href="#modulation" style="--dot:var(--l460)" data-s="modulation"><span>Modulation</span></a>
+  <a href="#flight" style="--dot:var(--l500)" data-s="flight"><span>Light in flight</span></a>
+  <a href="#fourshot" style="--dot:var(--l540)" data-s="fourshot"><span>Four shots</span></a>
+  <a href="#ladders" style="--dot:var(--l580)" data-s="ladders"><span>Two ladders</span></a>
+  <a href="#bench" style="--dot:var(--l600)" data-s="bench"><span>The bench</span></a>
+  <a href="#selfcheck" style="--dot:var(--l620)" data-s="selfcheck"><span>It grades itself</span></a>
+  <a href="#tail" style="--dot:var(--l620)" data-s="tail"><span>The rest of the panel</span></a>
+  <a href="#absent" style="--dot:var(--l680)" data-s="absent"><span>What's absent</span></a>
+</nav>
+
+<!-- ================= HERO ================= -->
+<header class="hero">
+  <div class="wrap hero-in">
+    <p class="eyebrow">Computational imaging &middot; RadianceLab</p>
+    <h1>Seeing light<br><i>arrive</i></h1>
+    <p class="thesis">Once a renderer can follow a photon exactly, it can answer questions ordinary rendering never asks. When did the light arrive. What phase was it. What would a sensor that measures those actually see &mdash; and is the answer it gives right.</p>
+    <p class="note" style="max-width:60ch;margin:14px 0 0;color:#9fb0ad">This is the one thread on the site with no photographs. Everything on it is built, compiles and runs, and &mdash; as far as the repository records &mdash; none of it has been deliberately photographed, so every figure below is a capture instruction with the expected result written into it. The instrument does not need the camera to know its own answers: the holography bench walks the entire inverse problem in fourteen displayable stages, scores its output in wraps of object phase against ground truth, and names which of ten setup faults you have made.</p>
+    <div class="spectrum"></div>
+    <div class="stats">
+      <div class="stat"><span class="k">Reconstruction stages on one combo</span>
+        <div class="v"><span class="to">14</span></div>
+        <div class="sub">ground truth &rarr; hologram &rarr; spectrum &rarr; crop &rarr; inverse &rarr; phase &rarr; depth &rarr; error, plus the mask and the solved unwrap</div></div>
+      <div class="stat"><span class="k">Setup faults it names for you</span>
+        <div class="v"><span class="to">10</span></div>
+        <div class="sub">nine rows that flip green, a tenth that only ever warns, and two standing notes</div></div>
+      <div class="stat"><span class="k">Dedicated shader files</span>
+        <div class="v"><span class="to">31</span></div>
+        <div class="sub">2,792 lines of ToF, FFT, unwrapping and holography, plus 1,123 in <code>src/spectral/</code></div></div>
+      <div class="stat"><span class="k">Photographed on purpose</span>
+        <div class="v"><span class="from">0</span></div>
+        <div class="sub">built, self-validating, and waiting for a camera</div></div>
+    </div>
+  </div>
+</header>
+
+<!-- ================= THE CLAIM ================= -->
+<section id="claim" style="--secc:var(--l400)" data-nav="The claim">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">01 &mdash; What is actually here</p>
+      <h2>An instrument that scores its own answers, and has never been photographed</h2>
+      <p class="lead">What is here, in one breath. A camera-mounted structured-light projector that is a real next-event light, an amplitude-modulation sensor model with four independent phase terms, four-shot continuous-wave time-of-flight capture, three holographic reconstructions, and a weighted-least-squares phase unwrapper solved by preconditioned conjugate gradient on the GPU. All of it builds and runs. None of it appears in a single figure anywhere in the repository &mdash; the project's own capture inventory lists it as the subsystem its earlier sweeps missed, and the one to shoot early.</p>
+      <p>Unphotographed is a fact about the photography, not about the instrument. What this one does when you run it is the reason the page exists.</p>
+      <ul class="clean">
+        <li><b>It walks the whole inverse problem on screen.</b> One combo, fourteen entries, from the ground-truth depth through the synthesised hologram, the spectrum, the crop mask, the cropped spectrum, the inverse transform, the recovered phase, the recovered depth and the error against truth &mdash; plus a six-panel overview, a four-panel comparison, the amplitude mask, the solved unwrapped phase, and the phase residual (<code>UIManagerRender.cpp:4376-4391</code>). Every intermediate a textbook would draw is a texture you can put on the viewport.</li>
+        <li><b>It grades itself in physical units.</b> Mean, RMS, minimum and maximum over the valid mask, reported in <em>wraps of object phase</em> with the gauge freedom of least-squares unwrapping explicitly cancelled, and, in the V2 panel, the solver&rsquo;s iteration count and residual &mdash; and it prints the value it expects, so a sign or scale error is legible without leaving the panel (<code>UIManagerRender.cpp:4749-4755</code>; the FFT panel prints the same four numbers without the solver line at <code>:4411-4422</code>).</li>
+        <li><b>It diagnoses your scene.</b> Two one-click presets configure the projector, the carrier, the light strategy and the environment together, and beneath them ten pass-or-warn rows say <em>why</em> your fringes are missing: environment light adding a DC haze, no reference carrier so the sideband sits at DC, a cone projector whose carrier direction varies with angle (<code>:4657-4703</code>). Nothing else in this codebase diagnoses its own setup.</li>
+      </ul>
+      <p>So each section does two things. It states the capability, points at where it lives and says what it produces &mdash; and then carries the capture instruction that would put a photograph behind it. A reader who wants to know whether this works has a shooting list with the expected result already written in. A reader who wants to know whether it is <em>worth</em> shooting has the fourteen stages, the residual readout and the advisor, each with an anchor.</p>
+    </div>
+
+    <div class="tw"><table>
+      <thead><tr><th>Section</th><th>What it claims</th><th>Grade</th></tr></thead>
+      <tbody>
+        <tr><td>The lamp itself</td><td>Four delta geometries with four falloff laws, seven patterns, a beam angle solved from a quad you size, an emission disk that appears in mirrors, and a plan view of the whole rig</td><td><span class="st st-c">never viewed</span> &mdash; regraded from sighted 2026-09-06</td></tr>
+        <tr><td>Modulation inside the transport</td><td>Phase rides on the traced path length, not on the depth buffer</td><td><span class="st st-b">seen</span> in source; unphotographed</td></tr>
+        <tr><td>Light in flight</td><td>A path-length window that isolates a wavefront</td><td><span class="st st-b">seen</span> &mdash; the one row the catalogue grades sighted</td></tr>
+        <tr><td>Four-shot capture</td><td>atan2 recovery from four accumulated buckets</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>Sensor simulators</td><td>Correct algorithms fed the ground-truth depth buffer</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>The fourteen-stage bench</td><td>Sideband isolation, IFFT, WLS-PCG unwrap, every stage displayable</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>The residual readout</td><td>A pipeline that prints its own numbers, in wraps, gauge-cancelled</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>The setup advisor</td><td>Ten rows that name the misconfiguration you have chosen</td><td><span class="st st-b">seen</span> &mdash; graded sighted, never framed</td></tr>
+        <tr><td>The rest of the panel</td><td>The ground-truth depth read-out, the third time-of-flight implementation, the noise models, the amplitude mask and the frustum overlay &mdash; four of them carrying a defect</td><td>mixed &mdash; graded row by row in &sect;09</td></tr>
+        <tr><td>Branch-cut unwrapping</td><td>Nothing. The enum exists, the function body is empty &mdash; see the last section</td><td><span class="st st-d">not built</span></td></tr>
+        <tr><td>Structured-light decoding</td><td>Nothing. There is no decoder &mdash; see the last section</td><td><span class="st st-d">not built</span></td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="narrow">
+      <p class="note"><b>One useful consequence.</b> Because nothing here has been looked at, anything odd in the first captures should be treated as a real candidate bug rather than an expected gap. The project's own triage document records the opposite habit failing repeatedly: reasoning about why an estimator looks dark produced three confident wrong conclusions in one session, each settled by a single instrumented run.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= THE LAMP ================= -->
+<section id="lamp" style="--secc:var(--l460)" data-nav="The lamp">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">02 &mdash; The lamp, before the measurement</p>
+      <h2>Everything else on this page treats the projector as a carrier. It is a light</h2>
+      <p class="lead">The projector appears forty-odd times on this page and every one of those mentions is about phase: what it modulates, what it carries, what a decoder recovers from it. That is a real use and it is not the whole object. Underneath the modulation is a next-event light source with four distinct delta geometries, four falloff laws, seven patterns, a beam angle that is <em>solved</em> rather than typed, and a plan view of the entire rig &mdash; none of which any figure on this site has shown, and none of which the rest of this page needs in order to make its argument.</p>
+      <p>The four shapes are not four presets on one light. Each is a different delta geometry with its own shadow-ray construction and its own distance law, which is exactly what makes the set useful: put the same power through all four and the differences in the image are differences in the physics, not in the artwork.</p>
+    </div>
+    <div class="tw"><table>
+      <thead><tr><th>Shape</th><th>Geometry</th><th>Falloff</th><th>In a mirror?</th></tr></thead>
+      <tbody>
+        <tr class="key"><td>Point source</td><td>A cone from the camera position; UV is perspective, so a pattern projects the way a slide projector's does</td><td><b>1/r&sup2;</b>, inverse square</td><td><b>Yes</b> &mdash; a 0.05 m aperture disk</td></tr>
+        <tr><td>Quad laser panel</td><td>A collimated plane wave covering everything the camera sees; the wavefront is flat</td><td><b>None.</b> Collimated light does not spread</td><td>No disk exists</td></tr>
+        <tr><td>Spinning slit laser</td><td>A line emitter through the camera position, oriented by a sweep angle from &minus;90&deg; to +90&deg;; light reaches a surface from the nearest point on the line</td><td><b>1/r</b>, cylindrical spreading about the line</td><td>No disk exists</td></tr>
+        <tr class="key"><td>Flashlight</td><td>A cone with a smoothstep halo and a <em>physical</em> emission-disk radius you set</td><td><b>1/r&sup2;</b>, with a soft edge</td><td><b>Yes</b> &mdash; at the radius you set</td></tr>
+      </tbody>
+    </table></div>
+    <div class="narrow">
+      <p>That last column is the one a reader would not guess. At any bounce past the first, the ray marches against an aperture disk sitting at the camera and facing backwards, and if it lands inside, the projector's own emission is returned and the path terminates &mdash; absorbed by the light source, which is what a real lamp does to a ray that finds it. So the projector <strong>appears in mirrors and in glass</strong>, correctly, as a bright disk. Two of the four shapes have such a disk and two do not, and the asymmetry is not arbitrary: a collimated panel and an infinite line have no aperture to hit.</p>
+
+      <h3>The beam angle is derived, and the derivation is different for each shape</h3>
+      <p>There is no &ldquo;cone angle&rdquo; slider. You size a quad, place it at a depth, set how far behind it the emitter sits, and the half-angle falls out &mdash; clamped to between 0.5&deg; and 89&deg; so it can never be degenerate. The arithmetic is shape-dependent, and one branch of it is worth reading closely:</p>
+    </div>
+    <div class="formula">
+      <div class="f">point &nbsp;&rarr;&nbsp; atan2( <span class="hl">&radic;(W&sup2;+H&sup2;)</span>, emitterDist + quadZ )<br>
+      line &nbsp;&nbsp;&rarr;&nbsp; atan2( <span class="hl">W</span>, emitterDist + quadZ )<br>
+      panel &nbsp;&rarr;&nbsp; atan2( <span class="hl">W</span>, <span class="hl">1.0</span> )</div>
+      <div class="n">The point source uses the quad's diagonal over the full setback; the line uses the width alone, because a line has no vertical extent to spread. The panel uses width at <em>unit</em> depth and ignores the depth you set &mdash; which is defensible for a collimated beam that does not spread, and is nowhere explained in the panel. All three are then clamped to [0.5&deg;, 89&deg;].</div>
+    </div>
+    <div class="narrow">
+      <p>On top of the derivation sit three fitting aids, and the third is the one that makes the four shapes comparable at all. <em>Match Image Plane</em> puts the quad at the camera's focus distance spanning the horizontal field of view; <em>Match Aperture</em> puts the emitter at zero and sets the cone equal to the camera's field of view. <em>Size Matching</em> goes further: it solves the beam angle from a desired half-width at a reference depth, so &ldquo;point versus panel versus line&rdquo; becomes a controlled comparison at a fixed illuminated area rather than three differently-sized beams. It is also, incidentally, one of two controls that survived this project's own inert-control audit by reaching the renderer through a derived write rather than a direct one.</p>
+
+      <h3>The plan view nobody has looked at</h3>
+      <p>Beside all of this is a draggable top-down window that draws the whole rig in the XZ plane: the scene's primitives as circles, the camera frustum, the image and focal planes, the effective quad, the emitter's position behind it, a translucent beam cone with seven fan rays &mdash; and, when the path-length gate is on, <strong>the time-of-flight wavefront itself</strong>, drawn as an expanding arc for the point and line sources and as a straight advancing line for the panel.</p>
+      <p class="note"><b>That last detail is this page's own argument, drawn.</b> &sect;04 spends several paragraphs, and a whole clip, on the difference between a curved wavefront and a flat one and what each does to a recovered depth. The renderer already draws that difference, in a plan view, live, next to the controls that cause it. It has never been photographed, and it is the first shot on this page's list for that reason.</p>
+
+      <h3>Seven patterns, and two debug switches with physics in them</h3>
+      <p>Grid, Checker, Rings, Bars, Gobo/Star, Gradient and Plain, evaluated in projector UV with a repeat-scale slider. <em>Plain</em> is not a null option: it is uniform emission, which is what makes interference fringes readable with no pattern printed on top of them. Beside the pattern list sit two controls that look like debug toggles and are really experiment design. <em>Ignore Lambert</em> bypasses the cosine and the light's directional term so every surface is equally bright &mdash; built to verify a wavefront's <em>shape</em> without brightness confounding it. And <em>Path Offset</em> shifts the effective path length uniformly, so the curvature of a point, panel and line wavefront can be compared at one time offset instead of three.</p>
+
+      <h3>Where the lamp is not</h3>
+      <ul class="clean">
+        <li><b>Under naive path tracing it renders black</b>, and that is correct rather than broken: a delta light has zero measure and cannot be found by BSDF sampling. It is also skipped for the two pure light-tracing strategies.</li>
+        <li><b>No CPU integrator sees it at all.</b> Every projector uniform is written by the megakernel's uploader and the rasteriser, and by nothing else &mdash; so the entire imaging subsystem is a GPU-only object, in a renderer whose research half is on the CPU.</li>
+      </ul>
+
+      <h3>And there is a second projector</h3>
+      <p>The node editor carries an unrelated one. Wire a Camera node &mdash; which snapshots the live view-projection and basis at one button press &mdash; and a Texture node into a DataMosh Projector, and a photograph is cast into the scene from that frozen pose. The photograph need not come from a file: the frame loop snapshots the <em>clean, pre-mosh</em> display texture into any Texture node that has asked for a capture (<code>EngineRender.cpp:4127-4130</code>), so the renderer can photograph itself and then project the result back in. Two of the six modes are the ones a reader will want first: <b>Light cone</b> and <b>Light plane</b> turn the image into <em>emitted light</em> &mdash; a perspective cone from the captured apex, or an orthographic plane of a given world size, with an intensity slider. A photograph, used as a luminaire, inside a path tracer.</p>
+      <p>The other four are not variations on that one idea. They enter the renderer at four different places, and two of them never enter the path tracer at all: the tracer's copy of the projector is switched on only for modes 1, 3 and 4 (<code>EngineRender.cpp:1709-1711</code>). So <b>mode 2 &mdash; Forward</b> is a rasteriser-only mode, and mode 0 &mdash; Reproject never reaches either renderer at all. <b>Mode 1 &mdash; Project</b> is the one that runs in both, and its two sub-branches do opposite things to the surface they land on. The gate is easy to miss, because the combo offers all six under one node with no indication that they run in different places.</p>
+    </div>
+
+    <div class="tw"><table>
+      <thead><tr><th>Mode</th><th>Where it actually runs</th><th>Grade</th></tr></thead>
+      <tbody>
+        <tr><td>0 &mdash; Reproject</td><td>Neither renderer. A post pass on the display texture, sequenced after data moshing and before glow (<code>EngineRender.cpp:4146-4150</code>), re-projecting frozen pixels through the frozen depth buffer</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr class="key"><td>1 &mdash; Project</td><td><b>Both renderers.</b> Per hit in the megakernel (<code>pathTrace.comp:982-998</code>), per fragment in the rasteriser (<code>basic.frag:437</code>, <code>:447</code>). A <em>Re-lit</em> checkbox switches the branch, and the two branches do very different things &mdash; see below</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>2 &mdash; Forward</td><td><b>Rasteriser only.</b> Replaces the surface albedo with the photo and lets the raster lighting run over it. Selecting it while the tracer is active does nothing at all</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr class="key"><td>3 / 4 &mdash; Light cone / plane</td><td><b>Both</b>, deliberately: the tracer helper's own header says it <em>&ldquo;mirrors <code>basic.frag</code>'s <code>projectorLight()</code> so raster and tracer match&rdquo;</em>. Additive, scaled by N&middot;L, with no shadow ray &mdash; so it is a luminaire that casts no shadows</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>5 &mdash; Bake to UV</td><td>The rasteriser renders the projection in texture space into the tracer's per-entity baked-albedo array; the tracer then samples it as an ordinary texture. 64&ndash;4096 px, three choices of which surface side receives it, explicit Re-bake button</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>Optional fixes</td><td>Three, under their own separator in the node panel: fit-aspect letterbox against the viewport aspect, flip-V, and an edge fade smoothstepped in projector UV. Blend, glitch and decay sit <em>above</em> that separator and apply to every mode (<code>NodeEditor.cpp:1277-1288</code>)</td><td><span class="st st-c">never viewed</span></td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="narrow">
+      <p><b>The two halves of mode 1 are worth separating</b>, because only one of them is a photograph. <em>Re-lit</em> overwrites the surface albedo and then zeroes that surface's emission, so projecting onto an emitter silences it. <em>Unlit</em> adds the photo colour to the radiance and immediately <code>break</code>s the path &mdash; the surface stops being a surface and becomes the picture. And both light modes and the unlit branch are skipped whenever the light strategy is 3, 4 or 7, the two pure light-tracing strategies and Light Sample Only, because each adds its contribution at the hit rather than through a connection. The re-lit branch is the exception: it changes an albedo, so it survives every strategy.</p>
+      <p class="note"><b>A grade corrected.</b> The landing page graded the projector <span class="st st-b">seen</span> until 2026-09-06, on the strength of everything else on this page. But everything else on this page uses it as a carrier for phase; not one figure, anywhere in the repository, shows what it looks like as a lamp. The catalogue's projector block runs to thirteen rows and grades <span class="st st-c">never viewed</span> every one of the ten that is a capability rather than a caveat &mdash; the lamp itself, the four shapes, the seven patterns, the derived beam geometry, the two fitting buttons, Size Matching, visibility in reflections, the plan view, Ignore Lambert and Path Offset. The other three are the two limitations named above and a debug frustum. It is right, and the ledger row now agrees with it.</p>
+    </div>
+    <div class="slot">Screenshot — View &#9656; POV &#9656; Projector On (or E in FPS capture) on preset 47 &middot; Shape = Point Source &middot; Pattern = Grid &middot; Match Image Plane &middot; Power ~200 &middot; open the menu-bar Top-Down view and drag it clear of the viewport &middot; shoot the viewport and the plan view in one frame, with the projector panel's derived "Cone: NN.N deg (W= H= Z=)" line legible &middot; include one of the glass spheres so the grid is visible bending through it</div>
+    <div class="vslot"><div class="vslot-h">video &middot; Four lamps, one power</div><div class="vslot-r">Preset 47, projector on, Pattern = Plain, Size Matching ON with a fixed half-width so all four shapes light the same area. Step Shape through Point Source, Quad Laser panel, Spinning Slit Laser and Flashlight, holding 6 s on each, with the Top-Down view open beside the viewport and the path-length gate ON so the wavefront draws. Then set Shape = Point Source, Pattern = Gobo/Star, and orbit 30 degrees so a mirror comes into frame; hold 8 s.</div><div class="vslot-n"><b>Watch for</b> Four different falloff laws on one scene: the point source darkens with the square of distance, the panel does not darken at all, the line darkens along one axis only, and the flashlight's edge is soft where the point source's is hard. In the plan view the wavefront is an arc for the point and the line and a straight line for the panel — the same distinction the sections below argue in prose. At the end, watch the mirror: the emission disk is a real intersectable, so the lamp is in its own reflection.</div></div>
+  </div>
+</section>
+
+<!-- ================= MODULATION ================= -->
+<section id="modulation" style="--secc:var(--l460)" data-nav="Modulation">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">03 &mdash; Where the measurement enters</p>
+      <h2>The modulation lives inside the path tracer, not after it</h2>
+      <p class="lead">The projector is not a post-process. It is a delta light rigidly attached to the camera, sampled by next-event estimation inside the megakernel (<code>pathTrace.comp:2050-2062</code>), and the amplitude modulation is applied at that connection as a function of the path length the tracer actually walked &mdash; including, optionally, the whole multi-bounce eye path.</p>
+      <p>A continuous-wave time-of-flight camera emits amplitude-modulated light and correlates the return against a reference. What a pixel measures is a cosine of a sum of phases, and the interesting design decision here is that those phases are kept <em>separate</em> rather than collapsed into one offset. There are four of them, entering at four different physical places.</p>
+    </div>
+
+    <div class="formula">
+      <div class="f">I = base &middot; ( 1 &minus; c/2 + (c/2)&middot;cos( <span class="hl">&phi;<sub>path</sub></span> &minus; <span class="hl">&phi;<sub>emit</sub></span> &minus; <span class="hl">&phi;<sub>demod</sub></span> &minus; <span class="hl">&phi;<sub>sensor</sub></span> ) )</div>
+      <div class="n">&phi;<sub>path</sub> = 2&pi;&middot;f&middot;L, the round-trip path length &middot; &phi;<sub>emit</sub> = 2&pi;(e<sub>X</sub>&middot;u<sub>proj</sub> + e<sub>Y</sub>&middot;v<sub>proj</sub>), a spatial phase ramp on the emitter, which is a tilted or scanning wavefront &middot; &phi;<sub>demod</sub>, the correlation bucket offset &middot; &phi;<sub>sensor</sub> = 2&pi;(r<sub>X</sub>&middot;u + r<sub>Y</sub>&middot;v), a rolling shutter, which is scene-independent by construction. <code>shaders/modules/pt_sky.glsl:246-307</code></div>
+    </div>
+
+    <figure>
+      <div class="schem">
+        <svg viewBox="0 0 920 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Diagram of where each of the four phase terms enters the light path: emitter ramp at the source, path phase along the traced path, rolling shutter at the sensor, demodulation offset at the correlation bucket">
+          <defs>
+            <marker id="iaAh" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+              <path d="M0 0 L10 5 L0 10 z" fill="#7f8b89"/>
+            </marker>
+            <style>
+              .iabx{fill:rgba(255,255,255,.035);stroke:#3a4442;stroke-width:1}
+              .iahl{fill:rgba(237,164,87,.09);stroke:#EDA457;stroke-width:1.3}
+              .iat{fill:#d5dedc;font-family:Georgia,serif;font-size:15px}
+              .ias{fill:#8b9795;font-family:ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:.05em}
+              .iaph{fill:#EDA457;font-family:ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:.05em}
+              .iae{stroke:#7f8b89;stroke-width:1.1;fill:none;marker-end:url(#iaAh)}
+              .iaray{stroke:#EDA457;stroke-width:1.2;fill:none;opacity:.75}
+              .ialbl{fill:#7f8b89;font-family:ui-monospace,Menlo,monospace;font-size:9.5px;letter-spacing:.1em}
+            </style>
+          </defs>
+
+          <rect class="iabx" x="20" y="96" width="150" height="88" rx="9"/>
+          <text class="iat" x="95" y="126" text-anchor="middle">Emitter</text>
+          <text class="ias" x="95" y="145" text-anchor="middle">at the camera</text>
+          <text class="iaph" x="95" y="167" text-anchor="middle">&minus; &phi;_emit</text>
+
+          <path class="iaray" d="M172 128 C 300 60, 400 60, 470 118"/>
+          <path class="iaray" d="M470 152 C 400 214, 300 214, 172 156"/>
+          <text class="ias" x="322" y="52" text-anchor="middle">out</text>
+          <text class="ias" x="322" y="234" text-anchor="middle">back</text>
+
+          <rect class="iahl" x="472" y="98" width="150" height="84" rx="9"/>
+          <text class="iat" x="547" y="128" text-anchor="middle">Scene</text>
+          <text class="ias" x="547" y="147" text-anchor="middle">traced path length L</text>
+          <text class="iaph" x="547" y="169" text-anchor="middle">+ &phi;_path = 2&pi;fL</text>
+
+          <path class="iae" d="M624 140 L700 140"/>
+
+          <rect class="iabx" x="704" y="60" width="196" height="72" rx="9"/>
+          <text class="iat" x="802" y="88" text-anchor="middle">Sensor pixel</text>
+          <text class="ias" x="802" y="106" text-anchor="middle">rolling shutter, scene-independent</text>
+          <text class="iaph" x="802" y="124" text-anchor="middle">&minus; &phi;_sensor</text>
+
+          <rect class="iabx" x="704" y="148" width="196" height="72" rx="9"/>
+          <text class="iat" x="802" y="176" text-anchor="middle">Correlation bucket</text>
+          <text class="ias" x="802" y="194" text-anchor="middle">one of four, cycled per frame</text>
+          <text class="iaph" x="802" y="212" text-anchor="middle">&minus; &phi;_demod</text>
+
+          <text class="ialbl" x="547" y="264" text-anchor="middle">ONLY THIS TERM CARRIES DEPTH</text>
+          <path d="M462 252 L632 252" stroke="#EDA457" stroke-width="1" opacity=".5"/>
+        </svg>
+      </div>
+      <figcaption><b>Four phases, four places</b><span>Keeping the terms separate is what makes the stack usable as a sensor model rather than a look. The emitter ramp and the rolling shutter are known at recovery time and can be added back, so an off-axis carrier can be introduced deliberately and then removed; only the path term is unknown, and it is the only one that carries depth.</span></figcaption>
+    </figure>
+
+    <div class="narrow">
+      <h3>Limits, in the same breath</h3>
+      <ul class="clean">
+        <li><b>The projector is collocated with the camera.</b> There is no projector position uniform anywhere in the kernel; every evaluation is relative to <code>uCamPos</code>. The baseline is exactly zero, so triangulation is not merely unimplemented, it is geometrically impossible in this configuration. Depth here comes from phase, never from disparity.</li>
+        <li><b>Tracer only.</b> The <code>uProjector*</code> uniforms are uploaded from one place, the projector block at <code>ComputePathTracer.cpp:1939</code>, and from nowhere else in <code>src/render/</code>. The rasteriser's <code>uProjector*</code> set is an unrelated system that casts a captured photo. Press <code>2</code> before any capture on this page.</li>
+        <li><b>Naive path tracing cannot see it.</b> The projector contributes only through the direct-lighting site, and the guard at <code>pathTrace.comp:2061-2062</code> skips strategies 0, 3 and 4 &mdash; a delta light cannot be hit by BSDF sampling, and pure light tracing does no eye-side next event. The panel's health check flags exactly this.</li>
+        <li><b>The spatial carriers are not applied everywhere.</b> The primary next-event site passes the real pixel coordinate and the real surface point (<code>pathTrace.comp:2229</code>), as does the light-tracer splat (<code>:3038</code>). Three secondary sites reach the projector through <code>evalProjectorTOF</code> instead (<code>:904</code>, <code>:939</code>, <code>:3511</code>): the projector seen head-on through the aperture, its reflection off an escaped ray, and light-tracer vertices. That helper calls the two-argument overload, which substitutes <code>vec2(0.5)</code> for the pixel and <code>uCamPos + uCamForward&middot;L</code> for the surface point (<code>pt_sky.glsl:313-315</code>).</li>
+      </ul>
+      <p class="note"><b>A finding from writing this page, sharpened on the second pass.</b> The first draft said the three secondary sites carry no rolling shutter. They carry no <em>emitter ramp</em> either, and that follows by construction rather than by inspection: the substituted position lies on the optical axis, so <code>dot(toPoint, uCamRight)</code> and <code>dot(toPoint, uCamUp)</code> are identically zero in the projector-UV block at <code>pt_sky.glsl:273-291</code>, and &phi;<sub>emit</sub> collapses to zero along with &phi;<sub>sensor</sub>. Both spatial carriers vanish at those three sites; only &phi;<sub>path</sub> and &phi;<sub>demod</sub> survive. It is small &mdash; it affects the source's appearance in a mirror, not the illumination &mdash; but it is exactly the sort of thing a reader who opens the shader will notice, so it belongs here rather than in a commit message.</p>
+    </div>
+
+    <div class="slot">Screenshot — Preset 0 Cornell Box, press 2 for the tracer, Light Strategy = NEE. POV panel, Projector On, Shape = Quad Laser (panel), Pattern = Plain, Power 200. TOF On, Freq 6.0, Contrast 0.9. Frame the whole box. What should be visible: dense cosine fringes lying on the walls and floor, curving where the geometry recedes, with the far wall showing a different fringe spacing than the near floor. That curvature IS the depth signal. This is the raw measurement every later section consumes, so it is the first thing to shoot.</div>
+  </div>
+</section>
+
+<!-- ================= LIGHT IN FLIGHT ================= -->
+<section id="flight" style="--secc:var(--l500)" data-nav="Light in flight">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">04 &mdash; Gating on arrival time</p>
+      <h2>A window on path length turns a still into a wavefront</h2>
+      <p class="lead">Independently of the modulation, every contribution in the kernel knows its own accumulated path length, and a filter can keep only the contributions whose length falls inside a window. Sweeping that window forward is light in flight.</p>
+      <p>This is one of the few parts of the subsystem the feature catalogue grades <em>seen</em> rather than never viewed: it is item B2 in the capture inventory, and the top-down setup view draws the wavefront position whenever the filter is active. It also works at volume scattering vertices, not only at surfaces, so in a foggy scene the window shows an expanding shell rather than a moving contour on the walls.</p>
+      <p>Two qualifications, both checkable in one file.</p>
+    </div>
+
+    <div class="readout">
+      <div class="row"><span class="lbl">Control</span><span class="val">Tracer tab &rsaquo; Filters &rsaquo; Path Length Filter (TOF), <code>UIManagerRender.cpp:1144-1161</code></span></div>
+      <div class="row"><span class="lbl">Window</span><span class="val">[from, from + range] in metres, both log sliders</span></div>
+      <div class="row"><span class="lbl">Light-side only</span><span class="val">gate on the final leg instead of the round trip</span></div>
+      <div class="row"><span class="lbl">Sites that apply the window</span><span class="val">eight, in three different profiles</span></div>
+      <div class="row hi"><span class="lbl">Six of them</span><span class="val">admit to relD &lt; 1.5, then 1 &minus; smoothstep(0.8, 1.2, relD)</span></div>
+      <div class="row hi"><span class="lbl">One of them</span><span class="val">hard interval, no attenuation</span></div>
+    </div>
+
+    <div class="narrow">
+      <p><b>The gate is not one gate.</b> Eight sites in the kernel apply the path-length window and they do not agree on its edges. Six feather it identically &mdash; volume next-event (<code>pathTrace.comp:823</code>), surface next-event (<code>:1966</code>), point-light next-event (<code>:2033</code>), the projector's own direct lighting (<code>:2264</code>), and two light-tracer connections (<code>:3173</code>, <code>:3489</code>) &mdash; admitting out to 1.5 window half-widths and attenuating smoothly. A seventh, the light-tracer projector splat, tests a hard interval first (<code>:3018</code>) and only then feathers inside it (<code>:3042</code>), so its window is effectively narrower than everyone else's. The eighth is a path that lands on an emitter by chance rather than by connection (<code>:1164</code>): hard interval test, no attenuation at all.</p>
+      <p>So a scene lit by an emissive quad shows a soft-edged wavefront through its next-event contributions and a hard-edged one through its BSDF-sampled contributions, at the same window setting. For the illustrative use this filter is put to, that is harmless. For anything quantitative it is not, and it is the first thing to reconcile if the gate is ever promoted from a display filter to an estimator.</p>
+      <p><b>The gate is a display filter, not an estimator.</b> Contributions outside the window are zeroed or attenuated and nothing is renormalised, so a gated frame is not a correctly-normalised transient image. It is a picture of which light paths fall in a length band. That is the right tool for showing wavefront geometry and the wrong tool for measuring transient radiance, and the distinction should be stated wherever the images are used.</p>
+    </div>
+
+    <div class="vslot"><div class="vslot-h">video &middot; Light in flight, Cornell box</div><div class="vslot-r">Preset 0, press 2 for the tracer, Light Strategy = NEE. Render Settings, Technique, Tracer, Filters. Turn on Path Length Filter (TOF). Set TOF Range to 1.0 m. Then drag TOF From from 2 m to 20 m over about eight seconds, slowly and monotonically. Repeat the same drag with the Light-side only checkbox ticked.</div><div class="vslot-n"><b>Watch for</b> An expanding shell of illumination sweeping outward from the light, reaching the near wall first and the far corner last, with the corner joints lighting up after the flat walls because the path there is longer. The two passes should differ: the round-trip pass is centred on the camera, the light-side pass on the emitter.</div></div>
+
+    <div class="vslot"><div class="vslot-h">video &middot; Wavefront curvature by source shape</div><div class="vslot-r">Preset 0, tracer, projector on with Pattern = Plain and Ignore Lambert ticked so brightness does not confound the shape. Path Length Filter on, Range 0.4 m, From held at 6 m. Open the Top-Down button in the menu bar so the XZ plan is visible beside the viewport. Now step Shape through Point Source cone, then Quad Laser panel, then Spinning Slit Laser line.</div><div class="vslot-n"><b>Watch for</b> The lit band changes shape without moving: spherical and curved for the point source, dead straight for the collimated panel, straight in the middle and curving at the edges for the line. The top-down plan redraws the emitter and its wavefront each time, so the two views explain each other.</div></div>
+  </div>
+</section>
+
+<!-- ================= FOUR SHOTS ================= -->
+<section id="fourshot" style="--secc:var(--l540)" data-nav="Four shots">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">05 &mdash; Recovery</p>
+      <h2>Four buckets, one arctangent</h2>
+      <p class="lead">A real continuous-wave sensor takes four correlation measurements per depth frame. This one does the same thing across four consecutive rendered frames, accumulating each into its own layer of a four-layer floating-point image array, and then demodulates.</p>
+      <p>The CPU cycles the demodulation phase through 0, &pi;/2, &pi;, 3&pi;/2 on the frame index and tells the kernel which bucket it is writing (<code>ComputePathTracer.cpp:2002-2014</code>). The kernel accumulates into that layer with the same running-mean weight as the main accumulator but at a quarter rate, so after 4N frames every bucket holds N samples (<code>pathTrace.comp:3767-3776</code>). A post-process then reads all four and applies the standard formula.</p>
+    </div>
+
+    <div class="formula">
+      <div class="f">&phi;<sub>rec</sub> = atan2( I<sub>3</sub> &minus; I<sub>1</sub>, &nbsp;I<sub>0</sub> &minus; I<sub>2</sub> ) &nbsp;=&nbsp; <span class="hl">&phi;<sub>path</sub></span> &minus; &phi;<sub>emit</sub> &minus; &phi;<sub>sensor</sub></div>
+      <div class="n">The subtraction cancels the DC term, which is why four shots rather than two. The emitter ramp and the rolling shutter are then added back from the values the user set, giving &phi;<sub>path</sub>, and depth follows by dividing by 2&pi;f and halving for the round trip. <code>shaders/tofRecovery.frag</code>, 271 lines</div>
+    </div>
+
+    <div class="narrow">
+      <h3>What the nine display modes do and do not prove</h3>
+      <p>The recovery pass offers the four raw shots tiled, recovered phase as a hue wheel, wrapped recovered depth, recovered amplitude, ground-truth depth, a wrapped-versus-truth error view, a six-panel pipeline overview, a GT-guided unwrapped depth, and an unwrapped-versus-truth error view (<code>UIManagerPanels.cpp:1041-1051</code>). Three caveats travel with them, all in the shader source.</p>
+      <ul class="clean">
+        <li><b>The unwrapped modes are ground-truth-guided.</b> Modes 7 and 8 compute <code>k = floor((d<sub>GT</sub> &minus; d<sub>rec</sub>)/wrap + 0.5)</code> &mdash; they pick the integer wrap count by rounding against the depth buffer (<code>tofRecovery.frag:217-238</code>). That is a legitimate diagnostic, because it isolates within-wrap accuracy from wrap ambiguity, but it is not a blind reconstruction and it must not be captioned as one. Blind multi-frequency unwrapping exists elsewhere in the stack and is described in the next section.</li>
+        <li><b>The emitter phase is approximated at recovery time.</b> The recovery pass has no scene geometry, so it uses the screen coordinate as a stand-in for the projector coordinate, which the shader's own comment at <code>:82-89</code> notes is exact only for a cone or point source in the paraxial limit. Any error there shows up as a slow spatial ramp in the recovered phase.</li>
+        <li><b>Convergence and demodulation are entangled.</b> Each bucket is an exponential running mean over every fourth frame, so a bucket read too early is a noisy bucket, and the arctangent of four noisy buckets is noisier still. The recovery view needs a few hundred accumulated frames before it means anything, and a camera move resets all four.</li>
+      </ul>
+    </div>
+
+    <div class="pair">
+      <div class="pane"><div class="slot">Screenshot — Same setup as section 02, then POV panel, tick Auto 4-Shot Recovery and then Show Recovery. Display = 4 Shots Tiled. Let it accumulate at least 400 frames without touching the camera. What should be visible: four quadrants of the same scene, faintly tinted, differing only in where the fringe maxima sit — the pattern should appear to have shifted by a quarter period from panel to panel. If all four quadrants look identical the phase cycling is not reaching the kernel.</div></div>
+      <div class="pane"><div class="slot">Screenshot — Identical state, Display = Pipeline Overview (6-panel). What should be visible: the four shots plus a hue-wheel phase panel and a turbo-coloured recovered-depth panel. The phase panel should show smooth hue ramps broken by clean wrap discontinuities that follow scene depth, not noise. This single frame is the best one-image summary of the whole capture path.</div></div>
+    </div>
+    <div class="paircap"><b>Capture pair</b><span>The tiled view proves the four buckets are actually different; the overview proves the arithmetic on them produces structure. Shoot both from the same accumulation so they are comparable.</span></div>
+
+    <div class="slot">Screenshot — Same state, Display = Error: Unwrapped vs GT, Error Scale 10. What should be visible: a mostly dark-blue field — low error — with brighter error at depth discontinuities and at grazing surfaces where the projector cosine falls off and the fringe contrast is poor. What would count as the feature working: error concentrated at silhouettes and grazing angles rather than spread uniformly, because uniform error means the phase model is off rather than the measurement being noisy.</div>
+  </div>
+</section>
+
+<!-- ================= TWO LADDERS ================= -->
+<section id="ladders" style="--secc:var(--l580)" data-nav="Two ladders">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">06 &mdash; The distinction that matters</p>
+      <h2>Half of this measures the render; the other half measures the depth buffer</h2>
+      <p class="lead">This is the section a reader will check first, so it is stated plainly. The modules in this subsystem split into two families that measure different things &mdash; one the render, one the depth buffer &mdash; and the page keeps them apart because the instrument does: the same recovery code can be pointed at either, which is what makes the bench a controlled experiment rather than a demo.</p>
+      <p>One family reads the renderer's own transport. The projector modulation rides on the traced path length, the four buckets accumulate rendered radiance, and the recovery pass demodulates what came out. If multipath interference corrupts the phase &mdash; and in a Cornell box it should &mdash; that corruption is present, because it is a property of the light that was actually traced.</p>
+      <p>The other family reads the ground-truth depth buffer, synthesises the measurements an ideal sensor would have made from it, and then runs the recovery algorithm on that. Those modules are correct implementations of published methods, and their error readouts are real, but what they measure is the numerics, not the renderer. The CW time-of-flight shader says so itself in its header: it synthesises four phase-shifted intensities at up to three frequencies from the z-buffer (<code>tofCW.frag:69-70</code>).</p>
+      <p>The holography bench is the interesting case, because it can be pointed at either ladder from a combo box. Its <code>Source</code> setting chooses between synthesising the hologram from depth and taking the luminance of the rendered frame (<code>HoloDepthV2.cpp:168-190</code>), which is what makes it usable as a controlled test of the numerics <em>and</em> as a test of the whole chain.</p>
+    </div>
+
+    <figure>
+      <div class="schem">
+        <svg viewBox="0 0 920 380" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Two-ladder diagram: the upper path runs from traced light transport through modulation and four buckets to recovery; the lower path runs from the ground-truth depth buffer through synthetic measurement to the same recovery algorithms">
+          <defs>
+            <marker id="ibAh" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+              <path d="M0 0 L10 5 L0 10 z" fill="#7f8b89"/>
+            </marker>
+            <style>
+              .ibbx{fill:rgba(255,255,255,.035);stroke:#3a4442;stroke-width:1}
+              .ibhl{fill:rgba(237,164,87,.09);stroke:#EDA457;stroke-width:1.3}
+              .ibcool{fill:rgba(78,147,245,.08);stroke:#4E93F5;stroke-width:1.1}
+              .ibt{fill:#d5dedc;font-family:Georgia,serif;font-size:14px}
+              .ibs{fill:#8b9795;font-family:ui-monospace,Menlo,monospace;font-size:9.5px;letter-spacing:.04em}
+              .ibe{stroke:#7f8b89;stroke-width:1.1;fill:none;marker-end:url(#ibAh)}
+              .iblbl{fill:#7f8b89;font-family:ui-monospace,Menlo,monospace;font-size:9.5px;letter-spacing:.1em}
+              .ibwarm{fill:#EDA457;font-family:ui-monospace,Menlo,monospace;font-size:9.5px;letter-spacing:.1em}
+              .ibblue{fill:#4E93F5;font-family:ui-monospace,Menlo,monospace;font-size:9.5px;letter-spacing:.1em}
+            </style>
+          </defs>
+
+          <text class="ibwarm" x="20" y="26">MEASURES THE RENDER</text>
+          <rect class="ibhl" x="18" y="40" width="176" height="76" rx="9"/>
+          <text class="ibt" x="106" y="68" text-anchor="middle">Traced transport</text>
+          <text class="ibs" x="106" y="86" text-anchor="middle">path length L per contribution</text>
+          <text class="ibs" x="106" y="101" text-anchor="middle">multi-bounce optional</text>
+
+          <path class="ibe" d="M196 78 L246 78"/>
+          <rect class="ibhl" x="250" y="40" width="176" height="76" rx="9"/>
+          <text class="ibt" x="338" y="68" text-anchor="middle">Modulated render</text>
+          <text class="ibs" x="338" y="86" text-anchor="middle">fringes in the image itself</text>
+          <text class="ibs" x="338" y="101" text-anchor="middle">pt_sky.glsl:246</text>
+
+          <path class="ibe" d="M428 78 L478 78"/>
+          <rect class="ibhl" x="482" y="40" width="176" height="76" rx="9"/>
+          <text class="ibt" x="570" y="68" text-anchor="middle">Four buckets</text>
+          <text class="ibs" x="570" y="86" text-anchor="middle">4-layer RGBA32F array</text>
+          <text class="ibs" x="570" y="101" text-anchor="middle">pathTrace.comp:3767</text>
+
+          <text class="ibblue" x="20" y="266">MEASURES THE DEPTH BUFFER</text>
+          <rect class="ibcool" x="18" y="280" width="176" height="76" rx="9"/>
+          <text class="ibt" x="106" y="308" text-anchor="middle">Ground-truth depth</text>
+          <text class="ibs" x="106" y="326" text-anchor="middle">the z-buffer, exactly</text>
+          <text class="ibs" x="106" y="341" text-anchor="middle">no transport involved</text>
+
+          <path class="ibe" d="M196 318 L246 318"/>
+          <rect class="ibcool" x="250" y="280" width="176" height="76" rx="9"/>
+          <text class="ibt" x="338" y="308" text-anchor="middle">Synthetic sensor</text>
+          <text class="ibs" x="338" y="326" text-anchor="middle">ideal fringes, ideal carrier</text>
+          <text class="ibs" x="338" y="341" text-anchor="middle">tofCW.frag &middot; synth.comp</text>
+
+          <path class="ibe" d="M428 318 L478 318"/>
+          <rect class="ibcool" x="482" y="280" width="176" height="76" rx="9"/>
+          <text class="ibt" x="570" y="308" text-anchor="middle">Same measurements</text>
+          <text class="ibs" x="570" y="326" text-anchor="middle">but noiseless and</text>
+          <text class="ibs" x="570" y="341" text-anchor="middle">multipath-free</text>
+
+          <path class="ibe" d="M660 92 C 720 120, 720 150, 748 176"/>
+          <path class="ibe" d="M660 304 C 720 276, 720 246, 748 220"/>
+
+          <rect class="ibbx" x="752" y="160" width="150" height="76" rx="9"/>
+          <text class="ibt" x="827" y="188" text-anchor="middle">Recovery</text>
+          <text class="ibs" x="827" y="206" text-anchor="middle">atan2, unwrap, depth</text>
+          <text class="ibs" x="827" y="221" text-anchor="middle">shared by both</text>
+
+          <path d="M18 196 L902 196" stroke="#3a4442" stroke-width="1" stroke-dasharray="4 5"/>
+          <text class="iblbl" x="460" y="186" text-anchor="middle">THE ALGORITHMS ARE THE SAME. THE INPUT IS NOT.</text>
+        </svg>
+      </div>
+      <figcaption><b>Two ladders into one recovery</b><span>Notice that the recovery block is shared. That is the useful part: the same demodulation and unwrapping code can be fed either an ideal synthetic hologram or a rendered frame, which makes the ideal path a controlled test of the numerics and the rendered path a test of the whole chain. The failure mode to watch for is publishing a number from the upper-left of the diagram while the render was actually driven from the lower-left.</span></figcaption>
+    </figure>
+
+    <div class="tw"><table>
+      <thead><tr><th>Module</th><th>What it consumes</th><th>Where</th></tr></thead>
+      <tbody>
+        <tr><td>Projector and ToF modulation</td><td><b>traced path length</b>, inside the megakernel</td><td><code>modules/pt_sky.glsl:102-339</code></td></tr>
+        <tr><td>Four-shot bucket accumulator</td><td><b>rendered radiance</b>, four layers</td><td><code>pathTrace.comp:3767-3776</code></td></tr>
+        <tr><td>Four-phase recovery</td><td><b>the four buckets</b></td><td><code>tofRecovery.frag</code></td></tr>
+        <tr><td>HoloDepthV2, Source = Rendered frame</td><td><b>rendered luminance</b>, resampled to N&times;N</td><td><code>holo_v2/renderedToHolo.comp</code></td></tr>
+        <tr><td>CW time-of-flight cascade</td><td>the depth buffer</td><td><code>tofCW.frag:69</code></td></tr>
+        <tr><td>ToF tracer, geometric path</td><td>the depth buffer, unprojected</td><td><code>tofTracer.frag</code></td></tr>
+        <tr><td>Off-axis holography, direct</td><td>the depth buffer</td><td><code>offAxisHolography.frag</code></td></tr>
+        <tr><td>Off-axis holography, FFT</td><td>the depth buffer</td><td><code>offAxisHoloFFT.frag</code> + 5 compute</td></tr>
+        <tr><td>HoloDepthV2, Source = Synthetic</td><td>the depth buffer</td><td><code>holo_v2/synth.comp</code>, chosen at <code>HoloDepthV2.cpp:178</code></td></tr>
+        <tr><td>Phase unwrap, weighted least squares</td><td>wrapped phase from either ladder</td><td><code>PhaseUnwrap.cpp</code> + 11 compute</td></tr>
+        <tr><td>Epipolar geometry, stereo correspondence</td><td>one depth buffer, warped to a hypothetical second camera</td><td><code>epipolar.frag</code>, <code>stereoCorrespondence.frag</code></td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="narrow">
+      <p class="note"><b>The blind unwrapping lives on the lower ladder.</b> The multi-frequency cascade &mdash; low frequency for unambiguous range, high frequency for precision, the coarse estimate choosing the wrap index for the fine one, with a third frequency for redundancy &mdash; is implemented properly in <code>tofCW.frag</code>, including the Chinese-remainder framing in its header at <code>:47-66</code>. But it runs on synthesised measurements. Porting the cascade onto the four-bucket path, so that the wrap index comes from a second modulation frequency rather than from the depth buffer, is the single change that would move the strongest algorithm in this subsystem onto the ladder that measures the render.</p>
+    </div>
+
+    <div class="slot">Screenshot — Preset 0, tracer, Render Settings, Effects tab, Depth Extraction group. Enable CW Time-of-Flight. Set the low-frequency wraps so the scene shows roughly three wraps, then set the medium and high frequency ratios to 4 and 16. Capture two frames from the same state: Display = high frequency wrapped, then Display = tri-frequency unwrapped. What should be visible: the wrapped view is a repeating turbo ramp that restarts several times across the box; the unwrapped view is a single monotonic ramp from near to far. Caption must say this is driven by the depth buffer, not by traced light.</div>
+  </div>
+</section>
+
+<!-- ================= THE BENCH ================= -->
+<section id="bench" style="--secc:var(--l600)" data-nav="The bench">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">07 &mdash; The whole inverse problem, one stage at a time</p>
+      <h2>Fourteen stages, and every intermediate is a texture you can look at</h2>
+      <p class="lead">Off-axis holography adds a tilted reference wave to an object wave and records the intensity. The interference term separates in the Fourier domain into two sidebands displaced from DC by the carrier, so isolating one sideband and inverting recovers the complex object field &mdash; amplitude and phase &mdash; from a single real-valued image. That is four or five textbook diagrams. Here it is a combo box, and each entry is one of those diagrams rendered from the live data.</p>
+      <p>There are two holography panels and they are not the same size. <b>Off-Axis Holography [FFT]</b> carries the fourteen-entry display combo tabulated below (<code>UIManagerRender.cpp:4376-4391</code>) &mdash; that is the teaching instrument. <b>Off-Axis Depth V2 (clean)</b> is the later rewrite: nine display stages of its own (<code>:4729-4740</code>), but it is the one that carries the residual readout, the setup advisor and the two presets, so it is the panel every capture instruction on this page names. Internally V2 runs the same reconstruction as fourteen lettered stages, (a) through (n) &mdash; produce the hologram, extract its real part, forward FFT over rows then columns, log-magnitude for display, crop and re-centre the sideband, log-magnitude again, inverse FFT twice, extract amplitude and wrapped phase, unwrap, then three diagnostic reductions (<code>HoloDepthV2.cpp:168-348</code>).</p>
+      <p>What follows is the FFT panel's combo, entry by entry. This is the difference between a filter and a teaching instrument: a filter hands you the output, this hands you every intermediate that the output depended on, in the order the algorithm produced them.</p>
+    </div>
+
+    <div class="tw"><table>
+      <thead><tr><th>#</th><th>Stage</th><th>What it shows, and what a failure looks like</th></tr></thead>
+      <tbody>
+        <tr><td>0</td><td>Ground Truth Depth</td><td>The linearised z-buffer, turbo-coloured. The reference every later error view is scored against</td></tr>
+        <tr><td>1</td><td>Hologram (raw fringes)</td><td>H = |O + R|&sup2;. Straight uniform fringes everywhere mean the object phase is not modulating the carrier</td></tr>
+        <tr><td>2</td><td>FFT Magnitude (centered, log)</td><td>DC blob plus two symmetric sidebands at &plusmn;K. Sidebands touching DC means the carrier is too low; clipped at the edge means too high</td></tr>
+        <tr><td>3</td><td>Crop Mask (on FFT)</td><td>The band-pass window drawn over the spectrum, so you can see whether it clears DC and the twin before you crop</td></tr>
+        <tr><td>4</td><td>FFT After Crop</td><td>One sideband surviving, recentred to DC. If two survive, the mask radius is too large</td></tr>
+        <tr><td>5</td><td>IFFT Magnitude (|U|)</td><td>The object amplitude. Dark halos here are the ones that wreck the weighted solver two stages later</td></tr>
+        <tr><td>6</td><td>Recovered Phase</td><td>arg(U), wrapped, as a hue wheel. Smooth ramps broken by clean 2&pi; seams that follow depth</td></tr>
+        <tr><td>7</td><td>Recovered Depth</td><td>Phase converted to depth, still wrapped inside one wavelength period</td></tr>
+        <tr><td>8</td><td>Error vs Ground Truth</td><td>Wrapped recovery against truth, before any unwrapping</td></tr>
+        <tr><td>9</td><td>Pipeline Overview (6 panels)</td><td>Hologram, spectrum and cropped spectrum over IFFT magnitude, phase and depth &mdash; the whole method in one frame</td></tr>
+        <tr><td>10</td><td>Comparison (IFFT | Phase | GT | Recon)</td><td>Four panels putting reconstruction beside truth for a direct visual read</td></tr>
+        <tr><td>11</td><td>Amplitude Mask (unwrap)</td><td>The valid-pixel mask the solver will actually use. If this is mostly black, every number below it is computed on almost nothing</td></tr>
+        <tr><td>12</td><td>Unwrapped Phase (WLS-PCG)</td><td>The solved continuous phase. Surviving wrap seams mean the solve did not converge</td></tr>
+        <tr><td>16</td><td>Phase Error vs GT (WLS-PCG)</td><td>The signed residual with the gauge subtracted, four colormaps, a labelled legend strip in wraps &mdash; and the four-line stats block described in the next section</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="narrow">
+      <p class="note"><b>The gap in the numbering is itself a record.</b> Indices 13, 14 and 15 are missing, so the combo carries an index map rather than using its position directly (<code>UIManagerRender.cpp:4374</code>). The comment above it says why: 13 and 14 are <em>"reserved for Task 6 Goldstein residues/cuts"</em> and 15 for a depth error view (<code>:4371-4373</code>). Those stages were planned and never built. The combo routes around them rather than offering entries that would do nothing &mdash; the correct behaviour, and the visible evidence for the correction in the last section of this page.</p>
+
+      <h3>The sign convention, written down where you would fall over it</h3>
+      <p>There are three holographic reconstructions in the tree. The first synthesises the hologram, demodulates by multiplying by the conjugate carrier, and low-passes with a Gaussian; no FFT at all. The second does it properly, with a real GPU FFT: a radix decomposition in <code>fft1d.comp</code>, recompiled when the transform size changes, run over rows then columns. The third, <code>HoloDepthV2</code>, is a clean-slate rewrite whose header carries the whole derivation, and it is the interesting one because of what the derivation is <em>for</em>.</p>
+    </div>
+
+    <div class="formula">
+      <div class="f">H = |O + R|&sup2; = (A&sup2; + 1) + 2A&middot;cos(&phi;<sub>O</sub> &minus; &phi;<sub>R</sub>) &nbsp;&nbsp;&rarr;&nbsp;&nbsp; O&middot;R* sits at <span class="hl">&minus;K</span>, &nbsp;O*&middot;R at <span class="hl">+K</span></div>
+      <div class="n">Isolate the &minus;K sideband, recentre it to DC <em>in the spectrum domain</em>, then inverse-transform directly. The result is A&middot;exp(+i&phi;<sub>O</sub>) with no post-transform demodulation needed &mdash; which is why the unwrapper is called with <code>demodulateCarrier = false</code>. Setting the tilt to zero would <em>not</em> be enough, because that pass conjugates its input unconditionally and would flip the sign of the recovered phase. <code>src/spectral/HoloDepthV2.h:9-30</code></div>
+    </div>
+
+    <div class="narrow">
+      <p>That comment is the reason to show this module. It is a sign-convention trap written down at the point where someone would fall into it, with the specific wrong fix &mdash; zero the tilt &mdash; named and rejected. The same codebase records a second finding of the same kind a few files away, and this one is a numerical result rather than a convention.</p>
+
+      <h3>Why the unwrapper stopped converging, and what fixed it</h3>
+      <p>Phase unwrapping here is a weighted least-squares problem solved by preconditioned conjugate gradient across eleven compute shaders, with an FFT-based Poisson solve as the preconditioner. The natural weighting is by amplitude &mdash; trust the bright pixels &mdash; using <code>W<sub>ij</sub> = min(A<sub>i</sub>&sup2;, A<sub>j</sub>&sup2;)</code>. It stalls.</p>
+      <p>The recorded cause, in an eleven-line comment on the config field itself (<code>PhaseUnwrap.h:26-36</code>): when |U| varies by roughly a hundredfold across the mask &mdash; dark halos around depth discontinuities &mdash; the condition number of the weighted operator explodes, and the unweighted Poisson preconditioner is then nothing like the operator it is meant to precondition, so it stops accelerating anything. Setting every valid neighbour pair to weight one makes the operator match the preconditioner exactly, and PCG converges in a handful of iterations. The unweighted form is exposed as a checkbox labelled <em>Unweighted Laplacian</em>, with that explanation in its tooltip (<code>UIManagerRender.cpp:4722-4727</code>).</p>
+      <p>The cost is real and the source states it in the same comment: unweighted least squares trusts a dark, noisy pixel exactly as much as a bright one, so where the fringe contrast is genuinely poor the solution is smoothed rather than downweighted. This is a conditioning trade, not a free win. Note also that the config field defaults to <code>false</code> &mdash; the weighted operator is the default, and the fast path is the checkbox.</p>
+    </div>
+
+    <div class="pair">
+      <div class="pane"><div class="slot">Screenshot — Render Settings, Effects, Off-Axis Depth V2 (clean), V2 ON, Source = Synthetic (from depth). Display = Hologram. FFT Size 256, Wavelength 2.0, Tilt Kx 32, Ky 24 — all four are the shipped defaults, so this is the state a first-time user lands in. What should be visible: a dense diagonal fringe pattern whose local spacing bends around the scene silhouettes. Straight uniform fringes everywhere mean the object phase is not modulating the carrier.</div></div>
+      <div class="pane"><div class="slot">Screenshot — Identical state, Display = FFT magnitude. What should be visible: a bright DC blob at centre and two symmetric sidebands displaced diagonally, at plus and minus the tilt vector. Then switch to Display = Cropped and recentered and capture that too: exactly one sideband should survive, moved to the centre. If two survive, Crop Radius is too large for this tilt.</div></div>
+    </div>
+    <div class="paircap"><b>Capture pair</b><span>The spectrum frame is the whole method in one image, and it is also the diagnostic: if the sidebands overlap DC the carrier is too low, and if they are clipped at the edge it is too high. Both failure modes are visible before any depth is computed.</span></div>
+
+    <div class="pair">
+      <div class="pane"><div class="slot">Screenshot — Same state, Display = Unwrapped phase, Unweighted Laplacian TICKED, PCG Iterations 30. Switch to Display = Phase error vs GT for one frame to read the PCG iteration count and residual off the stats block, then switch back. What should be visible: a smooth phase surface following scene depth with no residual wrap seams.</div></div>
+      <div class="pane"><div class="slot">Screenshot — Same state, Unweighted Laplacian UNTICKED so the amplitude-weighted operator runs, everything else identical. What should be visible: the recorded stall — either visible wrap seams surviving, or a phase surface with compressed amplitude, together with a PCG residual orders of magnitude higher at the same iteration count. Read both residuals off the panel and put them in the caption.</div></div>
+    </div>
+    <div class="paircap"><b>The conditioning A/B</b><span>This pair is the highest-value capture on the page, because it turns a comment in the source into a measurement. If the unticked run converges fine, the comment is stale and the page needs correcting &mdash; which is a result worth having either way. Note that unticked is the shipped default, so this is also a question about what a first-time user sees.</span></div>
+
+    <div class="vslot"><div class="vslot-h">video &middot; One click from a blank scene to a hologram</div><div class="vslot-r">Preset 0, press 2 for the tracer. Render Settings, Effects tab, scroll to Off-Axis Depth V2 (clean) and turn V2 ON. With the projector off, film the Setup health block: most rows should be red. Now press Apply plane-wave off-axis preset and hold on the panel while the rows turn green. Then step the Display combo through GT depth, Hologram, FFT magnitude, Cropped and recentered, Object amplitude, Object phase wrapped, Mask, Unwrapped phase, ending on Phase error vs GT.</div><div class="vslot-n"><b>Watch for</b> The health rows flipping from red to green in one press is the beat that sells the tool — it turns the projector on, switches it to a quad panel sized to the camera FOV and focus distance, bumps power to at least 50, matches the modulation frequency to the wavelength, sets the emitter ramp to the tilt, switches the sensor rolling shutter off so only one carrier is active, moves Light Strategy off Naive if it was there, turns off the environment light and switches the source to the rendered frame, all in one press. Then watch the display walk turn a lit room into a spectrum into a depth map.</div></div>
+  </div>
+</section>
+
+<!-- ================= IT GRADES ITSELF ================= -->
+<section id="selfcheck" style="--secc:var(--l620)" data-nav="It grades itself">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">08 &mdash; The numbers, and the advice</p>
+      <h2>It scores its own output, and it tells you why your setup is wrong</h2>
+      <p class="lead">Two things sit under the V2 display combo, and between them they are the reason this subsystem is on the site. Above the fold: a live per-frame readout of the reconstruction residual in wraps of object phase, with the expected value printed beside it. Below: a block that recomputes ten conditions every frame and says, in plain language with the remedy attached, which one you have got wrong.</p>
+      <p>Both panels print the readout, and they differ by exactly one line. The FFT panel prints four numbers (<code>UIManagerRender.cpp:4411-4422</code>); V2 prints the same four and adds the solver&rsquo;s iteration count and residual (<code>:4749-4755</code>). Both blocks appear only when the display is set to the phase-error stage, which is why the capture instructions below pass through it.</p>
+      <p>A numerical pipeline that reports on itself every frame is a stronger artefact than a picture of its output, and one that also diagnoses the scene feeding it is stronger still. This read-out is the whole of V2's quantitative self-validation, and it is worth being exact about what that quantitative claim covers: it is a convergence and range monitor rather than a scalar accuracy figure, and the paragraphs below say exactly which number means what &mdash; because this page's own source material once read them wrongly, and the correction is part of the record.</p>
+    </div>
+
+    <div class="readout">
+      <div class="row"><span class="lbl">mean(diff)</span><span class="val">wraps &mdash; the gauge, and it is then subtracted from the image</span></div>
+      <div class="row"><span class="lbl">RMS(phi_u)</span><span class="val">wraps &mdash; spread of the recovered phase about its own mean</span></div>
+      <div class="row"><span class="lbl">min / max</span><span class="val">wraps &mdash; extremes of that same phase about that same mean, not of the error</span></div>
+      <div class="row"><span class="lbl">valid pixels</span><span class="val">count, out of N&sup2; &mdash; how much of the frame the mask kept</span></div>
+      <div class="row hi"><span class="lbl">PCG</span><span class="val">iterations and residual &mdash; the one unambiguous convergence figure</span></div>
+    </div>
+
+    <div class="narrow">
+      <h3>Reading the source rather than the labels</h3>
+      <p><b><code>mean(diff)</code> is a gauge, not an error.</b> It is computed by a GPU block reduction of &phi;<sub>u</sub> &minus; &phi;<sub>gt</sub> over the valid mask (<code>holo_v2/errMean.comp</code>), and the same value is then passed to the display shader as <code>uErrorMeanRef</code> and subtracted from every pixel before colouring (<code>holo_v2/display.frag:100</code>). This is correct &mdash; least-squares unwrapping recovers phase only up to an additive constant, so the constant must be removed before the residual means anything &mdash; but it means the printed number quantifies the ambiguity that was cancelled, not the accuracy that remains.</p>
+      <p><b><code>RMS(phi_u)</code> is the spread of the signal, not of the error.</b> The readback loop takes the standard deviation of the unwrapped phase about <em>its own</em> mean (<code>HoloDepthV2.cpp:370-384</code>), and min/max are reported the same way, as offsets from that mean. The panel is honest about this in the line underneath, which states the expected value as <code>wavelength / sqrt(12)</code> on a uniform-depth ground truth: the standard deviation of a uniform distribution spanning one wavelength's worth of wraps. At the shipped wavelength of 2.0 that is 0.577 wraps. It is a range check, and a useful one, and it is not an accuracy figure.</p>
+      <p><b>So there is no scalar accuracy number yet.</b> After the gauge is removed, the accuracy view is the error image itself &mdash; the signed residual against ground truth, in wraps, with the gauge already cancelled. The missing number is one reduction away: reduce the squared residual <em>after</em> gauge subtraction in the same shader that already computes the mean, and print an RMS error alongside the RMS spread. Until that exists, no number from this panel should be quoted as an accuracy.</p>
+      <p class="note"><b>Correction recorded, and the code is not the culprit.</b> This page's own source material described the panel as reporting <code>RMS(&phi;<sub>u</sub>)</code> as though it were an error metric. The engine says otherwise in a comment three lines above the assignment &mdash; <em>"RMS/min/max = stats of the unwrapped phase over the valid mask"</em> (<code>EngineVFX2.cpp:5936-5938</code>) &mdash; and the UI label is literally correct, because it says <code>phi_u</code> and not <code>error</code>. The mistake was made downstream, by summaries that read the label and not the line. The readout is a convergence and range monitor; the scoring against ground truth is the residual image, in wraps, gauge-cancelled. The distinction matters precisely because this subsystem's claim is that it checks itself, and a self-check only counts if it is read correctly.</p>
+
+      <h3>The advisor, which does exactly what it says</h3>
+      <p>Underneath the sliders sits a setup-health block (<code>UIManagerRender.cpp:4657-4703</code>) that recomputes its conditions from live UI state every frame and prints each as a green <code>OK</code> or a red <code>WARN</code> with the remedy in the same line. Nine of the rows are two-state; a tenth appears only as a warning, when the rendered-frame source is selected but the projector cannot produce fringes at all; and two amber <code>NOTE</code> rows handle the ambiguous cases.</p>
+    </div>
+
+    <div class="tw"><table>
+      <thead><tr><th>Row</th><th>What it is checking</th><th>What it tells you to do</th></tr></thead>
+      <tbody>
+        <tr><td>Projector ON</td><td><code>projectorOn</code></td><td>Turn it on or no light reaches the scene</td></tr>
+        <tr><td>Power sufficient</td><td>power &ge; 10</td><td>Fringes may be too dim to read</td></tr>
+        <tr><td>Strategy can see it</td><td><code>lightStrategy != 0</code></td><td>Naive PT will not hit a delta emitter &mdash; switch to NEE or Light Tracer</td></tr>
+        <tr><td>Environment light off</td><td><code>!envEnabled</code></td><td>Env light adds DC haze that washes out fringe contrast</td></tr>
+        <tr><td>Projector ToF on</td><td><code>projectorTofOn</code></td><td>No modulation, so no fringes at all</td></tr>
+        <tr><td>Reference carrier present</td><td>emit ramp <em>or</em> sensor roll non-zero</td><td>Without one the sideband sits at DC and cannot be isolated</td></tr>
+        <tr><td>Frequency matches</td><td>|f<sub>ToF</sub> &minus; &lambda;<sub>V2</sub>| &lt; 5&nbsp;%</td><td>Object phase will not read correctly</td></tr>
+        <tr><td>Tilt matches the carrier</td><td>within 0.5 of whichever carrier is live</td><td>Names which of the two carriers it compared against</td></tr>
+        <tr><td>Carrier uniform in screen space</td><td>quad panel, or a sensor-side carrier</td><td>A cone projector's carrier direction varies with angle</td></tr>
+        <tr><td>Source vs projector <b>(warn-only)</b></td><td>rendered source with no usable projector</td><td>The one row with no green state</td></tr>
+        <tr><td>Dual carrier <b>(note)</b></td><td>both emit and roll active</td><td>Effective carrier is their sum &mdash; not an error, but say so</td></tr>
+        <tr><td>Scene lights <b>(note)</b></td><td>always shown</td><td>Point, area and directional lights are not auto-disabled; turn them off by hand</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="narrow">
+      <p>What makes this more than a checklist is that the two buttons above it are the fix. <code>Apply plane-wave off-axis preset</code> (<code>:4543-4581</code>) does not set a flag: it turns the projector on, switches it to a quad panel, derives the panel width and height from the camera's vertical FOV, aspect ratio and focus distance, raises the power to at least 50, matches the ToF frequency to the reconstruction wavelength, copies the tilt into the emitter phase ramp, switches the sensor rolling shutter off so exactly one carrier is active, moves the light strategy off Naive if it was there, disables the environment light, and points the source at the rendered frame. <code>Apply sensor-rolling-shutter preset</code> (<code>:4584-4614</code>) does the mirror-image thing: emitter ramp to zero, carrier on the sensor, any projector shape allowed &mdash; because a sensor-side carrier does not care about the beam geometry, which is why the ninth health row accepts it unconditionally.</p>
+      <p>The presets and the advisor are one mechanism: the ten rows enumerate the failure modes, and the two buttons are the constructive proof that a valid configuration exists. That is a small piece of engineering with an unusually high ratio of usefulness to lines, and it costs one screenshot to show.</p>
+    </div>
+
+    <div class="pair">
+      <div class="pane"><div class="slot">Screenshot — Off-Axis Depth V2 panel with the projector OFF and Source = Rendered frame, so the checklist is mostly red. Crop tightly to the Setup health block so every row is legible. What should be visible: red WARN rows naming the missing projector, the missing carrier and the frequency mismatch, each with its remedy, plus the warn-only row about the rendered source.</div></div>
+      <div class="pane"><div class="slot">Screenshot — Same panel immediately after pressing Apply plane-wave off-axis preset, identical crop and identical panel scroll position. What should be visible: the same rows now green, with the NOTE row about scene lights still amber. The two frames side by side are the argument for the whole widget.</div></div>
+    </div>
+    <div class="paircap"><b>Before and after one button</b><span>Shoot these as an exact pair with the same crop and the same panel scroll position, so the only difference in the two images is the colour of the rows.</span></div>
+
+    <div class="slot">Screenshot — Off-Axis Depth V2, Display = Phase error vs GT, Error Scale 5, Colormap = Diverging B-W-R, with the stats block visible in the same frame. Include the whole panel, not just the image. What should be visible: a near-white field where the reconstruction is good and blue or red lobes where it is not, plus the five live numbers and the expected-RMS line under them. This is the credibility image for the page, and its caption must state two things: that mean(diff) has already been subtracted from the field being shown, and that RMS(phi_u) is a range check rather than an accuracy.</div>
+  </div>
+</section>
+
+<!-- ================= THE TAIL ================= -->
+<section id="tail" style="--secc:var(--l620)" data-nav="The rest of the panel">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">09 &mdash; The rows the sections above did not reach</p>
+      <h2>A noise model that is not one, a mask radius that is a switch, and an overlay that knows two shapes where the light has four</h2>
+      <p class="lead">The sections above take one capability at a time. What is left of this subsystem's inventory fits in one table, on the site's own rule that a feature earns prose only where there is a number, a mechanism or a defect to state. Four rows have one, and they are written out underneath the table.</p>
+    </div>
+
+    <div class="tw"><table>
+      <thead><tr><th>Row</th><th>What it is, and where</th><th>Grade</th></tr></thead>
+      <tbody>
+        <tr class="key"><td>Ground-Truth Linear Depth</td><td>The reference every error figure on this page is scored against, exposed as an operator of its own: three sources (Auto, force-linearise from NDC with its own near and far, assume linear) &times; three displays (turbo, greyscale, contour bands with a 4&ndash;64 band count), plus an overlay mix. Its tooltip states the point &mdash; verify the z-buffer <em>before</em> trusting it as ground truth (<code>UIManagerRender.cpp:4363-4382</code>)</td><td><span class="st st-a">measured</span></td></tr>
+        <tr><td>CW ToF &mdash; the two noise sliders</td><td>Ambient 0&ndash;0.3 and &ldquo;Shot Noise&rdquo; 0&ndash;0.1, added to all four synthesised shots before the arctangent (<code>tofCW.frag:168-169</code>; bound at <code>EngineVFX2.cpp:5500-5501</code>). Neither is what its label says &mdash; see below. The inventory files these under <em>sensor noise models</em> and grades them <b>never viewed</b>; the reading below is a source read, and the capture at the end of this section is what would turn it into a measurement</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>Tracer ToF, geometric path</td><td>The third time-of-flight implementation, and the largest: five light shapes (plane behind the camera, horizontal and vertical line scanners, point scanner, camera-collocated), collimated or omni, rolling <em>light</em> delay and rolling <em>sensor</em> shutter as separate X/Y ramps at &plusmn;50 wraps each, and a tilted plane-wave carrier at up to 200 wraps that turns the whole thing into an off-axis holography rig. Ten display modes, ending on the light's own emission coordinate (<code>UIManagerRender.cpp:4901-4955</code>)</td><td><span class="st st-a">measured</span></td></tr>
+        <tr class="key"><td>Projector visible in reflections</td><td>Confirmed in the kernel: at any bounce past the first, the ray is tested against an aperture disk at the camera facing backwards, sized 0.05&nbsp;m for the point source and at the flashlight's own disk radius for the flashlight, and a hit returns the projector's emission and terminates the path (<code>pathTrace.comp:875-911</code>). It carries a guard the rest of this page does not mention: under Light Sample Only the disk is still intersected and returns nothing</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>Projector on the CPU integrators</td><td>Invisible on every one of them. The catalogue grades this <em>superseded</em> rather than absent, and that is the right call under this project's own reachability rule: the feature is reachable, on the GPU, so the row records where it lives rather than a missing capability</td><td><span class="st st-d">superseded</span></td></tr>
+        <tr><td>Debug frustum overlay</td><td>The projector cone drawn into the foreground draw list in FPS capture, tinted by the projector colour, with a labelled end square and cross (<code>EngineRenderViz.cpp:2505-2554</code>). Two conditions gate it that the panel does not say: it draws only while the viewport is captured, and Clean View suppresses it. It also draws two shapes where the light has four &mdash; see below</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>Amplitude mask and erosion</td><td>Threshold on <code>|U|</code> plus a neighbourhood pass that zeroes any pixel with a sub-threshold neighbour, producing the valid-pixel mask every number in &sect;08 is computed over. The threshold is absolute, not relative to the frame's peak amplitude, so it does not track exposure. The erode control is a two-state switch wearing a slider &mdash; see below</td><td><span class="st st-b">seen</span></td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="narrow">
+      <h3>The Ambient slider cannot change any recovered number, and the Shot Noise slider is not shot noise</h3>
+      <p>Both time-of-flight simulators build their four measurements the same way: <code>I<sub>k</sub> = clamp(clean<sub>k</sub> + ambient + noise, 0, 1.5)</code>, where <code>clean<sub>k</sub></code> spans [0,&nbsp;1] and the noise term is <code>(hash(&hellip;) &minus; 0.5)&middot;2&middot;uNoise</code>. Two consequences follow from the arithmetic, and neither is stated in the panel.</p>
+      <p><b>Ambient is a constant added to all four shots, and every recovered quantity is built from differences of them</b> &mdash; <code>I<sub>3</sub>&minus;I<sub>1</sub></code> and <code>I<sub>0</sub>&minus;I<sub>2</sub></code>, for the phase and for the amplitude alike. A constant cancels identically in both. The only route by which it could survive is the clamp, and at the sliders' own maxima the sum reaches 1.4 against an upper clamp of 1.5, so the top never bites; the bottom bites only when Ambient is set below Shot Noise. So over essentially its whole range the Ambient slider changes the raw-shot display and nothing else &mdash; not the phase, not the depth, not the amplitude, not any error figure. <code>tofTracer.frag</code> goes further and deliberately holds ambient out of the illumination scaling (<code>:343</code>), which preserves the cancellation exactly.</p>
+      <p><b>&ldquo;Shot Noise&rdquo; is uniform additive noise.</b> The term is drawn from a hash and is independent of the intensity it is added to; real shot noise scales with the square root of the signal, which is the whole reason a time-of-flight paper models it. It is also seeded from the pixel and the shot index alone, with no frame or time input, so it is <em>frozen</em>: it does not vary between frames and cannot be averaged away by letting the render sit. That makes it a fixed fault pattern rather than a noise process, which is a perfectly good thing to have &mdash; it is repeatable &mdash; but it is not the thing the label promises, and a robustness claim made from that slider would not carry.</p>
+      <p class="note"><b>Where this leaves the shader's own sanity note.</b> <code>tofCW.frag:117-121</code> tells you that in the noiseless case the recovery is bit-for-bit identical to the input depth, because the four-phase formula is an exact inverse of the synthesis, and invites you to raise Shot Noise <em>&ldquo;to see the recovery fail realistically&rdquo;</em>. The first half is exactly right and it is the reason this ladder is worth having. The second half is the sentence this section is qualifying: the failure you get is real and it is not realistic.</p>
+
+      <h3>Two more, smaller, and both in the same shape</h3>
+      <ul class="clean">
+        <li><b>Mask Erode is a slider with two states.</b> The V2 panel offers 0&ndash;3 (<code>UIManagerRender.cpp:4834</code>), and the mask shader's uniform is documented in its own header as <em>&ldquo;0 = no erosion, 1 = one-pass 3&times;3 erosion&rdquo;</em> and used as a boolean gate around a single fixed 3&times;3 pass. Settings 1, 2 and 3 produce byte-identical masks. The field behind it is separately misnamed &mdash; it is called <code>maskDilate</code> and passed as <code>uErodeRadius</code>, which shrinks the valid region rather than growing it &mdash; and the header flags that in a four-line comment while the slider says nothing.</li>
+        <li><b>The frustum overlay knows a cone and a cylinder.</b> The light has four shapes; the overlay branches on one of them. Shape 1, the quad panel, draws with a start square the size of the end square; shapes 0, 2 and 3 all collapse the start square to a point and draw a cone. The label is chosen the same way, from the same single test, so the spinning slit laser and the flashlight are both drawn as cones and both labelled <em>&ldquo;Projector (cylinder)&rdquo;</em> &mdash; unless the derived half-angle falls under 2&deg;, at which point every shape is labelled <em>&ldquo;Projector (laser)&rdquo;</em> instead (<code>EngineRenderViz.cpp:2509</code>, <code>:2551-2552</code>). The line source, whose whole point is that it has no vertical extent, is the one shape the overlay can never draw correctly.</li>
+        <li><b>Three fields in the unwrap config have no reader.</b> <code>tiltRemove</code>, <code>enableInpaint</code> and <code>inpaintIters</code> are declared in <code>PhaseUnwrap.h:23-25</code> and appear nowhere else in the tree &mdash; not in the solver, not in a caller, not in the UI. They are not inert controls, because no control was ever built for them; they are the shape of two features that were planned beside the ones that shipped.</li>
+      </ul>
+    </div>
+
+    <div class="slot">Screenshot — The Ambient A/B, which should produce two identical images. Preset 0, press 2 for the tracer. Render Settings, Effects, Depth Extraction, enable CW Time-of-Flight. Low Freq Wraps 0.8, Medium Ratio 4, High Ratio 16, Shot Noise 0.020, Display = "Error: Tri-freq vs GT", Error Scale 10. Shoot one frame at Ambient 0.000 and a second at Ambient 0.300, changing nothing else and not moving the camera. What should be visible: the two error images identical, pixel for pixel, because a constant added to all four shots cancels in both differences the recovery is built from. Then shoot a third frame at Display = "4 Shots Tiled (high freq)" at each Ambient setting: THOSE two must differ, brightening uniformly, which is the control proving the slider is reaching the shader at all. If the error images differ, the reading in this section is wrong and the page needs correcting.</div>
+  </div>
+</section>
+
+<!-- ================= WHAT IS ABSENT ================= -->
+<section id="absent" style="--secc:var(--l680)" data-nav="What's absent">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">10 &mdash; The other half of the ledger</p>
+      <h2>Five things this page could have claimed and does not</h2>
+      <p class="lead">The name of this subsystem in the codebase is structured light, and a reader who knows the field will ask the obvious question: where is the decoder. There is not one, and the reason is more interesting than the absence. One row below is a correction to this project's own reachability record, and one is a correction to an earlier version of this page.</p>
+    </div>
+
+    <div class="tw"><table>
+      <thead><tr><th>Not here</th><th>Why, precisely</th><th>Grade</th></tr></thead>
+      <tbody>
+        <tr><td>Branch-cut phase unwrapping</td><td>The record said the phase is unwrapped two ways, by a weighted-least-squares solver and a Goldstein branch-cut method. It is not. <code>PhaseUnwrap.cpp:400</code> is <code>void PhaseUnwrap::runGoldstein(...) {}</code> &mdash; an empty body, with <code>runPostAndDepth</code> empty beside it. The enum, the two output textures and the <code>else</code> branch that would call it all exist, but the selector <code>holoUnwrapAlgorithm</code> has exactly two references in the whole tree: its declaration at <code>UIManager.h:1674</code>, initialised to 0, and the read at <code>EngineVFX2.cpp:5828</code>. No writer, so the branch could not be taken even if it had a body</td><td><span class="st st-d">not built</span></td></tr>
+        <tr><td>Structured-light decoding</td><td>Nothing in the repository decodes a projected pattern. No Gray-code sequence, no phase-shifted stripe decode, no correspondence search from projector to camera. The projector emits seven patterns and they are illumination, not code. What this stack decodes is <em>phase</em>, never pattern index</td><td><span class="st st-d">not built</span></td></tr>
+        <tr><td>Triangulation</td><td>Structurally impossible in this configuration, not merely unimplemented. The projector has no position of its own; every evaluation is relative to the camera. Zero baseline means zero disparity for any pattern at any depth</td><td><span class="st st-d">excluded by design</span></td></tr>
+        <tr><td>Transient rendering</td><td>The path-length filter is a gate on contributions, not a binned time axis, and nothing renormalises the gated frame. There is no transient histogram and no time-resolved film format</td><td><span class="st st-d">not built</span></td></tr>
+        <tr><td>A real second camera</td><td>The epipolar and stereo-correspondence passes both warp one depth buffer into a hypothetical second view &mdash; their own headers say <em>hypothetical</em> and <em>simulates</em>. The anaglyph output is a good screenshot and it is not a stereo rig</td><td><span class="st st-b">seen</span>, correctly labelled in source</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="narrow">
+      <p><b>On the branch-cut row.</b> The claim it replaces was not invented; it was read off a declaration in a header without opening the definition three hundred lines away. That is a specific failure mode worth naming, because a declared method, an allocated output texture and a live <code>else</code> branch are exactly the evidence a real implementation leaves behind. The falsifying detail is in the UI: the display combo skips the two indices reserved for branch-cut residues and cuts, so the feature's own display stages were never wired either. The reachability record has been corrected in place; this page states the corrected version and the route by which the wrong one was reached.</p>
+
+      <p>The triangulation row is the one worth dwelling on, because it is a design consequence rather than an omission. Collocating the projector with the camera is what makes the time-of-flight path clean: the outgoing and return legs share a geometry, the round-trip length is twice the camera-to-surface distance for a point source, and the shape-specific corrections for a collimated panel or a line source are one branch each in <code>evalProjectorTOF</code>. A projector with its own transform would buy triangulation and would cost that. The stack chose phase over disparity, and every capability and every gap on this page follows from that one choice.</p>
+
+      <h3>The camera-side thread, corrected</h3>
+      <p>An earlier version of this page put a fourth item in the list above: camera-side sweeping primitives, graded <em>design only</em>, on the grounds that they would need a splat-buffer film path and this renderer does not have one. That was wrong, and it was wrong in the specific way this project has a written rule against &mdash; it answered <em>is this file live</em> when the question was <em>is this feature reachable</em>.</p>
+      <p>The estimator research elsewhere on this site sweeps sampling dimensions of the <em>light</em> subpath into a surface. The construction dualises to the camera subpath, and the sphere case is <b>built and reachable</b>: it is strategy 17 in the PP estimator, a live entry in the strategy combo (<code>UIManagerRender.cpp:249</code>, and again in the full PP tab at <code>:7793</code>), implemented as <code>ppCameraSphereSplatPass</code> (<code>PPIntegrator.cpp:7719-7804</code>) and dispatched as its own branch of the film loop (<code>:8935-8941</code>). It samples a photon, free-flights it to a scatter point in fog, projects that point to a pixel, and splats a single-scatter contribution weighted by the pinhole camera importance <code>We = (w&middot;h)/(4&middot;halfW&middot;halfH&middot;cos&sup3;&theta;)</code>. The splat buffer is real: sixteen per-thread images summed and blended into the running-mean film, which is how it avoids atomics.</p>
+      <p>It is a first version, and its limits are legible in its own first eleven lines. It takes the PP config by reference and never reads a single field of it &mdash; not one <code>cfg.</code> in its eighty-six lines &mdash; so every setting in the panel is ignored. It requires the photon to <em>start</em> inside the fog (<code>:7741</code>), which restricts it to a light-in-fog scene. It applies fog transmittance on the camera leg but performs no occlusion test, so it casts no shadows. And the area-emitter cosine is unhandled, named as a follow-up in the header comment. It was validated at a whole-image ratio of 0.9992 against a reference &mdash; a converged number from the renderer, not from a derivation.</p>
+    </div>
+
+    <figure>
+      <div class="schem"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360">
+<defs>
+<marker id="mb" viewBox="0 0 6 6" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0 0L6 3L0 6z" fill="#78C8FF"/></marker>
+<marker id="mb6" viewBox="0 0 6 6" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0 0L6 3L0 6z" fill="#78C8FF" fill-opacity="0.6"/></marker>
+<marker id="my" viewBox="0 0 6 6" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0 0L6 3L0 6z" fill="#FFD264"/></marker>
+</defs>
+<!-- medium (oblique box: front, top, right faces; depth recedes up-right) -->
+<g fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.25)" stroke-width="1.5">
+<polygon points="40,78 600,78 618,68 58,68" fill-opacity="0.5"/>
+<polygon points="600,78 618,68 618,312 600,322" fill-opacity="0.5"/>
+<rect x="40" y="78" width="560" height="244"/>
+</g>
+<!-- camera sphere about the eye (radius R = camera free flight) -->
+<circle cx="185" cy="205" r="105" fill="#78C8FF" fill-opacity="0.18" stroke="#78C8FF" stroke-opacity="0.7" stroke-width="1.5"/>
+<!-- equator: back half (dashed, behind), drawn before the film -->
+<path d="M80 205A115.7 23.8 -5.6 0 1 290 205" fill="none" stroke="#78C8FF" stroke-opacity="0.35" stroke-width="1.5" stroke-dasharray="4 3"/>
+<!-- polar axis (the R tag) -->
+<line x1="185" y1="198" x2="185" y2="100" stroke="#78C8FF" stroke-opacity="0.6" stroke-width="1.5" stroke-dasharray="4 3"/>
+<!-- film (virtual image plane in front of the pinhole) + the pixel -->
+<polygon points="252.2,167 237.8,175 237.8,243 252.2,235" fill="#78C8FF" fill-opacity="0.10" stroke="#78C8FF" stroke-opacity="0.7" stroke-width="1.5"/>
+<rect x="236.5" y="177.5" width="5" height="5" fill="#78C8FF"/>
+<!-- equator: front half (solid), drawn over the film -->
+<path d="M80 205A115.7 23.8 -5.6 0 0 290 205" fill="none" stroke="#78C8FF" stroke-opacity="0.55" stroke-width="1.5"/>
+<!-- swept dims: theta (polar arc at the eye) and phi (along the equator) -->
+<path d="M185 169A36 36 0 0 1 217.6 189.7" fill="none" stroke="#78C8FF" stroke-width="1.5" marker-end="url(#mb)"/>
+<path d="M137.8 231.3A115.7 23.8 -5.6 0 0 277.9 210.5" fill="none" stroke="#78C8FF" stroke-width="1.5" marker-end="url(#mb)"/>
+<!-- camera ray from the eye out to x (dashed), the splat arrow back to the pixel over it -->
+<line x1="191.3" y1="202" x2="264.5" y2="168.1" stroke="#78C8FF" stroke-opacity="0.7" stroke-width="1.5" stroke-dasharray="4 3"/>
+<line x1="264.5" y1="168.1" x2="242.5" y2="178.4" stroke="#78C8FF" stroke-width="1.5" marker-end="url(#mb)"/>
+<!-- photon ray from the light to x (yellow), and its faint continuation to the second root x' -->
+<line x1="512.5" y1="259.1" x2="381.2" y2="208.9" stroke="#FFD264" stroke-width="1.5" marker-end="url(#my)"/>
+<line x1="381.2" y1="208.9" x2="273.7" y2="167.8" stroke="#FFD264" stroke-width="1.5"/>
+<line x1="264.3" y1="164.2" x2="172.7" y2="128.4" stroke="#FFD264" stroke-opacity="0.4" stroke-width="1.5" stroke-dasharray="4 3"/>
+<circle cx="169" cy="127" r="4" fill="none" stroke="#FFFFFF" stroke-opacity="0.45" stroke-width="2"/>
+<!-- tangents at x: a = dx/dtheta (down the meridian), b = dx/dphi (along the parallel) -->
+<line x1="270.5" y1="169.7" x2="280.2" y2="193.8" stroke="#78C8FF" stroke-opacity="0.6" stroke-width="1.5" marker-end="url(#mb6)"/>
+<line x1="272.7" y1="164.6" x2="297.1" y2="155.4" stroke="#78C8FF" stroke-opacity="0.6" stroke-width="1.5" marker-end="url(#mb6)"/>
+<!-- endpoints: eye (dashed blue ring, red dot = the swept vertex), light (dashed yellow ring), x (white ring) -->
+<circle cx="185" cy="205" r="7" fill="none" stroke="#78C8FF" stroke-width="1.5" stroke-dasharray="3 2"/>
+<circle cx="185" cy="205" r="2.5" fill="#FF4646"/>
+<circle cx="520" cy="262" r="7" fill="none" stroke="#FFD264" stroke-width="1.5" stroke-dasharray="3 2"/>
+<circle cx="269" cy="166" r="4" fill="none" stroke="#FFFFFF" stroke-width="2"/>
+<!-- labels -->
+<g font-family="'JetBrains Mono', ui-monospace, monospace" font-size="12" fill="#DDE3E0">
+<text x="48" y="95" fill-opacity="0.7">medium</text>
+<text x="172" y="209" text-anchor="end">eye</text>
+<text x="179" y="152" text-anchor="end">R</text>
+<text x="210" y="171" fill="#78C8FF">θ</text>
+<text x="212" y="242" fill="#78C8FF">φ</text>
+<text x="236" y="146" text-anchor="middle">splat</text>
+<text x="266" y="155" text-anchor="middle">x</text>
+<text x="160" y="131" text-anchor="end" fill-opacity="0.6">x′</text>
+<text x="284" y="205">a</text>
+<text x="301" y="152">b</text>
+<text x="233" y="258">film</text>
+<text x="388" y="199">ω_L</text>
+<text x="500" y="284">light y</text>
+<text x="312" y="104">J = |ω_cam·ω_L|  = dual of 07's |ω·d|</text>
+<text x="312" y="120">R = cam free flight · 1/R² stays (in We)</text>
+<text x="312" y="136">2 roots → 2 pixels, each splatted</text>
+<text x="320" y="348" text-anchor="middle">17 · camera sphere · the dual: splat to film  ·  swept: θ, φ about the eye</text>
+</g>
+</svg></div>
+      <figcaption><b>Camera-side sphere, strategy 17</b><span>What to notice is which side of the path is being swept. Everywhere else on this site the sweep happens on the light subpath and the camera ray is intersected against the result; here it is the other way round, so the estimator splats to whichever pixel the scatter point projects into rather than returning a value for the pixel it was asked about. That is why it needs its own branch in the film loop instead of living inside <code>sampleOnePixel</code>.</span></figcaption>
+    </figure>
+
+    <div class="slot">Screenshot — Preset 41 (light inside the fog — strategy 17 requires the photon to start in the medium, so any other preset renders black). Press 0 for the PP estimator, then Render Settings, PP quick settings, Strategy = "17 camera sphere (SPLAT, light-tracing single scatter)". Let it accumulate a few hundred passes. What should be visible: a grainy single-scatter glow around the emitter, converging slowly, with no shadow anywhere — the pass applies fog transmittance on the camera leg but never tests occlusion. Caption should say this is the camera dual of the light-side sweep, that it ignores every other PP setting because ppCameraSphereSplatPass never reads a field of the PP config (PPIntegrator.cpp:7719-7804), and that it was validated at a whole-image ratio of 0.9992.</div>
+
+    <div class="narrow">
+      <h3>Shooting order</h3>
+      <p>When this page carries results instead of instructions, the captures have a dependency order, and the early ones are the ones that can fail.</p>
+      <ul class="clean">
+        <li><b>First, the raw fringes</b> &mdash; section 03. Everything downstream consumes them. If the walls do not fringe, nothing else on this page can be shot, and the likely causes are already enumerated in the health checklist.</li>
+        <li><b>Second, the four tiled buckets</b> &mdash; section 05. The cheapest test that the phase cycling actually reaches the kernel, and it fails visibly, as four identical quadrants, rather than subtly.</li>
+        <li><b>Third, the advisor pair</b> &mdash; section 08. Two frames, one button press between them, no accumulation needed. It is the cheapest capture on the page and it carries one of the three claims the page is built on.</li>
+        <li><b>Fourth, the spectrum frame</b> &mdash; section 07. Diagnoses the carrier before any depth is computed: sidebands overlapping DC means the carrier is too low, clipped at the edge means too high.</li>
+        <li><b>Fifth, the conditioning A/B</b> &mdash; section 07. The only capture here that can contradict a written claim, which is exactly what makes it the most valuable one.</li>
+        <li><b>Sixth, the Ambient A/B</b> &mdash; section 09. The other capture that can contradict a written claim, and the cheaper of the two: two frames, one slider, no accumulation, and the prediction is that the two images are identical.</li>
+        <li><b>Then everything else</b>, in page order.</li>
+      </ul>
+      <p class="note">Two operational notes that will otherwise cost a session. There is no screenshot function in the application &mdash; <code>F12</code> logs <code>"Snapshot requested"</code> and writes nothing (<code>Engine.cpp:388-391</code>), and File &rsaquo; Export Image is a stub whose menu item calls <code>notImplementedBorder()</code> (<code>UIManager.cpp:359</code>) &mdash; so these are operating-system captures. And the window size is read from <code>prism.json</code> <em>relative to the working directory</em>, so the copy that matters is the one beside the executable; both the build script and a CMake post-build step copy the repository root's copy over it, which means a rebuild silently reverts whatever you set for capture. Both are recorded in <code>docs/CAPTURE-SHOOTING-LIST.md</code> rather than discovered again.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="spectrum" style="margin-bottom:34px"></div>
+    <h2 style="font-size:28px;margin:0 0 10px">RadianceLab</h2>
+    <p style="color:var(--muted);max-width:56ch;margin:0">A from-scratch physically-based renderer in C++ and OpenGL compute, written to make estimator research directly visible.</p>
+    <div class="fgrid">
+      <div><span class="k">Renderer</span><span class="v">GPU megakernel path tracer, rasterizer, and seven CPU integrators — photon mapping, VCM, MLT, PSSMLT, UPBP, path guiding</span></div>
+      <div><span class="k">This work</span><span class="v">31 strategy slots in the picker: 0–2 are the baselines the rest are measured against, 3–24 and 26–30 are the photon-primitive family, 25 is a rasterised gather, and 21 of the slots are analytic swept manifolds sharing one MIS network</span></div>
+      <div><span class="k">Validation</span><span class="v">Ratio and byte-identical harnesses, degenerate-limit pins, standalone numerical gates in Python</span></div>
+      <div><span class="k">Media</span><span class="v">Homogeneous and heterogeneous participating media, Henyey–Greenstein and Mie phase functions, dispersive dielectrics</span></div>
+    </div>
+    <div class="scope">
+      <b>Scope note.</b> This page covers one subsystem. The renderer also carries a structured-light projector and time-of-flight pipeline, off-axis holography with a GPU FFT and phase unwrapping, five physics solvers coupled to volumetric density, a node-graph material and projection editor with texture-space baking, and roughly 140 post-process and NPR passes. Those are documented separately.
+    </div>
+    <p style="margin:28px 0 0"><a href="index.html" style="color:var(--muted);font-size:13px;letter-spacing:.03em;text-decoration:none;border-bottom:1px solid var(--line)">&larr; All eleven threads</a></p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var links = Array.prototype.slice.call(document.querySelectorAll('#rail a'));
+  var secs  = links.map(function(a){ return document.getElementById(a.dataset.s); });
+  var fill  = document.getElementById('railfill');
+  var track = document.getElementById('railtrack');
+
+  links.forEach(function(a){
+    a.addEventListener('click', function(e){
+      var t = document.getElementById(a.dataset.s);
+      if (!t) return;
+      e.preventDefault();
+      t.scrollIntoView({ behavior:'smooth', block:'start' });
+      if (history.replaceState) history.replaceState(null, '', '#' + a.dataset.s);
+    });
+  });
+
+  function progress(){
+    if (!fill || !track) return;
+    var h = document.documentElement.scrollHeight - window.innerHeight;
+    var p = h > 0 ? Math.min(1, Math.max(0, window.scrollY / h)) : 0;
+    fill.style.height = (p * track.offsetHeight) + 'px';
+  }
+  var queued = false;
+  window.addEventListener('scroll', function(){
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(function(){ progress(); queued = false; });
+  }, { passive:true });
+  window.addEventListener('resize', progress, { passive:true });
+  progress();
+
+  if (!('IntersectionObserver' in window)) return;
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      var i = secs.indexOf(e.target);
+      if (i < 0) return;
+      links[i].classList.toggle('on', e.isIntersecting && e.intersectionRatio > 0.12);
+    });
+  }, { threshold:[0, .12, .5] });
+  secs.forEach(function(s){ if (s) io.observe(s); });
+})();
+</script>
+

@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><style id="portfolio-early-paint">html{background:#0b0d0c;color-scheme:dark}html.portfolio-booting body{opacity:0}</style><script src="../../portfolio-navigation.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Symbolic Math Engine — Structure, Strategy, Evidence</title>
+    <!-- GitHub Pages build: the engine runs in-browser via ruby.wasm (see wasm_runtime.js) -->
+    <link rel="stylesheet" href="styles.css?v=45">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Fira+Code:wght@400;600&family=Poppins:wght@300;400;600&family=Roboto:wght@300;400;500&family=Source+Code+Pro:wght@400;600&family=IBM+Plex+Mono:wght@400;600&family=Lora:wght@400;600&display=swap" rel="stylesheet">
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script defer src="symbolic-atmosphere.js?v=1"></script>
+  <link rel="stylesheet" href="portfolio.css">
+<link rel="stylesheet" href="../../portfolio-controls.css"><link rel="stylesheet" href="../../portfolio-demo-return.css"><script defer src="../../portfolio-demo-return.js" data-project="symbolic_math" data-title="Symbolic Unfolded" data-overview="projects/symbolic_math/overview.html" data-group="signature" data-thumbnail="media/brochures/symbolic_math/residue-theorem-contour.png" data-routes="[{&quot;project&quot;:&quot;symbolic_math&quot;,&quot;title&quot;:&quot;Symbolic Unfolded&quot;,&quot;group&quot;:&quot;signature&quot;,&quot;thumbnail&quot;:&quot;media/brochures/symbolic_math/residue-theorem-contour.png&quot;,&quot;overview&quot;:&quot;projects/symbolic_math/overview.html&quot;,&quot;path&quot;:&quot;live_demos/symbolic_math/index.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:2},{&quot;project&quot;:&quot;symbolic_math&quot;,&quot;title&quot;:&quot;Symbolic Unfolded&quot;,&quot;group&quot;:&quot;signature&quot;,&quot;thumbnail&quot;:&quot;media/brochures/symbolic_math/residue-theorem-contour.png&quot;,&quot;overview&quot;:&quot;projects/symbolic_math/overview.html&quot;,&quot;path&quot;:&quot;live_demos/symbolic_math/index.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:1},{&quot;project&quot;:&quot;symbolic_math&quot;,&quot;title&quot;:&quot;Symbolic Unfolded&quot;,&quot;group&quot;:&quot;signature&quot;,&quot;thumbnail&quot;:&quot;media/brochures/symbolic_math/residue-theorem-contour.png&quot;,&quot;overview&quot;:&quot;projects/symbolic_math/overview.html&quot;,&quot;path&quot;:&quot;live_demos/symbolic_math/technical.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:1},{&quot;project&quot;:&quot;symbolic_math&quot;,&quot;title&quot;:&quot;Symbolic Unfolded&quot;,&quot;group&quot;:&quot;signature&quot;,&quot;thumbnail&quot;:&quot;media/brochures/symbolic_math/residue-theorem-contour.png&quot;,&quot;overview&quot;:&quot;projects/symbolic_math/overview.html&quot;,&quot;path&quot;:&quot;live_demos/symbolic_math/&quot;,&quot;query&quot;:{},&quot;priority&quot;:-1}]"></script><!-- universal-navigation:start --><link rel="stylesheet" href="../../portfolio-location.css?v=054b6b462c"><script defer src="../../portfolio-location.js?v=054b6b462c"></script><script defer src="../../portfolio-routes.js?v=054b6b462c"></script><script defer src="../../portfolio-universal-navigation.js?v=054b6b462c"></script><!-- universal-navigation:end --><style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head>
+<body class="portfolio-symbolic_math">
+  <div class="portfolio-return" data-theme="dark" role="navigation" aria-label="Portfolio"><a class="portfolio-return-link" href="../../projects/symbolic_math/index.html" target="_top"><span aria-hidden="true">←</span> Project overview</a></div>
+    <div class="background-gradient"></div>
+    <div class="orbs">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+    
+    <div class="container">
+        <!-- Header -->
+        <header class="glass-panel wobble-on-hover">
+            <h1><span class="title-icon" aria-hidden="true">🔬</span> Symbolic Math Engine</h1>
+            <p class="subtitle">Structure, strategy, and evidence behind a mathematical result.</p>
+            <div class="header-tools">
+                <a href="history.html" class="header-link">History & Architecture &rarr;</a>
+                <a href="technical.html" class="header-link">Technical Reference &rarr;</a>
+                <select id="themeSelector" onchange="window.setTheme(this.value)">
+                    <option value="default" style="background:#1e293b;">Default</option>
+                    <option value="academic" style="background:#1e293b;">Academic</option>
+                    <option value="artistic" style="background:#1e293b;">Red</option>
+                    <option value="wild" style="background:#1e293b;">Green</option>
+                </select>
+                <select id="fontSelector" title="Typeface for the whole page">
+                    <option value="inter">Inter — clean sans</option>
+                    <option value="poppins">Poppins — rounded</option>
+                    <option value="roboto">Roboto — neutral</option>
+                    <option value="lora">Lora — serif</option>
+                    <option value="jetbrains">JetBrains Mono</option>
+                    <option value="fira">Fira Code</option>
+                    <option value="sourcecodepro">Source Code Pro</option>
+                    <option value="ibmplex">IBM Plex Mono</option>
+                    <option value="geist">Geist</option>
+                </select>
+            </div>
+        </header>
+
+        <p class="engine-scope-intro">A Ruby computer-algebra workbench with an inspectable transformation pipeline. Symbolic derivation, numerical checks, and exact arithmetic provide different kinds of evidence; read the method and verdict beside each result.</p>
+
+        <!-- Input Section -->
+        <section class="glass-panel input-section">
+                        <div class="input-options">
+                <label class="checkbox-label" style="display:none">
+                    <input type="checkbox" id="experimentalMode" checked="checked"/>
+                    <span>⚡ Advanced Integration (If unchecked, will use the simple solver and be only capable to solve basic integrals)</span>
+                </label>
+                <label class="checkbox-label" style="display:flex;align-items:center;gap:8px;">
+                    <span>🔧 Simplification:</span>
+                    <select id="simplifyMode" style="padding:4px 8px;background:#1e293b;border:1px solid rgba(255,255,255,0.2);border-radius:6px;color:#94a3b8;font-size:0.85rem;">
+                        <option value="final" style="background:#1e293b;color:#94a3b8;" selected>Simplify final result</option>
+                        <option value="never" style="background:#1e293b;color:#94a3b8;">Never simplify</option>
+                        <option value="steps" style="background:#1e293b;color:#94a3b8;">Simplify along the way</option>
+                    </select>
+                </label>
+                <label class="checkbox-label" style="display:none">
+                    <input type="checkbox" id="complexMode" />
+                    <span> 🧿 Using Euler Representation (exponential form): sin/cos → e^(ix), also effective for advanced cases </span>
+                </label>
+                <!-- COMMENTED OUT: Animation & Taylor for simplicity -->
+                <!--
+                <label class="checkbox-label">
+                    <input type="checkbox" id="animationMode" />
+                    <span>🎬 Animation Mode (Step-by-step with transitions)</span>
+                </label>
+                <label class="checkbox-label">
+                    <input type="checkbox" id="taylorMode" />
+                    <span>📈 Taylor Series (Show series expansion)</span>
+                </label>
+                -->
+            </div>
+
+            <div class="input-wrapper">
+                <input type="text" id="formula" class="formula-input" placeholder="Enter an expression — e.g.  x^3*sin(x) — then press Enter or pick an operation" />
+                <button id="parseBtn" class="btn-primary wobble-btn">Enter 🔍</button>
+            </div>
+            <div id="errorBanner" class="error-banner" role="alert" hidden></div>
+            
+            <!-- Font Selector -->
+            <div class="font-selector-container" style="display: none;">
+                <label style="display: block; color: var(--text-muted); font-size: 0.9rem; margin-bottom: 0.5rem; font-weight: 500;">🎨 Font Selection:</label>
+                <select id="fontSelectorLegacy" class="font-selector">
+                    <!-- <option value="inter">Inter (Default - Modern Sans-Serif)</option>
+                    <option value="jetbrains">JetBrains Mono (Coding Font)</option>
+                    <option value="fira">Fira Code (Developer Favorite)</option> -->
+                    <option value="poppins">Poppins (Clean & Elegant)</option>
+                    <!-- <option value="roboto">Roboto (Google Classic)</option>
+                    <option value="geist">Geist (Modern Sans)</option> -->
+                </select>
+            </div>
+
+
+        <!-- Reset Button (hidden, managed by JS) -->
+        <div id="resetBar" style="display:none;"></div>
+
+        <!-- Main Display Area -->
+        <div class="display-grid" id="displayGrid" style="display:none;">
+            <!-- Formula Display -->
+            <div class="glass-panel formula-panel wobble-on-hover">
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <h2 class="panel-title" style="margin:0;">📐 Formula</h2>
+                    <button id="resetView" class="btn-secondary" style="font-size:0.8rem;padding:4px 12px;">↺ Reset</button>
+                </div>
+                <div class="formula-content">
+                    <div class="formula-box">
+                        <span class="formula-label">Readable:</span>
+                        <div id="formulaDisplay" class="formula-text"></div>
+                    </div>
+                    <div class="formula-box">
+                        <span class="formula-label">LaTeX:</span>
+                        <div id="latexDisplay" class="latex-rendered"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tree Visualization -->
+            <div class="glass-panel tree-panel">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h2 class="panel-title" style="margin: 0;">🌳 Expression Trees</h2>
+                    <button id="toggleTreeView" class="btn-secondary">Switch to Text View</button>
+                </div>
+                <div class="tree-comparison" id="treeVisualView">
+                    <div class="tree-column">
+                        <h3 class="tree-label">Original</h3>
+                        <svg id="treeOriginal" class="tree-svg"></svg>
+                    </div>
+                    <div class="tree-arrow">⟹</div>
+                    <div class="tree-column">
+                        <h3 class="tree-label">Processed</h3>
+                        <svg id="treeProcessed" class="tree-svg"></svg>
+                    </div>
+                </div>
+                <div class="tree-comparison" id="treeTextView" style="display: none;">
+                    <div class="tree-column">
+                        <h3 class="tree-label">Original</h3>
+                        <pre id="treeOriginalText" class="tree-text"></pre>
+                    </div>
+                    <div class="tree-arrow">⟹</div>
+                    <div class="tree-column">
+                        <h3 class="tree-label">Processed</h3>
+                        <pre id="treeProcessedText" class="tree-text"></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Display -->
+        <div class="glass-panel results-panel" id="resultsPanel" style="display:none;">
+            <h2 class="panel-title">📊 Results</h2>
+            <div id="resultsContent" class="results-content"></div>
+        </div>
+
+        <!-- Steps Display -->
+        <div class="glass-panel steps-panel" id="stepsPanel" style="display:none;">
+            <h2 class="panel-title">📋 Solution Steps</h2>
+            <div id="stepsContent" class="steps-content"></div>
+        </div>
+
+        <!-- Trace Visualization Panel -->
+        <div class="glass-panel" id="tracePanel" style="display:none; margin-top: 1rem;">
+            <h2 class="panel-title">🔍 Strategy View — how the engine searched for the answer</h2>
+            <div style="display: flex; gap: 8px; margin-bottom: 1rem;">
+                <button class="btn-secondary trace-tab active" data-tab="live" onclick="switchTraceTab('live')">⚡ Live Solve</button>
+                <button class="btn-secondary trace-tab" data-tab="tree" onclick="switchTraceTab('tree')">Decision Tree</button>
+                <button class="btn-secondary trace-tab" data-tab="space" onclick="switchTraceTab('space')">Space Plot</button>
+                <button class="btn-secondary trace-tab" data-tab="techniques" onclick="switchTraceTab('techniques')">Techniques</button>
+                <button class="btn-secondary trace-tab" data-tab="mermaid" onclick="switchTraceTab('mermaid')">Mermaid Src</button>
+            </div>
+            <div id="traceLiveView" class="trace-view" style="display:none;">
+                <div class="live-controls">
+                    <span id="liveStrategy" class="live-strategy">idle</span>
+                    <span style="display:flex;gap:0.75rem;align-items:center;">
+                        <label class="live-verbose-label"><input type="checkbox" id="liveVerbose" checked> verbose</label>
+                        <button id="liveSkip" class="btn-secondary" type="button">Skip animation ⏩</button>
+                    </span>
+                </div>
+                <div class="live-examining" id="liveExamining" hidden>
+                    <span class="live-label">now examining</span>
+                    <span class="live-expr" id="liveExaminingExpr"></span>
+                </div>
+                <div class="live-grid">
+                    <div class="live-col">
+                        <div class="live-col-title">Strategy timeline</div>
+                        <div id="liveTimeline" class="live-timeline"></div>
+                    </div>
+                    <div class="live-col">
+                        <div class="live-col-title">Engine console</div>
+                        <div id="liveConsole" class="live-console"></div>
+                    </div>
+                </div>
+                <div id="livePolish" class="live-polish"></div>
+                <div id="liveFinal" class="live-final"></div>
+            </div>
+            <div id="traceTreeView" class="trace-view" style="display:block;">
+                <pre id="traceTreeContent" style="font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.6; overflow-x: auto; white-space: pre; padding: 1rem; background: rgba(0,0,0,0.4); border-radius: 8px; color: #e2e8f0; max-height: 500px; overflow-y: auto;"></pre>
+            </div>
+            <div id="traceSpaceView" class="trace-view" style="display:none;">
+                <pre id="traceSpaceContent" style="font-family: 'JetBrains Mono', monospace; font-size: 12px; line-height: 1.4; overflow-x: auto; white-space: pre; padding: 1rem; background: rgba(0,0,0,0.4); border-radius: 8px; color: #e2e8f0; max-height: 500px; overflow-y: auto;"></pre>
+            </div>
+            <div id="traceTechniquesView" class="trace-view" style="display:none;">
+                <div id="traceTechniquesContent" style="padding: 1rem;"></div>
+            </div>
+            <div id="traceMermaidView" class="trace-view" style="display:none;">
+                <pre id="traceMermaidContent" style="font-family: 'JetBrains Mono', monospace; font-size: 11px; line-height: 1.4; overflow-x: auto; white-space: pre; padding: 1rem; background: rgba(0,0,0,0.4); border-radius: 8px; color: #a5b4fc; max-height: 400px; overflow-y: auto;"></pre>
+                <div style="font-size: 11px; color: #94a3b8; margin-top: 8px;">Copy the above into <a href="https://mermaid.live" target="_blank" style="color: #60a5fa;">mermaid.live</a> to render as a flowchart.</div>
+            </div>
+        </div>
+
+<div class="examples">
+    <div class="examples-head">
+        <h2 class="panel-title">Examples</h2>
+        <p class="examples-hint">Click an example to load it, then run any operation from the ƒ(x) button (bottom-right). The group labels are only suggestions — every example works with every operation. Groups are collapsible.</p>
+    </div>
+    <div class="example-groups" id="exampleGroups"></div>
+</div>
+        </section>
+        <!-- Floating Operations Panel -->
+        <div class="floating-operations" id="operationsPanel">
+            <button class="ops-toggle" id="opsToggle" aria-label="Operations menu" title="Operations — derivative, integral, simplify and more">π</button>
+            <div class="ops-menu glass-panel" id="opsMenu">
+                <h3 class="ops-title">Operations</h3>
+                
+                <!-- Variable Input -->
+                <div style="margin-bottom: 1rem; padding: 0.5rem; background: rgba(0,0,0,0.3); border-radius: 8px;">
+                    <label style="display: block; color: #94a3b8; font-size: 0.75rem; margin-bottom: 0.25rem;">Variable:</label>
+                    <input type="text" id="variableInput" value="x"
+                           style="width: 100%; padding: 0.5rem; background: rgba(255,255,255,0.1); border: 1px solid rgba(96, 165, 250, 0.3); border-radius: 6px; color: #fff; font-size: 1rem; font-family: 'JetBrains Mono', monospace;"
+                           placeholder="x">
+                </div>
+
+                <div style="margin-bottom: 0.85rem; display:flex; align-items:center; gap:0.5rem;">
+                    <label for="iconStyle" style="color:#94a3b8; font-size:0.72rem; white-space:nowrap;">Symbol style:</label>
+                    <select id="iconStyle" style="flex:1; padding:0.35rem 0.5rem; background:#1e293b; border:1px solid rgba(96,165,250,0.3); border-radius:6px; color:#e2e8f0; font-size:0.78rem;">
+                        <option value="white">White</option>
+                        <option value="glow">Black + white glow</option>
+                    </select>
+                </div>
+                <div class="ops-grid">
+                    <!-- Grouped by what the operation IS, most fundamental first.
+                         A group's trailing entry spans the full row. An "E" badge
+                         marks tools whose results are numeric/heuristic rather than
+                         checked against a closed-form oracle. -->
+
+                    <!-- integration -->
+                    <button class="op-btn wobble-btn" data-op="integrate" title="Indefinite integral via the ordered heuristic cascade, verified by an independent Monte-Carlo derivative check.">
+                        <span class="op-icon">∫</span>
+                        <span class="op-label"><strong>Integrate</strong></span>
+                    </button>
+                    <button class="op-btn wobble-btn" data-op="definite" title="Definite integral: FTC when an antiderivative exists, then known closed forms, then Simpson or Monte Carlo." >
+                        <span class="op-icon">∫ab</span>
+                        <span class="op-label"><strong>Definite</strong></span>
+                    </button>
+                    <button class="op-btn wobble-btn op-wide" data-op="residue" title="Residue theorem — improper integrals via a semicircle at infinity, and full-period trigonometric integrals via the unit circle." style="grid-column: 1 / -1;">
+                        <span class="op-icon">∑Res</span>
+                        <span class="op-label"><strong>Residue Theorem</strong> <span style="font-size:0.6rem;color:#94a3b8;">improper ∫ and ∫₀^2π via contour integration</span></span>
+                    </button>
+
+                    <!-- differentiation -->
+                    <button class="op-btn wobble-btn" data-op="derivative" title="Exact rule-based symbolic differentiation.">
+                        <span class="op-icon">d/dx</span>
+                        <span class="op-label"><strong>Derivative</strong></span>
+                    </button>
+                    <button class="op-btn wobble-btn" data-op="differential" title="Total differential: df = sum of (df/dxi) dxi.">
+                        <span class="op-icon">df</span>
+                        <span class="op-label"><strong>Differential</strong></span>
+                    </button>
+
+                    <!-- expansions -->
+                    <button class="op-btn wobble-btn" data-op="taylor" title="Taylor series from successive symbolic derivatives, with a Lagrange remainder bound." >
+                        <span class="op-icon">Σ</span>
+                        <span class="op-label"><strong>Taylor</strong></span>
+                    </button>
+                    <button class="op-btn wobble-btn" data-op="pade" title="Padé approximant — rational [L/M]; the denominator captures poles a Taylor polynomial cannot represent." >
+                        <span class="op-icon">P/Q</span>
+                        <span class="op-label"><strong>Padé</strong></span>
+                    </button>
+                    <button class="op-btn wobble-btn op-wide" data-op="laurent" title="Laurent series — EXPERIMENTAL: the pole order is detected numerically and unstable coefficients truncate the series honestly." style="grid-column: 1 / -1;">
+                        <span class="op-icon">Σ±</span>
+                        <span class="op-label"><strong>Laurent</strong> <span style="font-size:0.6rem;color:#94a3b8;">series with a principal part, around a pole</span></span>
+                    </button>
+
+                    <!-- rewriting -->
+                    <button class="op-btn wobble-btn" data-op="simplify" title="Fixed-point algebraic simplification." >
+                        <span class="op-icon">⚡</span>
+                        <span class="op-label"><strong>Simplify</strong></span>
+                    </button>
+                    <button class="op-btn wobble-btn" data-op="evaluate" title="Evaluate the expression numerically at given variable values." >
+                        <span class="op-icon">🔢</span>
+                        <span class="op-label"><strong>Evaluate</strong></span>
+                    </button>
+
+                    <!-- Everything above uses the formula in the input bar.
+                         Everything below is self-contained: each opens a dialog
+                         with its own inputs and ignores the bar entirely.
+                         Ordered rigour-first: the two tools that define what this
+                         engine claims, then the two showcases, then the
+                         experimental collection. -->
+                    <div class="ops-sep"><span>self-contained · own inputs</span></div>
+                    <button class="op-btn wobble-btn op-wide" data-op="gradient" title="Vector calculus with its own inputs: pick a dimension, name the axes, then take grad or the Laplacian of a scalar, or div or curl of a vector field you type. grad, div and the Laplacian work in any dimension; curl is a vector only in 3D and a scalar in 2D." style="grid-column: 1 / -1;">
+                        <span class="op-icon">∇</span>
+                        <span class="op-label"><strong>Grad · Div · Curl · Laplacian</strong> <span style="font-size:0.6rem;color:#94a3b8;">pick a dimension; scalar in or vector in, exact partials out</span></span>
+                    </button>
+                    <button class="op-btn wobble-btn" data-op="interval" title="Interval bounds for ranges, global minima and integrals. Transcendental bounds assume the platform math-library error fits within the two-ULP widening." >
+                        <span class="op-icon">[f]</span>
+                        <span class="op-label"><strong>Interval bounds</strong> <span style="font-size:0.6rem;color:#94a3b8;">conditional ranges, minima &amp; integral brackets</span></span>
+                    </button>
+                    <button class="op-btn wobble-btn" data-op="exact" title="Exact arithmetic: compute in rationals and algebraic extensions Q(alpha) with zero error, or refuse honestly. Compare float vs interval vs exact on the same expression; exact polynomial GCD, squarefree, resultants." >
+                        <span class="op-icon">Q</span>
+                        <span class="op-label"><strong>Exact ℚ, ℚ(α)</strong> <span style="font-size:0.6rem;color:#94a3b8;">zero error, or an honest refusal</span></span>
+                    </button>
+                    <button class="op-btn wobble-btn" data-op="sindy" title="Equation discovery (SINDy): given only a trajectory, recover the differential equation that generated it by sparse regression. Lorenz comes back exactly, and the result is verified against the true vector field." >
+                        <span class="op-icon">ẋ=Θξ</span>
+                        <span class="op-label"><strong>Discovery</strong> <span style="font-size:0.6rem;color:#94a3b8;">recover the governing ODE from a trajectory</span></span>
+                    </button>
+                    <button class="op-btn wobble-btn" data-op="gr" title="General relativity: give a diagonal metric, get Christoffel symbols and Ricci curvature, verified against vacuum, Kretschmann and de Sitter oracles, plus a precessing Schwarzschild orbit and Mercury's 43 arcsec per century." >
+                        <span class="op-icon">g<sub>μν</sub></span>
+                        <span class="op-label"><strong>Relativity</strong> <span style="font-size:0.6rem;color:#94a3b8;">metric → Γ → Ricci; orbits &amp; Mercury</span></span>
+                    </button>
+                    <button class="op-btn wobble-btn op-wide" data-op="experimental" title="Seven numeric field-theorem and moving-domain tools — EXPERIMENTAL: each verifies its theorem two independent ways at runtime rather than against a closed form." style="grid-column: 1 / -1;">
+                        <span class="op-icon">∮∬∭</span>
+                        <span class="op-label"><strong>Field Theorems &amp; Moving Domains</strong> <span style="font-size:0.6rem;color:#fca5a5;">7 tools — Green · Stokes · Gauss · Leibniz · Reynolds</span></span>
+                    </button>
+                </div>
+                <label class="strategy-toggle" title="When on, Integrate also plays the live strategy view (how the engine searched for the answer)">
+                    <input type="checkbox" id="strategyView" />
+                    <span>🔍 <strong>Strategy View</strong> — animate how Integrate finds the answer</span>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for operation inputs -->
+    <div class="modal" id="opModal">
+        <div class="modal-content glass-panel">
+            <button class="modal-close" id="modalClose" aria-label="Close dialog">×</button>
+            <h3 id="modalTitle"></h3>
+            <div id="modalBody"></div>
+            <div class="modal-actions">
+                <button id="modalCancel" class="btn-secondary">Cancel</button>
+                <button id="modalSubmit" class="btn-primary">Execute</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="animation.js?v=10"></script>
+    <script src="complex_plot.js?v=10"></script>
+    <script src="wasm_runtime.js"></script>
+    <script src="app.js?v=49"></script>
+</body>
+</html>

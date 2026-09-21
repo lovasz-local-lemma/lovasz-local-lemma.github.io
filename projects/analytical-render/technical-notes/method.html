@@ -1,0 +1,266 @@
+<!doctype html><html lang="en"><head><style data-portfolio-paint>html{background:#0b0d0c;color-scheme:dark}html.portfolio-booting body{opacity:0}</style><script src="../../../portfolio-navigation.js?v=688f1905bc"></script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Analytical Render · LTC · Method and implementation</title><meta name="description" content="The fitted LTC garage, its matched direct-light comparison, and the scope of the numerical optical extensions."><meta name="color-scheme" content="dark"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="../../../portfolio.css?v=b7ed8602e5"><link rel="stylesheet" href="../../../portfolio-effects.css?v=62be30dafa"><link rel="stylesheet" href="../../../portfolio-atmospheres.css?v=4b74c57939"><link rel="stylesheet" href="../../../portfolio-motion.css?v=4b098d8184"><link rel="stylesheet" href="../../../portfolio-case-studies.css?v=243caf2b0d"><link rel="stylesheet" href="../../../portfolio-brochures.css?v=a1e5e16132"><link rel="stylesheet" href="../../../portfolio-project-themes.css?v=a898c35e78"><link rel="stylesheet" href="../../../portfolio-location.css?v=9c4c1ad84f"><link rel="stylesheet" href="../../../portfolio-controls.css?v=9376de7761"><link rel="stylesheet" href="../../../portfolio-media.css?v=c51f7712ea"><link rel="stylesheet" href="../../../portfolio-overviews.css?v=8612c4ee0a"><link rel="stylesheet" href="../../../portfolio-motivations.css?v=ccc1c1d866"><link rel="stylesheet" href="../../../portfolio-claims.css?v=058dbd00ef"><link rel="stylesheet" href="../../../portfolio-feature-atlas.css?v=e73f02cb31"><script type="application/json" id="media-framing">{"media/brochures/physics-2d/thermal-furnace-magnetic-field-probe.png":{"width":1602,"height":940,"top":39},"media/brochures/physics-2d/magnetic-field-direction-appearance-controls.png":{"width":1602,"height":940,"top":39},"media/brochures/physics-2d/time-bomb-blast-particle-plume.png":{"width":1602,"height":940,"top":39}}</script><script defer src="../../../portfolio-claims.js?v=ed914a4d3a"></script><script defer src="../../../portfolio-visual-defaults.js?v=eecfd5c771"></script><script defer src="../../../portfolio-motion.js?v=a642c710f9"></script><script defer src="../../../portfolio-fire-studies.js?v=7717e15582"></script><script defer src="../../../portfolio-embers.js?v=8a8be5569d"></script><script defer src="../../../portfolio-atmospheres.js?v=021b2f100e"></script><script defer src="../../../portfolio-effects.js?v=03a6c89d6c"></script><script defer src="../../../portfolio-brochures.js?v=055cad29d6"></script><script defer src="../../../portfolio-location.js?v=3846586893"></script><script defer src="../../../portfolio-media.js?v=d2d555a888"></script><script defer src="../../../portfolio-articles.js?v=acb89575ce"></script><script defer src="../../../portfolio-labs.js?v=a0b86a3809"></script><link rel="stylesheet" href="../../../portfolio-technical.css?v=0ecb3a48c7"><!-- universal-navigation:start --><script defer src="../../../portfolio-routes.js?v=054b6b462c"></script><script defer src="../../../portfolio-universal-navigation.js?v=054b6b462c"></script><!-- universal-navigation:end --><style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head><body data-page="technical" data-project-theme="optics" data-project-id="analytical-render" data-default-atmosphere="caustics"><a class="skip-link" href="#main">Skip to content</a><nav class="site-nav portfolio-route" data-route-group="methods" aria-label="Portfolio location"><div class="route-path"><a class="route-node route-home" href="../../../index.html#project-analytical-render" aria-label="Portfolio"><img class="route-mark" src="../../../media/identity/portfolio-mark.svg" alt="" width="52" height="52"><span class="route-copy"><small>Work / ideas</small><strong>Portfolio</strong></span></a><span class="route-wire" aria-hidden="true"><i></i><b></b></span><div class="route-node route-group"><span class="route-glyph" aria-hidden="true">◫</span><span class="route-copy"><small>Collection</small><strong>Practical</strong></span></div><span class="route-wire" aria-hidden="true"><i></i><b></b></span><div class="route-node route-project"><span class="route-glyph" hidden aria-hidden="true">◈</span><img class="route-thumb" src="../../../media/previews/analytical-render/native-material-garage-ltc-bsdf-split.png" width="42" height="42" alt=""><span class="route-copy"><small>Project</small><strong>Analytical Render · LTC</strong></span></div></div><div class="route-end"><span class="route-meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><a class="route-back" href="../../../index.html#project-analytical-render">← Back to portfolio</a></div></nav><main id="main" class="project-page technical-page"><header class="technical-hero"><span class="eyebrow">Analytical Render · LTC · technical notes</span><h1>Method and implementation</h1><p>The fitted LTC garage, its matched direct-light comparison, and the scope of the numerical optical extensions.</p><div class="technical-actions"><a href="../index.html">← Analytical Render · LTC brochure</a><a href="../../../live_demos/analytical-render/index.html">Open interactive study ↗</a></div></header><article class="technical-document"><p><strong>Direct surface lighting with polygon integrals and fitted GGX linearly transformed cosines.</strong></p>
+<p>An area light illuminates a point from a continuum of directions. Sampling those
+directions is general, but it also introduces variance. This project investigates
+where the angular integral can instead be evaluated deterministically—and what
+must be approximated to extend that advantage from diffuse surfaces to materials
+and visibility.</p>
+<p>The main WebGPU garage brings together published GGX LTC tables, procedural
+materials, a bounded luminous volume and selected optical extensions.
+The diffuse study exposes the exact projected-solid-angle identity that motivates
+the approach. Older material, geometric and numerical motion studies remain
+available as context, with their different models identified explicitly.</p>
+<p>The contribution is an executable integration and inspection of these methods,
+not a new LTC derivation or a general closed-form rendering solution. The fitted
+LTC method is credited to <a href="https://eheitzresearch.wordpress.com/415-2/" rel="noopener">Heitz, Dupuy, Hill and Neubelt, SIGGRAPH 2016</a>.</p>
+<h2 id="study-structure">Study structure</h2><ul>
+<li><strong>Diffuse integral:</strong> the exact polygon boundary evaluation under its emitter,
+horizon and visibility assumptions; a uniform-emitter Monte Carlo comparator.</li>
+<li><strong>LTC &amp; materials:</strong> the fitted GGX garage, followed by clearly labeled earlier
+deterministic material approximations.</li>
+<li><strong>Optics &amp; geometry:</strong> mirror/film models, analytic quadrics and shape studies,
+separated from the central lighting result.</li>
+<li><strong>Motion studies:</strong> numerical Rapier trajectories supply transforms to the
+renderer. The lighting method does not make the physics analytical.</li>
+</ul>
+<p>The garage opens in split comparison. Family tabs narrow the scene selector, retaining all
+seventeen original scene identifiers and URL entry points. The larger image is first,
+with a compact glass control instrument beside it and live mathematical inspection
+below. On shorter desktop windows the top spacing contracts to keep the image visible.</p>
+<h3 id="what-the-comparison-establishes">What the comparison establishes</h3><p>In the WebGPU garage, <strong>Integral / Monte Carlo / Compare</strong> evaluate the same
+opaque direct-light model with two methods: fitted LTC versus uniform-emitter
+Monte Carlo. The comparison covers diffuse lighting, the isotropic GGX base,
+the blended metallic base, and an independent dielectric coat lobe. Glass and
+thin-film extensions, the environment and optional ambient fill remain shared.
+This is a more useful check of the fit than the earlier diffuse-only comparison,
+but it is not a full path-traced reference. With low roughness, uniform-emitter
+sampling can miss narrow highlights at low sample counts.</p>
+<p>The hero scene uses unoccluded emitters in both estimators. The former planar
+blocker is archived in <code>swap_out/garage-planar-blocker.json</code> for a separate
+visibility study; its restricted diffuse clipping code remains dormant. Normal, roughness and blend-mask
+diagnostics display shared inputs rather than two lighting estimates. The
+earlier scene kernels still compare diffuse light while sharing their other
+material terms. For an isolated diffuse comparison, use <strong>Open diffuse comparison</strong>,
+which selects studio, freezes motion, disables fill and enables clipping.</p>
+<p>Only the WebGPU garage executes the fitted LTC and specialized glass/volume
+kernel. CPU/WASM provide diffuse and selected mirror/film reference paths; they
+are not feature-equivalent garage implementations. The panel identifies this
+scope when a backend changes. Switching to JS/WASM opens a compatible diffuse
+study with a smaller image budget; returning to GPU restores the saved scene
+and settings. The modeless <strong>Learn more</strong> panel stays open until explicitly
+closed. <a href="backends.html">Backend support and measured cost</a> distinguish absent
+features from execution speed using actual equal-workload CPU frames.</p>
+<h3 id="one-coordinated-material-and-volume-treatment">One coordinated material-and-volume treatment</h3><p><strong>Extra fancy</strong>, enabled by default in the GPU garage, adds a clearly bounded
+organic volume cube, a fine metal edge cage, raised-edge hollow-ring shading
+normals and a flowing floor inlay. One switch restores the simpler material
+comparison. The organic network is procedural: it is not a Physarum,
+reaction-diffusion or SmoothLife simulation. Relief changes shading normals;
+it does not claim new displaced geometry or silhouette detail.</p>
+<p>The cube has actual density, Beer extinction, numerical single scattering and
+teal/gold emission. Both image halves share that volume integration. LTC still
+evaluates the opaque direct surface lighting. The <a href="extra-fancy.html">extra treatment notes</a>
+explain this separation and why uniform light animation is compatible with LTC.</p>
+<p>Expand <strong>Atmosphere &amp; motion</strong> to pause the field, isolate its scattering and
+emission, or turn off the bronze light frame. With Extra fancy off, the original
+room-haze settings become editable: uniform, rolling-noise and filament density.
+Their values are preserved while the coordinated preset is active. The
+<a href="medium-model.html">medium model</a> records the numerical approximations,
+including omitted volume shadows from objects and secondary glass paths.</p>
+<h2 id="demo-controls">Demo Controls</h2><ul>
+<li><code>Integral</code>, <code>Monte Carlo</code>, and <code>Compare</code> choose what is displayed. <code>Compare</code> reveals a
+draggable splitter over the two simultaneously rendered estimates.</li>
+<li><code>Backend</code> selects the visible producer path. <code>GPU</code> runs a WGSL compute shader
+that writes the presentation texture directly. <code>WASM</code> runs a compiled C
+frame renderer into linear memory and uploads the pixels into the same WebGPU
+display pass. <code>JS</code> keeps the scalar CPU reference path for comparison.</li>
+<li><code>Subpixel samples</code> controls shader-side supersampling on the WebGPU producer.
+The compute path resolves up to four rays per pixel into the shared
+presentation texture; the default is two subpixel rays. WASM/JS keep their
+single-sample reference paths.</li>
+<li><code>Render scale</code> defaults to 3 on GPU, 0.5 on JS and 1 on WASM; it changes the internal resolution while keeping
+the displayed canvas size. The backing image follows the viewport aspect ratio,
+using a 200-pixel base height and a shared 1280 x 800 allocation limit. Both
+dimensions are reduced together at that limit, preserving the full view.</li>
+<li><code>Target FPS</code> controls the animation cadence up to normal display rates. The
+frame FPS readout reports observed cadence; producer/present readouts report
+CPU-side WebGPU submit cost.</li>
+<li><code>Scene</code> switches between seventeen receiver/light arrangements, including light
+sweeps, stacked spheres, a moving trio, a one-bounce mirror scene, a
+thin-film iridescence scene, an analytic quadrics scene, and a mesh of quad
+emitters. <code>LTC bay</code> adds a darker polygon-light material scene with vertical
+panels, procedural surface normals, and glossy coated/metallic materials.
+<code>Physics pile</code> and <code>Torus toss</code> use Rapier rigid bodies to drive live object
+transforms. <code>Shape lab</code> keeps several primitives still for material and
+silhouette inspection. <code>BSDF lab</code> shows procedural car paint, paper, brushed
+metal, rough glass, and clear glass variants under the same quad lights.
+<code>Analytical garage</code> combines fitted GGX LTC highlights, dispersive two-interface
+sphere glass, and a numerical organic volume cube under the Extra fancy switch.</li>
+<li><code>Material anatomy</code> exposes shading normals, base roughness, blend mask, base
+lighting and coat lighting. Normal strength, coat strength, material blending
+and texture frequency control actual garage shader parameters. The floor
+roughness slider also drives the explicit geometric probe below the image.</li>
+<li><code>Aperture</code> enables actual thin-lens rays in the garage, rather than blurring the
+image afterward. Eight joint lens/subpixel samples meet the selected focal plane.
+Aperture defaults to zero for a sharp initial image. Field diagnostics remain
+pinhole and bypass exposure/false-color mapping.</li>
+<li><code>Animate</code> moves the rectangular light and scene objects. The default MC count
+remains low to expose stochastic noise; increase it to inspect convergence.</li>
+<li><code>Stylized ambient fill</code> adds a small deterministic sky/floor/wall term so curved
+receivers do not collapse to black where direct light is absent. Disable it to
+inspect the pure direct-light result.</li>
+<li>URL parameters can preload a state, for example:
+<code>?mode=split&amp;scene=grazing&amp;split=0.7&amp;animate=0&amp;fill=0</code>.</li>
+</ul>
+<h2 id="live-ltc-inspection">Live LTC inspection</h2><p>The lower instrument is a <strong>geometric floor probe</strong>, not a screen-picked shaded
+pixel. It uses point (0,0.002,0), upward geometric normal, the scene camera and
+first emitter. The garage floor slider supplies roughness; other scenes use
+their floor material.</p>
+<p>The instrument decodes the same published 64² RGBA16F lookup data as the shader
+and uses the same bilinear coordinates: roughness horizontally and
+sqrt(1 − n·v) vertically. It displays the actual matrix, amplitude A/B, original
+spherical polygon, transformed polygon, and approximate edge/horizon factor.
+The F₀=.04 response is one unoccluded isotropic GGX lobe before texture normals,
+material blending, coat, visibility, radiance multiplication and tone mapping.</p>
+<p>Geometry refreshes at about 30 Hz during animation; numerical labels refresh
+at about 10 Hz. Paused edits always refresh immediately, including the last
+light/camera event. This JavaScript instrument illustrates the live computation
+without synchronous GPU readback. The three-step explanation and expandable
+diffuse identity connect these intermediates to the lighting model.</p>
+<h2 id="current-kernel">Current Kernel</h2><p>For each visible point, the renderer computes:</p>
+<pre><code class="language-text">E = Le / 2 * sum_i atan2(|u_i x u_j|, u_i . u_j)
+              * n . normalize(u_i x u_j)
+</code></pre>
+<p>where <code>u_i</code> and <code>u_j</code> are normalized directions from the shaded point to
+adjacent vertices of an oriented rectangular light. The spherical polygon is
+clipped to the receiver&#39;s upper hemisphere before evaluation.</p>
+<p>This is analytical direct lighting, but not a symbolic image equation. The
+finite <code>sum_i</code> is the exact boundary evaluation for the polygon light, not a
+Monte Carlo sample loop. A renderer still has to evaluate rays/pixels unless the
+camera, geometry, visibility, tone mapping, and display reconstruction are also
+reduced to a closed-form image-space formula.</p>
+<h2 id="arithmetic-throughput-probe">Arithmetic throughput probe</h2><p>The collapsed panel runs a synthetic arithmetic probe, separate from the actual
+polygon integral and from renderer speedup evidence. It runs only when requested
+with <strong>Run Kernel</strong>, so scene and backend changes do not trigger extra benchmark
+work. Only the selected probe runs:</p>
+<ul>
+<li>JS CPU: scalar JavaScript baseline.</li>
+<li>WASM SIMD: compiled WebAssembly modules in <code>wasm/analytic_renderer.wasm</code> for
+the visible frame producer and <code>wasm/analytic_bench.wasm</code> for the kernel lab.</li>
+<li>WebGPU: a compute shader that evaluates related arithmetic on
+many lanes in parallel when WebGPU is available.</li>
+</ul>
+<p>Its analytic/MC labels are historical kernel variants; the sampled probe is not
+an unbiased reference for the actual lighting kernel. CPU/WASM arithmetic timing
+and GPU submission/readback/reduction have different measurement boundaries.
+Neither these numbers nor the renderer&#39;s CPU submit times establish GPU elapsed
+time. The visible GPU backend is a full WGSL producer: it ray/intersects the small demo
+scene, evaluates the analytical quad-light formula or MC comparison, writes an
+<code>rgba8unorm</code> storage texture, and then the shared fullscreen WebGPU pass presents
+that same texture. The WASM backend now renders the same small scene into WASM
+linear memory with optimized C, then uploads that buffer into the shared WebGPU
+presentation texture. The JS backend keeps the scalar CPU reference path. The
+readout separates producer cost from present submit cost.</p>
+<h2 id="webgpu-and-wasm">WebGPU And WASM</h2><p>Browser WebGPU resources are owned by the browser API. WASM cannot directly grab
+the swapchain framebuffer pointer. The page still uses an HTML <code>&lt;canvas&gt;</code>
+element because that is the browser surface WebGPU presents into. When WebGPU is
+unavailable, a Canvas2D fallback presents the JS frame instead. The normal GPU
+presentation paths are:</p>
+<ul>
+<li>WASM CPU producer: render into WASM linear memory, expose a typed-array view to
+JavaScript, then <code>queue.writeTexture</code> into the shared WebGPU display texture.</li>
+<li>WebGPU producer: run a compute shader that writes a storage texture directly,
+then present that same texture with the shared fullscreen pass.</li>
+<li>Emscripten/WebGPU bindings: call WebGPU from WASM through bindings, but the
+resource lifetime and presentation model are still browser WebGPU concepts.</li>
+</ul>
+<p>To rebuild the visible WASM renderer:</p>
+<pre><code class="language-powershell">emcc wasm\analytic_renderer.c -O3 -ffast-math -msimd128 --no-entry -s STANDALONE_WASM=1 -s INITIAL_MEMORY=8388608 -s ALLOW_MEMORY_GROWTH=0 -s ERROR_ON_UNDEFINED_SYMBOLS=0 -o wasm\analytic_renderer.wasm
+</code></pre>
+<h2 id="material-scope">Material Scope</h2><p>Supported now:</p>
+<ul>
+<li>Lambert diffuse receivers with closed-form rectangular direct lighting.</li>
+<li>Optional deterministic sky/floor/wall fill for readability.</li>
+<li>One-bounce ideal mirror reflection in the mirror scene.</li>
+<li>Thin-film reflective material with an angle-dependent wavelength phase term.</li>
+<li>Exact sphere, capped cylinder, and capped cone intersections in the
+GPU/WASM/JS renderers.</li>
+<li>Mesh lights as a small finite set of rectangular emitter faces. Direct diffuse
+lighting is the sum of the same closed-form quad integral over each face.</li>
+<li>Oriented quad emitters, including vertical wall panels.</li>
+<li>A compact, GPU-only <code>Analytical garage</code> kernel with fitted GGX Linearly
+Transformed Cosine shading for polygon lights. It bilinearly reads the
+published 64 x 64 matrix and amplitude tables, transforms each light polygon,
+and evaluates its boundary without runtime light samples. The mathematical LTC
+family permits exact integration, but this kernel uses a rational edge
+approximation and a clipped-sphere horizon approximation. The other
+scenes retain the earlier deterministic LTC-style glossy approximation.</li>
+<li>Exact entry and exit refraction for sphere glass in the garage kernel,
+including dielectric Fresnel, Beer-Lambert absorption, and deterministic RGB
+dispersion. Other glass paths remain single-interface approximations, and
+rough transmission is not yet a full microfacet BTDF.</li>
+<li>Retained experimental GPU visibility code (archived from the hero): one thin rectangle
+parallel and axis-aligned to a rectangular emitter is perspective-projected into the emitter
+plane, intersected with the emitter rectangle, and subtracted as another
+spherical-polygon boundary integral. Arbitrarily oriented, curved, and
+overlapping blockers are not handled yet.</li>
+<li>Shader-side 1/2/4 sample antialiasing on WebGPU.</li>
+<li>Procedural wave/cellular/scratch/panel/FBM/tile/flake normal and albedo
+fields with a small shading-only displacement offset. Recent material scenes
+keep floor normals crisp and shallow, with displacement disabled, while
+thin-film and car-paint objects use procedural normals/masks to drive
+iridescent phase and surface variation. The current garage uses a continuous
+three-dimensional procedural normal field, a mask-blended pair of full BSDF
+responses, and an independent dielectric coat over the attenuated base.</li>
+<li>Exact oriented box, oriented cylinder, hemisphere, and capsule intersections,
+plus SDF-style torus intersections. The torus path is a numerical
+signed-distance march, not a closed-form quartic solve.</li>
+<li>Rapier-driven rigid-body scenes. The physics simulation is numerical and
+external to the analytical lighting kernel; the renderer consumes the body
+transforms each frame. Rolling cylinders now render with their physics
+orientation instead of staying visually upright.</li>
+</ul>
+<p>Good next analytical targets:</p>
+<ul>
+<li>fitted anisotropic GGX tables instead of the older tangent-aligned heuristic
+extension of the isotropic fit (the current garage defaults to isotropic);</li>
+<li>exact transmission for boxes and other closed primitives;</li>
+<li>unions and overlap handling for several analytical blocker silhouettes;</li>
+<li>normal-map texture input in addition to procedural normals;</li>
+<li>true geometric displacement/parallax with secondary visibility;</li>
+<li>oriented cylinder/cone rendering from physics rotations;</li>
+<li>richer multiple-scattering layered models beyond the current two-lobe
+dielectric-over-base approximation.</li>
+</ul>
+<h2 id="boundaries">Boundaries</h2><p>The core comparison is direct lighting only. The optional bounce fill is a
+deterministic visual aid, not a closed-form global illumination solve. One
+parallel planar rectangular blocker has a retained, currently dormant analytical
+visibility path in the garage kernel; arbitrary blockers, interreflection, participating media, and
+caustics are not solved in closed form. Fitted LTC itself is a deterministic
+approximation to GGX, and the torus still uses numerical SDF marching. Those are
+where a practical analytical renderer becomes a hybrid: closed forms and
+differentiable equations where they fit, numerical root solves or quadrature
+where they are stable, and Monte Carlo only where the scene stops being tame.</p>
+<h2 id="focused-checks">Focused checks</h2><p>Run <code>node --test tests/*.test.cjs</code>, <code>node --check app.js</code> and
+<code>node --check ltc-inspector.js</code>.
+The tests cover rotated-emitter Monte Carlo sidedness, all seventeen scene routes,
+control identity, viewport aspect and allocation bounds, and labels following the
+actual producer during a GPU fallback. Shader execution and appearance additionally
+need a browser with native WebGPU; these checks do not substitute for that review.</p>
+<p>The inspection tests additionally cover half-float decoding, texel-center bilinear
+lookup, the WGSL column-major matrix convention, finite published-table outputs,
+control sensitivity, rejected emitter backsides, final paused edits and actual
+material-parameter packing. The garage work estimate counts light samples or
+edge sets <strong>per lobe</strong>, allowing for split allocation and lens rays, before
+surface misses and material-dependent lobe counts; it is not a measured GPU
+instruction count.</p>
+<h2 id="third-party-data">Third-Party Data</h2><p><code>ltc-data.js</code> contains half-float encodings of the GGX LTC lookup tables published
+in the three.js <code>RectAreaLightTexturesLib</code>, derived from Eric Heitz&#39;s reference
+<code>ltc_code</code>. Both sources are MIT licensed; see <code>THIRD_PARTY_NOTICES.md</code>.</p>
+</article><footer class="technical-footer"><div class="technical-actions"><a href="../index.html">← Analytical Render · LTC brochure</a><a href="../../../live_demos/analytical-render/index.html">Open interactive study ↗</a></div></footer></main></body></html>

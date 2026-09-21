@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head><style id="portfolio-early-paint">html{background:#0b0d0c;color-scheme:dark}html.portfolio-booting body{opacity:0}</style><script src="../../portfolio-navigation.js"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Clique Proofs &mdash; Curated</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Space+Grotesk:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="portfolio.css">
+<link rel="stylesheet" href="../../portfolio-controls.css"><link rel="stylesheet" href="../../portfolio-demo-return.css"><script defer src="../../portfolio-demo-return.js" data-project="clique-proofs" data-title="Clique Proofs" data-overview="projects/clique-proofs/overview.html" data-group="mathematics" data-thumbnail="media/previews/clique-proofs/native-compactness-clique-proof-bridge.png" data-routes="[{&quot;project&quot;:&quot;clique-proofs&quot;,&quot;title&quot;:&quot;Clique Proofs&quot;,&quot;group&quot;:&quot;mathematics&quot;,&quot;thumbnail&quot;:&quot;media/previews/clique-proofs/native-compactness-clique-proof-bridge.png&quot;,&quot;overview&quot;:&quot;projects/clique-proofs/overview.html&quot;,&quot;path&quot;:&quot;live_demos/clique-proofs/curated.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:2},{&quot;project&quot;:&quot;clique-proofs&quot;,&quot;title&quot;:&quot;Clique Proofs&quot;,&quot;group&quot;:&quot;mathematics&quot;,&quot;thumbnail&quot;:&quot;media/previews/clique-proofs/native-compactness-clique-proof-bridge.png&quot;,&quot;overview&quot;:&quot;projects/clique-proofs/overview.html&quot;,&quot;path&quot;:&quot;live_demos/clique-proofs/curated.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:1},{&quot;project&quot;:&quot;clique-proofs&quot;,&quot;title&quot;:&quot;Clique Proofs&quot;,&quot;group&quot;:&quot;mathematics&quot;,&quot;thumbnail&quot;:&quot;media/previews/clique-proofs/native-compactness-clique-proof-bridge.png&quot;,&quot;overview&quot;:&quot;projects/clique-proofs/overview.html&quot;,&quot;path&quot;:&quot;live_demos/clique-proofs/index.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:1},{&quot;project&quot;:&quot;clique-proofs&quot;,&quot;title&quot;:&quot;Clique Proofs&quot;,&quot;group&quot;:&quot;mathematics&quot;,&quot;thumbnail&quot;:&quot;media/previews/clique-proofs/native-compactness-clique-proof-bridge.png&quot;,&quot;overview&quot;:&quot;projects/clique-proofs/overview.html&quot;,&quot;path&quot;:&quot;live_demos/clique-proofs/&quot;,&quot;query&quot;:{},&quot;priority&quot;:-1}]"></script><!-- universal-navigation:start --><link rel="stylesheet" href="../../portfolio-location.css?v=054b6b462c"><script defer src="../../portfolio-location.js?v=054b6b462c"></script><script defer src="../../portfolio-routes.js?v=054b6b462c"></script><script defer src="../../portfolio-universal-navigation.js?v=054b6b462c"></script><!-- universal-navigation:end --><style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head>
+  <body class="portfolio-clique-proofs">
+  <div class="portfolio-return" data-theme="dark" role="navigation" aria-label="Portfolio"><a class="portfolio-return-link" href="../../projects/clique-proofs/index.html" target="_top"><span aria-hidden="true">←</span> Project overview</a></div>
+    <div class="page-shell">
+      <header class="hero" id="top">
+        <canvas id="heroMesh" class="hero-mesh" aria-hidden="true"></canvas>
+
+        <nav class="topbar" aria-label="Main navigation">
+          <a class="brand" href="#top">Clique Proofs</a>
+          <details class="proof-index"><summary>Browse this edition</summary>
+          <div class="topbar-links">
+            <span class="nav-group">
+              <span class="nav-group-label">Proof webs</span>
+              <a href="#compactness">Compactness</a>
+              <a href="#mst">MST</a>
+              <a href="#operators">Fourier</a>
+              <a href="#trig-complex">Trig &amp; Complex</a>
+              <a href="#fractals">Fractals</a>
+              <a href="#noise">Noise</a>
+              <a href="#spectral">Spectral</a>
+              <a href="#gauss-bonnet">Curvature</a>
+              <a href="#ac-equivalents">Choice</a>
+              <a href="#induction">Induction</a>
+              <a href="#complexity">Complexity</a>
+              <a href="#galois">Galois</a>
+              <a href="#group-theory">Groups</a>
+              <a href="#measure-theory">Measure</a>
+            </span>
+            <span class="nav-group">
+              <span class="nav-group-label">Ladders</span>
+              <a href="#convergence">Convergence</a>
+              <a href="#integrals">Integrals</a>
+              <a href="#axioms">Axioms</a>
+            </span>
+            <span class="nav-group">
+              <span class="nav-group-label">Catalogs</span>
+              <a href="#counterexamples">Counterexamples</a>
+            </span>
+            <span class="nav-group">
+              <span class="nav-group-label">More</span>
+              <a href="index.html">Full archive</a>
+              <a href="https://github.com/bibun-kanou/Clique_proof/blob/main/GUIDE.md" target="_blank" rel="noreferrer">Guide</a>
+            </span>
+          </div>
+          </details>
+        </nav>
+
+        <div class="hero-copy">
+          <p class="eyebrow">Direct proofs · equivalent viewpoints · honest boundaries</p>
+          <h1>One idea. Many ways to prove it.</h1>
+          <p class="lede">
+            A textbook can establish equivalence with a short chain. Here the
+            ambition is to fill the direct proof edges: approach the same result
+            from different definitions and discover what each argument makes
+            visible. Choose a statement, follow an edge, and compare its proof
+            with an indirect route through the same cluster.
+          </p>
+          <nav class="proof-starts" aria-label="Suggested first explorations">
+            <a href="#compactness"><strong>Start with compactness</strong><span>One property, different witnesses</span></a>
+            <a href="#mst"><strong>Try an algorithmic proof</strong><span>Cuts, cycles and exchange</span></a>
+            <a href="#operators"><strong>Connect to graphics</strong><span>Spatial and frequency viewpoints</span></a>
+          </nav>
+          <p class="hero-guide">
+            <a href="index.html">Full archive &rarr;</a>
+            <span aria-hidden="true"> · </span><a href="https://github.com/bibun-kanou/Clique_proof/blob/main/GUIDE.md" target="_blank" rel="noreferrer">Reading guide &rarr;</a>
+          </p>
+
+
+        </div>
+
+        <aside class="hero-panel">
+          <p class="panel-kicker">Why draw the extra edge?</p>
+          <h2>The same conclusion, another reason.</h2>
+          <svg class="proof-route-sketch" viewBox="0 0 350 160" role="img" aria-labelledby="proofRouteTitle">
+            <title id="proofRouteTitle">Schematic: A reaches C through B, or by a separate direct argument.</title>
+            <defs><marker id="proofRouteArrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="currentColor"/></marker></defs>
+            <g class="route-via" fill="none" marker-end="url(#proofRouteArrow)"><path d="M67 65 Q112 16 154 38"/><path d="M196 38 Q244 15 282 65"/></g>
+            <path class="route-direct" d="M65 87 C112 151 239 151 285 87" fill="none" marker-end="url(#proofRouteArrow)"/>
+            <g class="route-statements"><circle cx="50" cy="76" r="22"/><circle cx="175" cy="33" r="22"/><circle cx="302" cy="76" r="22"/></g>
+            <g class="route-letters"><text x="50" y="82">A</text><text x="175" y="39">B</text><text x="302" y="82">C</text></g>
+            <text class="route-caption" x="175" y="88">via B</text><text class="route-caption" x="175" y="157">a direct argument</text>
+          </svg>
+          <p class="tiny-note">
+            A → B → C establishes A → C. A direct proof can reveal a different
+            construction, invariant or certificate. Read the assumptions on each
+            edge: equivalences, one-way implications and open questions have
+            different meanings. A dense drawing alone is not a proof.
+          </p>
+          <p class="tiny-note">The focused edition selects 18 proof clusters, ladders and counterexample collections. Open the full archive for the wider roadmaps and catalogs.</p>
+        </aside>
+
+      </header>
+
+      <main>
+<section class="section compactness-section" id="compactness">
+          <div class="section-heading">
+            <p class="eyebrow">Compactness lab</p>
+            <h2>The compactness equivalence web</h2>
+            <p>
+              Compactness has several faces: covers, closed-set intersections,
+              nets, filters, sequences, total boundedness, completion, and the
+              Euclidean closed-and-bounded theorem. The graph separates true
+              equivalences from nearby compactness-like properties, so the proof
+              routes show both the shortcuts and the traps.
+            </p>
+          </div>
+
+          <div class="compactness-workspace">
+            <div class="compactness-controls">
+              <div class="filter-block">
+                <span>World</span>
+                <div class="filter-group" id="compactWorldFilters"></div>
+              </div>
+              <article class="compactness-note" id="compactWorldNote"></article>
+            </div>
+
+            <div class="compactness-layout">
+              <div class="compact-graph-panel">
+                <div class="compact-graph" id="compactGraph" aria-label="Complete graph of compactness definitions"></div>
+                <div class="compact-edge-list" id="compactBridgeList" aria-label="Compactness proof bridges"></div>
+              </div>
+              <article class="compact-detail" id="compactDetail" aria-live="polite"></article>
+            </div>
+          </div>
+        </section>
+
+<section class="section mst-section" id="mst">
+          <div class="section-heading">
+            <p class="eyebrow">Greedy proof lab</p>
+            <h2>Minimum spanning tree proof web</h2>
+            <p>
+              MST theory is a compact little universe: slice/cut and
+              cycle/circle properties, exchange arguments, Prim and Kruskal
+              invariants, minimax paths, threshold connectivity, lexicographic
+              bottleneck optimality, matroid greedy, and nearby statements that
+              look similar but are weaker or stronger. This panel treats those
+              statements as proof faces and lets the bridges form a clique where
+              that is valid.
+            </p>
+          </div>
+
+          <div class="mst-workspace">
+            <div class="mst-controls">
+              <div class="filter-block">
+                <span>World</span>
+                <div class="filter-group" id="mstWorldFilters"></div>
+              </div>
+              <article class="mst-note" id="mstWorldNote"></article>
+            </div>
+
+            <div class="mst-layout">
+              <div class="mst-graph-panel">
+                <div class="mst-graph" id="mstGraph" aria-label="MST proof graph"></div>
+                <div class="mst-edge-list" id="mstBridgeList" aria-label="MST proof bridges"></div>
+              </div>
+              <article class="mst-detail" id="mstDetail" aria-live="polite"></article>
+            </div>
+          </div>
+        </section>
+
+<section class="section operator-section" id="operators">
+          <div class="section-heading">
+            <p class="eyebrow">Fourier proof lab</p>
+            <h2>Spatial and frequency operator zoo</h2>
+            <p>
+              Convolution, multiplication, differentiation, Laplacians, Green
+              functions, heat flow, deconvolution, sampling, and windowing form
+              a beautiful dictionary. The panel shows which identities are true
+              dualities, which are recipe routes, and which are warnings about
+              instability or discretization.
+            </p>
+          </div>
+
+          <div class="operator-workspace">
+            <div class="operator-controls">
+              <div class="filter-block">
+                <span>World</span>
+                <div class="filter-group" id="operatorWorldFilters"></div>
+              </div>
+              <article class="operator-note" id="operatorWorldNote"></article>
+            </div>
+
+            <div class="operator-layout">
+              <div class="operator-graph-panel">
+                <div class="operator-graph" id="operatorGraph" aria-label="Fourier operator proof graph"></div>
+                <div class="operator-edge-list" id="operatorBridgeList" aria-label="Fourier operator proof bridges"></div>
+              </div>
+              <article class="operator-detail" id="operatorDetail" aria-live="polite"></article>
+            </div>
+          </div>
+        </section>
+
+<section class="section trig-section" id="trig-complex">
+          <div class="section-heading">
+            <p class="eyebrow">Trig identity lab</p>
+            <h2>Trigonometry, complex numbers, and hyperbolic functions</h2>
+            <p>
+              The same small engine appears as circle geometry, complex multiplication,
+              power series, rotation matrices, and hyperbolic motion. This zoo
+              keeps the definitions, proof routes, and caveats visible at once:
+              Euler formula, cis, angle addition, De Moivre, sinh/cosh, boosts,
+              analytic continuation, and the branch-cut warning for logarithms.
+            </p>
+          </div>
+
+          <div class="trig-workspace">
+            <article class="trig-note" id="trigNote"></article>
+            <div class="trig-layout">
+              <div class="trig-graph-panel">
+                <div class="trig-map" id="trigMap" aria-label="Trig, complex, and hyperbolic identity graph"></div>
+                <div class="trig-bridge-list" id="trigBridgeList" aria-label="Trig identity proof bridges"></div>
+              </div>
+              <article class="trig-detail" id="trigDetail" aria-live="polite"></article>
+            </div>
+          </div>
+        </section>
+
+<section class="section fractal-section" id="fractals">
+          <div class="section-heading">
+            <p class="eyebrow">Fractal geometry lab</p>
+            <h2>Dimension definitions and examples</h2>
+            <p>
+              Fractal geometry has its own compact zoo of dimensions: Hausdorff,
+              box/Minkowski, packing, Assouad, similarity, Rényi, correlation,
+              information, spectral, walk, and multifractal viewpoints. This
+              panel separates equalities that need self-similar hypotheses from
+              inequalities, examples, and warnings where two dimension ideas are
+              answering different questions.
+            </p>
+          </div>
+
+          <div class="fractal-workspace">
+            <div class="fractal-controls">
+              <div class="filter-block">
+                <span>World</span>
+                <div class="filter-group" id="fractalWorldFilters"></div>
+              </div>
+              <article class="fractal-note" id="fractalWorldNote"></article>
+            </div>
+
+            <div class="fractal-layout">
+              <div class="fractal-graph-panel">
+                <div class="fractal-graph" id="fractalGraph" aria-label="Fractal dimension proof graph"></div>
+                <div class="fractal-edge-list" id="fractalBridgeList" aria-label="Fractal dimension proof bridges"></div>
+              </div>
+              <article class="fractal-detail" id="fractalDetail" aria-live="polite"></article>
+            </div>
+          </div>
+        </section>
+
+<section class="section noise-section" id="noise">
+          <div class="section-heading">
+            <p class="eyebrow">Noise and roughness lab</p>
+            <h2>fBM, spectra, and procedural noise</h2>
+            <p>
+              Noise is a bridge between probability, Fourier analysis, fractal
+              geometry, and graphics. This zoo separates stochastic processes
+              such as Brownian motion and fractional Brownian motion from
+              colored-noise spectra such as red and blue noise, plus procedural
+              recipes such as value, Perlin, simplex, octave, turbulence, and
+              ridged noise.
+            </p>
+          </div>
+
+          <div class="noise-workspace">
+            <div class="noise-controls">
+              <div class="filter-block">
+                <span>World</span>
+                <div class="filter-group" id="noiseWorldFilters"></div>
+              </div>
+              <article class="noise-note" id="noiseWorldNote"></article>
+            </div>
+
+            <div class="noise-layout">
+              <div class="noise-graph-panel">
+                <div class="noise-graph" id="noiseGraph" aria-label="Noise and fBM proof graph"></div>
+                <div class="noise-edge-list" id="noiseBridgeList" aria-label="Noise and fBM bridges"></div>
+              </div>
+              <article class="noise-detail" id="noiseDetail" aria-live="polite"></article>
+            </div>
+          </div>
+        </section>
+
+<section class="section zoo-section" id="spectral" data-zoo="spectral">
+          <div class="section-heading">
+            <p class="eyebrow">Spectral lab</p>
+            <h2>Spectral &amp; eigendecomposition</h2>
+            <p>A matrix's spectrum is described by a web of definitions and theorems that prove one another — but only some links run both ways. Here we separate genuine equivalences from one-way implications, scope facts, and tempting false friends.</p>
+          </div>
+          <div class="zoo-workspace">
+            <article class="zoo-note" id="spectralNote"></article>
+            <div class="zoo-layout">
+              <div class="zoo-graph-panel">
+                <div class="zoo-map" id="spectralMap" aria-label="Spectral &amp; eigendecomposition graph"></div>
+                <div class="zoo-bridge-list" id="spectralBridgeList" aria-label="Spectral &amp; eigendecomposition bridges"></div>
+              </div>
+              <article class="zoo-detail" id="spectralDetail" aria-live="polite"></article>
+            </div>
+          </div>
+        </section>
+
+<section class="section zoo-section" id="gauss-bonnet" data-zoo="gauss-bonnet">
+          <div class="section-heading">
+            <p class="eyebrow">Curvature lab</p>
+            <h2>Curvature &amp; Gauss-Bonnet</h2>
+            <p>The curvature cluster: how the two fundamental forms generate every local curvature notion, why Gauss's curvature is secretly intrinsic, and how local turning sums to a global topological invariant. Watch which links are genuine equivalences and which only run one way.</p>
+          </div>
+          <div class="zoo-workspace">
+            <article class="zoo-note" id="gauss-bonnetNote"></article>
+            <div class="zoo-layout">
+              <div class="zoo-graph-panel">
+                <div class="zoo-map" id="gauss-bonnetMap" aria-label="Curvature &amp; Gauss-Bonnet graph"></div>
+                <div class="zoo-bridge-list" id="gauss-bonnetBridgeList" aria-label="Curvature &amp; Gauss-Bonnet bridges"></div>
+              </div>
+              <article class="zoo-detail" id="gauss-bonnetDetail" aria-live="polite"></article>
+            </div>
+          </div>
+        </section>
+
+<section class="section zoo-section" id="ac-equivalents" data-zoo="ac-equivalents">
+          <div class="section-heading">
+            <p class="eyebrow">Choice lab</p>
+            <h2>The Axiom of Choice and its equivalents</h2>
+            <p>Over ZF, a surprising web of theorems from across mathematics all turn out to be the same statement in disguise. The point of this zoo is to separate the genuine full-strength equivalents from the strictly weaker fragments that merely follow from Choice.</p>
+          </div>
+          <div class="zoo-workspace">
+            <article class="zoo-note" id="ac-equivalentsNote"></article>
+            <div class="zoo-layout">
+              <div class="zoo-graph-panel">
+                <div class="zoo-map" id="ac-equivalentsMap" aria-label="The Axiom of Choice and its equivalents graph"></div>
+                <div class="zoo-bridge-list" id="ac-equivalentsBridgeList" aria-label="The Axiom of Choice and its equivalents bridges"></div>
+              </div>
+              <article class="zoo-detail" id="ac-equivalentsDetail" aria-live="polite"></article>
+            </div>
+          </div>
+        </section>
+
+<section class="section zoo-section" id="induction" data-zoo="induction">
+          <div class="section-heading">
+            <p class="eyebrow">Choice lab</p>
+            <h2>Induction principles</h2>
+            <p>A cluster of induction schemes that look different but mostly prove the same thing. Over the Peano axioms, weak, strong, and well-ordering on ℕ are the same principle in three costumes; the rest are either special cases of well-founded induction or its generalization to well-ordered domains.</p>
+          </div>
+          <div class="zoo-workspace">
+            <article class="zoo-note" id="inductionNote"></article>
+            <div class="zoo-layout">
+              <div class="zoo-graph-panel">
+                <div class="zoo-map" id="inductionMap" aria-label="Induction principles graph"></div>
+                <div class="zoo-bridge-list" id="inductionBridgeList" aria-label="Induction principles bridges"></div>
+              </div>
+              <article class="zoo-detail" id="inductionDetail" aria-live="polite"></article>
+            </div>
+          </div>
+        </section>
+
+<section class="section zoo-section" id="complexity" data-zoo="complexity">
+          <div class="section-heading">
+            <p class="eyebrow">Choice lab</p>
+            <h2>The complexity class zoo</h2>
+            <p>Most class relations are proven one-way inclusions; only a handful are true equivalences, and the most famous questions remain stubbornly open. The art is telling these apart.</p>
+          </div>
+          <div class="zoo-workspace">
+            <article class="zoo-note" id="complexityNote"></article>
+            <div class="zoo-layout">
+              <div class="zoo-graph-panel">
+                <div class="zoo-map" id="complexityMap" aria-label="The complexity class zoo graph"></div>
+                <div class="zoo-bridge-list" id="complexityBridgeList" aria-label="The complexity class zoo bridges"></div>
+              </div>
+              <article class="zoo-detail" id="complexityDetail" aria-live="polite"></article>
+            </div>
+          </div>
+        </section>
+
+<section class="section zoo-section" id="galois" data-zoo="galois">
+          <div class="section-heading">
+            <p class="eyebrow">Field theory · Galois theory</p>
+            <h2>The Galois Correspondence</h2>
+            <p>A cluster of definitions and theorems where equivalent characterizations prove one another. The keystone is the Fundamental Theorem of Galois Theory: for a finite normal-and-separable extension, subgroups of the Galois group correspond, inclusion-reversingly, to intermediate fields. Around it sit the genuine equivalences (Galois ⇔ normal+separable; solvable-by-radicals ⇔ solvable group; constructible ⇔ tower of quadratics), the one-way consequences (finite fields ⇒ cyclic Galois group), and the false friends (degree a power of 2 is necessary, not sufficient, for constructibility).</p>
+          </div>
+          <div class="zoo-workspace">
+            <article class="zoo-note" id="galoisNote"></article>
+            <div class="zoo-layout">
+              <div class="zoo-graph-panel">
+                <div class="zoo-map" id="galoisMap" aria-label="The Galois Correspondence graph"></div>
+                <div class="zoo-bridge-list" id="galoisBridgeList" aria-label="The Galois Correspondence bridges"></div>
+              </div>
+              <article class="zoo-detail" id="galoisDetail" aria-live="polite"></article>
+            </div>
+          </div>
+        </section>
+
+<section class="section zoo-section" id="group-theory" data-zoo="group-theory">
+          <div class="section-heading">
+            <p class="eyebrow">Abstract algebra</p>
+            <h2>Group theory core</h2>
+            <p>The objects, maps, and counting theorems that organize symmetry. The spine is normality: a subgroup is normal exactly when it is a kernel, exactly when the quotient is a group — three faces of one idea. Around it sit the structural theorems (Lagrange, Sylow, Cayley, orbit-stabilizer) and the special classes (cyclic, abelian, simple). Watch the classic false friends: Lagrange has no converse, and normality is not transitive.</p>
+          </div>
+          <div class="zoo-workspace">
+            <article class="zoo-note" id="group-theoryNote"></article>
+            <div class="zoo-layout">
+              <div class="zoo-graph-panel">
+                <div class="zoo-map" id="group-theoryMap" aria-label="Group theory core graph"></div>
+                <div class="zoo-bridge-list" id="group-theoryBridgeList" aria-label="Group theory core bridges"></div>
+              </div>
+              <article class="zoo-detail" id="group-theoryDetail" aria-live="polite"></article>
+            </div>
+          </div>
+        </section>
+
+<section class="section zoo-section" id="measure-theory" data-zoo="measure-theory">
+          <div class="section-heading">
+            <p class="eyebrow">Measure theory</p>
+            <h2>Measure-theory foundations</h2>
+            <p>The scaffolding of integration: which sets you can measure (sigma-algebras, Borel, Lebesgue), how you assign size (measures, outer measures, the Caratheodory extension), which functions you can integrate (measurable functions, almost everywhere), and the structural theorems (Radon-Nikodym, Fubini-Tonelli). True equivalences are separated from one-way consequences, conditional scope (sigma-finiteness, completeness), and false friends (Borel vs Lebesgue, a.e.-equal vs equal).</p>
+          </div>
+          <div class="zoo-workspace">
+            <article class="zoo-note" id="measure-theoryNote"></article>
+            <div class="zoo-layout">
+              <div class="zoo-graph-panel">
+                <div class="zoo-map" id="measure-theoryMap" aria-label="Measure-theory foundations graph"></div>
+                <div class="zoo-bridge-list" id="measure-theoryBridgeList" aria-label="Measure-theory foundations bridges"></div>
+              </div>
+              <article class="zoo-detail" id="measure-theoryDetail" aria-live="polite"></article>
+            </div>
+          </div>
+        </section>
+
+<section class="section zoo-section" id="convergence" data-zoo="convergence">
+          <div class="section-heading">
+            <p class="eyebrow">Convergence lab</p>
+            <h2>Modes of convergence</h2>
+            <p>A sequence of functions (or random variables) can converge in many inequivalent senses. The web below sorts strict one-way implications from the conditional bridges (finite measure, subsequences, uniform integrability) and the famous counterexamples that keep the arrows from reversing.</p>
+          </div>
+          <div class="zoo-workspace">
+            <article class="zoo-note" id="convergenceNote"></article>
+            <div class="zoo-layout">
+              <div class="zoo-graph-panel">
+                <div class="zoo-map" id="convergenceMap" aria-label="Modes of convergence graph"></div>
+                <div class="zoo-bridge-list" id="convergenceBridgeList" aria-label="Modes of convergence bridges"></div>
+              </div>
+              <article class="zoo-detail" id="convergenceDetail" aria-live="polite"></article>
+            </div>
+          </div>
+        </section>
+
+<section class="section integral-section" id="integrals">
+          <div class="section-heading">
+            <p class="eyebrow">Integral zoo</p>
+            <h2>Which functions become integrable?</h2>
+            <p>
+              Integral definitions form a small hierarchy of scopes: bounded
+              interval sums, measure-theoretic integration, improper limits,
+              Stieltjes weights, gauge refinements, and weak testing against
+              smooth probes. The key question is not just “what is the value?”
+              but “which functions are admitted, and under which hypotheses?”
+            </p>
+          </div>
+
+          <div class="integral-workspace">
+            <article class="integral-note" id="integralNote"></article>
+            <div class="integral-layout">
+              <div class="integral-graph-panel">
+                <div class="integral-map" id="integralMap" aria-label="Integral definition and integrability map"></div>
+                <div class="integral-edge-list" id="integralBridgeList" aria-label="Integral comparison bridges"></div>
+              </div>
+              <article class="integral-detail" id="integralDetail" aria-live="polite"></article>
+            </div>
+          </div>
+        </section>
+
+<section class="section" id="axioms">
+          <div class="section-heading">
+            <p class="eyebrow">Separation ladder</p>
+            <h2>From T0 to the full separation taxonomy</h2>
+            <p>
+              This expanded module follows the named axioms on Wikipedia&apos;s
+              separation-axiom page: the main definitions, the summary-table
+              additions, and the &ldquo;other separation axioms&rdquo; section.
+              Switch between the connection map and focused axiom families,
+              then pick any axiom to see the witness condition appear on an
+              interactive diagram.
+            </p>
+          </div>
+
+          <div class="axiom-workspace">
+            <div class="axiom-toolbar">
+              <div class="filter-block">
+                <span>View</span>
+                <div class="filter-group" id="axiomFamilyFilters"></div>
+              </div>
+              <div class="axiom-legend" id="axiomLegend"></div>
+            </div>
+
+            <div class="axiom-layout">
+              <div class="axiom-map" id="axiomMap" aria-label="Separation axiom map"></div>
+              <article class="axiom-detail" id="axiomDetail"></article>
+            </div>
+          </div>
+        </section>
+
+<section class="section counterexample-section" id="counterexamples">
+          <div class="section-heading">
+            <p class="eyebrow">Counterexample lab</p>
+            <h2>Spaces that separate similar definitions</h2>
+            <p>
+              Inspired by Steen and Seebach&apos;s <em>Counterexamples in
+              Topology</em> and modern searchable counterexample databases, this
+              panel collects small spaces whose job is to say exactly where a
+              tempting implication breaks.
+            </p>
+          </div>
+
+          <div class="counterexample-layout">
+            <div class="counterexample-list" id="counterexampleList" aria-label="Counterexample topology spaces"></div>
+            <article class="counterexample-detail" id="counterexampleDetail" aria-live="polite"></article>
+          </div>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <p>
+          The curated edition. Every dropped section is still in the
+          <a href="index.html">full archive</a> &mdash; nothing was deleted.
+        </p>
+      </footer>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>

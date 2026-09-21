@@ -1,0 +1,132 @@
+<!doctype html><html lang="en"><head><style data-portfolio-paint>html{background:#0b0d0c;color-scheme:dark}html.portfolio-booting body{opacity:0}</style><script src="../../../portfolio-navigation.js?v=688f1905bc"></script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Collision, track length &amp; ratio tracking — RadianceLab</title><meta name="description" content="Three estimators of related medium integrals: what is sampled and which exponential factors cancel."><meta name="color-scheme" content="dark"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="../../../portfolio.css?v=b7ed8602e5"><link rel="stylesheet" href="../../../portfolio-effects.css?v=62be30dafa"><link rel="stylesheet" href="../../../portfolio-atmospheres.css?v=4b74c57939"><link rel="stylesheet" href="../../../portfolio-motion.css?v=4b098d8184"><link rel="stylesheet" href="../../../portfolio-case-studies.css?v=243caf2b0d"><link rel="stylesheet" href="../../../portfolio-brochures.css?v=a1e5e16132"><link rel="stylesheet" href="../../../portfolio-project-themes.css?v=a898c35e78"><link rel="stylesheet" href="../../../portfolio-location.css?v=9c4c1ad84f"><link rel="stylesheet" href="../../../portfolio-controls.css?v=9376de7761"><link rel="stylesheet" href="../../../portfolio-media.css?v=c51f7712ea"><link rel="stylesheet" href="../../../portfolio-overviews.css?v=8612c4ee0a"><link rel="stylesheet" href="../../../portfolio-motivations.css?v=ccc1c1d866"><link rel="stylesheet" href="../../../portfolio-claims.css?v=058dbd00ef"><link rel="stylesheet" href="../../../portfolio-feature-atlas.css?v=e73f02cb31"><script type="application/json" id="media-framing">{"media/brochures/physics-2d/thermal-furnace-magnetic-field-probe.png":{"width":1602,"height":940,"top":39},"media/brochures/physics-2d/magnetic-field-direction-appearance-controls.png":{"width":1602,"height":940,"top":39},"media/brochures/physics-2d/time-bomb-blast-particle-plume.png":{"width":1602,"height":940,"top":39}}</script><script defer src="../../../portfolio-claims.js?v=ed914a4d3a"></script><script defer src="../../../portfolio-visual-defaults.js?v=eecfd5c771"></script><script defer src="../../../portfolio-motion.js?v=a642c710f9"></script><script defer src="../../../portfolio-fire-studies.js?v=7717e15582"></script><script defer src="../../../portfolio-embers.js?v=8a8be5569d"></script><script defer src="../../../portfolio-atmospheres.js?v=021b2f100e"></script><script defer src="../../../portfolio-effects.js?v=03a6c89d6c"></script><script defer src="../../../portfolio-brochures.js?v=055cad29d6"></script><script defer src="../../../portfolio-location.js?v=3846586893"></script><script defer src="../../../portfolio-media.js?v=d2d555a888"></script><script defer src="../../../portfolio-articles.js?v=acb89575ce"></script><script defer src="../../../portfolio-labs.js?v=a0b86a3809"></script><link rel="stylesheet" href="../../../portfolio-technical.css?v=0ecb3a48c7"><script defer src="../../../portfolio-technical.js"></script><!-- universal-navigation:start --><script defer src="../../../portfolio-routes.js?v=054b6b462c"></script><script defer src="../../../portfolio-universal-navigation.js?v=054b6b462c"></script><!-- universal-navigation:end --><style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head><body data-page="technical" data-project-theme="optics" data-project-id="radiance-lab" data-default-atmosphere="caustics"><canvas class="spark-field" aria-hidden="true"></canvas><a class="skip-link" href="#main">Skip to content</a><nav class="site-nav portfolio-route" data-route-group="flagships" aria-label="Portfolio location"><div class="route-path"><a class="route-node route-home" href="../../../index.html#project-radiance-lab" aria-label="Portfolio"><img class="route-mark" src="../../../media/identity/portfolio-mark.svg" alt="" width="52" height="52"><span class="route-copy"><small>Work / ideas</small><strong>Portfolio</strong></span></a><span class="route-wire" aria-hidden="true"><i></i><b></b></span><div class="route-node route-group"><span class="route-glyph" aria-hidden="true">✦</span><span class="route-copy"><small>Collection</small><strong>Flagship</strong></span></div><span class="route-wire" aria-hidden="true"><i></i><b></b></span><a class="route-node route-project" href="../index.html"><span class="route-glyph" hidden aria-hidden="true">◈</span><img class="route-thumb" src="../../../media/previews/radiance-lab/caustic-showcase.png" width="42" height="42" alt=""><span class="route-copy"><small>Project</small><strong>RadianceLab</strong></span></a><span class="route-wire" aria-hidden="true"><i></i><b></b></span><a class="route-node technical-route" href="index.html"><span class="route-copy"><small>Technical reading room</small><strong>Collision, track length &amp; ratio tracking</strong></span></a></div><div class="route-end"><span class="route-meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><a class="route-back" href="../../../index.html#project-radiance-lab">← Back to portfolio</a></div></nav><nav class="section-rail technical-rail" aria-label="Technical document sections"><span class="rail-indicator" aria-hidden="true"></span><a href="#technical-top" data-section="technical-top"><span>⌂</span><span>Start</span></a><a href="#collision-the-extinction-belongs-to-the-sampling-density" data-section="collision-the-extinction-belongs-to-the-sampling-density" title="Collision: the extinction belongs to the sampling density"><small>01</small><span>Collision: the extinction belongs to the sampling density</span></a><a href="#track-length-score-the-surviving-interval" data-section="track-length-score-the-surviving-interval" title="Track length: score the surviving interval"><small>02</small><span>Track length: score the surviving interval</span></a><a href="#ratio-tracking-retain-every-null-event-factor" data-section="ratio-tracking-retain-every-null-event-factor" title="Ratio tracking: retain every null-event factor"><small>03</small><span>Ratio tracking: retain every null-event factor</span></a><a href="#read-the-error-and-cost-together" data-section="read-the-error-and-cost-together" title="Read the error and cost together"><small>04</small><span>Read the error and cost together</span></a><a href="#scene-studies-and-current-renderer-boundaries" data-section="scene-studies-and-current-renderer-boundaries" title="Scene studies and current renderer boundaries"><small>05</small><span>Scene studies and current renderer boundaries</span></a></nav><main id="main" class="project-page technical-page"><header id="technical-top" class="technical-hero"><span class="eyebrow">RadianceLab · Native implementation document</span><h1>Collision, track length &amp; ratio tracking</h1><p>Three estimators of related medium integrals: what is sampled and which exponential factors cancel.</p><div class="technical-actions"><a href="../index.html">← RadianceLab brochure</a><a href="index.html">Technical reading room</a><a href="../validation/index.html">Rendered evidence ↗</a></div></header><aside class="technical-scope"><span>◈</span><p>Implementation notes describe the native application. A working experiment, an approximate preview and a general transport estimator establish different things; each document states its own scope.</p></aside><details class="technical-relations"><summary>Key relationships · typeset equations</summary><figure class="manual-equation typeset-equation"><div class="math-scroll" tabindex="0" role="region" aria-label="Equation"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>I</mi><mo>=</mo><msubsup><mo>∫</mo><mn>0</mn><mi>D</mi></msubsup><mi>q</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo><mi>T</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo><mtext> </mtext><mi mathvariant="normal">d</mi><mi>t</mi><mo separator="true">,</mo><mspace width="2em"/><mi>T</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo><mo>=</mo><mi>exp</mi><mo>⁡</mo><mtext> ⁣</mtext><mrow><mo fence="true">(</mo><mo>−</mo><msubsup><mo>∫</mo><mn>0</mn><mi>t</mi></msubsup><mi>σ</mi><mo stretchy="false">(</mo><mi>s</mi><mo stretchy="false">)</mo><mtext> </mtext><mi mathvariant="normal">d</mi><mi>s</mi><mo fence="true">)</mo></mrow></mrow><annotation encoding="application/x-tex">I=\int_0^D q(t)T(t)\,\mathrm dt,\qquad T(t)=\exp\!\left(-\int_0^t\sigma(s)\,\mathrm ds\right)</annotation></semantics></math></span></div><figcaption>All three experiments target this same finite-segment integral.</figcaption></figure><figure class="manual-equation typeset-equation"><div class="math-scroll" tabindex="0" role="region" aria-label="Equation"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi mathvariant="double-struck">E</mi><mtext> ⁣</mtext><mrow><mo fence="true">[</mo><msubsup><mo>∫</mo><mn>0</mn><mrow><mi>min</mi><mo>⁡</mo><mo stretchy="false">(</mo><mi>τ</mi><mo separator="true">,</mo><mi>D</mi><mo stretchy="false">)</mo></mrow></msubsup><mi>q</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo><mtext> </mtext><mi mathvariant="normal">d</mi><mi>t</mi><mo fence="true">]</mo></mrow><mo>=</mo><msubsup><mo>∫</mo><mn>0</mn><mi>D</mi></msubsup><mi>q</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo><mtext> </mtext><mi>P</mi><mo stretchy="false">(</mo><mi>τ</mi><mo>&gt;</mo><mi>t</mi><mo stretchy="false">)</mo><mtext> </mtext><mi mathvariant="normal">d</mi><mi>t</mi><mo>=</mo><mi>I</mi></mrow><annotation encoding="application/x-tex">\mathbb E\!\left[\int_0^{\min(\tau,D)}q(t)\,\mathrm dt\right]=\int_0^Dq(t)\,P(\tau&gt;t)\,\mathrm dt=I</annotation></semantics></math></span></div><figcaption>Track length scores the surviving interval, including escaped paths.</figcaption></figure><figure class="manual-equation typeset-equation"><div class="math-scroll" tabindex="0" role="region" aria-label="Equation"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>R</mi><mo stretchy="false">(</mo><mi>U</mi><mo stretchy="false">)</mo><mo>=</mo><munder><mo>∏</mo><mi>i</mi></munder><mrow><mo fence="true">(</mo><mn>1</mn><mo>−</mo><mfrac><mrow><mi>σ</mi><mo stretchy="false">(</mo><msub><mi>t</mi><mi>i</mi></msub><mo stretchy="false">)</mo></mrow><mi>M</mi></mfrac><mo fence="true">)</mo></mrow><mo separator="true">,</mo><mspace width="2em"/><mi mathvariant="double-struck">E</mi><mo stretchy="false">[</mo><mi>R</mi><mo stretchy="false">(</mo><mi>U</mi><mo stretchy="false">)</mo><mo>∣</mo><mi>U</mi><mo stretchy="false">]</mo><mo>=</mo><mi>T</mi><mo stretchy="false">(</mo><mi>U</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">R(U)=\prod_i\left(1-\frac{\sigma(t_i)}{M}\right),\qquad\mathbb E[R(U)\mid U]=T(U)</annotation></semantics></math></span></div><figcaption>Ratio tracking uses Poisson candidates under a valid majorant M. The native source describes the outer uniform-distance sample.</figcaption></figure></details><article class="technical-document"><p>Open <strong>View → Optics &amp; primitive laboratory → Volume estimators</strong>. This is a
+native scalar transport experiment. It samples real collision histories and
+running estimates; the plotted dots are the events actually used by the last
+sample. Hidden tabs stop sampling. Pause retains the accumulated state; Reset
+returns to deterministic independent random streams.</p>
+<p>The target on a finite ray segment is</p>
+<pre><code class="language-text">I = integral from 0 to D of q(t) T(t) dt
+T(t) = exp(-integral from 0 to t of sigma(s) ds).
+</code></pre>
+<p><code>q</code> is a nonnegative scalar source, <code>sigma</code> is positive extinction, and <code>D</code> is a
+known boundary. Constant, smooth heterogeneous and layered extinction profiles
+have analytically known optical depths. A separately evaluated, refined Simpson
+quadrature supplies the reference integral. The panel reports its refinement
+delta as well as the Monte Carlo estimates. Spatially varying <code>q</code> prevents an
+otherwise constant-weight example from hiding important terms.</p>
+<h2 id="collision-the-extinction-belongs-to-the-sampling-density">Collision: the extinction belongs to the sampling density</h2><p>Delta tracking samples the first real collision by thinning Poisson candidates
+of rate <code>M &gt;= max sigma</code>. A rejected candidate continues in the <strong>same</strong> medium.
+The real-collision density is <code>p(t) = sigma(t) T(t)</code>, with an escape atom of mass
+<code>T(D)</code>. A collision contributes <code>q(t)/sigma(t)</code>; an escape contributes zero.</p>
+<p>This is the concrete <code>f/p</code> cancellation: <code>T</code> cancels because the sampling law
+contains precisely that same transmittance. The weight is constant only if
+<code>q/sigma</code> is constant. Even then the finite-domain escape event generally leaves
+variance. Multiplying another transmittance after this cancellation changes the
+expected result. Introducing more path coordinates alone supplies no such proof.</p>
+<h2 id="track-length-score-the-surviving-interval">Track length: score the surviving interval</h2><p>Sample the same first-collision law independently, but score</p>
+<pre><code class="language-text">integral from 0 to min(tau,D) of q(t) dt.
+</code></pre>
+<p>The expectation of its indicator is <code>P(tau &gt; t) = T(t)</code>, so interchanging the
+integral and expectation recovers the same <code>I</code>. The lab integrates its source
+profile analytically along the surviving interval. It does not quadrature-sample
+that interval or quietly omit escaped paths. In a thin homogeneous medium this
+often has far less variance than scoring rare collisions; it is not universally
+better in optically thick media.</p>
+<h2 id="ratio-tracking-retain-every-null-event-factor">Ratio tracking: retain every null-event factor</h2><p>Sample <code>U</code> uniformly from <code>[0,D]</code>. Draw Poisson candidates on <code>[0,U]</code>, form</p>
+<pre><code class="language-text">R(U) = product over candidates i of [1 - sigma(t_i)/M],
+score = D q(U) R(U).
+</code></pre>
+<p>The Poisson product identity gives <code>E[R(U) | U] = T(U)</code>. Integrating over <code>U</code>
+again gives <code>I</code>. The factors lie in <code>[0,1]</code> because the supplied majorant bounds
+the entire analytic profile. Raising it changes event cost and variance, not the
+target. There is no biased iteration cap or early product cutoff. This is
+ordinary ratio tracking, not residual-ratio tracking or a general signed-density
+method. The violet staircase depicts the successive product weights.</p>
+<p>For the reference definitions and null-collision context, see
+<a href="https://pbr-book.org/4ed/Volume_Scattering/Transmittance" rel="noopener">PBRT&#39;s transmittance chapter</a>
+and its <a href="https://pbr-book.org/4ed/Light_Transport_II_Volume_Rendering/Further_Reading" rel="noopener">volume-transport references</a>.
+The three scalar expectation arguments above specialize those ideas to the
+explicit target implemented here.</p>
+<h2 id="read-the-error-and-cost-together">Read the error and cost together</h2><p>Each method has an independent random stream and running mean, variance and
+standard error. The displayed <code>1.96 SE</code> is an asymptotic interval scale, not a
+finite-sample guarantee or proof that a renderer is unbiased. Density calls per
+sample and measured CPU sampling time distinguish work from sample count.
+The reference has its own displayed quadrature refinement error.</p>
+<p>Suggested experiments:</p>
+<ul>
+<li>Set homogeneous extinction to 0.07, length 4 and source variation 0. Rare
+collision scores contrast with almost-full surviving track lengths.</li>
+<li>Raise extinction to 1.5. Nearly every ray collides; constant collision scores
+become competitive while track lengths still vary.</li>
+<li>Choose layered fog and source variation 0.8. The changing <code>q/sigma</code> exposes
+why a flat-weight argument cannot simply be transferred to heterogeneity.</li>
+<li>Raise the majorant from 1 to 4 times its required bound. The target stays
+fixed while null-event counts and ratio-product behavior change.</li>
+</ul>
+<p><code>PrismVolumeEstimatorTest</code> compares means with the common quadrature, checks
+homogeneous closed-form mean/variance and escape mass, checks optical depth
+against independent integration, and rejects an invalid majorant. It also tests
+the ratio product at a fixed endpoint. These tests cover this controlled lab,
+not all scene transport.</p>
+<h2 id="scene-studies-and-current-renderer-boundaries">Scene studies and current renderer boundaries</h2><div class="case-table-wrap technical-table" tabindex="0" role="region" aria-label="Technical comparison"><table>
+<thead>
+<tr>
+<th>Scene</th>
+<th>Paired route</th>
+<th>Controlled change</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>103 · Fog chamber / homogeneous baseline</td>
+<td>GPU tracer</td>
+<td>Fixed coloured sources, receiver geometry and base coefficients in homogeneous fog.</td>
+</tr>
+<tr>
+<td>104 · Fog chamber / heterogeneous mist</td>
+<td>GPU tracer</td>
+<td>The same chamber and camera with a frozen NoiseLab field. The spatial density changes; its average optical depth is not claimed equal to 103.</td>
+</tr>
+<tr>
+<td>105 · Emitter size / equal-flux apertures</td>
+<td>PP31</td>
+<td>Tiny, medium and broad quads at equal luminance-weighted emitted flux. Angular profile is the same.</td>
+</tr>
+<tr>
+<td>106 · Emission profile / equal-flux directions</td>
+<td>PP31</td>
+<td>Equal-sized laser-like, cone and diffuse quads, each normalized using its actual cosine-weighted angular integral.</td>
+</tr>
+</tbody></table></div>
+<p>For 105–106 the colours differ, so equal radiance values would not be equal
+luminance-weighted flux. The scene normalizes both source area and the colour&#39;s
+linear RGB luminance. These are useful spatial comparisons, while moving the
+camera or editing one source enables further study. Positions and colours are
+different across the three sources; this is not a variance ranking from an
+isolated single-source ablation. The earlier 80–82 size/profile matrices remain
+available.</p>
+<pre><code class="language-powershell">.\Showcases.ps1 -Scene 103
+.\Showcases.ps1 -Scene 104 -Research
+.\Showcases.ps1 -Scene 105
+.\Showcases.ps1 -Scene 106 -Strategy 13
+</code></pre>
+<p>The 103–104 GPU scenes demonstrate the existing spatial density implementation.
+They do not certify its null-collision weighting: the <a href="support-matrix.html">support audit</a>
+records incomplete candidate continuation, homogeneous shadow attenuation, and
+a volume-NEE density-measure issue. The new lab contains the complete bounded
+scalar tracking loops and provides an independent teaching/test reference; it
+does <strong>not</strong> change those GPU or UPBP call paths. PP31 still requires a common
+homogeneous medium, so the launcher does not pair it with the heterogeneous
+chamber. CPU throughput and GPU capability are separate questions.</p>
+<p>A production transport fix needs the same survival tests within each actual
+backend, plus heterogeneous shadow paths, spectral weighting and matched source
+measures. Full manifold exploration remains a separate, low-priority solver
+project: the existing mode 8 is a specular-aware mutation prototype, not a
+constraint Newton solve.</p>
+</article><footer class="technical-footer"><div class="technical-actions"><a href="../index.html">← RadianceLab brochure</a><a href="index.html">Technical reading room</a><a href="../validation/index.html">Rendered evidence ↗</a></div></footer></main></body></html>

@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#080c12">
+  <meta name="description" content="Six interactive, bounded rendering and connection studies: scattering, pulse timing, aperture, reflection, intersecting planes, and path visibility.">
+  <title>Frontier studies · RadianceLab</title>
+  <link rel="stylesheet" href="style.css?v=subpaths-2">
+  <script src="../../../../portfolio-lab-frame.js"></script>
+  <script type="module" src="app.js?v=subpaths-2"></script>
+<!-- universal-navigation:start --><link rel="stylesheet" href="../../../../portfolio-location.css?v=054b6b462c"><script defer src="../../../../portfolio-location.js?v=054b6b462c"></script><script defer src="../../../../portfolio-routes.js?v=054b6b462c"></script><script defer src="../../../../portfolio-universal-navigation.js?v=054b6b462c"></script><!-- universal-navigation:end --><style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head>
+<body>
+<main>
+  <header class="masthead"><a class="back" href="../index.html">← Photon frontier</a><a href="../../index.html" class="wordmark">RADIANCE<span>LAB</span></a><span class="edition">EXPLORATORY SERIES / 03—08</span></header>
+  <section class="intro"><p class="eyebrow">THE ART OF A DIFFICULT CONNECTION</p><h1>Light finds a way.</h1><p>Six small worlds. Six choices about which constraint to solve. Explore their promising configurations, then watch the assumptions break.</p></section>
+  <nav class="mode-nav" aria-label="Connection study">
+    <button data-mode="relay"><span>03</span>Scattering Relay<i>Guide a useful vertex</i></button>
+    <button data-mode="chronolens"><span>04</span>Chronolens<i>Catch a pulse</i></button>
+    <button data-mode="scheimpflug"><span>05</span>Scheimpflug Fan<i>Follow the focus plane</i></button>
+    <button data-mode="loom"><span>06</span>Caustic Loom<i>Refine a reflection</i></button>
+    <button data-mode="sheets"><span>07</span>Crossed Sheets<i>Leave one dimension</i></button>
+    <button data-mode="atlas"><span>08</span>Path Atlas<i>Pay for distant freedom</i></button>
+  </nav>
+  <section class="specimen" aria-label="Interactive three dimensional rendering">
+    <canvas id="scene" aria-label="False-color rendering of a controlled connection study. The explanation and measured values follow below."></canvas>
+    <div id="path-labels" class="path-labels" aria-hidden="true"></div>
+    <div class="canvas-error" id="canvas-error" hidden></div>
+    <div class="specimen-heading"><span class="live-dot"></span><span id="scene-label">HETEROGENEOUS RELAY</span><small id="render-label">EMISSION–ABSORPTION STUDY</small></div>
+    <div class="scene-controls">
+      <p class="control-eyebrow">CONTROLLED COMPARISON</p>
+      <div class="preset-switch" role="group" aria-label="Scene condition"><button id="success" aria-pressed="true">Promising case</button><button id="failure" aria-pressed="false">Failure case</button></div>
+      <label class="slider-label" for="parameter"><span id="parameter-label">Guidance strength</span><output id="parameter-value">70%</output></label>
+      <input id="parameter" type="range" min="0" max="100" value="70">
+      <p id="control-description" class="control-description"></p>
+      <label class="check"><input id="guides" type="checkbox" checked><span>Show constraint geometry</span></label>
+      <p class="path-persistence">Subpaths always stay visible.</p>
+      <div class="view-controls"><button id="motion" aria-pressed="false">↻ Orbit</button><button id="reset">Reset view</button></div>
+      <div class="export-controls"><button id="prepare-image">Prepare image</button><a id="download-image" hidden download="frontier-study.png">Download PNG ↓</a></div>
+      <p class="gesture">Drag to turn · scroll to approach</p>
+    </div>
+    <div class="scene-caption"><p class="scene-number" id="scene-number">STUDY 03</p><h2 id="scene-title">Scattering Relay</h2><p id="scene-description"></p></div>
+    <div class="scale-note"><span></span>FALSE COLOR · FINITE RESOLUTION</div>
+  </section>
+  <section class="path-reading" aria-label="Subpath ownership and construction">
+    <div class="path-key" id="path-key"></div>
+    <p class="path-setup" id="path-setup"></p>
+    <p class="path-note" id="path-note"></p>
+  </section>
+  <div class="readouts" id="readouts" aria-live="polite"></div>
+  <section class="interpretation"><div><p class="eyebrow">WHAT YOU ARE SEEING</p><h3 id="explanation-title"></h3><p id="explanation"></p><code id="equation"></code></div><div class="scope"><p class="eyebrow">COMPUTATIONAL SCOPE</p><p><strong>Computed here</strong><span id="computed"></span></p><p><strong>Still missing</strong><span id="missing"></span></p><a id="source-link" href="../index.html">Research context ↗</a></div></section>
+  <footer><span>RadianceLab / a small atlas of useful constraints</span><p>Independent browser illustrations. These are biased rendering studies and constraint diagnostics, not complete photon-transport estimators or evidence of universal performance gains.</p><a href="../index.html">Return to the measured frontier →</a></footer>
+</main>
+</body>
+</html>

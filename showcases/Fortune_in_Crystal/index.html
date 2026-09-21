@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
-<head>
+<head><style id="portfolio-early-paint">html{background:#0b0d0c;color-scheme:dark}html.portfolio-booting body{opacity:0}</style><script src="../../portfolio-navigation.js"></script>
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
@@ -607,8 +607,16 @@
       }
     });
 </script>
-</head>
-<body>
+<link rel="stylesheet" href="../../portfolio-controls.css"><link rel="stylesheet" href="../../portfolio-demo-return.css"><script defer src="../../portfolio-demo-return.js" data-project="fortune_crystal" data-title="Fortune’s Loom" data-overview="projects/fortune_crystal/overview.html" data-group="signature" data-thumbnail="media/brochures/fortune_crystal/browser-medium.jpg" data-routes="[{&quot;project&quot;:&quot;fortune_crystal&quot;,&quot;title&quot;:&quot;Fortune’s Loom&quot;,&quot;group&quot;:&quot;signature&quot;,&quot;thumbnail&quot;:&quot;media/brochures/fortune_crystal/browser-medium.jpg&quot;,&quot;overview&quot;:&quot;projects/fortune_crystal/overview.html&quot;,&quot;path&quot;:&quot;showcases/Fortune_in_Crystal/index.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:1}]"></script><!-- universal-navigation:start --><link rel="stylesheet" href="../../portfolio-location.css?v=054b6b462c"><script defer src="../../portfolio-location.js?v=054b6b462c"></script><script defer src="../../portfolio-routes.js?v=054b6b462c"></script><script defer src="../../portfolio-universal-navigation.js?v=054b6b462c"></script><!-- universal-navigation:end --><style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head>
+<body><!-- portfolio-version-switch --><link rel="stylesheet" href="../../portfolio-project-themes.css"><div class="original-version-switch"><nav class="page-versions" aria-label="Compare page versions"><span>Compare presentations</span><a href="../../projects/fortune_crystal/index.html">Brochure</a><a href="../../projects/fortune_crystal/overview.html">Overview</a><a href="../../showcases/Fortune_in_Crystal/index.html" aria-current="page">Original showcase</a></nav></div><!-- /portfolio-version-switch -->
   <a href="../../index.html" class="back-button">Back to Portfolio</a>
 <nav id="TOC" role="doc-toc">
 <a href="../../index.html" class="nav-back-button">← Back to Portfolio</a>
@@ -652,6 +660,12 @@
   <h1 id="fortunes-algorithm-in-crystal">Fortune's Algorithm in Crystal <span class="language-badge">Crystal</span></h1>
 <p>A Deep Dive into Voronoi Diagrams from the Ground Up</p>
 </header>
+
+<aside aria-label="Archive status" style="margin: 20px 0 32px; padding: 22px 26px; border: 1px solid #c5a64a; border-radius: 16px; background: rgba(212,175,55,.09); box-shadow: 0 0 24px rgba(212,175,55,.08);">
+  <p style="margin-bottom: 10px;"><strong style="color: #f4d03f;">Early Crystal prototype · archived implementation notes</strong></p>
+  <p>This page preserves the original visualizer and its development narrative. The prototype has known degeneracy failures. Statements below about complete correctness, production readiness, comprehensive edge-case handling and completed topology should not be treated as verified guarantees; they are superseded by the current project's explicit raw/reference comparisons and numerical limitations.</p>
+  <a href="../../live_demos/fortune-theory/index.html" style="color: #f4d03f; font-weight: 600;">Explore Fortune &amp; Theory — the current C++ workbench and technical overview →</a>
+</aside>
 
 <section id="introduction">
 <h1>Introduction</h1>
@@ -1233,7 +1247,7 @@ y = \frac{(x - x_i)^2 + y_i^2 - \ell^2}{2(y_i - \ell)} \quad \xrightarrow{y_i \t
 
 <h3>Degenerate Arc Initialization</h3>
 
-<p>When a new site appears, its "parabola" at the exact moment the sweep line touches it is <strong>degenerate</strong>—mathematically undefined. The parabola equation \(y = s_y + \frac{(x - s_x)^2}{2(s_y - \ell)}\) has a <strong>division by zero</strong> when \(s_y = \ell\).</p>
+<p>When a new site appears, its "parabola" at the exact moment the sweep line touches it is <strong>degenerate</strong>—the usual graph formula is undefined there. The parabola equation \(y = \frac{s_y + \ell}{2} + \frac{(x - s_x)^2}{2(s_y - \ell)}\) has a <strong>division by zero</strong> when \(s_y = \ell\).</p>
 
 <p>The key insight: at this singularity, the parabola degenerates into a <strong>vertical ray</strong> pointing upward from the site. We handle this by:</p>
 

@@ -1,0 +1,1372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="./../../../portfolio-lab-frame.js"></script><script defer src="./../../../portfolio-document-frame.js"></script><script defer src="./../../../portfolio-media.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Modal2D — Guide</title>
+<style>
+  
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: rgba(255,255,255,0.03);
+    --glass: rgba(255,255,255,0.06);
+    --glass-border: rgba(255,255,255,0.1);
+    --text: #e0e0e8;
+    --text-dim: #8888a0;
+    --text-faint: #5a5a72;
+    --accent: #4ecdc4;
+    --accent2: #ff6b6b;
+    --accent3: #a78bfa;
+    --accent4: #ffd166;
+    --glow: rgba(78, 205, 196, 0.3);
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background:
+      radial-gradient(ellipse at 80% 50%, rgba(78,205,196,0.06) 0%, transparent 50%),
+      radial-gradient(ellipse at 20% 30%, rgba(167,139,250,0.05) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 80%, rgba(255,209,102,0.04) 0%, transparent 50%);
+    z-index: -1;
+  }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+    nav.toc { position: static !important; }
+  }
+
+  nav.toc {
+    position: sticky;
+    top: 1.5rem;
+    align-self: start;
+    max-height: calc(100vh - 3rem);
+    overflow-y: auto;
+    padding: 1rem 0.5rem 1rem 0;
+    font-size: 0.85rem;
+    border-right: 1px solid var(--glass-border);
+  }
+  nav.toc h3 {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--text-faint);
+    margin: 1rem 0 0.4rem;
+  }
+  nav.toc h3:first-child { margin-top: 0; }
+  nav.toc a {
+    display: block;
+    padding: 0.3rem 0.6rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    border-radius: 6px;
+    border-left: 2px solid transparent;
+    transition: all 0.15s;
+  }
+  nav.toc a:hover {
+    color: var(--text);
+    background: rgba(255,255,255,0.04);
+    border-left-color: var(--accent);
+  }
+  nav.toc a.indent { padding-left: 1.4rem; font-size: 0.78rem; color: var(--text-faint); }
+
+  main { min-width: 0; }
+
+  .hero { padding: 1rem 0 2rem; }
+  .hero h1 {
+    font-size: 3rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--accent3), var(--accent), var(--accent4));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero .subtitle {
+    font-size: 1.1rem;
+    color: var(--text-dim);
+    margin-top: 0.6rem;
+    font-weight: 300;
+  }
+  .hero .meta { margin-top: 1rem; color: var(--text-faint); font-size: 0.85rem; }
+
+  section {
+    padding: 2.5rem 0;
+    border-top: 1px solid var(--glass-border);
+  }
+  section:first-of-type { border-top: none; }
+  section > h2 {
+    font-size: 1.7rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+  }
+  section > h2 .num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    color: var(--accent);
+    font-weight: 600;
+    opacity: 0.7;
+  }
+  h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--accent);
+    margin: 1.6rem 0 0.4rem;
+  }
+  h4 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin: 1rem 0 0.3rem;
+    color: var(--accent4);
+  }
+  p { margin: 0.6rem 0; }
+  ul, ol { padding-left: 1.4rem; margin: 0.5rem 0; }
+  li { margin: 0.3rem 0; }
+
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    background: rgba(255,255,255,0.07);
+    padding: 0.12rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.85em;
+    color: var(--accent);
+  }
+  kbd {
+    font-family: 'JetBrains Mono', monospace;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid var(--glass-border);
+    border-bottom-width: 2px;
+    padding: 0.1rem 0.45rem;
+    border-radius: 4px;
+    font-size: 0.8em;
+    color: var(--accent4);
+  }
+
+  .eq {
+    display: inline-block;
+    padding: 0.55rem 1rem;
+    margin: 0.6rem 0;
+    background: rgba(78,205,196,0.05);
+    border: 1px solid rgba(78,205,196,0.15);
+    border-radius: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.92rem;
+    color: var(--text);
+  }
+
+  /* Recipe card */
+  .recipe {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 1.3rem 1.5rem;
+    margin: 1.2rem 0;
+  }
+  .recipe-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    border-bottom: 1px solid var(--glass-border);
+    padding-bottom: 0.5rem;
+    margin-bottom: 0.6rem;
+  }
+  .recipe-head .title {
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: var(--accent);
+  }
+  .recipe-head .meta {
+    color: var(--text-faint);
+    font-size: 0.78rem;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .recipe ol li { margin-bottom: 0.45rem; }
+  .recipe .why {
+    margin-top: 0.7rem;
+    padding-top: 0.5rem;
+    border-top: 1px dashed var(--glass-border);
+    color: var(--text-dim);
+    font-size: 0.9rem;
+  }
+  .recipe .why::before {
+    content: 'Why this works: ';
+    color: var(--accent3);
+    font-weight: 600;
+  }
+
+  /* State diagram */
+  .state-diagram {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    padding: 1.2rem 1.5rem;
+    margin: 1rem 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    line-height: 1.55;
+    white-space: pre;
+    overflow-x: auto;
+    color: var(--text-dim);
+  }
+  .state-diagram .label { color: var(--accent); font-weight: 600; }
+  .state-diagram .arrow { color: var(--accent3); }
+  .state-diagram .term  { color: var(--accent2); }
+
+  /* Glossary */
+  .glossary dl { display: grid; grid-template-columns: 160px 1fr; gap: 0.4rem 1.2rem; }
+  .glossary dt {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--accent);
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+  .glossary dd { color: var(--text-dim); font-size: 0.95rem; }
+  @media (max-width: 600px) {
+    .glossary dl { grid-template-columns: 1fr; }
+    .glossary dt { margin-top: 0.5rem; }
+  }
+
+  /* FAQ */
+  .faq {
+    border-left: 3px solid var(--accent3);
+    padding: 0.6rem 1rem;
+    margin: 1rem 0;
+    background: rgba(167,139,250,0.04);
+    border-radius: 0 8px 8px 0;
+  }
+  .faq .q { font-weight: 600; color: var(--accent3); }
+  .faq .a { margin-top: 0.3rem; color: var(--text-dim); }
+
+  /* Table */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+    font-size: 0.9rem;
+  }
+  th, td {
+    text-align: left;
+    padding: 0.55rem 0.7rem;
+    border-bottom: 1px solid var(--glass-border);
+  }
+  th {
+    font-weight: 600;
+    color: var(--accent);
+    background: rgba(78,205,196,0.05);
+  }
+  tr:hover { background: rgba(255,255,255,0.02); }
+  td kbd { white-space: nowrap; }
+
+  .note {
+    border-left: 3px solid var(--accent);
+    padding: 0.6rem 1rem;
+    background: rgba(78,205,196,0.05);
+    border-radius: 0 6px 6px 0;
+    margin: 1rem 0;
+    color: var(--text-dim);
+    font-size: 0.93rem;
+  }
+  .note.warn   { border-color: var(--accent4); background: rgba(255,209,102,0.05); }
+  .note.danger { border-color: var(--accent2); background: rgba(255,107,107,0.05); }
+
+  .footer {
+    margin-top: 4rem;
+    padding: 2rem 0;
+    border-top: 1px solid var(--glass-border);
+    color: var(--text-faint);
+    font-size: 0.85rem;
+    text-align: center;
+  }
+</style>
+<style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head>
+<body><style>.portfolio-document-return{position:relative;z-index:100;display:flex;flex-wrap:wrap;gap:10px;padding:16px 24px;background:#111d25;border-bottom:1px solid #b3ceb74d;font:12px/1.5 Arial,sans-serif}.portfolio-document-return a{color:#cbded2;text-decoration:none;padding:8px 12px;border:1px solid #b3ceb733;border-radius:8px;transition:color .5s,box-shadow .5s,border-color .5s}.portfolio-document-return a:hover{color:#fff;border-color:#d9c18488;box-shadow:0 0 16px #d9c18422}@media(prefers-reduced-motion:reduce){.portfolio-document-return a{transition:none}}</style><link rel="stylesheet" href="./../../../portfolio-controls.css"><aside class="portfolio-document-return"><a href="./../index.html#html-library">← Modal2D brochure</a><a href="./index.html">Document library</a><a href="./../../../index.html">← Back to portfolio</a><a href="guide.html.txt" download>Original HTML ↓</a></aside>
+<div class="layout">
+
+<nav class="toc">
+  <h3>Doing things</h3>
+  <a href="#recipes">1 · Recipes</a>
+  <a href="#r-first"     class="indent">First instrument</a>
+  <a href="#r-discover"  class="indent">Explore with Discover</a>
+  <a href="#r-refine"    class="indent">Refine to ±5 c</a>
+  <a href="#r-bayes"     class="indent">When Bayes wins</a>
+  <a href="#r-tension"   class="indent">Tune a real string</a>
+  <a href="#r-cavity"    class="indent">Cavity instrument</a>
+  <a href="#r-mass"      class="indent">Mass-spring scout</a>
+  <a href="#r-manual"    class="indent">Manual-W + MAC</a>
+  <a href="#shortcuts">2 · Keyboard shortcuts</a>
+
+  <h3>Mental models</h3>
+  <a href="#statemachine">3 · Fine-tune state machine</a>
+  <a href="#dataflow">4 · Threading &amp; data flow</a>
+  <a href="#layout">5 · File layout</a>
+
+  <h3>Reference</h3>
+  <a href="#glossary">6 · Glossary</a>
+  <a href="#troubleshooting">7 · Troubleshooting</a>
+  <a href="#math">8 · Basics from first principles</a>
+  <a href="#math"           class="indent">8.1 What is modal analysis</a>
+  <a href="#math"           class="indent">8.2 Eigenmodes of a string</a>
+  <a href="#math"           class="indent">8.3 Strike, sound, decay</a>
+  <a href="#math"           class="indent">8.4 1D → 2D</a>
+  <a href="#math"           class="indent">8.5 FEM in 3 steps</a>
+  <a href="#math"           class="indent">8.6 Click → sound trace</a>
+  <a href="#math"           class="indent">8.7 Shared machinery</a>
+  <a href="#math"           class="indent">8.8 HF, MAC, K_geom</a>
+  <a href="#refs">9 · Further reading</a>
+</nav>
+
+<main>
+
+<header class="hero">
+  <h1>Modal2D · Guide</h1>
+  <p class="subtitle">
+    Practical recipes, keyboard reference, troubleshooting, and the mental
+    models you need to read the code.
+  </p>
+  <p class="meta">
+    Companion to <code>features.html</code> (what's here) and
+    <code>roadmap.html</code> (what's next).
+  </p>
+</header>
+
+<!-- ============================================================== -->
+<!-- 1. RECIPES                                                     -->
+<!-- ============================================================== -->
+<section id="recipes">
+  <h2><span class="num">01</span> Recipes</h2>
+
+  <p>
+    Concrete walkthroughs. Each one assumes you've started the viewer and
+    are in Play mode. Step counts in the headers are rough — your hands
+    move faster than reading does.
+  </p>
+
+  <div class="recipe" id="r-first">
+    <div class="recipe-head">
+      <div class="title">First instrument: tune 8 notes</div>
+      <div class="meta">~ 5 min</div>
+    </div>
+    <ol>
+      <li>Toolbar: switch from <strong>Play</strong> to <strong>Create</strong>.</li>
+      <li>Pick a shape from the <strong>Component</strong> combo. Start with <code>Box-2s</code> — well-behaved, gives clean fundamentals.</li>
+      <li>Drag <strong>Oct:</strong> to pick the octave you want (e.g. <code>C4</code> for middle C).</li>
+      <li>Click the <strong>C</strong> note button — that's the first target.</li>
+      <li>Click <strong>Auto</strong> to make the tuner auto-strike between iterations.</li>
+      <li>Click <strong>Fine-W</strong>. The strike button glows red — strike the shape once. The tuner then iterates on its own.</li>
+      <li>When Fine-W converges, it auto-advances to D, then E, F, G, A, B, C&prime;.</li>
+      <li>When all 8 notes are green, click <strong>Save</strong>, then switch to <strong>Test</strong> to play your instrument.</li>
+    </ol>
+    <div class="why">
+      Fine-W binary-searches the half-width until the fundamental matches the
+      target. <code>Auto</code> automates strike + advance so you can do all
+      8 notes hands-free. HF acceleration (on by default) typically converges
+      each note in 2–3 solves.
+    </div>
+  </div>
+
+  <div class="recipe" id="r-discover">
+    <div class="recipe-head">
+      <div class="title">Explore: see what notes a shape produces</div>
+      <div class="meta">~ 3 min</div>
+    </div>
+    <ol>
+      <li>Switch to <strong>Discover</strong>. The chromatic grid appears in the right panel.</li>
+      <li>Set <strong>Lo / Hi</strong> octave drag-ints to span the range you care about (default C0–C9).</li>
+      <li>Drag <strong>W / H / Shell</strong> sliders. Strike the shape after each change.</li>
+      <li>If the detected freq lands within <strong>threshold</strong> cents of a chromatic note, the cell auto-fills.</li>
+      <li>For bulk coverage, click <strong>Auto Explore</strong>: pick <em>1D</em>, <em>Size</em>, or <em>2D</em>, then how many steps per axis (2–16). The tuner sweeps the bracket and records every clean hit.</li>
+      <li>Hover a filled cell to see <code>W</code>, <code>H</code>, freq, and cents-to-note. Click any filled cell to load and play that shape.</li>
+    </ol>
+    <div class="why">
+      Discover is shape-first: it doesn't try to hit a specific note, it
+      records whatever notes happen to fall within threshold of a real
+      chromatic. Pair the chromatic grid with the <em>scatter</em> view on
+      the right — the latter shows the (W, H) coordinates of every clean hit.
+    </div>
+  </div>
+
+  <div class="recipe" id="r-refine">
+    <div class="recipe-head">
+      <div class="title">Refine a discovered note to ±5 cents</div>
+      <div class="meta">~ 30 s</div>
+    </div>
+    <ol>
+      <li>Discover or Build a few notes first (see previous recipe).</li>
+      <li>Switch to <strong>Refine</strong> mode. Same grid view, but cells are now <em>clickable</em> and start a Fine-W session for that cell's chromatic freq.</li>
+      <li>Click any filled cell — the shape loads at its saved (W, H), Fine-W kicks in.</li>
+      <li>When it converges, the cell updates with the refined values; the displayed cents tightens up.</li>
+    </ol>
+    <div class="why">
+      Refine reuses Fine-W per cell, targeting the chromatic Hz the cell
+      represents. With HF acceleration this typically takes 1–3 iterations
+      because the starting shape is already close.
+    </div>
+  </div>
+
+  <div class="recipe" id="r-bayes">
+    <div class="recipe-head">
+      <div class="title">When Bayes-W beats Fine-W</div>
+      <div class="meta">~ 1 min</div>
+    </div>
+    <p>Use <strong>Bayes-W</strong> in these situations:</p>
+    <ul>
+      <li>Fine-W keeps "giving up" with a suboptimal-best message — the cost surface has a local minimum the binary search keeps falling into.</li>
+      <li>The shape has multiple plausible modes near the target, and the loudest changes with W (which confuses Fine-W's bisection).</li>
+      <li>You want to <em>map</em> the W-axis as a side effect; Bayes-W's 8 LHS seeds give you a near-uniform survey for free.</li>
+    </ul>
+    <ol>
+      <li>In Create / Refine mode, instead of Fine-W click <strong>Bayes-W</strong>.</li>
+      <li>Watch the GP heatmap in the Experimental tab populate. Green = low |cents| (good).</li>
+      <li>Convergence: typically 8–15 samples. Falls back to "budget exhausted" with best-so-far if it can't get under threshold.</li>
+    </ol>
+    <div class="why">
+      Bayes-W draws 8 Latin-hypercube seeds first, then Expected-Improvement
+      picks the next sample based on the GP surrogate of the cost surface.
+      Handles multi-modal cost surfaces that bisection gets stuck on.
+    </div>
+  </div>
+
+  <div class="recipe" id="r-tension">
+    <div class="recipe-head">
+      <div class="title">Tune a string with realistic tension</div>
+      <div class="meta">~ 2 min</div>
+    </div>
+    <ol>
+      <li>Create mode → Component combo → <strong>String</strong>.</li>
+      <li>Set <strong>Width</strong> = 0.15 (≈ 30 cm half-length).</li>
+      <li>Set <strong>Height</strong> = 0.05 (controls beam cross-section: <code>beam_w = H · 0.01</code> = 0.5 mm, realistic).</li>
+      <li>Open the <strong>post_process</strong> panel. Drag <strong>String tension</strong> from 0 to ~100 N. The shape re-solves on release.</li>
+      <li>Strike it. At 100 N the fundamental should land around 80–150 Hz depending on material.</li>
+      <li>Now run Fine-W on a chromatic target. Width still controls fundamental (longer = lower); tension shifts the whole spectrum.</li>
+    </ol>
+    <div class="why">
+      Adding tension activates the geometric-stiffness term <code>K_geom = T/L · ...</code>
+      on every beam edge. The fundamental moves toward
+      <code>(1/2L)·√(T/μ)</code> — pure-string physics. Without tension the
+      string only has bending stiffness, which makes for a stiff piano-wire-
+      without-tension sound rather than a guitar string.
+    </div>
+  </div>
+
+  <div class="recipe" id="r-cavity">
+    <div class="recipe-head">
+      <div class="title">Build a resonance-cavity instrument</div>
+      <div class="meta">~ 3 min</div>
+    </div>
+    <ol>
+      <li>Create mode → Component combo → <strong>Strung</strong>. You get a hard-frame / soft-panel cavity with a steel string + bridge above the top panel. Material legend shows three regions.</li>
+      <li>Open <strong>post_process</strong>. Set <strong>String tension</strong> to 80 N.</li>
+      <li>Strike the string. The top panel rings via the bridge — soft panels radiate stronger than the hard frame.</li>
+      <li>Now go to the <strong>Experimental</strong> tab → <strong>Air cavity</strong>. Toggle on, set freq ≈ 120 Hz, Q ≈ 12, gain ≈ 0.6.</li>
+      <li>Strike again. The bandpass adds a body resonance around 120 Hz — the audible "boom" of a small cavity.</li>
+    </ol>
+    <div class="why">
+      Joint modes between string, frame, and soft panels do most of the
+      work — the frame defines the structural skeleton, the panels radiate.
+      The air-cavity bandpass approximates the Helmholtz resonance the
+      enclosed air would have if we modelled it as a separate FEM domain
+      (currently lumped into a single parallel resonator).
+    </div>
+  </div>
+
+  <div class="recipe" id="r-mass">
+    <div class="recipe-head">
+      <div class="title">Mass-spring scout → FEM commit</div>
+      <div class="meta">~ 30 s</div>
+    </div>
+    <ol>
+      <li>Create mode. Open the <strong>Experimental</strong> tab.</li>
+      <li>Drag <strong>Width</strong> or <strong>Height</strong> sliders. The mass-spring preview thumbnails update in microseconds — every mode shape recomputes live.</li>
+      <li>When you see a shape with the mode distribution you want, <em>release</em> the slider. That fires the full FEM solve.</li>
+      <li>FEM thumbnails appear next to the mass-spring ones (A/B view). Compare topology directly.</li>
+    </ol>
+    <div class="why">
+      The mass-spring lattice runs Jacobi eigensolve on a 10×6 grid (~96 DOFs)
+      in microseconds. Absolute frequencies drift 2–5× from FEM, but mode
+      shape <em>ordering</em> matches. Use it to navigate parameter space at
+      cursor-speed, commit to FEM only when the topology looks right.
+    </div>
+  </div>
+
+  <div class="recipe" id="r-manual">
+    <div class="recipe-head">
+      <div class="title">Manual-W: track a specific overtone</div>
+      <div class="meta">~ 1 min</div>
+    </div>
+    <ol>
+      <li>Create or Refine mode. Strike the shape so the spectrum has visible bars.</li>
+      <li><em>Left-click</em> the spectrum bar of the mode you want to tune. A glowing "Mode N pinned" banner appears.</li>
+      <li>Click <strong>Manual-W</strong>. The binary search now targets the pinned mode's frequency, not the fundamental.</li>
+      <li>As the shape changes, the white arrow follows the pinned mode automatically (via MAC mode-shape correlation). The arrow's tint colour-codes confidence: green ≥ 0.60, yellow ≥ 0.30, red below.</li>
+      <li>Red arrow = mode identity changed too much. Re-click a bar to re-pin.</li>
+      <li><em>Right-click</em> in the spectrum to clear the pin. Manual-W then falls through to fundamental tracking (same as Fine-W).</li>
+    </ol>
+    <div class="why">
+      Bell-like shapes often have overtones the user finds more "in tune"
+      than the fundamental. MAC tracks the mode you picked via eigenvector
+      correlation, not frequency proximity — so it survives mode crossings
+      that pure-frequency tracking would lose.
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================== -->
+<!-- 2. KEYBOARD SHORTCUTS                                          -->
+<!-- ============================================================== -->
+<section id="shortcuts">
+  <h2><span class="num">02</span> Keyboard shortcuts</h2>
+
+  <h3>Global</h3>
+  <table>
+    <tr><th style="width:140px">Key</th><th>What</th></tr>
+    <tr><td><kbd>Esc</kbd></td>
+        <td>Cascade-cancel: fine-tune → draw-mode → create/test → no-op. Held doesn't double-fire (edge-detected).</td></tr>
+    <tr><td><kbd>Space</kbd></td>
+        <td>Clear all modal energy (silence). Useful when something rings forever.</td></tr>
+    <tr><td><kbd>D</kbd></td>
+        <td>Toggle polygon-draw mode. Click vertices, press <kbd>Enter</kbd> to triangulate. Disabled while solving.</td></tr>
+    <tr><td><kbd>S</kbd></td>
+        <td>Cycle slow-motion: realtime → 20× slow → 200× → 5000× → realtime.</td></tr>
+    <tr><td><kbd>C</kbd></td>
+        <td>Toggle Chladni mode — viewport shows the nodal pattern of the selected mode instead of live oscillation.</td></tr>
+    <tr><td><kbd>V</kbd></td>
+        <td>Toggle 2D / 3D view of the mesh.</td></tr>
+    <tr><td><kbd>M</kbd></td>
+        <td>Toggle medium-propagation visualization (acoustic waves around the shape).</td></tr>
+    <tr><td><kbd>P</kbd></td>
+        <td>Toggle plate-bending mode (DKT elements). Forces a re-solve.</td></tr>
+    <tr><td><kbd>B</kbd></td>
+        <td>Toggle boundary-beam stiffeners along the mesh outline.</td></tr>
+    <tr><td><kbd>Home</kbd></td>
+        <td>Reset camera (zoom = 1, pan = 0, 3D orbit reset).</td></tr>
+  </table>
+
+  <h3>Play-mode preset hotkeys</h3>
+  <table>
+    <tr><th style="width:140px">Key</th><th>Preset shape</th></tr>
+    <tr><td><kbd>1</kbd></td><td>RECT (square)</td></tr>
+    <tr><td><kbd>2</kbd></td><td>CIRCLE</td></tr>
+    <tr><td><kbd>3</kbd></td><td>L_SHAPE</td></tr>
+    <tr><td><kbd>4</kbd></td><td>EQUILATERAL (triangle)</td></tr>
+    <tr><td><kbd>5</kbd></td><td>TUNING_FORK</td></tr>
+    <tr><td><kbd>6</kbd></td><td>RING</td></tr>
+    <tr><td><kbd>7</kbd></td><td>STRING</td></tr>
+    <tr><td><kbd>8</kbd></td><td>CROSS</td></tr>
+    <tr><td><kbd>9</kbd></td><td>STAR</td></tr>
+  </table>
+
+  <h3>Spectrum interactions</h3>
+  <table>
+    <tr><th style="width:140px">Action</th><th>Effect</th></tr>
+    <tr><td>Left-click bar</td><td>Pin that mode (in Create / Refine tuning contexts).</td></tr>
+    <tr><td>Right-click anywhere in spectrum</td><td>Clear the pin.</td></tr>
+    <tr><td>Hover</td><td>Tooltip: mode index + Hz.</td></tr>
+    <tr><td>Right-click on drift slider</td><td>Reset freq-drift to 0 semitones.</td></tr>
+  </table>
+</section>
+
+<!-- ============================================================== -->
+<!-- 3. STATE MACHINE                                               -->
+<!-- ============================================================== -->
+<section id="statemachine">
+  <h2><span class="num">03</span> Fine-tune state machine</h2>
+
+  <p>
+    Every fine-tune mode (1, 2, 3, 4, 5, 6, 7, 8, 9) shares the same
+    <code>fine_phase_</code> state machine. The pick-next logic varies per
+    mode; the phase transitions are universal.
+  </p>
+
+  <div class="state-diagram">  <span class="label">fine_mode_ = 0</span>  (idle)
+       │
+       │  user clicks Fine-W / Bayes-W / etc.
+       <span class="arrow">▼</span>
+  <span class="label">fine_mode_ = M</span>, <span class="label">fine_phase_ = 1</span>   (WAIT for strike)
+       │
+       │  user strikes the shape  ─ or ─  auto-skip if Auto mode + has prior strike
+       <span class="arrow">▼</span>
+  <span class="label">fine_phase_ = 2</span>   (build component + start solve)
+       │
+       │  solve_worker runs in background
+       <span class="arrow">▼</span>
+  <span class="label">fine_phase_ = 3</span>   (wait for audio settle, ~20 frames)
+       │
+       <span class="arrow">▼</span>
+  <span class="label">fine_phase_ = 4</span>   (READ detected freq, decide next)
+       │
+       ├──── |cents| &lt; threshold ─── <span class="term">CONVERGED → fine_mode_ = 0</span>
+       ├──── iter cap exceeded   ─── <span class="term">SUBOPTIMAL → fine_mode_ = 0</span>
+       └──── otherwise:
+              pick next param via mode-specific picker
+              update tuning_width_ / tuning_height_
+              fine_phase_ = 2  (back to solve)
+</div>
+
+  <p>
+    The <strong>pickers</strong> vary by mode:
+  </p>
+  <ul>
+    <li><strong>Mode 1, 6, 9</strong>: bisection mid-point, or HF Newton step when available.</li>
+    <li><strong>Mode 2</strong>: bisection on a uniform scale factor.</li>
+    <li><strong>Mode 3</strong>: alternating W/H bisections per round.</li>
+    <li><strong>Mode 4</strong>: adaptive sampler scores bracket / near-best / gap regions, picks highest.</li>
+    <li><strong>Mode 5</strong>: sweep then per-bracket bisection.</li>
+    <li><strong>Mode 7, 8</strong>: GP fit + Expected-Improvement argmax on a fine grid.</li>
+  </ul>
+</section>
+
+<!-- ============================================================== -->
+<!-- 4. DATAFLOW                                                    -->
+<!-- ============================================================== -->
+<section id="dataflow">
+  <h2><span class="num">04</span> Threading &amp; data flow</h2>
+
+  <p>
+    Three threads operate concurrently. Mutexes guard the small set of shared
+    state; the rest is single-owner.
+  </p>
+
+  <h3>Render thread (60 Hz)</h3>
+  <ol>
+    <li>Process input (keyboard, mouse).</li>
+    <li>Drain solve worker result if ready: <code>modal_res_ = solve_worker_.take_result()</code>.</li>
+    <li>Apply per-frame state pushes (drift, damping, sympathetic config, gravity).</li>
+    <li>Read displacements via <code>modal_get_displacements</code>.</li>
+    <li>Write displacement VBO → draw mesh (OpenGL).</li>
+    <li>ImGui begin → draw_layout (tabs, panels, viewport) → end.</li>
+    <li>Swap buffers.</li>
+  </ol>
+
+  <h3>Solve worker (background thread)</h3>
+  <ol>
+    <li>Started by <code>solve_worker_.start(modal_obj_, num_modes)</code> from the render thread.</li>
+    <li>Runs <code>modal_solve</code>: assemble K / M → eigensolve → build ModalResult.</li>
+    <li>Result picked up by the next render frame via <code>is_done()</code>.</li>
+    <li>Joined before any destroy of <code>modal_obj_</code> / <code>modal_res_</code> to avoid use-after-free.</li>
+  </ol>
+
+  <h3>Audio callback (PortAudio, ~5 ms blocks)</h3>
+  <ol>
+    <li>Drain strike events from libmodal's strike_buf, project onto modes via <code>compute_strike_impulse</code>.</li>
+    <li>Run GPU synthesis (CUDA kernel) → PCM samples per mode → sum.</li>
+    <li>Apply air-cavity bandpass (if enabled).</li>
+    <li>Run noise gate (HP-filter envelope, smoothstep).</li>
+    <li>Post-process: gain → low-pass → soft-clip → auto-normalize.</li>
+    <li>Write to PortAudio output buffer.</li>
+  </ol>
+
+  <p>
+    <strong>Strike flow</strong>: a click in the viewport calls
+    <code>modal_strike(res, x, y, mag)</code>. That pushes to the audio
+    strike_buf (drained by the audio callback) AND immediately injects into
+    <code>vis_impulses</code> for visualisation (no audio latency).
+  </p>
+</section>
+
+<!-- ============================================================== -->
+<!-- 5. FILE LAYOUT                                                 -->
+<!-- ============================================================== -->
+<section id="layout">
+  <h2><span class="num">05</span> File layout</h2>
+
+  <p>
+    Top-level split: <code>libmodal/</code> (pure physics + audio synthesis,
+    no UI) and <code>modal_viewer/</code> (App, OpenGL renderer, ImGui UI).
+  </p>
+
+  <table>
+    <tr><th style="width:35%">Path</th><th>Responsibility</th></tr>
+    <tr><td><code>libmodal/include/modal/modal.h</code></td><td>Public C++ API surface. Start here when integrating.</td></tr>
+    <tr><td><code>libmodal/src/modal_api.cpp</code></td><td>Object / Result lifecycle, all preset shapes, strike dispatch, multi-material, sympathetic, MAC primitives, HF derivatives.</td></tr>
+    <tr><td><code>libmodal/src/fem/assembler.cpp</code></td><td>Pure 2D CST assembly + multi-material variant.</td></tr>
+    <tr><td><code>libmodal/src/fem/assembler_mixed.cpp</code></td><td>Mixed CST + beam assembly (3 DOFs per node).</td></tr>
+    <tr><td><code>libmodal/src/fem/element_beam.cpp</code></td><td>Bernoulli beam element + geometric stiffness for tension.</td></tr>
+    <tr><td><code>libmodal/src/fem/element_cst.cpp</code></td><td>Constant-strain triangle element (Ke, Me).</td></tr>
+    <tr><td><code>libmodal/src/solver/eigensolve_sparse.cpp</code></td><td>Sparse Lanczos eigensolve.</td></tr>
+    <tr><td><code>libmodal/src/audio/synthesis.cu</code></td><td>CUDA kernel for per-sample modal sum on GPU.</td></tr>
+    <tr><td><code>libmodal/src/mesh/preset.cpp</code></td><td>Polygon vertex lists for every PresetShape.</td></tr>
+    <tr><td><code>modal_viewer/src/app/app.cpp</code></td><td>Main loop, strike handling, fine-tune state machine, all per-frame logic. Largest file.</td></tr>
+    <tr><td><code>modal_viewer/src/app/gaussian_process.h</code></td><td>Header-only GP for Bayes-W / Bayes-WH.</td></tr>
+    <tr><td><code>modal_viewer/src/app/mass_spring.h</code></td><td>Header-only mass-spring lattice + Jacobi eigensolve.</td></tr>
+    <tr><td><code>modal_viewer/src/app/solve_worker.cpp</code></td><td>Background thread wrapping <code>modal_solve</code>.</td></tr>
+    <tr><td><code>modal_viewer/src/audio/audio_engine.cpp</code></td><td>PortAudio callback. Cavity bandpass, gate, post-process.</td></tr>
+    <tr><td><code>modal_viewer/src/ui/ui_manager.cpp</code></td><td>ImGui dock layout + every tab and panel. Second-largest file.</td></tr>
+    <tr><td><code>modal_viewer/src/ui/viz_spectrum.cpp</code></td><td>Frequency spectrum bar chart + pin handling + glowing banner.</td></tr>
+    <tr><td><code>modal_viewer/src/renderer/mesh_renderer.cpp</code></td><td>OpenGL VAO / VBO for mesh + displacements.</td></tr>
+  </table>
+</section>
+
+<!-- ============================================================== -->
+<!-- 6. GLOSSARY                                                    -->
+<!-- ============================================================== -->
+<section id="glossary">
+  <h2><span class="num">06</span> Glossary</h2>
+
+  <div class="glossary">
+  <dl>
+    <dt>Mode</dt><dd>A standing-wave pattern of vibration. The shape vibrates as a sum of decoupled modes; each has a frequency, a shape, and a decay rate.</dd>
+    <dt>Eigenmode</dt><dd>Same thing as a mode. The "eigen" emphasises that it's the solution to the generalised eigenvalue problem <code>K φ = λ M φ</code>.</dd>
+    <dt>K</dt><dd>Stiffness matrix. Encodes how much force a unit displacement at each DOF generates. Symmetric, sparse, positive-semi-definite (3 rigid-body modes give it a 3-dim nullspace before BCs).</dd>
+    <dt>M</dt><dd>Mass matrix. Inertia per DOF. Diagonal-ish; we use the consistent form.</dd>
+    <dt>ω (omega)</dt><dd>Angular frequency in rad/s. The audible frequency in Hz is <code>ω / (2π)</code>.</dd>
+    <dt>ζ (zeta)</dt><dd>Damping ratio. Decay rate of a mode is <code>ζ · ω</code>; the e-folding time is <code>1 / (ζ·ω)</code>.</dd>
+    <dt>α (alpha)</dt><dd>Radiation efficiency per mode. Computed from the modal velocity normal to the boundary and the medium's impedance. Controls how loud each mode is in the air.</dd>
+    <dt>φ (phi)</dt><dd>Eigenvector. The mode's shape, stored as displacement per DOF. M-normalised so <code>φᵀ M φ = 1</code>.</dd>
+    <dt>CST</dt><dd>Constant-Strain Triangle. The simplest 2D plane-stress finite element. 3 nodes × 2 DOFs = 6 DOFs per element.</dd>
+    <dt>DKT</dt><dd>Discrete Kirchhoff Triangle. Plate-bending element with 3 DOFs/node (w, θx, θy). Produces out-of-plane modes.</dd>
+    <dt>MAC</dt><dd>Modal Assurance Criterion. <code>|φ_a · φ_b|² / ((φ_a · φ_a)(φ_b · φ_b))</code>. 1 = identical shape, 0 = orthogonal. We use it for mode tracking across W changes in Manual-W.</dd>
+    <dt>HF</dt><dd>Hellmann-Feynman theorem. Says <code>dλ/dp = φᵀ(dK/dp − λ dM/dp)φ</code> for an eigenpair. Gives us <code>df/dW</code> without doing a new eigensolve, used for Newton steps in Fine-W / Manual-W.</dd>
+    <dt>K_geom</dt><dd>Geometric stiffness. Extra stiffness from pre-stress (tension, compression, gravity-induced strain). For a tensioned beam, scales as <code>T/L</code> and stiffens the transverse motion.</dd>
+    <dt>GP / EI</dt><dd>Gaussian Process / Expected Improvement. The GP fits a surrogate over (W, H) → |cents|; EI picks the next sample by trading off predicted improvement vs uncertainty. Drives Bayes-W and Bayes-WH.</dd>
+    <dt>LHS</dt><dd>Latin Hypercube Sampling. Better space coverage than uniform random for small sample counts. Used to seed Bayes-W / Bayes-WH before EI takes over.</dd>
+    <dt>Lanczos</dt><dd>The sparse iterative eigensolver we use. Computes the lowest N eigenvalues of <code>(K, M)</code> without dense factorisation. Cheap for small N.</dd>
+    <dt>Rayleigh quotient</dt><dd><code>R(x) = (xᵀ K x) / (xᵀ M x)</code>. Equals the eigenvalue when x is the eigenvector; stationary at eigenvectors. Used internally by HF for second-order-accurate FD of dλ/dW.</dd>
+    <dt>Strike impulse</dt><dd>Per-mode amplitude added when you hit the shape. Computed as the eigenvector's value at the nearest node, projected onto the strike direction (boundary normal for boundary nodes; +Y for interior).</dd>
+    <dt>Helmholtz mode</dt><dd>The lowest acoustic mode of an enclosed air volume connected to outside via a small opening. Has a simple closed form: <code>f = (c/2π)·√(A/(V·L))</code>. We currently model this as a single bandpass; full cavity-FEM is planned.</dd>
+    <dt>Boundary clamp / fix_level</dt><dd>How many boundary nodes are pinned to zero displacement. 0 = free-free (rigid-body modes appear), 1–3 = partial, 4 = clamped all-around (membrane-only modes).</dd>
+  </dl>
+  </div>
+</section>
+
+<!-- ============================================================== -->
+<!-- 7. TROUBLESHOOTING                                             -->
+<!-- ============================================================== -->
+<section id="troubleshooting">
+  <h2><span class="num">07</span> Troubleshooting</h2>
+
+  <div class="faq">
+    <div class="q">Q · My instrument is silent / very quiet after a strike.</div>
+    <div class="a">
+      Check the noise gate: post_process panel, gate thresholds. If your shape
+      produces a sub-bass-only mode, the gate's 80 Hz HP filter rejects it
+      (intentionally — see commit history). Either raise the mode into audible
+      range with the freq-drift slider, or temporarily disable the gate.
+    </div>
+  </div>
+
+  <div class="faq">
+    <div class="q">Q · A single mode keeps ringing forever after I strike.</div>
+    <div class="a">
+      Add damping: post_process panel → <strong>Damping</strong> slider. Pushed
+      to libmodal in real time. For a hard cutoff, the <strong>Search timeout</strong>
+      slider clears all modal energy N seconds after the last strike — but
+      only during fine-tune sessions (Play / Test get infinite sustain by design).
+    </div>
+  </div>
+
+  <div class="faq">
+    <div class="q">Q · Fine-W keeps "giving up after N retries; best ±12 cents".</div>
+    <div class="a">
+      The bracket is converging to a non-target mode. Three things to try:
+      (1) Switch to <strong>Bayes-W</strong> — its GP surrogate handles
+      multi-modal cost surfaces. (2) Use <strong>Manual-W</strong>: click the
+      spectrum bar of the mode you actually want. (3) Use
+      <strong>Filter-W</strong> and dial in a decay window that excludes
+      whichever mode is misleading the search.
+    </div>
+  </div>
+
+  <div class="faq">
+    <div class="q">Q · The viewport says "Solve failed (degenerate mesh)".</div>
+    <div class="a">
+      The triangulator produced a near-zero-area element, usually because
+      W or H was pushed extreme. App auto-recovers to the last known-good
+      W/H. Common cause: Fine-W+ adaptive sampler exploring a corner of the
+      bracket. Lower the budget, or use Bayes-W which spaces samples better.
+    </div>
+  </div>
+
+  <div class="faq">
+    <div class="q">Q · The note label in Test mode says "C4" but the shape sounds like D.</div>
+    <div class="a">
+      Two possibilities. (1) The freq-drift slider is non-zero — playback is
+      shifted by <code>2^(s/12)</code>. Either reset drift to 0 or enable
+      <strong>comp</strong> next to it so future fine-tune sessions
+      pre-compensate. (2) The instrument was tuned with the <em>flexible</em>
+      toggle on; the saved freqs are correct but the chromatic labels reflect
+      a relative octave, not absolute. Save with flexible off if you want
+      absolute pitch labels.
+    </div>
+  </div>
+
+  <div class="faq">
+    <div class="q">Q · MAC arrow turns red after a few tune iterations.</div>
+    <div class="a">
+      The pinned mode's shape changed too much for the reference snapshot to
+      match. Re-click the bar in the spectrum to re-pin (captures a new MAC
+      reference). For very-wide tuning ranges, expect to re-pin once or twice
+      mid-session.
+    </div>
+  </div>
+
+  <div class="faq">
+    <div class="q">Q · GP heatmap in Bayes-WH looks all-red / all-green.</div>
+    <div class="a">
+      Normal early in the session — the heatmap auto-scales lo/hi from the
+      grid predictions, so before EI has any data the predictions are nearly
+      uniform. After 4–6 samples you'll see structure emerge.
+    </div>
+  </div>
+
+  <div class="faq">
+    <div class="q">Q · I changed material but the mass-spring preview doesn't update.</div>
+    <div class="a">
+      It does, but the change is subtle if you only nudged E or rho slightly.
+      The preview reads E and rho from the material panel each frame. For
+      multi-material scenes the material panel is disabled and the preview
+      shows the default mat — change comp_type or edit obj-&gt;mat directly
+      to affect it.
+    </div>
+  </div>
+
+  <div class="faq">
+    <div class="q">Q · Audio cuts out for ~1 second when I change shape.</div>
+    <div class="a">
+      Expected: shape changes trigger a re-solve, which destroys the audio
+      stream and rebuilds. There's an unavoidable gap of ~100 ms while the
+      solver runs (longer for high mesh resolution). Lower mesh resolution
+      in the Physics tab if the gap is too disruptive.
+    </div>
+  </div>
+
+  <div class="faq">
+    <div class="q">Q · The strung preset sounds dull / muddy regardless of tension.</div>
+    <div class="a">
+      The string's beam material defaults to whatever obj-&gt;mat was set to
+      before the multi-material palette took over. With the material panel
+      disabled, you can't edit obj-&gt;mat through the UI. Workaround: pick a
+      stiffer single-material preset (e.g. Box-Hard) first, set material to
+      Steel, then switch to Strung — obj-&gt;mat persists. Per-beam material
+      assignment is the planned proper fix.
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================== -->
+<!-- 8. BASICS: MODAL ANALYSIS FROM FIRST PRINCIPLES                -->
+<!-- ============================================================== -->
+<section id="math">
+  <h2><span class="num">08</span> Basics: modal analysis from first principles</h2>
+
+  <p>
+    This section builds up from the simplest example (a plucked guitar
+    string) to the framework the rest of the viewer uses. No prior
+    knowledge of FEM or eigenvalues assumed — equations introduced as
+    they become necessary, never before.
+  </p>
+
+  <h3>8.1 · What is modal analysis?</h3>
+
+  <p>
+    Pluck a guitar string. You hear a pitch (the fundamental), plus quieter
+    higher pitches (overtones). The string isn't vibrating in just one
+    shape — it's vibrating in many shapes at once, each with its own
+    frequency. Each of those independent vibration patterns is a
+    <strong>mode</strong>, and the observation that any motion of the
+    string can be written as a sum of them is the heart of modal analysis.
+  </p>
+
+  <p>
+    Why is this useful? Because each mode evolves independently. The
+    fundamental does its thing, the second overtone does its thing, and
+    they don't interfere. So if we can find the modes once and know how
+    hard each one was struck, we can compute the entire future of the
+    vibrating object by summing analytical sine waves — no iterative
+    physics simulation needed.
+  </p>
+
+  <div class="note">
+    <strong>Compared to other audio approaches:</strong>
+    <em>Recorded samples</em> sound real but don't respond to where you
+    strike. <em>Physical simulation</em> (time-stepping the wave equation)
+    responds correctly but costs millions of operations per audio sample.
+    <em>Modal synthesis</em> is the middle ground: one expensive solve
+    upfront, then cheap sums forever after.
+  </div>
+
+  <h3>8.2 · Eigenmodes of a 1D string</h3>
+
+  <p>
+    The simplest case. A string of length <em>L</em>, tension <em>T</em>,
+    and mass per length <em>μ</em>, pinned at both ends, has displacement
+    <em>v(x, t)</em> obeying the wave equation:
+  </p>
+  <div class="eq">μ ∂²v/∂t² = T ∂²v/∂x²,   v(0, t) = v(L, t) = 0</div>
+
+  <p>
+    Try a separated-variables solution <code>v(x, t) = φ(x) · sin(ωt)</code>.
+    Substituting gives
+  </p>
+  <div class="eq">T φ''(x) = −μ ω² φ(x)</div>
+  <p>
+    plus the boundary conditions <code>φ(0) = φ(L) = 0</code>. The only
+    solutions are
+  </p>
+  <div class="eq">φ_n(x) = sin(n π x / L),   ω_n = (n π / L) √(T/μ),   n = 1, 2, 3, …</div>
+
+  <p>
+    Each <code>φ_n</code> is a <strong>mode shape</strong>; each
+    <code>ω_n</code> is its <strong>natural angular frequency</strong>. The
+    pair <code>(φ_n, ω_n)</code> is called an <em>eigenmode</em> because
+    the equation above is an eigenvalue problem in disguise: <code>φ_n</code>
+    is an eigenvector of the operator <code>−(T/μ) ∂²/∂x²</code> with
+    eigenvalue <code>ω_n²</code>.
+  </p>
+
+  <p>
+    The first three modes look like:
+  </p>
+
+  <div class="state-diagram">  <span class="label">mode 1</span> (fundamental, f₁ = (1/2L)√(T/μ)):
+
+      ●━━━━━━━━━━━━━━━━━━━━━━━━●   ← endpoints pinned
+       \                      /
+        \                    /
+         '─────────────────'      ← single bulge
+
+  <span class="label">mode 2</span> (1st overtone, f₂ = 2 f₁):
+
+      ●━━━━━━━●━━━━━━━━━━━━━━━━●   ← node in the middle
+       \     / \              /
+        \   /   \            /
+         '─'     '──────────'
+
+  <span class="label">mode 3</span> (2nd overtone, f₃ = 3 f₁):
+
+      ●━━●━━━━━━━━●━━━━━━━━●━━━━●  ← two interior nodes
+       \/         /\       /\   /
+       /\        /  \     /  \ /
+      ●  '──────'    '───'    '
+</div>
+
+  <p>
+    Three things to notice that generalise to all modes, in any geometry:
+  </p>
+  <ul>
+    <li><strong>Each mode has its own frequency.</strong> Higher modes oscillate faster.</li>
+    <li><strong>Each mode has a fixed shape.</strong> Mode 3 always vibrates with two interior zeros (nodes); it doesn't morph into mode 2.</li>
+    <li><strong>Different modes don't interfere.</strong> A plucked string's motion is exactly the sum of every mode's contribution, each evolving independently in time.</li>
+  </ul>
+
+  <h3>8.3 · Striking, sound, and decay</h3>
+
+  <p>
+    A real strike is a transient: a brief force impulse at one position
+    on the string. The string's response is the sum of mode contributions,
+    each scaled by how much the strike "looked like" that mode:
+  </p>
+  <div class="eq">v(x, t) = Σₙ A_n · φ_n(x) · sin(ω_n t)</div>
+
+  <p>
+    Where <code>A_n</code> is the projection of the strike onto mode
+    <em>n</em> — essentially, <em>"how much does mode n's shape match where
+    I struck?"</em>. Strike at the middle of the string (<code>x = L/2</code>):
+    odd modes (1, 3, 5, …) have a peak there, so they ring loud; even
+    modes (2, 4, …) have a zero there, so they ring not at all. This is
+    why striking different parts of an instrument changes its timbre.
+  </p>
+
+  <p>
+    Real materials dissipate energy. We model that with a damping ratio
+    <code>ζ_n</code> per mode, giving an exponential envelope:
+  </p>
+  <div class="eq">v(x, t) = Σₙ A_n · φ_n(x) · exp(−ζ_n ω_n t) · sin(ω_n √(1−ζ_n²) t)</div>
+
+  <p>
+    Two consequences worth absorbing:
+  </p>
+  <ul>
+    <li><strong>Higher modes decay faster</strong> at the same <code>ζ</code>, because the exponent <code>ζ ω t</code> grows quicker with <code>ω</code>. That's why a struck bell's bright initial timbre mellows out over time — the overtones die first.</li>
+    <li><strong>Decay time is <code>1 / (ζ ω)</code></strong>. For <code>ζ = 0.01</code> and an audible 440 Hz mode (<code>ω ≈ 2765 rad/s</code>), that's ~36 ms — a percussive sound. For <code>ζ = 0.0001</code> it's 3.6 seconds — a bell.</li>
+  </ul>
+
+  <p>
+    To turn vibration into <em>sound</em>, every mode shape radiates into
+    the surrounding air with an efficiency <code>α_n</code> that depends
+    on its shape and the medium. The final audio signal is the radiated
+    pressure at the listener position; in the viewer we approximate this
+    as a weighted sum where each mode's contribution scales by
+    <code>α_n</code>:
+  </p>
+  <div class="eq">p(t) = Σₙ α_n · A_n · exp(−ζ_n ω_n t) · sin(ω_dn t)</div>
+
+  <p>
+    <code>α_n</code> is computed from the modal velocity normal to the
+    boundary and the medium's impedance. This is why setting the
+    Acoustic Medium to vacuum-like properties silences the output — the
+    structure still vibrates, it just doesn't radiate.
+  </p>
+
+  <h3>8.4 · Going from 1D to 2D shapes</h3>
+
+  <p>
+    A 1D string has modes with a single index <em>n</em>: shape number 1,
+    2, 3, …, ordered by frequency. A 2D shape has modes indexed by
+    <em>two</em> numbers in the simplest case (number of bulges along x,
+    number along y), and ordered modes start to mix the two indices.
+    For a rectangular plate fixed at the edges:
+  </p>
+
+  <div class="state-diagram">  <span class="label">mode (1,1)</span>          <span class="label">mode (2,1)</span>          <span class="label">mode (1,2)</span>          <span class="label">mode (2,2)</span>
+
+  ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐
+  │              │    │       │      │    │              │    │       │      │
+  │   (single    │    │       │      │    │ ─────────── │    │       │      │
+  │    bulge)    │    │  one  │ node │    │              │    │  + ─── ─── + │
+  │              │    │       │      │    │     node     │    │       │      │
+  │              │    │       │      │    │              │    │ ─── + + ─── │
+  └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘
+   fundamental         vertical node line   horizontal node     crossed nodes
+</div>
+
+  <p>
+    The patterns of zero displacement are <em>nodal lines</em>; for higher
+    modes they form intricate curves. In Chladni's classical experiment
+    (the demo this viewer's Chladni-mode <kbd>C</kbd> toggle is named for),
+    sand sprinkled on a plate gathers along these nodal lines because
+    they're the only places that don't shake the sand off.
+  </p>
+
+  <p>
+    For arbitrary shapes (not just rectangles), the modes can't be written
+    as products of 1D sines — they're whatever shape comes out of solving
+    the 2D wave equation with the actual boundary. Closed-form solutions
+    rarely exist. We need a numerical method: FEM.
+  </p>
+
+  <h3>8.5 · FEM: from continuous PDE to a matrix problem</h3>
+
+  <p>
+    The 2D wave equation we want to solve is
+  </p>
+  <div class="eq">ρ ∂²u/∂t² = ∇·(E ∇u)</div>
+  <p>
+    in some 2D region, with material parameters <em>E</em> (stiffness),
+    <em>ρ</em> (density), and boundary conditions on the region's edge.
+    Three steps turn this into something a computer can chew on:
+  </p>
+
+  <h4>Step 1: mesh the shape</h4>
+  <p>
+    Cut the 2D region into a triangulation. Each triangle has three nodes
+    at its corners. The displacement field <em>u(x, t)</em> is approximated
+    as <em>linear interpolation</em> between the displacement values at
+    those nodes. So instead of a continuous unknown function we have a
+    finite list of unknowns: <code>u_i(t)</code>, one per node DOF.
+  </p>
+  <p>
+    Triangulation in this viewer is done with shewchuk's Triangle library,
+    invoked via <code>mesh::triangulate</code> in
+    <code>libmodal/src/mesh/triangulator.cpp</code>.
+  </p>
+
+  <h4>Step 2: assemble K and M</h4>
+  <p>
+    For each triangle, you can derive (from the wave equation + linear
+    interpolation) a small <strong>element stiffness matrix</strong>
+    <code>K_e</code> (6×6 for the 2D CST element — 3 nodes × 2 DOFs) and
+    an <strong>element mass matrix</strong> <code>M_e</code>. The full
+    system is built by summing contributions from every element into
+    global sparse matrices:
+  </p>
+  <div class="eq">M ü + K u = f_external</div>
+  <p>
+    <code>K</code> encodes how much force each unit displacement produces;
+    <code>M</code> encodes inertia. Both are sparse because each node only
+    couples to its triangle neighbours.
+  </p>
+  <p>
+    Assembly happens in <code>libmodal/src/fem/assembler.cpp</code> (pure
+    2D CST) and <code>assembler_mixed.cpp</code> (CST + beam elements for
+    strings). The element matrices themselves come from
+    <code>element_cst.cpp</code> and <code>element_beam.cpp</code>.
+  </p>
+
+  <h4>Step 3: eigensolve</h4>
+  <p>
+    For <strong>free vibration</strong> (no external force, <code>f = 0</code>)
+    we look for solutions of the form <code>u(t) = φ · sin(ωt)</code>.
+    Substituting into <code>M ü + K u = 0</code> gives
+  </p>
+  <div class="eq">−ω² M φ · sin(ωt) + K φ · sin(ωt) = 0</div>
+  <p>
+    Dropping the time factor leaves the <strong>generalised eigenvalue
+    problem</strong>:
+  </p>
+  <div class="eq">K φ = ω² M φ</div>
+  <p>
+    Solve this and you get a discrete set of eigenpairs
+    <code>(ω_k, φ_k)</code> — exactly the modes from §8.2, but for an
+    arbitrary 2D geometry instead of a 1D string. We solve typically
+    24 – 120 of the lowest modes using sparse Lanczos iteration in
+    <code>libmodal/src/solver/eigensolve_sparse.cpp</code>.
+  </p>
+
+  <div class="note warn">
+    <strong>Why generalised, not standard?</strong> Because <code>M</code>
+    isn't the identity. A standard eigenvalue problem looks like
+    <code>A φ = λ φ</code> — what we have is <code>K φ = ω² M φ</code>,
+    a generalised eigenvalue problem. It's still solvable cheaply because
+    <code>M</code> is positive-definite, so we can reduce to standard
+    form via Cholesky factorisation of M, but the algorithm is slightly
+    different from the basic power method.
+  </div>
+
+  <h3>8.6 · How a click becomes a sound</h3>
+
+  <p>
+    End-to-end trace of what happens when you click the viewport. This is
+    the complete pipeline; every step touches a specific file in the
+    codebase.
+  </p>
+
+  <div class="state-diagram">  <span class="label">User clicks viewport at (sx, sy)</span> [<span class="arrow">app.cpp · on_mouse_click</span>]
+       │
+       │  screen → world coords via the camera's zoom/pan
+       <span class="arrow">▼</span>
+  <span class="label">modal_strike(res, x, y, magnitude)</span> [<span class="arrow">modal_api.cpp</span>]
+       │
+       ├─── push StrikeEvent onto strike_buf  (audio path; lock-free queue)
+       │
+       └─── compute_strike_impulse(mesh, mode_shapes, x, y, f_impulse)
+              │
+              │  for each mode k:
+              │    f_impulse[k] = φ_k(nearest_node) · strike_direction
+              │
+              ├─── apply_sympathetic_coupling (if enabled)
+              │
+              └─── for each mode: vis_impulses[k].add(f_impulse[k] * mag)
+                        (visual path; ring buffer for analytical decay)
+
+  <span class="label">VISUAL THREAD</span> (60 Hz, in render() loop)
+       │
+       ├─── modal_get_displacements(res, disp, t)
+       │      for each node n:
+       │        disp[n] = Σₖ φ_k(n) · vis_impulses[k].eval(ω_k, ζ_k, t)
+       │
+       ├─── apply gravity sag (if enabled)
+       │
+       └─── write disp to OpenGL VBO → draw mesh
+
+  <span class="label">AUDIO THREAD</span> (PortAudio callback, ~5 ms blocks)
+       │
+       ├─── drain strike_buf into mode_states (apply impulses to A, t0)
+       │
+       ├─── upload mode_states to GPU (cudaMemcpyAsync)
+       │
+       ├─── <span class="label">CUDA kernel</span> [<span class="arrow">synthesis.cu</span>]
+       │      for each PCM sample s in this block:
+       │        t = t_start + s · dt
+       │        pcm[s] = Σₖ α_k · A_k · exp(−ζ_k ω_k (t−t0_k))
+       │                     · sin(ω_k √(1−ζ_k²) (t−t0_k))
+       │
+       ├─── air-cavity bandpass (if enabled) — parallel SVF
+       │
+       ├─── noise gate (HP-filter amplitude envelope)
+       │
+       ├─── post-process: gain → LP → soft-clip → auto-normalize
+       │
+       └─── write to PortAudio buffer → speaker
+</div>
+
+  <p>
+    Three details that surprise newcomers:
+  </p>
+  <ul>
+    <li><strong>Visual and audio are decoupled.</strong> They share strike
+        events but run on different threads with different time bases. Visual
+        uses scaled time (<kbd>S</kbd> key cycles slow-motion), audio always
+        runs at real time. Each path stores its own copy of recent impulses.</li>
+    <li><strong>Audio synthesis is analytical, not simulated.</strong> The
+        CUDA kernel computes the exact sum
+        <code>Σ α_k A_k exp(−ζω t) sin(ω_d t)</code> at every PCM sample,
+        with no time-stepping. No accumulated error, no stability concerns,
+        and trivially parallel across samples.</li>
+    <li><strong>The strike acts on one node.</strong> We snap the world
+        click to the nearest mesh node, then project that node's eigenvector
+        entry onto the strike direction (outward boundary normal for
+        boundary nodes, +Y for interior). The whole strike-to-modes
+        projection lives in <code>compute_strike_impulse</code>.</li>
+  </ul>
+
+  <h3>8.7 · Why the same machinery handles strings, plates, and bells</h3>
+
+  <p>
+    Everything in §8.5 and §8.6 was general. The viewer has different
+    <em>elements</em> (CST triangle, Bernoulli beam, DKT plate) but each
+    one just contributes its own little <code>K_e</code> and <code>M_e</code>
+    block during assembly. After assembly the eigenvalue problem looks
+    identical regardless of which elements were used. Same Lanczos solve,
+    same modal sum for synthesis.
+  </p>
+
+  <p>
+    That's why adding tension to strings (§7) was a small change: tension
+    contributes an extra term <code>K_geom</code> to the beam element's
+    <code>K_e</code>. Everything downstream — eigensolve, MAC, HF
+    derivatives, audio synthesis — is unchanged. The element layer is
+    where the physics lives; everything above it operates on abstract
+    sparse matrices.
+  </p>
+
+  <p>
+    Multi-material support (§5) works the same way: each triangle's
+    element matrix is computed with its own material, then the assembler
+    sums all elements into a single global <code>K</code> and <code>M</code>.
+    The eigensolver doesn't know or care that the material varies — it
+    just sees a different sparse pattern of stiffness values.
+  </p>
+
+  <h3>8.8 · Deeper: Hellmann-Feynman, MAC, geometric stiffness</h3>
+
+  <p>
+    With the basics in place, the three "advanced" results in the rest of
+    the viewer become short corollaries.
+  </p>
+
+  <h4>Why Hellmann-Feynman is cheap</h4>
+  <p>
+    Conventional derivative <code>df/dW</code>: change W, redo the entire
+    eigensolve, finite-difference. Cost: one extra eigensolve per
+    derivative.
+  </p>
+  <p>
+    Hellmann-Feynman insight: for an eigenpair <code>(λ, φ)</code> of
+    <code>K φ = λ M φ</code> with M-normalisation <code>φᵀ M φ = 1</code>,
+  </p>
+  <div class="eq">dλ/dp = φᵀ (dK/dp − λ dM/dp) φ</div>
+  <p>
+    No new eigensolve. Cost: one matrix re-assembly at perturbed W (much
+    cheaper than eigendecomposition) plus a quadratic-form evaluation.
+    Total ~5% of an eigensolve. We use this for Newton-step Fine-W /
+    Manual-W via the Rayleigh-quotient formulation, which handles
+    M-normalisation automatically (see <a href="features.html#tuning-overview">features §3</a>).
+  </p>
+
+  <h4>MAC mode tracking</h4>
+  <p>
+    Two eigenvectors <code>φ_a</code> and <code>φ_b</code> from different
+    solves are "the same mode" if their shapes correlate strongly. The
+    Modal Assurance Criterion measures this with a single scalar in
+    <code>[0, 1]</code>:
+  </p>
+  <div class="eq">MAC(φ_a, φ_b) = |φ_a · φ_b|² / ((φ_a · φ_a)(φ_b · φ_b))</div>
+  <p>
+    The square handles sign flips (eigenvectors are only defined up to
+    sign). Above 0.6 means "clearly the same mode topology"; below 0.3
+    means the modes diverged — the geometry change crossed a mode-identity
+    boundary and the tracker needs a fresh reference. Used by Manual-W
+    to auto-retrack the pinned mode across W changes.
+  </p>
+
+  <h4>Geometric stiffness from tension</h4>
+  <p>
+    A taut string's pitch comes from tension, not bending. Why? The
+    transverse equation for a beam under axial tension <em>T</em> is
+  </p>
+  <div class="eq">EI ∂⁴v/∂x⁴ − T ∂²v/∂x² + μ ∂²v/∂t² = 0</div>
+  <p>
+    When <code>T · L² ≫ EI</code> the bending term <code>EI ∂⁴v/∂x⁴</code>
+    is negligible and the equation collapses to the pure-string wave
+    equation from §8.2. Frequencies follow <code>f_n = (n/2L) · √(T/μ)</code>.
+  </p>
+  <p>
+    In FEM terms, the tension contributes a <em>geometric stiffness</em>
+    matrix <code>K_geom = T/L · [transverse-block]</code> that adds to the
+    usual bending stiffness:
+  </p>
+  <div class="eq">K_total = K_bending + K_geom</div>
+  <p>
+    High tension → geometric term dominates → string-like behaviour.
+    Zero tension → pure bending beam. Same eigensolve handles both
+    regimes because the only thing that changed is the values in
+    <code>K</code>.
+  </p>
+</section>
+
+<!-- ============================================================== -->
+<!-- 9. FURTHER READING                                             -->
+<!-- ============================================================== -->
+<section id="refs">
+  <h2><span class="num">09</span> Further reading</h2>
+
+  <h3>Modal synthesis</h3>
+  <ul>
+    <li>Adrien, J.-M. "<em>The Missing Link: Modal Synthesis</em>" — the foundational paper on the analytical sum-of-modes approach to audio.</li>
+    <li>van den Doel, K. &amp; Pai, D. "<em>The Sounds of Physical Shapes</em>" — modal sound generation for shape-aware audio in graphics.</li>
+    <li>O'Brien, J., Cook, P., Essl, G. "<em>Synthesizing Sounds from Physically Based Motion</em>" — coupling FEM to audio in real time.</li>
+  </ul>
+
+  <h3>Finite element method</h3>
+  <ul>
+    <li>Cook, R. <em>Concepts and Applications of Finite Element Analysis</em>. Canonical reference; CST, beam, plate elements all derive here.</li>
+    <li>Bathe, K.-J. <em>Finite Element Procedures</em>. The standard graduate text. Sparse eigensolve methods covered in depth.</li>
+  </ul>
+
+  <h3>Mode tracking and sensitivity</h3>
+  <ul>
+    <li>Allemang, R. "<em>The Modal Assurance Criterion — Twenty Years of Use and Abuse</em>" (Sound and Vibration, 2003). Practical guide to MAC.</li>
+    <li>Fox, R., Kapoor, M. "<em>Rates of Change of Eigenvalues and Eigenvectors</em>". Original Hellmann-Feynman application to FEM eigenproblems.</li>
+  </ul>
+
+  <h3>Bayesian optimisation</h3>
+  <ul>
+    <li>Rasmussen, C., Williams, C. <em>Gaussian Processes for Machine Learning</em>. Free online; chapters 2–5 cover what we use.</li>
+    <li>Frazier, P. "<em>A Tutorial on Bayesian Optimization</em>" (arXiv 1807.02811). EI, acquisition strategies, when BO works.</li>
+  </ul>
+
+  <h3>Acoustic radiation</h3>
+  <ul>
+    <li>Fahy, F. <em>Sound and Structural Vibration</em>. Structure → air coupling, radiation efficiency, near vs far field.</li>
+    <li>Rossing, T. <em>Science of Sound</em>. Approachable, covers Helmholtz, instrument-cavity physics, anisotropic materials.</li>
+  </ul>
+
+  <h3>This codebase</h3>
+  <ul>
+    <li><code>features.html</code> — what's here, command-reference style.</li>
+    <li><code>roadmap.html</code> — upcoming work, longer-term trajectory.</li>
+    <li><code>project-structure.html</code> — full code tree with descriptions.</li>
+  </ul>
+</section>
+
+<footer class="footer">
+  <p>
+    Modal2D · practical guide. If a recipe didn't work, that's a useful
+    bug report — log it as an issue with reproduction steps.
+  </p>
+</footer>
+
+</main>
+</div>
+</body>
+</html>

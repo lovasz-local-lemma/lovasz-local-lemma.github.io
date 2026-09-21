@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><script src="../../../portfolio-lab-frame.js"></script><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark"><title>The skin sets. The core keeps changing.</title><link rel="stylesheet" href="solver-labs.css"><link rel="stylesheet" href="recording-thermal-shell.css"><style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head>
+<body><main><header><p class="eyebrow">Recording companion / Crust · separate surface and core</p><h1>The skin sets. The core keeps changing.</h1><p>A warm surface can set before the center catches up. The core generates gas; the shell resists its preferred expansion. Add a mechanical strain to see how a separate tear state can open a vent.</p></header>
+<div class="controls">
+<label class="control"><span>Timeline · model seconds<output id="time-value"></output></span><input id="time" aria-label="Timeline" type="range" min="0" max="18" step=".05" value="5"></label>
+<label class="control"><span>Heater target · K<output id="peak-value"></output></span><input id="peak" aria-label="Heater target" type="range" min="320" max="750" step="10" value="610"></label>
+<label class="control"><span>Shell → core conductance<output id="conductance-value"></output></span><input id="conductance" aria-label="Shell to core conductance" type="range" min=".015" max=".2" step=".005" value=".05"></label>
+<label class="control"><span>Imposed mechanical strain<output id="strain-value"></output></span><input id="strain" aria-label="Imposed mechanical strain" type="range" min="0" max=".35" step=".01" value=".12"></label>
+</div>
+<div class="toolbar"><button id="cycle" type="button">Run heat / cool cycle ↗</button><button id="reset" type="button">Reset ↺</button><span id="phase" role="status">Heating</span></div>
+<figure class="viewport"><canvas id="shell-view" role="img" aria-label="Shell and core cross section, heat exchange and separate setting, gas and tear states; current values follow"></canvas><figcaption>Gold rim: shell setting. Dots: stored gas state. Mint dashed circle: the core’s preferred size. The vent is a diagram of the tear threshold, not a computed crack path.</figcaption><div class="metrics"><div><output id="temperature">—</output><span>Shell / core temperature</span></div><div><output id="setting">—</output><span>Shell / core setting</span></div><div><output id="vent">—</output><span>Tear state · vent above 60%</span></div></div></figure>
+<details class="model"><summary>What the teaching model computes</summary><p>Two thermal compartments exchange equal and opposite heat. Only the shell sees the heater directly, so the core warms later. Their setting and gas states use the uncustomized native CRUST_DOUGH rates at shell_seed = 1 and 0. Setting is retained; gas can decay when cold and is vented once the tear state exceeds 0.60.</p><pre>Cₛ dTₛ/dt = h(Tₕ − Tₛ) − k(Tₛ − T꜀)
+C꜀ dT꜀/dt = k(Tₛ − T꜀)
+setting rate: [0.18 core, 1.40 shell] × clamp((T−370)/220, 0, 1)
+gas rate: 2.2 × [1.80 core, 0.12 shell]
+          × clamp((T−345)/165, 0, 1) × (1−0.25 setting)
+each state grows at rate × (1−state)</pre><p>The cross section is a reduced equilibrium picture: a spring-weighted radius balances the two preferred sizes. The imposed strain and that radius supply a scalar strain diagnostic to an illustrative tear update; this is not MPM deformation or a fracture solver. Gas, not literal resolved bubbles, is a material state. Heat capacities, geometry and heating schedule are teaching choices.</p><p>The native branch also uses deformation gradients, rest-volume correction, material profile overrides and auxiliary thickness/cohesion. Its “Bake v2” strain measure removes intended rest expansion before estimating tensile strain. That distinction matters: swelling alone should not manufacture a crack. This companion likewise measures elastic mismatch from the preferred shell size, rather than treating all expansion as damage.</p><p>In the recordings, compact and porous bodies visibly respond differently. A clean spontaneous shell crack is not established by those clips. Use this schematic to understand the competing state variables, not as evidence that every native fracture feature is calibrated or resolved.</p></details>
+</main><script src="recording-thermal-shell-core.js"></script><script src="recording-thermal-shell.js"></script></body></html>

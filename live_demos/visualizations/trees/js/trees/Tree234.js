@@ -7,6 +7,7 @@ class Tree234 {
 
     insert(value) {
         this.operations.push({type: 'insert', value, tree: '2-3-4'});
+        if (this._searchNode(this.root, value)) return this.root;
         
         if (this.root.isFull()) {
             const newRoot = new Node234();
@@ -228,6 +229,7 @@ class Tree234 {
     }
 
     getHeight() {
+        if (!this.root.keys.length) return 0;
         return this._calculateHeight(this.root);
     }
 

@@ -1,0 +1,174 @@
+<!doctype html><html lang="en"><head><style data-portfolio-paint>html{background:#0b0d0c;color-scheme:dark}html.portfolio-booting body{opacity:0}</style><script src="../../../portfolio-navigation.js?v=688f1905bc"></script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Cone + plane: what the pair buys — RadianceLab</title><meta name="description" content="Equal marginal path densities, different within-sheet correlations: understand the balance weights before comparing native results."><meta name="color-scheme" content="dark"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="../../../portfolio.css?v=b7ed8602e5"><link rel="stylesheet" href="../../../portfolio-effects.css?v=62be30dafa"><link rel="stylesheet" href="../../../portfolio-atmospheres.css?v=4b74c57939"><link rel="stylesheet" href="../../../portfolio-motion.css?v=4b098d8184"><link rel="stylesheet" href="../../../portfolio-case-studies.css?v=243caf2b0d"><link rel="stylesheet" href="../../../portfolio-brochures.css?v=a1e5e16132"><link rel="stylesheet" href="../../../portfolio-project-themes.css?v=a898c35e78"><link rel="stylesheet" href="../../../portfolio-location.css?v=9c4c1ad84f"><link rel="stylesheet" href="../../../portfolio-controls.css?v=9376de7761"><link rel="stylesheet" href="../../../portfolio-media.css?v=c51f7712ea"><link rel="stylesheet" href="../../../portfolio-overviews.css?v=8612c4ee0a"><link rel="stylesheet" href="../../../portfolio-motivations.css?v=ccc1c1d866"><link rel="stylesheet" href="../../../portfolio-claims.css?v=058dbd00ef"><link rel="stylesheet" href="../../../portfolio-feature-atlas.css?v=e73f02cb31"><script type="application/json" id="media-framing">{"media/brochures/physics-2d/thermal-furnace-magnetic-field-probe.png":{"width":1602,"height":940,"top":39},"media/brochures/physics-2d/magnetic-field-direction-appearance-controls.png":{"width":1602,"height":940,"top":39},"media/brochures/physics-2d/time-bomb-blast-particle-plume.png":{"width":1602,"height":940,"top":39}}</script><script defer src="../../../portfolio-claims.js?v=ed914a4d3a"></script><script defer src="../../../portfolio-visual-defaults.js?v=eecfd5c771"></script><script defer src="../../../portfolio-motion.js?v=a642c710f9"></script><script defer src="../../../portfolio-fire-studies.js?v=7717e15582"></script><script defer src="../../../portfolio-embers.js?v=8a8be5569d"></script><script defer src="../../../portfolio-atmospheres.js?v=021b2f100e"></script><script defer src="../../../portfolio-effects.js?v=03a6c89d6c"></script><script defer src="../../../portfolio-brochures.js?v=055cad29d6"></script><script defer src="../../../portfolio-location.js?v=3846586893"></script><script defer src="../../../portfolio-media.js?v=d2d555a888"></script><script defer src="../../../portfolio-articles.js?v=acb89575ce"></script><script defer src="../../../portfolio-labs.js?v=a0b86a3809"></script><link rel="stylesheet" href="../../../portfolio-technical.css?v=0ecb3a48c7"><script defer src="../../../portfolio-technical.js"></script><!-- universal-navigation:start --><script defer src="../../../portfolio-routes.js?v=054b6b462c"></script><script defer src="../../../portfolio-universal-navigation.js?v=054b6b462c"></script><!-- universal-navigation:end --><style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head><body data-page="technical" data-project-theme="optics" data-project-id="radiance-lab" data-default-atmosphere="caustics"><canvas class="spark-field" aria-hidden="true"></canvas><a class="skip-link" href="#main">Skip to content</a><nav class="site-nav portfolio-route" data-route-group="flagships" aria-label="Portfolio location"><div class="route-path"><a class="route-node route-home" href="../../../index.html#project-radiance-lab" aria-label="Portfolio"><img class="route-mark" src="../../../media/identity/portfolio-mark.svg" alt="" width="52" height="52"><span class="route-copy"><small>Work / ideas</small><strong>Portfolio</strong></span></a><span class="route-wire" aria-hidden="true"><i></i><b></b></span><div class="route-node route-group"><span class="route-glyph" aria-hidden="true">✦</span><span class="route-copy"><small>Collection</small><strong>Flagship</strong></span></div><span class="route-wire" aria-hidden="true"><i></i><b></b></span><a class="route-node route-project" href="../index.html"><span class="route-glyph" hidden aria-hidden="true">◈</span><img class="route-thumb" src="../../../media/previews/radiance-lab/caustic-showcase.png" width="42" height="42" alt=""><span class="route-copy"><small>Project</small><strong>RadianceLab</strong></span></a><span class="route-wire" aria-hidden="true"><i></i><b></b></span><a class="route-node technical-route" href="index.html"><span class="route-copy"><small>Technical reading room</small><strong>Cone + plane: what the pair buys</strong></span></a></div><div class="route-end"><span class="route-meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><a class="route-back" href="../../../index.html#project-radiance-lab">← Back to portfolio</a></div></nav><nav class="section-rail technical-rail" aria-label="Technical document sections"><span class="rail-indicator" aria-hidden="true"></span><a href="#technical-top" data-section="technical-top"><span>⌂</span><span>Start</span></a><a href="#start-with-the-common-measure" data-section="start-with-the-common-measure" title="Start with the common measure"><small>01</small><span>Start with the common measure</span></a><a href="#why-not-weight-the-line-against-the-ring-39-s-inverse-jacobian" data-section="why-not-weight-the-line-against-the-ring-39-s-inverse-jacobian" title="Why not weight the line against the ring&#x27;s inverse Jacobian?"><small>02</small><span>Why not weight the line against the ring&#x27;s inverse Jacobian?</span></a><a href="#correlation-is-the-useful-distinction" data-section="correlation-is-the-useful-distinction" title="Correlation is the useful distinction"><small>03</small><span>Correlation is the useful distinction</span></a><a href="#measured-native-comparison" data-section="measured-native-comparison" title="Measured native comparison"><small>04</small><span>Measured native comparison</span></a><a href="#native-comparison-gallery" data-section="native-comparison-gallery" title="Native comparison gallery"><small>05</small><span>Native comparison gallery</span></a><a href="#validation-and-scope" data-section="validation-and-scope" title="Validation and scope"><small>06</small><span>Validation and scope</span></a></nav><main id="main" class="project-page technical-page"><header id="technical-top" class="technical-hero"><span class="eyebrow">RadianceLab · Native implementation document</span><h1>Cone + plane: what the pair buys</h1><p>Equal marginal path densities, different within-sheet correlations: understand the balance weights before comparing native results.</p><div class="technical-actions"><a href="../index.html">← RadianceLab brochure</a><a href="index.html">Technical reading room</a><a href="../validation/index.html">Rendered evidence ↗</a></div></header><aside class="technical-scope"><span>◈</span><p>Implementation notes describe the native application. A working experiment, an approximate preview and a general transport estimator establish different things; each document states its own scope.</p></aside><details class="technical-relations"><summary>Key relationships · typeset equations</summary><figure class="manual-equation typeset-equation"><div class="math-scroll" tabindex="0" role="region" aria-label="Equation"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mi>p</mi><mi>c</mi></msub><mo stretchy="false">(</mo><mover accent="true"><mi>x</mi><mo>ˉ</mo></mover><mo stretchy="false">)</mo><mo>=</mo><msub><mi>p</mi><mi>p</mi></msub><mo stretchy="false">(</mo><mover accent="true"><mi>x</mi><mo>ˉ</mo></mover><mo stretchy="false">)</mo><mo separator="true">,</mo><mspace width="2em"/><msub><mi>w</mi><mi>i</mi></msub><mo stretchy="false">(</mo><mover accent="true"><mi>x</mi><mo>ˉ</mo></mover><mo stretchy="false">)</mo><mo>=</mo><mfrac><mrow><msub><mi>n</mi><mi>i</mi></msub><msub><mi>p</mi><mi>i</mi></msub><mo stretchy="false">(</mo><mover accent="true"><mi>x</mi><mo>ˉ</mo></mover><mo stretchy="false">)</mo></mrow><mrow><munder><mo>∑</mo><mi>j</mi></munder><msub><mi>n</mi><mi>j</mi></msub><msub><mi>p</mi><mi>j</mi></msub><mo stretchy="false">(</mo><mover accent="true"><mi>x</mi><mo>ˉ</mo></mover><mo stretchy="false">)</mo></mrow></mfrac><mo>=</mo><mfrac><msub><mi>n</mi><mi>i</mi></msub><mrow><msub><mi>n</mi><mi>c</mi></msub><mo>+</mo><msub><mi>n</mi><mi>p</mi></msub></mrow></mfrac></mrow><annotation encoding="application/x-tex">p_c(\bar x)=p_p(\bar x),\qquad w_i(\bar x)=\frac{n_i p_i(\bar x)}{\sum_j n_jp_j(\bar x)}=\frac{n_i}{n_c+n_p}</annotation></semantics></math></span></div><figcaption>These two native charts have equal marginal emitted-path densities. Their allocation determines the balance weight.</figcaption></figure><figure class="manual-equation typeset-equation"><div class="math-scroll" tabindex="0" role="region" aria-label="Equation"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi mathvariant="normal">Var</mi><mo>⁡</mo><mo stretchy="false">(</mo><msub><mover accent="true"><mi>I</mi><mo stretchy="true">^</mo></mover><mrow><mi mathvariant="normal">p</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">r</mi></mrow></msub><mo stretchy="false">)</mo><mo>=</mo><mfrac><mrow><mi mathvariant="normal">Var</mi><mo>⁡</mo><mo stretchy="false">(</mo><msub><mi>Y</mi><mi>c</mi></msub><mo stretchy="false">)</mo><mo>+</mo><mi mathvariant="normal">Var</mi><mo>⁡</mo><mo stretchy="false">(</mo><msub><mi>Y</mi><mi>p</mi></msub><mo stretchy="false">)</mo></mrow><mrow><mn>2</mn><mi>B</mi></mrow></mfrac></mrow><annotation encoding="application/x-tex">\operatorname{Var}(\widehat I_{\mathrm{pair}})=\frac{\operatorname{Var}(Y_c)+\operatorname{Var}(Y_p)}{2B}</annotation></semantics></math></span></div><figcaption>For B independent complete sheets and an equal split, pairing averages the two sheet variances; it is not a guaranteed win over the better single family.</figcaption></figure></details><article class="technical-document"><p>PP33 now offers <strong>Cone + plane: balance MIS</strong> alongside its existing cone and
+meridian-plane choices. It splits one total sheet budget, so selecting the
+pair does not quietly double the work. A cone can create a ring or conic on a
+plane; a meridian sheet can create a line. Refraction bends both into more
+complicated receiver curves.</p>
+<p>Start with <code>Surface-Curve-MIS.bat</code> for the paired two-lens scene, or run
+<code>Showcases.bat -Scene 107 -Strategy 33 -SurfaceFamily 2</code> for the receiver atlas
+(<code>-Scene 109</code> selects the glass relay). The launcher uses the newest AIO build
+and an isolated session, preserving the ordinary saved setup. In the viewer,
+choose <strong>Sheet family</strong> to compare either single family with the pair.</p>
+<p>The key result is less obvious than “different shapes complement each other”:
+<strong>in this implementation, both families sample exactly the same marginal
+distribution of emitted paths. Their difference is the correlation between
+nearby samples.</strong> The pair is useful as an orientation hedge and a controlled
+comparison. It is not a new caustic accelerator, nor a cure for a poorly sampled
+light-to-glass connection.</p>
+<h2 id="start-with-the-common-measure">Start with the common measure</h2><p>Write an emitted direction using two uniform coordinates <code>(u,v)</code>. For an area
+light, <code>cos(theta)=sqrt(u)</code> and <code>phi=2*pi*v</code>, so <code>p_omega=cos(theta)/pi</code>.
+For a point light, <code>cos(theta)=1-2u</code>, so <code>p_omega=1/(4*pi)</code>.</p>
+<p>The cone chart holds <code>u</code> and stratifies <code>v</code>; the plane chart holds <code>v</code> and
+stratifies <code>u</code>. Light selection, emitter-position sampling and Fresnel branch
+probabilities are otherwise the same. The aggregate density across a family&#39;s
+strata is therefore identical on the common measure:</p>
+<div class="manual-equation math-scroll"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mi>p</mi><mrow><mi mathvariant="normal">c</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">n</mi><mi mathvariant="normal">e</mi></mrow></msub><mo stretchy="false">(</mo><mi>γ</mi><mo stretchy="false">)</mo><mo>=</mo><msub><mi>p</mi><mrow><mi mathvariant="normal">p</mi><mi mathvariant="normal">l</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">n</mi><mi mathvariant="normal">e</mi></mrow></msub><mo stretchy="false">(</mo><mi>γ</mi><mo stretchy="false">)</mo><mi mathvariant="normal">.</mi></mrow><annotation encoding="application/x-tex">p_{\mathrm{cone}}(\gamma)=p_{\mathrm{plane}}(\gamma).</annotation></semantics></math></span></div>
+<p>The balance heuristic uses</p>
+<div class="manual-equation math-scroll"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mi>w</mi><mi>i</mi></msub><mo stretchy="false">(</mo><mi>γ</mi><mo stretchy="false">)</mo><mo>=</mo><mfrac><mrow><msub><mi>n</mi><mi>i</mi></msub><msub><mi>p</mi><mi>i</mi></msub><mo stretchy="false">(</mo><mi>γ</mi><mo stretchy="false">)</mo></mrow><mrow><munder><mo>∑</mo><mi>j</mi></munder><msub><mi>n</mi><mi>j</mi></msub><msub><mi>p</mi><mi>j</mi></msub><mo stretchy="false">(</mo><mi>γ</mi><mo stretchy="false">)</mo></mrow></mfrac><mo>=</mo><mfrac><msub><mi>n</mi><mi>i</mi></msub><mrow><msub><mi>n</mi><mrow><mi mathvariant="normal">c</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">n</mi><mi mathvariant="normal">e</mi></mrow></msub><mo>+</mo><msub><mi>n</mi><mrow><mi mathvariant="normal">p</mi><mi mathvariant="normal">l</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">n</mi><mi mathvariant="normal">e</mi></mrow></msub></mrow></mfrac><mi mathvariant="normal">.</mi></mrow><annotation encoding="application/x-tex">w_i(\gamma)=\frac{n_i p_i(\gamma)}{\sum_j n_j p_j(\gamma)}
+           =\frac{n_i}{n_{\mathrm{cone}}+n_{\mathrm{plane}}}.</annotation></semantics></math></span></div>
+<p>The second equality holds for these two equal-density charts. The coefficient of every ruling is the
+ordinary <code>1/(total sheets * rulings per sheet)</code>. This follows the standard
+multi-sample balance construction; the application to these two equal-density
+charts is a direct derivation from the native sampler.
+<a href="https://graphics.stanford.edu/papers/combine/" rel="noopener">Veach and Guibas, SIGGRAPH 1995</a></p>
+<p>Each family&#39;s points are stratified and correlated, so independent-sample
+variance theorems cannot simply be applied to every ruling. The independent
+units for an uncertainty estimate are complete random sheets or complete
+independently seeded images.</p>
+<p>For an odd total batch the extra sheet alternates by pass. A one-sheet batch
+alternates the family by pass. Neither case drops samples or changes the
+normalization. Source misses, occlusions, rejected topology and depth-truncated
+paths continue to count as zero contributions; accepted-hit normalization
+would bias the result.</p>
+<h2 id="why-not-weight-the-line-against-the-ring-39-s-inverse-jacobian">Why not weight the line against the ring&#39;s inverse Jacobian?</h2><p>A particular line and a particular ring generally live on different 1D
+supports. Their conditional arc-length PDFs are not competing densities on
+one shared curve. Directly comparing those numbers in an MIS formula would
+mix different measures.</p>
+<p>An emitter-to-receiver map can fold. If one instead evaluates a receiver-space
+density, all valid preimages and their branch probabilities must be summed:</p>
+<div class="manual-equation math-scroll"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mi>p</mi><mrow><mi mathvariant="normal">r</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">c</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">v</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">r</mi></mrow></msub><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo><mo>=</mo><munder><mo>∑</mo><mrow><mi>z</mi><mo>∈</mo><msup><mi>X</mi><mrow><mo>−</mo><mn>1</mn></mrow></msup><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo></mrow></munder><mfrac><mrow><msub><mi>p</mi><mrow><mi mathvariant="normal">p</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">r</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">m</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">r</mi></mrow></msub><mo stretchy="false">(</mo><mi>z</mi><mo stretchy="false">)</mo></mrow><mrow><mi mathvariant="normal">∣</mi><msub><mi>J</mi><mi>X</mi></msub><mo stretchy="false">(</mo><mi>z</mi><mo stretchy="false">)</mo><mi mathvariant="normal">∣</mi></mrow></mfrac><mi mathvariant="normal">.</mi></mrow><annotation encoding="application/x-tex">p_{\mathrm{receiver}}(x)=\sum_{z\in X^{-1}(x)}\frac{p_{\mathrm{parameter}}(z)}{|J_X(z)|}.</annotation></semantics></math></span></div>
+<p>The simple map <code>x=cos(phi)</code> already has two preimages for every interior x.
+Keeping only one root loses half its density. An occluder can remove one of
+those preimages; it must not cause the remaining half to be renormalized.
+At singular points the regular change-of-variables formula itself has a
+limit/regularity issue; silently clamping its denominator is not a proof.</p>
+<p>PP33 uses forward emission and real first-hit tracing, so it never pretends
+that a folded receiver map has a unique inverse. Distinct valid emitted paths
+arrive with their own flux; Fresnel roulette retains its existing marginal
+weighting. This also means a sharp caustic is represented by concentrated
+arrivals, not an extra arbitrary “caustic Jacobian” multiplier.</p>
+<h2 id="correlation-is-the-useful-distinction">Correlation is the useful distinction</h2><p>Let <code>Y_c</code> and <code>Y_p</code> be one cone-sheet and one plane-sheet estimate of a pixel,
+each using the same number of rulings. For B independent sheets and a balanced
+split, the pair&#39;s variance is</p>
+<div class="manual-equation math-scroll"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi mathvariant="normal">Var</mi><mo>⁡</mo><mo stretchy="false">(</mo><msub><mover accent="true"><mi>L</mi><mo stretchy="true">^</mo></mover><mrow><mi mathvariant="normal">p</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">r</mi></mrow></msub><mo stretchy="false">)</mo><mo>=</mo><mfrac><mrow><mi mathvariant="normal">Var</mi><mo>⁡</mo><mo stretchy="false">(</mo><msub><mi>Y</mi><mi>c</mi></msub><mo stretchy="false">)</mo><mo>+</mo><mi mathvariant="normal">Var</mi><mo>⁡</mo><mo stretchy="false">(</mo><msub><mi>Y</mi><mi>p</mi></msub><mo stretchy="false">)</mo></mrow><mrow><mn>2</mn><mi>B</mi></mrow></mfrac><mi mathvariant="normal">.</mi></mrow><annotation encoding="application/x-tex">\operatorname{Var}(\widehat L_{\mathrm{pair}})
+=\frac{\operatorname{Var}(Y_c)+\operatorname{Var}(Y_p)}{2B}.</annotation></semantics></math></span></div>
+<p>A single family has <code>Var(single_i)=Var(Y_i)/B</code>. Under these assumptions,
+the pair lies between the two true variances. It cannot beat the better
+single family globally merely by applying balance weights to identical PDFs.
+Different pixels may prefer different sweep orientations, which makes the
+pair a reasonable default when that preference is unknown; it is still not
+an optimal per-pixel allocation scheme.</p>
+<p>More explicitly, decompose one sheet by its shared source position and held
+angle H:</p>
+<div class="manual-equation math-scroll"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi mathvariant="normal">Var</mi><mo>⁡</mo><mo stretchy="false">(</mo><mi>Y</mi><mo stretchy="false">)</mo><mo>=</mo><msub><mrow><mi mathvariant="normal">Var</mi><mo>⁡</mo></mrow><mi>H</mi></msub><mtext> ⁣</mtext><mrow><mo fence="true">(</mo><mi mathvariant="double-struck">E</mi><mo stretchy="false">[</mo><mi>Y</mi><mo>∣</mo><mi>H</mi><mo stretchy="false">]</mo><mo fence="true">)</mo></mrow><mo>+</mo><msub><mi mathvariant="double-struck">E</mi><mi>H</mi></msub><mtext> ⁣</mtext><mrow><mo fence="true">[</mo><mi mathvariant="normal">Var</mi><mo>⁡</mo><mo stretchy="false">(</mo><mi>Y</mi><mo>∣</mo><mi>H</mi><mo stretchy="false">)</mo><mo fence="true">]</mo></mrow><mi mathvariant="normal">.</mi></mrow><annotation encoding="application/x-tex">\operatorname{Var}(Y)=\operatorname{Var}_{H}\!\left(\mathbb E[Y\mid H]\right)
++\mathbb E_H\!\left[\operatorname{Var}(Y\mid H)\right].</annotation></semantics></math></span></div>
+<p>Increasing rulings along a sheet mainly reduces the second term. It does
+little for the first term if only rare held angles or emitter locations send
+light through a small glass aperture. This explains why drawing a smooth,
+dense-looking curve can still converge poorly across sheets. More independent
+sheets may help more than a denser sweep in that situation.</p>
+<p>Surface caustics make both effects visible: the receiver map folds and its
+visibility/branch boundaries become sharp. One sweep direction may traverse a
+narrow footprint well while the other keeps missing it. But changing chart
+orientation does not make the source hit the glass more often in expectation.
+A genuinely better proposal would need, for example, source-direction guiding
+toward the relay with the corresponding full PDF, or a valid manifold
+connection. Those extensions are not claimed by this pair mode.</p>
+<h2 id="measured-native-comparison">Measured native comparison</h2><p>The retained run used PP33, <strong>320 x 200</strong>, <strong>128 passes</strong>, <strong>32 sheets/pass</strong>,
+<strong>128 rulings/sheet</strong>: 524,288 launched rulings per image. Six independent
+seeds were rendered for each family in each scene, for <strong>54 images</strong>.
+Specular depth was 12; stochastic sampling, no spatial blur, pinhole camera,
+and no emitter/background context layer. Caustic-only was enabled in scenes
+108 and 109. All display images use the same exposure and global transform.</p>
+<p>Variance below is the image-average, per-pixel <strong>linear luminance sample
+variance across seeds</strong>. Timing is the renderer&#39;s measured work per pass,
+excluding its first two warmup passes and executable startup. This is not
+ground-truth MSE or a universal FPS claim. Six seed replicates are a small
+sample; the percentages describe this run and are not statistical certificates.</p>
+<div class="case-table-wrap technical-table" tabindex="0" role="region" aria-label="Technical comparison"><table>
+<thead>
+<tr>
+<th>Native scene</th>
+<th align="right">Cone variance</th>
+<th align="right">Plane variance</th>
+<th align="right">Pair variance</th>
+<th align="right">Pair / best single</th>
+<th align="right">Cone / plane / pair ms per pass</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>107: direct receiver atlas, including a mesh torus</td>
+<td align="right">5.7770e-4</td>
+<td align="right">6.4322e-4</td>
+<td align="right">6.1568e-4</td>
+<td align="right">1.066</td>
+<td align="right">3.31 / 3.45 / 3.37</td>
+</tr>
+<tr>
+<td>108: two coloured surface-caustic lenses</td>
+<td align="right">2.0680e-4</td>
+<td align="right">2.1627e-4</td>
+<td align="right">2.0872e-4</td>
+<td align="right">1.009</td>
+<td align="right">3.29 / 3.30 / 3.37</td>
+</tr>
+<tr>
+<td>109: four-glass relay onto catchers</td>
+<td align="right">3.2688e-5</td>
+<td align="right">3.0104e-5</td>
+<td align="right">3.2545e-5</td>
+<td align="right">1.081</td>
+<td align="right">3.77 / 3.58 / 3.67</td>
+</tr>
+</tbody></table></div>
+<p>The result fits the theoretical expectation: the pair stayed near the single
+families, with no measured speed or variance breakthrough. Cone had the lower
+sampled pixel variance in 107/108; plane in 109. The pair added a convenient
+same-budget comparison, not an excuse to advertise a win unsupported by data.</p>
+<p>The <a href="surface-pair-analysis.html#native-comparison-gallery">native comparison gallery</a> shows the images and
+variance/cost chart. The <span class="technical-source-label">summary data</span> retain the
+per-seed means, timing and exact budgets; the
+<span class="technical-source-label">run manifest</span> records binary/config/film hashes
+and points to the full local raw-film archive. Reproduce with
+<code>python docs/surface-photons/measure_pair.py .work/a-fresh-run</code>.</p>
+<h2 id="native-comparison-gallery">Native comparison gallery</h2><figure class="technical-figure"><img src="../../../media/radiance-technical/surface-photons/pair-evidence/variance-and-cost.png" alt="Variance and render cost across six independent seeds; the pair stays near the single families." width="1856" height="688" loading="lazy" decoding="async"><figcaption>Variance and render cost across six independent seeds; the pair stays near the single families.</figcaption></figure>
+<h3 id="direct-receiver-atlas">Direct receiver atlas</h3><div class="technical-evidence-grid"><figure class="technical-figure"><img src="../../../media/radiance-technical/surface-photons/pair-evidence/mean-107-0.png" alt="Cone: Direct receiver atlas. Mean of six seed films, identical exposure and display transform." width="320" height="200" loading="lazy" decoding="async"><figcaption>Cone: Direct receiver atlas. Mean of six seed films, identical exposure and display transform.</figcaption></figure>
+<figure class="technical-figure"><img src="../../../media/radiance-technical/surface-photons/pair-evidence/mean-107-1.png" alt="Meridian plane: Direct receiver atlas. Mean of six seed films, identical exposure and display transform." width="320" height="200" loading="lazy" decoding="async"><figcaption>Meridian plane: Direct receiver atlas. Mean of six seed films, identical exposure and display transform.</figcaption></figure>
+<figure class="technical-figure"><img src="../../../media/radiance-technical/surface-photons/pair-evidence/mean-107-2.png" alt="Balance pair: Direct receiver atlas. Mean of six seed films, identical exposure and display transform." width="320" height="200" loading="lazy" decoding="async"><figcaption>Balance pair: Direct receiver atlas. Mean of six seed films, identical exposure and display transform.</figcaption></figure>
+</div><h3 id="two-coloured-surface-caustics">Two coloured surface caustics</h3><div class="technical-evidence-grid"><figure class="technical-figure"><img src="../../../media/radiance-technical/surface-photons/pair-evidence/mean-108-0.png" alt="Cone: Two coloured surface caustics. Mean of six seed films, identical exposure and display transform." width="320" height="200" loading="lazy" decoding="async"><figcaption>Cone: Two coloured surface caustics. Mean of six seed films, identical exposure and display transform.</figcaption></figure>
+<figure class="technical-figure"><img src="../../../media/radiance-technical/surface-photons/pair-evidence/mean-108-1.png" alt="Meridian plane: Two coloured surface caustics. Mean of six seed films, identical exposure and display transform." width="320" height="200" loading="lazy" decoding="async"><figcaption>Meridian plane: Two coloured surface caustics. Mean of six seed films, identical exposure and display transform.</figcaption></figure>
+<figure class="technical-figure"><img src="../../../media/radiance-technical/surface-photons/pair-evidence/mean-108-2.png" alt="Balance pair: Two coloured surface caustics. Mean of six seed films, identical exposure and display transform." width="320" height="200" loading="lazy" decoding="async"><figcaption>Balance pair: Two coloured surface caustics. Mean of six seed films, identical exposure and display transform.</figcaption></figure>
+</div><h3 id="four-glass-relay">Four-glass relay</h3><div class="technical-evidence-grid"><figure class="technical-figure"><img src="../../../media/radiance-technical/surface-photons/pair-evidence/mean-109-0.png" alt="Cone: Four-glass relay. Mean of six seed films, identical exposure and display transform." width="320" height="200" loading="lazy" decoding="async"><figcaption>Cone: Four-glass relay. Mean of six seed films, identical exposure and display transform.</figcaption></figure>
+<figure class="technical-figure"><img src="../../../media/radiance-technical/surface-photons/pair-evidence/mean-109-1.png" alt="Meridian plane: Four-glass relay. Mean of six seed films, identical exposure and display transform." width="320" height="200" loading="lazy" decoding="async"><figcaption>Meridian plane: Four-glass relay. Mean of six seed films, identical exposure and display transform.</figcaption></figure>
+<figure class="technical-figure"><img src="../../../media/radiance-technical/surface-photons/pair-evidence/mean-109-2.png" alt="Balance pair: Four-glass relay. Mean of six seed films, identical exposure and display transform." width="320" height="200" loading="lazy" decoding="async"><figcaption>Balance pair: Four-glass relay. Mean of six seed films, identical exposure and display transform.</figcaption></figure>
+</div><p>These are retained native renders, with no retouching, denoising or blur. Black context is intentionally omitted from this restricted surface-path comparison. The measurements above use linear films; displayed images use exposure 1.4, the same exponential tone map and sRGB conversion.</p>
+<h2 id="validation-and-scope">Validation and scope</h2><p><code>PrismSurfaceCurveTest</code> passes 66,085 checks, including common-chart density,
+odd and one-sheet allocations, balance normalization, folded-map preimages,
+visibility masking, angular emitted power, receiver/film Jacobians and an
+independent analytic point-light/plane radiance target. The old cone and plane
+fixtures reproduced their checkpoint films byte-for-byte at the tested seed.</p>
+<p>Finite curve quadrature remains available in the pair, but it retains its
+finite-sampling bias; its screen filter also remains biased. The pair does
+not add omitted path classes or expand PP33&#39;s supported materials/media.
+The implementation still targets finite-depth <code>L[S]*DE</code> surface paths with
+geometric normals, RGB smooth specular interfaces, homogeneous extinction,
+first non-delta receivers and a pinhole sensor. See
+<a href="surface-curves.html">the native surface-mode scope</a>.</p>
+</article><footer class="technical-footer"><div class="technical-actions"><a href="../index.html">← RadianceLab brochure</a><a href="index.html">Technical reading room</a><a href="../validation/index.html">Rendered evidence ↗</a></div></footer></main></body></html>

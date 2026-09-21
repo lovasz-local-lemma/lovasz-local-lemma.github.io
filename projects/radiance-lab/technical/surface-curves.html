@@ -1,0 +1,157 @@
+<!doctype html><html lang="en"><head><style data-portfolio-paint>html{background:#0b0d0c;color-scheme:dark}html.portfolio-booting body{opacity:0}</style><script src="../../../portfolio-navigation.js?v=688f1905bc"></script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Surface receiver curves — RadianceLab</title><meta name="description" content="Angular photon sheets meet actual scene surfaces. Inspect the measure, supported path class and stochastic versus quadrature routes."><meta name="color-scheme" content="dark"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="../../../portfolio.css?v=b7ed8602e5"><link rel="stylesheet" href="../../../portfolio-effects.css?v=62be30dafa"><link rel="stylesheet" href="../../../portfolio-atmospheres.css?v=4b74c57939"><link rel="stylesheet" href="../../../portfolio-motion.css?v=4b098d8184"><link rel="stylesheet" href="../../../portfolio-case-studies.css?v=243caf2b0d"><link rel="stylesheet" href="../../../portfolio-brochures.css?v=a1e5e16132"><link rel="stylesheet" href="../../../portfolio-project-themes.css?v=a898c35e78"><link rel="stylesheet" href="../../../portfolio-location.css?v=9c4c1ad84f"><link rel="stylesheet" href="../../../portfolio-controls.css?v=9376de7761"><link rel="stylesheet" href="../../../portfolio-media.css?v=c51f7712ea"><link rel="stylesheet" href="../../../portfolio-overviews.css?v=8612c4ee0a"><link rel="stylesheet" href="../../../portfolio-motivations.css?v=ccc1c1d866"><link rel="stylesheet" href="../../../portfolio-claims.css?v=058dbd00ef"><link rel="stylesheet" href="../../../portfolio-feature-atlas.css?v=e73f02cb31"><script type="application/json" id="media-framing">{"media/brochures/physics-2d/thermal-furnace-magnetic-field-probe.png":{"width":1602,"height":940,"top":39},"media/brochures/physics-2d/magnetic-field-direction-appearance-controls.png":{"width":1602,"height":940,"top":39},"media/brochures/physics-2d/time-bomb-blast-particle-plume.png":{"width":1602,"height":940,"top":39}}</script><script defer src="../../../portfolio-claims.js?v=ed914a4d3a"></script><script defer src="../../../portfolio-visual-defaults.js?v=eecfd5c771"></script><script defer src="../../../portfolio-motion.js?v=a642c710f9"></script><script defer src="../../../portfolio-fire-studies.js?v=7717e15582"></script><script defer src="../../../portfolio-embers.js?v=8a8be5569d"></script><script defer src="../../../portfolio-atmospheres.js?v=021b2f100e"></script><script defer src="../../../portfolio-effects.js?v=03a6c89d6c"></script><script defer src="../../../portfolio-brochures.js?v=055cad29d6"></script><script defer src="../../../portfolio-location.js?v=3846586893"></script><script defer src="../../../portfolio-media.js?v=d2d555a888"></script><script defer src="../../../portfolio-articles.js?v=acb89575ce"></script><script defer src="../../../portfolio-labs.js?v=a0b86a3809"></script><link rel="stylesheet" href="../../../portfolio-technical.css?v=0ecb3a48c7"><script defer src="../../../portfolio-technical.js"></script><!-- universal-navigation:start --><script defer src="../../../portfolio-routes.js?v=054b6b462c"></script><script defer src="../../../portfolio-universal-navigation.js?v=054b6b462c"></script><!-- universal-navigation:end --><style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head><body data-page="technical" data-project-theme="optics" data-project-id="radiance-lab" data-default-atmosphere="caustics"><canvas class="spark-field" aria-hidden="true"></canvas><a class="skip-link" href="#main">Skip to content</a><nav class="site-nav portfolio-route" data-route-group="flagships" aria-label="Portfolio location"><div class="route-path"><a class="route-node route-home" href="../../../index.html#project-radiance-lab" aria-label="Portfolio"><img class="route-mark" src="../../../media/identity/portfolio-mark.svg" alt="" width="52" height="52"><span class="route-copy"><small>Work / ideas</small><strong>Portfolio</strong></span></a><span class="route-wire" aria-hidden="true"><i></i><b></b></span><div class="route-node route-group"><span class="route-glyph" aria-hidden="true">✦</span><span class="route-copy"><small>Collection</small><strong>Flagship</strong></span></div><span class="route-wire" aria-hidden="true"><i></i><b></b></span><a class="route-node route-project" href="../index.html"><span class="route-glyph" hidden aria-hidden="true">◈</span><img class="route-thumb" src="../../../media/previews/radiance-lab/caustic-showcase.png" width="42" height="42" alt=""><span class="route-copy"><small>Project</small><strong>RadianceLab</strong></span></a><span class="route-wire" aria-hidden="true"><i></i><b></b></span><a class="route-node technical-route" href="index.html"><span class="route-copy"><small>Technical reading room</small><strong>Surface receiver curves</strong></span></a></div><div class="route-end"><span class="route-meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><a class="route-back" href="../../../index.html#project-radiance-lab">← Back to portfolio</a></div></nav><nav class="section-rail technical-rail" aria-label="Technical document sections"><span class="rail-indicator" aria-hidden="true"></span><a href="#technical-top" data-section="technical-top"><span>⌂</span><span>Start</span></a><a href="#two-sampling-choices" data-section="two-sampling-choices" title="Two sampling choices"><small>01</small><span>Two sampling choices</span></a><a href="#the-measure-no-mysterious-curve-length-multiplier" data-section="the-measure-no-mysterious-curve-length-multiplier" title="The measure: no mysterious curve-length multiplier"><small>02</small><span>The measure: no mysterious curve-length multiplier</span></a><a href="#connecting-the-receiver-to-the-film" data-section="connecting-the-receiver-to-the-film" title="Connecting the receiver to the film"><small>03</small><span>Connecting the receiver to the film</span></a><a href="#scope-and-controls" data-section="scope-and-controls" title="Scope and controls"><small>04</small><span>Scope and controls</span></a><a href="#validation" data-section="validation" title="Validation"><small>05</small><span>Validation</span></a></nav><main id="main" class="project-page technical-page"><header id="technical-top" class="technical-hero"><span class="eyebrow">RadianceLab · Native implementation document</span><h1>Surface receiver curves</h1><p>Angular photon sheets meet actual scene surfaces. Inspect the measure, supported path class and stochastic versus quadrature routes.</p><div class="technical-actions"><a href="../index.html">← RadianceLab brochure</a><a href="index.html">Technical reading room</a><a href="../validation/index.html">Rendered evidence ↗</a></div></header><aside class="technical-scope"><span>◈</span><p>Implementation notes describe the native application. A working experiment, an approximate preview and a general transport estimator establish different things; each document states its own scope.</p></aside><details class="technical-relations"><summary>Key relationships · typeset equations</summary><figure class="manual-equation typeset-equation"><div class="math-scroll" tabindex="0" role="region" aria-label="Equation"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi mathvariant="normal">Φ</mi><mo>=</mo><mfrac><mrow><msub><mi>L</mi><mi>e</mi></msub><mo stretchy="false">(</mo><mi>y</mi><mo separator="true">,</mo><mi>ω</mi><mo stretchy="false">)</mo><mtext> </mtext><mi mathvariant="normal">∣</mi><msub><mi>n</mi><mi>y</mi></msub><mo>⋅</mo><mi>ω</mi><mi mathvariant="normal">∣</mi></mrow><mrow><msub><mi>p</mi><mrow><mi mathvariant="normal">l</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">g</mi><mi mathvariant="normal">h</mi><mi mathvariant="normal">t</mi></mrow></msub><mtext> </mtext><msub><mi>p</mi><mi>A</mi></msub><mtext> </mtext><msub><mi>p</mi><mi>ω</mi></msub><mtext> </mtext><mi>N</mi></mrow></mfrac></mrow><annotation encoding="application/x-tex">\Phi=\frac{L_e(y,\omega)\,|n_y\cdot\omega|}{p_{\mathrm{light}}\,p_A\,p_\omega\,N}</annotation></semantics></math></span></div><figcaption>An area-emitter packet carries flux with its source, area and angular sampling probabilities. Misses remain in N.</figcaption></figure><figure class="manual-equation typeset-equation"><div class="math-scroll" tabindex="0" role="region" aria-label="Equation"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mi>p</mi><mi>s</mi></msub><mo>=</mo><mfrac><msub><mi>p</mi><mi>u</mi></msub><mrow><mo fence="true">∣</mo><mi mathvariant="normal">d</mi><mi>X</mi><mi mathvariant="normal">/</mi><mi mathvariant="normal">d</mi><mi>u</mi><mo fence="true">∣</mo></mrow></mfrac></mrow><annotation encoding="application/x-tex">p_s=\frac{p_u}{\left|\mathrm dX/\mathrm du\right|}</annotation></semantics></math></span></div><figcaption>The angular parameter induces nonuniform receiver arclength. The forward sampler keeps that parameter and its flux.</figcaption></figure></details><article class="technical-document"><p>PP33 traces an emitted angular sheet into the actual scene. Its first non-delta
+hits form a receiver curve: a cone meeting a plane, a meridian plane meeting a
+sphere, or a refracted sheet meeting a mesh torus. Each ruling uses the native
+analytic intersections plus the mesh BVH. Nothing is projected onto a decorative
+proxy. Glass chains can produce surface caustics as well as the existing mode-32
+volumetric caustics.</p>
+<h2 id="two-sampling-choices">Two sampling choices</h2><p><strong>Stratified stochastic paths</strong> sample points in the sheet&#39;s parameter domain.
+Each angular cell receives one random sample. Light origin, the held angular
+coordinate, and Fresnel branch random numbers remain random. The result has no
+surface density-estimation radius and no screen smoothing. For the implemented
+finite-depth, geometric-normal, pinhole <code>L[S]*DE</code> path class, this is a correctly
+weighted Monte Carlo light tracer. It is not a claim to render every transport
+path or to be unbiased relative to arbitrary materials and cameras.</p>
+<p><strong>Finite curve quadrature</strong> uses a midpoint in every angular cell, evaluating
+the whole sampled curve. Optional Gaussian screen blur can join sparse deposits.
+Both its finite angular quadrature and screen filtering introduce approximation
+bias. More passes randomize the other coordinates but cannot remove the fixed
+quadrature or filter error. Increase curve samples and reduce blur to study it.
+This is sampled curve integration, not an analytic continuous-curve rasterizer.</p>
+<h2 id="the-measure-no-mysterious-curve-length-multiplier">The measure: no mysterious curve-length multiplier</h2><p>For a point emitter use <code>z = 1−2u</code>, <code>φ = 2πv</code>, with <code>pω = 1/(4π)</code>.
+For an area emitter use <code>z = √u</code>, <code>φ = 2πv</code>, with <code>pω = z/π</code>.
+Here <code>z = cos θ</code>; changing coordinates already includes <code>sin θ dθ</code>.
+The cone family holds <code>u</code> fixed and sweeps <code>v</code>. The meridian-plane family holds
+<code>v</code> fixed and sweeps <code>u</code>. A plane sheet covers the emitter&#39;s forward meridian
+half-plane; it does not emit backwards through a one-sided area lamp.</p>
+<p><strong>Cone + plane: balance MIS</strong> divides the same sheet budget between the two
+families. It combines them on their common emitted-path measure. Since these
+two charts have identical angular marginals, the balance weights reduce to
+their allocation fractions. Their different curve directions change batch
+correlation, not the marginal PDF. The pair is an orientation hedge; it does
+not inherit a guaranteed variance advantage from unrelated primitive MIS.
+The <a href="surface-pair-analysis.html">pair analysis and native measurements</a> explain this
+distinction, including receiver folds, visibility and surface caustics.</p>
+<p>An emitted sample carries flux</p>
+<p><code>Φ = Le(y,ω) cosθy / (pLight pArea pω N)</code></p>
+<p>for an area emitter, or <code>I / (pLight pω N)</code> for a point emitter. Directional
+profiles are evaluated at the actual ruling. Misses and blocked paths still
+count in <code>N</code>; normalizing by accepted hits would create a substantial bias.</p>
+<p>If <code>X(u)</code> is the induced receiver curve, its arclength density is
+<code>ps = pu / |dX/du|</code>. Thus a curve&#39;s slower parameter regions receive more samples
+per unit arclength. Uniformly placing samples along a polyline and ignoring this
+factor changes the estimator. PP33 avoids that error by retaining the original
+angular parameter and flux. For an implicit receiver <code>F(y+t d(u))=0</code>,</p>
+<p><code>dX/du = t [d′ − d (n·d′)/(n·d)]</code>.</p>
+<p>This identity exposes the receiver tangency and varying curve speed; the native
+forward sampler does not divide by a near-zero speed. Refraction changes the
+mapping further, but the emitted flux still travels along the actual path.
+Caustic focusing arises from the density of those arrivals.</p>
+<h2 id="connecting-the-receiver-to-the-film">Connecting the receiver to the film</h2><p>The receiver evaluates a bare BRDF <code>f(wo,wi)</code>. Do <strong>not</strong> multiply the incoming
+receiver cosine again: photon flux already carries the incident measure.
+For a pinhole camera, a packet deposited into its actual projected pixel is</p>
+<p><code>C = Φ f Tr · [wh/(4 halfW halfH)] cosθreceiver / (r² cos³θcamera)</code>.</p>
+<p>The bracketed factor converts surface area to film-pixel area, so the pixel&#39;s
+running mean estimates its box-filtered radiance. This is a sensor Jacobian,
+not the Jacobian of a volume primitive. Both the light path and receiver-to-eye
+segment are tested against real geometry. Any glass on that final straight
+segment blocks it: camera-side specular paths ending on a receiver are outside
+this version&#39;s class.</p>
+<p>Glass interfaces choose reflection/transmission by Fresnel probability; the
+chosen probability cancels its throughput factor. Photon <strong>power</strong> does not
+receive a radiance <code>η²</code> multiplier. Closed solid entry/exit and absorption are
+tracked; total internal reflection remains valid. Shared branch random numbers
+keep nearby rulings correlated without changing their individual distribution.</p>
+<h2 id="scope-and-controls">Scope and controls</h2><p>Headless keys are under <code>pp</code>:</p>
+<div class="case-table-wrap technical-table" tabindex="0" role="region" aria-label="Technical comparison"><table>
+<thead>
+<tr>
+<th>Key</th>
+<th align="right">Default</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>strategy</code></td>
+<td align="right">33</td>
+<td>Native surface curves</td>
+</tr>
+<tr>
+<td><code>surfaceCurveFamily</code></td>
+<td align="right">0</td>
+<td>0 cone, 1 meridian plane, 2 cone + plane balance MIS</td>
+</tr>
+<tr>
+<td><code>surfaceCurveSampling</code></td>
+<td align="right">0</td>
+<td>0 stratified stochastic, 1 midpoint quadrature</td>
+</tr>
+<tr>
+<td><code>surfaceCurveBatch</code></td>
+<td align="right">64</td>
+<td>Independent random sheets per pass</td>
+</tr>
+<tr>
+<td><code>surfaceCurveSamples</code></td>
+<td align="right">128</td>
+<td>Samples along each receiver curve</td>
+</tr>
+<tr>
+<td><code>surfaceCurveDepth</code></td>
+<td align="right">12</td>
+<td>Maximum light-side specular interfaces</td>
+</tr>
+<tr>
+<td><code>surfaceCurveBlur</code></td>
+<td align="right">0</td>
+<td>Gaussian sigma in pixels; quadrature only</td>
+</tr>
+<tr>
+<td><code>surfaceCurveCausticOnly</code></td>
+<td align="right">false</td>
+<td>Omit the zero-specular direct surface class</td>
+</tr>
+<tr>
+<td><code>surfaceCurveContext</code></td>
+<td align="right">true</td>
+<td>Separately show emitter/background through camera specular paths</td>
+</tr>
+</tbody></table></div>
+<p>Sources are enabled area/point <code>scene.lights[]</code>, using matched emissive-entity
+directional profiles when present. Receivers include analytic planes/spheres/
+boxes and transformed triangle meshes. Lambertian is the clean validation
+case. The existing BRDF evaluator additionally supplies rough metal,
+isotropic approximation of anisotropic metal, iridescent metal and the base
+of coated diffuse; the coat&#39;s delta lobe is not added. Unsupported receiver
+BSDFs do not receive substituted Lambertian shading.</p>
+<p>Other limits: geometric normals; closed nonoverlapping dielectric solids;
+RGB smooth glass even if the source material advertises dispersion/roughness;
+homogeneous nonoverlapping fog extinction, without scattered radiance;
+one non-delta receiver; no environment illumination; pinhole camera regardless
+of the selected interactive lens. Finite depth deliberately truncates paths.
+The context layer shows emission/background only, so it cannot double-count
+the light-traced direct receiver. Analytic medium comp mode is refused.</p>
+<p>Logs report receiver hits, caustic hits, film deposits, occlusion, invalid solid
+topology and depth truncations. These are useful diagnostics, not proof that
+every intended path has been implemented.</p>
+<h2 id="validation">Validation</h2><p><code>PrismSurfaceCurveTest</code> independently checks angular power integrals, the
+nonuniform arclength density of a cone on a tilted plane, the film Jacobian
+against finite differences, and a sampled point-light/plane image mean against
+its closed-form radiance. The Monte Carlo comparison uses independent sheet
+means to estimate uncertainty rather than treating correlated points as IID.</p>
+<p>Native images should compare cone and plane choices against the same direct
+surface reference, then compare quadrature resolutions and the caustic-only
+glass fixture. Equal pass counts are not equal work: cost scales with sheets
+times curve samples and the number of traversed specular interfaces.</p>
+<p>The additive pair was checked on 54 native renders (three scenes, three
+families, six seeds each), with the same 524,288 launched rulings per image.
+Both existing single-family modes also reproduced their checkpoint films
+byte-for-byte in the retained direct-atlas regression fixture.</p>
+</article><footer class="technical-footer"><div class="technical-actions"><a href="../index.html">← RadianceLab brochure</a><a href="index.html">Technical reading room</a><a href="../validation/index.html">Rendered evidence ↗</a></div></footer></main></body></html>

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 570" role="img" aria-labelledby="title desc">
+<title id="title">ShaderWeave: image connections, code connections and retained state</title>
+<desc id="desc">A source image enters an editable shader. A code snippet joins through a separate source-code connection. The shader writes a current-state image while reading the previous state, and a viewer displays the result. This is a schematic, not an application screenshot.</desc>
+<defs><linearGradient id="glass" x2="0" y2="1"><stop stop-color="#213332"/><stop offset="1" stop-color="#121c22"/></linearGradient><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 1L8 5L0 9" fill="none" stroke="#81d9be" stroke-width="1.4"/></marker><marker id="gold" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 1L8 5L0 9" fill="none" stroke="#e7be76" stroke-width="1.4"/></marker></defs>
+<rect x="1" y="1" width="1198" height="568" rx="22" fill="#0d141b" stroke="#3e5c59"/>
+<g font-family="Segoe UI, sans-serif"><text x="36" y="48" fill="#e9f4ee" font-size="27" font-weight="600">A visible program has more than one kind of connection</text><text x="36" y="80" fill="#a1b9b6" font-size="18">Image flow · source-code composition · explicit previous-state storage</text>
+<g fill="none" stroke="#81d9be" stroke-width="3" marker-end="url(#arrow)"><path d="M240 240H340"/><path d="M565 240H675"/><path d="M900 240H1005"/><path d="M900 287C961 365 755 423 607 400C493 382 446 338 446 301"/></g>
+<path d="M448 143V184" fill="none" stroke="#e7be76" stroke-width="3" stroke-dasharray="5 5" marker-end="url(#gold)"/>
+<g fill="url(#glass)" stroke="#5e9e90" stroke-width="1.5"><rect x="36" y="188" width="204" height="115" rx="16"/><rect x="340" y="188" width="225" height="115" rx="16"/><rect x="675" y="188" width="225" height="115" rx="16"/><rect x="1005" y="188" width="159" height="115" rx="16"/></g>
+<rect x="340" y="105" width="225" height="39" rx="11" fill="#30291e" stroke="#a18453"/>
+<g font-size="22" fill="#eef7f2" font-weight="600"><text x="57" y="225">Source image</text><text x="361" y="225">Editable pass</text><text x="696" y="225">State images</text><text x="1024" y="225">Viewer</text></g>
+<g font-size="18" fill="#afd4c7"><text x="57" y="259">render · capture</text><text x="57" y="285">image · audio level</text><text x="361" y="259">GLSL + inputs</text><text x="361" y="285">intermediate preview</text><text x="696" y="259">read previous</text><text x="696" y="285">write next, then swap</text><text x="1024" y="259">project any</text><text x="1024" y="285">stage</text></g>
+<text x="362" y="132" font-size="18" fill="#f1d49b">Connected code snippet</text>
+<rect x="622" y="354" width="231" height="41" rx="13" fill="#162923" stroke="#416e60"/><text x="638" y="381" font-size="18" fill="#a7e2c9">state[t] → state[t + 1]</text>
+<path d="M36 442H1164" stroke="#304843"/>
+<text x="36" y="480" font-size="21" fill="#dfc595">The image is the interface; the backend retains its own execution rules.</text>
+<text x="36" y="514" font-size="18" fill="#a1b9b6">CUDA and OptiX can supply texture results. Volume resources add a third spatial axis or a frame-history axis.</text><text x="36" y="542" font-size="17" fill="#829993">Source-derived schematic. A feedback edge requires suitable old/new storage; it does not validate an arbitrary cycle.</text>
+</g></svg>

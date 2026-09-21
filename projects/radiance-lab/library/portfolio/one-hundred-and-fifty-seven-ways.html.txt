@@ -1,0 +1,1051 @@
+<title>One hundred and fifty-seven ways to ruin a render</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300&display=swap">
+
+<style>
+/* ============================================================
+   Single-theme dark by deliberate commitment: this is a page about
+   light transport, and the renders are dark. Every colour is painted
+   explicitly so the page holds on any host ground.
+   ============================================================ */
+:root{
+  color-scheme: dark;
+  --bg:#070a0c; --bg-deep:#040607; --bg-lift:#0b1013;
+  --surface:rgba(255,255,255,.035);
+  --surface-2:rgba(255,255,255,.06);
+  --line:rgba(255,255,255,.10);
+  --line-2:rgba(255,255,255,.18);
+  --text:#eef2f0; --muted:#98a5a8; --muted-2:#6c797d;
+
+  /* Literal wavelength ramp — these are the section identities, not decoration */
+  --l400:#7B6CF6; --l460:#4E93F5; --l500:#3FD0D4;
+  --l540:#5FDD9B; --l560:#A9D877; --l580:#E3C55F; --l600:#EDA457; --l620:#F09A4E; --l680:#F2685C;
+
+  --accent:#E3B45F;            /* caustic gold: the light itself */
+  --accent-soft:rgba(227,180,95,.13);
+  --good:#5FDD9B; --bad:#F2685C;
+  --shadow:0 28px 80px rgba(0,0,0,.55), 0 3px 18px rgba(0,0,0,.4);
+
+  --sans:Inter,ui-sans-serif,-apple-system,"Segoe UI",sans-serif;
+  --display:Newsreader,"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--text);
+  font-family:var(--sans); font-size:16.5px; line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1140px;margin:0 auto;padding:0 32px}
+.narrow{max-width:720px}
+
+h1,h2,h3{font-family:var(--display);font-weight:400;letter-spacing:-.01em;text-wrap:balance}
+.mono{font-family:var(--mono)}
+em{font-style:italic;color:#cfd8d6}
+
+/* ---------------- side navigation ---------------- */
+#rail{
+  position:fixed;left:22px;top:50%;transform:translateY(-50%);z-index:50;
+  display:flex;flex-direction:column;gap:15px;align-items:flex-start
+}
+#railtrack,#railfill{position:absolute;left:4px;width:1px;top:3px;pointer-events:none}
+#railtrack{bottom:3px;background:rgba(255,255,255,.10)}
+#railfill{height:0;background:linear-gradient(to bottom,var(--l460),var(--l620));
+  transition:height .18s linear;box-shadow:0 0 8px rgba(255,255,255,.18)}
+#rail a{
+  display:flex;align-items:center;gap:11px;position:relative;text-decoration:none;
+  opacity:.34;transition:opacity .35s
+}
+#rail a::before{
+  content:"";width:9px;height:9px;border-radius:50%;background:var(--dot,#444);flex:none;
+  transition:transform .35s, box-shadow .35s
+}
+#rail a:hover,#rail a.on{opacity:1}
+#rail a.on::before{transform:scale(1.5);box-shadow:0 0 14px var(--dot)}
+#rail a span{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--dot);white-space:nowrap
+}
+@media (max-width:1439px){#rail a span{display:none}#rail{gap:16px}}
+@media (max-width:1180px){#rail{display:none}}
+
+/* ---------------- video placeholder: a shooting instruction, not a grey box ---------------- */
+.vslot{
+  border:1px dashed rgba(255,255,255,.22);border-radius:12px;padding:18px 20px;margin:22px 0;
+  background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.012))
+}
+.vslot-h{
+  font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--secc,#9fb0ad);margin-bottom:9px
+}
+.vslot-r{font-size:13.5px;color:#c8d2d0;line-height:1.55}
+.vslot-n{font-size:12.5px;color:var(--muted);margin-top:8px}
+.vslot-n b{color:#c8d2d0;font-weight:600}
+
+/* ---------------- hero ---------------- */
+.hero{position:relative;overflow:hidden;border-bottom:1px solid var(--line)}
+.hero-img{position:absolute;inset:0;z-index:0}
+.hero-img img{width:100%;height:100%;object-fit:cover;opacity:.62;filter:saturate(1.15)}
+.hero-img::after{
+  content:"";position:absolute;inset:0;
+  background:
+    radial-gradient(120% 90% at 50% 42%, rgba(7,10,12,0) 0%, rgba(7,10,12,.55) 48%, var(--bg) 88%),
+    linear-gradient(to bottom, rgba(7,10,12,.75) 0%, rgba(7,10,12,0) 25%, rgba(7,10,12,.9) 100%);
+}
+.hero-in{position:relative;z-index:1;padding:132px 0 70px}
+.eyebrow{
+  font-family:var(--mono);font-size:11px;letter-spacing:.26em;text-transform:uppercase;
+  color:var(--accent);margin:0 0 26px
+}
+.hero h1{
+  font-size:clamp(46px,8.2vw,96px);line-height:.96;margin:0 0 26px;
+  font-weight:300;letter-spacing:-.025em
+}
+.hero h1 i{font-style:italic;color:var(--accent)}
+.thesis{
+  font-family:var(--display);font-size:clamp(19px,2.4vw,25px);line-height:1.5;
+  color:#d3dbd9;max-width:30ch;margin:0 0 46px;font-weight:300
+}
+.spectrum{
+  height:2px;width:100%;margin:0 0 40px;border-radius:2px;
+  background:linear-gradient(90deg,var(--l400),var(--l460),var(--l500),var(--l540),var(--l580),var(--l620),var(--l680))
+}
+.stats{display:flex;flex-wrap:wrap;gap:14px}
+.stat{
+  background:var(--surface);border:1px solid var(--line);border-radius:11px;
+  padding:15px 20px 16px;backdrop-filter:blur(9px);min-width:168px;flex:1 1 168px
+}
+.stat .k{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--muted-2);display:block;margin-bottom:9px
+}
+.stat .v{
+  font-family:var(--mono);font-size:23px;font-weight:700;font-variant-numeric:tabular-nums;
+  letter-spacing:-.02em;display:flex;align-items:baseline;gap:8px
+}
+.stat .from{color:var(--bad)}
+.stat .arr{color:var(--muted-2);font-size:14px;font-weight:400}
+.stat .to{color:var(--good)}
+.stat .sub{font-size:12px;color:var(--muted-2);margin-top:5px;line-height:1.4}
+
+/* ---------------- sections ---------------- */
+section{padding:104px 0;border-bottom:1px solid var(--line)}
+section:last-of-type{border-bottom:0}
+.sec-label{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--secc,var(--accent));margin:0 0 16px;display:flex;align-items:center;gap:11px
+}
+.sec-label::before{content:"";width:22px;height:1px;background:var(--secc,var(--accent));opacity:.65}
+h2{font-size:clamp(30px,4.4vw,46px);line-height:1.1;margin:0 0 22px;font-weight:300}
+h3{font-size:22px;margin:44px 0 12px;font-weight:400;color:#e6ece9}
+p{margin:0 0 19px;color:#c2ccca}
+.lead{font-size:19px;line-height:1.62;color:#d5ddda;font-family:var(--display);font-weight:300}
+strong{color:var(--text);font-weight:600}
+code{
+  font-family:var(--mono);font-size:.85em;background:var(--surface-2);
+  padding:2px 6px;border-radius:4px;color:#d6e0dd;border:1px solid var(--line)
+}
+
+/* ---------------- schematics + screenshot slots ---------------- */
+.schem{
+  border:1px solid var(--line);border-radius:12px;background:var(--bg-lift);
+  padding:14px 10px;overflow-x:auto
+}
+.schem svg{width:100%;height:auto;display:block;max-width:900px;margin:0 auto}
+.slot{
+  border:1px dashed var(--line-2);border-radius:12px;min-height:180px;
+  display:flex;align-items:center;justify-content:center;text-align:center;
+  padding:28px 24px;font-family:var(--mono);font-size:12.5px;line-height:1.7;
+  color:var(--muted-2);background:var(--surface)
+}
+
+/* ---------------- figures ---------------- */
+figure{margin:44px 0}
+figure img{width:100%;display:block;border-radius:12px;border:1px solid var(--line);background:#000}
+figcaption{
+  margin-top:13px;font-size:13.5px;color:var(--muted);line-height:1.55;
+  display:flex;gap:9px;align-items:baseline
+}
+figcaption b{color:var(--muted-2);font-family:var(--mono);font-size:10px;letter-spacing:.14em;
+  text-transform:uppercase;white-space:nowrap;padding-top:2px}
+
+.paircap{margin-top:13px;font-size:13.5px;color:var(--muted);line-height:1.55;display:flex;gap:9px;align-items:baseline}
+.paircap b{color:var(--muted-2);font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap;padding-top:2px}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:760px){.pair{grid-template-columns:1fr}}
+.pane{position:relative}
+.pane img{width:100%;display:block;border-radius:11px;border:1px solid var(--line);background:#000}
+.tag{
+  position:absolute;top:11px;left:11px;font-family:var(--mono);font-size:10px;
+  letter-spacing:.12em;text-transform:uppercase;padding:4px 9px;border-radius:5px;
+  background:rgba(4,6,7,.8);border:1px solid var(--line-2);backdrop-filter:blur(6px)
+}
+.tag.a{color:var(--bad)} .tag.b{color:var(--good)}
+
+/* measured readout rows — straight from the reference UI */
+.readout{
+  margin:22px 0 0;border:1px solid var(--line);border-radius:11px;overflow:hidden;
+  background:var(--surface)
+}
+.readout .row{
+  display:flex;justify-content:space-between;align-items:center;gap:18px;
+  padding:11px 17px;border-bottom:1px solid var(--line);font-size:13.5px
+}
+.readout .row:last-child{border-bottom:0}
+.readout .row .lbl{color:var(--muted)}
+.readout .row .val{
+  font-family:var(--mono);font-variant-numeric:tabular-nums;font-weight:500;
+  font-size:13.5px;white-space:nowrap
+}
+.readout .row.hi .val{color:var(--accent);font-weight:700}
+.readout .row .val .d{color:var(--muted-2)}
+
+/* ---------------- roster table ---------------- */
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface);margin:34px 0}
+table{border-collapse:collapse;width:100%;min-width:640px;font-size:13.5px}
+th{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.15em;text-transform:uppercase;
+  text-align:left;color:var(--muted-2);padding:13px 16px;border-bottom:1px solid var(--line);
+  white-space:nowrap;font-weight:500
+}
+td{padding:11px 16px;border-bottom:1px solid rgba(255,255,255,.055);color:#bcc6c4;vertical-align:top}
+tr:last-child td{border-bottom:0}
+td:first-child{font-family:var(--mono);color:var(--text);font-weight:500;white-space:nowrap}
+td b{color:var(--text);font-weight:600}
+tr.key td{background:var(--accent-soft)}
+tr.key td:first-child{color:var(--accent)}
+
+/* ---------------- formula ---------------- */
+.formula{
+  margin:30px 0;padding:26px 28px;border-radius:12px;
+  background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.02));
+  border:1px solid var(--line);text-align:center
+}
+.formula .f{
+  font-family:var(--mono);font-size:clamp(14px,2.1vw,19px);color:var(--text);
+  letter-spacing:.01em;line-height:1.75
+}
+.formula .f .hl{color:var(--accent)}
+.formula .n{margin-top:14px;font-size:13px;color:var(--muted-2);line-height:1.5}
+
+/* ---------------- notes / honesty ---------------- */
+.note{
+  border-left:2px solid var(--secc,var(--accent));padding:3px 0 3px 22px;margin:30px 0;
+  color:var(--muted);font-size:15px
+}
+.note b{color:#dbe3e0}
+ul.clean{padding-left:0;list-style:none;margin:26px 0}
+ul.clean li{
+  padding:15px 0 15px 26px;border-bottom:1px solid var(--line);position:relative;
+  color:#bcc6c4;font-size:15px
+}
+ul.clean li:last-child{border-bottom:0}
+ul.clean li::before{
+  content:"";position:absolute;left:0;top:24px;width:7px;height:7px;border-radius:50%;
+  background:var(--secc,var(--accent));opacity:.75
+}
+ul.clean li b{color:var(--text)}
+
+/* ---------------- footer ---------------- */
+footer{padding:76px 0 96px;background:var(--bg-deep)}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:30px;margin-top:36px}
+.fgrid div .k{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--muted-2);display:block;margin-bottom:8px
+}
+.fgrid div .v{font-size:14.5px;color:#c2ccca;line-height:1.55}
+.scope{
+  margin-top:52px;padding:22px 26px;border:1px solid var(--line);border-radius:12px;
+  background:var(--surface);font-size:14.5px;color:var(--muted)
+}
+.scope b{color:var(--text)}
+
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media (max-width:640px){
+  .wrap{padding:0 20px}
+  .hero-in{padding:92px 0 54px}
+  section{padding:72px 0}
+}
+
+/* ---------------- index: card grid ---------------- */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:22px;margin:44px 0 10px}
+.card{
+  display:block;text-decoration:none;color:inherit;position:relative;overflow:hidden;
+  border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.022);
+  transition:border-color .3s, transform .3s, background .3s
+}
+.card:hover{border-color:var(--cc,#7a8a88);transform:translateY(-3px);background:rgba(255,255,255,.045)}
+.card::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:var(--cc,#666)}
+.card-in{padding:20px 22px 22px}
+.card .eyebrow{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.17em;text-transform:uppercase;
+  color:var(--cc,#8fa09d);opacity:.9
+}
+.card h3{font-family:var(--display),serif;font-size:22px;line-height:1.2;margin:9px 0 8px;font-weight:500}
+.card p{font-size:13.5px;line-height:1.6;color:var(--muted);margin:0 0 14px}
+.card-thumb{
+  border-radius:9px;overflow:hidden;border:1px solid var(--line);margin:0 0 14px;
+  background:#0c100f;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center
+}
+.card-thumb img,.card-thumb svg{width:100%;height:100%;object-fit:cover;display:block}
+.card-num{display:flex;align-items:baseline;gap:9px;margin-bottom:12px}
+.card-num b{font-family:var(--mono);font-size:19px;color:var(--cc,#d8e0de);font-weight:600;letter-spacing:-.01em}
+.card-num span{font-size:11.5px;color:var(--muted-2,#7f8b89)}
+.card-st{display:flex;gap:13px;flex-wrap:wrap;font-family:var(--mono);font-size:9.5px;
+  letter-spacing:.09em;color:var(--muted-2,#7f8b89);border-top:1px solid var(--line);padding-top:11px}
+
+/* ---------------- status marks: same object as a rail dot ---------------- */
+.st{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.st::before{content:"";width:9px;height:9px;border-radius:50%;flex:none;box-sizing:border-box}
+.st-a::before{background:var(--good,#7BD88F)}
+.st-b::before{background:linear-gradient(90deg,var(--l500) 50%,transparent 50%);border:1px solid var(--l500)}
+.st-c::before{border:1px solid var(--l580);background:none}
+.st-d::before{border:1px solid var(--muted-2,#7f8b89);background:none;border-radius:2px;transform:rotate(45deg)}
+
+/* ---------------- index: the honest ledger ---------------- */
+.chips{display:flex;gap:9px;flex-wrap:wrap;margin:26px 0 16px}
+.chip{
+  font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  padding:7px 13px;border-radius:999px;border:1px solid var(--line);background:none;color:var(--muted);
+  cursor:pointer;transition:border-color .25s,color .25s
+}
+.chip:hover{color:#d5dedc}
+.chip[aria-pressed="true"]{border-color:var(--accent,#EDA457);color:#e9efee}
+table.ledger{width:100%;border-collapse:collapse;font-size:13px}
+table.ledger th{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--muted-2,#7f8b89);text-align:left;padding:0 14px 9px 0;border-bottom:1px solid var(--line);font-weight:500
+}
+table.ledger td{padding:9px 14px 9px 0;border-bottom:1px solid rgba(255,255,255,.045);vertical-align:top}
+table.ledger td:nth-child(2){color:var(--muted)}
+table.ledger td:nth-child(3){font-family:var(--mono);font-size:11.5px;color:#c3ceccff}
+</style>
+<nav id="rail" aria-label="Sections">
+  <i id="railtrack"></i><i id="railfill"></i>
+  <a href="#bank" style="--dot:var(--l400)" data-s="bank"><span>The bank</span></a>
+  <a href="#geometry" style="--dot:var(--l460)" data-s="geometry"><span>Reads the renderer</span></a>
+  <a href="#theorems" style="--dot:var(--l500)" data-s="theorems"><span>The theorems</span></a>
+  <a href="#press" style="--dot:var(--l540)" data-s="press"><span>The press</span></a>
+  <a href="#clock" style="--dot:var(--l580)" data-s="clock"><span>The clock</span></a>
+  <a href="#npr" style="--dot:var(--l600)" data-s="npr"><span>The NPR combo</span></a>
+  <a href="#honest" style="--dot:var(--l620)" data-s="honest"><span>Inert & orphaned</span></a>
+  <a href="#tail" style="--dot:var(--l620)" data-s="tail"><span>Below the bank</span></a>
+  <a href="#shots" style="--dot:var(--l680)" data-s="shots"><span>Shot list</span></a>
+</nav>
+
+<!-- ================= HERO ================= -->
+<header class="hero">
+  <div class="wrap hero-in">
+    <p class="eyebrow">Image operators &middot; RadianceLab</p>
+    <h1>One hundred and fifty-seven<br>ways to <i>ruin</i> a render</h1>
+    <p class="thesis">Sitting on top of a physically-based path tracer is a bank of stackable image operators that is much stranger than a post-process stack. Ricci flow, Hodge decomposition, persistent homology and walk-on-spheres share a combo box with halftone, ASCII art and Kuwahara. The strangeness is the point.</p>
+    <p class="note" style="max-width:60ch;margin:14px 0 0;color:#9fb0ad">This page expands a single row on the landing-page ledger into 157 operators, three families, and an audit of every theorem-named shader against its own source. It is also the least photographed territory in the project &mdash; <b>almost every figure below is a capture instruction, not a capture</b> &mdash; and the shot list is a deliverable in its own right: eighteen captures nobody has taken — fifteen stills and three clips — of operators that all exist and are all one click away.</p>
+    <div class="spectrum"></div>
+    <div class="stats">
+      <div class="stat"><span class="k">Dispatch sites in the stackable chain</span>
+        <div class="v"><span class="to">157</span></div>
+        <div class="sub">counted in <span class="mono">EngineRender.cpp</span>; the CV filter slot immediately after is a 158th</div></div>
+      <div class="stat"><span class="k">Operator toggles in the panel</span>
+        <div class="v"><span class="to">164</span></div>
+        <div class="sub"><span class="mono">FancyKnob("##&hellip;_toggle")</span> widgets across two bands</div></div>
+      <div class="stat"><span class="k">Fragment shaders behind them</span>
+        <div class="v"><span class="from">200</span><span class="arr">+</span><span class="to">27</span></div>
+        <div class="sub">.frag and .comp in <span class="mono">shaders/</span>; 8 files are orphaned</div></div>
+      <div class="stat"><span class="k">Ever deliberately photographed</span>
+        <div class="v"><span class="to">0</span></div>
+        <div class="sub">no operator in the bank appears in any image in this repository</div></div>
+    </div>
+  </div>
+</header>
+
+
+<!-- ================= 01 · THE BANK ================= -->
+<section id="bank" style="--secc:var(--l400)" data-nav="The bank">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">01 &mdash; What is actually there</p>
+      <h2>Not a filter pack. A second renderer that happens to run on the first one's output</h2>
+      <p class="lead">The landing page carries one row for all of this: <em>"157 stackable image operators &mdash; over 21 non-photorealistic modes &mdash; Ricci flow and persistent homology share a combo with halftone."</em> That row is the only place on this site the bank exists. Everything below is what is behind it.</p>
+      <p>The claim is not "we have effects". Every renderer has effects. What is unusual here is the <em>company these operators keep</em>: a lattice U(1) gauge field with Wilson-loop holonomy is nineteen rows below Risograph misregistration, in the same scrolling panel, and both are one click. And what is unusual in the other direction is that fifty-five of them read the path tracer's G-buffer, so they are not image filters at all &mdash; run them on a photograph and they do nothing.</p>
+      <p>The bank is genuinely wired. That was the first thing to check, because a list of 157 named toggles is exactly the sort of thing that turns out to be a menu with no engine behind it. It is not.</p>
+    </div>
+
+    <div class="readout">
+      <div class="row hi"><span class="lbl">Dispatch sites <span class="mono">displayTex = apply&hellip;()</span> in the stackable chain</span><span class="val">157</span></div>
+      <div class="row"><span class="lbl">&mdash; inside <span class="mono">EngineRender.cpp:2710&ndash;3036</span>, up to and including the CV / ToF / holography sub-block</span><span class="val">146</span></div>
+      <div class="row"><span class="lbl">&mdash; inside <span class="mono">:3825&ndash;3849</span> (stat-physics, research-grade math, tail)</span><span class="val">11</span></div>
+      <div class="row"><span class="lbl">&mdash; then <span class="mono">applyCVFilter</span> at <span class="mono">:3854</span>, one line after the chain's block closes</span><span class="val">the 158th</span></div>
+      <div class="row"><span class="lbl"><span class="mono">apply*</span> function definitions across <span class="mono">EngineVFX.cpp / EngineVFX2.cpp / EngineNPR.cpp</span></span><span class="val">183</span></div>
+      <div class="row"><span class="lbl">C++ lines in those three files</span><span class="val">8,136</span></div>
+      <div class="row"><span class="lbl"><span class="mono">bool &hellip;Enabled</span> flags in <span class="mono">UIManager.h</span> with no reader outside <span class="mono">src/ui/</span></span><span class="val">3 of 178</span></div>
+    </div>
+
+    <div class="narrow">
+      <p>Every operator toggle in the bank reaches a dispatch site and a shader, and that is the claim worth making. An earlier draft of this paragraph tried to settle it with a stronger one — that of the 178 <span class="mono">*Enabled</span> flags the UI declares, exactly one has no reader outside <span class="mono">src/ui/</span>. That is wrong: three do. <span class="mono">diffRenderEnabled</span> is the one that draft had in mind; <span class="mono">envEnabled</span> is defensible, because <span class="mono">UIManager.h:214</span> says it zeroes <span class="mono">envStrength</span> at the use sites; and the third is a good joke at this page’s expense. <span class="mono">ltEnabled</span> has exactly one reference in the entire tree, its own declaration, and it is the light tracer’s enable flag — sitting a few lines from the comment that this project’s whole reachability audit exists because of. The bank is genuinely wired; the sentence advertised as proving it was not.</p>
+      <p class="note"><b>On the number 157.</b> The catalogue's figure is 157 and the landing page repeats it. The chain itself holds exactly 157 dispatch sites — 146 in <span class="mono">EngineRender.cpp:2710&ndash;3036</span> and 11 in the tail at <span class="mono">:3825&ndash;3849</span> — and <span class="mono">applyCVFilter</span>, one line after the block closes, is a 158th. An earlier version of this read-out stopped the chain at <span class="mono">:3010</span> and reached 157 by adding the CV filter to a short count of 156; it landed on the right total by cancelling two errors, and the group table in &sect;08 (which sums to 157 without the CV filter) was right all along. Separately there are 164 <span class="mono">_toggle</span> knobs in <span class="mono">UIManagerRender.cpp</span>, and the gap to 157 is not the single subtraction an earlier version of this note claimed. Eight of the 164 drive something other than a bank operator &mdash; <span class="mono">spectralMode</span>, <span class="mono">volLightSampling</span>, <span class="mono">bdptPyramid</span>, <span class="mono">enableMedium</span>, <span class="mono">ppDOFEnabled</span>, <span class="mono">ppGlowEnabled</span>, <span class="mono">cvFilterEnabled</span> and <span class="mono">dataMoshEnabled</span> &mdash; leaving 156; the 157th operator, <span class="mono">tofRecoveryEnabled</span>, has no <span class="mono">_toggle</span> at all but an <span class="mono">ImGui::Checkbox</span> in a different file (<span class="mono">UIManagerPanels.cpp:1034</span>). 164 &minus; 8 + 1 = 157. Four of the 157 are mutually exclusive (see the conformal note in &sect;07), so the largest number that can be simultaneously <em>on</em> is 154.</p>
+    </div>
+
+    <div class="schem">
+      <svg viewBox="0 0 920 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The display pipeline: renderer, then one of 21 NPR modes, then the 157-operator stackable chain in 22 fixed groups, then CV filter, depth of field, photo capture, data mosh, projector, glow, temporal blur and selection overlay">
+        <defs>
+          <marker id="lkAh" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0L10,5L0,10z" fill="#78C8FF" fill-opacity="0.75"/></marker>
+        </defs>
+        <g font-family="'JetBrains Mono',ui-monospace,monospace" font-size="11" fill="#DDE3E0">
+
+          <text x="12" y="22" fill="#7f8b89" font-size="10">ONE FRAME, LEFT TO RIGHT &mdash; ORDER IS FIXED IN SOURCE, NOT USER-ORDERED</text>
+
+          <!-- spine -->
+          <line x1="24" y1="86" x2="896" y2="86" stroke="#78C8FF" stroke-opacity="0.45" stroke-width="1.5" marker-end="url(#lkAh)"/>
+
+          <!-- renderer -->
+          <rect x="24" y="62" width="104" height="48" rx="4" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.28)"/>
+          <text x="76" y="82" text-anchor="middle" font-size="11">raster</text>
+          <text x="76" y="97" text-anchor="middle" font-size="11">or tracer</text>
+
+          <!-- NPR -->
+          <rect x="152" y="62" width="118" height="48" rx="4" fill="rgba(255,210,100,0.10)" stroke="#FFD264" stroke-opacity="0.7"/>
+          <text x="211" y="82" text-anchor="middle" fill="#FFD264">NPR</text>
+          <text x="211" y="97" text-anchor="middle" font-size="10" fill="#FFD264" fill-opacity="0.8">one of 21</text>
+
+          <!-- the bank -->
+          <rect x="294" y="46" width="332" height="80" rx="4" fill="rgba(120,200,255,0.09)" stroke="#78C8FF" stroke-opacity="0.75"/>
+          <text x="460" y="70" text-anchor="middle" fill="#78C8FF" font-size="13">the stackable chain &mdash; 157 operators</text>
+          <text x="460" y="87" text-anchor="middle" font-size="10" fill="#78C8FF" fill-opacity="0.85">22 dispatch groups, applied in a fixed order</text>
+          <text x="460" y="103" text-anchor="middle" font-size="10" fill="#78C8FF" fill-opacity="0.6">spatial first &rarr; artistic &rarr; field-based &rarr; neural last</text>
+          <!-- group ticks -->
+          <g stroke="#78C8FF" stroke-opacity="0.45">
+            <line x1="306" y1="116" x2="306" y2="122"/><line x1="321" y1="116" x2="321" y2="122"/><line x1="336" y1="116" x2="336" y2="122"/>
+            <line x1="351" y1="116" x2="351" y2="122"/><line x1="366" y1="116" x2="366" y2="122"/><line x1="381" y1="116" x2="381" y2="122"/>
+            <line x1="396" y1="116" x2="396" y2="122"/><line x1="411" y1="116" x2="411" y2="122"/><line x1="426" y1="116" x2="426" y2="122"/>
+            <line x1="441" y1="116" x2="441" y2="122"/><line x1="456" y1="116" x2="456" y2="122"/><line x1="471" y1="116" x2="471" y2="122"/>
+            <line x1="486" y1="116" x2="486" y2="122"/><line x1="501" y1="116" x2="501" y2="122"/><line x1="516" y1="116" x2="516" y2="122"/>
+            <line x1="531" y1="116" x2="531" y2="122"/><line x1="546" y1="116" x2="546" y2="122"/><line x1="561" y1="116" x2="561" y2="122"/>
+            <line x1="576" y1="116" x2="576" y2="122"/><line x1="591" y1="116" x2="591" y2="122"/><line x1="606" y1="116" x2="606" y2="122"/>
+            <line x1="621" y1="116" x2="621" y2="122"/>
+          </g>
+
+          <!-- tail -->
+          <rect x="650" y="62" width="246" height="48" rx="4" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.24)"/>
+          <text x="773" y="80" text-anchor="middle" font-size="10">CV filter &middot; DOF &middot; <tspan fill="#FF4646">photo capture</tspan> &middot; mosh</text>
+          <text x="773" y="97" text-anchor="middle" font-size="10">projector &middot; glow &middot; temporal blur &middot; overlay</text>
+
+          <!-- annotations -->
+          <line x1="211" y1="118" x2="211" y2="150" stroke="rgba(255,255,255,0.2)"/>
+          <text x="211" y="166" text-anchor="middle" font-size="10" fill="#9fb0ad">modes 1&ndash;5 also run <tspan fill="#FFD264">inside</tspan> both renderers,</text>
+          <text x="211" y="180" text-anchor="middle" font-size="10" fill="#9fb0ad">per sample, before the accumulator</text>
+
+          <line x1="740" y1="118" x2="740" y2="150" stroke="rgba(255,70,70,0.35)"/>
+          <text x="700" y="166" font-size="10" fill="#FF4646" fill-opacity="0.85">the in-engine photo tap sits HERE:</text>
+          <text x="700" y="180" font-size="10" fill="#FF4646" fill-opacity="0.7">post-VFX, pre-mosh. Whatever the bank did</text>
+          <text x="700" y="194" font-size="10" fill="#FF4646" fill-opacity="0.7">to the frame is what a Texture node captures.</text>
+
+          <text x="24" y="222" font-size="10" fill="#7f8b89">Anchors &mdash; NPR dispatch EngineRender.cpp:2602&ndash;2694 &middot; chain block :2702&ndash;3851, sites :2710&ndash;3036 and :3825&ndash;3849 &middot; CV filter :3854 &middot; tail :3856&ndash;3935 &middot; capture :3869</text>
+        </g>
+      </svg>
+    </div>
+    <div class="paircap"><b>The pipeline</b><span>Two things this diagram settles. First, the order is fixed in source &mdash; you cannot reorder the stack, you can only choose which of the 157 are on, and they always compose in the same sequence. Second, the NPR combo is <em>not</em> part of the bank: it is a one-of-21 that runs before it, so an NPR mode and any number of bank operators compose, and the two Kuwaharas in this program (NPR mode 11 and the bank's "Kuwahara Multi-Scale") can both be on at once.</span></div>
+
+    <div class="narrow">
+      <h3>Three families, not one list</h3>
+      <p>Presented as a flat list of 157 shaders this reads as sprawl. It is range. Three quite different projects share one panel &mdash; second-pass shading that reads the renderer's own geometry, a bank of operators named after theorems, and a set of output-device emulators &mdash; and each carries a claim the other two cannot make. The rest of the page is three contact sheets, one per family.</p>
+    </div>
+
+    <div class="cards">
+      <a class="card" href="#geometry" style="--cc:var(--l460)">
+        <div class="card-in">
+          <p class="eyebrow">Contact sheet I</p>
+          <h3>The ones that read the renderer</h3>
+          <p>Fifty-five operators consume depth, normals or the position/material buffer. They are not image filters &mdash; they are second-pass shading, and the panel already grades which ones need the tracer.</p>
+          <div class="card-num"><b>19</b><span>marked tracer-only by the panel itself</span></div>
+          <div class="card-st"><span class="st st-c">never viewed</span><span class="st st-b">degrades silently under the rasteriser</span></div>
+        </div>
+      </a>
+      <a class="card" href="#theorems" style="--cc:var(--l500)">
+        <div class="card-in">
+          <p class="eyebrow">Contact sheet II</p>
+          <h3>The ones named after a theorem</h3>
+          <p>Ricci flow, the heat method, Hodge decomposition, walk-on-spheres, persistent homology, lattice gauge theory. Every name checked against what the shader computes. Some are earned. Some are not.</p>
+          <div class="card-num"><b>6 of 9</b><span>checked names that overreach in a stateable way</span></div>
+          <div class="card-st"><span class="st st-c">never viewed</span><span class="st st-b">names audited here for the first time</span></div>
+        </div>
+      </a>
+      <a class="card" href="#press" style="--cc:var(--l540)">
+        <div class="card-in">
+          <p class="eyebrow">Contact sheet III</p>
+          <h3>The press, the plate and the tape</h3>
+          <p>Halftone, dither, Risograph, linocut, woodblock, sumi-e, screen tone, ASCII, pixel sort, data mosh. Emulating an output medium is the same operation as emulating a lens &mdash; and this one destroys the radiometry on purpose.</p>
+          <div class="card-num"><b>2 bits</b><span>what a linocut leaves of a float32 linear film</span></div>
+          <div class="card-st"><span class="st st-c">never viewed</span><span class="st st-a">geometry-aware, unusually</span></div>
+        </div>
+      </a>
+    </div>
+
+    <div class="scope">
+      <b>How to read the marks.</b> This page uses the catalogue's grades. <span class="st st-a">measured</span> a number exists and is checkable. <span class="st st-b">seen</span> looked at, unquantified &mdash; or, on this page, "dispatched and read in source but with a caveat stated". <span class="st st-c">never viewed</span> reachable, apparently never deliberately rendered. <span class="st st-d">inert / orphan</span> a reachable control that reaches nothing, or a file with no caller. The overwhelming majority of this territory is <span class="st st-c">never viewed</span>, and that is the most interesting thing about it: the shot list below is a list of images nobody has ever seen, all of which exist, all of which are one click away.
+    </div>
+  </div>
+</section>
+
+
+<!-- ================= 02 · GEOMETRY-AWARE ================= -->
+<section id="geometry" style="--secc:var(--l460)" data-nav="Reads the renderer">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">02 &mdash; Contact sheet I</p>
+      <h2>Fifty-five of them cannot be run on a photograph, and the panel says which</h2>
+      <p class="lead">Buried in the Advanced VFX panel is a grading system nobody documented. Every operator row draws two glyphs beside its name: a <b>star</b> (gold, silver, amber or none) and a <b>renderer badge</b>. The badge is a tiny drawing of a raster frustum, a ray fan, or both &mdash; and the code that draws it takes three values.</p>
+    </div>
+
+    <div class="tw"><table>
+      <thead><tr><th>Badge</th><th>Means</th><th>VFX band</th><th>CV band</th><th>Drawn as</th></tr></thead>
+      <tbody>
+        <tr class="key"><td>0</td><td>tracer only</td><td>15</td><td>4</td><td>ray fan alone</td></tr>
+        <tr><td>1</td><td>works in both renderers</td><td>75</td><td>2</td><td>frustum + ray fan, side by side</td></tr>
+        <tr><td>2</td><td>both, but better with the tracer</td><td>29</td><td>7</td><td>dimmed frustum + bright ray fan</td></tr>
+        <tr><td>&mdash;</td><td>no badge drawn</td><td>23</td><td>1</td><td>&mdash;</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="narrow">
+      <p class="note"><b>What the two columns add to.</b> The VFX band draws 119 badges over 142 toggles (<span class="mono">drawBadge</span>, <span class="mono">UIManagerRender.cpp:1800</span>); the CV band draws 13 over 14 (<span class="mono">drawBadgeCV</span>), the unbadged one being <span class="mono">holoV2_toggle</span> at <span class="mono">:4503</span>. 142 + 14 = 156, which is every operator with a <span class="mono">_toggle</span>; the 157th is the checkbox named in &sect;01. An earlier version of this table put 0 in the CV column's last cell and so summed to 155.</p>
+    </div>
+
+    <div class="narrow">
+      <p>So the author already sorted the bank by how much renderer it needs, in the UI, and then never wrote it down. <b>Nineteen operators are marked tracer-only.</b> Those nineteen are the contact sheet:</p>
+    </div>
+
+    <div class="fgrid">
+      <div><span class="k">Surface Flow Painting</span><span class="v">Brush strokes follow principal curvature directions computed from the normal field &mdash; not from an image gradient.</span></div>
+      <div><span class="k">3D Surface Voronoi</span><span class="v">Voronoi cells seeded in world space via the position/material buffer, so the cells stick to surfaces under camera motion.</span></div>
+      <div><span class="k">Curvature Stippling</span><span class="v">Stipple density from discrete curvature of the depth surface.</span></div>
+      <div><span class="k">Light Sculpting</span><span class="v">Relights the frame from the G-buffer alone.</span></div>
+      <div><span class="k">SS Subsurface Scattering</span><span class="v">Screen-space SSS. Note: unrelated to <span class="mono">Material::hasSSS</span>, which is a dead field.</span></div>
+      <div><span class="k">SS Caustics</span><span class="v">Fake caustics from normals and an IOR slider &mdash; sitting inside a renderer whose whole thesis is real analytic caustics.</span></div>
+      <div><span class="k">Curvature Engraving</span><span class="v">Engraved line direction from curvature sign.</span></div>
+      <div><span class="k">Normal Field Watercolour</span><span class="v">Pigment pooling steered by the normal buffer.</span></div>
+      <div><span class="k">Holographic Iridescence</span><span class="v">Thin-film interference, view-angle dependent, using actual 3-D normals. Thickness 0.1&ndash;0.8, IOR 1.2&ndash;2.0.</span></div>
+      <div><span class="k">Gauss Map Visualisation</span><span class="v">Maps each normal to its point on S&sup2; and colours by it &mdash; the one operator here whose name is exactly what it does.</span></div>
+      <div><span class="k">Willmore Energy</span><span class="v">Integrated squared mean curvature of the depth surface, as heatmap, ink density or glow.</span></div>
+      <div><span class="k">MatCap Shading</span><span class="v">Material-capture lookup indexed by view-space normal.</span></div>
+      <div><span class="k">Anime Shadow Control</span><span class="v">Terminator placement driven by the normal buffer rather than by luminance.</span></div>
+      <div><span class="k">Screen-Space Reflections</span><span class="v">A screen-space reflection pass, inside a path tracer that computes real ones.</span></div>
+      <div><span class="k">Light Cone</span><span class="v">A volumetric cone marched in screen space from a position-buffer anchor.</span></div>
+      <div><span class="k">Epipolar Geometry</span><span class="v">Draws the epipolar constraint between two camera poses. CV band.</span></div>
+      <div><span class="k">Stereo Correspondence</span><span class="v">Block-matching disparity in three layouts: side-by-side, anaglyph, disparity. CV band.</span></div>
+      <div><span class="k">Geometry Reconstruction</span><span class="v">Rebuilds 3-D structure from depth and normals in four modes, with an orbitable 3-D mini-window. CV band.</span></div>
+      <div><span class="k">Tracer TOF</span><span class="v">Geometric path-length time-of-flight. Covered in depth on the imaging page; listed here only for completeness of the tracer-only set.</span></div>
+    </div>
+
+    <div class="narrow">
+      <h3>The limitation, in the same breath</h3>
+      <p>The G-buffer is only bound when the tracer is active. The dispatch block opens with two lines that decide the whole family's behaviour:</p>
+    </div>
+
+    <div class="formula">
+      <div class="f">normalTex = (activeRenderer == 1) ? gbufNrmRgh() : <span class="hl">0</span></div>
+      <div class="n">and the same for <span class="mono">posMatTex</span>. Under the rasteriser both are texture zero. <span class="mono">EngineRender.cpp:2704&ndash;2705</span></div>
+    </div>
+
+    <div class="readout">
+      <div class="row"><span class="lbl">Operator shaders that declare <span class="mono">uNormalTex</span></span><span class="val">58</span></div>
+      <div class="row hi"><span class="lbl">&mdash; of those, carrying an explicit <span class="mono">uHasGBuffer</span> fallback</span><span class="val">20</span></div>
+      <div class="row"><span class="lbl">&mdash; sampling the normal buffer with no declared guard</span><span class="val">38</span></div>
+      <div class="row"><span class="lbl">Shaders mentioning <span class="mono">uHasGBuffer</span> at all &mdash; the other two guard depth and position instead</span><span class="val">22</span></div>
+    </div>
+
+    <div class="narrow">
+      <p>Twenty of the fifty-eight branch on <span class="mono">uHasGBuffer</span> and fall back to a luminance-derived surrogate; <span class="mono">linocut.frag:89</span> is a clean example. (Twenty-two shaders mention <span class="mono">uHasGBuffer</span>; the two extra — <span class="mono">parallaxLayers.frag</span> and <span class="mono">volLightCone.frag</span> — guard the depth and position buffers and never declare <span class="mono">uNormalTex</span> at all. Counting all 22 as guarded normals is the error this read-out used to make.) The other thirty-eight sample the normal buffer unconditionally. With texture zero bound that read returns black, and a <span class="mono">normalize(vec3(0))</span> is not defined &mdash; so the predicted behaviour under the rasteriser is somewhere between "does nothing" and "NaN". <b>I have not run it.</b> That is the first shot on the list and it is a bug hunt as much as a photograph.</p>
+      <p class="note"><b>Marked unverified.</b> The fallback claim is read from source, not observed. Nothing in this repository records what any of these thirty-eight operators looks like under the rasteriser.</p>
+    </div>
+
+    <div class="slot">Screenshot — Rasteriser fallback probe. Preset "Material Showcase". Press 2 for the tracer, let it settle 5 s. Render Settings ▸ Effects ▸ Advanced VFX [Experimental] ▸ enable ONLY "Gauss Map Visualization". Screenshot. Now press 1 for the rasteriser WITHOUT touching anything else and screenshot again from the identical camera. Two frames, side by side. What to look for: whether the second frame is black, unchanged, or full of NaN speckle — all three are informative and none is currently recorded anywhere.</div>
+
+    <div class="slot">Screenshot — The G-buffer family at work. Preset "RICH: The Apothecary". GPU tracer, let it converge ~200 passes, Clean View (G) on. Four frames from ONE unmoved camera: (a) clean, no operators; (b) Surface Flow Painting only, Brush 12, Length 2.0, Layers 3, Jitter 0.35; (c) 3D Surface Voronoi only, defaults; (d) Curvature Stippling only, defaults. What to look for: in (b) and (c) the pattern should be locked to the surfaces, not to the screen — that is the whole claim of this family and a still cannot prove it, which is why the clip below exists.</div>
+
+    <div class="vslot"><div class="vslot-h">video &middot; Painted on the object, not on the glass</div><div class="vslot-r">Preset "RICH: The Apothecary", GPU tracer, Clean View. Enable Surface Flow Painting alone (Brush 12, Layers 3). Let it settle. Now orbit the camera slowly through about 50 degrees over 12 s and hold 3 s. Repeat the identical orbit with Surface Flow Painting off and "Painterly Strokes" on instead — that one is image-space. Cut the two orbits together.</div><div class="vslot-n"><b>Watch for</b> whether the strokes swim across the surfaces or stay glued to them. The G-buffer version should read as paint applied to the objects; the image-space version should read as paint applied to the screen. This single comparison is the argument for the whole family and no recording of it exists.</div></div>
+
+    <div class="narrow">
+      <p>Two operators in that list deserve a note rather than a shot, because they are funny. <b>SS Caustics</b> and <b>Screen-Space Reflections</b> are screen-space approximations of exactly the two phenomena this renderer computes correctly and at length elsewhere on this site. They are not redundancy by accident &mdash; they are the cheap version, kept, in the same program as the expensive version, and there is currently no picture comparing the two. That comparison is a shot on the list below and it is arguably the most useful thing on this page.</p>
+    </div>
+
+    <div class="slot">Screenshot — The cheap caustic against the real one. Preset "Hourglass Validation (1 glass ball)". Two frames, identical camera: (a) GPU tracer + Photon Primitives strategy 21, converged — the real analytic caustic; (b) GPU tracer with NO photon primitives, plus Advanced VFX ▸ SS Caustics enabled, Light Dir aimed at the ball, IOR 1.5, Intensity 2.0, Scale 1.5. What to look for: where the fake caustic puts its light. The screen-space version has no knowledge of the medium and cannot produce the volumetric fold at all — it should land on surfaces only, which is precisely the hole the analytic family exists to fill.</div>
+  </div>
+</section>
+
+
+<!-- ================= 03 · THE THEOREMS ================= -->
+<section id="theorems" style="--secc:var(--l500)" data-nav="The theorems">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">03 &mdash; Contact sheet II</p>
+      <h2>A reader who knows the mathematics is exactly the reader who will check</h2>
+      <p class="lead">The most striking thing in the panel is the row of names: Ricci Flow, Heat Method Geodesics, Hodge Decomposition, Walk on Spheres PDE, Persistent Homology, Gauge Theory Viz, Parallel Transport, Spinor Field, Optimal Transport Color, Morse-Smale Topology, Reeb Graph Contours, Laplacian Eigenfunctions, Willmore Energy, Cotangent Laplacian Flow. Several carry a citation in their tooltip. It would be easy to write a page that just listed those names.</p>
+      <p>So I read the shaders instead &mdash; every one below, end to end, against its own tooltip. The table gives each name, what the shader actually computes, and whether the name is earned. Three are earned outright. One is a plain mislabel. The rest are in between, and the table says exactly where, because a precise "in between" is a stronger result than a rounded verdict in either direction.</p>
+      <p class="note"><b>What I checked.</b> The shader source for each row, end to end, plus the operator's UI tooltip. Not the rendered output &mdash; none of these has ever been rendered on purpose. Verdicts are about <em>what the code computes</em>, which is a question source can answer; nothing here is a claim about how the image looks.</p>
+    </div>
+
+    <div class="tw"><table>
+      <thead><tr><th>Operator</th><th>What the shader computes</th><th>Name</th><th>Anchor</th></tr></thead>
+      <tbody>
+        <tr class="key"><td>Gauge Theory Viz</td><td>Assigns a U(1) link phase to each edge between neighbouring pixels from the difference of structure-tensor angles, wraps it to (&minus;&pi;,&pi;] with <span class="mono">atan(sin&Delta;,cos&Delta;)</span>, and sums link phases around a closed rectangular plaquette of side 1&ndash;5 texels. That sum <em>is</em> the lattice field strength <span class="mono">F = &oint;A&middot;d&ell;</span>.</td><td><span class="st st-a">earned</span></td><td><span class="mono">gaugeTheory.frag</span></td></tr>
+        <tr class="key"><td>Optimal Transport Color</td><td>Sliced Wasserstein: projects colours onto 4&ndash;16 random 1-D directions, matches quantiles against a loaded reference image, accumulates the displacement. Structurally the Bonneel construction its tooltip cites.</td><td><span class="st st-a">earned</span></td><td><span class="mono">optimalTransportColor.frag</span></td></tr>
+        <tr class="key"><td>Gauss Map Visualisation</td><td>Normal &rarr; point on S&sup2; &rarr; colour. That is the Gauss map.</td><td><span class="st st-a">earned</span></td><td><span class="mono">gaussMap.frag</span></td></tr>
+        <tr><td>Hodge Decomposition</td><td>Builds a structure-tensor tangent field, takes its divergence and curl, and runs a genuine <b>8-iteration Jacobi Poisson solve</b> for both the potential &phi; and the stream function &psi;, then forms &nabla;&phi; + curl&psi; + remainder. The decomposition is real. <b>But the solve is on a 5-point stencil with the outer ring pinned to zero</b> &mdash; a Dirichlet-zero boundary one texel away &mdash; so &phi; and &psi; are near-local and the "harmonic" remainder is nearly the whole input field.</td><td><span class="st st-b">structure right, support one pixel</span></td><td><span class="mono">hodgeDecomposition.frag:89&ndash;115</span></td></tr>
+        <tr><td>Walk on Spheres PDE</td><td>4&ndash;32 independent random walks per pixel, 4&ndash;16 steps each, averaging the scene colour at the walk endpoint &mdash; a real Monte-Carlo Laplace solver in shape. Two deviations from Sawhney &amp; Crane: the step is <span class="mono">radius &middot; bDist &middot; (0.3 + 0.7&middot;&xi;)</span>, a random <em>fraction</em> of the largest empty ball rather than a jump to its boundary, which is the step the mean-value property makes unbiased; and the walk terminates on a fixed step count rather than an &epsilon;-shell.</td><td><span class="st st-b">right estimator, biased</span></td><td><span class="mono">walkOnSpheres.frag:84&ndash;96</span></td></tr>
+        <tr><td>Persistent Homology</td><td>Mode 0 is genuine discrete Morse theory: steepest 8-connected descent from each pixel to its basin minimum, hashed to a colour &mdash; that recovers connected components of a sublevel set. But there is <b>no filtration sweep and no persistence pairing</b>; "birth/death" (mode 1) is per-pixel critical-point classification at one threshold. The shader's own header says "approximating persistence diagrams".</td><td><span class="st st-b">homology yes, persistent no</span></td><td><span class="mono">persistentHomology.frag:60&ndash;90</span></td></tr>
+        <tr><td>Ricci Flow</td><td>See below &mdash; this one needs a paragraph.</td><td><span class="st st-b">half earned</span></td><td><span class="mono">ricciFlow.frag</span></td></tr>
+        <tr><td>Kuwahara Multi-Scale</td><td>Its own first source line reads <em>"Single-scale anisotropic Kuwahara filter"</em>. The slider labelled <b>Scales</b> (1&ndash;5) sets <span class="mono">nSamples = 8 + (uScales&minus;1)&times;4</span> &mdash; samples per sector, not scales. The tooltip cites the multi-scale paper.</td><td><span class="st st-c">mislabelled control</span></td><td><span class="mono">kuwaharaMultiScale.frag:12,55&ndash;56</span></td></tr>
+        <tr><td>Heat Method Geodesics</td><td>Tooltip: <em>"Brief heat diffusion, then Poisson solve gives geodesic distances."</em> The shader diffuses heat (as a closed-form Gaussian, correct on a flat unbounded domain), computes the normalised gradient <span class="mono">X = &minus;&nabla;u/|&nabla;u|</span> &mdash; and then <b>never uses X again</b>. The distance is a 16-tap luminance line integral along the straight segment from source to pixel, scaled by <span class="mono">|uv &minus; src|</span>. There is no Poisson solve. The output is a luminance-weighted Euclidean radius.</td><td><span class="st st-d">not earned</span></td><td><span class="mono">heatMethod.frag:72&ndash;91</span></td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="narrow">
+      <h3>Ricci flow, in full, because it is the one people will check first</h3>
+      <p>The tooltip reads: <em>"Flow the metric by &minus;2&middot;Ric(g). (Perelman's tool for Poincar&eacute; conjecture.) Curvature-weighted smoothing."</em> Here is what is right and what is not, in order.</p>
+      <p><b>Right:</b> the shader's own header states the correct reduction &mdash; in two dimensions a conformal metric <span class="mono">g = e<sup>2u</sup>&delta;</span> turns the flow into an equation on the single scalar <em>u</em>. And the curvature overlay really is the conformal-metric Gauss curvature rather than an edge detector wearing its name. It really does run explicit Euler on a 5-point Laplacian for 4&ndash;20 iterations, not a blur pretending to be one.</p>
+    </div>
+
+    <div class="formula">
+      <div class="f">&part;u/&part;t = <span class="hl">e<sup>&minus;2u</sup></span> &Delta;u<span style="opacity:.35">&nbsp;&nbsp;&nbsp;&nbsp;&larr; 2-D Ricci flow</span></div>
+      <div class="f">&part;u/&part;t = &Delta;u<span style="opacity:.35">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&larr; what <span class="mono">ricciFlow.frag</span> integrates</span></div>
+      <div class="f">K = &minus; e<sup>&minus;2u</sup> &Delta;u<span style="opacity:.35">&nbsp;&nbsp;&nbsp;&larr; Gauss curvature of <span class="mono">g = e<sup>2u</sup>&delta;</span></span></div>
+      <div class="f">K = &minus; &Delta;u / ( <span class="hl">2</span> e<sup>2u</sup> )<span style="opacity:.35">&nbsp;&nbsp;&nbsp;&larr; <span class="mono">ricciFlow.frag:96</span> &mdash; half of it</span></div>
+      <div class="n">The dropped factor in the flow is the whole nonlinearity. What runs is the linear heat equation on image luminance.</div>
+    </div>
+
+    <div class="narrow">
+      <p><b>A correction to an earlier version of this section</b>, which printed the shader's curvature line and called it <em>exact</em>. It is not: it is off by a factor of two, and the reason is more interesting than the size. The same identity has two standard forms. Writing the metric as <span class="mono">g = e<sup>2u</sup>&delta;</span> gives <span class="mono">K = &minus;e<sup>&minus;2u</sup>&Delta;u</span>; writing it as <span class="mono">g = &rho;&delta;</span> gives <span class="mono">K = &minus;(1/2&rho;)&Delta;log&rho;</span>. They agree, because <span class="mono">log&rho; = 2u</span> and the 2 cancels. <span class="mono">ricciFlow.frag</span> takes the <span class="mono">1/(2&rho;)</span> prefactor from the second form and the <span class="mono">&Delta;u</span> from the first, so the 2 never cancels and the overlay shows <span class="mono">K/2</span>. Nothing visible depends on it &mdash; the value is immediately normalised by <span class="mono">clamp(K&middot;8.0, &minus;1, 1)</span>, so the factor is absorbed into a display gain &mdash; but this was the one claim the page made in the operator's favour, on a page whose whole thesis is that a name has to be checked against the code. It did not survive its own standard.</p>
+    </div>
+
+    <div class="narrow">
+      <p><b>Not right, in three parts.</b> First, the missing <span class="mono">e<sup>&minus;2u</sup></span>: real 2-D Ricci flow is a nonlinear fast-diffusion equation, and the shader integrates its linearisation. Second, <em>u</em> is image luminance, not a metric on any surface &mdash; there is no manifold here, and no depth or normal is read, so this operator is running on the picture, not on the geometry the renderer knows. Third, the iteration does not close: the comment concedes that the ring neighbours are "updated with their own simpler one-step estimates", so past the first step the stencil is inconsistent and the scheme is not the explicit Euler iterate it claims to be.</p>
+      <p>And one line in the shader is worth quoting because it is the exact species of argument this page exists to catch: <em>"Cap iterations to keep worst-case cost reasonable; mathematically Ricci flow converges in 2D regardless of specific step count."</em> That is a true statement about the continuous flow being used to license a truncation of a discrete scheme, which it does not license. The truncation is probably fine &mdash; with <span class="mono">dt &le; 0.05</span> in texel units the explicit scheme is comfortably inside its stability bound &mdash; but it is fine for a different reason than the one given.</p>
+      <p class="note"><b>The fair summary.</b> "Ricci Flow" here is <em>curvature-coloured heat-equation smoothing of luminance with a gradient warp</em>. That is a real and slightly unusual image operator, and the overlay genuinely is the conformal-metric Gauss curvature, up to the stray factor of two above. It is not Perelman's tool, and nothing in this program flows a metric. The name would be earned by a rename &mdash; "Conformal Curvature Flow" &mdash; and by keeping the <span class="mono">e<sup>&minus;2u</sup></span>, which is one multiply.</p>
+    </div>
+
+    <div class="slot">Screenshot — The curvature overlay is the honest part. Preset "Cornell Box (default)", GPU tracer, converged, Clean View. Render Settings ▸ Effects ▸ Advanced VFX ▸ Ricci Flow. Three frames, camera unmoved: Overlay 0.0 (warp only), Overlay 1.0 with Iterations 4, Overlay 1.0 with Iterations 20 — all at Timestep 0.02. What to look for: red where the luminance field is locally concave and blue where convex, and the red/blue structure visibly coarsening between 4 and 20 iterations as the heat flow eats the fine detail. That coarsening IS the flow, and it is the one claim in the operator's name that the picture can support.</div>
+
+    <div class="slot">Screenshot — Hodge, all four components. Preset "RICH: The Reliquary", GPU tracer, converged. Advanced VFX ▸ Hodge Decomposition, Blend 0.0 (field only, no scene). Four frames from one camera, cycling the Component combo: full / curl-free / divergence-free / harmonic. What to look for: whether curl-free and divergence-free are nearly black while harmonic is nearly identical to "full". If so, that is the one-texel Poisson support showing up in the picture exactly as the source predicts, and it is the cleanest possible confirmation of the caveat in the table above.</div>
+
+    <div class="slot">Screenshot — Walk-on-spheres, variance visible. Preset "Cornell Box + Volume (static)", GPU tracer, converged, Clean View. Advanced VFX ▸ Walk on Spheres PDE, Mode = harmonic smooth, Radius 0.08. Three frames: Walks 4, Walks 12, Walks 32, all with Steps 8. What to look for: Monte-Carlo noise in the OPERATOR, on top of a converged render — the estimator's own variance, falling as 1/sqrt(walks), painted over an image whose sampling noise is already gone. That double-noise structure is unique to this operator in the whole bank and has never been photographed.</div>
+
+    <div class="slot">Screenshot — Gauge theory — the one that is exactly what it says. Preset "Prism (Rainbow)" or "Material Showcase", GPU tracer, converged. Advanced VFX ▸ Gauge Theory Viz, Colorize on, Overlay 0.6. Three frames at Loop Size 1, 3, 5 with Strength 1.5. What to look for: vortex structures pinned to image discontinuities, coarsening as the plaquette grows. The Wilson loop around a plaquette containing an edge picks up nonzero holonomy; around a smooth region it should cancel to near zero. A picture where the vortices sit on the silhouettes and nowhere else is a picture of a correct implementation.</div>
+
+    <div class="narrow">
+      <h3>The rest of the mathematics bank, in one table</h3>
+      <p>These I read enough of to classify but did not audit line by line. Where I could not tell from the source what an operator computes, the row says so rather than guessing.</p>
+    </div>
+
+    <div class="tw"><table>
+      <thead><tr><th>Operator</th><th>Reading</th><th>Grade</th></tr></thead>
+      <tbody>
+        <tr><td>Morse-Smale Topology</td><td>Critical points and separatrices from the Hessian determinant of the luminance height field. Correct construction for a height function; "complex" in the full sense (a cell decomposition) is not built.</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>Reeb Graph Contours</td><td>Level sets of luminance plus merge/split detection at critical points. Its own header calls the nodes "critical points, edges = persistence", which is the Reeb graph's structure honestly described.</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>Cotangent Laplacian Flow</td><td>Cotangent weights derived from triangles formed by depth samples &mdash; so this one <em>does</em> use the geometry, unlike Ricci flow. Strength &minus;2 to +2 gives sharpen or smooth.</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>Willmore Energy</td><td>&int;H&sup2; over the depth surface, three display modes. Geometry-derived. Tracer-only badge.</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>Parallel Transport</td><td>Transports a tangent vector from image centre to each pixel, accumulating Christoffel contributions from the luminance metric gradient. Its own uniform block admits <span class="mono">uPathLength</span> is unused &mdash; the path is always centre&rarr;pixel.</td><td><span class="st st-d">one dead uniform</span></td></tr>
+        <tr><td>Spinor Field</td><td>Hues cycling with a 4&pi; period to expose the SU(2) double cover. A visualisation of a fact, not a computation on the scene &mdash; and honest about it.</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>Navier-Stokes</td><td>Self-contained: luminance as density, structure tensor as initial velocity, then advection + viscous diffusion + vorticity confinement for a few internal iterations, then the colour is advected. Its own header says "Navier-Stokes <em>inspired</em>".</td><td><span class="st st-b">honest in its own header</span></td></tr>
+        <tr><td>Schr&ouml;dinger Evolution</td><td>Luminance as potential V, an analytic Gaussian wave packet evolved by a split-operator-style update, |&psi;|&sup2; as intensity and arg&psi; as hue.</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>Laplacian Eigenfunctions</td><td>Named for eigenmodes; the header describes multi-scale disc sampling with bilateral-style spectral smoothing and a "modes" count of 1&ndash;8. <b>I could not establish from the source that any eigenproblem is solved.</b> Marked unresolved rather than guessed at.</td><td><span class="st st-d">unresolved &mdash; needs a closer read</span></td></tr>
+        <tr><td>Geodesic Distance</td><td>Distinct operator from Heat Method Geodesics, and more honest: its header says "single-pass approximation" outright, with three seed modes and a height-scale slider.</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>Hyperbolic Tiling, Mandelbulb Overlay, Domain Colouring, Julia Overlay, Quaternion Colour, Clifford Attractor, Fractal Dimension</td><td>Overlays of known mathematical objects rather than analyses of the frame. Nothing to overclaim; the names describe the pictures.</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>Percolation (<span class="mono">p<sub>c</sub></span>=0.593 button), Ising (<span class="mono">T<sub>c</sub></span>=2.269 button), Markov Chain Walk</td><td>Statistical-physics automata with one-click critical-parameter buttons. All three carry the "better with tracer" badge, which is hard to justify &mdash; they are image-domain and read no G-buffer.</td><td><span class="st st-b">badge looks wrong</span></td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</section>
+
+
+<!-- ================= 04 · THE PRESS ================= -->
+<section id="press" style="--secc:var(--l540)" data-nav="The press">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">04 &mdash; Contact sheet III</p>
+      <h2>Emulating an output medium is the same problem as emulating a lens, run backwards</h2>
+      <p class="lead">The renderer spends enormous effort producing a linear HDR film: unbiased estimators, byte-identity contracts, energy ratios to four digits. The third family exists to throw that away in a specific, historically-motivated manner. A linocut takes a float32 linear radiance field and returns one bit per pixel.</p>
+      <p>The reason this belongs on a rendering site rather than in a footnote is that it is the same class of modelling as everything else here. A thin-lens camera is a model of an input device. A Risograph is a model of an output device: two ink drums, halftone screens at different angles, misregistration in pixels, grain, overprint. Both are physical-process emulation; only one of them is usually treated as serious.</p>
+    </div>
+
+    <div class="tw"><table>
+      <thead><tr><th>Operator</th><th>The physical process being modelled</th><th>Controls</th><th>Reads G-buffer</th></tr></thead>
+      <tbody>
+        <tr class="key"><td>Risograph</td><td>Two-drum stencil duplication: two ink colours, each halftoned, printed in separate passes that do not register perfectly</td><td>2 ink colours &middot; Dot Size 3&ndash;12 &middot; <b>Misregister 0&ndash;3 px</b> &middot; Grain &middot; Overprint</td><td>no</td></tr>
+        <tr class="key"><td>Woodblock Print</td><td>Ukiyo-e multi-plate relief printing: a limited palette carved as separate plates, each with its own registration error, on grained wood</td><td>Palette 3&ndash;6 plates &middot; registration offset &middot; wood grain &middot; carved outlines</td><td>no</td></tr>
+        <tr class="key"><td>Linocut / Scratchboard</td><td>Relief carving: white lines cut into black, thickness carrying tone, cross-hatching in the mid-tones. <b>Binary output.</b></td><td>Spacing 3&ndash;15 &middot; Width 0.3&ndash;2.0 &middot; Contrast 1&ndash;3 &middot; Flow 0&ndash;1</td><td><b>yes</b> &mdash; lines follow the 3-D surface flow, with a <span class="mono">uHasGBuffer</span> fallback</td></tr>
+        <tr class="key"><td>Sumi-e Ink Wash</td><td>Ink on absorbent paper: wet-edge bleeding, anisotropic brush strokes, paper absorption, atmospheric fade with distance</td><td>depth-aware fade</td><td><b>yes</b></td></tr>
+        <tr><td>Screen Tone</td><td>Ben-Day dots: adhesive manga tone sheets, denser dots for darker regions. Three pattern modes.</td><td>dots / lines / crosshatch</td><td>no</td></tr>
+        <tr><td>Advanced Halftone</td><td>Process halftone screening, multi-shape and multi-colour-mode, with the screen angle steered by surface normal</td><td>shape &middot; colour mode</td><td><b>yes</b></td></tr>
+        <tr><td>Advanced Dithering</td><td>Bayer, blue noise, normal-aware and spatially-consistent modes &mdash; the ordered and error-diffused ends of the same problem</td><td>4 modes</td><td><b>yes</b></td></tr>
+        <tr><td>Pointillist (Seurat)</td><td>Neo-impressionist optical mixing: a jittered grid of complementary-paired dots that mix in the eye rather than on the canvas</td><td>colour-theory pairing</td><td>no</td></tr>
+        <tr><td>ASCII Art</td><td>Character-cell reproduction: luminance per cell selects a glyph from a procedural 4&times;5 bitmask table. The oldest output medium in the list.</td><td>Cell Size 4&ndash;16 px</td><td>no</td></tr>
+        <tr><td>Pixel Sorting</td><td>Not a print process &mdash; a codec artefact, deliberately induced. Sorts runs of pixels by brightness within luminance-bounded segments, capped at 64 taps.</td><td>direction &middot; 3 sort keys &middot; two thresholds &middot; Max Segment 16&ndash;512</td><td>no</td></tr>
+        <tr><td>WFC Mosaic</td><td>Procedural tiles chosen by luminance and gradient with adjacency constraints. Header says "WFC-<em>inspired</em>" &mdash; no constraint propagation happens, which a fragment shader could not do anyway.</td><td>cell size &middot; tile set</td><td>no</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="narrow">
+      <p>Four of these read the G-buffer, which is the unusual part. A linocut whose carving direction follows the <em>surface flow of a 3-D normal field</em> rather than an image gradient is not something a photo-editing filter can do; it is a print emulator that knows the geometry it is printing. That is the intersection of family I and family III, and it is where I would start if the goal were one image that justifies the entire bank.</p>
+    </div>
+
+    <div class="slot">Screenshot — One frame, four presses. Preset "RICH: The Apothecary" (rich materials, strong tonal range). GPU tracer, converged ~300 passes, Clean View. Five frames, camera absolutely unmoved: (a) clean; (b) Risograph — Dot Size 6, Misregister 2.0 px, Grain 0.4, Overprint 0.6; (c) Woodblock — Palette 4; (d) Linocut — Spacing 7, Width 1.0, Contrast 2.0, Flow 1.0; (e) Sumi-e — defaults. Present as a strip. What to look for in (d) specifically: the carved lines should follow the curvature of each object, not run in one screen direction — that is the geometry-aware claim, visible in a single still.</div>
+
+    <div class="slot">Screenshot — Linocut with and without geometry. Same preset, same camera as above. Two frames: Linocut with Flow 1.0, then Linocut with Flow 0.0. What to look for: whether the line direction collapses to a fixed screen angle when Flow goes to zero. This is the cheapest possible demonstration that the G-buffer is being consulted, and it needs no second renderer.</div>
+
+    <div class="slot">Screenshot — ASCII at three cell sizes. Preset "Cornell Box (default)", GPU tracer, converged. Advanced VFX ▸ ASCII Art at Cell Size 4, 8, 16. What to look for: the point at which the glyph table stops resolving the box and the image becomes texture. Also worth checking whether the glyph ramp is monotone in luminance — a non-monotone ramp shows as tonal inversion in the gradients on the back wall, and nothing in the repo records whether this table is monotone.</div>
+
+    <div class="vslot"><div class="vslot-h">video &middot; Misregistration</div><div class="vslot-r">Preset "RICH: The Reliquary", GPU tracer, converged, Clean View. Enable Risograph alone, Dot Size 6, Grain 0.3. Hold at Misregister 0.0 for 3 s, then drag the Misregister slider slowly 0.0 → 3.0 over 8 s, hold 3 s at the top. Do not move the camera.</div><div class="vslot-n"><b>Watch for</b> the moment the two ink drums separate. At 0.0 this is a duotone; by 2 px it is unmistakably a printed object with a registration fault. The whole aesthetic of the operator lives in one slider and it is the clearest single demonstration of the "modelling an output device" thesis on this page.</div></div>
+
+    <div class="narrow">
+      <p class="note"><b>What this family costs.</b> Every operator here discards the property the rest of the site is about. There is no tonemapping choice to make &mdash; the megakernel's Reinhard is hardwired at <span class="mono">pathTrace.comp:4064</span> and the Tonemapping combo above it is inert &mdash; so the image the press family receives has already been through a fixed curve and a gamma. Nothing downstream of the bank is linear, nothing is measured, and no claim on any other page of this site survives contact with these operators. That is the correct trade for what they are for, and it is worth saying out loud on the page that shows them.</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ================= 05 · THE CLOCK ================= -->
+<section id="clock" style="--secc:var(--l580)" data-nav="The clock">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">05 &mdash; State</p>
+      <h2>Seventeen of them are not functions of the frame. They are functions of every frame so far</h2>
+      <p class="lead">The default assumption about a post-process is that it is a pure function: same input, same output. Seventeen shaders in this territory break that. They <em>sample</em> a previous-frame texture, which makes them simulations running on the display buffer &mdash; and it means a still photograph of them is not a description of them.</p>
+      <p class="note"><b>Sampled, not declared &mdash; and this page got that wrong.</b> An earlier version of this table counted the shaders that <em>declare</em> a previous-frame sampler and put three innocent operators in the stateful column. Two of them tell you so in the declaration: <span class="mono">reactionFlow.frag:10</span> reads <span class="mono">uniform sampler2D uPrevTex; &nbsp;// unused but kept for C++ binding compat</span>, and <span class="mono">morphogenesis.frag:9</span> is commented <span class="mono">// unused</span>. Neither ever samples it. The third, <span class="mono">temporalNoise.frag</span>, declares no previous-frame sampler at all &mdash; it varies frame to frame because it is seeded from <span class="mono">uTime</span> and <span class="mono">uFrame</span>, which is a different thing from memory. <a href="things-that-move.html" style="color:var(--accent);text-decoration:none;border-bottom:1px solid var(--line)">The simulation page</a>'s &sect;07 states this correctly and always did; this page is now the one that changed.</p>
+    </div>
+
+    <div class="tw"><table>
+      <thead><tr><th>Stateful shader</th><th>What accumulates</th></tr></thead>
+      <tbody>
+        <tr><td><span class="mono">waveEquation.frag</span></td><td>A second-order wave field; needs two previous states to step, so it genuinely propagates</td></tr>
+        <tr><td><span class="mono">rdStylize.frag</span></td><td>Reaction-diffusion concentrations, ping-ponged. Turing patterns emerge over frames, not within one. The only genuinely stateful RD operator in the bank &mdash; it reads <span class="mono">uPrevTex</span> at five sites (<span class="mono">:64, :94, :100, :138, :139</span>)</td></tr>
+        <tr><td><span class="mono">smoothlife.frag</span></td><td>A continuous-domain cellular automaton with its own reset button; this is the <em>only</em> real SmoothLife in the program &mdash; the two scene presets named SmoothLife are legacy FBM noise</td></tr>
+        <tr><td><span class="mono">ibfv.frag</span></td><td>Image-based flow visualisation: noise advected along the field and blended with the previous frame, which is the whole IBFV method</td></tr>
+        <tr><td><span class="mono">nbodyAttractor.frag</span>, <span class="mono">curlNoise.frag</span></td><td>Particle-like positions carried forward through an advection field</td></tr>
+        <tr><td><span class="mono">anisotropicDiffusion.frag</span>, <span class="mono">heatEquation.frag</span>, <span class="mono">totalVariation.frag</span>, <span class="mono">mumfordShah.frag</span>, <span class="mono">poissonGradient.frag</span></td><td>Iterative solvers that use the frame loop as their iteration loop &mdash; the honest way to do what &sect;03 shows Ricci flow and the heat method trying to do inside one invocation</td></tr>
+        <tr><td><span class="mono">progressiveDraw.frag</span></td><td>Strokes deposited over time; the image is a drawing being made</td></tr>
+        <tr><td><span class="mono">fractalFeedback.frag</span>, <span class="mono">phaseAmplify.frag</span></td><td>Feedback, and Eulerian phase amplification &mdash; the Gabor response of the previous frame is what the current one is measured against</td></tr>
+        <tr><td><span class="mono">dataMosh.frag</span></td><td>A frozen frame and its depth buffer, held until you unfreeze. See below</td></tr>
+        <tr class="key"><td><span class="mono">ballpointB.frag</span>, <span class="mono">temporalBlur.frag</span></td><td>The two outside the bank: pass B of NPR mode 7 ping-pongs its own stroke buffer, and the tail's temporal blur is a straight <span class="mono">mix(current, prev, blend)</span>. Both are in this territory and neither is an Advanced VFX toggle</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="tw"><table>
+      <thead><tr><th>Looks stateful, is not</th><th>What the source says</th></tr></thead>
+      <tbody>
+        <tr><td><span class="mono">reactionFlow.frag</span></td><td><span class="mono">:10</span> &mdash; <span class="mono">uniform sampler2D uPrevTex; &nbsp;// unused but kept for C++ binding compat</span>. One occurrence in the file, the declaration. A per-frame filter with a reaction-diffusion look</td></tr>
+        <tr><td><span class="mono">morphogenesis.frag</span></td><td><span class="mono">:9</span> &mdash; <span class="mono">uPrevTex</span>, commented <span class="mono">// unused</span>. Same: declared for the C++ binding, never sampled</td></tr>
+        <tr><td><span class="mono">temporalNoise.frag</span></td><td>No previous-frame sampler of any kind. It changes every frame because it hashes <span class="mono">uTime</span> and <span class="mono">uFrame</span> &mdash; unphotographable in a still, but stateless</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="narrow">
+      <p>Note the row of five solvers. Anisotropic diffusion, the heat equation, total variation, Mumford-Shah and Poisson gradient editing solve their PDE the correct way, by iterating across frames. The mathematics family in &sect;03 does not, and compresses the iteration into a single fragment invocation on a local stencil instead. Both approaches are in the same panel. The difference between them is exactly the difference between the earned names and the unearned ones, and it is a difference of engineering, not of ambition.</p>
+
+      <h3>Data moshing, which is not the WIP menu item</h3>
+      <p>The menu bar carries <span class="mono">Tools &#9656; Data Moshing (WIP)</span>, unwired. The feature is fully implemented one panel over, at <span class="mono">Effects &#9656; Post Process</span>, and it is the most interesting stateful operator in the program because one of its three modes is not an image effect at all.</p>
+    </div>
+
+    <div class="tw"><table>
+      <thead><tr><th>Mode</th><th>What it does</th><th>Grade</th></tr></thead>
+      <tbody>
+        <tr class="key"><td>Reproject</td><td>Freeze a frame <b>and its depth buffer</b>. As the camera moves, re-project the frozen pixels through the frozen depth into the new view. The moshed image sticks to 3-D geometry. This is a depth-correct temporal artefact, not a 2-D smear.</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>Screen-Lock</td><td>The 2-D version: the frozen frame stays pinned to the screen. The conventional data-mosh look.</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>Difference</td><td>Current minus frozen. Incidentally a usable debugging tool: freeze, change one setting, see exactly which pixels moved.</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>Menu route</td><td><span class="mono">Tools &#9656; Data Moshing (WIP)</span> &mdash; unwired menu item advertising a finished feature as unfinished</td><td><span class="st st-d">mislabel</span></td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="vslot"><div class="vslot-h">video &middot; Moshing through the depth buffer</div><div class="vslot-r">Preset "HERO: The Gate (shaft + glass ball)". GPU tracer, converged, Clean View. Effects ▸ Post Process ▸ Data Moshing, Mode = Reproject, Blend 0.9, Block Glitch 0.2. Press freeze. Then orbit the camera slowly through 40 degrees over 10 s. Hold 2 s. Now reset, switch Mode to Screen-Lock and repeat the IDENTICAL orbit. Cut together.</div><div class="vslot-n"><b>Watch for</b> in Reproject the frozen pixels should slide across the screen at a rate that depends on their depth — near geometry moving fast, the far wall barely at all — and should tear where the frozen depth has no answer for the new view. In Screen-Lock nothing moves at all. The difference between the two clips is a picture of a depth buffer being used, and it is why this operator belongs on a rendering site rather than in a glitch-art gallery.</div></div>
+
+    <div class="slot">Screenshot — The frame loop as an iteration loop. Preset "Cornell Box + Glowing Volume". GPU tracer, converged first, then Advanced VFX ▸ Reaction-Diffusion Stylize, defaults. Four frames of the SAME unmoved camera at roughly 1, 30, 120 and 600 frames after enabling. What to look for: Turing structures nucleating out of the render and coarsening. A single still of this operator is meaningless; the four-frame sequence is the operator.</div>
+
+    <div class="slot">Screenshot — Temporal noise, which cannot be photographed. Preset "Cornell Box (default)". Effects ▸ Post Process ▸ Temporal Noise, any mode, Density 0.5, Speed 1.0. Take two consecutive single frames from an unmoved camera. What to look for: they should differ everywhere. Present them as a two-up with the difference image if the Data Moshing "Difference" mode can be stacked on top — that would make one still that carries the operator's whole behaviour, which is otherwise unphotographable.</div>
+  </div>
+</section>
+
+
+<!-- ================= 06 · THE COMBO ABOVE IT ================= -->
+<section id="npr" style="--secc:var(--l600)" data-nav="The NPR combo">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">06 &mdash; The layer above</p>
+      <h2>Twenty-one one-of-N modes, five of which are not post-processes at all</h2>
+      <p class="lead">Above the bank sits a single combo box with 22 entries &mdash; "Off" plus 21 modes &mdash; and it behaves differently from everything below it in two ways. It is exclusive, so exactly one can be active. And five of its modes are not applied to the finished frame; they are compiled into <em>both renderers</em> and applied to radiance before the frame exists.</p>
+    </div>
+
+    <div class="tw"><table>
+      <thead><tr><th>#</th><th>Mode</th><th>Where it runs</th><th>Grade</th></tr></thead>
+      <tbody>
+        <tr class="key"><td>1&ndash;5</td><td>Toon &middot; Outline &middot; Toon+Outline &middot; Pencil Sketch &middot; Oil (simple)</td><td><b>Inside both renderers.</b> <span class="mono">basic.frag:896&ndash;910</span> per fragment; <span class="mono">pathTrace.comp:2293&ndash;2350</span> per <em>sample</em>. The panel's "Affects both renderers" label is literal.</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>6</td><td>Oil Painting [Advanced]</td><td>2-pass post with relief lighting and a canvas freeze</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>7</td><td>Ballpoint Pen</td><td>3-pass post</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>8</td><td>Ink Spiral</td><td>2-pass post, with a <b>Variation</b> switch to a Hilbert curve family whose density is modulated by scene luminance and optionally by estimated depth</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>9&ndash;12</td><td>Halftone &middot; Cross-Hatching &middot; Kuwahara &middot; Watercolor</td><td>Post. Mode 11 is a <em>second, separate</em> Kuwahara from the bank's "Kuwahara Multi-Scale"; both can be on at once</td><td><span class="st st-b">seen</span></td></tr>
+        <tr class="key"><td>13</td><td>SmoothLife</td><td>A continuous cellular automaton run as a ping-pong post-process with a reset button. Evolves over frames. The only real SmoothLife in the program</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>14&ndash;17</td><td>Pencil Crystal &middot; Noise Contour &middot; Pixel Art &middot; Stained Glass</td><td>Post</td><td><span class="st st-c">never viewed</span> (Noise Contour)</td></tr>
+        <tr><td>18&ndash;21</td><td>Depth Fog &middot; Depth Edges &middot; Tilt-Shift Miniature &middot; Depth Warp/Sponge</td><td>Depth-driven post, marked <span class="mono">[D]</span> in the combo</td><td><span class="st st-c">never viewed</span></td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="narrow">
+      <h3>The prediction worth photographing</h3>
+      <p>Modes 1&ndash;5 in the path tracer are applied to <span class="mono">radiance</span> at line 2293, then firefly-clamped at 2372, and only then accumulated into the running mean at 2443. So <b>the toon quantisation happens per sample, before averaging</b>. Averaging N independently quantised samples of a noisy estimate reconstructs a continuous ramp. The prediction from source is therefore:</p>
+    </div>
+
+    <div class="readout">
+      <div class="row hi"><span class="lbl">Toon in the <b>rasteriser</b></span><span class="val">hard bands, stable</span></div>
+      <div class="row"><span class="lbl">Toon in the tracer, 1 pass</span><span class="val">hard bands, noisy</span></div>
+      <div class="row"><span class="lbl">Toon in the tracer, 500 passes, noisy scene</span><span class="val"><b>bands wash out</b> &mdash; the quantiser is being averaged away</span></div>
+      <div class="row"><span class="lbl">Toon in the tracer, 500 passes, near-deterministic direct lighting</span><span class="val">bands should survive</span></div>
+      <div class="row"><span class="lbl">Extra gate in the tracer only</span><span class="val"><span class="mono">length(firstNrm) &gt; 0.5</span> &mdash; NPR is skipped where the primary ray missed, so the sky and background are never toon-shaded</span></div>
+    </div>
+
+    <div class="narrow">
+      <p class="note"><b>Marked unverified, deliberately.</b> Every line of that read-out is derived from the source and none of it has been observed. It is on this page as a prediction with an address, so that the shot below either confirms it or falsifies it. If the bands <em>do</em> survive at 500 passes on a noisy scene, the reading above is wrong and I would want to know why.</p>
+    </div>
+
+    <div class="slot">Screenshot — Does toon shading survive convergence? Preset "Cornell Box (default)". Effects ▸ NPR ▸ mode 3 (Toon + Outline). Four frames, camera absolutely unmoved: (a) rasteriser, press 1; (b) tracer at 1 pass — press 2 and shoot immediately; (c) tracer at ~50 passes; (d) tracer at 500+ passes. What to look for: whether the four quantisation bands visible in (a) and (b) are still four bands in (d) or have become a smooth ramp. Also check the sky/background: it should be untouched in every tracer frame and toon-shaded in the raster frame, because only the tracer gates NPR on a valid first-hit normal.</div>
+
+    <div class="slot">Screenshot — The two Kuwaharas, stacked. Preset "Material Showcase", GPU tracer, converged. Three frames from one camera: (a) NPR ▸ Kuwahara only; (b) NPR Off + Advanced VFX ▸ Kuwahara Multi-Scale only, Radius 8, Scales 3, Sharpness 8; (c) BOTH at once. What to look for in (c): whether the second pass has anything left to do. Two Kuwaharas composed should be close to idempotent, and if (c) differs sharply from (b) the two implementations disagree about what a flat region is.</div>
+
+    <div class="slot">Screenshot — Ink Spiral, both curve families. Preset "HERO: The Gate (shaft + glass ball)", GPU tracer, converged, Clean View. NPR ▸ Ink Spiral. Two frames: Variation = spiral, then Variation = Hilbert with depth modulation on. What to look for: whether the Hilbert curve visibly changes density with depth — that is a continuous space-filling curve carrying a depth signal, and it has never been photographed.</div>
+
+    <div class="narrow">
+      <p><b>Three things about that Variation switch</b>, because it is the only control in the combo that swaps a shader rather than a branch. The two variations run two different pass-A shaders, <span class="mono">inkA.frag</span> and <span class="mono">inkA_hilbert.frag</span>, and share pass B; the switch is guarded by <span class="mono">m_inkAHilbertShader.isValid()</span> (<span class="mono">EngineNPR.cpp:428</span>), so if that shader ever failed to compile the combo would still read "Hilbert Curve" and the spiral would run. The two variations also share one backing variable under two labels: <span class="mono">inkSpiralSlope</span>, 5&ndash;30, is presented as <b>Spiral Slope</b> in one mode and <b>Curve Spacing</b> in the other (<span class="mono">UIManagerRender.cpp:1497</span>, <span class="mono">:1501</span>), so a value set under one name follows you into the other.</p>
+      <p>And the <b>Depth Density</b> toggle reads no depth buffer. Its tooltip says "vary ink density by estimated depth"; the shader's own uniform comment says <em>"vary density by estimated depth (luminance proxy)"</em>, and what it computes is local luminance variance, smoothstepped to a 0.4&ndash;1.5 density multiplier on the reasoning that detailed regions are near ones (<span class="mono">inkA_hilbert.frag:16, 145&ndash;155</span>). The shader is honest and the tooltip is the part that rounds up. The curve itself is real &mdash; a proper xy&rarr;d Hilbert mapping, layered at orders 6, 4 and 3 &mdash; and it is not the program's only one: the bank carries a separate <b>Hilbert Line Stylization</b> operator in dispatch group 13, different code, same curve. <span class="st st-c">never viewed</span>, both of them.</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ================= 07 · THE HONEST LEDGER ================= -->
+<section id="honest" style="--secc:var(--l620)" data-nav="Inert & orphaned">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">07 &mdash; The ledger for this territory</p>
+      <h2>What in here is inert, orphaned or misnamed &mdash; including three the catalogue did not have</h2>
+      <p class="lead">A page that lists 157 capabilities and no defects is a brochure. Here is everything in this territory that does not do what its label says, separated by <em>kind</em> of failure, because the three kinds have very different consequences for a user.</p>
+      <p><b>Orphaned files first.</b> I re-derived this list independently of the catalogue by checking every one of the 227 <span class="mono">.frag</span> and <span class="mono">.comp</span> files in <span class="mono">shaders/</span> for any mention anywhere under <span class="mono">src/</span>. <b>Eight have none</b>, and they fill the first five rows of the table below. The sixth row, <span class="mono">fullscreen.frag</span>, is a different animal and is here because its consequence is the only one that matters: it <em>is</em> mentioned &mdash; loaded, even &mdash; and still never runs.</p>
+      <p class="note"><b>Not a corroboration, and this page said it was.</b> An earlier version of this paragraph claimed the eight matched <span class="mono">docs/FEATURE-CATALOGUE.md</span> exactly and called that "two people counting the same thing separately and agreeing." They were not counting the same thing. The catalogue's &sect;5.3 is headed <em>"Seven files"</em> and lists <em>nine</em> filenames in six rows; my scan finds eight files with no mention plus <span class="mono">fullscreen.frag</span>, which the catalogue also lists. Eight, seven and nine are three numbers, and agreement between two of them was asserted rather than checked. The catalogue's heading has been corrected to nine; the count that is actually derivable from a rule is the eight-with-no-mention, and that rule is now stated above so the next person can re-run it.</p>
+    </div>
+
+    <div class="tw"><table>
+      <thead><tr><th>File</th><th>Why it has no caller</th><th>Is a capability missing?</th><th>Grade</th></tr></thead>
+      <tbody>
+        <tr><td><span class="mono">conformalWarp.frag</span></td><td><span class="mono">m_conformalWarpShader</span> loads <span class="mono">conformalGlitched.frag</span> instead &mdash; the shader named after the function is not the one the function uses</td><td>No. Conformal Glitched renders.</td><td><span class="st st-d">superseded</span></td></tr>
+        <tr><td><span class="mono">deepDreamCNN.comp</span><br><span class="mono">deepDreamGrad.comp</span></td><td>Never loaded. <span class="mono">generateCNNWeights(int seed)</span> sets a bool and returns.</td><td>DeepDream [Advanced] still renders &mdash; as iterated gradient-ascent ping-pong. The image changes; the CNN does not exist.</td><td><span class="st st-d">superseded</span></td></tr>
+        <tr><td><span class="mono">styleGram.comp</span></td><td>Never loaded; <span class="mono">m_stAdvGramComputed</span> is written once and never read</td><td>No &mdash; and this row is the opposite of what it looks like. Style Transfer [Advanced] is a real 2-pass structure-tensor plus statistics transfer against a loaded reference, <em>despite its own header calling itself a "stub &mdash; Phase 3"</em>.</td><td><span class="st st-d">superseded</span></td></tr>
+        <tr><td><span class="mono">houghLines.frag</span><br><span class="mono">houghCircles.frag</span><br><span class="mono">houghCirclesDraw.frag</span></td><td>v1 single-pass fragment implementations, replaced by compute accumulate + NMS + draw-peaks</td><td>No. Both Hough operators work, better.</td><td><span class="st st-d">superseded</span></td></tr>
+        <tr><td><span class="mono">eulerFluid.comp</span></td><td>The Euler solver is CPU, in <span class="mono">PhysicsWorld.cpp:565&ndash;732</span>. (An earlier anchor here said <span class="mono">:521&ndash;554</span>, inherited from the catalogue; that range is inside the two initialisers, not the stepper.)</td><td>No.</td><td><span class="st st-d">superseded</span></td></tr>
+        <tr><td><span class="mono">fullscreen.frag</span></td><td><span class="mono">m_fullscreenShader</span> is loaded at <span class="mono">Engine.cpp:236</span> and has exactly two references in the repository &mdash; that load and its declaration. It is never <span class="mono">.use()</span>d.</td><td><b>Yes, one.</b> This file implements Reinhard <em>and</em> <span class="mono">ACESFilm</span>. Because it never runs, the Tonemapping combo's three options all render the megakernel's hardwired Reinhard. ACES is compiled into the binary and unreachable.</td><td><span class="st st-d">orphan with a consequence</span></td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="narrow">
+      <p><b>Rule 1 applies to every row above.</b> Not one of them is <em>dead</em>. The question "is the feature reachable by any route" is yes in all six cases; the question "is this file live" is no. That pair is <em>superseded</em>, and each row says where the feature actually lives. The only row with real consequence is the last, and it is a consequence for the tonemapper, not for an effect.</p>
+      <h3>Three findings this page adds</h3>
+      <p>These came out of reading the shaders for &sect;03 and &sect;06 and are not in <span class="mono">docs/FEATURE-CATALOGUE.md</span>'s mislabel table.</p>
+    </div>
+
+    <div class="tw"><table>
+      <thead><tr><th>Control</th><th>What the label promises</th><th>What it does</th><th>Anchor</th></tr></thead>
+      <tbody>
+        <tr class="key"><td>Kuwahara Multi-Scale ▸ <b>Scales</b></td><td>A multi-scale filter, cited to Kyprianidis &amp; Kang 2011, with a 1&ndash;5 scale count</td><td>The shader's own first line says "Single-scale anisotropic Kuwahara filter". <span class="mono">uScales</span> sets samples per sector: <span class="mono">8 + (uScales&minus;1)&times;4</span>. There is one scale.</td><td><span class="mono">kuwaharaMultiScale.frag:2, 12, 55&ndash;56</span></td></tr>
+        <tr class="key"><td><b>Heat Method Geodesics</b></td><td>Tooltip: "Brief heat diffusion, then Poisson solve gives geodesic distances."</td><td>The normalised heat gradient <span class="mono">X</span> is computed and then never referenced again. No Poisson solve exists. The displayed distance is <span class="mono">|uv&minus;src|</span> weighted by a 16-tap luminance line integral.</td><td><span class="mono">heatMethod.frag:72&ndash;91</span></td></tr>
+        <tr class="key"><td>Parallel Transport ▸ <b>Path Length</b></td><td>A slider, 0.05&ndash;0.5</td><td>Its own uniform declaration carries the comment "(unused: path always uses centre&rarr;pixel)". An inert control that documents its own inertness in the shader but not in the UI.</td><td><span class="mono">parallelTransport.frag:14</span></td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="narrow">
+      <p><b>Inert knobs already on the record</b>, both in this territory: <span class="mono">stAdvIterations</span> (Style Transfer [Advanced] ▸ Iterations, 1&ndash;8) and <span class="mono">ddAdvChannels</span> (DeepDream [Advanced] ▸ Channels, 8 or 16). Each has exactly two references in the repository &mdash; its declaration and its own widget. Dragging either changes nothing.</p>
+      <p><b>One structural surprise, not a defect.</b> The four conformal-map operators &mdash; Conformal Fixed, Glitched, Glass, Correct &mdash; are dispatched as an <span class="mono">if / else if / else if / else if</span> chain. They are the only mutually exclusive group in an otherwise freely stackable bank, and the UI gives no sign of it: four independent-looking toggles, of which only the highest-priority enabled one runs. Turning on Conformal Glass while Conformal Fixed is already on does nothing and looks broken.</p>
+    </div>
+
+    <div class="scope">
+      <b>What I verified, and what I did not.</b> Verified by reading source: every count in &sect;01, the eight orphan files, the badge and star distributions, the G-buffer binding condition, the <span class="mono">uNormalTex</span> and <span class="mono">uHasGBuffer</span> counts, the NPR-inside-the-megakernel placement and its clamp/accumulate order, and every row of the two mislabel tables above. <b>Not verified &mdash; nothing on this page has been rendered.</b> No image of any operator in this bank exists in this repository. Every figure is a capture instruction. Where a claim depends on what the picture looks like rather than on what the code does, it is written as a prediction with an address, so it can be falsified by taking the shot.
+    </div>
+  </div>
+</section>
+
+
+<!-- ================= 08 · BELOW THE BANK ================= -->
+<section id="tail" style="--secc:var(--l620)" data-nav="Below the bank">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">08 &mdash; The two ends nobody described</p>
+      <h2>A Hough transform that had to be taught not to vote for the brightest thing in the room</h2>
+      <p class="lead">Two clusters sit at the edges of this territory and no section above has touched either. One is the computer-vision pair, which is the only place in the bank where an operator had to be redesigned because the input was a <em>renderer's</em> output rather than a photograph. The other is the fixed tail that the pipeline diagram in &sect;01 names in eight words and nothing on the page unpacks. Both are tables; three rows in them carry a mechanism or a defect and those are written out.</p>
+    </div>
+
+    <div class="tw"><table>
+      <thead><tr><th>Computer-vision row</th><th>What it is</th><th>Grade</th></tr></thead>
+      <tbody>
+        <tr class="key"><td>Shared edge pre-filter</td><td>One Sobel-family pass feeding both Hough transforms: four denoise modes (off, Gaussian, bilateral, median 3&times;3) &times; four edge methods (Sobel, difference-of-Gaussians, Canny-lite with non-maximum suppression, Scharr), a binary threshold, and a <b>contrast boost</b> applied <em>before</em> detection (<span class="mono">EngineVFX2.cpp:4205-4231</span>). Bypassable, in which case the raw gradient votes</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>Edge pre-filter debug view</td><td>Shows the pre-filter's output instead of the Hough output. Not a rendered visualisation &mdash; it hands you the intermediate texture itself, whose channels are R = the binary edge, G and B = the gradient direction, A = the soft magnitude (<span class="mono">:4237-4240</span>)</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr class="key"><td>Hough line detection [GPU]</td><td>Edge pixels vote atomically into a (&rho;, &theta;) accumulator in a compute shader, spread over 3 &theta; bins &times; 3 &rho; bins with Gaussian-like weights so that a diagonal line is not penalised against an axis-aligned one. 60&ndash;360 &theta; bins, 64&ndash;512 &rho; bins, a peak cutoff, a bounded mode that draws segments only where real edges are, and a Hough-space view</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr class="key"><td>Hough circle / ellipse [GPU + NMS]</td><td>The same pre-pass into a three-dimensional (r, c<sub>y</sub>, c<sub>x</sub>) accumulator, then a compute-shader non-maximum-suppression pass extracting up to <b>256</b> peaks (<span class="mono">EngineVFX2.cpp:4393</span>). Radius is in min-dimension fractions, so a circle stays round at any viewport aspect; an aspect parameter with a one-click <span class="mono">= 1</span> reset turns it into an ellipse detector; the Hough-space view is a max-over-radius projection with hue encoding the winning radius bin</td><td><span class="st st-c">never viewed</span></td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="narrow">
+      <p><b>The pre-filter is not boilerplate; it is the concession to running on a path tracer.</b> Its own tooltip says why it exists: both transforms <em>"vote ONLY from clean binary edges&hellip; this prevents a few bright HDR regions from dominating the accumulator"</em>. A Hough transform written for an 8-bit photograph can vote by gradient magnitude and be fine. Vote by gradient magnitude on a linear HDR film and a specular highlight three stops above everything else wins every bin it touches. So there is a tone-map multiplier <em>ahead of</em> the edge detector and a hard binary threshold after it, and the denoise combo exists because the tracer's own sampling noise is impulse noise &mdash; which is why <em>median 3&times;3</em> is in a list that would otherwise be Gaussian and bilateral. That is a computer-vision operator adapted to a renderer, and it is the one thing in this pair worth a paragraph.</p>
+      <p><b>One defect, in the circle pass.</b> The NMS shader's header says it finds peaks that are a <em>"strict local max in 3x3x3"</em>, and the test it runs is <span class="mono">if (n &gt; v) isMax = false</span> &mdash; which passes when a neighbour <em>equals</em> the centre. Ties are not suppressed. Every cell of a flat plateau in the accumulator is emitted as its own peak, and because the accumulator holds integer vote counts on a downscaled grid (the Accum Downscale slider goes to 16), plateaus are the normal case at low vote counts rather than a pathological one. The visible consequence would be several concentric or near-coincident rings drawn for one circle, and the 256-peak cap being reached by duplicates. <b>I have not run it</b> &mdash; this is read from <span class="mono">houghCirclesNMS.comp:42-59</span>, where the test itself is line 53, and the shot below is the test.</p>
+    </div>
+
+    <div class="slot">Screenshot — The Hough pair, and the tie question. Preset "Cornell Box (default)" — a box is the cheapest source of long straight edges — GPU tracer, converged ~200 passes, Clean View (G). Four frames, camera absolutely unmoved. (a) Effects ▸ CV ▸ Shared Edge Pre-filter ON, Denoise = Median 3x3, Edge Method = Canny-lite, Edge Threshold 0.15, Contrast Boost 3.0, and "Show Edge Result [Debug]" ON with Hough Lines enabled — this shows the pre-filter's own texture, so expect thin coloured edges on black, with hue varying by gradient direction. (b) Same, Show Edge Result OFF, Hough Lines ON, Bounded ON, Theta Bins 180, Rho Bins 256, Peak Cutoff 0.5 — expect segments lying exactly along the box's wall joins and the block silhouettes. (c) Same but Bounded OFF — expect the same lines extended across the whole frame. (d) Hough Lines OFF, Hough Circles ON, Aspect = 1, Min Radius 0.05, Max Radius 0.3, Radius Bins 16, Accum Downscale 8, Peak Cutoff 0.4, with a sphere in frame. What to look for in (d) specifically: whether ONE circle produces one ring or a tight family of near-identical rings. A family is the tie behaviour described above, and it would be the first observation of it.</div>
+
+    <div class="narrow">
+      <h3>The fixed tail, which the diagram in &sect;01 names and nothing describes</h3>
+      <p>After the 157 comes a short, unreorderable sequence that every frame passes through: <span class="mono">applyCVFilter</span>, then depth-of-field, then the in-engine photo tap, then data moshing, then the node projector's reproject mode, then glow, then the final temporal blur, then the selection overlay. Four of its rows have never been photographed and one of them is not a filter at all.</p>
+    </div>
+
+    <div class="tw"><table>
+      <thead><tr><th>Tail row</th><th>What it does</th><th>Grade</th></tr></thead>
+      <tbody>
+        <tr><td>Blur (temporal + spatial)</td><td>An exponential moving average across frames plus a Gaussian across pixels, on the <em>accumulated</em> image. The panel header was renamed on 2026-09-04 and now carries the sentence <em>"Blurs, not a denoiser. There is no denoiser here."</em> in the UI itself (<span class="mono">UIManagerRender.cpp:1419-1428</span>) &mdash; a rare case of a program correcting its own overclaim in the widget rather than in a commit</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>Post &#9656; Depth-of-Field blur</td><td>Distinct from the tracer's real thin-lens depth of field, with per-renderer enables and a <em>Decouple from Camera</em> switch giving it its own aperture and focus distance</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>Post &#9656; Glow / Bloom</td><td>Threshold, intensity, radius. The knee is <b>not</b> a control: it is fixed at 0.1 in <span class="mono">glow.frag:26</span>, and the shader's comment gives the threshold's intended range as 0.5&ndash;2.0 where the slider offers 0&ndash;1 &mdash; so the bottom of the slider blooms everything above 0.1 luminance at full weight</td><td><span class="st st-b">seen</span></td></tr>
+        <tr class="key"><td>Post &#9656; CV / Image Filter</td><td>An always-available slot outside the bank: Sobel edge with an overlay-on-image option, unsharp-mask sharpen, or a bilateral filter with spatial sigma, range sigma and a 1&ndash;8 kernel radius</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr class="key"><td>&mdash; live bilateral-grid preview</td><td>A diagram, not a preview &mdash; see below</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>Post &#9656; Final temporal blur</td><td>A second, independent EMA blending with the previously <em>displayed</em> frame, 0&ndash;0.95, with an early-out below 0.001 that also drops the history so the effect does not resume mid-fade</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>Selection overlay / hover mask</td><td>A screen-space masked overlay for the selected and hovered entity, suppressed entirely by Clean View. It runs <em>after</em> the final temporal blur &mdash; see below</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>Background depth prepass</td><td>A lightweight raster linear-depth pass kept alive whichever integrator is active, so the depth-driven operators and the photon-primitive overlay always have a fresh buffer even under a CPU integrator</td><td><span class="st st-b">seen</span></td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="narrow">
+      <p><b>Two sliders in this tab are both called Temporal Blur</b>, and they are different things at different points in the pipeline. One is in <em>Blur (temporal + spatial)</em>, ranges 0&ndash;1, and smooths the accumulator. The other is in <em>Post Process</em>, ranges 0&ndash;0.95, and blends the finished display texture with the last one shown (<span class="mono">UIManagerRender.cpp:1424</span> and <span class="mono">:1791</span>). Both are on screen at once if both headers are open. The second is the one that ghosts a camera move; the first is the one that makes an animated volume converge faster and quietly biases it.</p>
+      <p><b>And the second one is not last.</b> The catalogue calls it <em>"a second, independent EMA at the very end of the chain"</em>, and the source disagrees: <span class="mono">applySelectionOverlay</span> runs after it. The consequence is small and specific &mdash; the selection outline is composited on top of the blur and is therefore the one element in the frame that does not ghost when you move the camera &mdash; and it is invisible under Clean View, which is where every shot on this page is taken. The correction is here rather than in the catalogue because the source is what settles it.</p>
+
+      <h3>The bilateral-grid preview is a diagram of an algorithm, drawn from your slider values</h3>
+      <p>Turn on the bilateral filter and a <em>Show Grid Preview</em> toggle appears. What it draws is not your image. It builds a hard-coded one-dimensional test signal &mdash; flat at 0.3, a linear ramp between x = 0.45 and 0.55, flat at 0.8 &mdash; and splats it into a grid whose two axes are <em>spatial x</em> and <em>range</em>, with the cell counts derived live from your two sigma sliders: the x cell count from the spatial sigma, the range cell count as <span class="mono">1/(&sigma;<sub>r</sub> + 0.01)</span>, both clamped. Occupied cells are tinted by their mean value, the signal curve is drawn over the top, and hovering the canvas draws the filter's <b>support ellipse</b> at the cursor with semi-axes proportional to &sigma;<sub>s</sub> and &sigma;<sub>r</sub> &mdash; so you can see, directly, that raising the range sigma is what lets the filter reach across the step (<span class="mono">UIManagerRender.cpp:1694-1785</span>).</p>
+      <p>That is a teaching figure for the bilateral grid, live-parametrised by the controls it explains, sitting inside a filter panel. It is the most unusual widget in this territory and it has never been photographed. Two things about it should be said plainly. Its own footer label reads <em>"Splat &rarr; Blur 3D &rarr; Slice (bilateral grid)"</em> and the widget performs the first of those three: the code splats and draws, and there is no blur pass over the accumulated cells and no slice back to the signal. <b>The catalogue's row says it animates all three; the source says otherwise, and the source wins.</b> The label is best read as naming the method the drawing belongs to rather than the stages the drawing shows. And the toggle is a function-local <span class="mono">static bool</span>, so unlike every other control in the panel it lives outside <span class="mono">UIManager</span> and is not saved with the rest of the UI state.</p>
+    </div>
+
+    <div class="slot">Screenshot — The widget that explains itself. No scene required — this is a panel crop, and it is the cheapest capture on the page. Render Settings ▸ Effects ▸ Post Process ▸ CV / Image Filter ON, Filter = Bilateral Filter, then Show Grid Preview ON. Three frames, cropped identically to the preview canvas plus the three sliders above it, with the mouse held INSIDE the canvas so the support ellipse draws. (a) Spatial Sigma 2.0, Range Sigma 0.40. (b) Spatial Sigma 2.0, Range Sigma 0.05. (c) Spatial Sigma 9.0, Range Sigma 0.05. What to look for, with the arithmetic written out so the frames can be checked rather than admired: the range axis is subdivided as 1/(sigma_r + 0.01) clamped to [3, 12], so (a) must show exactly 3 rows and (b) exactly 12, and the ellipse's vertical semi-axis should shrink roughly eightfold between them until it can no longer span the step in the yellow signal curve — which is the picture of an edge-preserving filter refusing to cross an edge. Between (b) and (c) the row count must not change at all while the grid LOSES columns and the ellipse widens, because the column count is derived from the spatial sigma alone. The caption must say the grid is drawn from a synthetic 1-D signal and never from the rendered frame.</div>
+  </div>
+</section>
+
+
+<!-- ================= 09 · THE SHOT LIST ================= -->
+<section id="shots" style="--secc:var(--l680)" data-nav="Shot list">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">09 &mdash; The deliverable</p>
+      <h2>The capture protocol, and the full twenty-two-group accounting</h2>
+      <p class="lead">Contact sheets need a shot list, and this page's real output is the twenty capture instructions above &mdash; seventeen stills and three clips &mdash; plus the protocol that makes them comparable. Every shot on this page obeys the same five rules, and the two added in &sect;08 obey a sixth: where a shot can be checked against arithmetic rather than against taste, the expected numbers are written into the recipe.</p>
+    </div>
+
+    <ul class="clean">
+      <li><b>One camera per sheet.</b> Every frame in a contact sheet comes from the same unmoved camera. A contact sheet whose frames disagree about viewpoint compares nothing.</li>
+      <li><b>Converge first, then enable.</b> The bank runs on the display texture after accumulation. Enabling an operator on a noisy render photographs the noise, not the operator &mdash; except where the shot explicitly asks for a pass sweep, as in the toon-convergence shot.</li>
+      <li><b>Clean View on (<span class="mono">G</span>).</b> Every viewport indicator, selection outline and debug overlay off. The selection overlay is itself a post pass at the end of the chain and will contaminate a contact sheet.</li>
+      <li><b>One operator at a time, and say so.</b> The bank stacks in a fixed order, so two operators on at once is a picture of the composition and not of either one. Every shot above names exactly which toggles are on.</li>
+      <li><b>Name the preset by its menu label, not its number.</b> Three preset indices have dispatch branches and no menu entry, two indices do not exist at all, and one menu entry renders a Cornell Box instead of what it says. Labels are stable; numbers are not.</li>
+    </ul>
+
+    <div class="narrow">
+      <p>And the accounting, so nothing in the bank is hidden by the fact that three curated sheets cannot hold 157 things. These are the source's own dispatch groups &mdash; twenty-two of them, each one a comment line in <span class="mono">EngineRender.cpp</span> &mdash; in the order the chain applies them. The <b>n</b> column sums to 157, which is the check the read-out in &sect;01 failed and this table passed.</p>
+    </div>
+
+    <div class="tw"><table>
+      <thead><tr><th>#</th><th>Dispatch group</th><th>n</th><th>Sheet</th><th>Grade</th></tr></thead>
+      <tbody>
+        <tr><td>01</td><td>Basic &mdash; style transfer, deep dream, neural edge glow</td><td>3</td><td>&mdash;</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>02</td><td>Spatial / structural (applied first) &mdash; SSAO, depth contours, bilateral grid, feature volume</td><td>4</td><td>I</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>03</td><td>NPR / artistic &mdash; normal hatching, voxel grid, texel splatting, advanced dither, advanced halftone</td><td>5</td><td>I + III</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr class="key"><td>04</td><td>G-buffer 3-D-aware</td><td>11</td><td><b>I</b></td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr class="key"><td>05</td><td>Differential geometry + print media</td><td>8</td><td><b>II + III</b></td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>06</td><td>Histogram / painterly / progressive</td><td>3</td><td>&mdash;</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>07</td><td>Anime / Live2D / manga</td><td>8</td><td>III (screen tone)</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>08</td><td>Volumetric ray-marching &mdash; god rays, fog, aura, atmosphere, SSR, light cone</td><td>6</td><td>I</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>09</td><td>Topology / flow &mdash; Morse-Smale, level sets, gradient flow</td><td>3</td><td>II</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr class="key"><td>10</td><td>Advanced techniques &mdash; walk-on-spheres, anisotropic diffusion, TV, Fourier spectral, heat equation, morphological, geodesic distance, power Voronoi</td><td>8</td><td><b>II</b></td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>11</td><td>Mathematical / artistic &mdash; Laplacian eigenfunctions, OT colour, Poisson gradient, Mumford-Shah, XDoG, stroke-based, phase amplification, discrete curvature</td><td>8</td><td>II</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>12</td><td>Research-level &mdash; multi-scale Kuwahara, coherent line drawing, four conformal maps, contour families, transport and OT warps, and eighteen more</td><td>29</td><td>mixed</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>13</td><td>Siggraph-inspired &mdash; guided filter, palette recolour, Voronoi stipple, ASCII, 2-D Gaussian splatting, RD stylize, layered abstraction, Hilbert stylization</td><td>8</td><td>III (ASCII)</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>14</td><td>Glitch / generative &mdash; pixel sort, WFC mosaic, temporal noise</td><td>3</td><td>III</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>15</td><td>Neural, applied last &mdash; style transfer [advanced], deep dream [advanced]</td><td>2</td><td>&mdash;</td><td><span class="st st-d">2 inert knobs</span></td></tr>
+        <tr><td>16</td><td>Pure mathematics &mdash; domain colouring, Julia, fractal dimension, quaternion colour, Clifford attractor</td><td>5</td><td>II</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr class="key"><td>17</td><td>Field-based / animated &mdash; IBFV, curl noise, reaction flow, n-body, wave equation, morphogenesis, magnetic field, plasma, Schr&ouml;dinger, Navier-Stokes, EM scattering, gradient-descent flow, Hodge, Helmholtz, heat method, Laplace eigenfunctions, <b>Ricci flow</b>, parallel transport, spinor, gauge theory</td><td>20</td><td><b>II</b></td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>18</td><td>Computer vision &mdash; Hough lines, Hough circles, epipolar, stereo, geometry reconstruction</td><td>5</td><td>I + &sect;08</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>19</td><td>Depth extraction / holography</td><td>7</td><td>see the imaging page</td><td><span class="st st-a">measured</span></td></tr>
+        <tr><td>20</td><td>Statistical physics &mdash; percolation, Ising, Markov chain</td><td>3</td><td>II</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>21</td><td>Research-grade math &mdash; hyperbolic tiling, persistent homology, mandelbulb, Reeb contours, kaleidoscope</td><td>5</td><td>II</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>22</td><td>Tail &mdash; chromatic hallucination, fractal feedback, depth abstraction</td><td>3</td><td>I</td><td><span class="st st-c">never viewed</span></td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="narrow">
+      <p>One group in that table carries a grade the others do not. Group 19, depth extraction and holography, is <span class="st st-a">measured</span> &mdash; three time-of-flight systems and three holographic reconstructions with error figures scored against ground-truth depth. It sits in the same panel as ASCII art, and it is the only part of this territory with a measurement behind it &mdash; scored, though still never photographed. It has <a href="seeing-light-arrive.html" style="color:var(--accent);text-decoration:none;border-bottom:1px solid var(--line)">its own page</a>, and it is the proof that this bank carries real work: the same dispatch chain that runs a halftone runs a self-scoring phase unwrapper.</p>
+    </div>
+
+    <div class="scope">
+      <b>Read next.</b> The single ledger row this page expands is on <a href="index.html" style="color:var(--accent);text-decoration:none;border-bottom:1px solid var(--line)">the landing page</a>; the full catalogue behind it is <span class="mono">docs/FEATURE-CATALOGUE.md</span>, where this territory is Group 5. The one part of it that has been measured is <a href="seeing-light-arrive.html" style="color:var(--accent);text-decoration:none;border-bottom:1px solid var(--line)">seeing light arrive</a>. The audit method that separates "the feature is reachable" from "this file is live" &mdash; the rule that keeps every row in &sect;07 out of the word <em>dead</em> &mdash; is <span class="mono">docs/FEATURE-REACHABILITY.md</span>.
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="spectrum" style="margin-bottom:34px"></div>
+    <h2 style="font-size:28px;margin:0 0 10px">RadianceLab</h2>
+    <p style="color:var(--muted);max-width:56ch;margin:0">A from-scratch physically-based renderer in C++ and OpenGL compute, written to make estimator research directly visible.</p>
+    <div class="fgrid">
+      <div><span class="k">Renderer</span><span class="v">GPU megakernel path tracer, rasterizer, and seven CPU integrators — photon mapping, VCM, MLT, PSSMLT, UPBP, path guiding</span></div>
+      <div><span class="k">This work</span><span class="v">31 strategy slots in the picker: 0–2 are the baselines the rest are measured against, 3–24 and 26–30 are the photon-primitive family, 25 is a rasterised gather, and 21 of the slots are analytic swept manifolds sharing one MIS network</span></div>
+      <div><span class="k">Validation</span><span class="v">Ratio and byte-identical harnesses, degenerate-limit pins, standalone numerical gates in Python</span></div>
+      <div><span class="k">Media</span><span class="v">Homogeneous and heterogeneous participating media, Henyey–Greenstein and Mie phase functions, dispersive dielectrics</span></div>
+    </div>
+    <div class="scope">
+      <b>Scope note.</b> This page covers one subsystem. The renderer also carries a structured-light projector and time-of-flight pipeline, off-axis holography with a GPU FFT and phase unwrapping, five physics solvers coupled to volumetric density, a node-graph material and projection editor with texture-space baking, and roughly 140 post-process and NPR passes. Those are documented separately.
+    </div>
+    <p style="margin:28px 0 0"><a href="index.html" style="color:var(--muted);font-size:13px;letter-spacing:.03em;text-decoration:none;border-bottom:1px solid var(--line)">&larr; All eleven threads</a></p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var links = Array.prototype.slice.call(document.querySelectorAll('#rail a'));
+  var secs  = links.map(function(a){ return document.getElementById(a.dataset.s); });
+  var fill  = document.getElementById('railfill');
+  var track = document.getElementById('railtrack');
+
+  links.forEach(function(a){
+    a.addEventListener('click', function(e){
+      var t = document.getElementById(a.dataset.s);
+      if (!t) return;
+      e.preventDefault();
+      t.scrollIntoView({ behavior:'smooth', block:'start' });
+      if (history.replaceState) history.replaceState(null, '', '#' + a.dataset.s);
+    });
+  });
+
+  function progress(){
+    if (!fill || !track) return;
+    var h = document.documentElement.scrollHeight - window.innerHeight;
+    var p = h > 0 ? Math.min(1, Math.max(0, window.scrollY / h)) : 0;
+    fill.style.height = (p * track.offsetHeight) + 'px';
+  }
+  var queued = false;
+  window.addEventListener('scroll', function(){
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(function(){ progress(); queued = false; });
+  }, { passive:true });
+  window.addEventListener('resize', progress, { passive:true });
+  progress();
+
+  if (!('IntersectionObserver' in window)) return;
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      var i = secs.indexOf(e.target);
+      if (i < 0) return;
+      links[i].classList.toggle('on', e.isIntersecting && e.intersectionRatio > 0.12);
+    });
+  }, { threshold:[0, .12, .5] });
+  secs.forEach(function(s){ if (s) io.observe(s); });
+})();
+</script>
+

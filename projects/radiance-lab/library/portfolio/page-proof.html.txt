@@ -1,0 +1,369 @@
+{{SECTION:_head.html}}
+{{NAV}}
+
+<!-- ================= HERO ================= -->
+<header class="hero">
+  <div class="hero-img">{{IMG:fireflies}}</div>
+  <div class="wrap hero-in">
+    <p class="eyebrow">Evidence &amp; method · RadianceLab</p>
+    <h1>How I know the<br>pictures are <i>right</i></h1>
+    <p class="thesis">A caustic that looks right and is wrong is worthless. So this project built the instruments that tell the difference, and every acceptance number on the site came off one of them.</p>
+    <p class="note" style="max-width:56ch;margin:14px 0 0;color:#9fb0ad">Above: the photon-cone estimator at 400 passes. It is kernel-free, it is converging, and its peak pixel is 858&times; the frame mean. Nothing about looking at it tells you which of those three things are true. (That number read 1189.8&times; until 2026-09-08, when the film was regenerated from its producer and did not come back; the frame above is the one the recorded config makes, and 858 is what it measures.)</p>
+    <div class="spectrum"></div>
+    <div class="stats">
+      <div class="stat"><span class="k">A wrong normalisation, 2400 passes</span>
+        <div class="v"><span class="from">4.45&times;</span></div>
+        <div class="sub">the right answer, and flat to 1.5&nbsp;% over a 16&times; range in passes</div></div>
+      <div class="stat"><span class="k">Claims corrected by measurement</span>
+        <div class="v"><span class="to">7</span></div>
+        <div class="sub">in two days; each with the measurement that forced it, none deleted</div></div>
+      <div class="stat"><span class="k">Byte-identical films, last change</span>
+        <div class="v"><span class="to">12 / 12</span></div>
+        <div class="sub">pinned before, re-rendered after, checked twice</div></div>
+      <div class="stat"><span class="k">Python oracle vs finite-difference co-area</span>
+        <div class="v"><span class="to">1e&#8209;10</span></div>
+        <div class="sub">median agreement across the primitive roster</div></div>
+    </div>
+  </div>
+</header>
+
+<!-- ================= 01 THE TRAP ================= -->
+<section id="wrong" style="--secc:var(--l400)" data-nav="The trap">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">01 — Why looking is not a test</p>
+      <h2>A wrong estimator converges too</h2>
+      <p class="lead">The most dangerous failure in a renderer is not noise. It is a clean, stable, plausible image of the wrong number.</p>
+      <p>When the correlated batch mode was built, there were two candidate normalisations: divide by the number of primitives <em>drawn</em>, or by the number that actually <em>crossed</em> the camera ray. The second is wrong. It was built anyway, behind a compile flag, fired, measured, and then deleted, because a trap you have watched go off is one you will not ship.</p>
+      <p>It reads four and a half times the right answer. It is also stable: over a sixteen-fold range in pass count the wrong film moves by 1.5&nbsp;%, exactly the way a converging estimator does.</p>
+    </div>
+    <div class="tw"><table>
+      <thead><tr><th>ratio vs the uncorrelated reference</th><th>150 passes</th><th>600</th><th>2400</th></tr></thead>
+      <tbody>
+        <tr><td>preset 47 · strategy 20 · correct</td><td>0.9562</td><td>0.9935</td><td>0.9891</td></tr>
+        <tr class="key"><td>preset 47 · strategy 20 · <b>wrong</b></td><td>4.3850</td><td>4.4470</td><td>4.4508</td></tr>
+        <tr><td>preset 47 · strategy 8 · correct</td><td>1.0412</td><td>1.0058</td><td>1.0132</td></tr>
+        <tr class="key"><td>preset 47 · strategy 8 · <b>wrong</b></td><td>5.2556</td><td>4.9521</td><td>5.1010</td></tr>
+      </tbody>
+    </table></div>
+    <div class="narrow">
+      <p>The inflation factor is <code>N / #crossed</code>, which is <code>1/P(cross)</code>: measured at 2.1&ndash;6.8&times; on frame energy and 6.6&ndash;14.2&times; per lit pixel across five preset/strategy pairs. It is not a bug that shows up as an artefact. It shows up as a caustic that is simply brighter than the truth, in an image nobody has a reference for.</p>
+      <p class="note"><b>The consequence for the rest of this page.</b> A stable image can be off by a factor of four and a half, so no acceptance number on this site is an image. Every one is a division: one estimator over another that shares no code with it, in a format built to be divided. That is the whole apparatus, and it is four things &mdash; a linear film, an independent second opinion, a statistic chosen to suit the estimator's tail, and a byte comparison to catch what statistics cannot.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 02 TWO ESTIMATORS ================= -->
+<section id="ratio" style="--secc:var(--l460)" data-nav="Two estimators">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">02 — The primary instrument</p>
+      <h2>Two independent estimators of one integral, reported as a ratio</h2>
+      <p class="lead">Nothing in this project is accepted on the strength of its own output. Every estimator has to divide against something it shares no code with, and land on 1. The table below is what landing looks like.</p>
+      <p>The pairs are chosen so that the two sides agree on the transport and disagree on everything else: one samples a photon and sweeps it into an analytic sheet, the other fires a stochastic beam and gathers it with a kernel; one connects to a light in <code>scene.lights[]</code>, the other traces a ray until it hits an emissive entity. When two constructions that different land on the same number, the number is the integral &mdash; there is no shared code left for a common error to hide in.</p>
+    </div>
+    <div class="tw"><table>
+      <thead><tr><th>Pair</th><th>Scene</th><th>Statistic</th><th>Result</th></tr></thead>
+      <tbody>
+        <tr class="key"><td>Hourglass MIS (21) vs stochastic beam (18, <code>minBounce&nbsp;2</code>)</td><td>preset 48</td><td>per-pixel median ratio, converged</td><td><b>1.0000</b></td></tr>
+        <tr><td>Hourglass solo (20) vs the same beam</td><td>presets 47 / 52</td><td>energy on shared support</td><td>0.982 / 0.986</td></tr>
+        <tr><td>Vertex hourglass (22) vs hourglass (20)</td><td>presets 47 / 52</td><td>total energy</td><td>1.007 / 1.020</td></tr>
+        <tr><td>Vertex hourglass (22) vs the beam (18)</td><td>presets 47 / 52</td><td>total energy</td><td>0.989 / 1.005</td></tr>
+        <tr class="key"><td>PP surface NEE vs the GPU path tracer</td><td>preset 0</td><td>per-pixel median, n = 40&nbsp;842 diffuse px</td><td><b>1.0005</b> <span class="mono" style="font-size:12px;color:var(--muted-2)">(p25 0.963, p75 1.039)</span></td></tr>
+        <tr class="key"><td>PP specular continuation through glass vs the GPU path tracer</td><td>preset 0</td><td>per-pixel median on the ball, n = 4&nbsp;625 px</td><td><b>0.9949</b> <span class="mono" style="font-size:12px;color:var(--muted-2)">(diffuse half 1.0008)</span></td></tr>
+        <tr><td>MIS density, four independent derivations vs the sampler's histogram</td><td>&mdash;</td><td>measured density ratio</td><td>1.0007</td></tr>
+        <tr><td>Hourglass as <code>ior &rarr; 1</code> vs the photon cone (9)</td><td>&mdash;</td><td>degenerate limit</td><td>exact collapse</td></tr>
+      </tbody>
+    </table></div>
+    <div class="pair">
+      <div class="pane">{{SVG:fs1-surface-nee.svg}}</div>
+      <div class="pane">{{SVG:fs2-footprint.svg}}</div>
+    </div>
+    <div class="paircap"><b>Schematics</b><span>Left: the reference denominator. One camera ray, one diffuse hit, one connection to the emitter, no continuation &mdash; the smallest thing both the CPU integrator and the GPU tracer can be made to compute identically, which is why it is the pair that produced 1.0005. Right: why a surface gather has no kernel-free form &mdash; the photon sheet meets the receiver in a curve, and a camera hit off that curve has nothing to gather.</span></div>
+
+    <div class="narrow">
+      <h3>Degenerate limits are free exact tests</h3>
+      <p>Where a new estimator becomes an old one, the comparison costs nothing and pins the measure convention rather than the value. Driving the refractive index to 1 collapses the hourglass onto the photon cone, which was validated a month earlier against next-event estimation; the density has to match term for term, not merely in expectation. A limit that agrees is worth more than a Monte Carlo run that agrees, because it removes the sampler from the question entirely.</p>
+      <h3>What a ratio cannot test</h3>
+      <p>A shared factor cancels and is therefore invisible. Strategies 20 and 22 deliberately share an emission convention (<code>pp.vhEmit = 0</code>, radiance <code>L_e/cos_y</code>) so that 22/20 is a like-for-like test of the Jacobian &mdash; which means it is <em>not</em> a test of the emitter model. That model is one of three in this codebase and the disagreement between them is unresolved; see section 08.</p>
+    </div>
+
+    <div class="pair">
+      <div class="pane"><span class="tag a">A · stochastic beam, r = 0.70</span>{{IMG:gate_ab_kernel}}</div>
+      <div class="pane"><span class="tag b">B · analytic pair, r = 0.15</span>{{IMG:gate_ab_analytic}}</div>
+    </div>
+    <div class="narrow">
+      <div class="readout">
+        <div class="row"><span class="lbl">Waist peak — A</span><span class="val">0.0229</span></div>
+        <div class="row"><span class="lbl">Waist peak — B</span><span class="val">0.1231</span></div>
+        <div class="row"><span class="lbl">Waist FWHM — A / B</span><span class="val">70 px / 7.7 px</span></div>
+        <div class="row hi"><span class="lbl">Total frame energy B / A</span><span class="val">0.960</span></div>
+      </div>
+      <p style="margin-top:20px">Preset 54, equal passes, same camera. Read the last row first: the two estimators agree on the total to within 4&nbsp;%, and that agreement is what makes the first three rows a measurement of sharpness rather than of brightness. A caustic 5.3&times; higher and 9&times; narrower at the same energy is the kernel's blur removed &mdash; the <em>wide</em> kernel's. A carries r = 0.70 against B's 0.15, and with the beam at the pair's own radius its waist is 16.1 px, a factor of 2.0 at matched radius; the rest of the 9 was the competitor's knob. B is the pair and carries a kernel of its own, and at r = 0.05 its waist is 7.5 px, so the width is the sheet's while the kernel shows in the energy (the ladder on <a href="photon-hourglass.html#hourglass" style="color:var(--l680)">Caustics without a kernel</a>). Without the energy row any of it would be indistinguishable from an exposure error.</p>
+      <p class="note"><b>Three of those four rows are a correction, and the fourth is why they could be corrected.</b> The energy ratio had a producer and reproduced to five digits when the films were regenerated. The peaks and the widths did not: they shipped as 0.0299 / 0.1313 / 57 px / 7 px, read off the films by hand in a session that did not record which row it read, and the films measure neither peak nor 57 px at any row. <span class="mono">docs/tools/waist.py</span> is the producer they should have had. It states its rule before it reports a number &mdash; lower-half row where B's row peak is largest, band = the contiguous rows within 10&nbsp;% of that peak, luminance on the raw film, half-maximum crossings interpolated on both sides &mdash; and reports the band median with the spread across its seventeen rows, because one row of a 6,000-pass film is noisy at the percent level: peak 0.0229 (0.0206&ndash;0.0250) against 0.1231 (0.1158&ndash;0.1276), ratio <b>5.3&times;</b> (4.7&ndash;6.2), width 70 px (68.5&ndash;73.1) against 7.7 px (6.1&ndash;10.4), ratio <b>9.2&times;</b> (6.8&ndash;11.7). The direction and the size of the claim survive; two of its digits did not.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 03 THE FILM ================= -->
+<section id="film" style="--secc:var(--l500)" data-nav="The film">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">03 — The measurement surface</p>
+      <h2>A film format you can divide</h2>
+      <p class="lead">A tonemapped PNG is not evidence. Every number on this site comes off a raw, linear, unclamped dump.</p>
+      <p>The format is deliberately trivial: the four bytes <code>PGR1</code>, three little-endian <code>int32</code> for width, height and pass count, then <code>w&middot;h&middot;3</code> little-endian <code>float32</code> in linear HDR. No tonemap, no exposure, no gamma, no clamp. It is written by three hooks &mdash; the PP film, the CPU integrators and the GPU path tracer's accumulation texture &mdash; so that all three render paths land in one comparable container.</p>
+      <p>The property that matters most is the least glamorous. <strong>The stored values are a running <code>1/N</code> mean, not a sum</strong>, so a 400-pass dump and a 4000-pass dump divide directly with no normalisation step and therefore no place to put a normalisation bug.</p>
+    </div>
+    <div class="formula">
+      <div class="f">"PGR1" <span class="hl">·</span> int32 w, h, spp <span class="hl">·</span> float32 rgb <span class="hl">&times;</span> w&middot;h</div>
+      <div class="n"><code>EngineRender.cpp:50</code> (GPU reference) · <code>:2179</code> <code>pp.dumpCpuAt</code> · <code>:2310</code> <code>pp.dumpPpRefAt</code> · <code>:2485</code> <code>pp.dumpGpuRefAt</code></div>
+    </div>
+    <div class="narrow">
+      <p>Every render that produced a number here was launched from a JSON config through a dot-path loader &mdash; 54 live <code>pp.*</code> keys, including the strategy, the preset, the bounce range, the guard, the MIS mask and the dump pass. There is no interactive step in any measurement, so every one of them re-runs from a file.</p>
+      <h3>The tool</h3>
+      <p><code>docs/tools/filmstats.py</code> is 99 lines and lives in the repository on purpose, beside the numbers it produced: the instrument behind the film ratios on this site belongs under version control, and the scratchpad it started in has been cleared more than once.</p>
+      <ul class="clean">
+        <li><b><code>stats</code></b> — mean, p99, max, non-zero fraction. The first thing run on any dump, because "mean 0, 0 non-zero px" is a different problem from "mean 0.03, max 18744".</li>
+        <li><b><code>ratio</code></b> — per-pixel median ratio over pixels above the reference's 40th percentile. The default acceptance statistic.</li>
+        <li><b><code>diff</code></b> — total-energy ratio plus where the energy moved, listed as the five largest per-pixel gains. Used to confirm that an added transport lands, and <em>where</em>.</li>
+        <li><b><code>chroma</code></b> — per-channel totals and saturation percentiles. A dispersive caustic must show channel-dominant pixels; a grey one must not.</li>
+        <li><b><code>png</code></b> — tonemap to look at it. This is the only way to look at a headless film, because the application has no screenshot function at all: F12 logs <code>"Snapshot requested"</code> and writes nothing (<code>Engine.cpp:373</code>).</li>
+      </ul>
+      <p class="note"><b>One diagnostic worth stealing.</b> In a <code>diff</code>, <code>summed negative delta == 0.0000</code> means a change only ever <em>added</em> energy. That is the signature of a gate that stopped rejecting things it should reject, and it is visible in one line of output long before it is visible in an image.</p>
+    </div>
+    <figure>
+      {{SHOT:Terminal · run the five filmstats sub-commands in sequence on two dumps from the same scene at different pass counts — stats on both, then ratio, diff, chroma — and capture the whole scrollback including the command lines}}
+      <figcaption><b>The instrument</b><span>Five sub-commands on two dumps. What to notice is that no step normalises anything: the running-mean film format is what lets a 400-pass file and a 4000-pass file be divided as they stand.</span></figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ================= 04 THE ORACLE ================= -->
+<section id="oracle" style="--secc:var(--l540)" data-nav="The oracle">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">04 — The independent model</p>
+      <h2>A Python oracle that does not share a line with the renderer</h2>
+      <p class="lead">Fifteen rules about where each estimator's variance comes from, each one cited to a run &mdash; and the study that produced them never launched the renderer once.</p>
+      <p><code>docs/variance/primitives.py</code> is a line-by-line numpy port of the C++ integrator, validated against a finite-difference evaluation of the co-area Jacobian to a median of <code>1e-10</code>. Four studies were run on it: the plane family, the direction sweeps, the medium dependence, and the dielectric hourglass. Sixteen thousand estimator/ray pairs were compared against a composite Gauss&ndash;Legendre quadrature self-converged to <code>5.2e-7</code>, and a hundred and eighty-four direction-sweep rows against a tan-substituted Simpson&nbsp;&times;&nbsp;GL quadrature converged to <code>1e-13</code>.</p>
+      <p class="note"><b>The caveat belongs in the same paragraph as the result.</b> The renderer was never run for any of it. This is a strong statement about the mathematics of the estimators and about the numpy port, not about the shipped C++. Where the two have been compared, it is through the ratios in section 02 and nowhere else.</p>
+      <h3>The disagreements are published, not filtered</h3>
+      <p>Section 6 of that study exists to list every place a Monte Carlo mean failed to match the analytic integral, so that nobody rediscovers them. Three examples of what it records against itself:</p>
+      <ul class="clean">
+        <li>Over 16&nbsp;758 plane pairs the mean ratio is 0.9995&ndash;1.0010 per estimator, but <code>|z| &gt; 3</code> in 0.91&nbsp;% of pairs against the Gaussian expectation of 0.27&nbsp;%, with pooled <code>z</code> standard deviation 1.076. <b>The batch-mean standard error of a <code>1/J</code>-tailed estimator is optimistic by about 7&nbsp;%</b>, and its sample mean sits below the truth more often than above.</li>
+        <li>The photon cone reads a real <code>&minus;0.70&nbsp;% &plusmn; 0.15&nbsp;%</code> deficit on rays that cross the light axis. Traced to the <code>[&minus;0.9999, 0.9999]</code> clamp discarding a polar sliver those rays traverse, and confirmed by removing it: <code>0.99384 &plusmn; 0.00045</code> with the clamp, <code>1.00080 &plusmn; 0.00089</code> without.</li>
+        <li>Strategy 23's running mean on one ray is <b>+31&nbsp;% at 4&times;10⁵ samples</b> and settles to +3&nbsp;% at 6.4&times;10⁶. A fold-tailed estimator's sample mean is skewed at any sample count a render will reach, which is a fact about the statistic and not about the estimator.</li>
+      </ul>
+      <h3>Predictions registered before the run</h3>
+      <p>The study closes with twelve in-engine experiments, each with a quantitative prediction that would falsify the numpy model if it came out wrong &mdash; the plane band following <code>sin(&gamma;)<sup>&minus;2.9</sup></code>, the 3-vs-12 crossover between light edge 0.5&nbsp;D and 1&nbsp;D, the cone's clamp deficit appearing on axis-crossing pixels only and vanishing one pixel to the side. Writing the number down before the run is what makes the run capable of being wrong.</p>
+      <p>The correlated batch mode closed that loop end to end: a design document predicted what each primitive would look like at sixteen samples, and the report of what actually appeared was written against it, prediction by prediction. Two did not survive, and both misses are worth more than the hits.</p>
+      <p>The light-size series closed two more, the other way round. Both crossovers the variance study had written down &mdash; the planes overtaking the direction trio once the emitter subtends 35&deg; at the ball, the vertex hourglass overtaking the light-seeded one at 35&ndash;41&deg; &mdash; were rendered on one rig at five emitter sizes out to 77&deg;, every cell timed and its energy checked against the camera walk, and neither happened inside the range. The trends ran the predicted way and the numbers did not: the trio's variance floor is a third of what the study assumed, and the light-seeded hourglass keeps its coverage where the study had it collapsing. Both corrections stand in the study beside the predictions they replace, and the rig found a missing shadow ray in the trio on the way, which is what a rig is for.</p>
+    </div>
+    <figure>
+      {{DOCPNG:correlated/fig-disk-8.png}}
+      <figcaption><b>Prediction: half right</b><span>The photon disk under a frozen batch. The blades and the <code>1/&delta;<sub>axis</sub></code> brightening toward the axis are there as predicted. The <em>pinwheel</em> is not, and cannot be from any preset in this repository: the blades are half-planes containing the light's axis, so a pinwheel is what you see looking down the axis, and every preset here has a level camera. The predicted "dark hole through the light" is the axis column, and it reads bright, because neighbouring blades close over it.</span></figcaption>
+    </figure>
+    <div class="narrow">
+      <p>The second miss is sharper. Strategy 3 translates the light quad without rotating it, so a ceiling quad stays horizontal at every distance and a level camera sees every member near edge-on. The tangency is not "a few blinding slivers among ordinary patches" as predicted &mdash; it is a single incandescent line across the frame at the camera's own eye height, and the entire estimator's variance lives on that one scanline. That is a better fact than the prediction was, and it was only available because a picture of the sampling geometry existed to be looked at.</p>
+
+      <h3>The other oracle: an acceptance harness inside the process, at five named pixels</h3>
+      <p>Everything above is off-line, and its caveat is that the renderer was never run. The complement runs <em>inside</em> the renderer, behind one checkbox with a matching config key — <code>pp.gateLog</code>, so a headless run can turn it on and a measurement stays re-runnable from a file. It is four logs, and each one checks the shipped C++ against a reference that shares no code with the estimator being checked. <strong>What follows is a source read of the harness, not a new measurement</strong>; the runs it produced are the ones already quoted on this page, and the one it caught is named at the end.</p>
+    </div>
+    <div class="tw"><table>
+      <thead><tr><th>Gate</th><th>What it computes, and what it refuses</th><th>Mark</th></tr></thead>
+      <tbody>
+        <tr><td><b>Gate B</b><br>camera ray onto an emitter</td><td>Fires on strategy 0 only. The centre pixel is aimed at an area light in vacuum, so the converged value must be exactly <code>L_e</code> — deterministic, no Monte Carlo variance, so the ratio lands within a few passes. <code>L_e</code> is taken as the brightest <em>enabled</em> area light's colour × intensity, and the source requires the gate to pass in both the EXCLUDED and INCLUDED dual forms of the emission toggle. Its refusal is worth knowing before you read a log: with no enabled area light in the scene it prints ratio <code>0.0000</code> rather than skipping, so a zero here means "no area light", not "failed"</td><td><span class="st st-a">measured</span></td></tr>
+        <tr><td><b>Gate A</b><br>analytic single-scatter airlight</td><td>Fires on strategies 1 and 2 — at one bounce the MIS combination must still match the airlight, not just the NEE-only estimator. It rebuilds the ray through the centre pixel's own <em>centre</em>, not through UV(0,0), because the film and camera aspect need not match and a sub-pixel direction mismatch would bias the ratio; then it integrates the closed-form airlight along that ray between the fog box's entry and exit against the brightest enabled point light. It computes the slab intersection inline rather than calling the shared routine, because the centre ray is exactly axis-aligned and the shared one does <code>0·inf → NaN</code> on the zero-direction slabs. With no point light, no volume box, or σ<sub>t</sub> below 1e-6 it prints <code>skipped</code> <em>with the three booleans that decided it</em></td><td><span class="st st-a">measured</span></td></tr>
+        <tr class="key"><td><b>Two more oracles at five probe pixels</b><br>area quadrature · multi-light VPT</td><td>Point lights are the easy case; the harness's answer for an emissive quad is a pair of brute-force references evaluated at five <em>named</em> pixels — <code>center</code> (0.50, 0.50), <code>near-wall</code> (0.10, 0.50), <code>toward-light</code> (0.50, 0.12), <code>shadow-corner</code> (0.85, 0.85), <code>lit-wall-fog</code> (0.90, 0.50). One is a deterministic double quadrature: 2000 steps along the in-fog segment × 24 × 24 points on the emitting quad, 1.15 million evaluations per probe. The other is a multi-light volumetric path tracer at PP's own bounce depth, 10⁶ samples per probe, seeded per probe and cached on the bounce count. They refuse a great deal: the quadrature runs only when there is exactly <b>one</b> emitter, because it integrates one quad and PP sums all of them; both fire only at power-of-two pass counts from 32 upward, to bound an O(N·M·M) cost; and the pair carries its own cross-check — at one bounce the path tracer must reproduce the quadrature</td><td><span class="st st-a">measured</span></td></tr>
+        <tr><td><b>Gate C</b><br>relL2 against a GPU film</td><td>Box-downsamples the GPU reference to the PP film's resolution, reduces both to Rec.709 luminance, and reports whole-image <code>relL2</code> plus the same five probe ratios. Both films are 1/N running means, so they divide with nothing in between. Its most useful line is the limit it puts on itself: it is a <em>consistency</em> test between two unbiased estimators, not analytic truth — the analytic anchor stays the one-bounce Gate A</td><td><span class="st st-a">measured</span></td></tr>
+        <tr><td><b>Furnace / energy-ratio log</b></td><td>A checkbox in the same Diagnostics block, described as per-light and total energy ratios. <b>The flag has no reader.</b> It has four references in the whole tree — the UI field, the checkbox, the assignment into the integrator's config, and the config field — and nothing anywhere consumes it, so ticking it produces no line. See the correction below</td><td><span class="st st-a">measured</span></td></tr>
+      </tbody>
+    </table></div>
+    <div class="narrow">
+      <p class="note"><b>A row this page has to contradict, on the page where contradictions belong.</b> The inventory grades the furnace / energy-ratio log <em>measured</em>, which is the grade carried in the table above because that is the inventory's grade and this page does not silently regrade anything. The source disagrees, and where they disagree the source wins: <code>furnaceLog</code> is declared, exposed and assigned, and read nowhere. The defect class is the one this site keeps finding — a control that draws its own promise. Two things it must not be confused with. There <em>is</em> a real furnace test in this codebase, and it is a different feature under a different flag: with <code>pp.surfaceBSDF</code> on, the same binary that renders runs a reciprocity check over 10⁴ random direction pairs and a white-furnace hemisphere integral at eight incidence angles per material arm, and prints a table. And the energy ratios quoted throughout this site came off <code>filmstats.py</code> and the gate logs above, not off this checkbox. Nothing on the site is retracted by this; one control is.</p>
+      <p><b>What the harness has actually caught.</b> One case is recorded in the source at the line it fixed, and it is the same shape as blind spot four below. The area-light NEE was too bright by <code>1/cos&thinsp;θ<sub>L</sub></code>, because the emitter's own cosine had been folded into the MIS density and not into the contribution. Gate A could not see it: its point light has no surface orientation, so that cosine is 1, and the gate's pixel is the centre one, where the connection is nearly head-on and the error is nearly nothing. <strong>Gate C saw it, as a near-surface over-brightness on preset 34</strong> — a whole-image metric on a scene with an emissive quad and grazing connections, which is exactly the pair of conditions the analytic gate does not have. That is the argument for keeping four gates instead of the best one: each is blind somewhere, and the blindnesses are in different places.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 05 CONVENTIONS ================= -->
+<section id="conventions" style="--secc:var(--l580)" data-nav="Conventions">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">05 — Acceptance conventions</p>
+      <h2>The statistic has to match the estimator's tail</h2>
+      <p class="lead">The default acceptance criterion is a per-pixel median ratio converging to 1.000. It is the wrong criterion for about half the family, and using it anyway is how you get a confident wrong number &mdash; so the family has three acceptance statistics, one per tail shape, each matched to the estimator it judges.</p>
+      <p>Median rather than mean, because a single firefly cannot hide a systematic error behind itself. But a median over pixels assumes the two films light the same pixels, and for the sparse members they do not.</p>
+
+      <h3>Why medians mislead for sparse estimators</h3>
+      <p>Strategy 22 lights roughly 45&nbsp;% as many pixels as strategy 20 at equal passes. Its per-pixel median against 20 is therefore coverage-limited: it reads low, and it reads low for a reason that has nothing to do with bias. The acceptance statistic for the sparse vertex members is consequently a <strong>total-energy ratio over a shared support</strong>, which is why the table in section 02 reports 1.007 and 1.020 for 22/20 rather than a median.</p>
+
+      <h3>Why totals mislead for fold members</h3>
+      <p>Every co-area member whose Jacobian vanishes like a square root &mdash; strategies 7, 9, 20, 22, 23, 24 &mdash; has weight tail <code>P(W &gt; w) ~ w<sup>&minus;2</sup></code>, measured Hill index 1.96 and 2.00. Its second moment is logarithmically divergent, so the sample total is dominated by the largest draw and a raw energy ratio is a lottery. Strategy 9's energy ratio over five growing batches, and the same films with the top 0.1&nbsp;% of pixels clipped:</p>
+      <div class="readout">
+        <div class="row"><span class="lbl">Strategy 9 · raw energy ratio</span><span class="val" style="color:var(--bad)">1.12 &nbsp; 1.01 &nbsp; 0.92 &nbsp; 1.45 &nbsp; 8.44</span></div>
+        <div class="row"><span class="lbl">Same films, top 0.1&nbsp;% clipped</span><span class="val" style="color:var(--good)">1.0022 &nbsp; 0.9972 &nbsp; 0.9989 &nbsp; 0.9992 &nbsp; 0.9985</span></div>
+        <div class="row hi"><span class="lbl">Strategy 8 (bounded weights), no clipping</span><span class="val">agrees to four digits</span></div>
+      </div>
+      <p style="margin-top:20px">The 8.44 is one pixel. Strategy 8 is the one member of the direction-sweep family with bounded weights, which is exactly what makes it the clean unbiasedness gate for the whole correlated mode: if the normalisation is right, 8 says so without any robustification at all.</p>
+
+      <h3>Why guard-on and guard-off totals must never be compared</h3>
+      <p>The grazing guard discards contributions whose Jacobian falls below a floor. It is tempting to price it by differencing the two film totals. For a fold member that number is meaningless: <strong>the guard-off total is just the largest sample that happened to be drawn</strong>, and neither film measures the truth at the affected pixels. What can be compared is the <em>footprint</em> &mdash; which pixels differ at all, and whether the rest are bit-identical &mdash; and that is how the guard was actually measured (section 07).</p>
+
+      <h3>Which statistics converge and which do not</h3>
+      <p>Six seeds of one identical hourglass configuration, same sample count:</p>
+      <div class="tw"><table>
+        <thead><tr><th>Statistic</th><th>Across six seeds</th><th>Verdict</th></tr></thead>
+        <tbody>
+          <tr><td>relative variance</td><td>8.4 &nbsp; 9.3 &nbsp; 44.6 &nbsp; 9.5 &nbsp; 10.4 &nbsp; 11.3</td><td><b style="color:var(--bad)">do not quote</b> — grows like ln&nbsp;N, seed noise</td></tr>
+          <tr><td>conditional cv²</td><td>6.0 &nbsp; 6.6 &nbsp; 31.9 &nbsp; 6.7 &nbsp; 7.5 &nbsp; 8.2</td><td><b style="color:var(--bad)">do not quote</b> — same object</td></tr>
+          <tr class="key"><td>coverage <code>hit</code></td><td>0.738 in all six</td><td><b style="color:var(--good)">reproducible</b></td></tr>
+          <tr class="key"><td>top-1&nbsp;% energy share</td><td>0.126 &ndash; 0.134</td><td><b style="color:var(--good)">reproducible</b></td></tr>
+          <tr class="key"><td>Hill tail index</td><td>1.28 &ndash; 2.14 over 118 rows</td><td><b style="color:var(--good)">reproducible</b></td></tr>
+        </tbody>
+      </table></div>
+      <p>Two consequences are worth stating flatly. Error bars come from batch means and never from per-sample variance: two seeds of the same 10⁶-photon beam run gave ratios of 0.920 and 1.004 with a quoted standard error of 0.013&ndash;0.02, so the two runs sit four to six standard errors apart while each one reports itself as converged. And <strong>the per-pixel variance of a fold member is not an error estimate</strong>, so any adaptive sampler that treats it as one will happily concentrate effort on the pixels where its own estimate is least trustworthy.</p>
+    </div>
+    {{PNG:dirsweep_fig_var_vs_N.png}}
+    <div class="paircap"><b>Variance study</b><span>Sample variance against sample count for the fold members, from 10³ to 1.6&times;10⁷. What to notice is that the curves do not flatten: 5.2&nbsp;&rarr;&nbsp;20.1 for the sphere and 4.3&nbsp;&rarr;&nbsp;18.9 for the cone. A variance measured at one sample count is a lower bound on the variance at the next one, which is why none of the numbers in this project's acceptance tables are variances.</span></div>
+  </div>
+</section>
+
+<!-- ================= 06 REGRESSION ================= -->
+<section id="regression" style="--secc:var(--l600)" data-nav="Regression">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">06 — The safety net</p>
+      <h2>Byte-identical is the strongest test available</h2>
+      <p class="lead">A statistical check asks whether two films agree within noise. A byte comparison asks whether the second run drew the same random numbers as the first, and that question catches a class of defect nothing else does.</p>
+      <p>An extra random draw shifting the stream, or a gate that quietly became more permissive, will both hide inside Monte Carlo noise indefinitely and neither will survive a hash. Several of the real bugs in this project were found only that way.</p>
+      <p>Two recent changes, both of which should have been invisible to existing renders:</p>
+      <ul class="clean">
+        <li><b>Correlated batch mode.</b> Twelve films pinned from the pre-change binary and re-rendered from the final one at 300 passes each &mdash; preset 41 strategies 1 and 9, preset 47 strategies 3, 7, 8, 9, 13, 18, 20 and 21, preset 48 strategies 20 and 23. All twelve byte-identical, <em>checked twice</em>: once with the deliberately-wrong debug trap compiled in, and once after removing it. The mode works by re-seeding the RNG immediately after the camera ray is built; with the mode off it re-seeds nothing, so no call moved.</li>
+        <li><b>A new scene preset.</b> Eight films pinned against a clean HEAD binary rebuilt from a stash, re-rendered after the change &mdash; presets 48/20, 47/22, 52/21, 35/1, 49/21, 41/9, 48/18, 51/20. All byte-identical. The new occluder list defaults to empty, so the four existing showcase presets add no entity, no material and no random draw.</li>
+      </ul>
+      <p class="note"><b>The instrument produces false alarms, and that has to be written down too.</b> One apparent difference on preset 52 / strategy 21 in the first pinning batch was a bad capture: the clean HEAD binary reproduced the post-change hash three times out of three. A byte comparison is only as reliable as the capture that produced the baseline, so a mismatch is a reason to re-capture before it is a reason to investigate.</p>
+      <p>The same tool is also the strongest positive result on the site. When the grazing guard's footprint was measured, the finding was not only that it touches 309 pixels out of 55&nbsp;800 &mdash; it was that <strong>every pixel it does not touch is bit-identical between guard on and guard off, on all eight runs</strong>. That is what turns "it does not dim the caustic core" from an impression into a measurement.</p>
+
+      <h3>The other kind of identity: two algebras, one image</h3>
+      <p>Byte identity asks whether a change moved anything. The estimator panel carries the complementary instrument, and it is a <b>dual-form cross-check</b>: one toggle, <span class="mono">LightSurface EXCLUDED</span> against <span class="mono">INCLUDED</span>, switching between two algebraically equivalent ways of writing the same emitter hit. The excluded form is the short one — the emitter area, the emission cosine, the π of the Lambertian lobe and the intersection determinant all cancel on paper, so the code omits them and returns power times transmittance. The included form refuses the cancellation and computes every one of those factors explicitly, letting them cancel numerically instead. <b>Both must produce the same image</b>, and the moment one of the four is folded in at the wrong place or counted twice, they stop doing so.</p>
+      <p>It is worth naming beside the byte harness because it catches the opposite failure. A hash catches a change of behaviour that noise would hide; this catches a bookkeeping error that was <em>always</em> there and that no amount of convergence will reveal, because a consistently mis-folded constant converges beautifully to the wrong number. The two together are why a factor in this estimator has to be wrong in two independent ways before it reaches a film.</p>
+
+      <h3>The seed lock underneath a byte-identical film</h3>
+      <p>Both batches above are photon-primitive films, driven from headless <code>pp.*</code> configs where the integrator's own RNG is deterministic by construction. The megakernel has one equivalent instrument, a toggle in Technique ▸ Tracer ▸ Seeds &amp; Animation, and no result on this page was taken through it — but it is the thing a reader would reach for to reproduce a GPU frame, so what it does is worth stating exactly. This is a source read, not a measurement.</p>
+      <div class="tw"><table>
+        <thead><tr><th>Control</th><th>What it does</th><th>Mark</th></tr></thead>
+        <tbody>
+          <tr class="key"><td><b>Fix Tracer Seed</b><br>+ seed value, default 42</td><td>Substitutes the seed value for <code>uGlobalFrame</code> in exactly one uniform. That uniform is the <em>only</em> per-frame term in the RNG seed — the per-pixel state is <code>pcgHash(pixelIndex ^ pcgHash(uGlobalFrame))</code> — so with it pinned every pass draws the identical stream, including the two draws that jitter the camera ray inside its pixel. <strong>Progressive accumulation then averages one sample against itself.</strong> The film does not converge slowly; it stops converging, at one sample per pixel, and looks exactly as it did on frame one. That is what makes it a byte-identity harness, and what makes it not a render setting; the tooltip offers "stable single-frame output" and does not mention the accumulator</td><td><span class="st st-a">measured</span></td></tr>
+          <tr><td><b>Fix NPR Seed</b><br>also freezes the tracer</td><td>ORs into the same fixed-seed path whenever the NPR mode index is 6 or above, with a source comment giving a good reason: a stylisation pass wants a stable input, not flicker from changing tracer noise. Its own tooltip names only ink, ballpoint and oil painting. And unlike its neighbour it does not request an accumulation reset when it is toggled, so the film keeps the passes it had and then quietly stops accumulating new information into them</td><td><span class="st st-b">seen</span></td></tr>
+        </tbody>
+      </table></div>
+      <p class="note"><b>One line of it is a case study for the audit rule this project runs on.</b> The tracer toggle reaches the GPU through a reference alias declared beside it, <code>bool&amp; fixedNoiseSeed = fixedTracerSeed;</code>, so a search for the control's own name finds the checkbox and no consumer at all. Ask only "does this identifier have a reader" and the answer is no and the grade is wrong. Ask "is the feature reachable, by any route" first — which is the rule adopted after a light tracer was called dead while shipping as two menu entries — and the alias is the route, one line below the declaration.</p>
+    </div>
+    <figure>
+      {{VIDEO:The guard changes 309 pixels and nothing else | Preset 48, strategy 20, PP full resolution, 4000 passes. Compare ▸ Split A/B; pane A grazing guard ON, pane B guard OFF, every other setting identical. Press G for clean view, then drag the divider slowly across the caustic core and back. | The caustic core does not change as the divider passes over it — the two panes share an RNG stream, so identical settings give bit-identical pixels and only the guarded pixels can differ. What flickers at the divider is isolated single pixels away from the core, some carrying up to 16× the entire film's energy.}}
+    </figure>
+  </div>
+</section>
+
+<!-- ================= 07 THE ERRORS ================= -->
+<section id="errors" style="--secc:var(--l620)" data-nav="The errors">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">07 — The corrections</p>
+      <h2>Seven claims this project made, and the seven measurements that overturned them</h2>
+      <p class="lead">Seven in two days, each overturned by a measurement, each written into the document that carried the wrong claim, beside it. This is the section the rest of the site earns its credibility from. A record that holds only confirmations is not a record, and the reason a ratio elsewhere on these pages can be believed is that this table exists and nothing was taken out of it.</p>
+    </div>
+    <div class="tw"><table>
+      <thead><tr><th style="min-width:260px">The claim</th><th>What settled it</th><th>What survives</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><b>"A direct emitter seen through fog contributes nothing."</b> Read correctly out of three source lines: neither branch of the free-flight step assigns a surface hit when the first intersection is a volume boundary, and the emission gate needs one.</td>
+          <td>A counter. The unset path is reached <b>about once per render</b> out of millions of camera rays. Independently, the two NEE strategies' median ratio is 1.0004 / 1.0000 / 0.9999 on presets 35 / 47 / 48 and the films are byte-identical.</td>
+          <td><b style="color:var(--bad)">Retracted.</b> A defensive guard was kept because the invariant should hold. It fixes nothing visible.</td>
+        </tr>
+        <tr>
+          <td><b>"The grazing guard reads the caustic core systematically dim,"</b> because it is a <code>continue</code> rather than a clamp. This drove a design decision in another document.</td>
+          <td>Eight films at 4000 passes, guard on vs off, differenced per pixel. Preset 48 / strategy 20: <b>309 px of 55&nbsp;800 (0.554&nbsp;%)</b>. Strategies 22 and 23: 1 px (0.002&nbsp;%). Strategy 24 and all of preset 47's vertex members: never fires. Every other pixel bit-identical.</td>
+          <td><b>Mechanism yes, magnitude no.</b> The declared class does exceed the true support, which is what mattered. The hole is 0.002&ndash;0.554&nbsp;% of pixels and none of it is in the core.</td>
+        </tr>
+        <tr>
+          <td><b>"GPIS cannot produce a second independent estimator at its operating point, ever, at any day count,"</b> justified by "unbiased is not well-posed for a model that is not an approximation to a defined integrand".</td>
+          <td>Both halves false as written. Zhou, Seyb &amp; Zhao (SIGGRAPH 2026, §5.3) run this repository's own acceptance protocol against a weight-space reference. And the model's error was then measured here: <b>4.25&nbsp;% in mean slope</b> at &alpha;&nbsp;=&nbsp;1, &theta;&nbsp;=&nbsp;60&deg;, grid-independent over an 8&times; refinement, and exactly 0 at low roughness.</td>
+          <td><b>The conclusion was unchanged. Only the reason given for it was wrong</b> &mdash; the shipped claim is still "validated in limits, characterised in regime".</td>
+        </tr>
+        <tr>
+          <td><b>"The shaft's near edge is the analytic silhouette falloff of a uniformly lit cone, 0.56&nbsp;R"</b> &mdash; written into a scene's header comment as the explanation of a measured 15-pixel edge.</td>
+          <td>Arithmetic. For a chord through a circle the 90&nbsp;% point sits at 0.436&nbsp;R and the 10&nbsp;% point at 0.995&nbsp;R, so the model predicts 33 px, and it is symmetric where the measurement is 14 px on one side against 78 on the other.</td>
+          <td><b>The measurement stands and reproduces; the explanation does not.</b> The edge is about <b>2.2&times;</b> sharper than the model it was said to equal, and nothing in the scene bounds it.</td>
+        </tr>
+        <tr>
+          <td><b>"No preset sets a focal length, so every scene silently gets 35&nbsp;mm."</b> True when written, and false three commits later.</td>
+          <td>An adversarial review. One preset now sets one; the engine sets 35&nbsp;mm once at startup and nothing reset it between presets. Load that preset, then any other, and the rest of the session renders at a <b>30&nbsp;% wider field with nothing on screen saying so</b>.</td>
+          <td><b>Fixed</b> by resetting the focal length in the preset dispatch prologue (<code>EngineRender.cpp:742&ndash;755</code>). The more useful half is <em>why the regression could not catch it</em> &mdash; section 08.</td>
+        </tr>
+        <tr>
+          <td><b>"The wrong-normalisation trap costs 2.5&ndash;3.7&times;,"</b> from a Python model of one strategy.</td>
+          <td>The trap, built and fired in the renderer. <b>2.1&ndash;6.8&times; on frame energy, 6.6&ndash;14.2&times; per lit pixel</b>, because the crossing probability in presets 47 and 48 is far below the model's geometry.</td>
+          <td><b>Same mechanism, bigger number.</b> The document now says to quote the mechanism, not the multiplier.</td>
+        </tr>
+        <tr>
+          <td><b>"The reflection cone is 100&ndash;10&nbsp;000&times; more efficient than the reflected beam."</b></td>
+          <td>A draft had read the conditional cv² as the relative variance. Recomputed at equal samples: <b>1.3&ndash;50&times;</b> at beam radius 0.04 and 3&ndash;220&times; at 0.01 &mdash; and at emitter edge 0.1 it <em>loses</em> by 8&ndash;24&times;.</td>
+          <td><b>Corrected in both documents.</b> Light size is the whole story; the crossover sits near edge 0.3.</td>
+        </tr>
+      </tbody>
+    </table></div>
+    <div class="narrow">
+      <p class="note"><b>The habit that produced all seven is now a rule.</b> Reasoning about why an estimator is dark does not work; instrumenting it does. One glass-occlusion investigation ran for several rounds on careful source reading, reached a confident wrong conclusion, and recorded it in a commit message as settled; a single counter in the actual code overturned it in one run. That happened three times in one session. The written rule is now: instrument first, and treat a mechanism you can only argue for as a hypothesis with a pending measurement.</p>
+      <p>This is a section and not an appendix because it is the strongest evidence on the site that the other numbers are real. Two of the seven were corrections to claims that had already driven a design decision elsewhere in the project, and each was caught by one measurement that cost less than the decision it overturned.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 08 BLIND SPOTS ================= -->
+<section id="blind" style="--secc:var(--l680)" data-nav="Blind spots">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">08 — The limits of the instruments</p>
+      <h2>What this apparatus cannot see</h2>
+      <p class="lead">A page about how you know things is exactly where the limits of your instruments belong. Seven of them, in rough order of how quietly they fail &mdash; and number five is one this page closed, which is the only reason it is written up as an instrument failure rather than as a result.</p>
+
+      <h3>1. The regression harness never loads two presets in sequence</h3>
+      <p>The headless runner writes a JSON config, launches the executable, waits for the film dump, kills the process, and moves the file aside &mdash; one fresh process per render. It therefore <strong>cannot see any state a preset writes and no preset resets</strong>, and byte-identical films prove nothing about that entire class of defect. The focal-length leak in section 07 is the one instance that has been found. The class has not been swept. The rule added to the behaviour document is: when adding a preset, check what it writes outside its own scene, not just whether the films still match.</p>
+
+      <h3>2. Every validated ratio for the dielectric members was measured with the guard on</h3>
+      <p>So some part of the hourglass's 2.4&nbsp;% solo deficit is the guard's discard rather than the missing internal-reflection chains it is attributed to. <strong>The two have not been separated</strong>, and section 05 explains why the obvious separation &mdash; differencing the two totals &mdash; is not available for a fold-tailed estimator.</p>
+
+      <h3>3. Two suspected double transmittances, with a decisive test that has not been run</h3>
+      <p>One in the GPU shader, where a pass-through multiplies by an absorption term after the free flight was already sampled analog against the full extinction; one in the CPU emitter term, where a transmittance is applied on top of analog survival. Both are invisible on today's presets because the fog is nearly pure-scattering, and both have an unambiguous test written down &mdash; a purely absorbing slab must render at <code>Tr</code>, not <code>Tr²</code>. Neither has been run. They are recorded as suspected, not as confirmed.</p>
+
+      <h3>4. The two render paths disagree about a directly-seen emitter, and it is unresolved which is intended</h3>
+      <p>On preset 0's ceiling quad viewed obliquely, the CPU integrator returns <code>L_e</code> exactly and the GPU applies a view cosine, a ratio of 2.96. Both NEE paths agree, so only the direct-emitter class differs. The consequence is a standing rule that every CPU-vs-GPU ratio must mask directly-seen emitter pixels until the question is settled. The reason it went unnoticed for months is the sharpest item on this page: <strong>the acceptance test that should have caught it views the quad head-on, where the cosine is 1</strong>. A gate can pass because of where it looks.</p>
+
+      <h3>5. A reference left at its defaults is not the reference you configured</h3>
+      <p>The composite mode shipped with the radiometry of its specular continuation &mdash; the code that draws a glass ball by refracting the camera ray through it &mdash; <strong>argued rather than measured</strong>. The check that should have settled it read the CPU integrator at 0.10&times; the GPU on plain diffuse wall pixels, which nobody believed, so it was recorded as inconclusive and shipped anyway. The cause was not a convention: the GPU reference had been given a bounce limit through a field that the current bounce model ignores, so it silently ran naive path tracing with full global illumination and eight fog scatters against a composite that has neither. The number was real; the denominator was a different integral.</p>
+      <p>Closed by moving the test off the fogged scene it could not live on and onto the fog-free Cornell box the existing surface reference already uses, where one shader detail &mdash; a glass transmission does not spend a surface bounce, so a one-bounce cap still admits the whole refracted chain &mdash; makes the two sides computable to the same integral. <strong>The diffuse half lands at 1.0008 and the glass ball at 0.9949</strong>, which rules out the specific error the design was afraid of: a squared refractive index applied inside the ball would have moved that number by up to 2.25&times;. What is still argued is narrower and is stated as such: no fog-free scene in the project contains a mirror, so the mirror arm of the same code is checked by reading both sources rather than by dividing two films.</p>
+      <p>The measurement also named a real convention difference and priced it: the CPU integrator does not tint a refraction by the glass&rsquo;s own colour and the GPU does, so on a ball whose glass is 0.95 grey the two disagree by exactly 1.108 in red and green and by nothing in blue &mdash; predicted from the two source lines, then measured at 1.1029 and 0.9949. It is converted in the comparison harness rather than fixed in either renderer, and it is inert on every scene the composite mode actually ships.</p>
+
+      <h3>6. The per-pixel variance tool does not exist</h3>
+      <p>The twelve registered predictions in section 04 are all stated in per-pixel relative variance, top-1&nbsp;% energy share or max-over-median, computed from K independent film dumps at equal passes. <code>filmstats.py</code> has no sub-command that does this. The study names it as the one missing tool and it has not been written, so those twelve predictions are currently unfalsifiable in the engine &mdash; which is to say they are not yet evidence of anything.</p>
+
+      <h3>7. Some of this is built, checked, and never looked at</h3>
+      <p>Everything below is built and passes its headless or numeric check; three of the strategies listed are validated estimators with an energy ratio to their name. None has been displayed, and the grade says so: the check verifies the number, and the picture is the next thing to take.</p>
+      <ul class="clean">
+        <li><span class="st st-c"><b>never viewed</b></span> &nbsp;Clean view, split A/B compare, and the hourglass controls &mdash; mirror relays, the guard and Jacobian-floor slider, include-photon-point</li>
+        <li><span class="st st-c"><b>never viewed</b></span> &nbsp;Strategies 22, 23 and 24. All three validated by energy ratio; none ever displayed</li>
+        <li><span class="st st-c"><b>never viewed</b></span> &nbsp;Showcase presets 49&ndash;52, including the spectral prism fan</li>
+        <li><span class="st st-c"><b>never viewed</b></span> &nbsp;Presets 38, 39 and 43 &mdash; emissive sphere, cube and ball oracles with no menu entry, reachable only from a config key</li>
+      </ul>
+      <p>This is tracked as its own category in the behaviour document rather than folded into "done", because the failure mode of a headless-only check is specific and known: it verifies the number and says nothing about the picture.</p>
+    </div>
+    <div class="scope">
+      <b>The shape of the argument on this site.</b> Nothing here rests on an image looking correct. Each claim rests on a ratio between two constructions that share no code, computed on a linear film with a statistic chosen to survive the estimator's tail, with a byte comparison underneath to catch what statistics cannot &mdash; and the places where all of that fails are listed above, in the author's own hand, rather than omitted. Where a number could not be obtained that way, the page says so instead of quoting one. That is the standard every other page here is held to.
+    </div>
+  </div>
+</section>
+
+{{SECTION:_foot.html}}

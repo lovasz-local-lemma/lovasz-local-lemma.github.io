@@ -1,0 +1,12 @@
+/* Image pixels and vector overlays have separate resolutions. No image stretching. */
+(() => {
+ 'use strict';const bitmaps=new WeakMap();
+ function buffer(image){let c=bitmaps.get(image.data);if(c)return c;c=document.createElement('canvas');c.width=image.w;c.height=image.h;const x=c.getContext('2d'),pixels=x.createImageData(image.w,image.h);for(let i=0;i<image.w*image.h;i++){for(let ch=0;ch<3;ch++)pixels.data[4*i+ch]=Math.round(255*PhotoModels.clamp(image.data[3*i+ch]));pixels.data[4*i+3]=255;}x.putImageData(pixels,0,0);bitmaps.set(image.data,c);return c;}
+ function size(canvas,ratio){const width=Math.max(1,canvas.getBoundingClientRect().width||canvas.width),height=width/ratio,dpr=Math.min(globalThis.devicePixelRatio||1,2);canvas.style.aspectRatio=String(ratio);canvas.style.height='auto';const bw=Math.round(width*dpr),bh=Math.round(height*dpr);if(canvas.width!==bw)canvas.width=bw;if(canvas.height!==bh)canvas.height=bh;const ctx=canvas.getContext('2d');ctx.setTransform(canvas.width/width,0,0,canvas.height/height,0,0);return {ctx,width,height,dpr};}
+ function paint(canvas,image,{height=null}={}){const ratio=height?image.w/height:image.w/image.h,{ctx,width,height:displayHeight}=size(canvas,ratio);ctx.imageSmoothingEnabled=true;ctx.drawImage(buffer(image),0,0,width,displayHeight);return {ctx,width,height:displayHeight,sx:width/image.w,sy:displayHeight/image.h};}
+ function matches(canvas,a,b,pairs,result){const gap=22,worldW=a.w+b.w+gap,worldH=Math.max(a.h,b.h),{ctx,width,height}=size(canvas,worldW/worldH),scale=width/worldW;ctx.fillStyle='#09131b';ctx.fillRect(0,0,width,height);ctx.drawImage(buffer(a.displayImage||a),0,0,a.w*scale,a.h*scale);ctx.drawImage(buffer(b.displayImage||b),(a.w+gap)*scale,0,b.w*scale,b.h*scale);const inliers=new Set(result.inliers);ctx.lineWidth=1.15;
+  for(let i=0;i<pairs.length;i++){const pair=pairs[i],p=[pair.p[0]*scale,pair.p[1]*scale],q=[(pair.q[0]+a.w+gap)*scale,pair.q[1]*scale],color=inliers.has(i)?'#94f2cb':'#f08080';ctx.strokeStyle=color+'70';ctx.beginPath();ctx.moveTo(...p);ctx.lineTo(...q);ctx.stroke();ctx.fillStyle=color;for(const point of [p,q]){ctx.beginPath();ctx.arc(...point,2.5,0,2*Math.PI);ctx.fill();}if(result.model){const prediction=PhotoModels.transform(result.model,pair.p),r=[(prediction[0]+a.w+gap)*scale,prediction[1]*scale];ctx.strokeStyle='#ffe1a6';ctx.beginPath();ctx.arc(...r,3.5,0,2*Math.PI);ctx.stroke();ctx.beginPath();ctx.moveTo(...r);ctx.lineTo(...q);ctx.stroke();}}
+  return {width,height,scale};
+ }
+ globalThis.PhotoDisplay={buffer,size,paint,matches};
+})();

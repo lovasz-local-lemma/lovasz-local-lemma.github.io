@@ -1,0 +1,76 @@
+<!--
+  fig-mpm-transfer.svg  ·  noita_gish schematic kit
+  ============================================================================
+  Kit rules live in fig-frame-loop.svg. Obeyed here: viewBox 0 0 640 360, no
+  width/height, no background rect, one font size (12), stroke widths 1 and 1.5
+  only, arrowheads as marker defs, no filters or gradients, caption at y=348.
+
+  THESIS: the grid is the only place two particles ever meet. Everything in
+  stage 4 is per-particle arithmetic on a velocity the grid has already handed
+  back, so the grid cannot see any of it until the next substep scatters it.
+  That one-substep lag is drawn as the long return path across the top.
+
+  The dashed vertical is the fixed-point boundary: GLSL has no atomic float
+  add on an SSBO, so mass, momentum and heat cross into the grid as int32
+  scaled by 1e6 and come back out as floats.
+  ============================================================================
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img"
+     aria-label="One MPM substep in both directions. Four stages run left to right: the particle-to-grid scatter, the grid operation, the grid-to-particle gather, and a tail of per-particle post forces. A dashed vertical line between the first two marks the fixed-point boundary where momentum crosses into the grid as scaled integers. A return path across the top shows that everything computed in the tail is only carried into the next substep, so the grid never sees it this frame. A ledger below lists what crosses at each stage.">
+<defs>
+  <marker id="mtD" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#DDE3E0"/></marker>
+  <marker id="mtB" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#78C8FF"/></marker>
+</defs>
+<g font-family="ui-monospace, 'Cascadia Mono', Consolas, monospace" font-size="12" fill="#DDE3E0" stroke-width="1.5">
+
+  <rect x="16" y="21" width="18" height="2" fill="#78C8FF" stroke="none"/>
+  <text x="40" y="26" fill-opacity="0.75">particle state</text>
+  <rect x="152" y="21" width="18" height="2" fill="#FFD264" stroke="none"/>
+  <text x="176" y="26" fill-opacity="0.75">grid state</text>
+  <circle cx="286" cy="22" r="3.5" fill="#FF4646"/>
+  <text x="296" y="26" fill-opacity="0.75">the read-back</text>
+  <text x="624" y="26" text-anchor="end" fill="#9AA3A0">one substep, dt = 1/120 s</text>
+
+  <path d="M 565 84 L 565 60 L 83 60 L 83 80" fill="none" stroke="#78C8FF" stroke-width="1" marker-end="url(#mtB)"/>
+  <text x="324" y="54" text-anchor="middle" fill="#78C8FF" fill-opacity="0.85">carried to the next substep</text>
+
+  <rect x="24" y="84" width="118" height="48" rx="4" fill="none" stroke="#78C8FF"/>
+  <text x="83" y="106" text-anchor="middle">p2g scatter</text>
+  <text x="83" y="122" text-anchor="middle" fill-opacity="0.6">9 atomic adds</text>
+
+  <rect x="186" y="84" width="118" height="48" rx="4" fill="none" stroke="#FFD264"/>
+  <text x="245" y="106" text-anchor="middle" fill="#FFD264">grid op</text>
+  <text x="245" y="122" text-anchor="middle" fill-opacity="0.6">per cell</text>
+
+  <rect x="348" y="84" width="118" height="48" rx="4" fill="none" stroke="#78C8FF"/>
+  <text x="407" y="106" text-anchor="middle">g2p gather</text>
+  <text x="407" y="122" text-anchor="middle" fill-opacity="0.6">9 reads</text>
+
+  <rect x="506" y="84" width="118" height="48" rx="4" fill="none" stroke="#78C8FF" stroke-opacity="0.55"/>
+  <text x="565" y="106" text-anchor="middle">post forces</text>
+  <text x="565" y="122" text-anchor="middle" fill-opacity="0.6">per particle</text>
+
+  <line x1="142" y1="108" x2="182" y2="108" stroke="#DDE3E0" marker-end="url(#mtD)"/>
+  <line x1="304" y1="108" x2="344" y2="108" stroke="#DDE3E0" marker-end="url(#mtD)"/>
+  <line x1="466" y1="108" x2="502" y2="108" stroke="#DDE3E0" marker-end="url(#mtD)"/>
+  <circle cx="324" cy="108" r="3.5" fill="#FF4646"/>
+
+  <line x1="164" y1="70" x2="164" y2="140" stroke="#9AA3A0" stroke-width="1" stroke-dasharray="2 2"/>
+  <text x="164" y="152" text-anchor="middle" fill="#9AA3A0">int32 x 1e6</text>
+
+  <text x="32" y="182">1 particle to grid</text>
+  <text x="196" y="182">mass, momentum m v + A dpos, mass x temp</text>
+  <text x="32" y="204">2 grid to grid</text>
+  <text x="196" y="204">v = p / m, then gravity, mouse, SDF, walls</text>
+  <text x="32" y="226">3 grid to particle</text>
+  <text x="196" y="226">v gathered, C rebuilt from the same 9 weights</text>
+  <text x="32" y="248" fill="#9AA3A0">4 particle only</text>
+  <text x="196" y="248" fill="#9AA3A0">buoyancy, drag, magnetic, chain, surface</text>
+
+  <line x1="24" y1="264" x2="616" y2="264" stroke="#DDE3E0" stroke-width="1" stroke-opacity="0.2"/>
+  <text x="320" y="284" text-anchor="middle" fill-opacity="0.6">clamped twice: 3 cells per substep going in, per material coming out</text>
+
+  <text x="320" y="314" text-anchor="middle" fill-opacity="0.85">the grid is the only place two particles ever meet</text>
+  <text x="320" y="348" text-anchor="middle">one MPM substep in both directions, and the lag on everything after the gather</text>
+</g>
+</svg>

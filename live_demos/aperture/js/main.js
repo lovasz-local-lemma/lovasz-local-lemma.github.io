@@ -106,54 +106,61 @@ class OpticalSimulator {
     
     setupResizeHandle() {
         const handle = document.getElementById('resize-handle');
-        const sceneViewport = document.getElementById('scene-viewport');
-        const cameraViewport = document.getElementById('camera-viewport');
-        
-        if (!handle) {
-            console.error('Resize handle not found!');
-            return;
-        }
-        
-        //console.log('Setting up resize handle');
-        
-        let isResizing = false;
-        
-        handle.addEventListener('mousedown', (e) => {
-            //console.log('Resize started');
-            isResizing = true;
+        const container = document.getElementById('viewports');
+        const app = document.getElementById('container');
+        const panel = document.getElementById('camera-viewport');
+        let desiredHeight = 220, hidden = false, pending = 0;
+        const restore = document.createElement('button');
+        restore.id = 'schematic-toggle'; restore.textContent = 'Show camera optics'; restore.hidden = true;
+        document.getElementById('scene-viewport').append(restore);
+        const layout = () => {
+            pending = 0;
+            const available = Math.max(180, window.innerHeight - Math.max(0, app.getBoundingClientRect().top));
+            const next = `${Math.round(available)}px`;
+            if (app.style.getPropertyValue('--aperture-app-height') !== next) app.style.setProperty('--aperture-app-height', next);
+            const height = Math.max(80, Math.min(desiredHeight, container.clientHeight - 100));
+            container.style.setProperty('--aperture-schematic-height', `${height}px`);
+            handle.setAttribute('aria-valuenow', Math.round(height));
+            handle.setAttribute('aria-valuemin', '80');
+            handle.setAttribute('aria-valuemax', Math.max(80, container.clientHeight - 100));
+            this.resizeCanvases();
+        };
+        const schedule = () => { if (!pending) pending = requestAnimationFrame(layout); };
+        this.opticsResizeObserver = new ResizeObserver(schedule);
+        this.opticsResizeObserver.observe(document.body);
+        this.opticsResizeObserver.observe(app);
+        this.opticsResizeObserver.observe(panel);
+        window.addEventListener('resize', schedule);
+        window.visualViewport?.addEventListener('resize', schedule);
+        handle.addEventListener('pointerdown', e => { handle.setPointerCapture(e.pointerId); e.preventDefault(); });
+        handle.addEventListener('pointermove', e => {
+            if (!handle.hasPointerCapture(e.pointerId)) return;
+            desiredHeight = Math.max(80, container.getBoundingClientRect().bottom - e.clientY - 4);
+            schedule();
+        });
+        handle.addEventListener('pointerup', e => { if (handle.hasPointerCapture(e.pointerId)) handle.releasePointerCapture(e.pointerId); });
+        handle.addEventListener('dblclick', () => { desiredHeight = 220; schedule(); });
+        handle.addEventListener('keydown', e => {
+            if (!['ArrowUp','ArrowDown','Home','End'].includes(e.key)) return;
             e.preventDefault();
+            desiredHeight = e.key === 'Home' ? 80 : e.key === 'End' ? container.clientHeight - 100 : desiredHeight + (e.key === 'ArrowUp' ? 20 : -20);
+            desiredHeight = Math.max(80, Math.min(desiredHeight, container.clientHeight - 100)); schedule();
         });
-        
-        document.addEventListener('mousemove', (e) => {
-            if (!isResizing) return;
-            
-            const container = document.getElementById('viewports');
-            const containerRect = container.getBoundingClientRect();
-            const mouseY = e.clientY - containerRect.top; // VERTICAL, not horizontal
-            
-            // Camera viewport is fixed at 300px, only resize scene viewport
-            const cameraHeight = 300; // Must match CSS
-            const handleHeight = 8;
-            const minSceneHeight = 200;
-            const maxSceneHeight = containerRect.height - cameraHeight - handleHeight - 100;
-            
-            const topHeight = mouseY;
-            
-            if (topHeight >= minSceneHeight && topHeight <= maxSceneHeight) {
-                sceneViewport.style.flex = `0 0 ${topHeight}px`;
-                // Camera viewport stays fixed in CSS
-                
-                // Trigger resize
-                this.resizeCanvases();
-            }
+        const toggle = () => { hidden = !hidden; panel.hidden = hidden; handle.hidden = hidden; restore.hidden = !hidden; schedule(); };
+        restore.addEventListener('click', toggle);
+        document.getElementById('schematic-collapse').addEventListener('click', toggle);
+        document.getElementById('schematic-mode').addEventListener('change', e => { this.cameraVisualizer.lesson = e.target.value === 'lesson'; this.cameraVisualizer.needsUpdate = true; });
+        document.getElementById('schematic-axis').addEventListener('change', e => { this.cameraVisualizer.axis = e.target.value; this.cameraVisualizer.needsUpdate = true; });
+        document.getElementById('schematic-pupil').addEventListener('click', e => {
+            this.cameraVisualizer.showPupilPreview = !this.cameraVisualizer.showPupilPreview;
+            e.target.setAttribute('aria-pressed', this.cameraVisualizer.showPupilPreview);
+            this.cameraVisualizer.needsUpdate = true;
         });
-        
-        document.addEventListener('mouseup', () => {
-            if (isResizing) {
-                //console.log('Resize ended');
-                isResizing = false;
-            }
+        document.getElementById('schematic-help').addEventListener('click', e => {
+            const text = document.getElementById('schematic-explainer'); text.hidden = !text.hidden;
+            e.target.setAttribute('aria-expanded', !text.hidden); schedule();
         });
+        schedule();
     }
     
     setupDefaultScene() {
@@ -1267,11 +1274,13 @@ class OpticalSimulator {
         this.bindSlider('sensor-offset-x', 'sensor-offset-x-value', (v) => {
             this.camera.sensorOffsetX = parseFloat(v);
             this.rayTracer.needsUpdate = true;
+            this.cameraVisualizer.needsUpdate = true;
         }, (v) => parseFloat(v).toFixed(2));
         
         this.bindSlider('sensor-offset-y', 'sensor-offset-y-value', (v) => {
             this.camera.sensorOffsetY = parseFloat(v);
             this.rayTracer.needsUpdate = true;
+            this.cameraVisualizer.needsUpdate = true;
         }, (v) => parseFloat(v).toFixed(2));
         
         this.bindSlider('film-curvature', 'curve-value', (v) => {
@@ -1290,6 +1299,7 @@ class OpticalSimulator {
         this.bindCheckbox('enable-new-tiltshift', (checked) => {
             this.camera.enableNewTiltShift = checked;
             this.rayTracer.needsUpdate = true;
+            this.cameraVisualizer.needsUpdate = true;
         });
         
         // Show gizmo (all visualization elements together)
@@ -1866,30 +1876,19 @@ class OpticalSimulator {
     }
     
     resizeCanvases() {
-        // Scene canvas fills its container
-        const sceneWidth = this.sceneCanvas.parentElement.clientWidth;
-        const sceneHeight = this.sceneCanvas.parentElement.clientHeight;
-        
-        //console.log('Scene viewport size:', sceneWidth, 'x', sceneHeight);
-        
-        this.sceneCanvas.width = sceneWidth || 1280;
-        this.sceneCanvas.height = sceneHeight || 720;
-        
-        // Camera visualizer canvas fills its container
-        const cameraWidth = this.cameraCanvas.parentElement.clientWidth;
-        const cameraHeight = this.cameraCanvas.parentElement.clientHeight;
-        
-        //console.log('Camera viewport size:', cameraWidth, 'x', cameraHeight);
-        
-        this.cameraCanvas.width = cameraWidth || 800;
-        this.cameraCanvas.height = cameraHeight || 400;
-        
-        //console.log('Resizing renderers...');
-        if (this.rayTracer && this.rayTracer.resize) {
-            this.rayTracer.resize();
+        const sceneWidth = Math.max(1, this.sceneCanvas.parentElement.clientWidth);
+        const sceneHeight = Math.max(1, this.sceneCanvas.parentElement.clientHeight);
+        this.camera.aspectRatio = sceneWidth / sceneHeight;
+        if (this.sceneCanvas.width !== sceneWidth || this.sceneCanvas.height !== sceneHeight) {
+            this.sceneCanvas.width = sceneWidth; this.sceneCanvas.height = sceneHeight;
+            this.rayTracer?.resize();
+            if (this.cameraVisualizer) this.cameraVisualizer.needsUpdate = true;
         }
-        if (this.cameraVisualizer && this.cameraVisualizer.resize) {
-            this.cameraVisualizer.resize();
+        const rect = this.cameraCanvas.getBoundingClientRect();
+        const width = Math.max(1, Math.round(rect.width)), height = Math.max(1, Math.round(rect.height));
+        if (this.cameraCanvas.width !== width || this.cameraCanvas.height !== height) {
+            this.cameraCanvas.width = width; this.cameraCanvas.height = height;
+            this.cameraVisualizer?.resize();
         }
     }
     

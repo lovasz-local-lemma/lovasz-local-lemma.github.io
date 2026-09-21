@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+<head><style id="portfolio-early-paint">html{background:#0b0d0c;color-scheme:dark}html.portfolio-booting body{opacity:0}</style><script src="../../portfolio-navigation.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Photon Primitives - Path Sampling as Art</title>
+    <title>Photon Primitives · A geometric language for light transport</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Source+Code+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -938,8 +938,37 @@
             .control-panel { display: none; }
         }
     </style>
-</head>
-<body>
+<link rel="stylesheet" href="../../portfolio-feature-atlas.css">
+
+<link rel="stylesheet" href="../../media/research-labs/research-pages.css">
+<link rel="stylesheet" href="../../media/research-labs/photon-story.css">
+<link rel="stylesheet" href="gallery-grid.css">
+<script defer src="../../portfolio-labs.js"></script>
+<script defer src="../../media/research-labs/research-pages.js"></script>
+<script defer src="../../portfolio-media.js"></script><link data-project-motivation-style rel="stylesheet" href="../../portfolio-motivations.css?v=ccc1c1d866"><!-- project-context-style:start --><style>
+.project-context{box-sizing:border-box;min-width:0;max-width:1120px;margin:22px auto;padding:17px 20px;border:1px solid rgba(218,190,120,.3);border-left:3px solid #d7bc77;border-radius:12px;background:rgba(20,29,29,.9);color:#dfdfd5;font-family:Inter,Arial,sans-serif;text-align:left}
+.project-context>p{display:grid;grid-template-columns:7.5rem minmax(0,1fr);gap:12px;margin:0;font-size:.94rem;line-height:1.6;letter-spacing:normal}
+.project-context>p+p{margin-top:8px}
+.project-context>p>strong{color:#e3ca88;font-size:.75rem;font-weight:600;line-height:2;letter-spacing:.04em}
+.project-context>p>span{min-width:0;overflow-wrap:anywhere}
+.project-context-links{display:flex;flex-wrap:wrap;gap:10px 22px;margin-top:12px;padding-top:11px;border-top:1px solid rgba(218,190,120,.18)}
+.project-context-links>a{max-width:100%;color:#e3ca88;font-size:.86rem;line-height:1.5;text-decoration:underline;text-underline-offset:3px;overflow-wrap:anywhere}
+.project-context-links>a>small{display:block;color:#b6bdb6;font-size:.74rem;text-decoration:none}
+.project-context-links>a:focus-visible{outline:2px solid #f4d98c;outline-offset:4px;border-radius:2px}
+.overview-masthead .project-context{margin:18px 0 0;padding:13px 15px}
+.overview-masthead .project-context>p{grid-template-columns:1fr;gap:2px;font-size:.88rem}
+.overview-masthead .project-context-links>a{font-size:.82rem}
+@media(max-width:600px){.project-context{padding:14px;margin:18px 0}.project-context>p{grid-template-columns:1fr;gap:2px}.project-context>p+p{margin-top:10px}}
+</style><!-- project-context-style:end --><link rel="stylesheet" href="../../portfolio-controls.css"><link rel="stylesheet" href="../../portfolio-demo-return.css"><script defer src="../../portfolio-demo-return.js" data-project="photon_primitive" data-title="Photon Primitives" data-overview="projects/photon_primitive/overview.html" data-group="research" data-thumbnail="media/thumbs/photon_primitive.webp" data-routes="[{&quot;project&quot;:&quot;photon_primitive&quot;,&quot;title&quot;:&quot;Photon Primitives&quot;,&quot;group&quot;:&quot;research&quot;,&quot;thumbnail&quot;:&quot;media/thumbs/photon_primitive.webp&quot;,&quot;overview&quot;:&quot;projects/photon_primitive/overview.html&quot;,&quot;path&quot;:&quot;showcases/photon_primitive/index_v2.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:2},{&quot;project&quot;:&quot;photon_primitive&quot;,&quot;title&quot;:&quot;Photon Primitives&quot;,&quot;group&quot;:&quot;research&quot;,&quot;thumbnail&quot;:&quot;media/thumbs/photon_primitive.webp&quot;,&quot;overview&quot;:&quot;projects/photon_primitive/overview.html&quot;,&quot;path&quot;:&quot;showcases/photon_primitive/index_v2.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:1}]"></script><!-- universal-navigation:start --><link rel="stylesheet" href="../../portfolio-location.css?v=054b6b462c"><script defer src="../../portfolio-location.js?v=054b6b462c"></script><script defer src="../../portfolio-routes.js?v=054b6b462c"></script><script defer src="../../portfolio-universal-navigation.js?v=054b6b462c"></script><!-- universal-navigation:end --><style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head>
+<body class="research-page research-photon">
     <!-- Loading Screen -->
     <div id="loading-screen">
         <div class="loading-content">
@@ -982,13 +1011,17 @@
             <a href="#core-idea" class="nav-item" data-section="core-idea"><strong>Core Idea</strong></a>
             <a href="#primitives" class="nav-item" data-section="primitives"><strong>Space of Primitives</strong></a>
             <a href="#combining" class="nav-item" data-section="combining"><strong>Combination</strong></a>
+            <a href="#geometry-variance-cost" class="nav-item" data-section="geometry-variance-cost"><strong>↔ Variance &amp; cost</strong></a>
+            <a href="#combination-design" class="nav-item" data-section="combination-design"><strong>↔ Combination design</strong></a>
             <a href="#live-demos" class="nav-item" data-section="live-demos"><strong style="font-weight: 800; /* bold, but not shouting */
     color: #fff6e1; /* muted gold */
     text-shadow:
         0 0 4px rgba(252, 201, 152, 0.55),
-        0 0 8px rgba(214, 178, 94, 0.35);">Live Demos</strong></a>
-            <a href="#transient" class="nav-item" data-section="transient"><strong>Extension: Transient</strong></a>
-            <a href="#art" class="nav-item" data-section="art"><strong>Beyond Performance</strong></a>
+        0 0 8px rgba(214, 178, 94, 0.35);">↔ Geometry lab</strong></a>
+            <a href="#transient" class="nav-item" data-section="transient"><strong>↔ Arrival-time lab</strong></a>
+            <a href="#experimental-extensions" class="nav-item" data-section="experimental-extensions"><strong>Unpublished follow-ups</strong></a>
+            <a href="#photon-hourglass" class="nav-item" data-section="photon-hourglass"><strong>Photon hourglass</strong></a>
+            <a href="#art" class="nav-item" data-section="art"><strong>NPR &amp; visual reasoning</strong></a>
         </nav>
 
         <!-- Control Panel -->
@@ -1071,28 +1104,20 @@
 
         <div class="main-container">
             <!-- Header -->
-            <header class="page-header">
-                <h1>Photon Primitives <span class="language-badge">C++</span></h1>
-                <p class="subtitle">When Path Sampling Becomes Art</p>
-                <p class="intro-text" style="margin-bottom: 10px;">
-This work grew out of research on difficult light transport paths in physically-based rendering. What began as an effort to reason about complex estimators gradually revealed something unexpected: the intermediate geometric structures themselves possess a striking visual presence.
-                </p>
-                <p class="intro-text" style="margin-bottom: 10px;">
-As the system matured, its value became clear beyond its original research motivation. It provides a <strong>unified geometric language</strong> capable of expressing both new and existing rendering techniques, making estimator design feel less like ad-hoc engineering and more like <strong>structured exploration</strong>.
-                </p>
-                <p class="intro-text">
-                    <strong>
-                        This gallery presents those intermediate forms — not as byproducts, but as natural visualizations of the mathematics underlying light transport. 
-                        <!-- This gallery explores those forms as natural visualizations of the underlying mathematics.</strong> -->
-                </p>
-
-
-                <p class="note">
-                    Note: This is a specialized topic in rendering research. I won't dive too deep into technical details — 
-                    the focus here is on visual and <strong class="gold-text">high-level intuition</strong> as well as the artistic side of what these estimators produce. 
-                        I also included some <strong class="gold-text">interactive demos</strong> to give a better intuition of how the primitives work in action. 
-                </p>
-            </header>
+<!-- photon-story-header:start -->
+<header class="page-header">
+<h1>Photon Primitives <span class="language-badge">C++ · Research</span></h1>
+<p class="subtitle">One framework. A vast family of estimators. A new way to see light.</p>
+<p class="intro-text">Turn the connection between light and camera paths into geometry. The same construction gives us unbiased estimators, complementary sampling strategies, and structured images with a visual character of their own.</p>
+<div class="photon-thesis" aria-label="Four reasons to explore photon primitives"><a class="photon-thesis-card" href="#art"><svg viewBox="0 0 200 90" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M18 67Q57 3 96 65T174 36M18 48Q62 92 103 30T181 55"/><ellipse cx="91" cy="46" rx="47" ry="19" transform="rotate(-23 91 46)"/><path d="m54 14 45 62 41-55" stroke="#f0cb78"/></svg><strong>A visual language for NPR</strong><small>Rings, sheets and refractive horns become the image. Keep the visible structure instead of averaging it away.</small></a><a class="photon-thesis-card" href="#primitives"><svg viewBox="0 0 200 90" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><ellipse cx="39" cy="43" rx="23" ry="27"/><ellipse cx="39" cy="43" rx="8" ry="27"/><path d="m80 66 23-47 24 47Z"/><ellipse cx="160" cy="45" rx="25" ry="13" transform="rotate(-25 160 45)"/></svg><strong>A whole space of estimators</strong><small>Choose which path coordinates to integrate. Distances, directions and emitter positions generate different geometric supports.</small></a><a class="photon-thesis-card" href="#core-idea"><svg viewBox="0 0 200 90" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m14 69 34-48 38 42m95-46-43 28-24-21"/><path d="m68 72 33-57 34 52Z" fill="currentColor" fill-opacity=".12"/><path d="m138 45-37-1" stroke="#f0cb78"/><circle cx="101" cy="44" r="5" fill="#f0cb78"/></svg><strong>Connect paths without blur</strong><small>A general framework for unbiased connection: solve compatible intersections and carry the exact change of measure.</small></a><a class="photon-thesis-card" href="#combining"><svg viewBox="0 0 200 90" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><ellipse cx="70" cy="43" rx="35" ry="26" transform="rotate(-25 70 43)"/><ellipse cx="105" cy="44" rx="35" ry="26" transform="rotate(25 105 44)"/><circle cx="88" cy="43" r="22" stroke="#f0cb78"/><path d="M19 76h153m-133-8v-11m15 11v-17m15 17V44m15 24V31m15 37V44m15 24V51m15 17V57"/></svg><strong>Complementary strategies, real speed</strong><small>MIS shares the work across strengths. Published results and RadianceLab measurements show the payoff.</small></a></div>
+<div class="photon-proof-links">
+<a href="#photon-hourglass">✦ Featured follow-up: photon hourglass · verified, fast, running in RadianceLab ↓</a>
+<a href="#experimental-extensions">Surface &amp; derivative · unpublished research ↓</a>
+<a href="#live-demos">↔ Explore the constructions</a>
+</div>
+<p class="note"><strong>From publication to a working renderer.</strong> The <a href="https://cs.dartmouth.edu/~wjarosz/publications/deng19photon.html" target="_blank" rel="noopener">2019 Photon Surfaces paper</a> establishes the unbiased framework. This page follows the estimator family into visual experiments, temporal slicing, and unpublished extensions—then shows them in RadianceLab.</p>
+</header><!-- project-context:start --><aside class="project-context" aria-label="Start here: the idea and what to watch"><p><strong>The idea</strong><span>Renderers often estimate light by tracing random paths. Photon Primitives lets selected path parameters vary to form curves, sheets or volumes, then accounts for their geometry when estimating how much light arrives.</span></p><p class="project-context-watch"><strong>What to watch</strong><span>Connect each geometric shape to the family of light paths it represents and to its contribution to the image.</span></p></aside><!-- project-context:end --><!-- project-motivation:start --><aside class="project-motivation" id="project-motivation" data-motivation-status="user-grounded" aria-label="The idea behind the project"><div class="motivation-heading"><span>The idea behind it</span></div><p class="motivation-copy">What if one photon sample represented a whole family of paths, giving difficult connections more ways to be found? I want to understand when that extra geometry repays its cost, how complementary families cover each other&#x27;s weaknesses, and what new estimators the same construction makes possible.</p><p class="motivation-takeaway"><span>Working intuition</span> Extra geometry earns its cost when it resolves difficult paths better than ordinary sampling at equal render time.</p></aside><!-- project-motivation:end -->
+<!-- photon-story-header:end -->
 
             <!-- Gallery Section -->
             <section id="gallery" class="content-section">
@@ -1152,13 +1177,10 @@ As the system matured, its value became clear beyond its original research motiv
 </p>
 
 <p>
-    Although many of these images may appear abstract or chaotic, each represents an 
-    <span class="gold-text">unbiased statistical estimator</span>. 
-    Given sufficient samples, all will converge to the same 
-    <span class="gold-text">physically meaningful result</span> — 
-    the image that would be observed in that scene under the specified 
-    <span class="gold-text">light transport model</span>. 
-    That convergence, in itself, is <span class="gold-text">fascinating</span>.
+    For a matched scene, transport class and time gate, correctly weighted primal estimators target the same
+    <span class="gold-text">light-transport integral</span>, even when their intermediate images look radically different.
+    The gallery also includes experimental constructions and signed differential images: those can represent a
+    <span class="gold-text">derivative</span>, rather than the final radiance itself.
 </p>
 
                 </div>
@@ -1192,54 +1214,19 @@ As the system matured, its value became clear beyond its original research motiv
             <!-- Core Idea -->
             <section id="core-idea" class="content-section">
                 <div class="glow-card">
-                    <h2>The Core Idea</h2>
-                    
-                    <h3>From Points to Primitives</h3>
-                    <p>
-                        Here, we give a highly simplified overview of how rendering works in general. 
-                        Rendering problem is the question of "for a given pixel, what's the color of the light that goes through it towards the eye?". We ask the same question to all the pixels, then we get a complete render.
-                    </p>
-
-                                        <p>
-                    To know that color, we need to all the possible light that can come from that direction, so this is a problem of integration: solving this analytically - which in general is impractical - would mean integrating over all the possible ways light can end up on that ray towards the eye. 
-                    </p>
-                    <p>
-                    Instead, we rely on sampling: The exact terms we need to sample depends on the setup: without participating media, we only need to sample all the directions: 
-                    at each step we make a choice: which direction to bounce, then we shoot a new ray and continue (with media, it's more complex, since now the light doesn't guarantee to reach the next surface: it can interact with the media anywhere, so we also need to sample a distance).  
-                    This process can happen from both directions: from the light source or from the eye.
-                    </p>
-
-                    <h3>The Connection Problem</h3>
-                    <p>
-                        Light paths can be sampled from both the camera and the light source, but they need to <strong>meet somewhere</strong>.
-                        Since a point has zero measure, we traditionally either:
-                    </p>
-                    <ul class="styled-list">
-                        <li><strong>Connect:</strong> Force the subpaths to go towards endpoint of the subpath from opposite site (<span class="red-text">fails for specular surfaces</span>, since any incoming direction can only be bounced towards one specific outgoing direction)</li>
-                        <li><strong>Blur:</strong> Treat points close enough as if they concided, allowing endpoints to not coincide exactly (<span class="red-text">biased</span>, meaning the end result will be different from the true solution, which sometimes matters a lot)</li>
-                    </ul>
-
-                    <div class="image-wide">
-                        <img src="tech_images/full-light-path.png" alt="Full Light Path">
-                        <p>Paths sampled from both directions need to meet. Primitives give us a third option beyond direct connection or blurring.</p>
-                    </div>
-                    <p>
-                        Now consider: instead of making a choice at some step, you sample the <strong>whole domain</strong> of possibilities. 
-                        This creates an (infinite) bundle of paths, forming a <strong>geometric primitive</strong> — a sphere, plane, cone, or other shape 
-                        that represents all the paths passing through that region. The benefit is that now it has a non-zero measure and you are guaranteed a connection as long as you sample enough. 
-                    </p>
-
-                    <p>
-                        <strong>Our approach does exactly that and more:</strong> The basic setup lets at least one side sweep a whole domain of one or more dimensions that are normally sampled — now the endpoint isn't a point anymore, 
-                        it's a primitive. All we need is to find ways to make the other subpath <strong>intersect</strong> it. 
-                    </p>
-
-                    <p>
-                        The flexibility comes from the choice of what dimensions we choose to sweep: to create an intersectable setup, there are countless ways: 
-                         a ray-surface setup is the most common, which includes sweeping one side on at least two dimensions and the other one dimension: the last distance;
-                    </p>
-
-                                        <div class="image-wide">
+                    <!-- photon-connection-overview:start -->
+<h2>A general framework for unbiased path connection</h2>
+<p>Two independently sampled subpaths almost never land at exactly the same point. A finite merging kernel makes them meet approximately. Photon surfaces instead integrate out the connection constraint: solve for the matching paths, then weight their contributions in the correct measure.</p>
+<div class="photon-connection-flow">
+<div class="photon-connection-step"><svg viewBox="0 0 200 90" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m15 70 31-52 41 44m94-42-38 29-21-27"/><circle cx="87" cy="62" r="4" fill="currentColor"/><circle cx="122" cy="22" r="4" fill="#f0cb78"/></svg><h3>1 · Keep some choices</h3><p>Sample a light subpath and a camera ray. Leave selected coordinates free.</p></div>
+<div class="photon-connection-step"><svg viewBox="0 0 200 90" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m24 65 42-43 67 18-32 36Z" fill="currentColor" fill-opacity=".15"/><path d="m42 63 42-40m-20 48 42-41m-18 43 38-34M178 9 91 53" stroke="#f0cb78"/><circle cx="91" cy="53" r="4"/></svg><h3>2 · Solve the connection</h3><p>Integrate three coordinates in total. A common case is two photon coordinates sweeping a sheet, intersected by the camera ray.</p></div>
+<div class="photon-connection-step"><svg viewBox="0 0 200 90" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m42 57 18-27 36 8-15 29Z" fill="currentColor" fill-opacity=".12"/><path d="m81 55 71-32m-8 0 8 0-5 10M81 55l-37 17M81 55l11-38" stroke="#f0cb78"/><ellipse cx="82" cy="50" rx="45" ry="24"/></svg><h3>3 · Carry the measure</h3><p>The Jacobian converts parameter density to crossing density. Include every supported branch, its sampling probability and transport weight.</p></div>
+</div>
+<p><strong>The shape is the consequence of the sampling strategy.</strong> This is a recipe for deriving estimators, not a fixed catalog of meshes. The remaining coordinates are sampled with Monte Carlo.</p>
+<details class="research-fold"><summary>The unbiased claim: exact connection, complete accounting</summary><p>The delta connection is integrated analytically rather than widened into a finite-radius kernel. Correct Jacobians, visibility, branch coverage and PDFs preserve the target integral. Finding a tractable intersection and its weight is the work of designing each estimator; a general framework does not imply a cheap closed form for arbitrary geometry. Finite-kernel variants and practical truncations retain their own qualifications.</p><div class="photon-proof-links"><a href="https://cs.dartmouth.edu/~wjarosz/publications/deng19photon.html" target="_blank" rel="noopener">Photon Surfaces · formulation and published estimators ↗</a><a href="#deep-construction">↔ Inspect the Jacobian in 3D</a></div></details>
+<div class="image-wide"><img src="tech_images/full-light-path.png" alt="A full transport path assembled from camera and light subpaths" loading="lazy" decoding="async"><p>The meeting condition becomes an intersection problem.</p></div>
+<!-- photon-connection-overview:end -->
+<div class="image-wide">
                         <img src="tech_images/common.png" alt="Common_Primitive">
                         <p>Paths sampled from both directions need to meet. Primitives give us a third option beyond direct connection or blurring. 
                             Here are two examples:
@@ -1303,8 +1290,7 @@ As the system matured, its value became clear beyond its original research motiv
 
                     <h3>Combining Primitives</h3>
                     <p>
-                        We can <strong>combine any two</strong> primitives. We can even combine a <strong>continuum</strong> of primitives 
-                        and analytically create a combined estimator (we will cover how combinations works in detail later):
+                        Combine compatible strategies on a <strong>shared measure</strong>. Some families even allow a <strong>continuum of orientations</strong> to be integrated analytically; the example below combines arbitrarily oriented planes.
                     </p>
 
                     <div class="image-wide">
@@ -1318,7 +1304,7 @@ As the system matured, its value became clear beyond its original research motiv
                     </p>
                     <div class="image-wide">
                         <img src="tech_images/3D.png" alt="3D_PP">
-                        <p>Examples of 3D primitives. In general, higher dimensional primitives have much better per-primitive performance, but each primitive is also much more expensive to evaluate computation-wise. </p>
+                        <p>Examples of 3D primitives. Integrating more coordinates can reduce variance per sample, while increasing the cost of evaluating each primitive. </p>
                     </div>
                     <p>
                         High-dimensional primitives are easy to construct, but the evaluation can become hard: since now the interesection is not on finite number of points anymore, instead, it's a line segment or more complex geometric shape, which would by itself require extra samples to evaluate stoahastically, since analytically integrating that is impractical. 
@@ -1329,11 +1315,11 @@ As the system matured, its value became clear beyond its original research motiv
                     
 
                             <section class="tech-section">
-            <h3>Two Flavors, Two Aesthetics</h2>
+            <h3>Two Flavors, Two Aesthetics</h3>
 
             <p class="highlight-text">
                 Another important point is that any primitive can also be used in two ways: correlated and uncorrelated. The difference is in how the sampling peocedure works: do you store subpath and reuse them or not. 
-                The results are statistically equivalent: they will have the same variance-over-time profile, if one is bad at handling specific light transport, so will the other.  
+                With matching marginal distributions and weights, both can target the same expectation. Reuse changes covariance across pixels and work per sample, so their image-wide noise and variance per unit time need not match.
                 But before they converge, the appearance will be completely different.
             </p>
 
@@ -1348,7 +1334,7 @@ As the system matured, its value became clear beyond its original research motiv
                 <div class="comparison-item">
                     <div class="comparison-header">Correlated</div>
                     <img src="tech_images/disk_unbiased.png" alt="Correlated Example" class="example-image">
-                    <p>Reuse the same batch of primitives across the entire image. And they are the exact same region where the other will also perform poorly.</p>
+                    <p>Reuse a shared batch across the image. Individual sample contributions become coherent forms, while sampling and weights still determine the estimate.</p>
                     <p class="result">→ Bold artifacts: specular-looking primitives, coherent streaks, structured patterns. </p>
                 </div>
             </div>
@@ -1383,8 +1369,7 @@ As the system matured, its value became clear beyond its original research motiv
                         using both together will have a decent chance. 
                     </p>
                     <p>
-                        The important thing is how to combine them properly: a simple combination of different primitives won't work, instead, we need 
-                        to introduce a concept called "<strong class="gold-text">re-evaluation</strong>": a primitive needs to "pretend" it's another one and re-estimate what a shading point should look like.
+                        To exploit their complementary strengths, use <strong class="gold-text">re-evaluation</strong>: ask how each strategy could have generated the same contributing path, then compare those densities on a shared measure. A fixed mixture can also be unbiased, but it does not adapt its weights to the path in this way.
                     </p>
 
                     <div class="image-wide" style="max-width: 900px;">
@@ -1406,21 +1391,200 @@ evaluations given by each primitive.
                         <p>
 For MIS to work well, we want the stragegies to complemenent each other, meaning if one is bad at specific type of paths, the other should be good at those paths. 
 From the perspective of photon primitives, that translates to "<strong class="gold-text">the primitives that behaves the most differently when we change the viewing angle</strong>". 
-For instance, a photon sphere will always have a bright rim, while a photon plane's brightness depends on its facing angle, so we have one that never changes and one that always changes as we change the direction of our samples segment, so this combination is guaranteed to work well.                             
+For instance, a photon sphere will always have a bright rim, while a photon plane's brightness depends on its facing angle, so we have one that never changes and one that always changes as we change the direction of our samples segment, so this pair can be complementary when their supports and sampling densities are matched.
                         </p>
-                    </div>
+                    <!-- photon-mis-evidence:start -->
+<div id="directional-mis-evidence" class="research-deep">
+<p class="photon-feature-kicker">Published principle · native renderer measurements</p>
+<h3>Cone + disk + sphere: complementary strategies in action</h3>
+<p>A difficult crossing for one primitive can be an easy one for another. The directional trio evaluates compatible densities and lets MIS shift weight toward the better-conditioned member. RadianceLab implements the three together, so this is visible in an operating renderer.</p>
+<div class="photon-result-strip" aria-label="Directional trio evidence">
+<div class="photon-result"><strong>≈43×</strong><span>Better equal-time variance efficiency than the plane trio · 2.3° emitter in the measured light-size rig</span></div>
+<div class="photon-result"><strong>6,291 → 1</strong><span>Worst-pixel / reference ratio in the documented diagnostic roster · singular-tail suppression, not a speed multiplier</span></div>
+<div class="photon-result"><strong>6 strategies</strong><span>Planes + directional trio share one measure; the combined estimator has the lowest per-pass variance across that rig</span></div>
+</div>
+<div class="photon-evidence-grid">
+<figure><a data-showcase-image href="../../media/brochures/radiance-lab/native-photon-direction-trio-balance-mis.png"><img src="../../media/brochures/radiance-lab/native-photon-direction-trio-balance-mis.png" width="2266" height="1180" alt="Native RadianceLab capture with the directional cone, disk and sphere MIS estimator" loading="lazy" decoding="async"></a><figcaption><strong>The directional trio in RadianceLab.</strong> Native output and estimator controls. The metrics above come from the manuscript’s recorded comparisons.</figcaption></figure>
+<figure><img src="tech_images/triplane-mis123.png" width="3833" height="2502" alt="Primitive strategies combined with multiple importance sampling" loading="lazy" decoding="async"><figcaption><strong>Different supports, a shared target.</strong> The earlier plane-family comparison introduces the same idea: combine complementary strategies rather than asking one shape to handle every configuration.</figcaption></figure>
+</div>
+<details class="research-fold"><summary>Read the comparison: light size, cost and path support</summary><p>The light-size rig uses a glass ball in fog, constant source power, a 217 × 140 film, five emitter sizes and eight independent batches per cell. The directional trio’s equal-time advantage over planes narrows to about 1.3× at 77°, within the reported timing uncertainty. The six-member mixture spends more per pass but reduces per-pass variance further.</p><p>These comparisons use a shared camera-leg convention; they are not rankings against every renderer. Conventional next-event estimation wins on this rig’s directly connectable scattering. Swept estimators become especially valuable when direct connection cannot form the desired path. The hourglass below is a concrete refractive example.</p><div class="photon-proof-links"><a href="../../projects/radiance-lab/library/portfolio/photon-hourglass.html#mis">Native MIS study · measurements and test conditions ↗</a><a href="../../projects/radiance-lab/index.html#family-swept-transport">Explore RadianceLab’s estimator family ↗</a></div></details>
+<div class="photon-proof-links"><a href="#lab-research-directional">↔ Inspect directional geometry &amp; MIS</a><a href="#photon-hourglass">Continue to the photon hourglass ↓</a></div>
+</div>
+<!-- photon-mis-evidence:end -->
+</div>
             </section>
 
+<!-- photon-variance-analysis:start -->
+<section id="geometry-variance-cost" class="content-section photon-analysis" aria-labelledby="photon-analysis-title">
+<span id="reuse-and-noise" class="lab-anchor" aria-hidden="true"></span>
+<div class="glow-card">
+<p class="photon-feature-kicker">Analysis lab · geometry × probability × work</p>
+<h2 id="photon-analysis-title">A bright rim is not a performance explanation—yet.</h2>
+<p>A fully shared photon sphere can leave a complete, persistent-looking rim; fresh samples turn that structure into scattered noise. Why can the first feel slower even when the statistics look similar? Separate the size of a contribution, the chance of encountering it, and the computation needed to evaluate it.</p>
+<div class="photon-connection-flow"><div class="photon-connection-step"><svg viewBox="0 0 200 90" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m42 57 18-27 36 8-15 29Z" fill="currentColor" fill-opacity=".12"/><path d="m81 55 71-32m-8 0 8 0-5 10M81 55l-37 17M81 55l11-38" stroke="#f0cb78"/><ellipse cx="82" cy="50" rx="45" ry="24"/></svg><h3>How large?</h3><p>Near tangency, a finite amount of energy can be concentrated into a very bright rim. A finite mean does not guarantee finite variance.</p></div><div class="photon-connection-step"><svg viewBox="0 0 200 90" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><ellipse cx="39" cy="43" rx="23" ry="27"/><ellipse cx="39" cy="43" rx="8" ry="27"/><path d="m80 66 23-47 24 47Z"/><ellipse cx="160" cy="45" rx="25" ry="13" transform="rotate(-25 160 45)"/></svg><h3>How often—and where?</h3><p>Sharing a primitive makes its residual coherent across the image. Independent queries scatter the same marginal sampling difficulty.</p></div><div class="photon-connection-step"><svg viewBox="0 0 200 90" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><ellipse cx="70" cy="43" rx="35" ry="26" transform="rotate(-25 70 43)"/><ellipse cx="105" cy="44" rx="35" ry="26" transform="rotate(25 105 44)"/><circle cx="88" cy="43" r="22" stroke="#f0cb78"/><path d="M19 76h153m-133-8v-11m15 11v-17m15 17V44m15 24V31m15 37V44m15 24V51m15 17V57"/></svg><h3>How much work?</h3><p>A broad footprint creates more candidate crossings. Better MIS weights can improve an estimate after expensive visibility work has already been paid.</p></div></div>
+<section class="interactive-study is-suspended" id="lab-research-photon-variance" data-lab-src="../../media/research-labs/photon-variance.html" data-lab-selected="research-photon-variance" data-lab-preview="frame" data-lab-fit="true" style="--lab-height:900px"><div class="lab-heading"><span class="lab-mark" aria-hidden="true">↔</span><div><span class="eyebrow">Interactive schematic</span><h3>One construction. Four ways to measure its difficulty.</h3></div></div><div class="lab-view-copy"><h4 class="lab-view-title">One construction. Four ways to measure its difficulty.</h4><p class="lab-summary">Compare shared and independent samples, inspect a tangent crossing, count the work in a footprint, and test when MIS removes a singular tail.</p></div><div class="lab-contract" hidden><p data-lab-contract="runtime" hidden><b>Draws with</b> <span></span></p><p data-lab-contract="artifact" hidden><b>Artifact</b> <span></span></p><p data-lab-contract="export-route" hidden><b>Export</b> <span></span></p><p data-lab-contract="purpose" hidden><b>Purpose</b> <span></span></p><p data-lab-contract="provenance" hidden><b>Made with</b> <span></span></p><p data-lab-contract="takeaway" hidden><b>Demonstrates</b> <span></span></p></div><div class="lab-actions"><button type="button" data-lab-toggle aria-pressed="false" aria-controls="lab-research-photon-variance-frame">Run now ↗</button><button class="lab-reset" type="button" data-lab-reset aria-controls="lab-research-photon-variance-frame">Reset ↺</button><button type="button" data-lab-focus aria-pressed="false" title="Keep this demo in a steady view without resetting it. Escape returns to the page.">Pop out ⛶</button><a data-lab-open href="../../media/research-labs/photon-variance.html" target="_blank" rel="noopener">Open separately ↗</a><span class="lab-state" aria-hidden="true">Suspended · hover to run</span></div><p class="lab-interaction-hint">Wheel over the scene may zoom; move outside it to scroll the page.</p><div class="lab-frame" id="lab-research-photon-variance-frame" role="region" aria-label="One construction. Four ways to measure its difficulty."><img class="lab-poster" src="../../media/brochures/radiance-lab/photon-sphere.png" alt="Preview of One construction. Four ways to measure its difficulty." loading="lazy" decoding="async" width="1280" height="720"><div class="lab-live" inert></div><span class="lab-preview-label" aria-hidden="true">Move inside to run</span></div><p class="lab-caption">Computed teaching models: a normalized sphere shell, a local crossing Jacobian, discrete operation counts and common-measure probability densities. These are not native renderer timings or a complete transport simulation.</p><p class="lab-status" role="status">Suspended · activate to run; playback pauses after the full panel leaves the vertical viewport.</p></section>
+<h3>Same native primitive pool. Different weighting.</h3>
+<div class="photon-evidence-grid">
+<figure><a data-showcase-image href="../../media/brochures/radiance-lab/fig-mis-13-flat.png"><img src="../../media/brochures/radiance-lab/fig-mis-13-flat.png" width="435" height="312" alt="Recorded frozen directional-trio pool with flat weighting and bright coherent boundaries" loading="lazy" decoding="async"></a><figcaption><strong>Flat weights.</strong> The recorded sphere, cone and disk pool leaves strong coherent boundaries.</figcaption></figure>
+<figure><a data-showcase-image href="../../media/brochures/radiance-lab/fig-mis-13-balance.png"><img src="../../media/brochures/radiance-lab/fig-mis-13-balance.png" width="435" height="312" alt="The same recorded directional-trio pool with balance weighting suppressing bright boundaries" loading="lazy" decoding="async"></a><figcaption><strong>Balance weights.</strong> Geometry and seeds stay fixed. Complementary densities reduce the singular members’ influence; this pair demonstrates weighting, not a timing comparison.</figcaption></figure>
+</div>
+<div id="photon-correlation-theory" class="photon-analysis-theory">
+<p class="photon-feature-kicker">From a visible rim to a statistical explanation</p>
+<h3>Why an always-visible rim can still be a rare event</h3>
+<p>Drawing an entire primitive exposes its difficult regions together. Independent queries encounter those regions separately. The distinction becomes precise when we ask which coordinates are random, how fast a weight grows, and how much probability lies near its singularity.</p>
+
+<details class="research-fold">
+<summary>1 · “Sometimes singular” versus “always visible”: include the sampling measure</summary>
+<p>Let ε measure distance from a troublesome configuration. Suppose the <em>complete sample weight</em> grows as |W| ≈ Aε<sup>−α</sup>, while the probability density of that event behaves as p(ε) ≈ Bε<sup>β</sup>, with β &gt; −1. Then the local q-th absolute moment is</p>
+<p class="photon-analysis-equation">E[|W|<sup>q</sup>] ∝ ∫<sub>0</sub><sup>ε₀</sup> ε<sup>β − qα</sup> dε &nbsp;·&nbsp; finite exactly when qα &lt; β + 1.</p>
+<p>Equality gives logarithmic divergence. A stronger inequality in the other direction gives power-law divergence. Thus the order of 1/J alone is insufficient: acceptance, sampled density, transport factors and cancellations all belong in W and p. A degeneracy reached only through a small set of sampled configurations can behave very differently from one reached with substantial density.</p>
+<div class="photon-analysis-table"><table><thead><tr><th>Illustrative local model</th><th>Mean</th><th>Second moment</th></tr></thead><tbody>
+<tr><td>α = ½, β = 0 · generic fold</td><td>Finite</td><td>Logarithmically divergent</td></tr>
+<tr><td>α = 1, β = 1 · rarer approach to a stronger pole</td><td>Finite</td><td>Logarithmically divergent</td></tr>
+<tr><td>α = 1, β = 0 · uncompensated reciprocal pole</td><td>Already divergent</td><td>Divergent</td></tr>
+</tbody></table></div>
+<p>“Each sphere has a singular silhouette” is a statement about its spatial support. “A particular pixel samples that silhouette” is a statement about random primitives. They use different coordinates and measures. A continuous silhouette also does not imply that a discrete pixel lands on an exact infinity; it usually samples a large but finite near-tangent value.</p>
+<p>An exact singularity can have probability zero while its neighborhood still gives an infinite second moment. Conversely, an algorithm that places positive probability on a genuinely undefined or infinite contribution has changed the sampling problem. That requires an explicit treatment of the degenerate event; sharing otherwise identical samples does not create it by itself.</p>
+<p class="note"><strong>Scope.</strong> These are local asymptotic models. They assume a nonzero leading coefficient and no other dominant singularity. Numerical guards and finite precision truncate the implemented tails; clamping or discarding contributions can also change the target integral.</p>
+</details>
+
+<details class="research-fold">
+<summary>2 · Sphere, cone and disk: different geometry, not a simple severity ranking</summary>
+<p>For a sphere with sampled radius t and camera-ray distance δ &gt; 0 from its center, the two roots are s = s₀ ± √(t² − δ²). Its projected Jacobian is J = t√(t² − δ²). At t = δ + ε, two roots merge and W grows as ε<sup>−½</sup>, provided the transport numerator remains nonzero. A regular radius density therefore gives a finite mean but a logarithmically divergent ideal second moment.</p>
+<p>A cone has the same generic <strong>fold</strong> exponent when its visible roots merge. Whether that fold is actually reached depends on the sampled nappe and the camera segment. Its apex and polar limits are separate degeneracies. RadianceLab’s directional <strong>disk</strong> is a meridian half-plane swept about the light axis: its ordinary crossings have no quadratic fold. It can instead become ill-conditioned near the axis; sampling an area emitter can make those configurations statistically significant.</p>
+<p><strong>An exact illustrative projection.</strong> A uniform, unit-energy thin sphere shell viewed orthographically has radial intensity</p>
+<p class="photon-analysis-equation">I<sub>R</sub>(ρ) = 1 / [2πR√(R² − ρ²)], &nbsp; 0 ≤ ρ &lt; R.</p>
+<p>The outer <strong>1% of its radius carries 14.1% of its energy in 1.99% of its projected area</strong>. This shows why a thin bright rim can dominate perception despite finite total energy. It is a shell-projection model, not a RadianceLab measurement.</p>
+<p>At fixed distance from that rim, its coefficient falls as R<sup>−3/2</sup>, while projected area grows as R². A bigger sphere can therefore cost more without having a stronger singularity. Perspective, camera containment, free-flight sampling and the phase function alter the practical result. Cones and half-planes can also cover most of the frame.</p>
+</details>
+
+<details class="research-fold">
+<summary>3 · What correlation changes—and what a frozen pool cannot converge away</summary>
+<p>Write F<sub>j</sub>(π) for one primitive’s complete contribution to pixel j: zero on a miss, and the sum of all supported crossings on a hit. A shared batch gives L̂<sub>j</sub> = (1/N)Σ<sub>i</sub>F<sub>j</sub>(π<sub>i</sub>). Independent per-pixel batches replace π<sub>i</sub> with π<sub>ij</sub>.</p>
+<p>With the same primitive distribution, N independent draws, fixed camera rays and matching weights, both constructions have the <strong>same per-pixel distribution</strong>. Their expected ordinary image MSE is therefore equal at that budget, when it is finite. Shared samples instead add</p>
+<p class="photon-analysis-equation">Cov(e<sub>j</sub>, e<sub>k</sub>) = Cov(F<sub>j</sub>(π), F<sub>k</sub>(π)) / N.</p>
+<p>Broad coherent errors affect denoising, image averages and perception differently from pixel noise. Correlation can also help differences between neighboring pixels; it is not universally harmful. Independent shared batches across P passes reduce covariance by 1/P, but do <strong>not generally turn its normalized spatial pattern into white noise</strong>.</p>
+<p>Freeze one finite primitive pool forever and additional passes only refine that pool’s conditional image. Camera jitter can improve pixel integration, but cannot remove the fixed pool’s photon-sampling error. Refreshing the pool introduces new photon information.</p>
+<p><strong>One extra tradeoff:</strong> if a pass uses one camera ray for N primitives, a fixed total budget B = NP buys only P independent camera samples. Under independent camera and photon sampling, the finite-variance decomposition is</p>
+<p class="photon-analysis-equation">Var(L̂) = (N/B) Var<sub>r</sub>(E<sub>π</sub>[F | r]) + (1/B) E<sub>r</sub>(Var<sub>π</sub>[F | r]).</p>
+<p>The first term grows with batch size: silhouettes, depth of field and narrow caustics may need more camera samples even when primitive reuse is cheap. Equal passes, equal primitive counts and equal elapsed time answer different questions.</p>
+</details>
+
+<details class="research-fold">
+<summary>4 · Why MIS cancels some poles—and cannot guarantee fast rendering</summary>
+<p>Compare densities for the <em>same contributing path in the same measure</em>. For a one-sample mixture with strategy probabilities a<sub>i</sub>, the balance heuristic gives</p>
+<p class="photon-analysis-equation">[f / (a<sub>i</sub>p<sub>i</sub>)] × [a<sub>i</sub>p<sub>i</sub> / Σ<sub>k</sub>a<sub>k</sub>p<sub>k</sub>] = f / Σ<sub>k</sub>a<sub>k</sub>p<sub>k</sub>.</p>
+<p>If one strategy’s density vanishes at a tangency while another has density bounded away from zero there, a bounded numerator no longer produces that pole. Merely being nonzero at each nearby point is weaker than having a positive lower bound. Shared zeros, missing path support, unbounded transport factors or singular configurations elsewhere can leave heavy tails. Counts replace selection probabilities appropriately in the multi-sample formulation; rejected draws still belong in the normalization.</p>
+<p><strong>A concrete cancellation test.</strong> Integrate f(x) = 1 on (0, 1). With p₁(x) = 2x and an equally likely uniform partner p₂(x) = 1, the mixture density q(x) = x + ½ keeps the sample weight 1/q below 2. But if both partners use 2x, then q(x) = 2x: the mean is still 1 while E[W²] = ∫₀¹ 1/(2x) dx diverges. The limiting rates and shared zeros settle the question; writing an informal “∞/∞” does not.</p>
+<p>The <a href="https://cs.dartmouth.edu/~wjarosz/publications/deng19photon-small.pdf#page=6" target="_blank" rel="noopener">published derivation, §6</a>, places photon-surface intersections in standard path space and derives both discrete and continuous MIS. Its <a href="https://cs.dartmouth.edu/~wjarosz/publications/deng19photon-small.pdf#page=10" target="_blank" rel="noopener">limitations, §9</a>, explicitly show residual surface-to-medium singularities when the available strategies do not cover each other adequately.</p>
+<p>Statistical cancellation does not eliminate root solves, alternate density evaluations or visibility queries. A low MIS weight may be known only after that work. For a finite-variance estimator, equal-time error depends on variance <em>and</em> cost per useful sample; for heavy-tailed cases, report multiple independent runs and convergence curves instead of trusting one apparently stable variance number.</p>
+</details>
+
+<details class="research-fold">
+<summary>5 · What the paper establishes, and what this follow-up adds</summary>
+<p><a href="https://cs.dartmouth.edu/~wjarosz/publications/deng19photon.html" target="_blank" rel="noopener">Deng et al., Photon Surfaces (2019)</a> provides the change-of-variables framework and MIS derivations. Figure 5 compares estimators at equal time and notes that MIS overhead can outweigh its variance improvement. Section 9 specifically identifies inefficient full-sphere work under strongly anisotropic scattering, proposing spherical sectors to concentrate effort. These are concrete foundations for the footprint hypothesis.</p>
+<p>This follow-up separates those foundations into testable mechanisms: singularity order together with event density; per-pixel error versus spatial covariance; camera samples versus primitive samples; and useful crossings versus screen coverage. The shell projection and local moment thresholds above are explanatory derivations. They do not establish which mechanism dominates a particular native run—that requires matched settings and measured work.</p>
+</details>
+</div>
+<div class="photon-analysis-native">
+<h3>Bring the distinction back to RadianceLab</h3>
+<p><strong>Shared random choices do not automatically mean shared computation.</strong> In the current native code, sphere, disk, cone and their trio reconstruct the sampled primitive for each pixel query. The cached record path currently covers UV quads, traced beams and the hourglass. An all-N pass also evaluates N terms per pixel, while the independent path evaluates one.</p>
+<p>The sphere solver uses a quadratic with at most two roots; approaching a singularity does not add root-finding iterations. Coverage, visibility queries, reconstruction and pass scheduling are concrete cost mechanisms. The renderer chapter follows those mechanisms and separates source-documented measurements from hypotheses.</p>
+<div class="photon-proof-links"><a href="../../projects/radiance-lab/index.html#manual-geometry-variance-cost">RadianceLab · implementation, measured work and fair comparisons ↗</a><a href="#photon-hourglass">Photon hourglass · native rendered results ↓</a></div>
+</div>
+<details class="research-fold"><summary>Matched native images: keep the comparison controlled</summary><p>The live shared/independent comparison above uses a defined shell model. The existing native images throughout this page show the visual vocabulary but are not a matched experiment. A native pair should hold scene, estimator, exposure, camera sampling and evaluated sample count fixed; an equal-time comparison should also report elapsed time.</p>
+<div class="research-captures"></div></details>
+</div></section>
+<!-- photon-variance-analysis:end -->
+<!-- photon-combination-analysis:start -->
+<section id="combination-design" class="content-section photon-analysis" aria-labelledby="photon-combination-title"><div class="glow-card">
+<p class="photon-feature-kicker">Combination design · a test before the render</p>
+<h2 id="photon-combination-title">Different shapes are a clue. Different blind spots are the test.</h2>
+<p>A sphere and a disk look very different, but both can lose density on the same contributing path. Sphere + plane has a different weakness—not a universal advantage. Compare where the combined density becomes small, then ask whether those paths carry light and how much they cost to evaluate.</p>
+<section class="interactive-study is-suspended" id="lab-research-photon-combination" data-lab-src="../../media/research-labs/photon-combination.html" data-lab-selected="research-photon-combination" data-lab-preview="frame" data-lab-fit="true" style="--lab-height:930px"><div class="lab-heading"><span class="lab-mark" aria-hidden="true">↔</span><div><span class="eyebrow">Interactive schematic</span><h3>Choose partners by the paths they rescue</h3></div></div><div class="lab-view-copy"><h4 class="lab-view-title">Choose partners by the paths they rescue</h4><p class="lab-summary">Compare pairs and trios on one common path measure. Inspect their shared weak directions, the light carried there, and the predicted benefit of another member.</p></div><div class="lab-contract" hidden><p data-lab-contract="runtime" hidden><b>Draws with</b> <span></span></p><p data-lab-contract="artifact" hidden><b>Artifact</b> <span></span></p><p data-lab-contract="export-route" hidden><b>Export</b> <span></span></p><p data-lab-contract="purpose" hidden><b>Purpose</b> <span></span></p><p data-lab-contract="provenance" hidden><b>Made with</b> <span></span></p><p data-lab-contract="takeaway" hidden><b>Demonstrates</b> <span></span></p></div><div class="lab-actions"><button type="button" data-lab-toggle aria-pressed="false" aria-controls="lab-research-photon-combination-frame">Run now ↗</button><button class="lab-reset" type="button" data-lab-reset aria-controls="lab-research-photon-combination-frame">Reset ↺</button><button type="button" data-lab-focus aria-pressed="false" title="Keep this demo in a steady view without resetting it. Escape returns to the page.">Pop out ⛶</button><a data-lab-open href="../../media/research-labs/photon-combination.html" target="_blank" rel="noopener">Open separately ↗</a><span class="lab-state" aria-hidden="true">Suspended · hover to run</span></div><p class="lab-interaction-hint">Wheel over the scene may zoom; move outside it to scroll the page.</p><div class="lab-frame" id="lab-research-photon-combination-frame" role="region" aria-label="Choose partners by the paths they rescue"><img class="lab-poster" src="../../media/brochures/radiance-lab/photon-sphere.png" alt="Preview of Choose partners by the paths they rescue" loading="lazy" decoding="async" width="1280" height="720"><div class="lab-live" inert></div><span class="lab-preview-label" aria-hidden="true">Move inside to run</span></div><p class="lab-caption">Deterministic probes of native exact-family densities and a defined single-scatter payload. The local algebraic bound is exact; the finite-grid score omits paired-root covariance and is not a native speed benchmark.</p><p class="lab-status" role="status">Suspended · activate to run; playback pauses after the full panel leaves the vertical viewport.</p></section>
+<div id="photon-combination-theory" class="photon-analysis-theory">
+<p class="photon-feature-kicker">Choosing partners before a full render</p>
+<h3>Good partners cover one another’s weak directions.</h3>
+<p>There is a concrete way to measure “different.” Put every technique’s density on the same path measure, find the configurations where their combined density becomes small, and ask how much light—and computational work—lies there. Jacobian geometry can reveal a failure before rendering; inexpensive deterministic probes can then identify promising combinations.</p>
+
+<details class="research-fold">
+<summary>1 · First compare the same event, in the same units</summary>
+<p>For single scattering from a quad, use z = (s, u, v): distance s along the camera ray and normalized coordinates (u, v) on the emitter. Each exact technique supplies a crossing density P<sub>i</sub>(z) per ds du dv. This includes emitter selection, sampling probabilities, Jacobian, valid branches and support.</p>
+<p>RadianceLab’s directional densities start conditional on the sampled light point. Their conversion is P<sub>i</sub> = A · p<sub>select</sub> · p<sub>area</sub> · p<sub>i</sub>(s | y). For a uniformly sampled quad, A · p<sub>area</sub> = 1. Plane densities already use the joint measure. Omitting this factor can make light size or source selection quietly change the estimator.</p>
+<p>For allocations a<sub>i</sub> ≥ 0 summing to one, write q(z) = Σ<sub>i</sub>a<sub>i</sub>P<sub>i</sub>(z). Sample counts replace allocation fractions in a multi-sample balance weight. <strong>Do not renormalize each density over successful crossings:</strong> failed draws still count, and a sphere or cone can contribute more than one crossing.</p>
+<p><a href="https://cs.dartmouth.edu/~wjarosz/publications/deng19photon-small.pdf#page=6" target="_blank" rel="noopener">Photon Surfaces, §6</a>, derives the common-path MIS construction. <a href="https://graphics.stanford.edu/papers/veach_thesis/" target="_blank" rel="noopener">Veach’s chapter on MIS</a> separates the one-sample mixture from the multi-sample estimator; their variance formulas and sampling schedules should not be interchanged.</p>
+</details>
+
+<details class="research-fold">
+<summary>2 · An exact geometric test: do their weak directions coincide?</summary>
+<p>Fix a supported light/scatter pair (y, x), let ω = (x − y)/t and let d be the unit camera direction. Away from coordinate poles, each exact member has the form P<sub>i</sub> = c<sub>i</sub>|v<sub>i</sub> · d|, where c<sub>i</sub> contains its actual positive density factors.</p>
+<div class="photon-analysis-table"><table><thead><tr><th>Member</th><th>Directional vector v<sub>i</sub></th></tr></thead><tbody>
+<tr><td>UV plane</td><td>Emitter normal n</td></tr>
+<tr><td>UT / VT planes</td><td>e<sub>u</sub> × ω / e<sub>v</sub> × ω</td></tr>
+<tr><td>Arbitrary fixed-orientation plane</td><td>ê × ω, with ê in the emitter plane</td></tr>
+<tr><td>Sphere</td><td>ω</td></tr>
+<tr><td>Disk</td><td>a × ω</td></tr>
+<tr><td>Cone</td><td>(a · ω)ω − a</td></tr>
+</tbody></table></div>
+<p>Build the weighted Gram matrix B = Σ<sub>i</sub>(a<sub>i</sub>c<sub>i</sub>)²v<sub>i</sub>v<sub>i</sub><sup>T</sup>. Then</p>
+<p class="photon-analysis-equation">q(d) ≥ √(d<sup>T</sup>Bd) ≥ √λ<sub>min</sub>(B).</p>
+<p>Rank below three exposes a viewing direction where every selected density vanishes at this event. Full rank provides a <strong>local density floor</strong>. Keeping the real coefficients matters: unit-normalizing the rows reveals geometric independence but hides an exponentially unlikely free-flight distance or a tiny emitter probability.</p>
+<p>UT, VT and the arbitrary plane all have v perpendicular to ω. Adding another orientation can improve balance within that plane but does not fill its missing direction. Sphere, disk and cone span three orthogonal directions away from the axis; this explains a genuine geometric strength of their trio.</p>
+<p>This is a local statement. The floor can approach zero as the light point, distance or support changes. A single well-conditioned event is not a proof of finite image-wide variance.</p>
+</details>
+
+<details class="research-fold">
+<summary>3 · Disk + sphere, or sphere + plane?</summary>
+<p>Any pair of these dot-product densities has rank at most two. Neither pair covers every possible camera direction. The useful question is where its missing direction falls relative to the scene.</p>
+<p>For a light axis a = n, sphere + disk has a common zero along (n · ω)ω − n—the direction supplied by the cone. Sphere + UV instead has a common zero along ω × n—the direction supplied by the disk. These statements assume nonparallel n and ω and positive sampling factors. A camera can favor either pair.</p>
+<p>Sphere + UT has another missing direction: the component of the chosen emitter edge perpendicular to ω. Changing the edge orientation moves that weakness. UV’s area factor and free-flight density, and UT/VT’s edge factors, additionally change the comparison with emitter size. The phase function and visibility decide whether the uncovered directions carry significant energy.</p>
+<p><strong>Different integrated coordinates are a design clue, not a quality score.</strong> Complementary Jacobians, adequate probability where the integrand matters, and affordable evaluation are the three tests. The <a href="https://cs.dartmouth.edu/~wjarosz/publications/deng19photon-small.pdf#page=8" target="_blank" rel="noopener">paper’s single-scattering comparisons</a> likewise change with light size and show that adding strategies can cost more than it saves.</p>
+</details>
+
+<details class="research-fold">
+<summary>4 · A deterministic pilot score—and a precise test for adding a member</summary>
+<p>Choose a small, fixed set of camera directions, emitter positions and ray distances. Evaluate all supported densities at each event, with quadrature weights ω<sub>ℓ</sub> and an explicit transport payload f<sub>ℓ</sub>. Before estimating a score, report any region with nonzero payload but zero combined density. A coarse grid cannot certify that no such region exists: also probe the analytic common-zero directions.</p>
+<p class="photon-analysis-equation">H(q) ≈ Σ<sub>ℓ</sub> ω<sub>ℓ</sub> f<sub>ℓ</sub>² / q<sub>ℓ</sub> &nbsp;·&nbsp; I ≈ Σ<sub>ℓ</sub> ω<sub>ℓ</sub> f<sub>ℓ</sub>.</p>
+<p>For an ordinary one-sample importance estimator, H is its second moment and H − I² is its variance. For native multi-root primitives, H is only the <strong>diagonal second-moment term</strong>: paired roots and shared-prefix covariance also contribute. Use it as a density-based screening score, not a renderer benchmark.</p>
+<p>There is a useful analytical addition test. Add a candidate density p with a small allocation ε, so q<sub>ε</sub> = (1 − ε)q + εp. Define the normalized error-weight measure ν(z) ∝ f(z)²/q(z). Where these integrals and derivatives exist,</p>
+<p class="photon-analysis-equation">H′(0) = H(q) [1 − E<sub>ν</sub>(p/q)].</p>
+<p>The candidate improves this score when it supplies density in the places that currently dominate it. A large global distance between two PDFs says less: they may differ mostly in dark regions.</p>
+<p>If the mean work changes as C<sub>ε</sub> = (1 − ε)C + εc, the proxy C<sub>ε</sub>H(q<sub>ε</sub>) initially improves exactly when E<sub>ν</sub>(p/q) &gt; c/C. This assumes no new shared overhead; real MIS adds density evaluations, branching and memory traffic. Include those costs in a measured model before predicting elapsed-time gains.</p>
+<p><strong>Check limits as well as grid values.</strong> If q ≈ ε<sup>γ</sup>, f ≈ ε<sup>η</sup> and the base integration measure contributes ε<sup>β</sup>dε, the local second-moment integral is finite only when 2η − γ + β &gt; −1. Equality is logarithmic divergence. A finite pilot can miss such a tail even when every sampled score looks healthy.</p>
+</details>
+
+<details class="research-fold">
+<summary>5 · Why blurred beam, ring and arc need a separate compatibility test</summary>
+<p>These curves sweep one photon coordinate and use a finite-width kernel to reach the camera ray. Their tangent factors are |t̂<sub>i</sub> × d|, rather than the surface factors |n̂<sub>i</sub> · d|. Different tangent directions can protect one another from grazing configurations, but density factors, curvature and kernel width remain part of the comparison.</p>
+<p>At finite radius, different curves can deposit at different nearby positions and have different biases. Sharing the same radius cancels a common normalization in some weights; it does not make their blurred integrands identical. A finite-radius combination should therefore retain an explicit bias qualification.</p>
+<p><strong>A controlled baseline</strong> is a fixed blend of an exact-family MIS estimate and the existing curve-family estimate: L̂ = (1 − λ)L̂<sub>exact</sub> + λL̂<sub>curve,r</sub>. Its bias is λb<sub>curve,r</sub>. It can converge to the unblurred target as the radius shrinks with sufficient samples, provided both groups cover the same source and path class. This is a finite-radius composite; it does not claim cross-group MIS weighting.</p>
+</details>
+
+<details class="research-fold">
+<summary>6 · True cross-family MIS: what VCM and UPBP actually require</summary>
+<p><a href="https://www.iliyan.com/publications/ImplementingVCM/ImplementingVCM_TechRep2012_rev2.pdf#page=3" target="_blank" rel="noopener">VCM’s implementation derivation</a> includes the merge-acceptance area πr² and sample counts in the path-density bookkeeping. <a href="https://cs.uwaterloo.ca/~thachisu/upbp.pdf#page=8" target="_blank" rel="noopener">UPBP’s extended MIS, §6</a>, goes further: it combines ordinary path estimators with extended-space estimators that can have different finite-radius biases.</p>
+<p>Let x be the common path and y the technique’s extra kernel-offset variable. UPBP’s extended balance weights use w<sub>i</sub>(x) ∝ n<sub>i</sub>/κ<sub>i</sub>(x), with</p>
+<p class="photon-analysis-equation">κ<sub>exact</sub>(x) = f(x)²/p<sub>i</sub>(x), &nbsp; κ<sub>kernel</sub>(x) = ∫ f<sub>i</sub>(x,y)²/p<sub>i</sub>(x,y) dy.</p>
+<p>The kernel integral accounts for extra sampling variance. Defining the common path, offset map, branches, support and joint density is the work required before curved primitives can enter that construction. The theorem retains bias bounds; it does not turn a finite merging radius into an unbiased renderer.</p>
+<p><strong>A useful approximation to derive and test:</strong> if transport, density and geometry vary slowly across a locally straight kernel, κ can simplify using V<sub>eff</sub> = 1/∫K². For a normalized uniform one-dimensional box, V<sub>eff</sub> = 2r. This motivates a tube-acceptance factor in a cross-family weight. Curvature and tangency are precisely where that approximation needs scrutiny.</p>
+<p>All cross-evaluated weights must refer to the same canonical camera/light path. Evaluating each member’s weights at its own displaced curve point is a different construction. A practical extended-MIS implementation can use approximations, but should identify them, compare shrinking-radius limits and preserve full support rather than assuming that equal kernel widths settle the derivation.</p>
+</details>
+</div>
+<div class="photon-analysis-native"><h3>Try the prediction in RadianceLab</h3>
+<p><strong>Custom combination</strong> starts with UV + sphere. Select a pair or trio from four planes, sphere, disk, cone, and the finite-radius beam, ring and arc. Exact sheets share a path-density ledger; curve subsets share a radius. Mixed selections use an explicitly labeled fixed blend, retaining finite-radius bias while the extended-MIS kernel moments remain a separate derivation.</p>
+<p>The native comparison covers single scattering from internal sources in one homogeneous medium. Plane selections support one or more emissive quads; the source label and its selection probability belong to every MIS density. Mixed quad/non-quad source rosters are still refused when a plane is selected.</p>
+<p>Three controlled RadianceLab scenes now vary source area, angular profile, and all nine combinations. Centered single-light probes separate emitter behavior from placement and source-selection effects.</p>
+<div class="photon-proof-links"><a href="../../projects/radiance-lab/index.html#manual-emitter-study">Emitter study · native renders, measurements and findings ↗</a><a href="../../projects/radiance-lab/index.html#manual-primitive-combinations">RadianceLab · combinations, controls and implementation limits ↗</a><a href="#geometry-variance-cost">Variance, correlation and paid work ↑</a></div></div>
+</div></section>
+<!-- photon-combination-analysis:end -->
             <!-- Live Demos Section -->
             <section id="live-demos" class="content-section">
                 <div class="glow-card">
-                    <h2>Live Demos</h2>
-                    
-                    <p style="font-style: italic; color: var(--text-secondary); margin-bottom: 20px;">
-                        Normally I put live demos right at the top, but for this project, I feel it's more important to first clarify the core ideas.
-                        These interactive demonstrations should now make more sense with the context established above.
-                    </p>
+<h2>From quick intuition to the full construction</h2>
+<p>Start by watching a bundle of paths sweep out a shape, then inspect the change of measure that makes the construction an estimator. The original visual experiments and the newer 3D schematics answer different parts of the same question.</p><div class="research-route"><a href="#quick-intuition"><span>01</span><strong>See the idea</strong><small>Paths, sheets and overlapping strategies</small></a><a href="#deep-construction"><span>02</span><strong>Inspect the measure</strong><small>Parameter derivatives, camera queries and MIS</small></a></div>
 
+<div class="research-intuition" id="quick-intuition"><h3>01 · Quick intuition: watch the support take shape</h3>
+<p class="research-note">These direct visual experiments make path bundles, overlap and angular freedom easy to see. Brightness is deliberately stabilized and the MIS drawings are simplified. Continue to the 3D section below to inspect defined parameter measures and native local strategy densities.</p>
                     <!-- Embedded card for High-Level Intuitions -->
                     <div style="background: rgba(20, 20, 25, 0.8); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 12px; padding: 20px; margin: 20px 0; box-shadow: 0 0 20px rgba(212, 175, 55, 0.1), inset 0 0 30px rgba(0,0,0,0.3);">
                         <h3 style="color: var(--gold); margin-bottom: 15px;margin-top: -10px; text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);">High-Level Intuitions Recap</h3>
@@ -1428,15 +1592,14 @@ For instance, a photon sphere will always have a bright rim, while a photon plan
                         <h4 style="color: var(--gold-light); margin-top: 15px; font-size: 0.95rem;">Subpath Bundles → Primitives</h4>
                         <p style="font-size: 0.9rem;">
                             Each <strong>subpath bundle</strong> in path tracing corresponds to a geometric primitive.
-                            When we sample a direction and trace a ray, the set of all possible endpoints forms a primitive shape —
-                            a sphere for uniform angular sampling, a cone for constrained solid angles, a disc for planar intersections.
+                            Holding a direction fixed and varying distance creates a line. Holding distance fixed and varying both angles creates a sphere. Other released coordinate sets produce cones, disks, planes and volumes.
                         </p>
                         
                         <h4 style="color: var(--gold-light); font-size: 0.95rem;">The Jacobian: Local Density</h4>
                         <p style="font-size: 0.9rem;">
-                            The <strong>Jacobian</strong> intuitively accounts for <em>local density</em> or <em>overlapping</em> of samples.
+                            The <strong>Jacobian</strong> measures how a parameter patch changes area or volume. Its inverse enters the corresponding sample density.
                             Consider throwing points uniformly on a sphere: at glancing angles where the surface curves away from the view,
-                            points become exceedingly denser in screen space. This is the <code>1/|N·V|</code> term.
+                            points become exceedingly denser in screen space. For uniform surface-area samples, this is the projected-density factor <code>1/|N·V|</code>.
                         </p>
                         
                         <p style="font-size: 0.9rem;">
@@ -1473,7 +1636,7 @@ For instance, a photon sphere will always have a bright rim, while a photon plan
                             <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 6px; line-height: 1.5;">
                                 This demo shows what a sphere will look like after re-evaluation as a different primitive: the shape won't change but the shading will.
                                 Although cone and disc re-evaluations give seemingly worse results individually, once combined via MIS, they increase efficiency:
-                                we eliminated the super bright regions, and yes, <strong>this is still unbiased</strong>.
+                                the balance heuristic suppresses the extreme region in this controlled comparison. Unbiasedness still depends on the stated support, density, and finite-radius assumptions.
                             </p>
                         </div>
                         
@@ -1510,19 +1673,19 @@ For instance, a photon sphere will always have a bright rim, while a photon plan
                     
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0; font-size: 0.85rem;">
                         <div style="padding: 12px; background: rgba(255,100,100,0.1); border-radius: 8px; border-left: 3px solid #ff6666;">
-                            <strong style="color: #ff6666;">Sphere</strong>: J = 1/|N·V| / R²<br>
+                            <strong style="color: #ff6666;">Sphere</strong>: inverse geometric factor ∝ 1/(R²|N·V|)<br>
                             <span style="color: var(--text-secondary);">Bright rim where rays are tangent</span>
                         </div>
                         <div style="padding: 12px; background: rgba(100,255,100,0.1); border-radius: 8px; border-left: 3px solid #66ff66;">
-                            <strong style="color: #66ff66;">Cone</strong>: J = 1/|N·V| / (r sin0)<br>
+                            <strong style="color: #66ff66;">Cone</strong>: inverse factor ∝ 1/(r sinθ |N·V|)<br>
                             <span style="color: var(--text-secondary);">Both front + back contribute</span>
                         </div>
                         <div style="padding: 12px; background: rgba(100,100,255,0.1); border-radius: 8px; border-left: 3px solid #6666ff;">
-                            <strong style="color: #6666ff;">Disc</strong>: J = 1/|N·V| / (r sin0)<br>
+                            <strong style="color: #6666ff;">Disc</strong>: radial parameter factor × 1/|N·V|<br>
                             <span style="color: var(--text-secondary);">Looks the same as the cone, but N has a different meaning here.</span>
                         </div>
                         <div style="padding: 12px; background: rgba(255,200,100,0.1); border-radius: 8px; border-left: 3px solid #ffcc66;">
-                            <strong style="color: #ffcc66;">Ball</strong>: J = 1<br>
+                            <strong style="color: #ffcc66;">Ball</strong>: uniform spatial density<br>
                             <span style="color: var(--text-secondary);">Needs to integrate over the whole interesection segment</span>
                         </div>
                     </div>
@@ -1577,7 +1740,7 @@ For instance, a photon sphere will always have a bright rim, while a photon plan
                     <div style="margin-top: 30px;">
                         <h3 style="color: var(--gold); margin-bottom: 12px;">3-Bounce Primitive: Photon Parallelepiped</h3>
                         <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 15px;">
-                            With 3 sampled segments, we get a parallelepiped. The Jacobian is 1/|a×b·c| (triple product of segment directions).
+                            With 3 sampled segments, we get a parallelepiped. The volume Jacobian is |(a×b)·c|; its inverse converts parameter density to spatial density.
                             When segments become coplanar, the volume collapses and brightness explodes.
                         </p>
                         <div style="display: flex; gap: 15px; flex-wrap: wrap; justify-content: center;">
@@ -1596,33 +1759,42 @@ For instance, a photon sphere will always have a bright rim, while a photon plan
                                     <div><span style="color: #66ff66;">→</span> Seg1 (a)</div>
                                     <div><span style="color: #ff6666;">→</span> Seg2 (b)</div>
                                     <div><span style="color: #6666ff;">→</span> Seg3 (c)</div>
-                                    <div style="margin-top: 6px; color: var(--gold-dim);" id="volume-jacobian">J = 1/|a×b·c|</div>
+                                    <div style="margin-top: 6px; color: var(--gold-dim);" id="volume-jacobian">1/J = 1/|a×b·c|</div>
                                 </div>
                             </div>
                         </div>
                     </div>
+                </div><div id="deep-construction" class="research-deep"><h3>02 · Deeper schematic: the geometry carries a measure</h3><p>Move photon parameters and the camera independently. The tangents define a physical patch; the camera selects its projected measure. Then compare the plane, directional and blurred-curve families.</p>
+<!-- photon-interactive:start -->
+<section class="interactive-study is-suspended" id="lab-research-jacobian" data-lab-src="../../showcases/photon_primitive/jacobian-lab.html" data-lab-selected="research-jacobian" data-lab-preview="frame" data-lab-fit="true" style="--lab-height:930px"><div class="lab-heading"><span class="lab-mark" aria-hidden="true">↔</span><div><span class="eyebrow">Interactive schematic</span><h3>The Jacobian: photon geometry meets the camera</h3></div></div><div class="lab-view-copy"><h4 class="lab-view-title">The Jacobian: photon geometry meets the camera</h4><p class="lab-summary">Start in 3D. Move the photon parameters and the camera direction independently; the patch, projected Jacobian and conditioning all respond.</p></div><div class="lab-contract" hidden><p data-lab-contract="runtime" hidden><b>Draws with</b> <span></span></p><p data-lab-contract="artifact" hidden><b>Artifact</b> <span></span></p><p data-lab-contract="export-route" hidden><b>Export</b> <span></span></p><p data-lab-contract="purpose" hidden><b>Purpose</b> <span></span></p><p data-lab-contract="provenance" hidden><b>Made with</b> <span></span></p><p data-lab-contract="takeaway" hidden><b>Demonstrates</b> <span></span></p></div><div class="lab-actions"><button type="button" data-lab-toggle aria-pressed="false" aria-controls="lab-research-jacobian-frame">Run now ↗</button><button class="lab-reset" type="button" data-lab-reset aria-controls="lab-research-jacobian-frame">Reset ↺</button><button type="button" data-lab-focus aria-pressed="false" title="Keep this demo in a steady view without resetting it. Escape returns to the page.">Pop out ⛶</button><a data-lab-open href="../../showcases/photon_primitive/jacobian-lab.html" target="_blank" rel="noopener">Open separately ↗</a><span class="lab-state" aria-hidden="true">Suspended · hover to run</span></div><p class="lab-interaction-hint">Wheel over the scene may zoom; move outside it to scroll the page.</p><div class="lab-frame" id="lab-research-jacobian-frame" role="region" aria-label="The Jacobian: photon geometry meets the camera"><img class="lab-poster" src="../../media/research-labs/poster-jacobian.svg" alt="Preview of The Jacobian: photon geometry meets the camera" loading="lazy" decoding="async" width="1280" height="720"><div class="lab-live" inert></div><span class="lab-preview-label" aria-hidden="true">Move inside to run</span></div><p class="lab-caption">A parameter-area model. The reported inverse factor is not a complete light-transport estimator.</p><p class="lab-status" role="status">Suspended · activate to run; playback pauses after the full panel leaves the vertical viewport.</p></section><section class="interactive-study is-suspended" id="lab-research-families" data-lab-src="../../projects/radiance-lab/planes-lab.html" data-lab-selected="research-planes" data-lab-preview="frame" data-lab-fit="true" style="--lab-height:820px"><span class="lab-anchor" id="lab-research-planes" aria-hidden="true"></span><span class="lab-anchor" id="lab-research-directional" aria-hidden="true"></span><span class="lab-anchor" id="lab-research-curves" aria-hidden="true"></span><div class="lab-heading"><span class="lab-mark" aria-hidden="true">↔</span><div><span class="eyebrow">Interactive schematic</span><h3>Three ways to release path coordinates</h3><p class="lab-group-summary">Each family retains its own construction, camera query and native local MIS density. Change families without losing their settings.</p></div></div><div class="lab-tabs" role="tablist" aria-label="Three ways to release path coordinates views"><button type="button" role="tab" id="lab-research-families-tab-research-planes" data-lab-variant="research-planes" data-src="../../projects/radiance-lab/planes-lab.html" data-title="Planes · u–t, v–t, u–v, arbitrary and MIS" data-summary="Two released coordinates sweep a sheet. Inspect the crossing, projected measure and the three coordinate-plane strategy weights." data-caption="Recorded native image is the cover; the live view is a geometric construction schematic." data-poster="../../media/brochures/radiance-lab/photon-plane.png" data-preview="frame" data-height="820" data-fit="true" data-runtime="" data-artifact="" data-export-route="" data-purpose="" data-provenance="" data-takeaway="" aria-selected="true" tabindex="0" aria-controls="lab-research-families-frame">Planes · u–t, v–t, u–v, arbitrary and MIS</button><button type="button" role="tab" id="lab-research-families-tab-research-directional" data-lab-variant="research-directional" data-src="../../projects/radiance-lab/directional-lab.html" data-title="Directional spin · cone, disk, sphere and MIS" data-summary="Angular freedom produces different supports. Inspect the geometry and local density each strategy uses." data-caption="A schematic of native branch densities, with only supported strategies assigned positive MIS weight." data-poster="../../media/brochures/radiance-lab/native-photon-direction-trio-balance-mis.png" data-preview="frame" data-height="820" data-fit="true" data-runtime="" data-artifact="" data-export-route="" data-purpose="" data-provenance="" data-takeaway="" aria-selected="false" tabindex="-1" aria-controls="lab-research-families-frame">Directional spin · cone, disk, sphere and MIS</button><button type="button" role="tab" id="lab-research-families-tab-research-curves" data-lab-variant="research-curves" data-src="../../projects/radiance-lab/curves-lab.html" data-title="Blurred curves · ring, arc, beam and MIS" data-summary="A one-dimensional curve needs a spatial kernel for a camera-ray query. Inspect what is blurred and how the three strategies are combined." data-caption="Illustrative geometry; a kernel radius is an estimator parameter, not simply a cosmetic line width." data-poster="../../media/brochures/radiance-lab/native-photon-ring-correlated-structure.png" data-preview="frame" data-height="820" data-fit="true" data-runtime="" data-artifact="" data-export-route="" data-purpose="" data-provenance="" data-takeaway="" aria-selected="false" tabindex="-1" aria-controls="lab-research-families-frame">Blurred curves · ring, arc, beam and MIS</button></div><div class="lab-view-copy"><h4 class="lab-view-title">Planes · u–t, v–t, u–v, arbitrary and MIS</h4><p class="lab-summary">Two released coordinates sweep a sheet. Inspect the crossing, projected measure and the three coordinate-plane strategy weights.</p></div><div class="lab-contract" hidden><p data-lab-contract="runtime" hidden><b>Draws with</b> <span></span></p><p data-lab-contract="artifact" hidden><b>Artifact</b> <span></span></p><p data-lab-contract="export-route" hidden><b>Export</b> <span></span></p><p data-lab-contract="purpose" hidden><b>Purpose</b> <span></span></p><p data-lab-contract="provenance" hidden><b>Made with</b> <span></span></p><p data-lab-contract="takeaway" hidden><b>Demonstrates</b> <span></span></p></div><div class="lab-actions"><button type="button" data-lab-toggle aria-pressed="false" aria-controls="lab-research-families-frame">Run now ↗</button><button class="lab-reset" type="button" data-lab-reset aria-controls="lab-research-families-frame">Reset ↺</button><button type="button" data-lab-focus aria-pressed="false" title="Keep this demo in a steady view without resetting it. Escape returns to the page.">Pop out ⛶</button><a data-lab-open href="../../projects/radiance-lab/planes-lab.html" target="_blank" rel="noopener">Open separately ↗</a><span class="lab-state" aria-hidden="true">Suspended · hover to run</span></div><p class="lab-interaction-hint">Wheel over the scene may zoom; move outside it to scroll the page.</p><div class="lab-frame" id="lab-research-families-frame" role="region" aria-label="Planes · u–t, v–t, u–v, arbitrary and MIS"><img class="lab-poster" src="../../media/brochures/radiance-lab/photon-plane.png" alt="Preview of Planes · u–t, v–t, u–v, arbitrary and MIS" loading="lazy" decoding="async" width="1280" height="720"><div class="lab-live" inert></div><span class="lab-preview-label" aria-hidden="true">Move inside to run</span></div><p class="lab-caption">Recorded native image is the cover; the live view is a geometric construction schematic.</p><p class="lab-status" role="status">Suspended · activate to run; playback pauses after the full panel leaves the vertical viewport.</p></section>
+<!-- photon-interactive:end -->
+</div>
                 </div>
             </section>
 
                         <!-- Transient Extension -->
             <section id="transient" class="content-section">
                 <div class="glow-card">
-                    <h2>Transient (Time-Resolved) Extension</h2>
-                    <p>
-                        Among all the extensions, transient render is the most interesting one. The idea is simple: if we condition on the optical length of a path when we render, then will can keep only light transport within a small time window, allowing visualization of light propagation. 
-                        We can also shrink the time gate to infinitesimal, which in traditional transient render isn't possible.
-                        Now we are in the same situation: creating connections for zero-measure points. 
-                        Again, we utilize the photon primitve framework to make things intersectable.
-                    </p>
-                    <p>
-                        As we mentioned, higher dimensional primitives are hard to evaluate, another interesting thing transient render allows is to reduce the dimensionality of primitives that were previously overly complex to evaluate, for example, the 4D photon hyper-volume.
-                    </p>
-
+<h2>Time-resolved primitives: a gate becomes a sheet</h2>
+<p>A finite time gate accepts paths whose arrival lengths lie in an interval. It selects a <strong>region with thickness</strong>. In the regular zero-width limit, a level set has one dimension less: a volume becomes an arrival-time sheet. Its contribution is a <strong>density per unit time or path length</strong>, not a nonzero probability at one exact instant.</p>
+<p class="research-note"><strong>What survives as the window shrinks?</strong> Let F be cumulative arrival probability. The finite contribution is F(τ+Δ/2)−F(τ−Δ/2); dividing by Δ converges to F′(τ). Calling the numerator simply “F” can obscure the difference between a cumulative function, a gate integral, and its normalized density. Here all three are shown explicitly.</p>
+<!-- photon-temporal:start -->
+<section class="interactive-study is-suspended" id="lab-research-temporal" data-lab-src="../../showcases/photon_primitive/temporal-lab.html" data-lab-selected="research-temporal" data-lab-preview="frame" data-lab-fit="true" style="--lab-height:930px"><div class="lab-heading"><span class="lab-mark" aria-hidden="true">↔</span><div><span class="eyebrow">Interactive schematic</span><h3>Time slicing: volume → finite gate → arrival sheet</h3></div></div><div class="lab-view-copy"><h4 class="lab-view-title">Time slicing: volume → finite gate → arrival sheet</h4><p class="lab-summary">The finite window integrates a thick region. Divide by the window width, then approach the instantaneous time density.</p></div><div class="lab-contract" hidden><p data-lab-contract="runtime" hidden><b>Draws with</b> <span></span></p><p data-lab-contract="artifact" hidden><b>Artifact</b> <span></span></p><p data-lab-contract="export-route" hidden><b>Export</b> <span></span></p><p data-lab-contract="purpose" hidden><b>Purpose</b> <span></span></p><p data-lab-contract="provenance" hidden><b>Made with</b> <span></span></p><p data-lab-contract="takeaway" hidden><b>Demonstrates</b> <span></span></p></div><div class="lab-actions"><button type="button" data-lab-toggle aria-pressed="false" aria-controls="lab-research-temporal-frame">Run now ↗</button><button class="lab-reset" type="button" data-lab-reset aria-controls="lab-research-temporal-frame">Reset ↺</button><button type="button" data-lab-focus aria-pressed="false" title="Keep this demo in a steady view without resetting it. Escape returns to the page.">Pop out ⛶</button><a data-lab-open href="../../showcases/photon_primitive/temporal-lab.html" target="_blank" rel="noopener">Open separately ↗</a><span class="lab-state" aria-hidden="true">Suspended · hover to run</span></div><p class="lab-interaction-hint">Wheel over the scene may zoom; move outside it to scroll the page.</p><div class="lab-frame" id="lab-research-temporal-frame" role="region" aria-label="Time slicing: volume → finite gate → arrival sheet"><img class="lab-poster" src="../../media/research-labs/poster-temporal.svg" alt="Preview of Time slicing: volume → finite gate → arrival sheet" loading="lazy" decoding="async" width="1280" height="720"><div class="lab-live" inert></div><span class="lab-preview-label" aria-hidden="true">Move inside to run</span></div><p class="lab-caption">An exactly integrable uniform-ball model with a central source and a far orthographic camera. The projection and derivative are computed, not fitted.</p><p class="lab-status" role="status">Suspended · activate to run; playback pauses after the full panel leaves the vertical viewport.</p></section>
+<!-- photon-temporal:end -->
+<p>For a general arrival function τ(x), the coarea formula converts a volume integral into a surface integral with the factor 1/|∇τ|. This requires a regular level set. Caustics, tangencies and degeneracies still require care; shrinking a temporal kernel does not remove the need for a valid estimator. Transient rendering more broadly can also estimate time densities—this is not exclusive to photon primitives.</p>
+                    <h3>Count both legs, or change the time coordinate</h3>
+                    <p>A fixed light point <em>L</em>, a scattering point <em>x</em> and a finite camera <em>C</em> give total length <code>ℓ(x)=|x−L|+|C−x|</code>. Holding that sum fixed produces an ellipsoid with the light and camera as its foci. At the shortest possible length it degenerates to the segment between them. In <strong>camera-unwarped time</strong>, subtract the known camera-side distance at each sample: the remaining light-distance level set is a sphere. This changes which events share a displayed time; it does not shorten a physical light path.</p>
+                    <p>The earlier ball example uses a far orthographic camera and subtracts a common distance. That gives <code>|x|−z</code>, a paraboloid. The new finite-camera construction below makes these three geometries distinguishable.</p>
+                    <!-- photon-temporal-geometry:start -->
+<section class="interactive-study is-suspended" id="lab-research-temporal-geometry" data-lab-src="../../showcases/photon_primitive/temporal-geometry-lab.html" data-lab-selected="research-temporal-geometry" data-lab-preview="poster" data-lab-fit="true" style="--lab-height:1180px"><div class="lab-heading"><span class="lab-mark" aria-hidden="true">↔</span><div><span class="eyebrow">Interactive schematic</span><h3>Count the camera leg. Slice one extra dimension.</h3></div></div><div class="lab-view-copy"><h4 class="lab-view-title">Count the camera leg. Slice one extra dimension.</h4><p class="lab-summary">Compare full-path ellipsoids with camera-unwarped spheres, then turn a four-parameter path family into a three-dimensional temporal primitive.</p></div><div class="lab-contract" hidden><p data-lab-contract="runtime" hidden><b>Draws with</b> <span></span></p><p data-lab-contract="artifact" hidden><b>Artifact</b> <span></span></p><p data-lab-contract="export-route" hidden><b>Export</b> <span></span></p><p data-lab-contract="purpose" hidden><b>Purpose</b> <span></span></p><p data-lab-contract="provenance" hidden><b>Made with</b> <span></span></p><p data-lab-contract="takeaway" hidden><b>Demonstrates</b> <span></span></p></div><div class="lab-actions"><button type="button" data-lab-toggle aria-pressed="false" aria-controls="lab-research-temporal-geometry-frame">Run now ↗</button><button class="lab-reset" type="button" data-lab-reset aria-controls="lab-research-temporal-geometry-frame">Reset ↺</button><button type="button" data-lab-focus aria-pressed="false" title="Keep this demo in a steady view without resetting it. Escape returns to the page.">Pop out ⛶</button><a data-lab-open href="../../showcases/photon_primitive/temporal-geometry-lab.html" target="_blank" rel="noopener">Open separately ↗</a><span class="lab-state" aria-hidden="true">Suspended · hover to run</span></div><p class="lab-interaction-hint">Wheel over the scene may zoom; move outside it to scroll the page.</p><div class="lab-frame" id="lab-research-temporal-geometry-frame" role="region" aria-label="Count the camera leg. Slice one extra dimension."><img class="lab-poster" src="../../media/research-labs/poster-temporal-geometry.svg" alt="Preview of Count the camera leg. Slice one extra dimension." loading="lazy" decoding="async" width="1280" height="720"><div class="lab-live" inert></div><span class="lab-preview-label" aria-hidden="true">Move inside to run</span></div><p class="lab-caption">Controlled geometry with explicit time coordinates, support constraints and changes of measure.</p><p class="lab-status" role="status">Suspended · activate to run; playback pauses after the full panel leaves the vertical viewport.</p></section>
+<!-- photon-temporal-geometry:end -->
+                    <h3>Spend an extra sweep. Recover a manageable support.</h3>
+                    <p>A ball needs a camera-ray interval integral in steady state. A regular instantaneous temporal slice is a 2D sheet again, so a transverse ray meets isolated points. A four-dimensional path family similarly becomes three-dimensional after one independent time constraint. These are dimensions of the sampled path coordinates: a 4D family is not a four-dimensional object sitting in ordinary 3D space.</p>
+                    <p>The construction above starts from four independent segment lengths, each bounded between zero and one. The time condition eliminates one, leaving a 3D polytope: a simplex near zero arrival, then a clipped shape as more interval bounds become active. Mapping it through four fixed segment directions gives a world-space volume when its spatial determinant is nonzero. The time constraint and spatial determinant both enter the density. Extra freedom can improve support, but lower dimension alone does not guarantee cheaper or better-conditioned evaluation. <a href="https://cs.dartmouth.edu/~wjarosz/publications/liu22temporally.html" target="_blank" rel="noopener">Temporally sliced photon primitives · formulation and reference implementation ↗</a></p>
                     <h3>Time-Gating Slices Dimensions</h3>
                     <p>
                         In <strong>transient rendering</strong>, we simulate light transport over time—capturing ultrafast phenomena 
-                        at femtosecond scales. The key insight: <strong>time gating slices a high-dimensional primitive and reduces 
-                        its dimension by 1</strong>.
+                        at femtosecond scales. The key insight: <strong>an exact regular arrival-time constraint reduces the support dimension by one</strong>; a finite gate retains thickness.
                     </p>
 
 
@@ -1631,7 +1803,7 @@ For instance, a photon sphere will always have a bright rim, while a photon plan
                 <div class="comparison-item">
                     <div class="comparison-header">Time-Gated Volume</div>
                      <img src="tech_images/prim.png" alt="Correlated Example" class="example-image">
-                    <p>Three distance terms produces a volume; time gating reduces the dimensionality to two.</p>
+                    <p>Three free distance coordinates produce a volume; an exact regular time constraint leaves a two-dimensional support.</p>
                     <p class="result">→ 2D primitives are in general much easier to handle.</p>
                 </div>
                 
@@ -1674,50 +1846,81 @@ For instance, a photon sphere will always have a bright rim, while a photon plan
 
 
             <!-- Beyond Performance -->
-            <section id="art" class="content-section">
-                <div class="glow-card">
-                    <h2>Beyond Performance</h2>
-                    
-                    <h3 style="color: var(--gold-light);">A New Geometric Perspective</h3>
-                    <p>
-                        Beyond efficiency gains, this framework introduces an <strong>intuitive geometric viewpoint</strong> for reasoning about light transport.
-                        Concepts that were once abstract become visual and tangible:
-                    </p>
-                    
-                    <ul style="color: var(--text-secondary); margin: 15px 0; padding-left: 20px; line-height: 1.8;">
-                        <li><strong>Sampling strategies</strong> become geometric shapes you can see and manipulate</li>
-                        <li><strong>Combining strategies</strong> becomes combining primitives with complementary behaviors under change of viewpoint</li>
-                        <li><strong>When something works well/badly</strong> becomes visible through Jacobian shading</li>
-                        <li><strong>Developing new strategies</strong> becomes systematic: imagine a shape, implement it, then reason about what strategy it corresponds to</li>
-                    </ul>
-                    
-                    <p>
-                        This also bridges <strong>rasterization and ray tracing</strong> conceptually — both can be understood through the lens of geometric primitives 
-                        and their intersections with scene geometry.
-                    </p>
-
-                    <p>
-The project is intuitive and visual, rendering complex theory accessible without misrepresenting it. While Jacobians often remain nontrivial and we can't assume the estimator we create is easy to evaluate, the system reaches the furthest point at which the theory can be simplified without losing fidelity.
-                    </p>
-
-                    <h3 style="color: var(--gold-light); margin-top: 25px;">From the Perspective of Art</h3>
-                    <p>
-                        While the research goal is efficiency and correctness, these intermediate states have <strong>aesthetic value</strong> 
-                        independent of their convergence properties. Correlated estimators give rise to <strong>distinctive visual styles</strong> — 
-                        structured patterns, specular-like artifacts, coherent streaks; whereas uncorrelated estimators yield subtler, less intrusive forms of stylization.
-                    </p>
-                    <p>
-                        Future work includes exploring the potential of this framework in non-photorealistic rendering (NPR) and stylized interactive systems.
-                    </p>
-                    
-
-                    <!-- <p class="elegant-quote">
-                        "Sometimes the structure revealed along the way is as beautiful as the final solution."
-                    </p> -->
+            <section id="experimental-extensions" class="content-section"><div class="glow-card">
+                <p class="photon-feature-kicker">Unpublished research follow-ups</p>
+                <h2>Surface footprints. Signed derivatives. Refractive hourglasses.</h2>
+                <div class="photon-followup-intro"><p><strong>Three directions grow out of the same connection framework.</strong> Surface primitives move the meeting point onto a receiver; differential primitives turn a moving support into signed boundary sheets. Both have computed construction studies below. The photon hourglass then carries the idea through refraction into a tested, fast native renderer.</p><div class="photon-proof-links"><a href="#lab-research-surface">01 · Surface footprints ↔</a><a href="#lab-research-differential">02 · Signed derivatives ↔</a><a href="#photon-hourglass">03 · Photon hourglass · native results ↓</a></div></div>
+                <h3>A receiver turns a sheet into a footprint curve</h3>
+                <p>Surface intersection gives a useful starting point: two transverse 2D surfaces in 3D meet along a curve. The subtlety is how the camera reaches that curve. A single independent camera hit generally misses it. Sweeping a camera coordinate gives a second footprint; the two curves can then meet at isolated points. The schematic exposes those branches and the triple-product Jacobian. RadianceLab’s surface work provides a reference lighting estimator against which a complete version can be checked.</p>
+                <h3>A derivative can be a lower-dimensional primitive</h3>
+                <p>Keep one sampled emission direction fixed and translate a quad sideways. Its extruded photon volume gains a thin region at one side and loses one at the other. Divide their signed contribution by the displacement and let that displacement vanish: two oppositely signed sheets remain, each swept from an edge of the emitter.</p>
+                <p>This is a moving-domain derivative. For the homogeneous, unoccluded model below, translation leaves the interior weight unchanged and the boundary term is sufficient. General area-light transport can also change attenuation, visibility and geometry factors; then those interior and boundary derivatives must be included. The viewer compares actual finite differences and the analytic result under the same sensor filter.</p>
+                <!-- photon-experiments:start -->
+<section class="interactive-study is-suspended" id="lab-research-surface" data-lab-src="../../showcases/photon_primitive/surface-lab.html" data-lab-selected="research-surface" data-lab-preview="poster" data-lab-fit="true" style="--lab-height:1190px"><div class="lab-heading"><span class="lab-mark" aria-hidden="true">↔</span><div><span class="eyebrow">Interactive schematic</span><h3>Surface footprints: let both subpaths sweep</h3></div></div><div class="lab-view-copy"><h4 class="lab-view-title">Surface footprints: let both subpaths sweep</h4><p class="lab-summary">A photon sheet draws a curve on the receiver. Add a camera sheet to expose the isolated crossings and their intersection determinant.</p></div><div class="lab-contract" hidden><p data-lab-contract="runtime" hidden><b>Draws with</b> <span></span></p><p data-lab-contract="artifact" hidden><b>Artifact</b> <span></span></p><p data-lab-contract="export-route" hidden><b>Export</b> <span></span></p><p data-lab-contract="purpose" hidden><b>Purpose</b> <span></span></p><p data-lab-contract="provenance" hidden><b>Made with</b> <span></span></p><p data-lab-contract="takeaway" hidden><b>Demonstrates</b> <span></span></p></div><div class="lab-actions"><button type="button" data-lab-toggle aria-pressed="false" aria-controls="lab-research-surface-frame">Run now ↗</button><button class="lab-reset" type="button" data-lab-reset aria-controls="lab-research-surface-frame">Reset ↺</button><button type="button" data-lab-focus aria-pressed="false" title="Keep this demo in a steady view without resetting it. Escape returns to the page.">Pop out ⛶</button><a data-lab-open href="../../showcases/photon_primitive/surface-lab.html" target="_blank" rel="noopener">Open separately ↗</a><span class="lab-state" aria-hidden="true">Suspended · hover to run</span></div><p class="lab-interaction-hint">Wheel over the scene may zoom; move outside it to scroll the page.</p><div class="lab-frame" id="lab-research-surface-frame" role="region" aria-label="Surface footprints: let both subpaths sweep"><img class="lab-poster" src="../../media/research-labs/poster-surface.svg" alt="Preview of Surface footprints: let both subpaths sweep" loading="lazy" decoding="async" width="1280" height="720"><div class="lab-live" inert></div><span class="lab-preview-label" aria-hidden="true">Move inside to run</span></div><p class="lab-caption">Computed sphere/plane intersections. A geometric research schematic, not a validated general surface-radiance estimator.</p><p class="lab-status" role="status">Suspended · activate to run; playback pauses after the full panel leaves the vertical viewport.</p></section><section class="interactive-study is-suspended" id="lab-research-differential" data-lab-src="../../showcases/photon_primitive/differential-lab.html" data-lab-selected="research-differential" data-lab-preview="poster" data-lab-fit="true" style="--lab-height:1490px"><div class="lab-heading"><span class="lab-mark" aria-hidden="true">↔</span><div><span class="eyebrow">Interactive schematic</span><h3>A moving volume leaves signed boundary sheets</h3></div></div><div class="lab-view-copy"><h4 class="lab-view-title">A moving volume leaves signed boundary sheets</h4><p class="lab-summary">Shift a quad while holding one sampled direction fixed. Compare two rendered images divided by their displacement with the analytic boundary derivative.</p></div><div class="lab-contract" hidden><p data-lab-contract="runtime" hidden><b>Draws with</b> <span></span></p><p data-lab-contract="artifact" hidden><b>Artifact</b> <span></span></p><p data-lab-contract="export-route" hidden><b>Export</b> <span></span></p><p data-lab-contract="purpose" hidden><b>Purpose</b> <span></span></p><p data-lab-contract="provenance" hidden><b>Made with</b> <span></span></p><p data-lab-contract="takeaway" hidden><b>Demonstrates</b> <span></span></p></div><div class="lab-actions"><button type="button" data-lab-toggle aria-pressed="false" aria-controls="lab-research-differential-frame">Run now ↗</button><button class="lab-reset" type="button" data-lab-reset aria-controls="lab-research-differential-frame">Reset ↺</button><button type="button" data-lab-focus aria-pressed="false" title="Keep this demo in a steady view without resetting it. Escape returns to the page.">Pop out ⛶</button><a data-lab-open href="../../showcases/photon_primitive/differential-lab.html" target="_blank" rel="noopener">Open separately ↗</a><span class="lab-state" aria-hidden="true">Suspended · hover to run</span></div><p class="lab-interaction-hint">Wheel over the scene may zoom; move outside it to scroll the page.</p><div class="lab-frame" id="lab-research-differential-frame" role="region" aria-label="A moving volume leaves signed boundary sheets"><img class="lab-poster" src="../../media/research-labs/poster-differential.svg" alt="Preview of A moving volume leaves signed boundary sheets" loading="lazy" decoding="async" width="1280" height="720"><div class="lab-live" inert></div><span class="lab-preview-label" aria-hidden="true">Move inside to run</span></div><p class="lab-caption">Actual filtered integrals for a controlled single-scattering volume. General light transport also needs interior and visibility derivatives.</p><p class="lab-status" role="status">Suspended · activate to run; playback pauses after the full panel leaves the vertical viewport.</p></section>
+<!-- photon-experiments:end -->
+                <div class="experiment-render-pair">
+                  <figure><img src="images/C0_testDIFF_toned027.png" width="1280" height="1280" loading="lazy" decoding="async" alt="Archived differential primitive render with red and blue signed sheets"><figcaption><strong>From the differential experiments.</strong> This archived render exposes red/blue sheet structures from the earlier prototype. It is qualitative context; the exact scene settings and numerical comparison are not preserved beside this image.</figcaption></figure>
+                  <figure><img src="../../media/brochures/radiance-lab/native-photon-ring-correlated-structure.png" width="2266" height="1180" loading="lazy" decoding="async" alt="RadianceLab capture exposing correlated photon-ring structure"><figcaption><strong>Structure visible in the renderer.</strong> A RadianceLab capture exposes a correlated ring estimator’s support. The same ability to inspect intermediate geometry is useful when testing new surface and differential constructions. <a href="../../projects/radiance-lab/index.html#family-swept-transport">Explore the rendering workbench ↗</a></figcaption></figure>
                 </div>
-            </section>
+            </div></section>
+            <!-- photon-hourglass:start -->
+<section id="photon-hourglass" class="content-section photon-hourglass" aria-labelledby="photon-hourglass-title">
+  <div class="glow-card">
+    <p class="photon-feature-kicker">Unpublished research follow-up · implemented in RadianceLab</p>
+    <h2 id="photon-hourglass-title">The photon hourglass: sharp caustics, fast on the CPU</h2>
+    <div class="photon-hourglass-lead">
+      <div>
+        <p><strong>Proven in the renderer—and fast enough to explore interactively.</strong> Sweep a complete Snell-refraction path around a glass sphere, then intersect the resulting sheet with the camera ray. A concentrated volumetric caustic becomes a geometric query.</p>
+        <p>Its density was derived four independent ways, checked against sampled deposits, and tested in the zero-refraction limit, where it reproduces the photon cone to nine digits.</p>
+        <p>The core construction carries two specular transmissions into one medium-scattering event. Collinear sphere chains preserve the symmetry; an off-axis follower changes the crossing problem.</p>
+      </div>
+      <figure>
+        <a data-showcase-image href="../../media/brochures/radiance-lab/hourglass-beauty-shot.jpg"><img src="../../media/brochures/radiance-lab/hourglass-beauty-shot.jpg" alt="Native photon-hourglass rendering: a glass sphere focuses a luminous shaft through the medium beside a reflective gold sphere." loading="lazy" decoding="async" width="607" height="447"></a>
+        <figcaption><strong>Native rendered result.</strong> The refracted caustic and reflective surfaces share the finished image. Appearance evidence; timings below come from separate measured runs.</figcaption>
+      </figure>
+    </div>
 
-            <!-- Paper Link -->
+    <div class="photon-result-strip" aria-label="Recorded hourglass results">
+      <div class="photon-result"><strong>1.17–1.49 <small>ms/pass</small></strong><span>Single glass sphere · 217 × 140 film · CPU</span></div>
+      <div class="photon-result"><strong>35–48×</strong><span>Better equal-time variance efficiency than the photon beam · collinear two-sphere test, preset 68</span></div>
+      <div class="photon-result"><strong>2× <small>narrower waist</small></strong><span>Hourglass mixture versus beam · matched kernel radius · equal passes</span></div>
+    </div>
+    <p>The native double-chain showcase also records <strong>49.9 passes/s at 605 × 397</strong> for the isolated caustic on the CPU. These are progressive passes: the image improves as samples accumulate. The beam remains competitive at the fold itself with a sufficiently narrow kernel.</p>
+
+    <section class="interactive-study is-suspended" id="lab-research-hourglass" data-lab-src="../../projects/radiance-lab/hourglass-lab.html" data-lab-selected="research-hourglass" data-lab-preview="frame" data-lab-fit="true" style="--lab-height:1000px"><div class="lab-heading"><span class="lab-mark" aria-hidden="true">↔</span><div><span class="eyebrow">Interactive schematic</span><h3>Construct the refracted sheet</h3></div></div><div class="lab-view-copy"><h4 class="lab-view-title">Construct the refracted sheet</h4><p class="lab-summary">Vary the source and polar seed, trace a multi-sphere chain, then shift a follower off-axis to reveal the loss of a simple rotational sweep.</p></div><div class="lab-contract" hidden><p data-lab-contract="runtime" hidden><b>Draws with</b> <span></span></p><p data-lab-contract="artifact" hidden><b>Artifact</b> <span></span></p><p data-lab-contract="export-route" hidden><b>Export</b> <span></span></p><p data-lab-contract="purpose" hidden><b>Purpose</b> <span></span></p><p data-lab-contract="provenance" hidden><b>Made with</b> <span></span></p><p data-lab-contract="takeaway" hidden><b>Demonstrates</b> <span></span></p></div><div class="lab-actions"><button type="button" data-lab-toggle aria-pressed="false" aria-controls="lab-research-hourglass-frame">Run now ↗</button><button class="lab-reset" type="button" data-lab-reset aria-controls="lab-research-hourglass-frame">Reset ↺</button><button type="button" data-lab-focus aria-pressed="false" title="Keep this demo in a steady view without resetting it. Escape returns to the page.">Pop out ⛶</button><a data-lab-open href="../../projects/radiance-lab/hourglass-lab.html" target="_blank" rel="noopener">Open separately ↗</a><span class="lab-state" aria-hidden="true">Suspended · hover to run</span></div><p class="lab-interaction-hint">Wheel over the scene may zoom; move outside it to scroll the page.</p><div class="lab-frame" id="lab-research-hourglass-frame" role="region" aria-label="Construct the refracted sheet"><img class="lab-poster" src="../../media/brochures/radiance-lab/lab-posters/hourglass-lab.webp" alt="Preview of Construct the refracted sheet" loading="lazy" decoding="async" width="1280" height="720"><div class="lab-live" inert></div><span class="lab-preview-label" aria-hidden="true">Move inside to run</span></div><p class="lab-caption">Actual sphere intersections and Snell refractions are evaluated for each azimuth. The chain toggles add specular interfaces, not random volume bounces. The three-sphere off-axis setting explores geometry beyond the native two-sphere off-axis solver; the wire sheet does not estimate radiance.</p><p class="lab-status" role="status">Suspended · activate to run; playback pauses after the full panel leaves the vertical viewport.</p></section>
+
+    <div class="photon-evidence-grid">
+      <figure>
+        <a data-showcase-image href="../../media/brochures/radiance-lab/native-hourglass-multiple-sphere-relays.png"><img src="../../media/brochures/radiance-lab/native-hourglass-multiple-sphere-relays.png" alt="RadianceLab running photon-hourglass strategy 20 with refractive sphere chains and its native chain and grazing-guard controls visible." loading="lazy" decoding="async" width="1944" height="1139"></a>
+        <figcaption><strong>Implemented, inspectable geometry.</strong> Native strategy 20, refractive chains and estimator controls. The UI capture establishes the working implementation; its title-bar frame rate is separate from the measured comparisons.</figcaption>
+      </figure>
+      <figure>
+        <a data-showcase-image href="../../media/brochures/radiance-lab/atrium-source-plate.jpg"><img src="../../media/brochures/radiance-lab/atrium-source-plate.jpg" alt="The Atrium native appearance composite with three glass-sphere chains, colored caustic shafts and a dispersive foreground sphere." loading="lazy" decoding="async" width="607" height="447"></a>
+        <figcaption><strong>The Atrium.</strong> Three refractive chains, three lamps and a dispersive sphere. The manuscript records this 607 × 447, 400-pass appearance composite separately from its controlled estimator comparisons.</figcaption>
+      </figure>
+    </div>
+    <details class="research-fold"><summary>Estimator support, the grazing guard and the native/schematic boundary</summary><p>The native tests cover supported refractive constructions. The hourglass component is kernel-free; its grazing guard discards near-tangent crossings. The beam/point mixture retains finite-radius bias and is consistent as the radius shrinks with sufficient samples. The live wire sheet above computes geometry, including a three-sphere off-axis exploration beyond the native solver’s off-axis two-sphere case; native collinear chains are a separate supported extension.</p></details>
+    <div class="photon-proof-links" aria-label="Hourglass derivation and native evidence">
+      <a href="../../projects/radiance-lab/library/doc_more_theory/photon-hourglass.html">Read the illustrated manuscript &amp; timing tables ↗</a>
+      <a href="../../projects/radiance-lab/library/portfolio/photon-hourglass.html#hourglass">Density derivations &amp; validation results ↗</a>
+      <a href="../../projects/radiance-lab/index.html#manual-hourglass-solver">Inspect the solver &amp; limiting tests ↗</a>
+      <a href="../../projects/radiance-lab/index.html#manual-chains">Explore the native chain construction ↗</a>
+    </div>
+  </div>
+</section>
+<!-- photon-hourglass:end -->
+<section id="art" class="content-section"><div class="glow-card"><!-- photon-npr-overview:start -->
+<h2>NPR: let the estimator’s structure become the image</h2>
+<p>The intermediate image is a visual language in its own right. Freeze a small primitive population and its sheets, rings, streaks and refractive horns remain legible. Change the family, reuse pattern or sample budget and the drawing changes with it.</p>
+<div class="photon-npr-pair">
+<figure><a data-showcase-image href="images/Sxx715.png"><img src="images/Sxx715.png" width="1024" height="1024" alt="Structured photon-primitive image with coherent curved forms" loading="lazy" decoding="async"></a><figcaption><strong>Geometry as a mark.</strong> A sparse shared population makes the primitive structure part of the composition.</figcaption></figure>
+<figure><a data-showcase-image href="images/gasP_cone.png"><img src="images/gasP_cone.png" width="1280" height="720" alt="Photon-cone rendering with coherent light streaks fanning through a scene" loading="lazy" decoding="async"></a><figcaption><strong>Another estimator, another texture.</strong> Cone supports leave coherent streaks across the scene. These recorded experiments show a visual vocabulary; they are not a matched numerical comparison.</figcaption></figure>
+</div>
+<p><strong>The aesthetic is already visible; a dedicated NPR workflow is the next opportunity.</strong> For a converged radiance estimate, accumulate correctly weighted samples. For an illustration, deliberately keep the intermediate structure. Sample reuse changes spatial correlations, so it also changes how noise reads as a pattern.</p>
+<div class="photon-proof-links"><a href="#gallery">Browse the visual vocabulary ↑</a><a href="../../projects/rivex/index.html#manual-scene3d">RIVX · from photon geometry to vector rendering ↗</a></div>
+<!-- photon-npr-overview:end --><h3>A research instrument as well as a rendering method</h3><p>The same visible structures help debug the mathematics: follow a crossing, move the camera toward a tangent, or inspect where a Jacobian becomes small. A proposed estimator can be examined as geometry before its complete transport implementation exists. Temporal slicing, receiver footprints and signed derivatives all use that way of thinking.</p></div></section>
+
+<!-- Paper Link -->
             <div class="paper-link">
                 <p>For full technical details, see the paper: 
                     <a href="https://cs.dartmouth.edu/~wjarosz/publications/deng19photon.html" target="_blank">
@@ -1725,7 +1928,7 @@ The project is intuitive and visual, rendering complex theory accessible without
                     </a>
                     and the follow-up: 
                     <a href="https://cs.dartmouth.edu/~wjarosz/publications/liu22temporally.html" target="_blank">
-                        Photon Surfaces for Robust, Unbiased Volumetric Density Estimation (EGSR 2022)
+                        Temporally Sliced Photon Primitives for Time-of-Flight Rendering (EGSR 2022)
                     </a>
                 </p>
             </div>
@@ -1741,6 +1944,7 @@ The project is intuitive and visual, rendering complex theory accessible without
     <!-- ========================================
          Scripts
          ======================================== -->
+    <script src="exterior-animation.js"></script>
     <script>
         // ============================================
         // Global State
@@ -1808,7 +2012,9 @@ The project is intuitive and visual, rendering complex theory accessible without
             });
         });
 
-        const sections = document.querySelectorAll('section[id]');
+        const sections = [...document.querySelectorAll('.side-nav .nav-item')]
+            .map(item => document.getElementById(item.getAttribute('href').slice(1)))
+            .filter(Boolean);
         const navItems = document.querySelectorAll('.side-nav .nav-item');
 
         function updateActiveNav() {
@@ -1833,19 +2039,23 @@ The project is intuitive and visual, rendering complex theory accessible without
         // ============================================
         // Background Shader (Enhanced Fluid/Spacetime)
         // ============================================
+        let exteriorAnimation = null;
         const bgCanvas = document.getElementById('bg-canvas');
         const bgCtx = bgCanvas.getContext('2d');
         
         function resizeBgCanvas() {
             bgCanvas.width = window.innerWidth;
             bgCanvas.height = window.innerHeight;
+            exteriorAnimation?.invalidate();
         }
         resizeBgCanvas();
         window.addEventListener('resize', resizeBgCanvas);
 
         let bgTime = 0;
         
-        function drawFluidBackground() {
+        function drawFluidBackground(seconds) {
+            // Preserve the old 60 Hz drift speed while drawing both layers at 30 Hz.
+            if (state.bgEnabled) bgTime += seconds * 0.9;
             const w = bgCanvas.width;
             const h = bgCanvas.height;
             
@@ -1856,10 +2066,7 @@ The project is intuitive and visual, rendering complex theory accessible without
             bgCtx.fillStyle = gradient;
             bgCtx.fillRect(0, 0, w, h);
 
-            if (!state.bgEnabled) {
-                requestAnimationFrame(drawFluidBackground);
-                return;
-            }
+            if (!state.bgEnabled) return;
 
             // Enhanced flowing lines with stronger glow and color variation
             const curveCount = (window.perfSettings && window.perfSettings.bgCurves) || 25;
@@ -1867,10 +2074,6 @@ The project is intuitive and visual, rendering complex theory accessible without
                 const hue = 40 + Math.sin(bgTime * 0.5 + i * 0.3) * 15; // Gold to yellow variation
                 const lightness = 55 + Math.sin(bgTime + i) * 12;
                 const alpha = 0.12 + Math.sin(bgTime * 0.3 + i * 0.5) * 0.06;
-                
-                // Glow now handled by CSS filter on canvas (GPU-accelerated)
-                bgCtx.strokeStyle = `hsla(${hue}, 85%, ${lightness + 20}%, ${alpha * 1.8})`;
-                bgCtx.lineWidth = 3;
                 
                 bgCtx.beginPath();
                 const startY = (i / curveCount) * h;
@@ -1883,6 +2086,12 @@ The project is intuitive and visual, rendering complex theory accessible without
                     if (x === 0) bgCtx.moveTo(x, y);
                     else bgCtx.lineTo(x, y);
                 }
+                // Reuse one path for a soft halo and luminous core; no full-screen blur pass.
+                bgCtx.strokeStyle = `hsla(${hue}, 90%, ${lightness}%, ${alpha * 0.55})`;
+                bgCtx.lineWidth = 7;
+                bgCtx.stroke();
+                bgCtx.strokeStyle = `hsla(${hue}, 92%, ${Math.min(90, lightness + 24)}%, ${alpha * 2.2})`;
+                bgCtx.lineWidth = 1.3;
                 bgCtx.stroke();
             }
             
@@ -1946,11 +2155,7 @@ The project is intuitive and visual, rendering complex theory accessible without
                 }
             }
 
-            bgTime += 0.015;
-            requestAnimationFrame(drawFluidBackground);
         }
-
-        drawFluidBackground();
 
         // ============================================
         // Foreground 3D Primitives with Jacobian Terms
@@ -1961,6 +2166,7 @@ The project is intuitive and visual, rendering complex theory accessible without
         function resizeFgCanvas() {
             fgCanvas.width = window.innerWidth;
             fgCanvas.height = window.innerHeight;
+            exteriorAnimation?.invalidate();
         }
         resizeFgCanvas();
         window.addEventListener('resize', resizeFgCanvas);
@@ -1975,12 +2181,13 @@ The project is intuitive and visual, rendering complex theory accessible without
                 this.rotAxis = Vec3.random();
                 this.rotSpeed = (Math.random() - 0.5) * 0.02;
                 this.rotAngle = Math.random() * Math.PI * 2;
-                this.baseColor = { r: 212, g: 175, b: 55 };
+                this.baseColor = { r: 245, g: 201, b: 77 };
             }
 
-            update(w, h) {
-                this.pos = this.pos.add(this.vel);
-                this.rotAngle += this.rotSpeed;
+            update(w, h, seconds) {
+                const frames = seconds * 60;
+                this.pos = this.pos.add(this.vel.mul(frames));
+                this.rotAngle += this.rotSpeed * frames;
                 
                 const margin = 120;
                 if (this.pos.x < -margin) this.pos.x = w + margin;
@@ -2498,27 +2705,37 @@ The project is intuitive and visual, rendering complex theory accessible without
 
         initPrimitives();
 
-        function drawForeground() {
+        function drawForeground(seconds) {
             const w = fgCanvas.width;
             const h = fgCanvas.height;
             fgCtx.clearRect(0, 0, w, h);
             
-            state.time += 0.016;
+            state.time += seconds;
             
             if (state.primitiveType !== 'none') {
                 // Sort by z for proper depth ordering
                 state.primitives.sort((a, b) => b.pos.z - a.pos.z);
                 
                 state.primitives.forEach(prim => {
-                    prim.update(w, h);
+                    prim.update(w, h, seconds);
                     prim.draw(fgCtx);
                 });
             }
             
-            requestAnimationFrame(drawForeground);
         }
 
-        drawForeground();
+        exteriorAnimation = PhotonExteriorAnimation.create({
+            fps: 30,
+            draw(seconds) {
+                drawFluidBackground(seconds);
+                drawForeground(seconds);
+            }
+        });
+        // Changes still repaint a static reduced-motion scene. Scroll/elevator activity
+        // deliberately does not pause this clock.
+        document.querySelector('.control-panel')?.addEventListener('input', () => exteriorAnimation.invalidate());
+        document.querySelector('.control-panel')?.addEventListener('change', () => exteriorAnimation.invalidate());
+        window.addEventListener('load', () => exteriorAnimation.invalidate());
 
         // ============================================
         // Control Panel Handlers
@@ -3245,7 +3462,7 @@ The project is intuitive and visual, rendering complex theory accessible without
         }
 
         function angleLoop() {
-            if (demoVisibility.angle) {
+            if (demoVisibility.angle && !document.hidden) {
                 renderAngleDemo();
             }
             requestAnimationFrame(angleLoop);
@@ -3435,17 +3652,17 @@ The project is intuitive and visual, rendering complex theory accessible without
             volumeCtx.font = '11px monospace';
             volumeCtx.fillText(`Volume (2-bounce)`, 6, 16);
             volumeCtx.fillStyle = 'rgba(180, 180, 180, 0.7)';
-            volumeCtx.fillText(`|a×b·c| = ${tripleProduct.toFixed(3)}, J = ${jacobian.toFixed(1)}`, 6, 30);
+            volumeCtx.fillText(`|a×b·c| = ${tripleProduct.toFixed(3)}, 1/J = ${jacobian.toFixed(1)}`, 6, 30);
             
             // Update Jacobian display in UI
             const jacEl = document.getElementById('volume-jacobian');
             if (jacEl) {
-                jacEl.textContent = `J = ${jacobian.toFixed(1)} (|a×b·c| = ${tripleProduct.toFixed(2)})`;
+                jacEl.textContent = `1/J = ${jacobian.toFixed(1)} (|a×b·c| = ${tripleProduct.toFixed(2)})`;
             }
         }
         
         function volumeLoop() {
-            if (demoVisibility.volume) {
+            if (demoVisibility.volume && !document.hidden) {
                 renderVolume();
             }
             requestAnimationFrame(volumeLoop);
@@ -3698,7 +3915,7 @@ The project is intuitive and visual, rendering complex theory accessible without
         }
         
         function misLoop() {
-            if (demoVisibility.mis && (!window.perfSettings || window.perfSettings.misEnabled !== false)) {
+            if (demoVisibility.mis && !document.hidden && (!window.perfSettings || window.perfSettings.misEnabled !== false)) {
                 renderMIS();
             }
             requestAnimationFrame(misLoop);
@@ -3831,7 +4048,7 @@ The project is intuitive and visual, rendering complex theory accessible without
         }
         
         function planesLoop() {
-            if (demoVisibility.planes) {
+            if (demoVisibility.planes && !document.hidden) {
                 renderPlanes();
             }
             requestAnimationFrame(planesLoop);
@@ -3897,7 +4114,7 @@ The project is intuitive and visual, rendering complex theory accessible without
         if (estCanvas) {
             // Don't auto-start - wait for user to click Start
             function runEstimatorFrame() {
-                if (estimatorState.running) {
+                if (estimatorState.running && demoVisibility.estimator && !document.hidden) {
                     const pathsPerFrame = (window.perfSettings && window.perfSettings.pathsPerFrame) || 15;
                     for (let i = 0; i < pathsPerFrame; i++) {
                         tracePhotonPath();

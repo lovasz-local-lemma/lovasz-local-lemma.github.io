@@ -1,0 +1,179 @@
+{
+  "date": "2026-09-10T17:58:24.127Z",
+  "node": "v24.19.0",
+  "optimization": "-O3 -msimd128",
+  "threads": 1,
+  "resolution": [
+    448,
+    336
+  ],
+  "warmupRounds": 1,
+  "measuredRounds": 5,
+  "notes": "Same current engine fields, geometry and camera, frozen after 32 simulation steps. Legacy marcher is actual c3cb3fe source. Volume-only excludes surface intersections; whole render includes surface tracing/image assembly. No browser UI, upload, GPU presentation or live simulation cost.",
+  "rows": [
+    {
+      "scene": "canopy_frozen_step32",
+      "kernel": "volume_legacy10_c3cb3fe",
+      "medianMs": 420.713,
+      "minMs": 239.2166,
+      "maxMs": 510.6325,
+      "checksum": 150771.139523
+    },
+    {
+      "scene": "canopy_frozen_step32",
+      "kernel": "volume_current32",
+      "medianMs": 1147.1384,
+      "minMs": 772.9677,
+      "maxMs": 1536.1418,
+      "checksum": 149328.378111
+    },
+    {
+      "scene": "canopy_frozen_step32",
+      "kernel": "volume_voxel18",
+      "medianMs": 137.1465,
+      "minMs": 117.529,
+      "maxMs": 163.0371,
+      "checksum": 149371.800991
+    },
+    {
+      "scene": "canopy_frozen_step32",
+      "kernel": "whole_render_current32",
+      "medianMs": 1687.6703,
+      "minMs": 1638.6016,
+      "maxMs": 1742.4146,
+      "checksum": 0
+    },
+    {
+      "scene": "canopy_frozen_step32",
+      "kernel": "whole_render_voxel18",
+      "medianMs": 521.9782,
+      "minMs": 471.597,
+      "maxMs": 547.3642,
+      "checksum": 0
+    },
+    {
+      "scene": "fire_frozen_step32",
+      "kernel": "volume_legacy10_c3cb3fe",
+      "medianMs": 681.8284,
+      "minMs": 285.6372,
+      "maxMs": 816.5162,
+      "checksum": 154921.729487
+    },
+    {
+      "scene": "fire_frozen_step32",
+      "kernel": "volume_current32",
+      "medianMs": 1177.1383,
+      "minMs": 726.969,
+      "maxMs": 2752.8354,
+      "checksum": 179008.594091
+    },
+    {
+      "scene": "fire_frozen_step32",
+      "kernel": "volume_voxel18",
+      "medianMs": 148.7752,
+      "minMs": 108.5318,
+      "maxMs": 306.0896,
+      "checksum": 175857.107172
+    },
+    {
+      "scene": "fire_frozen_step32",
+      "kernel": "whole_render_current32",
+      "medianMs": 866.261,
+      "minMs": 823.3004,
+      "maxMs": 983.5372,
+      "checksum": 0
+    },
+    {
+      "scene": "fire_frozen_step32",
+      "kernel": "whole_render_voxel18",
+      "medianMs": 201.5595,
+      "minMs": 154.9084,
+      "maxMs": 244.6136,
+      "checksum": 0
+    }
+  ],
+  "machine": "Intel Core i9-13980HX; Windows; other host activity not controlled",
+  "repeatRows": [
+    {
+      "scene": "canopy_frozen_step32",
+      "kernel": "volume_legacy10_c3cb3fe",
+      "medianMs": 390.5288,
+      "minMs": 300.6949,
+      "maxMs": 496.8405,
+      "checksum": 150771.139523
+    },
+    {
+      "scene": "canopy_frozen_step32",
+      "kernel": "volume_current32",
+      "medianMs": 1068.8411,
+      "minMs": 468.7743,
+      "maxMs": 1235.4491,
+      "checksum": 149328.378111
+    },
+    {
+      "scene": "canopy_frozen_step32",
+      "kernel": "volume_voxel18",
+      "medianMs": 111.7336,
+      "minMs": 50.8575,
+      "maxMs": 157.7032,
+      "checksum": 149371.800991
+    },
+    {
+      "scene": "canopy_frozen_step32",
+      "kernel": "whole_render_current32",
+      "medianMs": 1207.2132,
+      "minMs": 988.7498,
+      "maxMs": 1505.3435,
+      "checksum": 0.0
+    },
+    {
+      "scene": "canopy_frozen_step32",
+      "kernel": "whole_render_voxel18",
+      "medianMs": 441.4637,
+      "minMs": 224.7875,
+      "maxMs": 486.8557,
+      "checksum": 0.0
+    },
+    {
+      "scene": "fire_frozen_step32",
+      "kernel": "volume_legacy10_c3cb3fe",
+      "medianMs": 631.0879,
+      "minMs": 575.3933,
+      "maxMs": 794.4832,
+      "checksum": 154921.729487
+    },
+    {
+      "scene": "fire_frozen_step32",
+      "kernel": "volume_current32",
+      "medianMs": 2166.6593,
+      "minMs": 2033.2355,
+      "maxMs": 2277.1572,
+      "checksum": 179008.594091
+    },
+    {
+      "scene": "fire_frozen_step32",
+      "kernel": "volume_voxel18",
+      "medianMs": 260.8032,
+      "minMs": 197.9936,
+      "maxMs": 277.1517,
+      "checksum": 175857.107172
+    },
+    {
+      "scene": "fire_frozen_step32",
+      "kernel": "whole_render_current32",
+      "medianMs": 2592.3484,
+      "minMs": 2202.7675,
+      "maxMs": 2967.8041,
+      "checksum": 0.0
+    },
+    {
+      "scene": "fire_frozen_step32",
+      "kernel": "whole_render_voxel18",
+      "medianMs": 530.4714,
+      "minMs": 437.1509,
+      "maxMs": 568.5995,
+      "checksum": 0.0
+    }
+  ],
+  "interpretation": "Two interleaved runs. Timing variability is substantial. These are workload-specific CPU measurements, not browser FPS or universal speedup claims. Voxel image is deliberately different."
+}

@@ -1,0 +1,288 @@
+{
+  "physical": {
+    "title": "Rotational Atlas",
+    "kind": "Recorded physical experiment · exactly two volume scatters",
+    "views": [
+      {
+        "label": "Beauty · 640 × 440",
+        "image": "physical_slit_hero_display_glow.png",
+        "caption": "A new 640 × 440 transport film: four times as many camera pixels as the original. A point source shines through baffles into a finite homogeneous medium. Display filtering and subtle bloom remain optional; this image is not an enlargement of the old film.",
+        "title": "The opening in the fog",
+        "width": 640,
+        "height": 440,
+        "compact": false,
+        "displayWidth": 640
+      },
+      {
+        "label": "Unfiltered · 640 × 440",
+        "image": "physical_slit_hero_beauty.png",
+        "caption": "The new 640 × 440 camera grid at 1,280 atlas queries per pixel, shown with the shared exposure and tone mapping. No reconstruction filter, denoising or bloom. Finite-sample noise remains visible.",
+        "title": "Unfiltered · 640 × 440",
+        "width": 640,
+        "height": 440,
+        "compact": false,
+        "displayWidth": 640
+      },
+      {
+        "label": "Reference · 640 × 440",
+        "image": "physical_slit_hero_reference.png",
+        "caption": "The same 640 × 440 grid, scene and exposure, independently parameterized through camera/first-event integration at 1,024 samples per pixel. Higher spatial resolution does not make this finite reference exact.",
+        "title": "Reference · 640 × 440",
+        "width": 640,
+        "height": 440,
+        "compact": false,
+        "displayWidth": 640
+      },
+      {
+        "label": "Four-chart MIS",
+        "image": "physical_slit_atlas.png",
+        "caption": "320 × 220 original comparison, shown at its native pixel size. The comparison-budget film. All valid roots carry source intensity, two scattering coefficients, two normalized phase functions, three transmittance factors and three visibility tests. Allocation is 30/30/30/10.",
+        "title": "Four-chart MIS",
+        "width": 320,
+        "height": 220,
+        "compact": true,
+        "displayWidth": 320
+      },
+      {
+        "label": "Cylinder",
+        "image": "physical_slit_cylinder.png",
+        "caption": "320 × 220 original comparison, shown at its native pixel size. The same bounded physical target and comparison query budget, using only the cylinder chart.",
+        "title": "Cylinder",
+        "width": 320,
+        "height": 220,
+        "compact": true,
+        "displayWidth": 320
+      },
+      {
+        "label": "Cone",
+        "image": "physical_slit_cone.png",
+        "caption": "320 × 220 original comparison, shown at its native pixel size. The same target and comparison query budget, using only the cone chart. Near-tangent weights can leave bright outliers.",
+        "title": "Cone",
+        "width": 320,
+        "height": 220,
+        "compact": true,
+        "displayWidth": 320
+      },
+      {
+        "label": "Hyperboloid",
+        "image": "physical_slit_hyperboloid.png",
+        "caption": "320 × 220 original comparison, shown at its native pixel size. The same target and comparison query budget, using only the hyperboloid chart.",
+        "title": "Hyperboloid",
+        "width": 320,
+        "height": 220,
+        "compact": true,
+        "displayWidth": 320
+      },
+      {
+        "label": "Plane",
+        "image": "physical_slit_plane.png",
+        "caption": "320 × 220 original comparison, shown at its native pixel size. Both flight lengths are solved. The residual proposal samples two azimuths, so its density differs from the rotational proposals.",
+        "title": "Plane",
+        "width": 320,
+        "height": 220,
+        "compact": true,
+        "displayWidth": 320
+      },
+      {
+        "label": "Comparison reference",
+        "image": "physical_slit_reference.png",
+        "caption": "320 × 220 original comparison, shown at its native pixel size. Original 320 × 220 camera/first-event reference for the compact chart comparison. Its 1,024 samples/pixel are a different budget from the five 320-query chart films.",
+        "title": "Comparison reference",
+        "width": 320,
+        "height": 220,
+        "compact": true,
+        "displayWidth": 320
+      },
+      {
+        "label": "Failure · 640 × 440",
+        "image": "physical_difficult_hero_beauty.png",
+        "caption": "The new high-resolution grid in the unchanged difficult scene, at 1,280 atlas queries/pixel. Strong forward scattering and restrictive visibility leave rare, noisy contributions. More camera pixels do not repair the fixed mixture.",
+        "title": "Failure · 640 × 440",
+        "width": 640,
+        "height": 440,
+        "compact": false,
+        "displayWidth": 640
+      },
+      {
+        "label": "Failure reference · 640 × 440",
+        "image": "physical_difficult_hero_reference.png",
+        "caption": "The same difficult scene and camera grid, with 1,024 independent-reference samples/pixel. Its rare-event error remains unresolved; treat differences as a diagnostic, not a validated image-error measurement.",
+        "title": "Failure reference · 640 × 440",
+        "width": 640,
+        "height": 440,
+        "compact": false,
+        "displayWidth": 640
+      }
+    ],
+    "metrics": [
+      {
+        "value": "2 events",
+        "label": "explicitly bounded physical path class"
+      },
+      {
+        "value": "1.72×",
+        "label": "slit center: variance improvement vs best single, equal queries"
+      },
+      {
+        "value": "30 / 30 / 30 / 10",
+        "label": "cylinder / cone / hyperboloid / plane allocation"
+      }
+    ],
+    "scope": "Selected successes, not a global speedup. Equal queries are not equal time. Both flight lengths lie in [0.12, 3.2], selecting a bounded subset of two-scatter paths. This standalone research harness is not integrated into the production renderer; it excludes all other scattering orders, specular interfaces and camera aperture.",
+    "ledger": [
+      "Emission and first-scatter polar coordinates are sampled with normalized, declared PDFs. All roots are reconstructed and checked against the same finite distance domain. The plane partner retains positive sampling mass rather than switching charts after seeing a bad sample.",
+      "Clear and slit ray estimates are checked against an independent physical reference. The hardest difficult reference has roughly 42% relative standard error and a roughly 35% refinement change, so that comparison remains unresolved. Confidence intervals are empirical finite-replicate summaries.",
+      "The new beauty and reference pairs use a genuine 640 × 440 camera grid. Atlas films use 1,280 queries/pixel and the independent reference uses 1,024 samples/pixel. The raw arrays, complete scene settings and seeds are retained in a separate hero-film record. No high-resolution image is produced by enlarging a smaller one.",
+      "The five original chart comparisons stay at 320 × 220 and 320 queries/pixel, displayed compactly and labeled as such. Their original reference uses 1,024 samples/pixel. Those files and the historical ray benchmarks are unchanged; the 1.72× ray statistic is not a measurement of the new hero images.",
+      "All physical films share the same exposure. The beauty view applies bilateral log-radiance filtering and bloom after estimation. This biased display treatment has no spatial upsampling in the new hero, and no display-filtered pixels enter the numerical results."
+    ],
+    "data": "physical_results.json",
+    "additionalData": [
+      {
+        "label": "High-resolution film settings",
+        "href": "physical_hero_films.json"
+      }
+    ]
+  },
+  "shadow": {
+    "title": "Shadow Atlas",
+    "kind": "Recorded conditional visibility field · false-color display",
+    "views": [
+      {
+        "label": "Exact openings",
+        "image": "shadow_broad_screen_exact.png",
+        "caption": "Actual ray-tested sheet visibility, projected with a fixed color transfer and display glow. Broad openings give nearby primitive coordinates a coherent answer.",
+        "title": "A memory for the openings",
+        "width": 1800,
+        "height": 1300
+      },
+      {
+        "label": "Cached prediction",
+        "image": "shadow_broad_screen_cache.png",
+        "caption": "A frozen 384 × 256 cache predicts the same field. In this favorable configuration, measured cache-only integral bias is +0.010%; the cache still changes the target.",
+        "title": "Cached prediction",
+        "width": 1800,
+        "height": 1300
+      },
+      {
+        "label": "Exact correction",
+        "image": "shadow_broad_screen_corrected.png",
+        "caption": "Prediction plus an occasional signed exact residual. Corrections are retained before display mapping; negative samples are not discarded from the estimator.",
+        "title": "Exact correction",
+        "width": 1800,
+        "height": 1300
+      },
+      {
+        "label": "Fine-slat failure",
+        "image": "shadow_fine_screen_cache.png",
+        "caption": "A coarse cache misses fine slats: cache-only integral bias +23.3%. Finding many cheap answers is not useful if they describe the wrong shadow.",
+        "title": "Fine-slat failure",
+        "width": 1800,
+        "height": 1300
+      },
+      {
+        "label": "Fine-slat truth",
+        "image": "shadow_fine_screen_exact.png",
+        "caption": "The actual fine-slat visibility field. Compare its narrow openings with the coarse cached prediction.",
+        "title": "Fine-slat truth",
+        "width": 1800,
+        "height": 1300
+      },
+      {
+        "label": "Moved-screen failure",
+        "image": "shadow_moved_screen_cache.png",
+        "caption": "The blocker moved, but the old atlas did not. Its silhouette mismatch is 64.4%; this is a deliberate stale-cache failure, not automatic invalidation.",
+        "title": "Moved-screen failure",
+        "width": 1800,
+        "height": 1300
+      },
+      {
+        "label": "Moved-screen truth",
+        "image": "shadow_moved_screen_exact.png",
+        "caption": "Exact visibility after the move. Rebuilding fixes the prediction but has a real cost, recorded separately.",
+        "title": "Moved-screen truth",
+        "width": 1800,
+        "height": 1300
+      },
+      {
+        "label": "Signed residual",
+        "image": "shadow_moved_screen_error.png",
+        "caption": "Positive and negative visibility residuals show where the old cache adds light or removes it incorrectly.",
+        "title": "Signed residual",
+        "width": 1800,
+        "height": 1300
+      }
+    ],
+    "metrics": [
+      {
+        "value": "21.3%",
+        "label": "exact queries including cache build / evaluation samples"
+      },
+      {
+        "value": "0.757×",
+        "label": "broad openings: time × variance vs exact (lower is better)"
+      },
+      {
+        "value": "6.99×",
+        "label": "stale cache: same metric becomes worse"
+      }
+    ],
+    "scope": "One conditional sheet-to-endpoint visibility leg, not full heterogeneous transport. Timings are CPU/NumPy measurements in this reuse regime, including a cold build; they are not a production-renderer acceleration claim.",
+    "ledger": [
+      "The exact field uses ray intersections against opaque boxes. A fixed atlas stores their visibility in primitive coordinates. The estimator is prediction + Bernoulli(ε)/ε × (exact − prediction), with ε = 0.12.",
+      "The cache is frozen during evaluation. Signed corrections are retained in sums; only the finished display is tone-mapped. Fine and stale predictors increase residual variance, even though they use fewer exact queries.",
+      "Images sum the actual near and far sheet intersections. Color, rim emphasis and bloom are display choices. The statistics and image quadrature serve different roles; the visible sheet is not a physical volume beauty render."
+    ],
+    "data": "shadow_results.json"
+  },
+  "studies": [
+    {
+      "id": "relay",
+      "label": "03 / Scattering relay",
+      "title": "Meet inside the medium.",
+      "description": "A luminous gyroid, overlapping proposal regions and a dark absorbing entrance.",
+      "image": "explorations/captures/relay-promising.png",
+      "failureImage": "explorations/captures/relay-failure.png"
+    },
+    {
+      "id": "chronolens",
+      "label": "04 / Chronolens",
+      "title": "Only when the pulse arrives.",
+      "description": "A narrow path-length shell meets a structured field; varying index breaks the simple gate.",
+      "image": "explorations/captures/chronolens-promising.png",
+      "failureImage": "explorations/captures/chronolens-failure.png"
+    },
+    {
+      "id": "scheimpflug",
+      "label": "05 / Specialized camera constraint",
+      "title": "Tilt the plane of clarity.",
+      "description": "A tilt-shift sampling proposal: a finite aperture follows a tilted focus sheet through luminous structures.",
+      "image": "explorations/captures/scheimpflug-promising.png",
+      "failureImage": "explorations/captures/scheimpflug-failure.png"
+    },
+    {
+      "id": "loom",
+      "label": "06 / Caustic loom",
+      "title": "A seed becomes a reflection.",
+      "description": "A constrained nonlinear solve weaves selected paths; a corrugated mirror exposes missing roots.",
+      "image": "explorations/captures/loom-promising.png",
+      "failureImage": "explorations/captures/loom-failure.png"
+    },
+    {
+      "id": "sheets",
+      "label": "07 / Crossed sheets",
+      "title": "Leave one dimension alive.",
+      "description": "Finite luminous planes meet along a clipped line, then approach a poorly conditioned configuration.",
+      "image": "explorations/captures/sheets-promising.png",
+      "failureImage": "explorations/captures/sheets-failure.png"
+    },
+    {
+      "id": "atlas",
+      "label": "08 / Path atlas",
+      "title": "Release a distant coordinate.",
+      "description": "A larger path family makes more connections and changes more visibility queries.",
+      "image": "explorations/captures/atlas-promising.png",
+      "failureImage": "explorations/captures/atlas-failure.png"
+    }
+  ]
+}

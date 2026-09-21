@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" font-family="'JetBrains Mono', ui-monospace, monospace" font-size="12" fill="#DDE3E0">
+<defs>
+<marker id="mY" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#FFD264"/></marker>
+<marker id="mB" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#78C8FF"/></marker>
+<marker id="mT" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#FFD264" fill-opacity="0.6"/></marker>
+<marker id="mG" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#DDE3E0" fill-opacity="0.35"/></marker>
+</defs>
+
+<!-- fog region: only the EXIT side is in medium; the light side is air -->
+<rect x="300" y="40" width="322" height="290" rx="6" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.25)"/>
+<text x="596" y="322" fill-opacity="0.5" text-anchor="end">medium</text>
+<text x="24" y="322" fill-opacity="0.5">air</text>
+
+<!-- emissive quad in air (the light side is a TRACE: the incident ray hits it) -->
+<path d="M40,72 L112,54 L134,86 L62,104 Z" fill="#FFD264" fill-opacity="0.16" stroke="#FFD264" stroke-opacity="0.8"/>
+<text x="42" y="120" fill="#FFD264" fill-opacity="0.85">emissive quad</text>
+
+<!-- glass ball, centre C on the axis C-x1 -->
+<circle cx="300" cy="200" r="56" fill="rgba(255,255,255,0.06)" stroke="#FFFFFF" stroke-opacity="0.55"/>
+<circle cx="300" cy="200" r="1.6" fill="#DDE3E0"/>
+<text x="306" y="214">C</text>
+<text x="262" y="270" fill-opacity="0.7">glass ball</text>
+
+<!-- axis n(x1): through x1 and C (a sphere symmetry) -->
+<line x1="94" y1="292" x2="470" y2="124" stroke="#DDE3E0" stroke-opacity="0.35" stroke-width="1" marker-end="url(#mG)"/>
+<text x="452" y="112" fill-opacity="0.7">n = axis through C</text>
+
+<!-- the seeded vertex x1 on the ball (sampled, pdf_A) -->
+<circle cx="255.5" cy="233.7" r="3.6" fill="#FF4646"/>
+<text x="228" y="252">x<tspan font-size="9" dy="3">1</tspan><tspan font-size="9" dy="-3" fill-opacity="0.6"> (sampled)</tspan></text>
+
+<!-- INCIDENT CONE about -n at x1: half-angle theta_in, opening toward the air side -->
+<path d="M255.5,233.7 L88,52 L88,190 Z" fill="#FFD264" fill-opacity="0.10" stroke="none"/>
+<path d="M255.5,233.7 L88,52 M255.5,233.7 L88,190" fill="none" stroke="#FFD264" stroke-opacity="0.55" stroke-width="1" stroke-dasharray="4 3"/>
+<ellipse cx="88" cy="121" rx="8" ry="69" fill="none" stroke="#FFD264" stroke-opacity="0.35" stroke-width="1" stroke-dasharray="3 3"/>
+<!-- theta_in arc at x1 against -n, with the sampled red dot -->
+<path d="M214,215 A46,46 0 0 1 226,197" fill="none" stroke="#FFD264" stroke-opacity="0.8" stroke-width="1"/>
+<text x="196" y="204" fill="#FFD264">θ<tspan font-size="9" dy="3">in</tspan></text>
+<circle cx="219" cy="206" r="2" fill="#FF4646"/>
+
+<!-- the incident ray at the crossing azimuth, traced back to the quad (hit at y) -->
+<line x1="255.5" y1="233.7" x2="102" y2="88" stroke="#FFD264" stroke-opacity="0.95"/>
+<circle cx="102" cy="88" r="3" fill="none" stroke="#FFD264"/>
+<text x="110" y="82">y<tspan font-size="9" dy="3" fill-opacity="0.7"> (traced hit)</tspan></text>
+<text x="150" y="176" fill="#FFD264" fill-opacity="0.8">trace · L<tspan font-size="9" dy="3">e</tspan><tspan dy="-3">·Tr·T</tspan><tspan font-size="9" dy="3">1</tspan></text>
+
+<!-- refracted chord inside the ball at phi=0, exit x2, exit ray -->
+<line x1="255.5" y1="233.7" x2="340" y2="240" stroke="#FFD264" stroke-opacity="0.9"/>
+<path d="M270,226 L285,214 M320,226 L331,215" fill="none" stroke="#FFFFFF" stroke-opacity="0.35" stroke-width="1" stroke-dasharray="2 2"/>
+<circle cx="340" cy="240" r="3.2" fill="#FF4646"/>
+<text x="346" y="256">x<tspan font-size="9" dy="3">2</tspan></text>
+<path d="M340,240 L560,300" fill="none" stroke="#FFD264" marker-end="url(#mY)"/>
+<text x="520" y="318" fill="#FFD264" fill-opacity="0.85">ω<tspan font-size="9" dy="3">out</tspan></text>
+
+<!-- EXIT SHEET: the exit ray revolved about the axis C-x1 -> double cone with the waist on the axis -->
+<path d="M340,240 L392,187 L610,258 A18,86 0 0 1 588,322 L392,187 L336,232 A3.5,12 0 0 1 340,240 Z" fill="#FFD264" fill-opacity="0.16" stroke="none"/>
+<path d="M340,240 L392,187 L610,258 M336,232 L392,187 L588,322" fill="none" stroke="#FFD264" stroke-opacity="0.7"/>
+<path d="M610,258 A18,86 0 0 1 588,322" fill="none" stroke="#FFD264" stroke-opacity="0.7"/>
+<path d="M610,258 A18,86 0 0 0 588,322" fill="none" stroke="#FFD264" stroke-opacity="0.3" stroke-width="1" stroke-dasharray="3 3"/>
+<ellipse cx="500" cy="238" rx="8" ry="40" transform="rotate(-24 500 238)" fill="none" stroke="#FFD264" stroke-opacity="0.35" stroke-width="1"/>
+<path d="M500,278 A8,40 0 0 0 500,198" transform="rotate(-24 500 238)" fill="none" stroke="#FFD264" stroke-opacity="0.9" marker-end="url(#mY)"/>
+<text x="508" y="196" fill="#FFD264">φ</text>
+<text x="352" y="176" fill-opacity="0.6">waist of the exit family (not a vertex)</text>
+<text x="440" y="292" fill="#FFD264">r</text>
+
+<!-- camera ray from the eye (in fog) piercing the exit sheet at x -->
+<circle cx="598" cy="62" r="6" fill="none" stroke="#78C8FF" stroke-dasharray="3 2"/>
+<text x="588" y="66" text-anchor="end">eye</text>
+<line x1="594" y1="67" x2="520" y2="222" stroke="#78C8FF"/>
+<line x1="520" y1="222" x2="497" y2="270" stroke="#78C8FF" stroke-opacity="0.35" stroke-dasharray="3 3"/>
+<text x="566" y="130" fill="#78C8FF">d</text>
+<!-- x and the two tangents -->
+<line x1="521.5" y1="226.8" x2="512" y2="254" stroke="#FFD264" stroke-opacity="0.6" marker-end="url(#mT)"/>
+<line x1="524.4" y1="220.7" x2="553" y2="228.5" stroke="#FFD264" stroke-opacity="0.6" marker-end="url(#mT)"/>
+<text x="500" y="262" fill="#FFD264" fill-opacity="0.8">a</text>
+<text x="556" y="234" fill="#FFD264" fill-opacity="0.8">b</text>
+<circle cx="520" cy="222" r="4" fill="none" stroke="#FFFFFF" stroke-width="2"/>
+<text x="514" y="214" text-anchor="end">x</text>
+
+<!-- density + Jacobian -->
+<text x="318" y="60">p<tspan font-size="9" dy="3">22</tspan><tspan dy="-3"> = pdf</tspan><tspan font-size="9" dy="3">A</tspan><tspan dy="-3">(x</tspan><tspan font-size="9" dy="3">1</tspan><tspan dy="-3">) · p</tspan><tspan font-size="9" dy="3">θ</tspan><tspan dy="-3"> · |J| / |det3|</tspan></text>
+<text x="318" y="78" fill-opacity="0.75">J = |((n×(x−x<tspan font-size="9" dy="3">1</tspan><tspan dy="-3">))×ω</tspan><tspan font-size="9" dy="3">out</tspan><tspan dy="-3">)·d|   a = ∂x/∂φ   b = ∂x/∂r</tspan></text>
+
+<!-- caption -->
+<text x="320" y="348" text-anchor="middle">22a · entry-seeded · the camera meets the EXIT family after a 2nd refraction (hyperboloid) · light half traced</text>
+</svg>

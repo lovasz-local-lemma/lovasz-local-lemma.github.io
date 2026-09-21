@@ -1,0 +1,62 @@
+<!--
+  fig-evo-fracture-front.svg  ·  noita_gish schematic kit
+  Kit rules live in fig-frame-loop.svg. Extracted verbatim from docs/evolution.html,
+  where this figure is inlined; kept here so it can be reused and checked standalone.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img"
+     aria-label="Left: the legacy fracture model has each particle cross its own strain threshold independently, producing a scattered cloud of failed particles with no crack tip, a crack width equal to the particle spacing, and a residual stress floor of eighteen percent. Right: AnisoMPM adds a non-local Laplacian of damage read from a weight normalized damage grid, which concentrates damage at a tip and gives the crack a physical width l zero, independent of the grid.">
+<defs>
+  <marker id="frG" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#DDE3E0" fill-opacity="0.45"/></marker>
+</defs>
+<g font-family="ui-monospace, 'Cascadia Mono', Consolas, monospace" font-size="12" fill="#DDE3E0" stroke-width="1.5">
+   <rect x="16" y="21" width="18" height="2" fill="#FFD264" stroke="none"/>
+  <text x="40" y="26" fill-opacity="0.75">damage field d</text>
+  <rect x="176" y="21" width="18" height="2" fill="#78C8FF" stroke="none"/>
+  <text x="200" y="26" fill-opacity="0.75">plate and grain</text>
+  <circle cx="317" cy="25" r="3" fill="#FF4646"/>
+  <text x="326" y="26" fill-opacity="0.75">failed particle</text>
+  <text x="624" y="26" text-anchor="end" fill="#9AA3A0">same plate, same load</text>
+   <rect x="14" y="40" width="300" height="262" rx="6" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.25)"/>
+  <rect x="326" y="40" width="300" height="262" rx="6" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.25)"/>
+  <text x="26" y="60">legacy: a local strain threshold</text>
+  <text x="338" y="60">AnisoMPM: a regularized field</text>
+   <rect x="44" y="76" width="240" height="90" rx="3" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+  <path d="M40,121 L22,121" fill="none" stroke="#DDE3E0" stroke-opacity="0.45" marker-end="url(#frG)"/>
+  <path d="M288,121 L306,121" fill="none" stroke="#DDE3E0" stroke-opacity="0.45" marker-end="url(#frG)"/>
+  <path d="M60,90 H268 M60,121 H268 M60,152 H268" fill="none" stroke="#78C8FF" stroke-opacity="0.25" stroke-width="1"/>
+  <circle cx="150" cy="86" r="2.6" fill="#FF4646"/><circle cx="163" cy="99" r="2.6" fill="#FF4646"/>
+  <circle cx="147" cy="108" r="2.6" fill="#FF4646"/><circle cx="171" cy="117" r="2.6" fill="#FF4646"/>
+  <circle cx="155" cy="128" r="2.6" fill="#FF4646"/><circle cx="176" cy="137" r="2.6" fill="#FF4646"/>
+  <circle cx="149" cy="148" r="2.6" fill="#FF4646"/><circle cx="168" cy="158" r="2.6" fill="#FF4646"/>
+  <circle cx="112" cy="95" r="2.6" fill="#FF4646"/><circle cx="215" cy="143" r="2.6" fill="#FF4646"/>
+  <circle cx="234" cy="101" r="2.6" fill="#FF4646"/><circle cx="90" cy="146" r="2.6" fill="#FF4646"/>
+  <text x="32" y="190">d += max(stretch - thr, 0) rate dt</text>
+  <text x="32" y="206">each particle crosses alone, so</text>
+  <text x="32" y="220">there is no tip and no front</text>
+  <text x="32" y="242" fill="#9AA3A0">crack width = particle spacing,</text>
+  <text x="32" y="256" fill="#9AA3A0">so crack speed changes with dx</text>
+  <text x="32" y="278" fill="#9AA3A0">floor 0.18: a failed particle keeps</text>
+  <text x="32" y="292" fill="#9AA3A0">18 percent, and fibers degrade too</text>
+   <rect x="356" y="76" width="240" height="90" rx="3" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+  <path d="M352,121 L334,121" fill="none" stroke="#DDE3E0" stroke-opacity="0.45" marker-end="url(#frG)"/>
+  <path d="M600,121 L618,121" fill="none" stroke="#DDE3E0" stroke-opacity="0.45" marker-end="url(#frG)"/>
+  <path d="M372,90 H580 M372,152 H580" fill="none" stroke="#78C8FF" stroke-opacity="0.25" stroke-width="1"/>
+  <text x="580" y="86" text-anchor="end" fill="#78C8FF" fill-opacity="0.6">grain</text>
+  <path d="M356,121 L410,119 L452,124 L496,120" fill="none" stroke="#DDE3E0"/>
+  <path d="M356,113 L410,111 L452,116 L492,112" fill="none" stroke="#FFD264" stroke-opacity="0.5" stroke-width="1" stroke-dasharray="2 2"/>
+  <path d="M356,129 L410,127 L452,132 L492,128" fill="none" stroke="#FFD264" stroke-opacity="0.5" stroke-width="1" stroke-dasharray="2 2"/>
+  <text x="404" y="106" fill="#FFD264" fill-opacity="0.8">l0</text>
+  <path d="M496,120 m-11,0 a11,11 0 1,0 22,0 a11,11 0 1,0 -22,0" fill="none" stroke="#FFD264" stroke-opacity="0.7" stroke-width="1"/>
+  <path d="M496,120 m-17,0 a17,17 0 1,0 34,0 a17,17 0 1,0 -34,0" fill="none" stroke="#FFD264" stroke-opacity="0.45" stroke-width="1"/>
+  <path d="M496,120 m-23,0 a23,23 0 1,0 46,0 a23,23 0 1,0 -46,0" fill="none" stroke="#FFD264" stroke-opacity="0.3" stroke-width="1"/>
+  <circle cx="496" cy="120" r="5" fill="none" stroke="#FFFFFF" stroke-width="2"/>
+  <text x="344" y="190">eta d' = (1-d)D - (d - l0&#178; Lap d)</text>
+  <text x="344" y="206">Lap d from the B-spline second</text>
+  <text x="344" y="220">derivative on the scatter support</text>
+  <text x="344" y="242">g(d) = (1-d)&#178;: shear always,</text>
+  <text x="344" y="256">volumetric in tension, fiber NEVER</text>
+  <text x="344" y="278" fill="#9AA3A0">alpha = -1: cracks run ALONG grain</text>
+  <text x="344" y="292" fill="#9AA3A0">measured: 500 to 971 particles, 25 s</text>
+   <text x="320" y="348" text-anchor="middle">the tip is the one place a neighbour term can put damage</text>
+</g>
+</svg>

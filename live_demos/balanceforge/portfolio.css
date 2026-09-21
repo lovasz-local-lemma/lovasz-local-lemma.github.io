@@ -1,0 +1,74 @@
+/* Portfolio integration only. Regenerate with scripts/import-static-demos.py. */
+.portfolio-return {
+  box-sizing: border-box;
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  min-height: 34px;
+  padding: 7px 18px;
+  margin: 0;
+  border-bottom: 1px solid #37332a;
+  background: #101114;
+  font: 500 12px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  letter-spacing: .015em;
+}
+.portfolio-return .portfolio-return-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #ddc38b;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  background: none;
+  text-decoration: none;
+  font: inherit;
+}
+.portfolio-return .portfolio-return-link:hover { color: #ffdf9d; text-decoration: underline; }
+.portfolio-return .portfolio-return-link:focus-visible { outline: 2px solid #ddc38b; outline-offset: 4px; }
+.portfolio-return[data-theme="light"] { background: #f0eadd; border-color: #d9d1c4; }
+.portfolio-return[data-theme="light"] .portfolio-return-link { color: #77511b; }
+@media (prefers-reduced-motion: reduce) { .portfolio-return { scroll-behavior: auto; } }
+
+/* Let the action row grow naturally instead of forcing every control into 52px. */
+body.portfolio-balanceforge { display: flex; flex-direction: column; height: 100vh; height: 100dvh; }
+.portfolio-balanceforge > .topbar {
+  flex: 0 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  height: auto;
+  gap: 10px 20px;
+  padding: 12px 16px;
+}
+.portfolio-balanceforge .brand { flex-wrap: wrap; min-width: 0; gap: 8px 10px; }
+.portfolio-balanceforge .brand-tag { white-space: normal; }
+.portfolio-balanceforge .topbar-status { min-width: 100px; }
+.portfolio-balanceforge .topbar-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  min-width: 0;
+  gap: 6px;
+}
+.portfolio-balanceforge .topbar-actions .btn { white-space: nowrap; }
+.portfolio-balanceforge .topbar-actions .select { max-width: min(380px, 100%); min-width: 0; }
+.portfolio-balanceforge .topbar-actions .seed-input { max-width: 120px; }
+.portfolio-balanceforge > .layout { flex: 1 1 0; height: auto; min-height: 0; min-width: 0; }
+.portfolio-balanceforge > .layout > .panel { min-width: 0; min-height: 0; }
+.portfolio-balanceforge > .statusbar { flex: 0 0 auto; }
+@media (max-width: 1080px) {
+  html:has(> body.portfolio-balanceforge) { height: auto; overflow: auto; }
+  body.portfolio-balanceforge { height: auto; min-height: 100vh; overflow: auto; }
+  .portfolio-balanceforge > .layout { flex: 1 0 auto; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .portfolio-balanceforge .panel-sim { min-height: 520px; }
+  .portfolio-balanceforge .panel-right { min-height: 520px; }
+}
+@media (max-width: 620px) {
+  .portfolio-balanceforge > .topbar { padding: 10px; gap: 10px; }
+  .portfolio-balanceforge .brand-tag { flex-basis: 100%; font-size: 10px; }
+  .portfolio-balanceforge > .layout { grid-template-columns: minmax(0, 1fr); padding: 8px; }
+  .portfolio-balanceforge .panel-controls { grid-column: auto; max-height: 340px; }
+  .portfolio-balanceforge .panel-sim { min-height: 460px; }
+  .portfolio-balanceforge .panel-right { min-height: 500px; }
+  .portfolio-balanceforge > .statusbar { height: auto; min-height: 32px; flex-wrap: wrap; gap: 4px; }
+}

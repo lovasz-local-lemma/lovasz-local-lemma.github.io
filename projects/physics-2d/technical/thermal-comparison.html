@@ -1,0 +1,143 @@
+<!doctype html><html lang="en"><head><style data-portfolio-paint>html{background:#0b0d0c;color-scheme:dark}html.portfolio-booting body{opacity:0}</style><script src="../../../portfolio-navigation.js?v=688f1905bc"></script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Crucible2.5D · Thermal comparison routes</title><meta name="description" content="Separate display exposure from simulation cooling, and inspect the optional shared-face heat exchange."><meta name="color-scheme" content="dark"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="../../../portfolio.css?v=b7ed8602e5"><link rel="stylesheet" href="../../../portfolio-effects.css?v=62be30dafa"><link rel="stylesheet" href="../../../portfolio-atmospheres.css?v=4b74c57939"><link rel="stylesheet" href="../../../portfolio-motion.css?v=4b098d8184"><link rel="stylesheet" href="../../../portfolio-case-studies.css?v=243caf2b0d"><link rel="stylesheet" href="../../../portfolio-brochures.css?v=a1e5e16132"><link rel="stylesheet" href="../../../portfolio-project-themes.css?v=a898c35e78"><link rel="stylesheet" href="../../../portfolio-location.css?v=9c4c1ad84f"><link rel="stylesheet" href="../../../portfolio-controls.css?v=9376de7761"><link rel="stylesheet" href="../../../portfolio-media.css?v=c51f7712ea"><link rel="stylesheet" href="../../../portfolio-overviews.css?v=8612c4ee0a"><link rel="stylesheet" href="../../../portfolio-motivations.css?v=ccc1c1d866"><link rel="stylesheet" href="../../../portfolio-claims.css?v=058dbd00ef"><link rel="stylesheet" href="../../../portfolio-feature-atlas.css?v=e73f02cb31"><script type="application/json" id="media-framing">{"media/brochures/physics-2d/thermal-furnace-magnetic-field-probe.png":{"width":1602,"height":940,"top":39},"media/brochures/physics-2d/magnetic-field-direction-appearance-controls.png":{"width":1602,"height":940,"top":39},"media/brochures/physics-2d/time-bomb-blast-particle-plume.png":{"width":1602,"height":940,"top":39}}</script><script defer src="../../../portfolio-claims.js?v=ed914a4d3a"></script><script defer src="../../../portfolio-visual-defaults.js?v=eecfd5c771"></script><script defer src="../../../portfolio-motion.js?v=a642c710f9"></script><script defer src="../../../portfolio-fire-studies.js?v=7717e15582"></script><script defer src="../../../portfolio-embers.js?v=8a8be5569d"></script><script defer src="../../../portfolio-atmospheres.js?v=021b2f100e"></script><script defer src="../../../portfolio-effects.js?v=03a6c89d6c"></script><script defer src="../../../portfolio-brochures.js?v=055cad29d6"></script><script defer src="../../../portfolio-location.js?v=3846586893"></script><script defer src="../../../portfolio-media.js?v=d2d555a888"></script><script defer src="../../../portfolio-articles.js?v=acb89575ce"></script><script defer src="../../../portfolio-labs.js?v=a0b86a3809"></script><link rel="stylesheet" href="../../../portfolio-technical.css?v=0ecb3a48c7"><!-- universal-navigation:start --><script defer src="../../../portfolio-routes.js?v=054b6b462c"></script><script defer src="../../../portfolio-universal-navigation.js?v=054b6b462c"></script><!-- universal-navigation:end --><style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head><body data-page="technical" data-project-theme="matter" data-project-id="physics-2d" data-default-atmosphere="contours"><a class="skip-link" href="#main">Skip to content</a><nav class="site-nav portfolio-route" data-route-group="flagships" aria-label="Portfolio location"><div class="route-path"><a class="route-node route-home" href="../../../index.html#project-physics-2d" aria-label="Portfolio"><img class="route-mark" src="../../../media/identity/portfolio-mark.svg" alt="" width="52" height="52"><span class="route-copy"><small>Work / ideas</small><strong>Portfolio</strong></span></a><span class="route-wire" aria-hidden="true"><i></i><b></b></span><div class="route-node route-group"><span class="route-glyph" aria-hidden="true">✦</span><span class="route-copy"><small>Collection</small><strong>Flagship</strong></span></div><span class="route-wire" aria-hidden="true"><i></i><b></b></span><div class="route-node route-project"><span class="route-glyph" hidden aria-hidden="true">◈</span><img class="route-thumb" src="../../../media/brochures/physics-2d/food-surface/burger.jpg" width="42" height="42" alt=""><span class="route-copy"><small>Project</small><strong>Crucible2.5D</strong></span></div></div><div class="route-end"><span class="route-meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><a class="route-back" href="../../../index.html#project-physics-2d">← Back to portfolio</a></div></nav><main id="main" class="project-page technical-page"><header class="technical-hero"><span class="eyebrow">Crucible2.5D · native laboratory notes</span><h1>Crucible2.5D · Thermal comparison routes</h1><p>Separate display exposure from simulation cooling, and inspect the optional shared-face heat exchange.</p><div class="technical-actions"><a href="../index.html#manual-recording-studio">← Crucible2.5D brochure</a><a href="recording-scenes.html">Recording compositions</a><a href="food-studio.html">Food surface and recording studio</a><a href="model-audit.html">Models, branches and their limits</a><a href="thermal-comparison.html" aria-current="page">Thermal comparison routes</a><a href="porous-growth-comparison.html">Porous growth and thickness</a></div></header><aside class="technical-scope"><span>◈</span><p>Native implementation notes and retained comparison evidence. Scene captures record behavior; targeted GPU checks establish specific numerical properties. Their conclusions remain separate from material calibration and whole-system convergence.</p></aside><article class="technical-document"><p>These additions are opt-in. Existing scenes, material laws, legacy branches and
+the default rendering remain available. This is a comparison bench for specific
+numerical and presentation choices, not a claim that the whole sandbox now
+predicts physical heat transfer.</p>
+<p>The recording presets now also start with the familiar fire transfer. <strong>Material
+beauty</strong> explicitly restores it after using the temperature diagnostic. Enable
+<strong>Appearance → Thermal capture &amp; comparison → Alternate thermal display</strong> to try
+the alternative exposure/threshold mapping; <strong>Temperature</strong> still enables its
+diagnostic palettes. This corrects the original recording preset defaults, which
+enabled the alternative automatically despite the otherwise opt-in design.</p>
+<h2 id="capture-without-changing-the-experiment">Capture without changing the experiment</h2><p>The old gas drawing starts at 305 K by default. It maps a broad temperature
+range to additive orange/yellow light. A room full of mildly heated gas can
+therefore look like a room full of flames, independently of what its particles
+are doing. The original Fire Start Temp / Temp Range / Softness controls remain.</p>
+<p>The optional <strong>Thermal capture</strong> route in <code>SDFRenderer::thermal</code> adds:</p>
+<ul>
+<li>A separate emission threshold (initially 480 K), exposure in stops, and color
+saturation. <code>exposure_ev = -1</code> halves the display signal.</li>
+<li>A bounded screen transfer, <code>1 - exp(-signal)</code>, so gas does not simply clip to
+solid gold. The terrain-light gather uses the same threshold/exposure.</li>
+<li>An optional smoke-weighted emission mask, <code>1 - exp(-2 smoke)</code>. This is an
+authored soot proxy. Smoke is not a calibrated soot concentration; hot clean
+gas disappearing from the flame view is intentional, not missing heat.</li>
+<li>Ironbow, cool/warm and spectral temperature views, with explicit minimum and
+maximum temperatures and optional temperature contours. Select <strong>Air View:
+Temperature</strong>. These colors are diagnostics, not blackbody spectra.</li>
+</ul>
+<p>All of this is display-only. Threshold, exposure and palettes never modify the
+thermal buffers. The gas/SDF field overlay is covered; MPM particle appearance,
+explosion decals, bloom and heat-haze passes have their own controls. These
+visuals are not calibrated radiometry. Even the 480 K threshold is a convenient
+capture parameter, not a claim that air visibly incandesces there.</p>
+<p>For a restrained rocket recording: enable the route, try 480–650 K, -1 to -2 EV,
+and 0.5–0.8 saturation. First compare the temperature field. Do not cool the
+simulation merely to hide a bright color ramp.</p>
+<h2 id="a-shared-thermal-face-rather-than-two-separately-clipped-updates">A shared thermal face, rather than two separately clipped updates</h2><p>For fixed cell volume, the heat-like quantity used by the scalar diffusion
+model is <code>E_i = C_i T_i</code>. Its pair exchange should satisfy</p>
+<pre><code class="language-text">C_i (T_i&#39; - T_i) = K_ij dt / dx² (T_j - T_i)
+C_j (T_j&#39; - T_j) = K_ij dt / dx² (T_i - T_j)
+</code></pre>
+<p>The equal and opposite terms cancel if both cells use the same <code>K_ij</code>.
+The previous shader individually clips <code>K_ij dt / (dx² C_i)</code> to 0.24.
+At unlike heat capacities, one side can clip while the other does not. This
+keeps each temperature bounded but no longer cancels capacity-weighted energy.</p>
+<p>The optional <strong>Symmetric thermal flux</strong> route limits the shared face first:</p>
+<pre><code class="language-text">q_ij = min(max(K_ij, 0) dt / dx², 0.24 min(C_i, C_j))
+T_i&#39; = T_i + sum_j q_ij / C_i (T_j - T_i)
+</code></pre>
+<p>The same <code>q_ij</code> is used by both sides. Four nonnegative coefficients each at
+most 0.24 make the step a convex combination, and each interior face cancels
+in <code>sum C_i T_i</code>. There are no extra GPU passes or new storage. This follows
+the shared-face conservation principle of <a href="https://pages.nist.gov/fipy/en/3.4.5/numerical/discret.html" rel="noopener">cell-centered finite volumes</a>.</p>
+<p><strong>Limits:</strong> limiting still reduces the effective conductivity at an excessively
+large timestep. It preserves a local ledger; it does not make that slowed
+diffusion physically time-accurate. Substepping or an implicit solve would be
+the next comparison. Existing interface coefficients remain authored, including
+air/solid contact transfer. Domain borders are pinned to ambient and exchange
+energy with an implicit reservoir. Cooling, sources, temperature clamps,
+semi-Lagrangian advection and MPM/SPH transfers are separate from this invariant.
+Do not describe the full simulation as globally energy-conserving.</p>
+<p>The existing <code>physically_based_heat</code> flag is currently an inactive shader uniform:
+its older two-path distinction had already been removed before this pass. The
+new symmetric toggle is the explicit, functioning comparison.</p>
+<h2 id="cold-air-reservoir-with-an-explicit-time-constant">Cold-air reservoir with an explicit time constant</h2><p>The existing air cooling <strong>already uses exponential relaxation</strong>. Its effective
+rate is reduced by an authored smoke/fresh-vapor/combustion-hold term. That is a
+useful look-development choice but makes a requested cooling rate depend on
+what is burning in the cell.</p>
+<p>The optional <strong>Thermal bath</strong> replaces that air cooling term with</p>
+<pre><code class="language-text">T&#39; = T_bath + (T - T_bath) exp(-dt / tau)
+</code></pre>
+<p>This is the exact local update for the frozen-reservoir ODE
+<code>dT/dt = -(T - T_bath)/tau</code>, a <a href="https://ocw.mit.edu/courses/6-01sc-introduction-to-electrical-engineering-and-computer-science-i-spring-2011/b2d8cb0bb07414a21f5ec444fd00d608_MIT6_01SCS11_textbook.pdf" rel="noopener">Newton cooling model</a>.
+One <code>tau</code> leaves about 37% of the initial temperature gap; three leave about 5%.
+It is monotonic, works for heating as well as cooling, and cannot overshoot the
+reservoir merely because the frame timestep is large. Smoke does not protect a
+cell from this selected route.</p>
+<p><strong>Limits:</strong> this represents an external thermostat or unresolved exchange with
+surroundings, not a conservative gas model or a resolved fan. It acts on air;
+SDF solids respond through conduction and MPM/SPH matter through existing
+coupling. Strong combustion sources can defeat a weak bath. Bath temperature is
+clamped to the existing solver safety band <code>[max(ambient - 100, 0), 2000]</code> K;
+<code>tau</code> has a 0.001 s numerical floor. Changing the display exposure is preferable
+when the goal is only a less saturated recording.</p>
+<h2 id="recording-comparisons">Recording comparisons</h2><ol>
+<li><strong>Warm room versus flame:</strong> pause a heated scene and toggle Thermal capture.
+Show the temperature palette beside the natural drawing. The state is
+unchanged; only the meaning of the color changes.</li>
+<li><strong>Quench after a heat pulse:</strong> stop the heater, select a bath near ambient,
+and compare <code>tau = 0.2, 0.5, 2.0</code> s. Keep the scene and camera identical.
+This demonstrates an external cooling model rather than new chemistry.</li>
+<li><strong>Unequal heat capacities:</strong> place a hot solid beside cool air; use a large
+enough conductivity/timestep to exercise the limiter. Compare symmetric
+flux OFF/ON. The strongest evidence here is the numerical ledger below;
+the visual difference can be subtle under low, already-stable coefficients.</li>
+</ol>
+<p>Crust, burning, annealing and melting remain the existing material behaviors.
+The added routes do not turn their authored thresholds, damage and shrinkage
+rules into calibrated constitutive models. Their value is to expose which
+layer changed: scalar transport, environmental cooling, or only the picture.</p>
+<h2 id="retained-verification">Retained verification</h2><p><code>tests/thermal_comparison_test.cpp</code> dispatches the actual production compute
+shader and draws the actual production display shader in a hidden OpenGL
+context. It checks:</p>
+<ul>
+<li>Capacity-weighted interior exchange and the maximum principle in an
+unlike-capacity case that exposes the old limiter&#39;s energy loss.</li>
+<li>The cooling time constant, time-step partition independence with frozen
+sources, and bounded warming/cooling for a large timestep.</li>
+<li>Visible exposure response, bounded gas display and distinct field palettes.</li>
+<li>Optional exact OFF-route comparisons against the pre-change compute and
+fragment shaders supplied in a baseline directory.</li>
+</ul>
+<p>The display comparison now covers eight flame/terrain fixtures: RGBA32F and
+RGBA8 targets, terrain lighting off/on, and constant/varying smoke. It checks
+that flames and temperature-driven terrain lighting are actually present,
+and that changing the dormant alternate exposure has no effect. These are
+direct production SDF/fire shader draws, not the complete particle, bloom,
+heat-haze and final grading pipeline. The original comparison covered one
+RGBA32F fixture with terrain lighting off.</p>
+<p>Run from the source root: <code>thermal_comparison_test.exe [baseline_directory]</code>.
+The optional directory contains <code>euler_diffuse_temp.comp</code> and <code>sdf_draw.frag</code>
+from checkpoint <code>8baca7b</code>. It tests the local changes; it is not a certificate of
+the sandbox&#39;s complete thermal, chemistry, contact or fracture behavior.</p>
+<p>Measured on the local RTX 4080 Laptop GPU on 2026-09-19: <strong>871 checks passed</strong>.
+This is the retained original test result, before the expanded display fixtures.
+For the controlled single hot solid cell with capacity 8 beside air of capacity
+1, the initial excess <code>sum C(T-300)</code> is 2400. The old individually clipped step
+loses 912 units; the shared-face step loses 0 at the reported precision. Both
+the disabled thermal update and disabled capture image matched checkpoint
+<code>8baca7b</code> exactly in the retained GPU cases. These numbers describe the test
+fixture, not the whole scene&#39;s energy balance.</p>
+<p>On 2026-09-20 the expanded suite passed <strong>950 checks</strong>, including exact matches
+in all eight fire/terrain fixtures. The retained local energy result remains
+unchanged. See <code>regression_review_20260920.md</code> for the separate native heat-tool
+false-blast reproduction and the limits of the comparison with older binaries.</p>
+</article><footer class="technical-footer"><div class="technical-actions"><a href="../index.html#manual-recording-studio">← Crucible2.5D brochure</a><a href="recording-scenes.html">Recording compositions</a><a href="food-studio.html">Food surface and recording studio</a><a href="model-audit.html">Models, branches and their limits</a><a href="thermal-comparison.html" aria-current="page">Thermal comparison routes</a><a href="porous-growth-comparison.html">Porous growth and thickness</a></div></footer></main></body></html>

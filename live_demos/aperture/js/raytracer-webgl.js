@@ -2806,32 +2806,24 @@ export class RayTracerWebGL {
                         // Calculate lens tilt vector from Scheimpflug geometry (use camera space points)
                         vec3 tilt = vec3(0.0);
                         
-                        if (abs(focalPlaneNormal.x) > abs(focalPlaneNormal.y)) {
-                            tilt.x = (focusA_cam.z - focusB_cam.z) * focalLengthM /
-                                (focusA_cam.z * focusB_cam.x - focusB_cam.z * focusA_cam.x +
-                                 (focusA_cam.z * focusB_cam.y - focusB_cam.z * focusA_cam.y) *
-                                 focalPlaneNormal.y / focalPlaneNormal.x);
-                            tilt.y = tilt.x * focalPlaneNormal.y / focalPlaneNormal.x;
-                        } else if (abs(focalPlaneNormal.y) > 0.0) {
-                            tilt.y = (focusA_cam.z - focusB_cam.z) * focalLengthM /
-                                (focusA_cam.z * focusB_cam.y - focusB_cam.z * focusA_cam.y +
-                                 (focusA_cam.z * focusB_cam.x - focusB_cam.z * focusA_cam.x) *
-                                 focalPlaneNormal.x / focalPlaneNormal.y);
-                            tilt.x = tilt.y * focalPlaneNormal.x / focalPlaneNormal.y;
+                        // Plane coefficients avoid the old A/B 0/0 when those two
+                        // gizmo points have equal depth. (Kensler, RTG II ch.31.)
+                        float planeDistance = dot(focalPlaneNormal, focusA_cam);
+                        if (abs(planeDistance) > 0.000001) {
+                            tilt.xy = focalLengthM * focalPlaneNormal.xy / planeDistance;
                         }
-                        
-                        tilt.z = sqrt(max(0.0, 1.0 - tilt.x * tilt.x - tilt.y * tilt.y));
+                        float tiltLength2 = dot(tilt.xy, tilt.xy);
+                        if (tiltLength2 >= 1.0) tilt.xy = vec2(0.0); // No real lens normal: bounded fallback.
+                        tilt.z = sqrt(max(0.0, 1.0 - dot(tilt.xy, tilt.xy)));
                         
                         // Build orthonormal basis for tilted lens
-                        vec3 basis_u = normalize(cross(tilt,
-                            abs(tilt.x) > abs(tilt.y) ? vec3(0.0, 1.0, 0.0) : vec3(1.0, 0.0, 0.0)));
+                        vec3 basis_u = normalize(cross(
+                            abs(tilt.y) < 0.99 ? vec3(0.0, 1.0, 0.0) : vec3(1.0, 0.0, 0.0), tilt));
                         vec3 basis_v = cross(tilt, basis_u);
                         
-                        // Resample lens point using tilted basis (Ray Tracing Gems II method)
-                        float theta = 6.28318531 * random();
-                        float r = 0.5 * apertureRadius * sqrt(random());
-                        vec3 tilted_lens = (cos(theta) * basis_u + sin(theta) * basis_v) * r;
-                        lensPoint = apertureCenter + tilted_lens;
+                        // Preserve the selected aperture shape and its physical f/N radius.
+                        vec3 tilted_lens = apertureSample.x * basis_u + apertureSample.y * basis_v;
+                        lensPoint = apertureCenter + tilted_lens.x * right + tilted_lens.y * up + tilted_lens.z * forward;
                         
                         // SIMPLIFIED: Intersect viewing ray with focal plane (in WORLD space)
                         // The focal plane passes through the 3 focus points (world space)
@@ -2878,8 +2870,10 @@ export class RayTracerWebGL {
                         }
                         
                     } else {
-                        // Standard mode: focus point along viewing direction at focus distance
-                        focusPoint = ray.origin + normalize(targetPoint) * u_focusDistance;
+                        // Axial focus distance defines a PLANE, not a sphere centered on
+                        // the camera. Off-axis pixels share the same sharp object depth.
+                        float axial = dot(targetPoint, forward);
+                        focusPoint = ray.origin + targetPoint * (u_focusDistance / max(0.000001, axial));
                     }
                     
                     // Generate ray from lens sample point toward focus point

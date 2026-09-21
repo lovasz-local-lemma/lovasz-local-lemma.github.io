@@ -1,0 +1,113 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="780" viewBox="0 0 1120 780" role="img" aria-labelledby="title desc">
+  <title id="title">Three emitter studies: source area, source profile, and their nine-light matrix</title>
+  <desc id="desc">Top-down source maps, not rendered beams. All emitters point down along minus y from y equals 10.8 inside a 26 by 12 by 26 homogeneous medium. Study A has tiny red, medium green, and huge violet diffuse sources. Study B has equal-size amber laser-like, mint cone, and pink diffuse sources. Study C combines three source sizes in columns with laser-like, cone, and diffuse profiles in rows. Every source has a different color. Squares are proportional to actual edge length within each map. World x increases rightward and z increases downward. All sources have equal integrated luminance-weighted RGB power.</desc>
+  <defs>
+    <linearGradient id="bg" x2="1" y2="1"><stop stop-color="#111b1d"/><stop offset="1" stop-color="#080d12"/></linearGradient>
+    <linearGradient id="panel" x2="1" y2="1"><stop stop-color="#1b2728" stop-opacity=".8"/><stop offset="1" stop-color="#11171b" stop-opacity=".8"/></linearGradient>
+    <linearGradient id="rim" x2="1" y2="1"><stop stop-color="#e4c675"/><stop offset=".48" stop-color="#629c90"/><stop offset="1" stop-color="#334349"/></linearGradient>
+    <radialGradient id="warm"><stop stop-color="#ceb66b" stop-opacity=".09"/><stop offset="1" stop-color="#ceb66b" stop-opacity="0"/></radialGradient>
+    <filter id="glow" x="-150%" y="-150%" width="400%" height="400%"><feGaussianBlur stdDeviation="3"/></filter>
+    <marker id="arrow" viewBox="0 0 8 8" refX="6" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M1 1 L6 4 L1 7" fill="none" stroke="#829f9b" stroke-width="1.2"/></marker>
+    <style>
+      text { font-family: Inter, 'Segoe UI', Arial, sans-serif; fill: #e8e5d8; }
+      .serif { font-family: Georgia, 'Times New Roman', serif; }
+      .kicker { font-size: 11px; letter-spacing: 1.8px; fill: #ddc478; font-weight: 700; }
+      .muted { fill: #abc0bd; }
+      .small { font-size: 12px; }
+      .label { font-size: 14px; font-weight: 650; }
+      .fine { font-size: 11px; fill: #a5b8b7; }
+      .guide { fill: none; stroke: #66817f; stroke-opacity: .32; stroke-dasharray: 3 6; }
+      .square { stroke: #fff4cf; stroke-opacity: .7; stroke-width: 1; rx: 1; }
+    </style>
+  </defs>
+  <rect width="1120" height="780" rx="22" fill="url(#bg)"/>
+  <ellipse cx="220" cy="80" rx="380" ry="240" fill="url(#warm)"/>
+  <text x="28" y="29" class="kicker">MODE 31 / CONTROLLED EMITTER STUDIES</text>
+  <text x="28" y="62" class="serif" font-size="27">Change the source. Watch the estimator respond.</text>
+  <text x="1092" y="60" text-anchor="end" class="small muted">Source maps · not rendered illumination</text>
+
+  <!-- These two row maps use 18 pixels per world unit. -->
+  <rect x="24" y="92" width="524" height="242" rx="19" fill="url(#panel)" stroke="url(#rim)"/>
+  <text x="46" y="119" class="kicker">A / SOURCE AREA</text>
+  <text x="46" y="146" class="serif" font-size="20">One profile, three emitter sizes</text>
+  <text x="526" y="119" text-anchor="end" class="fine">Preset 80</text>
+  <path d="M83 225 H489" class="guide"/>
+  <rect x="137.5" y="220.5" width="9" height="9" fill="#ff291a" filter="url(#glow)" opacity=".8"/>
+  <rect x="137.5" y="220.5" width="9" height="9" fill="#ff291a" class="square"/>
+  <rect x="268" y="207" width="36" height="36" fill="#1fff52" class="square"/>
+  <rect x="372.4" y="167.4" width="115.2" height="115.2" fill="#7038ff" fill-opacity=".88" class="square"/>
+  <text x="142" y="301" text-anchor="middle" class="label">Tiny · 0.5</text>
+  <text x="286" y="301" text-anchor="middle" class="label">Medium · 2</text>
+  <text x="430" y="301" text-anchor="middle" class="label">Huge · 6.4</text>
+  <text x="286" y="320" text-anchor="middle" class="fine">x = −8 / 0 / +8 · all diffuse · z = 0</text>
+
+  <rect x="572" y="92" width="524" height="242" rx="19" fill="url(#panel)" stroke="url(#rim)"/>
+  <text x="594" y="119" class="kicker">B / SOURCE PROFILE</text>
+  <text x="594" y="146" class="serif" font-size="20">One size, three angular profiles</text>
+  <text x="1074" y="119" text-anchor="end" class="fine">Preset 81</text>
+  <path d="M631 225 H1037" class="guide"/>
+  <rect x="672" y="207" width="36" height="36" fill="#ff9417" class="square"/>
+  <rect x="816" y="207" width="36" height="36" fill="#1affd9" class="square"/>
+  <rect x="960" y="207" width="36" height="36" fill="#ff26a3" class="square"/>
+  <text x="690" y="274" text-anchor="middle" class="label">Laser-like</text>
+  <text x="834" y="274" text-anchor="middle" class="label">Cone</text>
+  <text x="978" y="274" text-anchor="middle" class="label">Diffuse</text>
+  <text x="690" y="294" text-anchor="middle" class="small muted">cos⁵⁰⁰θ</text>
+  <text x="834" y="294" text-anchor="middle" class="small muted">25° half-angle</text>
+  <text x="978" y="294" text-anchor="middle" class="small muted">cos θ</text>
+  <text x="834" y="320" text-anchor="middle" class="fine">Edge = 2 · x = −8 / 0 / +8 · z = 0</text>
+
+  <rect x="24" y="354" width="1072" height="372" rx="19" fill="url(#panel)" stroke="url(#rim)"/>
+  <text x="46" y="382" class="kicker">C / SIZE × PROFILE</text>
+  <text x="1074" y="382" text-anchor="end" class="fine">Preset 82 · all nine sources together</text>
+
+  <!-- Matrix scale is 10 pixels per world unit in BOTH x and z. The dashed
+       outer boundary is the one shared medium, not nine compartments. -->
+  <rect x="85" y="420" width="260" height="260" rx="2" class="guide"/>
+  <path d="M135 424 V676 M215 424 V676 M295 424 V676 M89 470 H341 M89 550 H341 M89 630 H341" class="guide"/>
+  <text x="135" y="407" text-anchor="middle" class="fine">−8 · tiny</text>
+  <text x="215" y="407" text-anchor="middle" class="fine">0 · medium</text>
+  <text x="295" y="407" text-anchor="middle" class="fine">+8 · huge</text>
+  <path d="M85 700 H345" fill="none" stroke="#829f9b" marker-end="url(#arrow)"/>
+  <text x="215" y="717" text-anchor="middle" class="fine">world +x</text>
+  <path d="M65 420 V680" fill="none" stroke="#829f9b" marker-end="url(#arrow)"/>
+  <text x="51" y="550" transform="rotate(-90 51 550)" text-anchor="middle" class="fine">world +z</text>
+
+  <rect x="132.5" y="467.5" width="5" height="5" fill="#ff291a" filter="url(#glow)"/>
+  <rect x="132.5" y="467.5" width="5" height="5" fill="#ff291a" class="square"/>
+  <rect x="205" y="460" width="20" height="20" fill="#ff9417" class="square"/>
+  <rect x="263" y="438" width="64" height="64" fill="#ccff1f" fill-opacity=".9" class="square"/>
+  <text x="144" y="474" class="fine">01</text><text x="232" y="474" class="fine">02</text><text x="334" y="474" class="fine">03</text>
+  <text x="370" y="465" class="label">Laser-like</text><text x="370" y="484" class="fine">z = −8</text>
+
+  <rect x="132.5" y="547.5" width="5" height="5" fill="#1fff52" filter="url(#glow)"/>
+  <rect x="132.5" y="547.5" width="5" height="5" fill="#1fff52" class="square"/>
+  <rect x="205" y="540" width="20" height="20" fill="#1affd9" class="square"/>
+  <rect x="263" y="518" width="64" height="64" fill="#1f94ff" fill-opacity=".9" class="square"/>
+  <text x="144" y="554" class="fine">04</text><text x="232" y="554" class="fine">05</text><text x="334" y="554" class="fine">06</text>
+  <text x="370" y="545" class="label">Cone</text><text x="370" y="564" class="fine">z = 0</text>
+
+  <rect x="132.5" y="627.5" width="5" height="5" fill="#7038ff" filter="url(#glow)"/>
+  <rect x="132.5" y="627.5" width="5" height="5" fill="#7038ff" class="square"/>
+  <rect x="205" y="620" width="20" height="20" fill="#ff26a3" class="square"/>
+  <rect x="263" y="598" width="64" height="64" fill="#ff8a61" fill-opacity=".9" class="square"/>
+  <text x="144" y="634" class="fine">07</text><text x="232" y="634" class="fine">08</text><text x="334" y="634" class="fine">09</text>
+  <text x="370" y="625" class="label">Diffuse</text><text x="370" y="644" class="fine">z = +8</text>
+
+  <path d="M483 408 V690" stroke="#849d90" stroke-opacity=".25"/>
+  <text x="513" y="430" class="serif" font-size="23">One medium. Nine ways to illuminate it.</text>
+  <text x="513" y="459" class="small muted">All sources emit downward (−y) from y = 10.8.</text>
+  <text x="513" y="480" class="small muted">The dotted boundary is a single 26 × 12 × 26 medium.</text>
+  <text x="513" y="501" class="small muted">Light fields overlap freely; there are no dividing walls.</text>
+  <rect x="513" y="526" width="551" height="105" rx="12" fill="#10191c" stroke="#669a8d" stroke-opacity=".45"/>
+  <text x="532" y="552" class="kicker">FOR CONTROLLED COMPARISONS</text>
+  <text x="532" y="577" font-size="14">Isolate one source and move it to the same centre.</text>
+  <text x="532" y="600" class="small muted">Keep its size, profile, colour and power; hold the camera fixed.</text>
+  <text x="532" y="619" class="fine">The complete matrix also tests overlap and source-selection allocation.</text>
+  <text x="513" y="661" class="small muted">Squares show true edge-length ratios within each map.</text>
+  <text x="513" y="682" class="small muted">Colours identify sources; brightness here does not encode power.</text>
+  <text x="513" y="703" class="fine">Native “Diffuse” adds a cosine to radiance; laser-like is finite, not delta.</text>
+
+  <text x="28" y="751" font-size="13" fill="#ddc478">Held fixed: integrated RGB-luminance power = 120 per source · σs = 0.08 · σa = 0.004 · g = 0</text>
+  <text x="28" y="770" class="fine">Power is an RGB luminance proxy, not spectral watts. Diagram scales differ; world coordinates and emitter proportions are explicit.</text>
+</svg>

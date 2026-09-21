@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+<head><style id="portfolio-early-paint">html{background:#0b0d0c;color-scheme:dark}html.portfolio-booting body{opacity:0}</style><script src="../../../portfolio-navigation.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Algorithm Visualization Demo - Bilateral Grid & Hough Transform</title>
+    <title>Computational Photography · Change the Representation</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         
@@ -571,25 +571,48 @@
             font-size: 0.9em;
         }
     </style>
-</head>
+    
+    <link rel="stylesheet" href="photo-workbench.css">
+    <link rel="stylesheet" href="photo-edit-labs.css">
+<link rel="stylesheet" href="../../../portfolio-controls.css"><link rel="stylesheet" href="../../../portfolio-demo-return.css"><script defer src="../../../portfolio-demo-return.js" data-project="image_processing" data-title="Computational photography" data-overview="projects/image_processing/overview.html" data-group="graphics" data-thumbnail="media/projects/image_processing/lightfield-refocus.jpg" data-routes="[{&quot;project&quot;:&quot;image_processing&quot;,&quot;title&quot;:&quot;Computational photography&quot;,&quot;group&quot;:&quot;graphics&quot;,&quot;thumbnail&quot;:&quot;media/projects/image_processing/lightfield-refocus.jpg&quot;,&quot;overview&quot;:&quot;projects/image_processing/overview.html&quot;,&quot;path&quot;:&quot;live_demos/visualizations/image_processing/index.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:2},{&quot;project&quot;:&quot;image_processing&quot;,&quot;title&quot;:&quot;Computational photography&quot;,&quot;group&quot;:&quot;graphics&quot;,&quot;thumbnail&quot;:&quot;media/projects/image_processing/lightfield-refocus.jpg&quot;,&quot;overview&quot;:&quot;projects/image_processing/overview.html&quot;,&quot;path&quot;:&quot;live_demos/visualizations/image_processing/index.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:1},{&quot;project&quot;:&quot;image_processing&quot;,&quot;title&quot;:&quot;Computational photography&quot;,&quot;group&quot;:&quot;graphics&quot;,&quot;thumbnail&quot;:&quot;media/projects/image_processing/lightfield-refocus.jpg&quot;,&quot;overview&quot;:&quot;projects/image_processing/overview.html&quot;,&quot;path&quot;:&quot;live_demos/visualizations/image_processing/index.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:3}]"></script><!-- universal-navigation:start --><link rel="stylesheet" href="../../../portfolio-location.css?v=054b6b462c"><script defer src="../../../portfolio-location.js?v=054b6b462c"></script><script defer src="../../../portfolio-routes.js?v=054b6b462c"></script><script defer src="../../../portfolio-universal-navigation.js?v=054b6b462c"></script><!-- universal-navigation:end --><style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head>
 <body>
     <a href="../../../index.html" class="back-button">Back to Portfolio</a>
     <div class="container">
-        <h1>🎨 Computational Photography, Computer Vision, & Image Processing</h1>
-        <!-- <p class="subtitle">Interactive demo for filters and shape detection</p> -->
-<p class="subtitle">
-   This page brings together a set of interactive algorithm visualizations designed to make 
-    classical image-processing techniques transparent. By exposing their internal structures—
-    from bilateral grids to Hough parameter spaces—these demos reveal the computational and 
-    geometric principles behind filters, detectors, and transforms used throughout vision and graphics.
-    <strong>(More computationally intensive algorithms will be showcased in a separate demo built on a higher-performance backend.)</strong>
-</p>
+        <header class="photo-hero">
+<div><span class="photo-eyebrow">Computational photography · images as measurements</span><h1>Change the representation.<br>Change what becomes possible.</h1><p class="subtitle">An image is more than a grid of colors. Lift it into a spatial–range grid, let its edges vote, align measurements across images, or integrate exposures and viewpoints. This workbench makes those intermediate spaces visible.</p></div>
+<svg class="photo-hero-diagram" viewBox="0 0 350 220" role="img" aria-label="Samples lifted into a grid, aligned, and integrated into an image"><defs><linearGradient id="photo-hero-glow"><stop stop-color="#83e2c4"/><stop offset="1" stop-color="#d5adfb"/></linearGradient></defs><g fill="none" stroke="url(#photo-hero-glow)" stroke-width="1.7"><path d="M32 128 112 165 192 128 112 92Z M32 100 112 137 192 100 112 64Z M32 72 112 109 192 72 112 36Z M32 72V128 M112 109V165 M192 72V128"/><path d="M196 110H239m-12-10 12 10-12 10" stroke="#edce8a"/><rect x="256" y="57" width="74" height="106" rx="8"/><path d="m265 140 12-50 12 26 12-39 15 63" stroke="#edce8a"/></g><g fill="#93efd0"><circle cx="72" cy="72" r="4"/><circle cx="112" cy="100" r="4"/><circle cx="140" cy="126" r="4"/></g><text x="38" y="200" fill="#acc4cb" font-size="12">samples → structure → recovered image</text></svg>
+</header>
+<nav class="photo-route" aria-label="Representations in this workbench">
+<a href="#photo-hdr"><b>Σ</b><strong>Integrate</strong><span>HDR exposures · light-field rays</span></a>
+<a href="#photo-align"><b>⊕</b><strong>Align</strong><span>Consensus · warping · overlap</span></a>
+<a href="#photo-gradients"><b>∇</b><strong>Edit derivatives</strong><span>Poisson reconstruction · mixed gradients</span></a>
+<a href="#photo-frequency"><b>ℱ</b><strong>Edit frequencies</strong><span>Spectral masks · actual inverse</span></a>
+<a href="#photo-lift"><b>▱</b><strong>Lift</strong><span>Pixels → spatial–range grid</span></a>
+<a href="#photo-vote"><b>⌁</b><strong>Vote</strong><span>Edges → parameter-space peaks</span></a>
+</nav>
+<div id="photo-experiments">
+<section class="demo-section photo-study" id="photo-hdr" data-photo="hdr"></section>
+<section class="demo-section photo-study" id="photo-refocus" data-photo="refocus"></section>
+<section class="demo-section photo-study" id="photo-align" data-photo="align"></section>
+</div>
+<section class="demo-section photo-edit-study" id="photo-gradients" aria-label="Gradient-domain image editing"></section>
+<section class="demo-section photo-edit-study" id="photo-frequency" aria-label="Frequency-domain image editing"></section>
+<div class="photo-section-heading"><span class="photo-eyebrow">The foundations remain inspectable</span><h2>Lift, vote, and manipulate the image</h2><p>Draw or upload an image, inspect the intermediate representation, then compare the result. The existing grid, Hough and filter tools continue below.</p></div>
 
 <!-- Bilateral Grid Section -->
-        <div class="demo-section">
+        <div class="demo-section" id="photo-lift">
             <h2>📊 Bilateral Grid Filter</h2>
             <div class="info-box">
                 <h3>About Bilateral Grid</h3>
+                <p><strong>Scope of this original study:</strong> the visible grid exposes spatial and intensity bins. Its filter uses one X-direction box-blur pass and trilinear sampling, rather than the full three-axis Gaussian bilateral-grid algorithm.</p>
                 <p>The bilateral grid is an efficient data structure for edge-preserving image filtering. 
                    It extends the 2D image into a 3D space where X and Y are spatial coordinates, and Z is 
                    the intensity/color dimension. Pixels are "splatted" into this 3D grid, accumulating in cells. 
@@ -645,7 +668,7 @@
         </div>
 
         <!-- Hough Transform Section -->
-        <div class="demo-section">
+        <div class="demo-section" id="photo-vote">
             <h2>📐 Hough Transform - Line Detection</h2>
             <div class="info-box">
                 <h3>About Hough Transform</h3>
@@ -991,6 +1014,14 @@
         </div>
     </div>
 
+    <script src="photo-models.js"></script>
+    <script src="photo-display.js"></script>
+    <script src="photo-quad.js"></script>
+    <script src="photo-sources.js"></script>
+    <script src="photo-workbench.js"></script>
+    <script src="photo-edit-models.js"></script>
+    <script src="photo-render-capture.js"></script>
+    <script src="photo-edit-labs.js"></script>
     <script type="module" src="main.js"></script>
 </body>
 </html>

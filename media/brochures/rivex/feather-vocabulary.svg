@@ -1,0 +1,125 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="730" viewBox="0 0 1440 730" role="img" aria-labelledby="title desc">
+  <title id="title">Three ways to soften a primitive</title>
+  <desc id="desc">A conceptual comparison, not a native renderer benchmark. A filled shape has a nearly uniform interior and a softened boundary. An anisotropic Gaussian has a bright central peak and a falloff controlled by two covariance axes. A stack of translucent vector ellipses approximates a smooth field with a finite number of layers. Below each illustration is a schematic intensity profile.</desc>
+  <defs>
+    <linearGradient id="background" x2="1" y2="1">
+      <stop stop-color="#152023"/>
+      <stop offset="1" stop-color="#090e12"/>
+    </linearGradient>
+    <linearGradient id="panel" x2="0" y2="1">
+      <stop stop-color="#1a2528"/>
+      <stop offset="1" stop-color="#10181d"/>
+    </linearGradient>
+    <radialGradient id="gaussian">
+      <stop stop-color="#d5fff0" stop-opacity="1"/>
+      <stop offset=".14" stop-color="#b3f9e0" stop-opacity=".94"/>
+      <stop offset=".30" stop-color="#8de0ca" stop-opacity=".71"/>
+      <stop offset=".47" stop-color="#77d9c0" stop-opacity=".40"/>
+      <stop offset=".64" stop-color="#70cdb9" stop-opacity=".17"/>
+      <stop offset=".81" stop-color="#70cdb9" stop-opacity=".046"/>
+      <stop offset="1" stop-color="#70cdb9" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="gold-area" x2="0" y2="1">
+      <stop stop-color="#ead18a" stop-opacity=".25"/>
+      <stop offset="1" stop-color="#ead18a" stop-opacity=".015"/>
+    </linearGradient>
+    <linearGradient id="teal-area" x2="0" y2="1">
+      <stop stop-color="#8de0ca" stop-opacity=".25"/>
+      <stop offset="1" stop-color="#8de0ca" stop-opacity=".015"/>
+    </linearGradient>
+    <linearGradient id="coral-area" x2="0" y2="1">
+      <stop stop-color="#eea190" stop-opacity=".25"/>
+      <stop offset="1" stop-color="#eea190" stop-opacity=".015"/>
+    </linearGradient>
+    <filter id="soft-boundary" x="-30%" y="-70%" width="160%" height="240%" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="10"/>
+    </filter>
+    <marker id="axis-tip" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto-start-reverse">
+      <path d="M0 0 6 3 0 6" fill="none" stroke="#a4c4bc" stroke-width="1"/>
+    </marker>
+    <style>
+      text { font-family: Arial, Helvetica, sans-serif; }
+      .eyebrow { font-size: 14px; font-weight: 700; letter-spacing: 2.4px; fill: #b8bba9; }
+      .heading { font-family: Georgia, 'Times New Roman', serif; font-size: 38px; fill: #f0e7ce; }
+      .number { font-size: 14px; font-weight: 700; letter-spacing: 2px; }
+      .name { font-family: Georgia, 'Times New Roman', serif; font-size: 27px; fill: #f0e7ce; }
+      .annotation { font-size: 15px; fill: #afc0bd; }
+      .caption { font-size: 19px; fill: #cdd3ca; }
+      .muted { font-size: 16px; fill: #96aaa6; }
+      .baseline { fill: none; stroke: #63726f; stroke-width: 1; opacity: .62; }
+      .profile { fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+    </style>
+  </defs>
+
+  <rect width="1440" height="730" rx="22" fill="url(#background)"/>
+  <path d="M36 105H1404" stroke="#bcaa6c" stroke-opacity=".32"/>
+  <text x="36" y="33" class="eyebrow">RIVX / A VOCABULARY FOR FEATHERING</text>
+  <text x="36" y="79" class="heading">Three ways to soften a primitive.</text>
+  <text x="1404" y="72" text-anchor="end" class="muted">Same softness. Different constructions.</text>
+
+  <g transform="translate(36 129)">
+    <rect width="444" height="536" rx="17" fill="url(#panel)" stroke="#ead18a" stroke-opacity=".29"/>
+    <text x="25" y="33" class="number" fill="#ead18a">01 / SHAPE</text>
+    <text x="25" y="72" class="name">A filled interior, a soft edge.</text>
+    <g transform="translate(222 189) rotate(-14)">
+      <rect x="-130" y="-48" width="260" height="96" rx="48" fill="#ead18a" filter="url(#soft-boundary)"/>
+      <rect x="-130" y="-48" width="260" height="96" rx="48" fill="none" stroke="#fff1bd" stroke-opacity=".48" stroke-dasharray="3 6"/>
+    </g>
+    <path d="M93 169 54 139H27" fill="none" stroke="#bbaa78" stroke-opacity=".65"/>
+    <text x="27" y="128" class="annotation">Soft boundary</text>
+    <text x="222" y="195" text-anchor="middle" font-size="16" fill="#243131">Nearly uniform interior</text>
+    <text x="25" y="311" class="eyebrow" style="font-size:11px;letter-spacing:1.5px">ILLUSTRATIVE CROSS-SECTION</text>
+    <path d="M46 404H400M46 325V409" class="baseline"/>
+    <path d="M47 403C74 403 85 402 96 396S111 373 119 356S136 338 155 338H285C304 338 314 341 322 356S334 390 346 396S371 403 400 403V404H47Z" fill="url(#gold-area)"/>
+    <path d="M47 403C74 403 85 402 96 396S111 373 119 356S136 338 155 338H285C304 338 314 341 322 356S334 390 346 396S371 403 400 403" class="profile" stroke="#ead18a"/>
+    <text x="25" y="450" class="caption">The boundary is softened;</text>
+    <text x="25" y="477" class="caption">the interior remains a plateau.</text>
+    <text x="25" y="515" class="muted">A shape-mask model of feathering.</text>
+  </g>
+
+  <g transform="translate(498 129)">
+    <rect width="444" height="536" rx="17" fill="url(#panel)" stroke="#8de0ca" stroke-opacity=".29"/>
+    <text x="25" y="33" class="number" fill="#8de0ca">02 / FIELD</text>
+    <text x="25" y="72" class="name">A peak with a smooth falloff.</text>
+    <g transform="translate(222 189) rotate(-17)">
+      <ellipse rx="186" ry="92" fill="url(#gaussian)"/>
+      <ellipse rx="105" ry="52" fill="none" stroke="#a9e8d4" stroke-opacity=".33" stroke-dasharray="3 6"/>
+      <path d="M-136 0H136M0-70V70" stroke="#a4c4bc" stroke-opacity=".75" stroke-width="1.2" marker-start="url(#axis-tip)" marker-end="url(#axis-tip)"/>
+      <circle r="4" fill="#e3fff5"/>
+    </g>
+    <text x="293" y="144" class="annotation">Covariance axes</text>
+    <path d="M326 151 338 155 351 150" fill="none" stroke="#a4c4bc" stroke-opacity=".6"/>
+    <text x="25" y="311" class="eyebrow" style="font-size:11px;letter-spacing:1.5px">ILLUSTRATIVE CROSS-SECTION</text>
+    <path d="M46 404H400M46 325V409" class="baseline"/>
+    <path d="M47 403C91 403 126 400 149 386S187 332 222 332S272 372 295 386S356 403 400 403V404H47Z" fill="url(#teal-area)"/>
+    <path d="M47 403C91 403 126 400 149 386S187 332 222 332S272 372 295 386S356 403 400 403" class="profile" stroke="#8de0ca"/>
+    <text x="25" y="450" class="caption">The whole primitive is a field;</text>
+    <text x="25" y="477" class="caption">its axes set direction and spread.</text>
+    <text x="25" y="515" class="muted">An anisotropic Gaussian model.</text>
+  </g>
+
+  <g transform="translate(960 129)">
+    <rect width="444" height="536" rx="17" fill="url(#panel)" stroke="#eea190" stroke-opacity=".29"/>
+    <text x="25" y="33" class="number" fill="#eea190">03 / APPROXIMATION</text>
+    <text x="25" y="72" class="name">Softness, built from layers.</text>
+    <g transform="translate(222 189) rotate(-17)" fill="#eea190" stroke="#ffc3aa" stroke-opacity=".27" stroke-width="1">
+      <ellipse rx="158" ry="74" fill-opacity=".08"/>
+      <ellipse rx="135" ry="63" fill-opacity=".11"/>
+      <ellipse rx="112" ry="52" fill-opacity=".16"/>
+      <ellipse rx="89" ry="41" fill-opacity=".23"/>
+      <ellipse rx="66" ry="30" fill-opacity=".32"/>
+      <ellipse rx="43" ry="19" fill-opacity=".44"/>
+      <ellipse rx="20" ry="9" fill-opacity=".58"/>
+    </g>
+    <path d="M303 202 335 237H406" fill="none" stroke="#dbab9c" stroke-opacity=".6"/>
+    <text x="406" y="258" text-anchor="end" class="annotation">Translucent vector ellipses</text>
+    <text x="25" y="311" class="eyebrow" style="font-size:11px;letter-spacing:1.5px">ILLUSTRATIVE CROSS-SECTION</text>
+    <path d="M46 404H400M46 325V409" class="baseline"/>
+    <path d="M47 403H86V399H110V393H134V382H158V365H182V348H206V336H237V348H261V365H285V382H309V393H333V399H357V403H400V404H47Z" fill="url(#coral-area)"/>
+    <path d="M47 403H86V399H110V393H134V382H158V365H182V348H206V336H237V348H261V365H285V382H309V393H333V399H357V403H400" class="profile" stroke="#eea190"/>
+    <text x="25" y="450" class="caption">More layers can reduce banding,</text>
+    <text x="25" y="477" class="caption">but consume the vector budget.</text>
+    <text x="25" y="515" class="muted">A finite, portable approximation.</text>
+  </g>
+  <text x="720" y="705" text-anchor="middle" font-size="17" fill="#a9b3aa">Conceptual profiles · actual renderer costs and fitting errors depend on geometry and settings.</text>
+</svg>

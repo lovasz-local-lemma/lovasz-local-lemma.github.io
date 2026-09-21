@@ -1,0 +1,56 @@
+.laplace-lab{--mint:#8de8c5;--violet:#b7a2ff;position:relative;padding:clamp(20px,3vw,44px);border:1px solid #9edac96b;border-radius:26px;background:radial-gradient(ellipse at 70% 0%,#4b456e44,transparent 65%),linear-gradient(140deg,#173332ad,#10141de8);box-shadow:inset 0 1px #e9fff433,0 18px 55px #0008,0 0 36px #7dcab313;margin:40px 0;color:#e4ede8;isolation:isolate}
+.laplace-lab h2{color:#f2ddb0;margin-top:0}.laplace-lab .lab-kicker{font:600 .76rem system-ui;letter-spacing:.17em;text-transform:uppercase;color:var(--mint)}
+.laplace-lab .lab-lead{max-width:900px;line-height:1.75;color:#c2d4d2}.laplace-lab .lab-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:22px 0}
+.laplace-lab button,.laplace-lab select{font:inherit;color:#e9efea;background:linear-gradient(140deg,#263d3b,#161b26);border:1px solid #809b9866;border-radius:12px;padding:11px 15px;cursor:pointer;box-shadow:inset 0 1px #f6ffef18;transition:border-color .2s,box-shadow .2s}
+.laplace-lab option{color:#edf6ef;background:#18242a}.laplace-lab button:hover,.laplace-lab button:focus-visible,.laplace-lab button[aria-pressed=true]{border-color:#a4efd0;box-shadow:0 0 18px #84f7c629;outline:none}
+.laplace-lab .lab-steps button{text-align:left;display:grid;gap:6px}.laplace-lab button small{color:#a5bbbc;font:.77rem/1.5 system-ui}
+.laplace-lab .laplace-controls{display:flex;flex-wrap:wrap;align-items:end;gap:18px;padding:18px;border:1px solid #82a7aa44;border-radius:16px;background:#0d151944}
+.laplace-lab label{display:grid;gap:9px;flex:1 1 145px;font:500 .83rem system-ui;color:#d0dfdf}.laplace-lab output{color:#ffe6ad;font-variant-numeric:tabular-nums}.laplace-lab input[type=range]{accent-color:#9adec7;appearance:none;height:7px;border-radius:8px;background:linear-gradient(90deg,#617869,#202d39);width:100%;cursor:pointer}.laplace-lab input[type=range]::-webkit-slider-thumb{appearance:none;width:16px;height:16px;background:#e8edc7;border:2px solid #648d83;border-radius:50%;box-shadow:0 0 10px #adffd077}
+.laplace-lab canvas{display:block;width:100%;height:auto;aspect-ratio:1.6;background:radial-gradient(ellipse at 50% 65%,#152831,#0b1119);border-radius:15px;touch-action:pan-y}.laplace-lab [data-role="laplace-surface"]{aspect-ratio:2.05;cursor:grab;touch-action:none}.laplace-lab canvas:active{cursor:grabbing}
+.laplace-lab .laplace-plots{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}.laplace-lab figure{margin:0;min-width:0;border:1px solid #92bfb533;border-radius:16px;overflow:hidden;background:#121d23aa}.laplace-lab figure.surface{margin-top:18px}.laplace-lab figcaption{padding:13px 16px;font:.8rem/1.6 system-ui;color:#bed0d3}.laplace-lab figcaption strong{color:#e8dfbf;display:block}
+.laplace-lab .lab-readout{padding:16px 19px;margin-top:16px;background:#182628;border-left:3px solid var(--mint);border-radius:8px;font:.86rem/1.65 system-ui;color:#cce0dc}.laplace-lab .lab-readout[data-warning=true]{border-color:#eda27b;background:#342725;color:#f4ceb5}
+.laplace-lab [hidden]{display:none!important}.laplace-lab .lab-steps{grid-template-columns:repeat(auto-fit,minmax(175px,1fr))}.laplace-lab .lab-steps button[aria-pressed=true]{background:linear-gradient(135deg,#275044,#24283b);box-shadow:inset 0 1px #d2ffe54a,0 0 24px #84f7c636}
+.laplace-lab .laplace-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:16px}.laplace-lab .laplace-metrics>div{padding:15px;border:1px solid #91c9b746;border-radius:12px;background:linear-gradient(130deg,#21413b99,#141d2a);box-shadow:inset 0 1px #d6ffe425,0 5px 20px #0003;min-width:0}.laplace-lab .laplace-metrics span{display:block;font:.74rem/1.6 system-ui;color:#b5cec9}.laplace-lab .laplace-metrics b{display:block;margin-top:5px;font:500 clamp(.85rem,1.5vw,1.1rem)/1.5 monospace;color:#f1ddae;overflow-wrap:anywhere}.laplace-lab[data-mode=roc] [data-role="laplace-surface"]{cursor:crosshair}
+.laplace-lab details{padding:15px 18px;margin-top:16px;border:1px solid #b4a5d955;border-radius:12px;background:#29273c66;font:.92rem/1.75 system-ui}.laplace-lab summary{color:#d0c0ff;cursor:pointer;font-weight:600}.laplace-lab .lab-equation{font:1rem/1.7 monospace;color:#e9d5a4;padding:15px 0;overflow:auto}.laplace-lab .lab-links{display:flex;flex-wrap:wrap;gap:10px;margin-top:15px}.laplace-lab .lab-links a{display:inline-block;border:1px solid #78ad9e66;padding:8px 13px;border-radius:10px;color:#bce5cf;text-decoration:none;font:.8rem system-ui}.laplace-lab .lab-links a:hover{background:#a2e8bd16}
+@media(max-width:720px){.laplace-lab .lab-steps{grid-template-columns:1fr}.laplace-lab .laplace-plots{grid-template-columns:1fr}.laplace-lab [data-role="laplace-surface"]{aspect-ratio:1.3}.laplace-lab .laplace-metrics{grid-template-columns:1fr}.laplace-lab{padding:18px}}
+
+/* Long expressions in the legacy notebook must fit narrow viewports. */
+@media (max-width: 640px) { code { white-space: pre-wrap; overflow-wrap: anywhere; } }
+
+.slice-tools{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.slice-tools p{flex-basis:100%;font: .85rem/1.6 monospace;color:#e9d5a4;min-height:3em;overflow-wrap:anywhere}.laplace-lab .slice-time{margin-top:16px}.laplace-lab [data-role="laplace-weighted"]{aspect-ratio:4}.laplace-lab [data-role="laplace-surface"]:focus-visible{outline:2px solid #edce91;outline-offset:3px}
+
+.laplace-lab [data-role="laplace-volume"]{aspect-ratio:2.05;touch-action:none;cursor:grab}.laplace-lab [data-role="memory-kernel"]{aspect-ratio:4}.laplace-lab [data-role="control-feedback"]{min-height:3.3em}.laplace-lab [data-role="laplace-volume"]:focus-visible{outline:2px solid #edce91}
+
+/* One instrument: controls directly above the scene and its linked plots. */
+.laplace-lab .lab-primary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:18px 0 12px}
+.laplace-lab .lab-primary button{text-align:left;font-weight:600}.laplace-lab .lab-primary small{display:block;margin-top:5px}
+.laplace-lab .lab-steps{margin:10px 0;grid-template-columns:repeat(4,minmax(0,1fr))}.laplace-lab .lab-steps button{padding:9px;font-size:.8rem}
+.laplace-lab .laplace-controls{gap:12px;padding:12px}.laplace-lab label{flex:1 1 120px;font-size:.77rem;gap:5px}.laplace-lab select{padding:7px;max-width:100%}
+.laplace-lab .lab-workspace{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(0,1fr);gap:14px;align-items:start}
+.laplace-lab .lab-main{min-width:0}.laplace-lab .lab-workspace .surface{margin:0}
+.laplace-lab .lab-workspace [data-role="laplace-surface"],.laplace-lab .lab-workspace [data-role="laplace-volume"]{aspect-ratio:1.4}
+.laplace-lab .lab-workspace .laplace-plots{display:grid;grid-template-columns:1fr;margin:0;gap:12px}
+.laplace-lab .laplace-plots canvas{aspect-ratio:2.05}.laplace-lab figcaption{font-size:.75rem;padding:10px 12px;line-height:1.5}
+.laplace-lab .lab-equation{padding:8px 0;font-size:.83rem}.laplace-lab [data-role="control-feedback"]{min-height:3.2em;margin:10px 0;padding:9px 12px;font-size:.78rem}
+.laplace-lab .slice-tools{margin:8px 0;align-items:center}.laplace-lab .slice-tools p{flex:1;margin:0;min-height:0;font-size:.75rem}.laplace-lab .slice-tools button{padding:7px}
+@media(max-width:850px){.laplace-lab .lab-workspace{grid-template-columns:1fr}.laplace-lab .lab-workspace .laplace-plots{grid-template-columns:1fr 1fr}.laplace-lab .laplace-plots canvas{aspect-ratio:1.5}.laplace-lab .lab-primary{grid-template-columns:1fr}.laplace-lab .lab-primary button{padding:9px}.laplace-lab .lab-primary small{display:inline;margin-left:8px}.laplace-lab .lab-steps{grid-template-columns:1fr 1fr}}
+@media(max-width:480px){.laplace-lab .lab-workspace .laplace-plots{grid-template-columns:1fr}.laplace-lab .lab-primary small{display:block;margin-left:0}}
+
+.laplace-lab .laplace-controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr))}.laplace-lab .laplace-controls label{min-width:0}
+
+.laplace-lab .laplace-metrics{margin:0 0 10px;gap:10px}.laplace-lab .laplace-metrics>div{padding:7px 10px}.laplace-lab .laplace-metrics b{margin-top:0;font-size:.85rem}
+
+.lab-jump{display:flex;gap:12px;flex-wrap:wrap;margin:20px 0}.lab-jump a{color:#e5ce98;border:1px solid #9edac944;padding:10px 14px;border-radius:12px;text-decoration:none}.laplace-lab{scroll-margin-top:20px}.laplace-lab .lab-steps{grid-template-columns:repeat(3,minmax(0,1fr))}
+
+.laplace-lab .laplace-controls select{width:100%;min-width:0;box-sizing:border-box;text-overflow:ellipsis}
+
+/* Keep the selected transform prominent and its complex coordinate within reach. */
+.laplace-lab .function-banner{display:flex;gap:18px;align-items:center;margin-top:18px;padding:18px;border:1px solid #d9c18a66;border-radius:16px;background:linear-gradient(110deg,#3c3d2c77,#101c25bb)}
+.laplace-lab .function-pair{flex:1;min-width:0;font:clamp(1rem,1.6vw,1.3rem)/1.65 Georgia,serif;overflow-wrap:anywhere}
+.laplace-lab .function-label{display:block;font:600 .68rem/1.5 system-ui;letter-spacing:.1em;text-transform:uppercase;color:#a3c7bd;margin-bottom:7px}
+.laplace-lab [data-role="selected-time"]{color:#bbdccd}
+.laplace-lab [data-role="selected-transform"]{display:block;color:#ffe2a0;font-size:clamp(1.15rem,1.95vw,1.65rem);font-weight:600;margin-top:6px}
+.laplace-lab .s-probe-panel{flex:0 0 250px}.laplace-lab [data-role="s-probe"]{height:130px;aspect-ratio:auto;cursor:crosshair;touch-action:none}.laplace-lab .s-probe-panel figcaption{padding:5px 10px;font-size:.7rem}
+@media(max-width:720px){.laplace-lab .function-banner{flex-direction:column;align-items:stretch}.laplace-lab .s-probe-panel{flex-basis:auto}}
+
+.polar-studio .polar-presets{display:flex;flex-wrap:wrap;gap:9px;margin:16px 0}.polar-studio .polar-transport{display:flex;align-items:center;gap:18px;margin:16px 0}.polar-studio .polar-transport label{flex:1;grid-template-columns:auto 1fr;align-items:center}.polar-studio .polar-transport input{grid-column:1/-1}.polar-studio .polar-views{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:16px}.polar-studio .polar-side{display:grid;gap:16px}.polar-studio [data-polar-scene]{height:540px;aspect-ratio:auto;touch-action:none;cursor:grab}.polar-studio [data-polar-plane]{height:250px;aspect-ratio:auto}.polar-studio [data-polar-projection]{height:160px;aspect-ratio:auto}.polar-studio .lab-equation{overflow-wrap:anywhere;overflow:visible}.polar-studio canvas:focus-visible{outline:2px solid #f6d38c;outline-offset:-3px}@media(max-width:720px){.polar-studio .polar-views{grid-template-columns:1fr}.polar-studio [data-polar-scene]{height:380px}.polar-studio .polar-transport{flex-wrap:wrap}.polar-studio .polar-transport label{min-width:180px}}

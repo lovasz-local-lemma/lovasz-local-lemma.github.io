@@ -1,0 +1,523 @@
+<!doctype html><html lang="en"><head><style data-portfolio-paint>html{background:#0b0d0c;color-scheme:dark}html.portfolio-booting body{opacity:0}</style><script src="../../../portfolio-navigation.js?v=688f1905bc"></script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Estimator support &amp; limitations — RadianceLab</title><meta name="description" content="A branch-level account of supported materials, emitters, media, path classes and known correctness gaps."><meta name="color-scheme" content="dark"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="../../../portfolio.css?v=b7ed8602e5"><link rel="stylesheet" href="../../../portfolio-effects.css?v=62be30dafa"><link rel="stylesheet" href="../../../portfolio-atmospheres.css?v=4b74c57939"><link rel="stylesheet" href="../../../portfolio-motion.css?v=4b098d8184"><link rel="stylesheet" href="../../../portfolio-case-studies.css?v=243caf2b0d"><link rel="stylesheet" href="../../../portfolio-brochures.css?v=a1e5e16132"><link rel="stylesheet" href="../../../portfolio-project-themes.css?v=a898c35e78"><link rel="stylesheet" href="../../../portfolio-location.css?v=9c4c1ad84f"><link rel="stylesheet" href="../../../portfolio-controls.css?v=9376de7761"><link rel="stylesheet" href="../../../portfolio-media.css?v=c51f7712ea"><link rel="stylesheet" href="../../../portfolio-overviews.css?v=8612c4ee0a"><link rel="stylesheet" href="../../../portfolio-motivations.css?v=ccc1c1d866"><link rel="stylesheet" href="../../../portfolio-claims.css?v=058dbd00ef"><link rel="stylesheet" href="../../../portfolio-feature-atlas.css?v=e73f02cb31"><script type="application/json" id="media-framing">{"media/brochures/physics-2d/thermal-furnace-magnetic-field-probe.png":{"width":1602,"height":940,"top":39},"media/brochures/physics-2d/magnetic-field-direction-appearance-controls.png":{"width":1602,"height":940,"top":39},"media/brochures/physics-2d/time-bomb-blast-particle-plume.png":{"width":1602,"height":940,"top":39}}</script><script defer src="../../../portfolio-claims.js?v=ed914a4d3a"></script><script defer src="../../../portfolio-visual-defaults.js?v=eecfd5c771"></script><script defer src="../../../portfolio-motion.js?v=a642c710f9"></script><script defer src="../../../portfolio-fire-studies.js?v=7717e15582"></script><script defer src="../../../portfolio-embers.js?v=8a8be5569d"></script><script defer src="../../../portfolio-atmospheres.js?v=021b2f100e"></script><script defer src="../../../portfolio-effects.js?v=03a6c89d6c"></script><script defer src="../../../portfolio-brochures.js?v=055cad29d6"></script><script defer src="../../../portfolio-location.js?v=3846586893"></script><script defer src="../../../portfolio-media.js?v=d2d555a888"></script><script defer src="../../../portfolio-articles.js?v=acb89575ce"></script><script defer src="../../../portfolio-labs.js?v=a0b86a3809"></script><link rel="stylesheet" href="../../../portfolio-technical.css?v=0ecb3a48c7"><script defer src="../../../portfolio-technical.js"></script><!-- universal-navigation:start --><script defer src="../../../portfolio-routes.js?v=054b6b462c"></script><script defer src="../../../portfolio-universal-navigation.js?v=054b6b462c"></script><!-- universal-navigation:end --><style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head><body data-page="technical" data-project-theme="optics" data-project-id="radiance-lab" data-default-atmosphere="caustics"><canvas class="spark-field" aria-hidden="true"></canvas><a class="skip-link" href="#main">Skip to content</a><nav class="site-nav portfolio-route" data-route-group="flagships" aria-label="Portfolio location"><div class="route-path"><a class="route-node route-home" href="../../../index.html#project-radiance-lab" aria-label="Portfolio"><img class="route-mark" src="../../../media/identity/portfolio-mark.svg" alt="" width="52" height="52"><span class="route-copy"><small>Work / ideas</small><strong>Portfolio</strong></span></a><span class="route-wire" aria-hidden="true"><i></i><b></b></span><div class="route-node route-group"><span class="route-glyph" aria-hidden="true">✦</span><span class="route-copy"><small>Collection</small><strong>Flagship</strong></span></div><span class="route-wire" aria-hidden="true"><i></i><b></b></span><a class="route-node route-project" href="../index.html"><span class="route-glyph" hidden aria-hidden="true">◈</span><img class="route-thumb" src="../../../media/previews/radiance-lab/caustic-showcase.png" width="42" height="42" alt=""><span class="route-copy"><small>Project</small><strong>RadianceLab</strong></span></a><span class="route-wire" aria-hidden="true"><i></i><b></b></span><a class="route-node technical-route" href="index.html"><span class="route-copy"><small>Technical reading room</small><strong>Estimator support &amp; limitations</strong></span></a></div><div class="route-end"><span class="route-meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><a class="route-back" href="../../../index.html#project-radiance-lab">← Back to portfolio</a></div></nav><nav class="section-rail technical-rail" aria-label="Technical document sections"><span class="rail-indicator" aria-hidden="true"></span><a href="#technical-top" data-section="technical-top"><span>⌂</span><span>Start</span></a><a href="#the-ten-main-modes" data-section="the-ten-main-modes" title="The ten main modes"><small>01</small><span>The ten main modes</span></a><a href="#geometry-media-and-emission-are-backend-specific" data-section="geometry-media-and-emission-are-backend-specific" title="Geometry, media, and emission are backend-specific"><small>02</small><span>Geometry, media, and emission are backend-specific</span></a><a href="#photon-primitive-strategy-roster" data-section="photon-primitive-strategy-roster" title="Photon-primitive strategy roster"><small>03</small><span>Photon-primitive strategy roster</span></a><a href="#showcase-choices-that-expose-underused-capabilities" data-section="showcase-choices-that-expose-underused-capabilities" title="Showcase choices that expose underused capabilities"><small>04</small><span>Showcase choices that expose underused capabilities</span></a><a href="#scene-to-strategy-map-and-remaining-showcase-gaps" data-section="scene-to-strategy-map-and-remaining-showcase-gaps" title="Scene-to-strategy map and remaining showcase gaps"><small>05</small><span>Scene-to-strategy map and remaining showcase gaps</span></a><a href="#how-to-keep-this-matrix-current" data-section="how-to-keep-this-matrix-current" title="How to keep this matrix current"><small>06</small><span>How to keep this matrix current</span></a></nav><main id="main" class="project-page technical-page"><header id="technical-top" class="technical-hero"><span class="eyebrow">RadianceLab · Native implementation document</span><h1>Estimator support &amp; limitations</h1><p>A branch-level account of supported materials, emitters, media, path classes and known correctness gaps.</p><div class="technical-actions"><a href="../index.html">← RadianceLab brochure</a><a href="index.html">Technical reading room</a><a href="../validation/index.html">Rendered evidence ↗</a></div></header><aside class="technical-scope"><span>◈</span><p>Implementation notes describe the native application. A working experiment, an approximate preview and a general transport estimator establish different things; each document states its own scope.</p></aside><article class="technical-document"><p>Audit date: 2026-09-13. Baseline inspected at <code>13cc7d6</code>, followed by the additive mesh-sheet preview, PP33 surface curves, scene-translation measurement, support/volume laboratories and enhanced raster appearance. This is a call-path review, <strong>not a new numerical validation of every integrator</strong>. “Implemented” means executable code is connected to the selected mode. It does not by itself mean unbiased, complete, or fast. The <a href="../validation/index.html">validation record</a> distinguishes numerical checks, native captures and timing experiments. Existing measured PP results remain in their individual experiment reports.</p>
+<p>RadianceLab has ten selectable main render modes, a richer set of GPU tracer strategies, and a separate family of photon-primitive estimators. These are three different menus. Shared scene editing and display controls do not imply that every backend implements every material, emitter, medium, camera effect, or measurement.</p>
+<h2 id="the-ten-main-modes">The ten main modes</h2><p>The authoritative dispatcher is <span class="technical-source-label"><code>EngineRender.cpp</code></span>, especially the <code>cpuIntegratorActive</code> block and the calls to each <code>renderPass</code>. CPU modes 3–8 use half-resolution films. Mode 9 can use full resolution; all remain subject to scene cost and selected quality. Moving the camera clears or invalidates the appropriate film rather than turning a slow estimator into a GPU algorithm.</p>
+<div class="case-table-wrap technical-table" tabindex="0" role="region" aria-label="Technical comparison"><table>
+<thead>
+<tr>
+<th>Mode</th>
+<th>Executed path</th>
+<th>What is implemented</th>
+<th>Important scope / qualification</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0 · Rasterizer</td>
+<td><code>RasterRenderer::renderToFBO</code> → <code>basic.vert</code> / <code>basic.frag</code>; opt-in <code>EnhancedRasterRenderer</code></td>
+<td>Mesh/material/NPR drawing, analytical LTC approximation, baked/projector routes; new reduced-resolution vacuum surface guide plus selected PP scattering and Beer camera attenuation</td>
+<td>Enhanced raster is an explicitly biased appearance composite. It inherits the guide&#39;s missing mesh transport and each PP family&#39;s restricted path class. It does not add complete surface–medium exchange or repair the LTC fit. See <a href="enhanced-raster.html">implementation and fixtures</a>.</td>
+</tr>
+<tr>
+<td>1 · Tracer</td>
+<td><code>ComputePathTracer</code> → <code>pathTrace.comp</code></td>
+<td>Eye-path sampling, NEE/MIS, light tracing, BDPT connections, RGB/hero-wavelength rendering, analytical geometry, procedural media, camera/projector controls, path-length gates and modulation</td>
+<td>The broadest interactive transport path, but heterogeneous transport and several material models are approximate. Pure triangle meshes are skipped by <code>uploadScene</code>; see geometry below. GPU feature-mask fallback can disable an expensive feature.</td>
+</tr>
+<tr>
+<td>2 · Photon mapper</td>
+<td><code>Engine::buildPhotonMaps</code> → <code>PhotonMapper::buildPhotonMaps</code> → SSBO upload → GPU gather/display</td>
+<td>CPU light paths, global/caustic photon maps, KD trees, fixed/progressive gathering, path/merge inspection</td>
+<td>Finite-radius density estimation. <code>PhotonMapper::traceRay</code> skips volumes. Optional beam records span surface bounces without testing whether the segment is in a medium. The <code>pmGPUTrace</code> UI field has no engine consumer in the audited tree; it does not switch this build to GPU photon tracing.</td>
+</tr>
+<tr>
+<td>3 · VCM</td>
+<td><code>VCMIntegrator::renderPass</code>, <code>buildLightPaths</code>, <code>traceEyePath</code></td>
+<td>Light and eye subpaths, explicit vertex connections, KD-tree merging, shrinking radius, strategy diagnostics</td>
+<td>An experimental VCM implementation. Endpoint evaluation in connection/gather is largely Lambertian; cross-strategy combination ends with a fixed <code>0.5</code> factor, rather than full path-space MIS across all splits. Skips media. Do not use as a general unbiased oracle.</td>
+</tr>
+<tr>
+<td>4 · MLT</td>
+<td><code>MLTIntegrator::{bootstrap,proposeMutation,mutate,tracePath}</code></td>
+<td>Bootstrap normalization, large/small random-vector mutations, Metropolis acceptance and film splats</td>
+<td>Works over a recorded primary random vector, not the original full path-space mutation repertoire. Camera paths find emissive surfaces/environment; no medium transport or photon-primitive connection. Material sampling is a subset of the GPU implementation.</td>
+</tr>
+<tr>
+<td>5 · PSSMLT</td>
+<td><code>PSSMLTIntegrator::{getPrimarySample,mutatePrimarySamples,tracePathFromPrimary,mutate}</code></td>
+<td>Lazy primary samples, backup/restore on rejection, large/small steps, dual-splat correction</td>
+<td>A distinct lazy-stream implementation of primary-sample-space MLT. The legacy bias toggles change estimator/display behavior; comparisons must record them. Surface-only analytical geometry, not full GPU feature parity.</td>
+</tr>
+<tr>
+<td>6 · UPBP</td>
+<td><code>UPBPIntegrator::{buildLightPaths,traceEyePath,deltaTrack,ratioTrack}</code></td>
+<td>Surface/volume vertices, beams, point/beam gathering, selected procedural density evaluation, HG phase sampling</td>
+<td>Substantial working experimental code, but not a complete reproduction of published UPBP. Fixed cross-strategy weights and medium weighting issues remain; see the concrete audit findings below.</td>
+</tr>
+<tr>
+<td>7 · Path guiding</td>
+<td><code>PathGuidingIntegrator::{initGrid,tracePath,sampleGuidedDirection}</code></td>
+<td>Spatial grid with 16×16 directional histograms, warm-up/training, learned directional proposals and debug arrows</td>
+<td>Grid/histogram guiding, not an adaptive SD-tree. Mixture/PDF inconsistencies remain in the diffuse branch. Good for inspecting the learning mechanism; not an unbiased reference. Skips media.</td>
+</tr>
+<tr>
+<td>8 · Manifold exploration</td>
+<td><code>ManifoldIntegrator::{tracePath,proposeMutation,renderPass}</code></td>
+<td>MCMC renderer with smaller random perturbations at detected specular bounces; chain visualization</td>
+<td><strong>Specular-aware mutation prototype.</strong> The current proposal does not solve manifold constraints. <code>newtonIterations</code> / <code>newtonStepSize</code> are not consumed by a solver; recorded <code>newtonSteps</code> is zero. This is not the full Jakob–Marschner manifold algorithm.</td>
+</tr>
+<tr>
+<td>9 · Photon-primitive estimator</td>
+<td><code>PPIntegrator::renderPass</code> → strategy-specific builders/crossings; 32 enters <code>PPMeshSheetRenderer</code>, 33 enters <code>PPSurfaceCurveRenderer</code></td>
+<td>Swept-coordinate estimators, finite-radius methods, selected MIS sets, analytic sphere hourglass/chain, numerical mesh sheets, native angular-sheet surface receiver curves and companion shading</td>
+<td>Support is per strategy and often a restricted path class. Surface33 traces selected delta chains to one non-delta receiver, not arbitrary diffuse continuation. Correlated/raster modes are execution arrangements, not additional unbiased estimators.</td>
+</tr>
+</tbody></table></div>
+<p>Implementation sources: <span class="technical-source-label">raster</span>, <span class="technical-source-label">LTC tables</span>, <span class="technical-source-label">GPU tracer</span>, <span class="technical-source-label">photon mapper</span>, <span class="technical-source-label">VCM</span>, <span class="technical-source-label">MLT/PSSMLT</span>, <span class="technical-source-label">UPBP</span>, <span class="technical-source-label">guiding</span>, <span class="technical-source-label">manifold prototype</span>, <span class="technical-source-label">PP</span>.</p>
+<h3 id="gpu-tracer-strategies-are-a-separate-axis">GPU tracer strategies are a separate axis</h3><p><code>lightStrategy</code> selects naive eye tracing, NEE, NEE/continuation MIS, naive light tracing, light-tracing camera connections, BDPT, or diagnostic selections. The GPU BDPT route really builds interior connections; it is not only a collection of diagrams.</p>
+<ul>
+<li>The older <strong>A</strong> weighting route uses <code>bdptMISWeight</code> in <span class="technical-source-label"><code>pt_bdpt.glsl</code></span>, which falls back to flat <code>1/N</code> even when a balance/power label is selected.</li>
+<li><strong>B balance / B power</strong> has a separate implemented path-PDF construction in <span class="technical-source-label"><code>pathTrace.comp</code></span>, beginning at <code>FEAT_BDPT_MIS_B</code>. It evaluates eye-emission, NEE, light-to-camera and interior connection weights. Its scope is surface transport; the volume showcase disables it.</li>
+<li><code>ComputePathTracer::featureMask</code> only requests B when BDPT, a non-flat scheme, method B, and no volume showcase are selected. Shader compilation can fall back by removing <code>FEAT_BDPT_MIS_B</code>; inspect the log as well as the UI.</li>
+<li><code>bdptVolumeShowcase</code> is expressly a <strong>biased experimental volume showcase</strong>. It must not be described as a complete volumetric BDPT implementation.</li>
+</ul>
+<p>These distinctions matter in a strategy pyramid: an actual rendered <code>(s,t)</code> contribution is evidence that the path construction runs, but a visually plausible combined image is not a proof that all PDFs and delta cases match.</p>
+<h2 id="geometry-media-and-emission-are-backend-specific">Geometry, media, and emission are backend-specific</h2><div class="case-table-wrap technical-table" tabindex="0" role="region" aria-label="Technical comparison"><table>
+<thead>
+<tr>
+<th>Capability</th>
+<th>Active implementation</th>
+<th>Boundary of support</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Triangle-mesh display</td>
+<td>Raster renderer</td>
+<td>Direct mesh drawing is supported.</td>
+</tr>
+<tr>
+<td>Ordinary CPU ray intersections</td>
+<td><span class="technical-source-label"><code>SceneIntersect.cpp</code></span>, <code>intersectScene</code></td>
+<td>Sphere, plane, box and their volume bounds; no general triangle traversal. Applies to the ordinary CPU transport modes and legacy PP walks.</td>
+</tr>
+<tr>
+<td>GPU tracer geometry</td>
+<td><code>ComputePathTracer::uploadScene</code> and shader analytical primitive intersections</td>
+<td><code>PrimType::None</code> is skipped. The member named <code>m_triangleSSBO</code> actually stores packed analytical primitives. A monkey mesh visible in raster mode is <strong>not</strong> automatically present in the GPU tracer.</td>
+</tr>
+<tr>
+<td>Mesh photon sheets</td>
+<td><span class="technical-source-label"><code>PPMeshSheets.inl</code></span>, <span class="technical-source-label"><code>MeshSheetGeometry.h</code></span></td>
+<td>Own triangle BVH and dielectric ray families, independent of the ordinary tracer&#39;s geometry path. See <a href="mesh-sheets.html">mesh-sheet scope</a>.</td>
+</tr>
+<tr>
+<td>Native surface curves</td>
+<td><span class="technical-source-label"><code>PPSurfaceCurves.inl</code></span>, <code>SurfaceCurveMeasure</code></td>
+<td>PP33 shares the private mesh traversal, follows actual interface branches and deposits at a first supported non-delta receiver. Pinhole projection, geometric normals and closed non-overlapping glass; homogeneous extinction only.</td>
+</tr>
+<tr>
+<td>Homogeneous participating media</td>
+<td>GPU tracer, UPBP, PP medium paths</td>
+<td>Extent clipping and weighting differ between backends. Match the path class and medium settings before using one as a reference.</td>
+</tr>
+<tr>
+<td>Heterogeneous noise / SDF / dynamic density</td>
+<td>GPU eye-volume block; UPBP <code>evalDensity</code> supports a smaller subset</td>
+<td>GPU supports visual procedural/texture density but is not a validated general null-collision implementation. UPBP does not implement ReactionDiffusion, SDF, Physics or NanoVDB parity. Ordinary PP sheets use homogeneous coefficients.</td>
+</tr>
+<tr>
+<td>Uniform volume emitters</td>
+<td>PP <code>ppSampleEmissiveEntity</code>, strategies 5/6/7; GPU <code>sampleLight</code> with <code>uVolLightSampling</code></td>
+<td>PP5/6 sweep one brightest matching uniform box/ball. GPU samples volume positions uniformly and evaluates density there; this is not an importance sampler fitted to a complex emitter&#39;s density.</td>
+</tr>
+<tr>
+<td>Spectral transport</td>
+<td>GPU hero wavelength; selected PP RGB hero-channel dispersion</td>
+<td>PP&#39;s selected dispersive branches use a three-channel Cauchy approximation, not the GPU&#39;s continuous hero-wavelength transport across every strategy. Modes 3–8 have no spectral configuration in their dispatcher. Mesh sheets use central-IOR RGB.</td>
+</tr>
+<tr>
+<td>Node material evaluation</td>
+<td>Several CPU <code>getMaterial(hit)</code> paths call <code>applyNodeOverrides</code>; GPU uploads node data</td>
+<td>Sharing overrides does not make all CPU BSDF evaluators equivalent to the GPU ones.</td>
+</tr>
+<tr>
+<td>TOF gates / modulated projector</td>
+<td>GPU tracer path-length logic and <code>tofModulationFactor</code></td>
+<td>PP0–33 have no native temporal gate or transient-kernel channel. The new time-support lab is independent. Four-bucket recovery has existing convention/calibration limitations; see <a href="backend-roadmap.html#temporal-support-rendered-measurements-versus-separate-experiments">temporal support audit</a>.</td>
+</tr>
+</tbody></table></div>
+<h3 id="concrete-medium-issues-to-resolve-before-reference-grade-comparisons">Concrete medium issues to resolve before reference-grade comparisons</h3><p>These are implementation findings, not general objections to the algorithms:</p>
+<ol>
+<li><strong>UPBP survival weighting.</strong> <code>deltaTrack</code> samples extinction events using <code>sigmaS + sigmaA</code>. On no event, both <code>buildLightPaths</code> and <code>traceEyePath</code> multiply by another <code>ratioTrack</code>. In a homogeneous segment, that contribution is selected with probability <code>T</code> and then weighted by <code>T</code> again, giving <code>T²</code> rather than <code>T</code>. An absorption-only slab with a known background is a clean regression fixture. Correcting only this branch is not enough to certify the rest of UPBP.</li>
+<li><strong>UPBP caps and merge measure.</strong> Both trackers cap at 128 steps; ratio tracking stops when <code>T &lt;= 0.001</code> without a compensating roulette rule. Volume-vertex gathering uses an <code>r^-2</code> Epanechnikov expression and does not isolate a pure 3D vertex population. Connection and merging also have fixed <code>0.5</code> cross-strategy factors. These need separate measure/normalization tests.</li>
+<li><strong>GPU null events.</strong> The main <code>pathTrace</code> eye-medium block samples one candidate for a volume. Its rejection <code>continue</code> advances the outer volume-entity loop, rather than continuing through further null events in the same medium. This differs from a complete delta-tracking loop. On the no-collision branch it also applies extra absorption. The standalone helper named <code>deltaTrackVolume</code> is not evidence that this main path uses it correctly.</li>
+<li><strong>GPU shadow attenuation.</strong> <span class="technical-source-label"><code>pt_volume.glsl</code></span>, <code>evalVolumeTr</code>, applies homogeneous Beer attenuation over each bounding primitive; it does not evaluate its procedural density along the shadow ray.</li>
+<li><strong>Volume NEE measure.</strong> <code>sampleLight</code> in <span class="technical-source-label"><code>pt_light.glsl</code></span> computes <code>p_V r²</code>. This is a joint radial/directional density, not a marginalized solid-angle density. It can be used for the sampled volume integral with the corresponding distance variable; inserting it directly beside a phase-only density in generic MIS requires a matched joint measure. The generic volume-NEE MIS path needs this audit before an unbiased claim.</li>
+<li><strong>Guiding proposal accounting.</strong> The guided branch divides by a guided/cosine mixture, while the cosine branch uses only <code>throughput *= albedo</code>. Hemisphere folding also requires summing densities of both preimages; the current sampler returns only the selected bin&#39;s density. These are independent of how attractive the guiding visualization looks.</li>
+</ol>
+<p>The survival/ratio-tracking distinction follows the executable reference treatment in <a href="https://pbr-book.org/4ed/Volume_Scattering/Transmittance" rel="noopener">PBRT, Transmittance</a>. The published <a href="https://cs.dartmouth.edu/~wjarosz/publications/krivanek14upbp.html" rel="noopener">UPBP formulation</a> explicitly handles the different estimator measures; its guarantee should not be transferred to this implementation by name alone.</p>
+<h2 id="photon-primitive-strategy-roster">Photon-primitive strategy roster</h2><p>The main roster lives in <code>PPIntegrator.cpp</code>: <code>kPPClass</code>, <code>sampleOneStrategy</code>, <code>ppSceneRefusal</code>, <code>ppCompRefusal</code>, and the actual builder/crossing functions. The table below groups strategies 0–33. It records what the branch does; flags in <code>kPPClass</code> alone are not a complete proof of scene support.</p>
+<div class="case-table-wrap technical-table" tabindex="0" role="region" aria-label="Technical comparison"><table>
+<thead>
+<tr>
+<th>IDs</th>
+<th>Family / implemented construction</th>
+<th>Scope and caveats</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0</td>
+<td>Camera-ray/emitter baseline via <code>buildCamRayOnly_Area</code> / <code>ppEvalContribution</code></td>
+<td>Direct emission class, not a complete renderer.</td>
+</tr>
+<tr>
+<td>1, 2</td>
+<td>NEE and NEE/continuation camera walks</td>
+<td>Backup/open-class estimators; optional surface NEE, specular continuation and caustic photon map enlarge their coverage. They are the reference for matched restricted PP experiments, not automatic full-scene mesh or heterogeneous references.</td>
+</tr>
+<tr>
+<td>3</td>
+<td>UV plane: translate a sampled emitter quad; <code>ppBuildQuadPrim</code>, <code>ppCrossQuadPrim</code></td>
+<td>Direct single scatter. Legacy scene helper chooses a quad; the historical standalone path lacks the full light-leg occlusion coverage of the custom combination.</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Swept spherical emitter surface</td>
+<td>Direct single scatter from a matching emissive sphere, not a photon sphere around an arbitrary sampled source point.</td>
+</tr>
+<tr>
+<td>5, 6</td>
+<td>UVW emitter cube / emitter ball</td>
+<td>Translate the complete solid emitter; intersect a chord and Monte Carlo sample along it. Real 3D emitter support; no surface-normal Jacobian. One brightest matching emissive entity, uniform emission and homogeneous fog. Not an arbitrary SDF emitter or multiple-scattering volume solver.</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Photon sphere: sample source point + free-flight radius, sweep both angular coordinates</td>
+<td>Direct single scatter. Samples area, point and uniform volume emitter origins. The repaired scene-admission gate accepts the real entity-emitter roster without requiring a fictitious area/point light. Tangency and near-source singular behavior require careful statistics.</td>
+</tr>
+<tr>
+<td>8, 9</td>
+<td>Directional disk / cone</td>
+<td>Direct single scatter; complementary angular/distance parameterizations, not different material models.</td>
+</tr>
+<tr>
+<td>10, 11, 12</td>
+<td>UT plane / VT plane / UV+UT+VT MIS</td>
+<td><code>ppPlanePdf</code> and <code>ppSamplePlaneXY</code> express competing techniques in a shared measure. Use compatible quad emission and matched medium; legacy single-quad helpers do not cover every source in a heterogeneous multi-light scene.</td>
+</tr>
+<tr>
+<td>13</td>
+<td>Sphere+disk+cone MIS</td>
+<td>Direct single-scatter directional family. Distinct from the curve trio and the later arbitrary custom mask.</td>
+</tr>
+<tr>
+<td>14, 15, 16</td>
+<td>Arbitrary plane, randomized arbitrary-plane variant, fixed arbitrary plane</td>
+<td>Kernel-free plane experiments. Their legacy standalone paths have occlusion/ownership restrictions. Strategy 31 has a separate corrected fixed-plane ledger rather than blindly adding these whole films.</td>
+</tr>
+<tr>
+<td>17</td>
+<td>Camera-sphere construction</td>
+<td>Restricted direct-scatter experiment with its own visibility limitations; not a general camera model.</td>
+</tr>
+<tr>
+<td>18</td>
+<td>Traced photon beam</td>
+<td>Finite-width line kernel, can carry traced light-side specular paths. Bias remains at fixed radius.</td>
+</tr>
+<tr>
+<td>19</td>
+<td>Traced photon point</td>
+<td>3D ball kernel. Different kernel dimension and shrinking schedule from beams; not kernel-free.</td>
+</tr>
+<tr>
+<td>20</td>
+<td>Photon hourglass, including selected sphere-chain/relay extensions</td>
+<td>Analytic sphere family; stable sheet solver, light-side sphere refraction, optional camera-specular gather. Collinear chains preserve rotational structure; one supported off-axis follower uses sampled rulings/root search. Guard/branch cuts can discard energy. Off-axis support and correlated support are not identical.</td>
+</tr>
+<tr>
+<td>21</td>
+<td>Beam+point+hourglass combination</td>
+<td>Shared caustic experiment. Beam/point partners retain finite-radius effects. The MIS treatment can cover a solo hourglass&#39;s problematic regions; it does not automatically admit every relay or chain supported by 20.</td>
+</tr>
+<tr>
+<td>22, 23, 24</td>
+<td>Vertex-seeded hourglass / exit cone / reflected cone</td>
+<td>Selected sphere refraction/reflection classes, with emitter/roughness and guard restrictions. They are useful controlled comparisons, not arbitrary mesh sheets.</td>
+</tr>
+<tr>
+<td>25</td>
+<td>Rasterized batch execution</td>
+<td>Resolves to family 3, 18 or 20 with an all-N correlated record pool. The rasterizer restricts candidate pixels and keeps the same crossing/evaluation; it is not a new estimator.</td>
+</tr>
+<tr>
+<td>26</td>
+<td>Three planes + three directional strategies</td>
+<td>Six-way restricted direct-scatter combination. More techniques are not necessarily cheaper or better per second.</td>
+</tr>
+<tr>
+<td>27</td>
+<td>Glossy sphere ring-alt</td>
+<td>Dedicated glossy sphere reflection experiment using an evaluable non-delta lobe. Not the blurred photon ring 28; comp-mode ownership is deliberately refused.</td>
+</tr>
+<tr>
+<td>28, 29, 30</td>
+<td>Photon ring / arc / beam+ring+arc</td>
+<td>Shared finite-radius curve family; source/receiver visibility in <code>ppRAPayload</code>. Mixture weights form a limiting density ledger, not a claim of pointwise finite-radius unbiasedness.</td>
+</tr>
+<tr>
+<td>31</td>
+<td>Custom subset: UV, UT, VT, fixed arbitrary plane, sphere, disk, cone, beam, ring, arc</td>
+<td>Can combine subsets, including UV+sphere. Kernel-free members use a common-measure MIS ledger. Curve-only combinations retain finite-radius bias. Mixed sheet/curve selections use an explicit fixed blend <strong>between groups</strong>, not cross-measure MIS. See <code>ppCustomMISStatus</code> and <code>ppCustomMISKernelBlend</code>.</td>
+</tr>
+<tr>
+<td>32</td>
+<td>Mesh photon sheets</td>
+<td>Actual dielectric mesh ray families, interpolated numerical sheets, camera gather, selected multiglass chains and homogeneous fog. Finite angular quadrature/adaptive topology cuts make it an approximation. The additive fast raster preview is another approximation; see below.</td>
+</tr>
+<tr>
+<td>33</td>
+<td>Surface receiver curves from angular photon sheets</td>
+<td>Native light-side cone/meridian charts sample actual area/point lights and trace real glass/mirror interfaces to one supported non-delta receiver. Flux, BSDF and pixel-projection Jacobian determine the splat. Stratified stochastic mode uses finite pixels without a spatial blur; midpoint/blur mode is an explicit approximation. Shared per-sheet Fresnel streams correlate neighboring rulings without changing their marginal branch law. Not full surface-sheet MIS, diffuse multibounce or transient transport.</td>
+</tr>
+</tbody></table></div>
+<h3 id="applicability-and-execution-are-part-of-the-experiment">Applicability and execution are part of the experiment</h3><ul>
+<li><strong>Custom 31</strong> checks for one homogeneous medium containing the <em>whole</em> sampled emitter, not just its center. Selecting any plane requires emissive quads only, so every technique covers the same source roster. It refuses unsupported medium/emitter combinations instead of pretending a partial image covers them.</li>
+<li><strong>Directional 7/8/9/13</strong> now declare <code>NEED_LIGHT_OR_ENTITY</code>, matching their actual preference for <code>ppSampleEmissiveEntity</code> and fallback to area/point <code>scene.lights</code>. Uniform emitting boxes/balls are sampled in their interiors with <code>1/V</code>, isotropically and without a surface cosine. This fixes an availability gate; it does not add SDF/noise-weighted emission or general heterogeneous attenuation. Forty focused assertions in <code>ppCustomMISSelfCheck</code> cover source admission, actual volume-origin sampling, disabled emitters, point fallback, and unchanged restrictions on 18/20/32.</li>
+<li><strong>Comp mode</strong> partitions path classes between a primary and a backup. It is different from MIS. It refuses modes such as custom31 and mesh32 whose finite-kernel/separate-pass behavior does not fit the analytic ownership claim. <code>PPCompReport</code> reports structural drops as well as the class declaration.</li>
+<li><strong>Correlated</strong> does not mean hardware rasterized. <code>ppCorrelatedPass</code> can reconstruct a primitive at every pixel; <code>ppCorrelatedPassRecords</code> only has frozen-record builders for quad, beam and hourglass. Directional spheres/disks/cones can therefore have expensive correlated fallback behavior even before considering projected coverage or singularities. Verify the <code>[PP] [corr]</code> / <code>[PP] [raster]</code> log.</li>
+<li><strong>Freeze pool</strong> changes which random data are refreshed. Replaying a finite fixed pool improves inspection but is not equivalent to adding independent samples forever.</li>
+<li><strong>Mesh32 fast preview</strong>, implemented separately in <code>PPMeshSheets.inl::renderPreview</code> with <code>FastSheetRaster.h</code>, uses reduced-resolution projected triangles, vertex-interpolated radiance, blur and a tangency clamp. It is a convenient viewfinder. Use the original mesh-sheet gather for numerical comparisons; neither is an exact general unbiased estimator.</li>
+</ul>
+<h3 id="surface-rendering-surface-curves-and-derivative-experiments">Surface rendering, surface curves and derivative experiments</h3><p><code>surfaceNEE</code>, <code>surfaceBSDF</code>, <code>surfaceSpec</code> and the finite-radius surface photon map remain distinct from the new <strong>PP33 angular-sheet receiver curves</strong>. PP33 samples one chart coordinate, stratifies the other, traces the actual path, and projects the first non-delta receiver to the camera. Its input is angular flux; adding an incident cosine again at the receiver would double-count the angular-to-area change. The final BSDF and camera projection have their own measures. It has no diffuse continuation after that receiver and no general cross-family surface MIS.</p>
+<p>The independent <span class="technical-source-label"><code>LightTranslationLab</code></span> now measures a selected source translation in a snapshot of the actual scene. Matched camera/emitter random numbers produce two central finite differences at epsilon and epsilon/2. It includes direct Lambertian shading, distance/cosine changes and optional visibility changes for the ordinary analytical scene-intersection geometry, with plane-backed area sources using native emission profiles0/3 or explicit point sources. The source&#39;s triangle mesh supplies its sampled area; arbitrary mesh-only emitters are not admitted. This is a direct scene measurement with finite epsilon, not automatic differentiation of PP33 or arbitrary multibounce transport. The older analytic collimated-edge experiment remains useful alongside it; see <a href="extension-assessment.html">extension assessment</a>.</p>
+<p>The <a href="volume-estimators.html">volume estimator lab</a> compares collision, survival track length and ratio tracking against one independent scalar reference. Its passing numerical checks validate that lab, not the existing GPU/UPBP tracking implementations. The <span class="technical-source-label">support/time lab</span> likewise computes restricted spatial and temporal intersections without changing native PP time support.</p>
+<h2 id="showcase-choices-that-expose-underused-capabilities">Showcase choices that expose underused capabilities</h2><div class="case-table-wrap technical-table" tabindex="0" role="region" aria-label="Technical comparison"><table>
+<thead>
+<tr>
+<th>Experiment</th>
+<th>Use</th>
+<th>What to measure / label</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>One pure emitting box/ball inside a larger fog box</td>
+<td>PP5/6 against matched PP1/2; PP7 for volume-origin+angular sweep</td>
+<td>Keep one emitter and homogeneous fog. Show the swept solid and chord, not just a bright surface shell. Compare sample count and time separately.</td>
+</tr>
+<tr>
+<td>Colored small/medium/large quads, then narrow/cone/diffuse emission</td>
+<td>Custom31 individual sheets, directional trio, mixed subsets</td>
+<td>Record source-selection PDFs and actual emission profile. Equal radiance and equal total flux are different experiments.</td>
+</tr>
+<tr>
+<td>Glossy sphere with moderate roughness</td>
+<td>PP27 versus its restricted reference</td>
+<td>Expose the glossy sampled vertex and distinguish it from blurred ring28.</td>
+</tr>
+<tr>
+<td>Mirror relay or collinear glass chain</td>
+<td>PP20, then matching companion surface layer</td>
+<td>Label unsupported correlated/off-axis combinations and guard settings. Do not transfer 20&#39;s extra path classes to 21 without matched weighting.</td>
+</tr>
+<tr>
+<td>Finite-width curve family</td>
+<td>PP18/28/29/30 and curve subsets of31</td>
+<td>Show radius ladders; a cleaner fixed-radius image may retain bias. Record kernel dimension and schedule.</td>
+</tr>
+<tr>
+<td>Meshes and multiglass caustic chains</td>
+<td>PP32 normal gather / fast preview</td>
+<td>Render both using the mesh-aware path. Ordinary GPU PT does not intersect <code>PrimType::None</code> meshes, so it is not an oracle for these scenes.</td>
+</tr>
+<tr>
+<td>MCMC, guiding, and connection anatomy</td>
+<td>Modes3–8 diagnostic views</td>
+<td>Show actual attempts, acceptances, proposals and connections. Label the unresolved transport approximations instead of presenting them as equal reference solvers.</td>
+</tr>
+</tbody></table></div>
+<h2 id="scene-to-strategy-map-and-remaining-showcase-gaps">Scene-to-strategy map and remaining showcase gaps</h2><p>Existing numeric IDs below are verified against the builder dispatch in <code>EngineRender.cpp</code>, not just menu names. New IDs 88–109 are specified by the additive <span class="technical-source-label"><code>ShowcasePresets.h</code></span> catalogue and <a href="scene-catalogue.html">paired showcase guide</a>. Their paired defaults are implemented; the final run/QA report establishes first-image behavior. A scene listed as reusable does <strong>not</strong> automatically switch to that main integrator.</p>
+<h3 id="main-mode-coverage">Main-mode coverage</h3><div class="case-table-wrap technical-table" tabindex="0" role="region" aria-label="Technical comparison"><table>
+<thead>
+<tr>
+<th>Main mode</th>
+<th>Existing usable scenes</th>
+<th>New scenes / remaining presentation gap</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0 Rasterizer</td>
+<td>0 Cornell, 1 open spheres, 3 material showcase; raster view of 83–87 mesh objects</td>
+<td>New enhanced-raster fixtures pair 94 legacy/enhanced/GPU reference and 88/98 scattering/mesh previews. These close the appearance-comparison fixture gap; a dedicated fitted-LTC or baked editing workflow remains separate.</td>
+</tr>
+<tr>
+<td>1 GPU tracer</td>
+<td>20–23 NEE diagnostics, 30 prism, 40 Veach-style lights/roughness, 2/15/16 media, 5–13 reaction-diffusion, 56 Apothecary</td>
+<td>91 luminous SDF/noise; 92 shafts; 93 colored/HG volumes; 94 conductors; 95 dispersion; 96 layered finishes; 97 vacuum beauty. New 103/104 retain the same chamber and sources while changing homogeneous density to NoiseLab mist; inherited heterogeneous approximations remain.</td>
+</tr>
+<tr>
+<td>2 Photon mapper</td>
+<td>0 Cornell; 1 open sphere scene for caustic paths/KD-tree overlays</td>
+<td>New 101 pairs diffuse receivers, glass and mirror with a 40,000-photon emission budget, kNN gathering, radius 0.2 and the existing v2 output. Deposits/KD trees remain inspectable. This closes the dedicated PM scene gap; it does not remove finite-radius bias.</td>
+</tr>
+<tr>
+<td>3 VCM</td>
+<td>0 Cornell, 40 lights/roughness; enable connection/merge overlays</td>
+<td>New 102 uses exactly 101&#39;s scene and camera, with 1,000 light subpaths, radius 0.15, six bounces, connection and merging enabled. Toggle those branches to inspect the existing experimental weighting; no new unbiased-reference claim.</td>
+</tr>
+<tr>
+<td>4 MLT</td>
+<td>0 Cornell / 1 open spheres; emissive geometry reachable by camera paths</td>
+<td>New 100 provides an opening, glass and reachable bright source with acceptance statistics. Starts with 2,000 seeds, two mutations per pixel, depth 8, large-step probability 0.3 and small-step scale 0.01. A dedicated mutation-anatomy scene is now paired.</td>
+</tr>
+<tr>
+<td>5 PSSMLT</td>
+<td>Same 0/1 scene lets the lazy stream be compared with mode 4</td>
+<td>New 100 with <code>Showcases.ps1 -Scene 100 -Mode 5</code> uses the same geometry and matched seed/mutation/depth/step settings. The lazy stream keeps its dual-splat correction. A separate geometry would weaken this comparison; it is an explicit companion launch.</td>
+</tr>
+<tr>
+<td>6 UPBP</td>
+<td>2 static media, 33 homogeneous fog, 35 simple fog box</td>
+<td>No new dedicated UPBP auto-setup. 92 is GPU-only heterogeneous presentation and must not be used to imply UPBP parity. Tracker/merge diagnostic improvements are prerequisites for a quantitative correctness showcase.</td>
+</tr>
+<tr>
+<td>7 Path guiding</td>
+<td>0 Cornell can train its grid and display directional arrows</td>
+<td>New 99 implements the offset-doorway study: 12³ cells, 16×16 directional bins, three warm-up passes, depth 8, 50% guiding mixture and field arrows enabled. Compare strength 0 versus 0.5 to inspect proposal behavior. This closes the scene gap, while the existing PDF correctness gaps remain.</td>
+</tr>
+<tr>
+<td>8 Manifold prototype</td>
+<td>0/1 with specular objects; chain/acceptance overlays</td>
+<td><strong>Dedicated showcase missing:</strong> a constrained mirror/glass path study should expose which mutations preserve useful paths. It must be labeled a specular-aware MCMC prototype, not a Newton solver demo.</td>
+</tr>
+<tr>
+<td>9 PP</td>
+<td>35–43 direct/single-scatter references; 47–79 caustic/gloss/chain families; 80–82 multi-light custom combinations; 83–87 mesh sheets</td>
+<td>88 area/angular loom; 89 cube/90 equal-volume ball; 98 fast multiglass preview. New 105/106 hold per-light photometric flux fixed across size/profile changes. 107–109 pair PP33 with direct surface/torus receivers, two-glass caustics and a four-glass relay.</td>
+</tr>
+</tbody></table></div>
+<h3 id="complete-pp-family-scene-index">Complete PP-family scene index</h3><div class="case-table-wrap technical-table" tabindex="0" role="region" aria-label="Technical comparison"><table>
+<thead>
+<tr>
+<th>PP strategies</th>
+<th>Scene IDs and purpose</th>
+<th>Coverage / discoverability</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0</td>
+<td>42 camera-ray direct-emitter reference</td>
+<td>Dedicated known-answer fixture; File → NEE Diagnostics.</td>
+</tr>
+<tr>
+<td>1/2</td>
+<td>35/36 simple/open fog box, 41 single-scatter reference, 40 surface MIS test</td>
+<td>Existing reference fixtures; enable only the intended surface/medium path classes.</td>
+</tr>
+<tr>
+<td>3</td>
+<td>35/36, 58–62 source-size ladder</td>
+<td>Existing quad-sweep comparisons.</td>
+</tr>
+<tr>
+<td>4</td>
+<td>38 spherical surface-emitter fog box</td>
+<td>Builder exists, but ID38 was not listed in the audited File menu. A discoverability gap, not a missing implementation.</td>
+</tr>
+<tr>
+<td>5</td>
+<td>39 uniform emitting cube; new89 cube-origin scene</td>
+<td>Builder39 exists but is absent from that menu. New89 defaults to7; manually selecting5 tests the volume-coordinate sweep on the same geometry.</td>
+</tr>
+<tr>
+<td>6</td>
+<td>43 uniform emitting ball; new90 equal-volume ball</td>
+<td>Builder43 exists but is absent from that menu. New90 defaults to7; select6 for the volume-coordinate comparison.</td>
+</tr>
+<tr>
+<td>7/8/9/13</td>
+<td>35/36 direct scatter; 58–62 source-size ladder; 80–82 custom subsets</td>
+<td>Existing directional-sweep test space. New89/90 default to7 and expose real uniform box/ball origins. The repaired admission check also accepts these origins for8/9/13; nonuniform volumetric emission remains outside this sampler.</td>
+</tr>
+<tr>
+<td>10/11/12</td>
+<td>35/36, 58–62 UV/UT/VT comparisons</td>
+<td>Existing plane family; for multiple lights use the custom31 source ledger rather than assuming each legacy helper visits the complete roster.</td>
+</tr>
+<tr>
+<td>14/15/16</td>
+<td>35/36 arbitrary/fixed plane under changed camera direction</td>
+<td>Reusable fixture, no dedicated arbitrary-plane hero preset. Custom31 fixed-plane option is a separate controlled comparison.</td>
+</tr>
+<tr>
+<td>17</td>
+<td>41 single-scatter/camera-sphere study</td>
+<td>Reusable geometry; no separately paired presentation. Respect its visibility restrictions.</td>
+</tr>
+<tr>
+<td>18/19</td>
+<td>47 caustic lab, 48 one-ball validation; 35 for kernel-only direct scattering</td>
+<td>Existing beam/point references, with radius controls.</td>
+</tr>
+<tr>
+<td>20</td>
+<td>48 one-ball validation, 52 dispersive fan, 68 collinear pair, 69 off-axis pair, 70/71 mirror pair, 77/78 double chains</td>
+<td>Strong existing showcase coverage. The old69 menu text still says “refused”; actual availability depends on the newer off-axis configuration and correlated restrictions, so inspect the runtime report.</td>
+</tr>
+<tr>
+<td>21</td>
+<td>49 lens array, 50 IOR ladder, 51 fold close-up, 54 Gate, 55 Reliquary, 57 Cellar, 63 exterior, 64–67 gate variants, 79 Atrium</td>
+<td>Strong existing beauty plus technical coverage; several scenes need the companion surface configuration to show full rooms.</td>
+</tr>
+<tr>
+<td>22/23/24</td>
+<td>48 one-ball caustic and 47 glass/reflector lab; 58–62 light-size comparison for20 versus22</td>
+<td>Suitable controlled existing rigs; exit/reflection-cone strategies do not yet each have a dedicated auto-selected showcase.</td>
+</tr>
+<tr>
+<td>25</td>
+<td>35 with raster family3, 48 with18/20</td>
+<td>Existing geometry; demonstrate same primitive pool/crossings and timing, rather than a different-looking scene.</td>
+</tr>
+<tr>
+<td>26</td>
+<td>58–62 single-source ladder</td>
+<td>Existing six-way comparison. No need for an invented “super estimator” scene; show member cost and variance on the same source.</td>
+</tr>
+<tr>
+<td>27</td>
+<td>72–76 GLOSS roughness ladder</td>
+<td>Already dedicated and in File menu. Not a missing scene; improved auto-selection/captions could make it easier to find.</td>
+</tr>
+<tr>
+<td>28/29/30</td>
+<td>35/36 direct scatter; 80–82 custom curve subsets</td>
+<td>Existing fixture, no bespoke ring/arc hero scene. Radius/time comparison is more informative than another unrelated beauty shot.</td>
+</tr>
+<tr>
+<td>31</td>
+<td>80 tiny-to-huge, 81 angular profiles, 82 nine-source matrix; 88 chromatic loom; 105/106 equal-flux size/profile studios</td>
+<td>Dedicated multi-source support and editable member subsets. 105/106 normalize source area, profile integral and luminance; separate positions/colors still make these inspection scenes, not isolated single-source variance ablations.</td>
+</tr>
+<tr>
+<td>32</td>
+<td>83 Suzanne, 84 teapot, 85 glass spheres, 86 torus, 87 multiglass chain; new98 fast-preview pairing</td>
+<td>Dedicated scene/renderer setup. Keep gather and preview clearly distinguished.</td>
+</tr>
+<tr>
+<td>33</td>
+<td>107 floor/wall/sphere/box/mesh-torus atlas; 108 two glass spheres; 109 four-glass chain with surface catchers</td>
+<td>Dedicated no-fog physical area-light rigs. 107 admits direct receiver paths; 108/109 default to caustic-only deposits plus a separate specular/emitter context layer.</td>
+</tr>
+</tbody></table></div>
+<p>The new 99–102 bundle closes the guiding-learning, mutation-anatomy and paired PM/VCM scene gaps. <code>EngineRender.cpp</code> applies their main-mode enable flags, camera, exposure and backend settings, and disables stale auxiliary renderers when loading a paired preset. Startup configuration can override the mode; explicit menu selection reapplies the pair. This is launch-path evidence, not a substitute for runtime image checks or convergence measurements.</p>
+<p>The follow-up 103–109 bundle adds controlled fog/source comparisons and native surface receiver paths. Enhanced-raster A/B fixtures now exist. Remaining presentation gaps include a dedicated fitted-LTC/baked editing workflow, a native UPBP tracker/merge diagnostic after its weighting issues are addressed, and a clearly labeled specular-mutation study for mode8. The independent tracking lab covers the underlying laws; it does not close UPBP&#39;s production correctness gap. Missing <em>algorithms</em> such as Newton manifold solving or full surface-sheet MIS are a separate backlog and should not be filled with a misleading preset name.</p>
+<h2 id="how-to-keep-this-matrix-current">How to keep this matrix current</h2><p>Start with <code>EngineRender.cpp</code> and follow the selected function into its implementation. Check scene filtering, source selection, probability density, BSDF/phase evaluation, visibility, accumulation and feature masks. Search both definition and callers: <code>DiffRenderer.h</code>, <code>Holography.h</code>, <code>pmGPUTrace</code>, and the unused Newton configuration show why a declaration or attractive control panel is insufficient evidence.</p>
+<p>New scene bundles and native experiments should cite their specific backend and path class. A screenshot proves a configuration produced an image; it does not settle bias, completeness, convergence, or speed outside that configuration.</p>
+</article><footer class="technical-footer"><div class="technical-actions"><a href="../index.html">← RadianceLab brochure</a><a href="index.html">Technical reading room</a><a href="../validation/index.html">Rendered evidence ↗</a></div></footer></main></body></html>

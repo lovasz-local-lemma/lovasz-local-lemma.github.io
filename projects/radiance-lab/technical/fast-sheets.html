@@ -1,0 +1,135 @@
+<!doctype html><html lang="en"><head><style data-portfolio-paint>html{background:#0b0d0c;color-scheme:dark}html.portfolio-booting body{opacity:0}</style><script src="../../../portfolio-navigation.js?v=688f1905bc"></script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>A fast caustic viewfinder — RadianceLab</title><meta name="description" content="A deliberate approximation for revealing caustic structure quickly; compare it with the numerical sheet route."><meta name="color-scheme" content="dark"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="../../../portfolio.css?v=b7ed8602e5"><link rel="stylesheet" href="../../../portfolio-effects.css?v=62be30dafa"><link rel="stylesheet" href="../../../portfolio-atmospheres.css?v=4b74c57939"><link rel="stylesheet" href="../../../portfolio-motion.css?v=4b098d8184"><link rel="stylesheet" href="../../../portfolio-case-studies.css?v=243caf2b0d"><link rel="stylesheet" href="../../../portfolio-brochures.css?v=a1e5e16132"><link rel="stylesheet" href="../../../portfolio-project-themes.css?v=a898c35e78"><link rel="stylesheet" href="../../../portfolio-location.css?v=9c4c1ad84f"><link rel="stylesheet" href="../../../portfolio-controls.css?v=9376de7761"><link rel="stylesheet" href="../../../portfolio-media.css?v=c51f7712ea"><link rel="stylesheet" href="../../../portfolio-overviews.css?v=8612c4ee0a"><link rel="stylesheet" href="../../../portfolio-motivations.css?v=ccc1c1d866"><link rel="stylesheet" href="../../../portfolio-claims.css?v=058dbd00ef"><link rel="stylesheet" href="../../../portfolio-feature-atlas.css?v=e73f02cb31"><script type="application/json" id="media-framing">{"media/brochures/physics-2d/thermal-furnace-magnetic-field-probe.png":{"width":1602,"height":940,"top":39},"media/brochures/physics-2d/magnetic-field-direction-appearance-controls.png":{"width":1602,"height":940,"top":39},"media/brochures/physics-2d/time-bomb-blast-particle-plume.png":{"width":1602,"height":940,"top":39}}</script><script defer src="../../../portfolio-claims.js?v=ed914a4d3a"></script><script defer src="../../../portfolio-visual-defaults.js?v=eecfd5c771"></script><script defer src="../../../portfolio-motion.js?v=a642c710f9"></script><script defer src="../../../portfolio-fire-studies.js?v=7717e15582"></script><script defer src="../../../portfolio-embers.js?v=8a8be5569d"></script><script defer src="../../../portfolio-atmospheres.js?v=021b2f100e"></script><script defer src="../../../portfolio-effects.js?v=03a6c89d6c"></script><script defer src="../../../portfolio-brochures.js?v=055cad29d6"></script><script defer src="../../../portfolio-location.js?v=3846586893"></script><script defer src="../../../portfolio-media.js?v=d2d555a888"></script><script defer src="../../../portfolio-articles.js?v=acb89575ce"></script><script defer src="../../../portfolio-labs.js?v=a0b86a3809"></script><link rel="stylesheet" href="../../../portfolio-technical.css?v=0ecb3a48c7"><script defer src="../../../portfolio-technical.js"></script><!-- universal-navigation:start --><script defer src="../../../portfolio-routes.js?v=054b6b462c"></script><script defer src="../../../portfolio-universal-navigation.js?v=054b6b462c"></script><!-- universal-navigation:end --><style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head><body data-page="technical" data-project-theme="optics" data-project-id="radiance-lab" data-default-atmosphere="caustics"><canvas class="spark-field" aria-hidden="true"></canvas><a class="skip-link" href="#main">Skip to content</a><nav class="site-nav portfolio-route" data-route-group="flagships" aria-label="Portfolio location"><div class="route-path"><a class="route-node route-home" href="../../../index.html#project-radiance-lab" aria-label="Portfolio"><img class="route-mark" src="../../../media/identity/portfolio-mark.svg" alt="" width="52" height="52"><span class="route-copy"><small>Work / ideas</small><strong>Portfolio</strong></span></a><span class="route-wire" aria-hidden="true"><i></i><b></b></span><div class="route-node route-group"><span class="route-glyph" aria-hidden="true">✦</span><span class="route-copy"><small>Collection</small><strong>Flagship</strong></span></div><span class="route-wire" aria-hidden="true"><i></i><b></b></span><a class="route-node route-project" href="../index.html"><span class="route-glyph" hidden aria-hidden="true">◈</span><img class="route-thumb" src="../../../media/previews/radiance-lab/caustic-showcase.png" width="42" height="42" alt=""><span class="route-copy"><small>Project</small><strong>RadianceLab</strong></span></a><span class="route-wire" aria-hidden="true"><i></i><b></b></span><a class="route-node technical-route" href="index.html"><span class="route-copy"><small>Technical reading room</small><strong>A fast caustic viewfinder</strong></span></a></div><div class="route-end"><span class="route-meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><a class="route-back" href="../../../index.html#project-radiance-lab">← Back to portfolio</a></div></nav><nav class="section-rail technical-rail" aria-label="Technical document sections"><span class="rail-indicator" aria-hidden="true"></span><a href="#technical-top" data-section="technical-top"><span>⌂</span><span>Start</span></a><a href="#controls" data-section="controls" title="Controls"><small>01</small><span>Controls</span></a><a href="#what-changes-physically" data-section="what-changes-physically" title="What changes physically"><small>02</small><span>What changes physically</span></a><a href="#reproducible-checks" data-section="reproducible-checks" title="Reproducible checks"><small>03</small><span>Reproducible checks</span></a></nav><main id="main" class="project-page technical-page"><header id="technical-top" class="technical-hero"><span class="eyebrow">RadianceLab · Native implementation document</span><h1>A fast caustic viewfinder</h1><p>A deliberate approximation for revealing caustic structure quickly; compare it with the numerical sheet route.</p><div class="technical-actions"><a href="../index.html">← RadianceLab brochure</a><a href="index.html">Technical reading room</a><a href="../validation/index.html">Rendered evidence ↗</a></div></header><aside class="technical-scope"><span>◈</span><p>Implementation notes describe the native application. A working experiment, an approximate preview and a general transport estimator establish different things; each document states its own scope.</p></aside><article class="technical-document"><p>The <strong>Fast structure preview (biased)</strong> toggle is available in analytical
+hourglass 20, raster-family 20 and numerical mesh-sheet 32. It is off by default.
+Turning it off restores the existing solver. There is no new MIS strategy ID:
+this is a viewfinder approximation, not an additional unbiased estimator.</p>
+<p>This toggle is not strategy 32 itself. Normal strategy 32 constructs a finite
+triangulated approximation of the refracted family, builds a sheet BVH, and
+lets camera rays gather the sheets they cross. The toggle keeps the light-side
+sheet construction but replaces that camera gather with projected triangle
+rasterization. On strategy 20, the input geometry comes from the analytical
+sphere-hourglass family; on strategy 32, it comes from rays traced through the
+triangle mesh. The raster stage is shared, while the sheet generators are not.</p>
+<p>The preview traces real light rays through the glass, including chains and
+mesh interfaces. Adjacent rays with matching interaction topology become
+triangular sheets. Instead of asking every camera ray to intersect a sheet BVH
+or solve the analytical hourglass equation, it rasterizes these triangles into
+a smaller image. The screen rasterizer integrates fractional triangle coverage
+inside each pixel, so narrow folds are retained even when no pixel center
+lands inside them. Color and depth use perspective-correct interpolation.</p>
+<p>A first-solid depth buffer hides caustics behind objects. Optional glass and
+stage shading is ray traced at the same preview resolution. The caustic layer
+has its own normalized screen filter; the complete image is bilinearly enlarged
+for display. Its operating cost is therefore a finite light sweep, a reduced
+surface/depth pass and covered-pixel rasterization. It avoids the sheet BVH and
+per-pixel sheet crossing work. Whether that is faster for a particular scene
+must be measured; large projected sheets can still cause substantial overdraw.</p>
+<h2 id="controls">Controls</h2><div class="case-table-wrap technical-table" tabindex="0" role="region" aria-label="Technical comparison"><table>
+<thead>
+<tr>
+<th>Configuration key</th>
+<th>Default</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>pp.hourglassFastPreview</code></td>
+<td><code>false</code></td>
+<td>Opt into the approximation in 20/32/raster-family 20</td>
+</tr>
+<tr>
+<td><code>pp.fastSheetScale</code></td>
+<td><code>2</code></td>
+<td>Linear downsample; 2 uses one quarter as many raster pixels</td>
+</tr>
+<tr>
+<td><code>pp.fastSheetRulings</code></td>
+<td><code>96</code></td>
+<td>Initial light rays along each angular sheet</td>
+</tr>
+<tr>
+<td><code>pp.fastSheetBatch</code></td>
+<td><code>8</code></td>
+<td>Independently sampled sheets per pass</td>
+</tr>
+<tr>
+<td><code>pp.fastSheetBlur</code></td>
+<td><code>1.0</code></td>
+<td>Caustic filter standard deviation in raster pixels; 0 disables</td>
+</tr>
+<tr>
+<td><code>pp.fastSheetMinCos</code></td>
+<td><code>0.01</code></td>
+<td>Camera tangency regularization floor</td>
+</tr>
+<tr>
+<td><code>pp.fastSheetDirectFog</code></td>
+<td><code>false</code></td>
+<td>Add unrefracted single-scatter context</td>
+</tr>
+</tbody></table></div>
+<p>The existing <code>meshSheetDepth</code>, <code>meshSheetSmoothNormals</code>, <code>meshSheetSurfaces</code>
+and bend-limit controls still apply. Preview ray counts are independent of the
+reference controls. Resetting or changing a preview option clears accumulated
+film. Repeated passes average new light/azimuth samples; they do not eliminate
+discretization or filtering bias.</p>
+<h2 id="what-changes-physically">What changes physically</h2><ul>
+<li>The preview uses a pinhole projection, also for its surface/depth cameras.
+Depth of field and tilt-shift effects are omitted.</li>
+<li>It draws direct camera-visible fog sheets only. Sheet contributions reached
+through camera-side glass or mirrors are omitted. The first glass surface
+therefore clips that layer, even though glass beauty shading can transmit.</li>
+<li>Light-side rays carry transmission and internal total reflection through
+closed, nonoverlapping glass solids. Analytical planar mirror relays and
+externally reflected light families are not reproduced.</li>
+<li>Finite angular triangulation, dropped unresolved topology changes,
+interpolated phase/attenuation, a grazing denominator floor, finite screen
+coverage, reduced resolution and screen filtering introduce approximation.
+The blur can spread light across an occlusion edge.</li>
+<li>The underlying mesh-sheet model uses homogeneous fog, scalar IOR/RGB and
+single scattering after a glass path. It does not become a spectral,
+heterogeneous or multiple-scattering solver by enabling this toggle.</li>
+<li>Emission follows mode 32&#39;s physical emitter convention. Analytical 20 uses a
+different uniform-intensity convention in some configurations. A brightness
+difference between those modes must not be described as numerical error.</li>
+</ul>
+<p>This is useful for framing a chain, finding a caustic fold, adjusting a model
+or inspecting how light support moves. Disable it for radiometric reference,
+singularity analysis, estimator comparisons or MIS variance measurements.</p>
+<h2 id="reproducible-checks">Reproducible checks</h2><p><code>PrismMeshSheetTest</code> now also checks exact projected-area integration, shared
+edges, subpixel sheets, projective interpolation and degenerate rejection. It
+is a geometry test, not evidence of unbiased rendering.</p>
+<p>After a combined native build, run:</p>
+<pre><code class="language-powershell">python docs/mesh-photon-sheets/benchmark_fast_preview.py build/fast-preview-check --before-binary C:/path/to/checkpoint/Prism.exe
+</code></pre>
+<p>The harness retains the executable hash, exact configuration, native float
+film, PNG and timing for every case. It first checks <strong>disabled</strong> mode 20 on
+scene 48 and mode 32 on scene 84 against the checkpoint, byte for byte. For
+the selected scene it then uses the same emission, ruling count, sheet batch,
+glass-interface depth and timing warmup for both
+paths: first-pass cost, steady-pass cost and approximately equal-render-time
+films. The default isolates the refracted fog so nonblack pixels cannot be
+explained only by stage surfaces. Add <code>--surfaces</code> for the complete viewfinder.</p>
+<p><code>--scene</code> selects any paired mesh scene: 83 Suzanne, 84 teapot (default),
+85 spheres, 86 torus or 87 glass chain. Use a separate output root for each
+scene and binary; the retained-film checks reject replacing a previous run
+with different settings. <code>--depth</code> defaults to 12 glass interfaces, and
+<code>--warmup</code> defaults to two excluded steady passes. Both paths receive the
+same values. Initial and equal-time measurements exclude no passes, so their
+recorded time includes the first geometry construction.</p>
+<pre><code class="language-powershell">python docs/mesh-photon-sheets/benchmark_fast_preview.py build/fast-preview-spheres --scene 85
+python docs/mesh-photon-sheets/benchmark_fast_preview.py build/fast-preview-chain --scene 87 --depth 12 --rulings 96 --batch 8
+</code></pre>
+<p>The report records speed rather than assuming it. First-pass geometry setup
+and process launch are separate from steady rendering; approximately equal
+time includes a recorded pass-count cap. Compare the retained images as well
+as the timing ratio. No measured performance claim is implied until that
+report has been produced on the tested binary.</p>
+</article><footer class="technical-footer"><div class="technical-actions"><a href="../index.html">← RadianceLab brochure</a><a href="index.html">Technical reading room</a><a href="../validation/index.html">Rendered evidence ↗</a></div></footer></main></body></html>

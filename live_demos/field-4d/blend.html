@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+  <head><style id="portfolio-early-paint">html{background:#0b0d0c;color-scheme:dark}html.portfolio-booting body{opacity:0}</style><script src="../../portfolio-navigation.js"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CC 4D · Compounded 5D Explorer</title>
+    <style>
+      :root { font-family: Inter, ui-sans-serif, system-ui, "Segoe UI", sans-serif; color: #eef5f6; }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; height: 100%; overflow: hidden; }
+      button, select, input { font: inherit; }
+      #app { display: grid; grid-template-columns: minmax(0,1fr) 300px; width: 100%; height: 100vh;
+        background: linear-gradient(135deg, #070c10, #0a1014 50%, #100f14); }
+      #viewport { position: relative; min-width: 0; }
+      #cc { display: block; width: 100%; height: 100%; }
+      #panel { display: flex; flex-direction: column; gap: 10px; padding: 14px; overflow-y: auto;
+        border-left: 1px solid rgba(230,255,249,0.12); background: rgba(9,15,16,0.82); }
+      .panel-header { display: flex; align-items: center; justify-content: space-between; }
+      h1 { margin: 0; font-size: 16px; }
+      #status { padding: 4px 9px; border: 1px solid rgba(180,229,219,0.28); border-radius: 999px;
+        color: #b9e5db; font-size: 11px; }
+      .links a { color: #c0a4ff; font-size: 11px; text-decoration: none; margin-right: 10px; }
+      .grp { display: grid; gap: 7px; padding: 9px; border: 1px solid rgba(230,255,249,0.12); border-radius: 9px;
+        background: rgba(255,255,255,0.025); }
+      .grp h2 { margin: 0 0 2px; font-size: 12px; font-weight: 640; }
+      .row { display: grid; grid-template-columns: 1fr auto; align-items: baseline; gap: 6px; }
+      .lbl { color: #a8bdbe; font-size: 11px; text-transform: uppercase; letter-spacing: 0.03em; }
+      .val { font-variant-numeric: tabular-nums; font-size: 11px; color: #cfe7e3; }
+      input[type="range"] { width: 100%; }
+      select { width: 100%; background: rgba(255,255,255,0.06); color: #eef5f6;
+        border: 1px solid rgba(230,255,249,0.18); border-radius: 6px; padding: 3px; }
+      .slots { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; }
+      .slot { display: grid; gap: 3px; text-align: center; }
+      .genrow { display: grid; grid-template-columns: 18px 1fr; align-items: center; gap: 8px; }
+      .hetrow { display: flex; gap: 10px; flex-wrap: wrap; }
+      #weightHud { display: grid; gap: 4px; }
+      .hud-row { display: grid; grid-template-columns: 14px 1fr; align-items: center; gap: 6px; }
+      .hud-lab { font-size: 11px; color: #cfe7e3; }
+      .hud-track { height: 9px; border-radius: 999px; background: rgba(255,255,255,0.08); overflow: hidden; }
+      .hud-bar { height: 100%; width: 0%; border-radius: 999px; transition: width 90ms linear; }
+      #readout { font-size: 10px; color: #8fb0ad; font-variant-numeric: tabular-nums; word-break: break-all; }
+      button.engage { padding: 6px; border-radius: 7px; cursor: pointer; color: #061212;
+        border: 1px solid rgba(236,255,250,0.8); background: linear-gradient(115deg,#b8fff1,#d8c7ff); }
+      #heatmapCanvas { position: absolute; left: 12px; bottom: 12px; width: 180px; height: 180px;
+        border: 1px solid rgba(230,255,249,0.18); border-radius: 8px; box-shadow: 0 4px 18px rgba(0,0,0,0.4); pointer-events: none; }
+    </style>
+    <script type="module" crossorigin src="./assets/blend-HVO_JY2r.js"></script>
+    <link rel="modulepreload" crossorigin href="./assets/mode-switch-KVTmJce4.js">
+    <link rel="modulepreload" crossorigin href="./assets/whats-new-BGrxnqJH.js">
+    <link rel="stylesheet" crossorigin href="./assets/mode-switch-Bw2z5Q4v.css">
+    <link rel="stylesheet" href="./portfolio-return.css">
+<link rel="stylesheet" href="../../portfolio-controls.css"><link rel="stylesheet" href="../../portfolio-demo-return.css"><script defer src="../../portfolio-demo-return.js" data-project="5D" data-title="High-dimensional Fields &amp; Shadow Design" data-overview="projects/field-4d/overview.html" data-group="hobby" data-thumbnail="media/projects/field-4d/shadow.png" data-routes="[{&quot;project&quot;:&quot;5D&quot;,&quot;title&quot;:&quot;High-dimensional Fields &amp; Shadow Design&quot;,&quot;group&quot;:&quot;hobby&quot;,&quot;thumbnail&quot;:&quot;media/projects/field-4d/shadow.png&quot;,&quot;overview&quot;:&quot;projects/field-4d/overview.html&quot;,&quot;path&quot;:&quot;live_demos/field-4d/creator.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:2},{&quot;project&quot;:&quot;5D&quot;,&quot;title&quot;:&quot;High-dimensional Fields &amp; Shadow Design&quot;,&quot;group&quot;:&quot;hobby&quot;,&quot;thumbnail&quot;:&quot;media/projects/field-4d/shadow.png&quot;,&quot;overview&quot;:&quot;projects/field-4d/overview.html&quot;,&quot;path&quot;:&quot;live_demos/field-4d/creator.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:1},{&quot;project&quot;:&quot;5D&quot;,&quot;title&quot;:&quot;High-dimensional Fields &amp; Shadow Design&quot;,&quot;group&quot;:&quot;hobby&quot;,&quot;thumbnail&quot;:&quot;media/projects/field-4d/shadow.png&quot;,&quot;overview&quot;:&quot;projects/field-4d/overview.html&quot;,&quot;path&quot;:&quot;live_demos/field-4d/inverse.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:1},{&quot;project&quot;:&quot;5D&quot;,&quot;title&quot;:&quot;High-dimensional Fields &amp; Shadow Design&quot;,&quot;group&quot;:&quot;hobby&quot;,&quot;thumbnail&quot;:&quot;media/projects/field-4d/shadow.png&quot;,&quot;overview&quot;:&quot;projects/field-4d/overview.html&quot;,&quot;path&quot;:&quot;live_demos/field-4d/index.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:1},{&quot;project&quot;:&quot;5D&quot;,&quot;title&quot;:&quot;High-dimensional Fields &amp; Shadow Design&quot;,&quot;group&quot;:&quot;hobby&quot;,&quot;thumbnail&quot;:&quot;media/projects/field-4d/shadow.png&quot;,&quot;overview&quot;:&quot;projects/field-4d/overview.html&quot;,&quot;path&quot;:&quot;live_demos/field-4d/blend.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:1},{&quot;project&quot;:&quot;5D&quot;,&quot;title&quot;:&quot;High-dimensional Fields &amp; Shadow Design&quot;,&quot;group&quot;:&quot;hobby&quot;,&quot;thumbnail&quot;:&quot;media/projects/field-4d/shadow.png&quot;,&quot;overview&quot;:&quot;projects/field-4d/overview.html&quot;,&quot;path&quot;:&quot;live_demos/field-4d/&quot;,&quot;query&quot;:{},&quot;priority&quot;:-1}]"></script><!-- universal-navigation:start --><link rel="stylesheet" href="../../portfolio-location.css?v=054b6b462c"><script defer src="../../portfolio-location.js?v=054b6b462c"></script><script defer src="../../portfolio-routes.js?v=054b6b462c"></script><script defer src="../../portfolio-universal-navigation.js?v=054b6b462c"></script><!-- universal-navigation:end --><style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head>
+  <body>
+    <div id="app">
+      <div id="viewport"><canvas id="cc"></canvas><canvas id="heatmapCanvas" width="180" height="180"></canvas></div>
+      <aside id="panel">
+        <a class="portfolio-return" href="../../projects/field-4d/index.html" aria-label="Back to this project's portfolio page"><span aria-hidden="true">←</span> Project overview</a>
+        <div class="panel-header"><h1>Compounded 5D Explorer</h1><div id="status">starting…</div></div>
+        <section class="field-journey" aria-label="Purpose and first steps">
+          <p class="journey-kicker">03 / Compose the field</p>
+          <p class="journey-goal"><strong>Can we keep useful structure across hidden dimensions?</strong> Combine procedural field generators, then explore how axis mapping and orientation change the 3D slice. This complements the inverse problem: projections constrain what must be present; a generative field controls what happens between those constraints.</p>
+          <details><summary>Inverse constraints versus procedural continuity</summary><p>More dimensions supply more degrees of freedom, but they do not automatically produce a useful animation. Periodic fields can support looping playback; balanced treatment of coordinates can avoid privileging one slice direction. Neither property implies strict rotational isotropy or compatibility with arbitrary target shadows.</p><a class="journey-route" href="inverse.html"><span aria-hidden="true" style="font-size:32px;text-align:center">4→3</span><span><strong>Higher-dimensional inversion</strong><small>Build a 4D hull from 2D / 3D targets</small></span></a></details>
+          <details>
+            <summary>Try this first · change one ingredient at a time</summary>
+            <ol>
+              <li>Choose contrasting <strong>base functions</strong> for A and B. Compare their contributions in <strong>style mix</strong>.</li>
+              <li>Keep those generators fixed and change <strong>axes → slots</strong> or orientation. Separate a change of view from a change of field.</li>
+              <li>Use the view aids, then move W to compare nearby slices. Return to <strong>5D Explorer</strong> whenever you want a simpler baseline.</li>
+            </ol>
+            <p class="journey-scope">Compounded 5D Explorer extends the same slice-reading experiment with composition and visual orientation cues. The procedural ingredients are chosen constructions; their evocative appearance is not a physical simulation of those materials or creatures.</p>
+          </details>
+          <details>
+            <summary>Explore the related field viewers</summary>
+            <nav class="journey-routes" aria-label="Suggested exploration order">
+              <a class="journey-route" href="creator.html"><img src="./assets/shadow-FBsK3RSF.png" alt="Saved capture: one solid casting different shadows" loading="lazy" decoding="async"><span><strong>01 · Shadow inversion</strong><small>3D → 2D · build the intuition</small></span></a>
+              <a class="journey-route" href="index.html"><img src="./assets/field-CA3t-t1E.png" alt="Saved capture of the five-dimensional field viewer" loading="lazy" decoding="async"><span><strong>03 · 5D Explorer</strong><small>One field · compare slices</small></span></a>
+              <a class="journey-route" href="blend.html" aria-current="page"><img src="./assets/prism-C0MWvhpN.png" alt="Saved capture of Compounded 5D Explorer with its axis controls" loading="lazy" decoding="async"><span><strong>04 · Compounded 5D Explorer</strong><small>Composed fields · the same question</small></span></a>
+            </nav>
+          </details>
+        </section>
+
+        <div class="grp">
+          <h2>axes → slots</h2>
+          <div class="slots">
+            <label class="slot"><span class="lbl">X</span><select id="slotX"></select></label>
+            <label class="slot"><span class="lbl">Y</span><select id="slotY"></select></label>
+            <label class="slot"><span class="lbl">Z</span><select id="slotZ"></select></label>
+            <label class="slot"><span class="lbl">T</span><select id="slotT"></select></label>
+            <label class="slot"><span class="lbl">W</span><select id="slotW"></select></label>
+          </div>
+        </div>
+
+        <div class="grp">
+          <h2>style mix</h2>
+          <div id="weightHud"></div>
+          <div class="row"><span class="lbl">blend sharpness</span><span class="val" id="sharpnessVal"></span></div>
+          <input type="range" id="sharpness" min="1" max="10" step="0.1" value="2.5" />
+        </div>
+
+        <div class="grp">
+          <h2>base functions</h2>
+          <div class="genrow"><span class="lbl">A</span><select id="genA"></select></div>
+          <div class="genrow"><span class="lbl">B</span><select id="genB"></select></div>
+          <div class="genrow"><span class="lbl">C</span><select id="genC"></select></div>
+          <div class="genrow"><span class="lbl">D</span><select id="genD"></select></div>
+          <div class="genrow"><span class="lbl">E</span><select id="genE"></select></div>
+        </div>
+
+        <div class="grp">
+          <h2>stack layers</h2>
+          <div id="paletteRows"></div>
+        </div>
+
+        <div class="grp">
+          <h2>orientation</h2>
+          <div class="row"><span class="lbl">tilt</span><span class="val" id="tiltVal"></span></div>
+          <input type="range" id="tilt" min="-1.57" max="1.57" step="0.01" value="0" />
+          <div class="row"><span class="lbl">spin</span><span class="val" id="spinVal"></span></div>
+          <input type="range" id="spin" min="-1.57" max="1.57" step="0.01" value="0" />
+          <div class="row"><span class="lbl">hidden W</span><span class="val" id="hiddenVal"></span></div>
+          <input type="range" id="hidden" min="-8" max="8" step="0.01" value="0" />
+          <div class="row"><span class="lbl">time rate</span><span class="val" id="timeRateVal"></span></div>
+          <input type="range" id="timeRate" min="0" max="3" step="0.01" value="1" />
+        </div>
+
+        <div class="grp">
+          <h2>space</h2>
+          <div class="row"><span class="lbl">curvature</span><span class="val" id="curvatureVal"></span></div>
+          <input type="range" id="curvature" min="-0.05" max="0.05" step="0.001" value="0" />
+          <div class="row" style="font-size:10px;opacity:0.6"><span class="lbl">&minus; hyperbolic &middot; 0 flat &middot; + sphere</span></div>
+        </div>
+
+        <div class="grp">
+          <h2>medium</h2>
+          <div class="row"><span class="lbl">density</span><span class="val" id="densityVal"></span></div>
+          <input type="range" id="density" min="0.2" max="3" step="0.01" value="1.6" />
+          <div class="row"><span class="lbl">glow</span><span class="val" id="glowVal"></span></div>
+          <input type="range" id="glow" min="0" max="3" step="0.01" value="1" />
+          <div class="row"><span class="lbl">exposure</span><span class="val" id="exposureVal"></span></div>
+          <input type="range" id="exposure" min="0.4" max="2.5" step="0.01" value="1.25" />
+          <div class="row"><span class="lbl">render scale</span><span class="val" id="scaleVal"></span></div>
+          <input type="range" id="scale" min="0.25" max="1" step="0.01" value="0.6" />
+        </div>
+
+        <div class="grp">
+          <h2>aids</h2>
+          <label class="row" style="cursor:pointer"><span class="lbl">depth tint</span><input type="checkbox" id="depthTint" /></label>
+          <div class="row"><span class="lbl">tint axis</span><select id="depthAxis"></select></div>
+          <label class="row" style="cursor:pointer"><span class="lbl">T-W map</span><input type="checkbox" id="twMap" checked /></label>
+          <label class="row" style="cursor:pointer"><span class="lbl">view walls</span><input type="checkbox" id="viewWalls" /></label>
+          <label class="row" style="cursor:pointer"><span class="lbl">view inspector</span><input type="checkbox" id="viewInspector" /></label>
+          <label class="row" style="cursor:pointer"><span class="lbl">show axes</span><input type="checkbox" id="showAxes" /></label>
+          <label class="row" style="cursor:pointer"><span class="lbl">show markers</span><input type="checkbox" id="showMarkers" /></label>
+          <label class="row" style="cursor:pointer"><span class="lbl">drifter</span><input type="checkbox" id="drifter" /></label>
+          <label class="row" style="cursor:pointer"><span class="lbl">auto tour <span class="newdot" data-batch="phys"></span></span><input type="checkbox" id="autoTour" /></label>
+        </div>
+
+        <div class="grp">
+          <h2>look <span class="newdot" data-batch="look"></span></h2>
+          <label class="row" style="cursor:pointer"><span class="lbl">colour identity</span><input type="checkbox" id="lookColour" checked /></label>
+          <label class="row" style="cursor:pointer"><span class="lbl">atmosphere</span><input type="checkbox" id="lookAtmos" checked /></label>
+          <label class="row" style="cursor:pointer"><span class="lbl">lighting + glow</span><input type="checkbox" id="lookLight" checked /></label>
+          <label class="row" style="cursor:pointer"><span class="lbl">motion</span><input type="checkbox" id="lookMotion" checked /></label>
+          <div class="row"><span class="lbl">box size</span><span class="val" id="wallRVal"></span></div>
+          <input type="range" id="wallR" min="3" max="12" step="0.1" value="6" />
+          <div class="row"><span class="lbl">roll speed</span><span class="val" id="rollSpeedVal"></span></div>
+          <input type="range" id="rollSpeed" min="0" max="4" step="0.1" value="1.6" />
+        </div>
+
+        <div class="grp">
+          <h2>heterogeneity</h2>
+          <div class="hetrow" id="hetChecks"></div>
+          <div class="row"><span class="lbl">edit axis</span><select id="hetAxis"></select></div>
+          <div class="row"><span class="lbl">pos x</span><span class="val" id="hetXVal"></span></div>
+          <input type="range" id="hetX" min="-8" max="8" step="0.1" value="2.5" />
+          <div class="row"><span class="lbl">pos y</span><span class="val" id="hetYVal"></span></div>
+          <input type="range" id="hetY" min="-8" max="8" step="0.1" value="1.5" />
+          <div class="row"><span class="lbl">pos z</span><span class="val" id="hetZVal"></span></div>
+          <input type="range" id="hetZ" min="-8" max="8" step="0.1" value="0" />
+          <div class="row"><span class="lbl">pos t</span><span class="val" id="hetTVal"></span></div>
+          <input type="range" id="hetT" min="-8" max="8" step="0.1" value="0" />
+          <div class="row"><span class="lbl">pos w</span><span class="val" id="hetWVal"></span></div>
+          <input type="range" id="hetW" min="-8" max="8" step="0.1" value="0" />
+          <div class="row"><span class="lbl">size</span><span class="val" id="hetRVal"></span></div>
+          <input type="range" id="hetR" min="1" max="10" step="0.1" value="4.5" />
+        </div>
+
+        <div class="grp">
+          <h2>force field</h2>
+          <div class="row"><span class="lbl">field</span><select id="ffPick"></select></div>
+          <label class="row" style="cursor:pointer"><span class="lbl">enable</span><input type="checkbox" id="ffOn" /></label>
+          <div class="row"><span class="lbl">type</span><select id="ffType"></select></div>
+          <div class="row"><span class="lbl">pos x</span><span class="val" id="ffXVal"></span></div><input type="range" id="ffX" min="-8" max="8" step="0.1" value="0" />
+          <div class="row"><span class="lbl">pos y</span><span class="val" id="ffYVal"></span></div><input type="range" id="ffY" min="-8" max="8" step="0.1" value="0" />
+          <div class="row"><span class="lbl">pos z</span><span class="val" id="ffZVal"></span></div><input type="range" id="ffZ" min="-8" max="8" step="0.1" value="0" />
+          <div class="row"><span class="lbl">pos t</span><span class="val" id="ffTVal"></span></div><input type="range" id="ffT" min="-8" max="8" step="0.1" value="0" />
+          <div class="row"><span class="lbl">pos w</span><span class="val" id="ffWVal"></span></div><input type="range" id="ffW" min="-8" max="8" step="0.1" value="0" />
+          <div class="row"><span class="lbl">radius</span><span class="val" id="ffRVal"></span></div><input type="range" id="ffR" min="1" max="12" step="0.1" value="5" />
+          <div class="row"><span class="lbl">strength</span><span class="val" id="ffSVal"></span></div><input type="range" id="ffS" min="-5" max="5" step="0.1" value="1.5" />
+        </div>
+
+        <div class="grp">
+          <h2>flashlight</h2>
+          <label class="row" style="cursor:pointer"><span class="lbl">flashlight</span><input type="checkbox" id="flash" /></label>
+          <label class="row" style="cursor:pointer"><span class="lbl">outside dark</span><input type="checkbox" id="flashDark" checked /></label>
+          <div class="row"><span class="lbl">cone angle</span><span class="val" id="flashAngleVal"></span></div>
+          <input type="range" id="flashAngle" min="8" max="70" step="1" value="30" />
+          <div class="row"><span class="lbl">reach</span><span class="val" id="flashReachVal"></span></div>
+          <input type="range" id="flashReach" min="5" max="50" step="0.5" value="20" />
+        </div>
+
+        <button class="engage" id="engage">Engage (click canvas)</button>
+        <div id="readout"></div>
+      </aside>
+    </div>
+  </body>
+</html>

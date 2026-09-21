@@ -1,0 +1,490 @@
+/* Styles used only by the homepage variant pages (home-*.html, home-compare.html). */
+.variant-banner{position:sticky;top:78px;z-index:1050;display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;padding:8px max(5vw,24px) 8px max(5vw,112px);font:12px/1.5 var(--sans);color:#cbb98a;background:rgba(17,18,14,.9);border-bottom:1px solid #d7c58733;backdrop-filter:blur(8px)}
+.variant-banner strong{font-weight:600;letter-spacing:.1em;text-transform:uppercase;font-size:10px;color:#9b8d67;margin-right:6px}
+.variant-banner a{color:#efe3b4;padding:2px 0;border-bottom:1px solid transparent}
+.variant-banner a:hover{color:var(--gold)}
+.variant-banner a[aria-current]{color:var(--gold);border-color:var(--gold)}
+.hero-section{grid-template-rows:auto auto}
+.reading-key{grid-column:1/-1;margin:26px 0 0;padding:16px 20px;border:1px solid #d7c58733;border-radius:6px;background:rgba(21,22,15,.8);color:#d9d3c0;font-size:14px;line-height:1.65;max-width:820px}
+.reading-key>span{display:block;color:var(--gold);font-size:10px;letter-spacing:.14em;text-transform:uppercase;margin-bottom:6px}
+.kind-chip{display:inline-block;font:600 10px/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;padding:5px 8px;border-radius:3px;border:1px solid currentColor;white-space:nowrap}
+.kind-research{color:#9fe2b8}.kind-system{color:#e7c56a}.kind-atlas{color:#c9b6f0}.kind-study{color:#b9c9c2}.kind-exploration{color:#a9c8ec}
+.state-chip{display:inline-block;font:500 10px/1 var(--sans);letter-spacing:.08em;text-transform:uppercase;color:#f0c98a;padding:5px 7px;border:1px dashed #f0c98a88;border-radius:3px;margin-left:6px;white-space:nowrap}
+.project-picture>.state-chip{position:absolute;bottom:12px;left:12px;z-index:22;margin:0;background:#101814ed;box-shadow:0 2px 8px #0006;pointer-events:none}
+.compact-card.variant-row .project-picture>.state-chip{bottom:5px;left:5px;padding:4px;font-size:8px;letter-spacing:.03em}
+.variant-full .project-meta{gap:10px;justify-content:flex-start;margin-bottom:12px}
+/* Canonical labels remain optional without reserving an empty row beneath the image. */
+body:not([data-card-canonical=true]) .variant-full .project-meta:not(:has(.state-chip)),body:not([data-card-canonical=true]) .variant-row .project-meta:not(:has(.state-chip)){display:none}
+.variant-kicker{display:block;font-family:var(--serif);font-size:17px;line-height:1.45;color:#e9d9a8;margin:0 0 12px}
+.evidence-line{display:flex;gap:12px;align-items:baseline;margin:-6px 0 18px;padding:10px 12px;border-left:2px solid var(--gold-soft);background:#e5bf5708;color:#cfc8b0;font-size:13px;line-height:1.55}
+.evidence-line>span{flex-shrink:0;color:var(--gold);font-size:10px;letter-spacing:.12em;text-transform:uppercase;padding-top:3px}
+.lane-label{grid-column:1/-1;margin:18px 0 -12px;font:600 11px/1 var(--sans);letter-spacing:.16em;text-transform:uppercase;color:#bfb08a}
+.foundation-strip{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:0 0 6px}
+.foundation-strip .lane-label{margin:4px 0 -4px}
+.foundation-row{display:grid;grid-template-columns:auto 1fr auto;gap:16px;align-items:center;padding:14px 18px;border:1px solid #9fe2b833;border-radius:6px;background:rgba(15,21,18,.8);transition:border-color .2s,background .2s}
+.foundation-row:hover{border-color:#9fe2b8aa;background:rgba(17,26,21,.9)}
+.foundation-copy strong{display:block;font:500 17px/1.3 var(--serif);color:#f2ead6;margin-bottom:3px}
+.foundation-copy span{font-size:13px;color:var(--muted);line-height:1.5}
+.foundation-row em{font-style:normal;color:#9fe2b8;font-size:12px;white-space:nowrap}
+.compact-card.variant-row .project-picture{width:104px;margin:16px 0 16px 16px}
+.compact-card.variant-row .project-picture img{width:104px;aspect-ratio:1.25;object-fit:cover}
+.compact-card.variant-row .project-meta{justify-content:flex-start;gap:8px}
+.compact-card.variant-row .project-title{font-size:19px}
+.variant-row-evidence .evidence-line{margin:-2px 0 12px;font-size:12px;padding:8px 10px}
+.threads-section .thread-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.thread-card{border:1px solid var(--line);border-radius:6px;padding:18px 20px;background:rgba(18,20,15,.8)}
+.thread-card h3{font:500 20px/1.3 var(--serif);margin:0 0 6px;color:#f2ead6}
+.thread-card p{font-size:13px;color:var(--muted);margin:0 0 12px}
+.thread-card ol{margin:0 0 12px;padding-left:18px;font-size:13px;color:#d9d3c0}
+.thread-card li{margin:3px 0}
+.thread-card li a{color:#e7c56a}
+.compare-hero{grid-template-columns:1fr;min-height:0;padding-bottom:10px}
+.compare-note{max-width:820px!important;font-size:14px!important}
+.compare-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;margin:20px 0 60px}
+.compare-card{border:1px solid var(--line);border-radius:8px;padding:22px 24px;background:rgba(18,20,15,.8)}
+.compare-card h2{font-size:26px;margin:6px 0 10px}
+.compare-card p{color:var(--muted);font-size:14px}
+.compare-card ol{padding-left:18px;color:#d9d3c0;font-size:13px}
+.compare-card .learn-more{margin-top:12px}
+/* Compact hero: the flagship grid starts inside the first screen. */
+.hero-compact{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:5%;align-items:end;min-height:0;padding:18px 0 14px}
+.hero-compact+.content-section{padding-top:28px}
+.hero-compact .hero-copy h1{font-size:clamp(34px,3.4vw,54px);margin:12px 0 14px}
+.hero-compact .hero-copy p{max-width:600px;font-size:17px;line-height:1.6;margin:0}
+.hero-compact .reading-key{grid-column:auto;margin:0;max-width:none;align-self:end}
+.hero-compact .reading-key a{display:block;margin-top:8px;color:var(--gold);font-weight:600}
+/* Colour-coded regions: the accent tints the section number, the heading dot, lane labels and the card's top edge. */
+.variant-section[data-accent="gold"]{--accent:#e7c56a}
+.variant-section[data-accent="mint"]{--accent:#9fe2b8}
+.variant-section[data-accent="amber"]{--accent:#f0a95a}
+.variant-section[data-accent="copper"]{--accent:#e08b6d}
+.variant-section[data-accent="blue"]{--accent:#8fc1ee}
+.variant-section[data-accent="teal"]{--accent:#7fd3c8}
+.variant-section[data-accent="violet"]{--accent:#c9b6f0}
+.variant-section[data-accent="sand"]{--accent:#d9c9a0}
+.variant-section[data-accent] .section-number{color:var(--accent)}
+.variant-section[data-accent] .section-header h2::before{content:'';display:inline-block;width:11px;height:11px;border-radius:50%;background:var(--accent);box-shadow:0 0 14px var(--accent);margin:0 14px 6px 0;vertical-align:middle}
+.variant-section[data-accent] .lane-label,.variant-section[data-accent] .column-labels span{color:var(--accent)}
+.variant-section[data-accent] .project-card{box-shadow:inset 0 2px 0 var(--accent)}
+.variant-section[data-accent] .project-card:is(:hover,:focus-within){box-shadow:inset 0 2px 0 var(--accent),0 7px 28px #0004}
+.variant-section[data-accent] .kind-chip{color:var(--accent)}
+.variant-section[data-accent="rose"]{--accent:#e6a2b4}
+.variant-section[data-accent="lime"]{--accent:#c6dc8a}
+.variant-section[data-accent="slate"]{--accent:#b6c2cf}
+/* Fixed three-column rows: every category is one row of equally sized cards; a wide card spans the row. */
+.variant-section[data-grid="3"][data-full] .project-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+.variant-section[data-grid="3"] .project-grid>.variant-full:not(.lead-wide){grid-column:auto;display:flex}
+.project-card.lead-wide{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);align-items:stretch}
+.project-card.lead-wide .project-picture{height:100%;border-radius:5px 0 0 5px}
+.project-card.lead-wide .project-picture img{height:100%;min-height:400px;aspect-ratio:auto;object-fit:cover;object-position:center}
+.project-card.lead-wide .project-content{padding:28px 32px}
+.project-card.lead-wide .project-meta{padding-right:170px}
+.project-card.lead-wide .review-checkpoint{grid-column:1/-1}
+.note-tile{display:flex;flex-direction:column;justify-content:center;gap:10px;padding:26px 28px;border:1px dashed color-mix(in srgb,var(--accent,#bfb08a) 55%,transparent);border-radius:6px;background:rgba(18,20,15,.55);color:#cfc8b0;font-size:15px;line-height:1.65}
+.note-tile .eyebrow{color:var(--accent,var(--gold))}
+.note-tile p{margin:0}
+.column-labels{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:28px;margin:-6px 0 -16px}
+.column-labels span{font:600 11px/1 var(--sans);letter-spacing:.18em;text-transform:uppercase;padding-left:4px}
+.variant-section[data-full="4"] .project-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+@media(max-width:1100px){.hero-compact{grid-template-columns:1fr}.column-labels{display:none}}
+/* Region layouts: a single lead card spans the row; two leads or evidence rows use two columns. */
+.variant-section[data-full="2"] .project-grid,.variant-section[data-rows] .project-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+.variant-section[data-full="1"] .project-grid>.variant-full{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);align-items:stretch}
+.variant-section[data-full="1"] .variant-full .project-picture{height:100%;border-radius:5px 0 0 5px}
+.variant-section[data-full="1"] .variant-full .project-picture img{height:100%;min-height:440px;aspect-ratio:auto;object-fit:cover}
+.variant-section[data-full="1"] .variant-full .project-content{padding:28px 32px}
+.variant-section[data-full="1"] .variant-full .review-checkpoint{grid-column:1/-1}
+.variant-section[data-full="1"] .variant-full .project-meta{padding-right:170px}
+.compact-card.variant-row{flex-wrap:wrap}
+.compact-card.variant-row .review-checkpoint{flex-basis:100%;margin:0 16px 12px}
+.compact-card.variant-row .project-meta{flex-wrap:wrap;gap:6px 10px;min-height:0}
+.compact-card.variant-row .project-content{flex:1 1 220px}
+@media(max-width:1100px){.project-card.lead-wide{grid-template-columns:1fr}.project-card.lead-wide .project-picture{border-radius:5px 5px 0 0}.project-card.lead-wide .project-picture img{min-height:0;aspect-ratio:1.8;height:auto}.variant-section[data-grid="3"][data-full] .project-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.variant-section[data-full="1"] .project-grid>.variant-full{grid-template-columns:1fr}.variant-section[data-full="1"] .variant-full .project-picture{border-radius:5px 5px 0 0}.variant-section[data-full="1"] .variant-full .project-picture img{min-height:0;aspect-ratio:1.8;height:auto}}
+@media(max-width:760px){.foundation-strip{grid-template-columns:1fr}.compare-grid{grid-template-columns:1fr}.reading-key{margin-top:0}.foundation-row{grid-template-columns:1fr;gap:8px}.variant-banner{position:static}}
+/* Adjustable hero hand: N cards (3 to 5) fanned symmetrically; width and height shrink with the count; the centre card sits on top. */
+.hero-hand[data-hand-count]{--card-w:calc(70% - (var(--hand-count) - 3)*9%);--card-h:calc(390px - (var(--hand-count) - 3)*45px);--mid:calc((var(--hand-count) - 1)/2)}
+.hero-hand[data-hand-count] .hero-hand-card:nth-child(n){width:var(--card-w);height:var(--card-h);left:calc(1% + var(--hand-index)*(90% - var(--card-w))/(var(--hand-count) - 1));top:calc(34px + (var(--hand-index) - var(--mid))*(var(--hand-index) - var(--mid))*14px);transform:rotate(calc((var(--hand-index) - var(--mid))*10deg));z-index:var(--hand-z)}
+.hero-hand[data-hand-count] .hero-hand-card:hover,.hero-hand[data-hand-count] .hero-hand-card:focus-within{z-index:9;transform:rotate(0deg) translateY(-18px)}
+.hero-hand[data-hand-count] .hero-hand-card.is-front{z-index:8}
+.hero-hand[data-hand-count] .hero-hand-card:last-child.is-front{z-index:8}
+/* Mini hand: several stills fanned inside a wide card's picture column. */
+.project-card.lead-wide .project-picture.mini-hand{position:relative;overflow:hidden;background:#0d100e;min-height:400px;--mid:calc((var(--hand-count) - 1)/2);--mini-w:calc(62% - (var(--hand-count) - 3)*4%)}
+.project-card.lead-wide .project-picture.mini-hand img{position:absolute;width:var(--mini-w);height:auto;min-height:0;aspect-ratio:1.5;object-fit:cover;left:calc(4% + var(--hand-index)*(92% - var(--mini-w))/(var(--hand-count) - 1));top:calc(13% + (var(--hand-index) - var(--mid))*(var(--hand-index) - var(--mid))*7%);transform:rotate(calc((var(--hand-index) - var(--mid))*9deg));transform-origin:50% 120%;z-index:var(--hand-z);border:1px solid #d7c58755;border-radius:8px;box-shadow:0 18px 40px #0009;transition:transform .45s,filter .45s;filter:brightness(.9)}
+.project-card.lead-wide .project-picture.mini-hand img:hover{transform:rotate(0deg) translateY(-10px);filter:brightness(1.05);z-index:9}
+.project-card.lead-wide .project-picture.mini-hand .picture-medium{z-index:10}
+/* The brochure script fronts RadianceLab by default; when the hand has no front card, show every card at full strength. */
+.hero-hand[data-hand-count]:not(:has(.is-front)) .hero-hand-card{opacity:1;filter:brightness(.92)}
+
+/* ======== Hero with one or two hands ======== */
+.hero-hand-group{display:flex;flex-direction:column;gap:10px;min-width:0}
+.hand-label{font:600 10px/1 var(--sans);letter-spacing:.16em;text-transform:uppercase;color:#bfb08a;padding-left:2px}
+.hero-feature[data-hand-groups="2"]{display:grid;gap:22px;min-width:0}
+.hero-feature[data-hand-layout="side"]{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.hero-feature[data-hand-layout="side"] .hero-hand{height:250px}
+.hero-feature[data-hand-layout="side"] .hero-hand[data-hand-count]{--card-h:calc(214px - (var(--hand-count) - 3)*22px)}
+.hero-feature[data-hand-layout="side"] .hero-art>span{font-size:13px;padding:10px 12px;gap:3px}
+.hero-feature[data-hand-layout="side"] .hero-art small{font-size:10px}
+.hero-feature[data-hand-layout="side"] .hero-art img{height:calc(100% - 52px)}
+.hero-feature[data-hand-layout="stacked"]{grid-template-columns:1fr}
+.hero-feature[data-hand-layout="stacked"] .hero-hand{height:268px}
+.hero-feature[data-hand-layout="stacked"] .hero-hand[data-hand-count]{--card-h:calc(230px - (var(--hand-count) - 3)*24px)}
+.hero-feature[data-hand-layout="stacked"] .hero-art>span{font-size:14px;padding:11px 14px;gap:4px}
+.hero-feature[data-hand-layout="stacked"] .hero-art img{height:calc(100% - 58px)}
+.hero-section:has(.hero-feature[data-hand-layout="wide"]){grid-template-columns:1fr;gap:18px;min-height:0;padding:28px 0 32px}
+.hero-section:has(.hero-feature[data-hand-layout="wide"]) .hero-copy p{max-width:760px}
+.hero-feature[data-hand-layout="wide"]{grid-template-columns:repeat(2,minmax(0,1fr));gap:4%}
+.hero-feature[data-hand-layout="wide"] .hero-hand{height:320px}
+.hero-feature[data-hand-layout="wide"] .hero-hand[data-hand-count]{--card-h:calc(278px - (var(--hand-count) - 3)*30px)}
+.hero-feature[data-hand-layout="wide"] .hero-art img{height:calc(100% - 66px)}
+.reading-key .key-text{display:inline;color:inherit;font-size:inherit;letter-spacing:normal;text-transform:none;margin:0}
+.evidence-line>span.evidence-text{flex-shrink:1;color:#cfc8b0;font-size:13px;letter-spacing:normal;text-transform:none;padding-top:0}
+
+/* ======== Showcase pictures: a wide card shows several stills ======== */
+.project-picture.showcase[data-showcase="fade"],.project-picture.showcase[data-showcase="stack"]{position:relative;display:block;overflow:hidden;background:#0c0f0d;min-height:400px;height:100%}
+.project-picture.showcase[data-showcase="fade"]>img{position:absolute;inset:0;width:100%;height:100%;min-height:0;aspect-ratio:auto;object-fit:cover;opacity:0;transform:scale(1.015);transition:opacity .85s ease,transform 6s ease-out}
+.project-picture.showcase[data-showcase="fade"]>img.is-active{opacity:1;transform:scale(1)}
+.project-picture.showcase[data-showcase="stack"]{--shot-w:calc(62% - (var(--shot-count) - 4)*4%)}
+.project-picture.showcase[data-showcase="stack"]>img{position:absolute;top:50%;left:calc(3% + var(--shot-index)*(94% - var(--shot-w))/(var(--shot-count) - 1));width:var(--shot-w);height:auto;min-height:0;aspect-ratio:1.5;object-fit:cover;translate:0 -50%;z-index:var(--hand-z);border:1px solid #d7c58755;border-radius:8px;box-shadow:0 18px 44px #000a;filter:brightness(.72);transition:filter .45s,translate .45s,scale .45s}
+.project-picture.showcase[data-showcase="stack"]>img.is-active{filter:brightness(1.08);translate:0 -52%;scale:1.1;z-index:9}
+.shot-captions{position:absolute;left:0;right:0;bottom:0;padding:34px 18px 14px;background:linear-gradient(transparent,rgba(8,10,8,.85));pointer-events:none}
+.shot-captions>span{display:none;font:500 13px/1.45 var(--sans);color:#e9dfc4}
+.shot-captions>span.is-active{display:block}
+.shot-dots{position:absolute;right:14px;bottom:14px;display:flex;gap:7px;z-index:10}
+.shot-dot{width:9px;height:9px;border-radius:50%;border:1px solid #e7c56a99;background:transparent;cursor:pointer;transition:background .25s,transform .25s}
+.shot-dot.is-active{background:var(--gold);transform:scale(1.15)}
+.shot-dot:hover{background:#e7c56a88}
+
+/* ======== Tiles: a free cell says something, and may carry media ======== */
+.note-tile[data-layout="media-top"],.note-tile[data-layout="media-bottom"]{justify-content:flex-start;gap:14px}
+.note-tile .tile-media{margin:0;border-radius:5px;overflow:hidden;border:1px solid #d7c58733;background:#0e110f}
+.note-tile .tile-media img,.note-tile .tile-media video,.note-tile .tile-media iframe{display:block;width:100%;height:auto;aspect-ratio:var(--tile-media-ratio,1.6);object-fit:cover;border:0}
+.note-tile .tile-media iframe{aspect-ratio:var(--tile-media-ratio,1.35);background:#0b0d0c}
+.note-tile .tile-media figcaption{padding:7px 10px;font:500 11px/1.4 var(--sans);color:#a79e84;border-top:1px solid #d7c58722}
+.note-tile .tile-strip{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:3px}
+.note-tile .tile-strip img{aspect-ratio:1}
+.note-tile[data-layout="media-left"],.note-tile[data-layout="media-right"]{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:16px;align-items:center}
+.note-tile[data-layout="media-left"] .eyebrow,.note-tile[data-layout="media-right"] .eyebrow{grid-column:1/-1;margin-bottom:-6px}
+.note-tile[data-layout="media-left"] .tile-media{order:-1}
+.note-tile[data-layout="media-behind"]{position:relative;justify-content:flex-end;min-height:300px;overflow:hidden}
+.note-tile[data-layout="media-behind"] .tile-media{position:absolute;inset:0;border:0;border-radius:6px;opacity:.3}
+.note-tile[data-layout="media-behind"] .tile-media img{height:100%;aspect-ratio:auto}
+.note-tile[data-layout="media-behind"] .eyebrow,.note-tile[data-layout="media-behind"] p,.note-tile[data-layout="media-behind"] .tile-links,.note-tile[data-layout="media-behind"] .tile-pending{position:relative}
+.tile-links{display:flex;flex-wrap:wrap;gap:12px;font:600 12px/1 var(--sans);letter-spacing:.04em}
+.tile-links a{color:var(--gold);border-bottom:1px solid transparent}
+.tile-links a:hover{border-color:var(--gold)}
+.tile-pending{font:500 11px/1.5 var(--sans);color:#f0c98a;border:1px dashed #f0c98a66;border-radius:3px;padding:6px 8px}
+
+/* ======== Sub-groups inside a merged section ======== */
+.sub-nav{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.sub-nav a{font:600 11px/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;color:#bfb08a;border:1px solid #d7c58740;border-radius:999px;padding:8px 13px;transition:color .2s,border-color .2s,background .2s}
+.sub-nav a:hover{color:var(--accent,var(--gold));border-color:var(--accent,var(--gold));background:#e5bf570d}
+.lane-label{display:flex;flex-wrap:wrap;align-items:baseline;gap:14px}
+.lane-blurb{font:400 13px/1.5 var(--sans);letter-spacing:normal;text-transform:none;color:var(--muted)}
+
+/* ======== Rail designs: the elevator must not outgrow the screen ======== */
+.section-rail[data-rail-design]{gap:var(--elevator-gap,5px)}
+.section-rail[data-rail-design] a[data-section]{padding-block:3px}
+.section-rail[data-rail-design] .rail-sub{min-height:0;font-size:10px;opacity:.78}
+.section-rail[data-rail-design] .rail-sub.is-lit{opacity:1;color:#dcc18a}
+.section-rail[data-rail-design="flyout"] .rail-subs{position:absolute;left:calc(100% + 6px);top:0;display:flex;flex-direction:column;gap:2px;padding:7px;border:1px solid #d7c58740;border-radius:8px;background:rgba(14,16,13,.96);backdrop-filter:blur(8px);opacity:0;transform:translateX(-6px);pointer-events:none;transition:opacity .2s,transform .2s;z-index:30}
+.section-rail[data-rail-design="flyout"] .rail-subs.is-open{opacity:1;transform:none;pointer-events:auto}
+.section-rail[data-rail-design="flyout"] .rail-sub{flex-direction:row;align-items:center;gap:7px;white-space:nowrap;padding:5px 9px;font-size:11px}
+.section-rail[data-rail-design="flyout"] a[data-has-subs]{position:relative}
+.section-rail[data-rail-design="dots"] .rail-subs{display:flex;flex-direction:column;gap:1px;margin:-1px 0 4px 17px;padding-left:9px;border-left:1px solid #d7c58733}
+.section-rail[data-rail-design="dots"] .rail-sub{flex-direction:row;align-items:center;gap:5px;min-height:15px;font-size:9px;letter-spacing:.06em}
+.section-rail[data-rail-design="inline"] .rail-subs{display:grid;grid-template-rows:0fr;overflow:hidden;transition:grid-template-rows .3s ease;margin-left:17px;padding-left:9px;border-left:1px solid #d7c58733}
+.section-rail[data-rail-design="inline"] .rail-subs.is-open{grid-template-rows:1fr}
+.section-rail[data-rail-design="inline"] .rail-subs>*{min-height:0}
+.section-rail[data-rail-design="inline"] .rail-sub{flex-direction:row;align-items:center;gap:6px;padding-block:3px;font-size:10px}
+
+/* ======== Edit mode ======== */
+.edit-bar{position:sticky;top:110px;z-index:1049;display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;padding:7px max(5vw,24px) 7px max(5vw,112px);font:12px/1.5 var(--sans);color:#cbb98a;background:rgba(14,16,12,.92);border-bottom:1px solid #d7c58722}
+.edit-bar strong{font-weight:600;letter-spacing:.1em;text-transform:uppercase;font-size:10px;color:#9b8d67}
+.edit-bar button{font:600 11px/1 var(--sans);color:#e8d7ad;background:#20261d;border:1px solid #d7c58744;border-radius:4px;padding:6px 10px;cursor:pointer;transition:border-color .2s,color .2s}
+.edit-bar button:hover{border-color:var(--gold);color:var(--gold)}
+.edit-bar button[aria-pressed="true"]{border-color:var(--gold);color:#12140f;background:var(--gold)}
+.edit-bar .edit-count{color:#8f8a72;font-size:11px}
+body.is-editing [data-edit]{outline:1px dashed #d7c58755;outline-offset:3px;border-radius:2px;cursor:text}
+body.is-editing [data-edit]:focus{outline:1px solid var(--gold);background:#e5bf570d}
+body.studio-on.studio-outline-changes [data-edit].is-edited{box-shadow:inset 0 -2px 0 #9fe2b855}
+.hero-copy .hero-lead{margin:0 0 1em}
+.hero-copy .hero-lead p,.hero-stage .hero-copy .hero-lead p{margin:0 0 .55em;line-height:1.5}
+.hero-copy .hero-lead p:last-child,.hero-stage .hero-copy .hero-lead p:last-child{margin-bottom:0}
+
+/* Fixes after the first J-M capture: the banner must clear the review panel, the
+   side-by-side hands must not bury their lower cards, and the wide hero must fit. */
+@media(min-width:1200px){.variant-banner{padding-right:360px}}
+.hero-feature[data-hand-layout="side"] .hero-hand[data-hand-count]{--card-w:calc(58% - (var(--hand-count) - 3)*5%)}
+.hero-feature[data-hand-layout="stacked"] .hero-hand[data-hand-count]{--card-w:calc(52% - (var(--hand-count) - 3)*4%)}
+.hero-feature[data-hand-layout="wide"] .hero-hand{height:226px}
+.hero-feature[data-hand-layout="wide"] .hero-hand[data-hand-count]{--card-h:calc(194px - (var(--hand-count) - 3)*20px);--card-w:calc(54% - (var(--hand-count) - 3)*4%)}
+.hero-feature[data-hand-layout="wide"] .hero-art>span{font-size:14px;padding:11px 14px;gap:4px}
+.hero-feature[data-hand-layout="wide"] .hero-art img{height:calc(100% - 58px)}
+.hero-section:has(.hero-feature[data-hand-layout="wide"]) .hero-copy h1{font-size:clamp(30px,2.9vw,46px);margin:10px 0 12px}
+.hero-section:has(.hero-feature[data-hand-layout="wide"]) .hero-copy p{font-size:17px}
+.hero-section:has(.hero-feature[data-hand-layout="wide"]) .reading-key{margin-top:18px}
+.note-tile[data-layout="text"]{gap:14px}
+.note-tile[data-layout="text"] .tile-links{margin-top:2px}
+
+/* ======== Hero stage: the published hand, grown to four, over a small wide hand ========
+   The top hand copies the card look measured on the published homepage (58 per cent opacity
+   and 86 per cent brightness at rest, 18 px radius, gold hairline, inset highlight and deep
+   shadow, pivot at 110 per cent height) with a wider fan and more of each card showing.
+   Stacking is set by script: the active card on top, then its neighbours, then the cards
+   furthest from it, so the cards beside the active one show the most. The active card stays
+   on top until another card is pointed at. Nothing ever moves. */
+.hero-stage{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);grid-template-rows:auto auto;column-gap:30px;row-gap:var(--hands-gap,70px);align-items:start;min-height:0;padding:22px 0 34px}
+.hero-stage .hero-copy{grid-column:1;grid-row:1;position:relative;z-index:12}
+.hero-stage .hero-copy h1{font-size:clamp(40px,4.7vw,68px);letter-spacing:-.035em;margin:18px 0 22px}
+.hero-stage .hero-copy p{max-width:400px;font-size:18px;line-height:1.7;margin:0 0 24px}
+.hero-stage .reading-key{grid-column:1;grid-row:2;margin:0;max-width:460px;align-self:start;font-size:13px;position:relative;z-index:12}
+.hero-stage .primary-link{display:inline-block}
+.hero-anchors{grid-column:2;grid-row:1;z-index:4}
+.hero-fans{grid-column:2;grid-row:2;position:relative;z-index:6;min-height:calc(var(--follow-h,150px) + 30px)}
+
+/* Shared geometry, all in pixels so a card can reuse the step. */
+.poker{--mid:calc((var(--n,4) - 1)/2);position:relative;height:var(--hand-h,300px)}
+.poker-card{position:absolute;width:var(--card-w);height:var(--card-h);
+ left:calc((100% - var(--card-w) - (var(--n,4) - 1)*var(--step))/2 + var(--shift,0px) + var(--i)*var(--step));
+ top:calc(var(--lift,0px) + var(--arch,0px)*(var(--i) - var(--mid))*(var(--i) - var(--mid)) + var(--skew,0px)*(var(--i) - var(--mid)));
+ transform:rotate(calc((var(--i) - var(--mid))*var(--angle,6deg)));transform-origin:50% 110%;z-index:calc(2 + var(--i))}
+.poker-art{position:relative;display:block;height:100%;overflow:hidden}
+.poker-art img{display:block;width:100%;height:100%;object-fit:cover}
+.poker-title{position:absolute;bottom:15px;left:16px;right:16px;font:600 17px/1.28 var(--sans);color:#ecd9a6;text-shadow:0 2px 10px #000e,0 0 24px #000c,0 1px 3px #000;pointer-events:none}
+.poker-card.is-left .poker-title{right:auto;width:calc(var(--step) - 30px)}
+.poker-card.is-right .poker-title{left:auto;width:calc(var(--step) - 30px);text-align:right}
+.hero-anchors[data-trigger="click"] .poker-art{cursor:pointer}
+
+/* Top hand: the published look. */
+.poker[data-hand="lead"]{--card-w:392px;--card-h:330px;--step:124px;--angle:10deg;--arch:14px;--skew:9px;--lift:30px;--hand-h:470px;--shift:-38px}
+.poker[data-hand="lead"] .poker-card{opacity:.58;filter:brightness(.86);transition:opacity .55s ease,filter .55s ease}
+.poker[data-hand="lead"] .poker-card.is-active{opacity:1;filter:brightness(1.05)}
+.poker[data-hand="lead"] .poker-art{border-radius:18px;border:1px solid rgba(221,193,118,.733);box-shadow:inset 0 1px #fff4,0 22px 40px #0008,0 0 25px #d4b14e14;background:#131a13;transition:box-shadow .55s ease,border-color .55s ease}
+.poker[data-hand="lead"] .poker-card.is-active .poker-art{border-color:rgba(231,197,106,.9);box-shadow:inset 0 1px #fff4,0 22px 40px #0008,0 0 34px #e5bf5733}
+.poker[data-hand="lead"] .poker-card.is-active .poker-title{color:#fff2cf}
+.hero-stage[data-fan="open"] .poker[data-hand="lead"]{--card-w:380px;--card-h:320px;--step:140px;--angle:13deg;--arch:19px;--skew:8px;--lift:44px;--hand-h:500px;--shift:-58px}
+.hero-stage[data-fan="big"] .poker[data-hand="lead"]{--card-w:422px;--card-h:354px;--step:116px;--angle:9deg;--arch:12px;--lift:26px;--hand-h:486px;--shift:-40px}
+
+/* Lower hand: small, spread wide, opaque, so the two hands never read as the same thing. */
+.hero-fans{--card-w:196px;--card-h:132px;--step:150px;--angle:3deg;--arch:4px;--skew:0px;--lift:4px;--hand-h:150px;--follow-h:150px}
+.poker[data-hand="follow"] .poker-art{border-radius:12px;border:1px solid #d7c58740;background:#0f1210;box-shadow:0 12px 26px #0008;transition:border-color .35s ease,box-shadow .35s ease}
+.poker[data-hand="follow"] .poker-art img{filter:brightness(.9);transition:filter .38s ease}
+.poker[data-hand="follow"].has-active .poker-card:not(.is-active) .poker-art img{filter:brightness(.6) saturate(.85)}
+.poker[data-hand="follow"] .poker-card.is-active .poker-art{border-color:#e7c56ab3;box-shadow:0 0 0 1px #e7c56a55,0 0 30px #e5bf5733,0 12px 26px #0008}
+.poker[data-hand="follow"] .poker-card.is-active .poker-art img{filter:brightness(1.04)}
+.poker[data-hand="follow"] .poker-title{font-size:13px;line-height:1.24;bottom:9px;left:11px;right:11px;color:#f4ead0}
+.poker[data-hand="follow"] .poker-card:is(.is-left,.is-right) .poker-title{width:calc(var(--step) - 22px)}
+
+/* The lower hand swaps as a whole. */
+.fan-set{position:absolute;inset:0;opacity:0;pointer-events:none;transition:opacity .42s ease}
+.fan-set.is-active{opacity:1;pointer-events:auto}
+.hero-fans[data-swap="slide"] .fan-set{transform:translateX(24px);transition:opacity .42s ease,transform .42s cubic-bezier(.22,.7,.3,1)}
+.hero-fans[data-swap="slide"] .fan-set.is-active{transform:none}
+.fan-label{display:block;font:600 11px/1 var(--sans);letter-spacing:.2em;text-transform:uppercase;color:#cbb98a;margin:0 0 14px calc((100% - var(--card-w) - 3*var(--step))/2 + var(--shift,0px))}
+
+/* A located card flashes once on arrival, then is an ordinary card again (the class is removed when the flash ends). */
+@keyframes locate-flash{0%{box-shadow:inset 0 2px 0 #e7c56a00,0 0 0 2px #e7c56a00,0 0 0 #e5bf5700}
+ 28%{box-shadow:inset 0 2px 0 var(--accent,#e7c56a),0 0 0 2px #e7c56ae6,0 0 52px #e5bf5770}
+ 100%{box-shadow:inset 0 2px 0 #e7c56a00,0 0 0 2px #e7c56a00,0 0 0 #e5bf5700}}
+.project-card.is-located{animation:locate-flash .9s ease-out 1}
+@media(prefers-reduced-motion:reduce){.project-card.is-located{animation:none;box-shadow:inset 0 2px 0 var(--accent,#e7c56a),0 0 0 2px #e7c56ae6}
+ .poker-card,.poker-art,.poker-art img,.fan-set{transition-duration:.01s}}
+
+/* Rose gold marks the one row that is a category of its own: the glow and the text, not the pad. */
+.section-rail a[data-rail-accent="rose"],.section-rail a[data-rail-accent="rose"] span{color:#e3b39d}
+.section-rail a[data-rail-accent="rose"] span[aria-hidden]{text-shadow:0 0 14px #e0a99399,0 0 26px #e0a99344}
+.section-rail a[data-rail-accent="rose"]:is(:hover,:focus-visible,.is-lit,[aria-current="location"]),
+.section-rail a[data-rail-accent="rose"]:is(:hover,:focus-visible,.is-lit,[aria-current="location"]) span{color:#f7ccb7}
+.section-rail a[data-rail-accent="rose"]:is(:hover,:focus-visible,.is-lit) span[aria-hidden]{text-shadow:0 0 18px #eab79f,0 0 34px #e0a99366}
+
+@media(max-width:1360px){
+ .poker[data-hand="lead"],.hero-stage[data-fan] .poker[data-hand="lead"]{--card-w:344px;--card-h:290px;--step:108px;--hand-h:430px;--shift:-24px}
+ .hero-fans{--card-w:176px;--card-h:120px;--step:132px;--hand-h:138px;--follow-h:138px}
+}
+@media(max-width:1180px){
+ .hero-stage{grid-template-columns:1fr;grid-template-rows:auto auto auto auto;row-gap:40px}
+ .hero-stage .hero-copy{grid-row:1}.hero-anchors{grid-row:2;grid-column:1}
+ .hero-fans{grid-row:3;grid-column:1}.hero-stage .reading-key{grid-row:4;grid-column:1}
+ .poker[data-hand="lead"],.hero-stage[data-fan] .poker[data-hand="lead"]{--card-w:320px;--card-h:270px;--step:112px;--hand-h:400px;--shift:0px}
+}
+@media(max-width:760px){
+ .poker[data-hand="lead"],.hero-stage[data-fan] .poker[data-hand="lead"]{--card-w:210px;--card-h:178px;--step:64px;--angle:9deg;--hand-h:280px;--lift:18px;--shift:0px}
+ .hero-fans{--card-w:132px;--card-h:92px;--step:78px;--hand-h:104px;--follow-h:104px}
+ .poker-title{font-size:13px}
+}
+
+/* ======== x.html ("grand" fan): X enlarged, a wider lower hand that only glows, rail-glow type ========
+   Type on the cards and the category label is the elevator's glowing label, larger:
+   Playfair Display 400, #ffedbb, a two-layer gold glow (measured on the rail), with a soft dark
+   underlay so it holds over bright pictures. */
+.hero-stage[data-fan="grand"] .poker[data-hand="lead"]{--card-w:408px;--card-h:344px;--step:151px;--angle:13deg;--arch:20px;--skew:9px;--lift:48px;--hand-h:545px;--shift:-18px}
+.hero-stage[data-fan="grand"] .poker-title{font-family:var(--serif);font-weight:400;letter-spacing:0;color:#ffedbb;text-shadow:0 0 5px rgba(234,190,88,.5),0 0 15px rgba(232,174,70,.46),0 0 3px #000,0 1px 8px #000,0 2px 18px #000c;transition:font-size .35s ease,color .35s ease}
+.hero-stage[data-fan="grand"] .poker[data-hand="lead"] .poker-title{font-size:21px;line-height:1.14;bottom:19px;left:20px;right:20px}
+.hero-stage[data-fan="grand"] .poker[data-hand="lead"] .poker-card:is(.is-left,.is-right) .poker-title{width:calc(var(--step) - 24px)}
+.hero-stage[data-fan="grand"] .poker[data-hand="lead"] .poker-card.is-left .poker-title{left:18px}
+.hero-stage[data-fan="grand"] .poker[data-hand="lead"] .poker-card.is-right .poker-title{right:18px}
+.hero-stage[data-fan="grand"] .poker[data-hand="lead"] .poker-card.is-active .poker-title{font-size:28px;color:#fff3cf;text-shadow:0 0 6px rgba(234,190,88,.62),0 0 20px rgba(232,174,70,.55),0 0 3px #000,0 1px 8px #000,0 2px 18px #000c}
+
+/* Lower hand: bigger, a steeper fan, barely overlapping, no dimming; the card under the pointer glows. */
+.hero-stage[data-fan="grand"] .hero-fans{grid-column:1/-1;grid-row:2;--card-w:296px;--card-h:200px;--step:250px;--angle:5deg;--arch:9px;--skew:0px;--lift:13px;--hand-h:247px;--follow-h:247px;--shift:100px}
+.hero-stage[data-fan="grand"] .reading-key{grid-column:1;grid-row:3}
+.hero-stage[data-fan="grand"] .poker[data-hand="follow"] .poker-art img,
+.hero-stage[data-fan="grand"] .poker[data-hand="follow"].has-active .poker-card:not(.is-active) .poker-art img{filter:none}
+.hero-stage[data-fan="grand"] .poker[data-hand="follow"] .poker-art{border-color:rgba(221,193,118,.45);transition:border-color .3s ease,box-shadow .3s ease}
+.hero-stage[data-fan="grand"] .poker[data-hand="follow"] .poker-card:is(:hover,:focus-within,.is-active) .poker-art{border-color:rgba(255,226,150,.9);box-shadow:0 0 0 1px rgba(255,220,140,.55),0 0 20px rgba(234,190,88,.55),0 0 46px rgba(232,174,70,.32),0 14px 30px #0009}
+.hero-stage[data-fan="grand"] .poker[data-hand="follow"] .poker-title{font-size:22px;line-height:1.16;bottom:14px;left:17px;right:17px}
+.hero-stage[data-fan="grand"] .poker[data-hand="follow"] .poker-card:is(.is-left,.is-right) .poker-title{width:calc(var(--step) - 23px)}
+.hero-stage[data-fan="grand"] .fan-label{font:400 24px/1.2 var(--serif);letter-spacing:0;text-transform:none;color:#ffedbb;text-shadow:0 0 5px rgba(234,190,88,.47),0 0 14px rgba(232,174,70,.43);margin-bottom:18px}
+.hero-stage[data-fan="grand"]{--hands-gap:84px}
+
+@media(max-width:1360px){
+ .hero-stage[data-fan="grand"] .poker[data-hand="lead"]{--card-w:356px;--card-h:300px;--step:124px;--hand-h:470px;--shift:-30px}
+ .hero-stage[data-fan="grand"] .hero-fans{--card-w:255px;--card-h:172px;--step:221px;--hand-h:216px;--follow-h:216px;--shift:90px}
+ .hero-stage[data-fan="grand"] .poker[data-hand="follow"] .poker-title{font-size:20px}
+}
+@media(max-width:1180px){
+ .hero-stage[data-fan="grand"] .poker[data-hand="lead"]{--card-w:320px;--card-h:270px;--step:112px;--hand-h:420px;--shift:0px}
+ .hero-stage[data-fan="grand"] .hero-fans{grid-column:1;grid-row:3;--shift:0px}
+ .hero-stage[data-fan="grand"] .reading-key{grid-row:4}
+}
+@media(max-width:760px){
+ .hero-stage[data-fan="grand"] .poker[data-hand="lead"]{--card-w:210px;--card-h:178px;--step:64px;--angle:9deg;--hand-h:290px;--lift:18px;--shift:0px}
+ .hero-stage[data-fan="grand"] .hero-fans{--card-w:132px;--card-h:92px;--step:108px;--hand-h:112px;--follow-h:112px}
+ .hero-stage[data-fan="grand"] .poker[data-hand="lead"] .poker-title{font-size:15px}
+ .hero-stage[data-fan="grand"] .poker[data-hand="lead"] .poker-card.is-active .poker-title{font-size:18px}
+ .hero-stage[data-fan="grand"] .poker[data-hand="follow"] .poker-title{font-size:12px}
+ .hero-stage[data-fan="grand"] .fan-label{font-size:18px}
+}
+
+/* ======== Anchored layout: the lower hand sets the width, the top hand is centred over it ========
+   Used by x.html and every stage variant. Every hand dimension is a fraction of the hero's width (container units),
+   so the balance holds on any window. --hands is the lower hand's share of the hero width; --top is the top hand's
+   width as a share of the lower hand's. Columns: text | gap | margin | top hand | margin; the lower hand spans the
+   last three, so both hands share one centre line.
+   Card widths are derived, not set. Four cards turned by `a` per card about a pivot at 110% of the card height span
+   w * (3*step + cos(1.5a) + 2.2*ratio*sin(1.5a)), so a card is the hand's width divided by that; spacing, angle and
+   shape can change and the hand still fills exactly its width. The lowest card corner, from the same geometry, sets
+   each hand's height, so the space between the hands is only the field name. The card-level assignments also keep
+   pixel values saved by the studio for the older layouts from reaching these cards.
+   On top of this geometry sits the author's own arrangement of x.html's Rendering hand (studio export, 16 September),
+   converted to proportional units and applied to all four lower hands: each lower card moved and enlarged
+   (--dx/--dy in card widths, --ds), the field name moved (in label sizes), the top hand nudged left and down (in hero and
+   card widths), and the hero raised 11px (padding). The field name is 20% larger than in that export but keeps its room,
+   so the cards stay where the author put them. Below the lower hand: the author's gap plus half a small-card title. */
+.hero-stage[data-fan][data-layout="anchored"]{
+ container-type:inline-size;
+ --hands:.66;--top:.931;--fans-gap:6px;--copy-gap:28px;--title-size:.046;
+ --t-step:.337;--t-ratio:.843;--t-angle:13deg;--t-arch:.049;--t-skew:.022;--t-lift:.06;--t-room:.012;
+ --b-step:.907;--b-ratio:.676;--b-angle:5deg;--b-arch:.03;--b-lift:.02;--b-room:.012;
+ --t-title:.051;--t-title-min:14px;--t-title-max:32px;--b-title:.054;--b-title-min:12px;--b-title-max:22px;
+ --lbl-base:clamp(18px,calc(100cqi*.0135),30px);--lbl:calc(var(--lbl-base)*1.2);--lbl-lh:1.2;--lbl-room:calc(var(--lbl-base)*1.6);--lbl-anchor:4.741em;
+ --b-over:.116;--sep-gap:clamp(44px,calc(var(--bcw)*.17),72px);
+ --H:calc(100cqi*var(--hands));--T:calc(var(--H)*var(--top));
+ --tcw:calc(var(--T)/(3*var(--t-step) + cos(1.5*var(--t-angle)) + 2.2*var(--t-ratio)*sin(1.5*var(--t-angle))));
+ --tch:calc(var(--tcw)*var(--t-ratio));--tcs:calc(var(--tcw)*var(--t-step));
+ --bcw:calc(var(--H)/(3*var(--b-step) + cos(1.5*var(--b-angle)) + 2.2*var(--b-ratio)*sin(1.5*var(--b-angle))));
+ --bch:calc(var(--bcw)*var(--b-ratio));--bcs:calc(var(--bcw)*var(--b-step));
+ --thh:calc(var(--tch)*(1.1 - .1*cos(1.5*var(--t-angle))) + var(--tcw)*(var(--t-lift) + max(2.25*var(--t-arch),.25*var(--t-arch)) + max(1.5*var(--t-skew),-1.5*var(--t-skew)) + .5*sin(1.5*var(--t-angle)) + var(--t-room)));
+ --bhh:calc(var(--bch)*(1.1 - .1*cos(1.5*var(--b-angle))) + var(--bcw)*(var(--b-lift) + max(2.25*var(--b-arch),.25*var(--b-arch)) + .5*sin(1.5*var(--b-angle)) + var(--b-room)));
+ grid-template-columns:calc((1 - var(--hands))*100% - var(--copy-gap)) var(--copy-gap) calc(var(--hands)*(1 - var(--top))*50%) calc(var(--hands)*var(--top)*100%) calc(var(--hands)*(1 - var(--top))*50%);
+ grid-template-rows:auto auto;column-gap:0;row-gap:var(--fans-gap);padding:11px 0 0}
+
+/* Each variant keeps its own top-hand fan and card shape; the lower hand is the same everywhere. */
+.hero-stage[data-fan="balanced"][data-layout="anchored"]{--t-step:.316;--t-angle:10deg;--t-arch:.036;--t-skew:.023}
+.hero-stage[data-fan="open"][data-layout="anchored"]{--t-step:.368;--t-angle:13deg;--t-arch:.05;--t-skew:.021}
+.hero-stage[data-fan="big"][data-layout="anchored"]{--t-step:.275;--t-angle:9deg;--t-arch:.028;--t-skew:.021;--t-lift:.065}
+.hero-stage[data-fan][data-layout="anchored"][data-anchor-shape="square"]{--t-ratio:1.04}
+.hero-stage[data-fan][data-layout="anchored"][data-anchor-shape="tall"]{--t-ratio:1.16}
+/* The published style's small sans labels, scaled with the cards; x.html keeps the glowing serif. */
+.hero-stage[data-fan]:not([data-fan="grand"])[data-layout="anchored"]{--t-title:.0434;--t-title-min:13px;--t-title-max:24px;
+ --b-title:.048;--b-title-min:11px;--b-title-max:18px;--lbl-base:clamp(11px,calc(100cqi*.0075),15px);--lbl-lh:1;--lbl-room:calc(var(--lbl-base)*1.9);--lbl-anchor:7.583em}
+
+.hero-stage[data-fan][data-layout="anchored"] .hero-copy{grid-column:1/4;grid-row:1;align-self:start;padding-right:var(--copy-gap)}
+.hero-stage[data-fan][data-layout="anchored"] .hero-copy h1{font-size:clamp(40px,calc(100cqi*var(--title-size)),124px)}
+.hero-stage[data-fan][data-layout="anchored"] .hero-copy p{max-width:34em;font-size:clamp(17px,calc(100cqi*.0105),21px)}
+/* The key stops short of the lower hand's first card, which the author's arrangement moves left of its column (.184 card widths). */
+.hero-stage[data-fan][data-layout="anchored"] .reading-key{grid-column:1;grid-row:2;align-self:center;max-width:min(34em,calc(100cqi*(1 - var(--hands)) - var(--bcw)*.184 - 16px));margin:0;font-size:clamp(13px,calc(100cqi*.0072),16px)}
+
+/* Top hand, seated on the field name: when the text is taller, the extra room goes above the hand, not between the hands.
+   Pointing at a card answers at once: short fades, no delay beyond the brief dwell in the script. */
+.hero-stage[data-fan][data-layout="anchored"] .hero-anchors{grid-column:4;grid-row:1;align-self:end;height:var(--thh);left:calc(100cqi*-.0111);top:calc(var(--tcw)*.0186)}
+.hero-stage[data-fan][data-layout="anchored"] .poker[data-hand="lead"] .poker-card{--card-w:var(--tcw);--card-h:var(--tch);--step:var(--tcs);--angle:var(--t-angle);
+ --arch:calc(var(--tcw)*var(--t-arch));--skew:calc(var(--tcw)*var(--t-skew));--lift:calc(var(--tcw)*var(--t-lift));--shift:0px;transition:opacity .18s ease,filter .18s ease}
+.hero-stage[data-fan][data-layout="anchored"] .poker[data-hand="lead"] .poker-art{transition:box-shadow .18s ease,border-color .18s ease}
+
+/* Lower hand, with the field name just above its first card. */
+.hero-stage[data-fan][data-layout="anchored"] .hero-fans{grid-column:3/6;grid-row:2;min-height:0;height:calc(var(--lbl-room) + var(--bhh) + var(--bcw)*var(--b-over) + var(--sep-gap))}
+.hero-stage[data-fan][data-layout="anchored"] .fan-set{transition:opacity .2s ease}
+.hero-stage[data-fan][data-layout="anchored"] .hero-fans[data-swap="slide"] .fan-set{transition:opacity .2s ease,transform .24s cubic-bezier(.22,.7,.3,1)}
+.hero-stage[data-fan][data-layout="anchored"] .fan-cards{height:var(--bhh)}
+.hero-stage[data-fan][data-layout="anchored"] .poker[data-hand="follow"] .poker-card{--card-w:var(--bcw);--card-h:var(--bch);--step:var(--bcs);--angle:var(--b-angle);
+ --arch:calc(var(--bcw)*var(--b-arch));--lift:calc(var(--bcw)*var(--b-lift));--skew:0px;--shift:0px;
+ transform:translate(calc(var(--bcw)*var(--dx,0)),calc(var(--bcw)*var(--dy,0))) rotate(calc((var(--i) - var(--mid))*var(--angle) + var(--dr,0deg))) scale(var(--ds,1))}
+.hero-stage[data-fan][data-layout="anchored"] .poker[data-hand="follow"] .poker-card:nth-child(1){--dx:-.115;--dy:.1282;--ds:1.115}
+.hero-stage[data-fan][data-layout="anchored"] .poker[data-hand="follow"] .poker-card:nth-child(2){--dx:-.1117;--dy:.0822;--ds:1.095}
+.hero-stage[data-fan][data-layout="anchored"] .poker[data-hand="follow"] .poker-card:nth-child(3){--dx:-.069;--dy:.0822;--ds:1.09}
+.hero-stage[data-fan][data-layout="anchored"] .poker[data-hand="follow"] .poker-card:nth-child(4){--dx:-.1052;--dy:.1282;--ds:1.13}
+.hero-stage[data-fan][data-layout="anchored"] .poker[data-hand="follow"] .poker-art{transition:border-color .18s ease,box-shadow .18s ease}
+/* Field names keep one height and share a right edge (where "Rendering" ends in the author's arrangement); a longer
+   name extends to the left instead of moving up. */
+.hero-stage[data-fan][data-layout="anchored"] .fan-label{font-size:var(--lbl);line-height:var(--lbl-lh);margin:0 0 calc(var(--lbl-room) - var(--lbl)*var(--lbl-lh)) calc((100% - var(--bcw) - 3*var(--bcs))/2 + var(--lbl-anchor));width:max-content;transform:translateX(-100%);position:relative;z-index:3;left:calc(var(--lbl-base)*-1.4807);top:calc(var(--lbl-base)*.9049)}
+
+/* Card titles stay where they are: same place, size and alignment whichever card is in front; a neighbour may cover
+   part of one. Pointing at a card only makes its title glow brighter. */
+.hero-stage[data-fan][data-layout="anchored"] .poker[data-hand="lead"] .poker-card:is(.anchor-card,.fan-card) .poker-title{font-size:clamp(var(--t-title-min),calc(var(--tcw)*var(--t-title)),var(--t-title-max));
+ bottom:calc(var(--tcw)*.047);left:calc(var(--tcw)*.049);right:calc(var(--tcw)*.049);width:auto;text-align:left;transition:color .18s ease,text-shadow .18s ease}
+/* Fixed per card: the first title on the left, the others on the right, so with the first card in front (as on load)
+   every title shows; with a later card in front, the titles of cards it covers may hide. */
+.hero-stage[data-fan][data-layout="anchored"] .poker[data-hand="lead"] .poker-card:is(.anchor-card,.fan-card):nth-child(n+2) .poker-title{text-align:right}
+.hero-stage[data-fan][data-layout="anchored"] .poker[data-hand="follow"] .poker-card:is(.anchor-card,.fan-card) .poker-title{font-size:clamp(var(--b-title-min),calc(var(--bcw)*var(--b-title)),var(--b-title-max));
+ bottom:calc(var(--bcw)*.047);left:calc(var(--bcw)*.057);right:calc(var(--bcw)*.057);width:auto;text-align:left;transition:color .18s ease,text-shadow .18s ease}
+.hero-stage[data-fan="grand"][data-layout="anchored"] .poker[data-hand] .poker-card:is(.anchor-card,.fan-card):is(:hover,:focus-within,.is-active) .poker-title{color:#fff6dc;
+ text-shadow:0 0 7px rgba(242,204,110,.85),0 0 22px rgba(236,186,84,.72),0 0 3px #000,0 1px 8px #000,0 2px 18px #000c}
+.hero-stage[data-fan]:not([data-fan="grand"])[data-layout="anchored"] .poker[data-hand] .poker-card:is(.anchor-card,.fan-card):is(:hover,:focus-within,.is-active) .poker-title{color:#fff4d6;
+ text-shadow:0 0 6px rgba(242,204,110,.7),0 0 18px rgba(236,186,84,.5),0 2px 10px #000e,0 1px 3px #000}
+
+/* Two-line lower titles break evenly ("Flatland — / Light Transport"). */
+@media(min-width:761px){.hero-stage[data-fan][data-layout="anchored"] .poker[data-hand="follow"] .poker-card:is(.anchor-card,.fan-card) .poker-title{text-wrap:balance}}
+/* Hackenbush Lab's screenshot is nearly white: a soft, see-through shade under its title only (no opaque bar). */
+.hero-stage[data-fan][data-layout="anchored"] .poker[data-hand="follow"] .poker-card:is(.anchor-card,.fan-card) .poker-title{z-index:1}
+.hero-stage[data-fan][data-layout="anchored"] .poker[data-hand="follow"] .fan-card[data-fan-card="hackenbush"] .poker-art::after{content:"";position:absolute;inset:auto 0 0 0;height:46%;background:linear-gradient(to top,rgba(10,11,9,.78),rgba(10,11,9,.42) 55%,rgba(10,11,9,0));pointer-events:none}
+/* The Inverse Mechanics picture carries its own heading at the top; crop from the top so it does not repeat the title. */
+.hero-stage[data-fan][data-layout="anchored"] .fan-card[data-fan-card="inverse-mechanics"] .poker-art img{object-position:50% 100%}
+/* Laptop widths: the copy column is too short for the key beside the lower hand, so it goes below both hands. */
+@media(min-width:1181px) and (max-width:1320px){
+ .hero-stage[data-fan][data-layout="anchored"]{grid-template-rows:auto auto auto;padding-bottom:30px}
+ .hero-stage[data-fan][data-layout="anchored"] .reading-key{grid-column:1/-1;grid-row:3;align-self:start;margin-top:18px;max-width:34em}
+}
+
+/* Y3: the author's studio export of 17 September enlarges the top hand 5% about its centre and nudges it 14px right and
+   29px up at their 1955px window. Offsets are converted to hero and top-card widths and added to the base nudge. */
+body[data-homepage-variant="Y3"] .hero-stage[data-fan][data-layout="anchored"] .hero-anchors{left:calc(100cqi*-.00333);top:calc(var(--tcw)*-.04882);transform:scale(1.05)}
+@media(max-width:1180px){body[data-homepage-variant="Y3"] .hero-stage[data-fan][data-layout="anchored"] .hero-anchors{left:0;top:0}}
+
+/* Narrow windows: one column; the hands take the full width (these widths ignore the layout sliders). */
+@media(max-width:1180px){
+ .hero-stage[data-fan][data-layout="anchored"]{grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto auto auto;row-gap:14px;padding-bottom:30px;--H:100cqi;--T:calc(100cqi*.93)}
+ .hero-stage[data-fan][data-layout="anchored"] .hero-copy{grid-column:1;grid-row:1;padding-right:0}
+ .hero-stage[data-fan][data-layout="anchored"] .hero-anchors{grid-column:1;grid-row:2;left:0}
+ .hero-stage[data-fan][data-layout="anchored"] .hero-fans{grid-column:1;grid-row:3}
+ .hero-stage[data-fan][data-layout="anchored"] .reading-key{grid-column:1;grid-row:4;align-self:start;margin-top:18px}
+}
+@media(max-width:760px){
+ /* Literal steps, so spacing saved by the studio on a wide window cannot shrink the phone hands. */
+ .hero-stage[data-fan][data-layout="anchored"]{--tcw:calc(var(--T)/(3*.26 + cos(1.5*var(--t-angle)) + 2.2*var(--t-ratio)*sin(1.5*var(--t-angle))));--tcs:calc(var(--tcw)*.26);
+  --bcw:calc(var(--H)/(3*.6 + cos(1.5*var(--b-angle)) + 2.2*var(--b-ratio)*sin(1.5*var(--b-angle))));--bcs:calc(var(--bcw)*.6)}
+ .hero-stage[data-fan][data-layout="anchored"] .poker[data-hand="lead"] .poker-card:is(.anchor-card,.fan-card) .poker-title{font-size:13px}
+ .hero-stage[data-fan][data-layout="anchored"] .poker[data-hand="lead"] .poker-card:is(.anchor-card,.fan-card):not(.is-active) .poker-title{opacity:0}
+ .hero-stage[data-fan][data-layout="anchored"] .poker[data-hand="follow"] .poker-card:is(.anchor-card,.fan-card) .poker-title{font-size:11px}
+}
+
+/* A preview page has no variant banner; its edit controls float in a corner instead of taking a row. */
+.edit-bar.is-floating{position:fixed;top:auto;right:18px;bottom:18px;left:auto;padding:8px 12px;border:1px solid #d7c58744;border-radius:10px;box-shadow:0 12px 32px #000a;background:rgba(14,16,12,.94);z-index:1100}
+.edit-bar.is-floating .edit-count{display:none}
+/* The framework is a small reading table: every print remains visible. */
+.project-picture.magazine-spread{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:18px;align-content:center;align-items:center;padding:35px 22px 30px;background:radial-gradient(ellipse at 35% 45%,#363328,#151c17 80%);overflow:hidden;min-height:350px}
+.magazine-print{position:relative;margin:0;padding:6px 6px 0;background:#151d19;border:1px solid #cbb4775c;border-radius:5px;box-shadow:0 8px 18px #0007;transform:rotate(-1.5deg)}
+.magazine-print:nth-child(2){transform:rotate(1.3deg)}.magazine-print:nth-child(3){transform:rotate(.9deg)}.magazine-print:nth-child(4){transform:rotate(-1.1deg)}
+.project-picture.magazine-spread .magazine-print img{display:block;position:static;width:100%;height:auto;min-height:0;aspect-ratio:1.5;object-fit:contain;border:0;border-radius:2px;filter:none;opacity:1;transform:none}
+.magazine-print figcaption{padding:8px 3px;font:11px/1.5 var(--sans);color:#d5cfb7;min-height:45px}
+@media(max-width:600px){.project-picture.magazine-spread{gap:12px;padding:32px 14px 20px;min-height:280px}.magazine-print figcaption{font-size:9px;min-height:40px}}

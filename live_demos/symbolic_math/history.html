@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><style id="portfolio-early-paint">html{background:#0b0d0c;color-scheme:dark}html.portfolio-booting body{opacity:0}</style><script src="../../portfolio-navigation.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Symbolic Math Engine - History & Architecture</title>
+    <style>
+        :root {
+            --bg: #0f172a; --bg2: #1e293b; --bg3: #334155;
+            --text: #f1f5f9; --muted: #94a3b8; --accent: #667eea;
+            --green: #4ade80; --red: #f87171; --yellow: #fbbf24;
+            --purple: #a78bfa; --cyan: #22d3ee; --pink: #f472b6;
+            --orange: #fb923c;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; line-height: 1.6; }
+        .container { max-width: 1100px; margin: 0 auto; padding: 2rem; }
+        h1 { font-size: 2.2rem; margin-bottom: 0.5rem; background: linear-gradient(135deg, var(--accent), var(--purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        h2 { font-size: 1.5rem; margin-top: 2.5rem; margin-bottom: 1rem; color: var(--cyan); border-bottom: 1px solid var(--bg3); padding-bottom: 0.5rem; }
+        h3 { font-size: 1.15rem; margin-top: 1.5rem; margin-bottom: 0.5rem; color: var(--purple); }
+        p, li { color: var(--muted); margin-bottom: 0.5rem; }
+        a { color: var(--accent); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        code { background: var(--bg2); padding: 2px 6px; border-radius: 4px; font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 0.9em; color: var(--cyan); }
+        .back-link { display: inline-block; margin-bottom: 1.5rem; padding: 8px 16px; background: var(--bg2); border-radius: 8px; color: var(--accent); }
+        .card { background: var(--bg2); border-radius: 12px; padding: 1.5rem; margin: 1rem 0; border: 1px solid var(--bg3); }
+        .card-green { border-color: rgba(74,222,128,0.3); }
+        .card-red { border-color: rgba(248,113,113,0.3); }
+        .card-purple { border-color: rgba(167,139,250,0.3); }
+        .card-yellow { border-color: rgba(251,191,36,0.3); }
+        .tag { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; margin-right: 4px; }
+        .tag-green { background: rgba(74,222,128,0.15); color: var(--green); }
+        .tag-red { background: rgba(248,113,113,0.15); color: var(--red); }
+        .tag-yellow { background: rgba(251,191,36,0.15); color: var(--yellow); }
+        .tag-purple { background: rgba(167,139,250,0.15); color: var(--purple); }
+        .tag-cyan { background: rgba(34,211,238,0.15); color: var(--cyan); }
+        table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+        th, td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--bg3); }
+        th { color: var(--cyan); font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        td { color: var(--muted); font-size: 0.9rem; }
+        tr:hover td { color: var(--text); }
+        .yes { color: var(--green); font-weight: 600; }
+        .no { color: var(--red); }
+        .partial { color: var(--yellow); }
+        .timeline { position: relative; padding-left: 30px; }
+        .timeline::before { content: ''; position: absolute; left: 8px; top: 0; bottom: 0; width: 2px; background: var(--bg3); }
+        .tl-item { position: relative; margin-bottom: 1.5rem; }
+        .tl-item::before { content: ''; position: absolute; left: -26px; top: 6px; width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--accent); background: var(--bg); }
+        .tl-item.phase1::before { background: var(--green); border-color: var(--green); }
+        .tl-item.phase2::before { background: var(--cyan); border-color: var(--cyan); }
+        .tl-item.phase3::before { background: var(--purple); border-color: var(--purple); }
+        .tl-item.phase4::before { background: var(--orange); border-color: var(--orange); }
+        .tl-item.phase5::before { background: var(--pink); border-color: var(--pink); }
+        .tl-phase { font-weight: 700; color: var(--text); font-size: 1rem; }
+        .tl-detail { color: var(--muted); font-size: 0.9rem; margin-top: 4px; }
+        .graph-box { background: var(--bg2); border-radius: 12px; padding: 1.5rem; margin: 1rem 0; font-family: monospace; font-size: 12px; line-height: 1.5; overflow-x: auto; white-space: pre; color: var(--muted); border: 1px solid var(--bg3); }
+        .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin: 1.5rem 0; }
+        .stat { background: var(--bg2); border-radius: 10px; padding: 1rem; text-align: center; }
+        .stat-num { font-size: 2rem; font-weight: 700; background: linear-gradient(135deg, var(--accent), var(--purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .stat-label { font-size: 0.8rem; color: var(--muted); margin-top: 4px; }
+        .pct-bar { height: 8px; border-radius: 4px; margin-top: 6px; background: var(--bg3); overflow: hidden; }
+        .pct-fill { height: 100%; border-radius: 4px; }
+    </style>
+  <link rel="stylesheet" href="portfolio.css">
+<link rel="stylesheet" href="../../portfolio-controls.css"><link rel="stylesheet" href="../../portfolio-demo-return.css"><script defer src="../../portfolio-demo-return.js" data-project="symbolic_math" data-title="Symbolic Unfolded" data-overview="projects/symbolic_math/overview.html" data-group="signature" data-thumbnail="media/brochures/symbolic_math/residue-theorem-contour.png" data-routes="[{&quot;project&quot;:&quot;symbolic_math&quot;,&quot;title&quot;:&quot;Symbolic Unfolded&quot;,&quot;group&quot;:&quot;signature&quot;,&quot;thumbnail&quot;:&quot;media/brochures/symbolic_math/residue-theorem-contour.png&quot;,&quot;overview&quot;:&quot;projects/symbolic_math/overview.html&quot;,&quot;path&quot;:&quot;live_demos/symbolic_math/index.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:2},{&quot;project&quot;:&quot;symbolic_math&quot;,&quot;title&quot;:&quot;Symbolic Unfolded&quot;,&quot;group&quot;:&quot;signature&quot;,&quot;thumbnail&quot;:&quot;media/brochures/symbolic_math/residue-theorem-contour.png&quot;,&quot;overview&quot;:&quot;projects/symbolic_math/overview.html&quot;,&quot;path&quot;:&quot;live_demos/symbolic_math/index.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:1},{&quot;project&quot;:&quot;symbolic_math&quot;,&quot;title&quot;:&quot;Symbolic Unfolded&quot;,&quot;group&quot;:&quot;signature&quot;,&quot;thumbnail&quot;:&quot;media/brochures/symbolic_math/residue-theorem-contour.png&quot;,&quot;overview&quot;:&quot;projects/symbolic_math/overview.html&quot;,&quot;path&quot;:&quot;live_demos/symbolic_math/technical.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:1},{&quot;project&quot;:&quot;symbolic_math&quot;,&quot;title&quot;:&quot;Symbolic Unfolded&quot;,&quot;group&quot;:&quot;signature&quot;,&quot;thumbnail&quot;:&quot;media/brochures/symbolic_math/residue-theorem-contour.png&quot;,&quot;overview&quot;:&quot;projects/symbolic_math/overview.html&quot;,&quot;path&quot;:&quot;live_demos/symbolic_math/&quot;,&quot;query&quot;:{},&quot;priority&quot;:-1}]"></script><!-- universal-navigation:start --><link rel="stylesheet" href="../../portfolio-location.css?v=054b6b462c"><script defer src="../../portfolio-location.js?v=054b6b462c"></script><script defer src="../../portfolio-routes.js?v=054b6b462c"></script><script defer src="../../portfolio-universal-navigation.js?v=054b6b462c"></script><!-- universal-navigation:end --><style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head>
+<body class="portfolio-symbolic_math">
+  <div class="portfolio-return" data-theme="dark" role="navigation" aria-label="Portfolio"><a class="portfolio-return-link" href="../../projects/symbolic_math/index.html" target="_top"><span aria-hidden="true">←</span> Project overview</a></div>
+<div class="container">
+    <a href="index.html" class="back-link">&#8592; Back to Engine</a>
+    <h1>Symbolic Math Engine</h1>
+    <p style="font-size: 1.1rem; color: var(--text); margin-bottom: 0.5rem;">Architecture, History, and Comparison with Industry CAS</p>
+    <p>A Ruby-based symbolic integration engine built from scratch, evolving from basic pattern matching to a multi-strategy architecture with 12 specialized modules.</p>
+
+    <!-- Stats -->
+    <div class="stat-grid">
+        <div class="stat"><div class="stat-num">12</div><div class="stat-label">Modules</div></div>
+        <div class="stat"><div class="stat-num">~4500</div><div class="stat-label">Lines of Code</div></div>
+        <div class="stat"><div class="stat-num">97</div><div class="stat-label">Test Cases</div></div>
+        <div class="stat"><div class="stat-num">86</div><div class="stat-label">Integrals Solved</div></div>
+        <div class="stat"><div class="stat-num">11</div><div class="stat-label">Non-Elementary (correct skip)</div></div>
+        <div class="stat"><div class="stat-num">100%</div><div class="stat-label">Test Pass Rate</div></div>
+    </div>
+
+    <!-- Architecture Graph -->
+    <h2>Integration Pipeline Architecture</h2>
+    <p>When the engine receives an integral, it passes the expression through this pipeline of strategies. The first strategy that succeeds returns the result. Failed strategies are logged for the trace visualization.</p>
+
+    <div class="graph-box">
+Input: integral f(x) dx
+       |
+       v
+  <span style="color:#4ade80">[1. Normalizer]</span> -----> Canonical form: constants left, like-terms collected,
+       |                  radicals -> powers, factor cancellation via poly GCD
+       v
+  <span style="color:#a3e635">[2. Table Lookup]</span> ---> ~15 common forms: 1/(x^2+a^2)->arctan, 1/sqrt(a^2-x^2)->arcsin,
+       |                  sec^2->tan, tan*sec->sec, c/(ax+b)->ln, ...
+       | (miss)
+       v
+  <span style="color:#fbbf24">[3. U-Substitution]</span> -> Finds u=g(x), checks if du/dx is a factor (with constant ratio).
+       |                  Handles products, divisions, sqrt->power rewrites, 1/(f*g) splits.
+       | (miss)
+       v
+  <span style="color:#2dd4bf">[4. Trig Identities]</span> -> sin^2+cos^2=1, half-angle, mixed power split (sin^m*cos^n),
+       |                  1/(sin*cos)->tan+cot, sin^2*cos^2->(1/8)(1-cos4x)
+       | (rewrite, retry)
+       v
+  <span style="color:#818cf8">[5. Distribution]</span> ---> Expand: a*(b+c) -> a*b + a*c, then integrate each term
+       |
+       v
+  <span style="color:#e879f9">[6. Inverse Trig]</span> ---> arctan(x), arcsin(x), ln^n(x) via reduction formula
+       |
+       v
+  <span style="color:#f472b6">[7. Rational/PF]</span> ----> Partial fractions: factor denominator, cover-up method,
+       |                  repeated roots via Gaussian elimination,
+       |                  completing the square for irreducible quadratics
+       |
+       v
+  <span style="color:#fb923c">[8. Trig Powers]</span> ----> sin^n, cos^n via half-angle/reduction, tan^n, sec^n formulas
+       |
+       v
+  <span style="color:#f87171">[9. Radicals]</span> -------> Trig substitution for sqrt(a^2-x^2), 1/sqrt(quadratic),
+       |                  sqrt(x^2+a^2) via completing square
+       |
+       v
+  <span style="color:#60a5fa">[10. By-Parts]</span> ------> LIATE rule, recursive (x^n*trig), cycling (exp*trig),
+       |                  up to 4 levels deep, with v*du normalization
+       |
+       v
+  <span style="color:#94a3b8">[11. Standard]</span> ------> Pattern matching on basic forms: power rule, constant*f,
+       |                  sum/difference, linear-argument trig/exp
+       |
+       v
+  <span style="color:#a78bfa">[12. Verify]</span> --------> Monte Carlo: differentiate result, compare at 12-15 random points
+       |                  Reports confidence score. Catches errors.
+       v
+  Result (+ trace log for visualization)
+    </div>
+
+    <!-- Timeline -->
+    <h2>Development Timeline</h2>
+    <p>The engine was built in phases, each adding a layer of capability.</p>
+
+    <div class="timeline">
+        <div class="tl-item phase1">
+            <div class="tl-phase">Phase 0: Original Engine</div>
+            <div class="tl-detail">Binary tree AST, parser, differentiation (all rules), basic integration via pattern matching (~50 hard-coded patterns), standard simplifier, vector calculus, Taylor series, web UI. <span class="tag tag-green">expression_node.rb</span> <span class="tag tag-green">parser.rb</span> <span class="tag tag-green">derivative_operations.rb</span> <span class="tag tag-green">integration_operations.rb</span> <span class="tag tag-green">experimental_risch.rb</span></div>
+        </div>
+        <div class="tl-item phase1">
+            <div class="tl-phase">Phase 1: Foundation Layer</div>
+            <div class="tl-detail">Polynomial class (sparse coefficients, long division, GCD, factoring). Expression normalizer (canonical ordering, constant folding, like-term collection, factor cancellation). This eliminated ~60% of special-casing brittleness. <span class="tag tag-cyan">polynomial.rb</span> <span class="tag tag-cyan">normalizer.rb</span></div>
+        </div>
+        <div class="tl-item phase2">
+            <div class="tl-phase">Phase 2: Core Algorithms</div>
+            <div class="tl-detail">General u-substitution engine (candidate collection, proportionality detection, placeholder substitution). Integral lookup table with parameterized pattern matching. Monte Carlo verification. <span class="tag tag-purple">general_u_substitution.rb</span> <span class="tag tag-purple">integral_table.rb</span> <span class="tag tag-purple">verification.rb</span></div>
+        </div>
+        <div class="tl-item phase3">
+            <div class="tl-phase">Phase 3: Trig & Visualization</div>
+            <div class="tl-detail">Trig identity engine (Pythagorean, half-angle, double-angle, mixed-power splitting). Strategy reporter with suggestions. Decision tree recording. <span class="tag tag-yellow">trig_identities.rb</span> <span class="tag tag-yellow">strategy_reporter.rb</span></div>
+        </div>
+        <div class="tl-item phase4">
+            <div class="tl-phase">Phase 4: Rational Functions</div>
+            <div class="tl-detail">Completing the square for irreducible quadratics. Linear-over-quadratic splitting (ln + arctan parts). General partial fractions with distinct and repeated linear factors via Gaussian elimination. Polynomial long division for improper rationals. <span class="tag tag-orange">rational_integration.rb</span></div>
+        </div>
+        <div class="tl-item phase5">
+            <div class="tl-phase">Phase 5: Path Tracing & Polish</div>
+            <div class="tl-detail">Integration tracer with full decision tree recording. Strategy space visualization (ASCII scatter plot of exploration points). Mermaid diagram generation. Verbose mode. Complete step tracking through recursive calls. Division u-sub (sqrt/power rewrite). Power-combining normalizer pass. Extended evaluate/to_infix for all functions. <span class="tag tag-pink">integration_tracer.rb</span></div>
+        </div>
+    </div>
+
+    <!-- Module Map -->
+    <h2>Module Map</h2>
+    <table>
+        <tr><th>Module</th><th>File</th><th>Lines</th><th>Purpose</th></tr>
+        <tr><td>Expression Node</td><td><code>expression_node.rb</code></td><td>~190</td><td>Binary tree AST with evaluate, to_infix, deep_clone</td></tr>
+        <tr><td>Parser</td><td><code>parser.rb</code></td><td>~200</td><td>Infix to prefix to tree (shunting-yard variant)</td></tr>
+        <tr><td>Polynomial</td><td><code>polynomial.rb</code></td><td>~280</td><td>Sparse coefficient polynomial arithmetic, GCD, factoring</td></tr>
+        <tr><td>Normalizer</td><td><code>normalizer.rb</code></td><td>~250</td><td>Canonical forms, constant folding, like-terms, power combining</td></tr>
+        <tr><td>Differentiation</td><td><code>derivative_operations.rb</code></td><td>~670</td><td>All derivative rules with step tracking</td></tr>
+        <tr><td>Standard Integration</td><td><code>integration_operations.rb</code></td><td>~1750</td><td>Pattern-matching integrator with ~50 rules</td></tr>
+        <tr><td>Experimental Risch</td><td><code>experimental_risch.rb</code></td><td>~3100</td><td>Multi-phase strategy dispatcher, by-parts, PF, trig powers</td></tr>
+        <tr><td>U-Substitution</td><td><code>general_u_substitution.rb</code></td><td>~320</td><td>General u-sub with candidate collection and division rewrites</td></tr>
+        <tr><td>Integral Table</td><td><code>integral_table.rb</code></td><td>~500</td><td>Parameterized pattern table (~15 entries)</td></tr>
+        <tr><td>Trig Identities</td><td><code>trig_identities.rb</code></td><td>~330</td><td>Pythagorean, half-angle, mixed-power splitting</td></tr>
+        <tr><td>Rational Integration</td><td><code>rational_integration.rb</code></td><td>~400</td><td>Completing square, linear/quad split, general PF</td></tr>
+        <tr><td>Verification</td><td><code>verification.rb</code></td><td>~100</td><td>Monte Carlo numerical verification</td></tr>
+        <tr><td>Tracer</td><td><code>integration_tracer.rb</code></td><td>~400</td><td>Decision tree, space plot, Mermaid, verbose mode</td></tr>
+        <tr><td>Strategy Reporter</td><td><code>strategy_reporter.rb</code></td><td>~150</td><td>Technique suggestions when integration fails</td></tr>
+        <tr><td>Simplification</td><td><code>simplification.rb</code></td><td>~870</td><td>Standard + experimental with trig/normalizer hooks</td></tr>
+    </table>
+
+    <!-- CAS Comparison -->
+    <h2>Comparison with Industry CAS</h2>
+    <p>How does this engine compare with Mathematica, Maple, MATLAB Symbolic Toolbox, and Julia's SymbolicUtils/Symbolics?</p>
+
+    <h3>The Landscape of Symbolic Integration</h3>
+    <div class="card card-purple">
+        <p style="color: var(--text);">Symbolic integration is one of the hardest problems in computer algebra. The theoretical gold standard is the <strong>Risch Algorithm</strong> (1969), which is <em>semi-decidable</em>: it can determine whether an elementary antiderivative exists and find it if so. However, no CAS has fully implemented it.</p>
+        <p><strong>Maple</strong> has the most complete implementation, covering the transcendental case (exponentials and logarithms) fully, thanks to decades of work by Keith Geddes, Bronstein, and others. <strong>Mathematica</strong> uses a hybrid approach with extensive pattern tables plus heuristic methods. <strong>MATLAB</strong>'s Symbolic Toolbox is powered by MuPAD (now owned by MathWorks). <strong>Julia</strong>'s ecosystem is youngest, with SymbolicUtils focusing more on term rewriting than classical integration algorithms.</p>
+    </div>
+
+    <h3>Feature Comparison</h3>
+    <table>
+        <tr><th>Feature</th><th>This Engine</th><th>Mathematica</th><th>Maple</th><th>MATLAB Sym</th><th>Julia Sym</th></tr>
+        <tr>
+            <td>Power rule</td>
+            <td class="yes">Yes</td><td class="yes">Yes</td><td class="yes">Yes</td><td class="yes">Yes</td><td class="yes">Yes</td>
+        </tr>
+        <tr>
+            <td>Trig/exp/log basics</td>
+            <td class="yes">Yes</td><td class="yes">Yes</td><td class="yes">Yes</td><td class="yes">Yes</td><td class="yes">Yes</td>
+        </tr>
+        <tr>
+            <td>U-substitution (general)</td>
+            <td class="yes">Yes</td><td class="yes">Yes</td><td class="yes">Yes</td><td class="yes">Yes</td><td class="partial">Partial</td>
+        </tr>
+        <tr>
+            <td>Integration by parts (recursive)</td>
+            <td class="yes">Yes (4 levels)</td><td class="yes">Yes (unlimited)</td><td class="yes">Yes</td><td class="yes">Yes</td><td class="partial">Partial</td>
+        </tr>
+        <tr>
+            <td>Partial fractions (linear)</td>
+            <td class="yes">Yes</td><td class="yes">Yes</td><td class="yes">Yes</td><td class="yes">Yes</td><td class="yes">Yes</td>
+        </tr>
+        <tr>
+            <td>Partial fractions (repeated)</td>
+            <td class="yes">Yes</td><td class="yes">Yes</td><td class="yes">Yes</td><td class="yes">Yes</td><td class="partial">Partial</td>
+        </tr>
+        <tr>
+            <td>Partial fractions (irreducible quadratic)</td>
+            <td class="yes">Yes (via completing square)</td><td class="yes">Yes</td><td class="yes">Yes</td><td class="yes">Yes</td><td class="no">No</td>
+        </tr>
+        <tr>
+            <td>Trig identities</td>
+            <td class="yes">Yes (10 identities)</td><td class="yes">Yes (100s)</td><td class="yes">Yes (100s)</td><td class="yes">Yes</td><td class="partial">Partial</td>
+        </tr>
+        <tr>
+            <td>Trig substitution</td>
+            <td class="partial">Partial (sqrt(a^2-x^2))</td><td class="yes">Yes (full)</td><td class="yes">Yes (full)</td><td class="yes">Yes</td><td class="no">No</td>
+        </tr>
+        <tr>
+            <td>Risch algorithm (rational part)</td>
+            <td class="partial">Partial (PF-based)</td><td class="yes">Yes</td><td class="yes">Yes (Hermite reduction)</td><td class="yes">Yes</td><td class="no">No</td>
+        </tr>
+        <tr>
+            <td>Risch algorithm (transcendental)</td>
+            <td class="no">No</td><td class="partial">Partial</td><td class="yes">Yes (most complete)</td><td class="partial">Partial</td><td class="no">No</td>
+        </tr>
+        <tr>
+            <td>Risch algorithm (algebraic)</td>
+            <td class="no">No</td><td class="partial">Partial</td><td class="partial">Partial</td><td class="no">No</td><td class="no">No</td>
+        </tr>
+        <tr>
+            <td>Lookup tables</td>
+            <td class="partial">~15 forms</td><td class="yes">1000s of forms</td><td class="yes">1000s</td><td class="yes">1000s</td><td class="partial">Limited</td>
+        </tr>
+        <tr>
+            <td>Definite integrals</td>
+            <td class="no">No</td><td class="yes">Yes</td><td class="yes">Yes</td><td class="yes">Yes</td><td class="partial">Numeric only</td>
+        </tr>
+        <tr>
+            <td>Special functions (erf, Si, Ei)</td>
+            <td class="no">No (correctly returns integral marker)</td><td class="yes">Yes (100s)</td><td class="yes">Yes (100s)</td><td class="yes">Yes</td><td class="partial">Some</td>
+        </tr>
+        <tr>
+            <td>Multivariate integration</td>
+            <td class="no">No</td><td class="yes">Yes</td><td class="yes">Yes</td><td class="yes">Yes</td><td class="partial">Limited</td>
+        </tr>
+        <tr>
+            <td>Step-by-step solution</td>
+            <td class="yes">Yes (detailed)</td><td class="partial">Wolfram Alpha only</td><td class="no">No</td><td class="no">No</td><td class="no">No</td>
+        </tr>
+        <tr>
+            <td>Decision trace visualization</td>
+            <td class="yes">Yes (tree + space plot)</td><td class="no">No</td><td class="no">No</td><td class="no">No</td><td class="no">No</td>
+        </tr>
+        <tr>
+            <td>Numerical verification</td>
+            <td class="yes">Yes (Monte Carlo)</td><td class="partial">Internal</td><td class="partial">Internal</td><td class="partial">Internal</td><td class="no">No</td>
+        </tr>
+    </table>
+
+    <!-- Gap Analysis -->
+    <h3>What We're Missing (Roadmap to Parity)</h3>
+
+    <div class="card card-yellow">
+        <h3 style="color: var(--yellow); margin-top: 0;">Tier 1: Achievable (weeks of work)</h3>
+        <ul>
+            <li><strong>Expand lookup table</strong> to ~100 forms (Gradshteyn & Ryzhik style). Most CAS have thousands.</li>
+            <li><strong>Mixed trig power integration</strong>: sin^m*cos^n with general m,n via Wallis-type reduction. Currently handles simple cases.</li>
+            <li><strong>Deeper by-parts</strong>: Handle f(x)*g(x) where both are transcendental (e.g., x*exp*cos needs distribution then exp*trig cycling).</li>
+            <li><strong>Undetermined coefficients / Ansatz</strong>: Guess the form of the answer, differentiate, match coefficients. Powerful for polynomial*exp*trig products.</li>
+            <li><strong>Cubic/quartic factoring</strong> for partial fractions: Factor x^3+1 = (x+1)(x^2-x+1), x^4+1 over reals.</li>
+        </ul>
+    </div>
+
+    <div class="card card-red">
+        <h3 style="color: var(--orange); margin-top: 0;">Tier 2: Significant effort (months)</h3>
+        <ul>
+            <li><strong>Risch algorithm for rational functions</strong>: Hermite reduction + Rothstein-Trager method. This is the "proper" way to integrate rational functions, handling all cases systematically.</li>
+            <li><strong>Risch algorithm for transcendental extensions</strong>: Handle exp(x) and ln(x) extensions properly. This is what Maple excels at.</li>
+            <li><strong>Full trig substitution</strong>: Weierstrass substitution t=tan(x/2) for arbitrary rational functions of sin and cos.</li>
+            <li><strong>Definite integrals</strong>: Fundamental theorem of calculus + improper integral handling.</li>
+            <li><strong>Special function recognition</strong>: Detect when an integral matches erf, Si, Ei, Li, elliptic integrals, etc.</li>
+        </ul>
+    </div>
+
+    <div class="card card-red">
+        <h3 style="color: var(--red); margin-top: 0;">Tier 3: Research-grade (years)</h3>
+        <ul>
+            <li><strong>Full Risch algorithm</strong>: Including the algebraic case (integrands involving radicals). Nobody has fully implemented this. Maple comes closest for the transcendental case.</li>
+            <li><strong>Liouville's theorem</strong>: Prove that certain integrals have NO elementary antiderivative. Currently we just return "integral" marker; ideally we'd prove impossibility.</li>
+            <li><strong>Parallel Risch</strong>: The algorithm has inherent parallelism in certain steps that could exploit multi-core.</li>
+            <li><strong>Algebraic geometry methods</strong>: For integrals involving algebraic curves.</li>
+        </ul>
+    </div>
+
+    <!-- How Far -->
+    <h3>How Far Are We from Mathematica?</h3>
+    <div class="card">
+        <p style="color: var(--text);">Honest assessment by category:</p>
+        <table>
+            <tr><th>Category</th><th>Our Coverage</th><th>Mathematica Coverage</th><th>Gap</th></tr>
+            <tr><td>Calculus 1 integrals</td><td>~90%</td><td>~100%</td>
+                <td><div class="pct-bar"><div class="pct-fill" style="width:90%; background: var(--green);"></div></div></td></tr>
+            <tr><td>Calculus 2 integrals</td><td>~70%</td><td>~99%</td>
+                <td><div class="pct-bar"><div class="pct-fill" style="width:70%; background: var(--yellow);"></div></div></td></tr>
+            <tr><td>Advanced/research integrals</td><td>~15%</td><td>~85%</td>
+                <td><div class="pct-bar"><div class="pct-fill" style="width:15%; background: var(--red);"></div></div></td></tr>
+            <tr><td>Special functions</td><td>0%</td><td>~95%</td>
+                <td><div class="pct-bar"><div class="pct-fill" style="width:0%; background: var(--red);"></div></div></td></tr>
+            <tr><td>Step-by-step pedagogy</td><td>~85%</td><td>~70% (Alpha)</td>
+                <td><div class="pct-bar"><div class="pct-fill" style="width:85%; background: var(--green);"></div></div></td></tr>
+            <tr><td>Decision transparency</td><td>~95%</td><td>0%</td>
+                <td><div class="pct-bar"><div class="pct-fill" style="width:95%; background: var(--green);"></div></div></td></tr>
+        </table>
+        <p>We're strongest in <strong>transparency</strong> (no CAS shows its reasoning process like our trace visualizer) and <strong>pedagogy</strong> (detailed step-by-step). We're weakest in coverage of advanced forms and special functions. For a typical Calculus 1 course, we handle ~90% of integrals correctly. For Calculus 2 (by-parts, PF, trig sub), ~70%. For research-level, ~15%.</p>
+    </div>
+
+    <h3>About Maple's Risch Implementation</h3>
+    <div class="card card-purple">
+        <p style="color: var(--text);">You're correct that Maple has the most complete Risch algorithm implementation. The key people behind it:</p>
+        <ul style="color: var(--text);">
+            <li><strong>Manuel Bronstein</strong> (1963-2005): Wrote the definitive book "Symbolic Integration I: Transcendental Functions" (2005). His implementation in Maple's <code>int</code> command handles the full transcendental case of Risch's algorithm.</li>
+            <li><strong>Barry Trager</strong>: Developed the Rothstein-Trager algorithm for the logarithmic part of integration, used in both Maple and Mathematica.</li>
+            <li><strong>Keith Geddes</strong>: Co-founder of Maplesoft, contributed to the algebraic integration routines.</li>
+        </ul>
+        <p style="color: var(--text); margin-top: 0.5rem;">No CAS has fully implemented the <strong>algebraic case</strong> of Risch (handling radicals and algebraic functions). This remains an open implementation challenge. Even Maple has gaps for certain classes of algebraic integrands.</p>
+        <p style="color: var(--text); margin-top: 0.5rem;">Mathematica uses a more pragmatic hybrid approach: extensive table lookup (thousands of forms from Gradshteyn & Ryzhik), heuristic methods, and partial Risch for the transcendental case. It often succeeds where Maple's algorithmic approach gets stuck on edge cases, but can also fail on cases that Maple handles algorithmically.</p>
+    </div>
+
+    <div class="card card-purple" style="margin-top: 2rem; text-align: center;">
+        <p style="color: var(--text);"><strong>Continued in:</strong> <a href="history2.html" style="font-size: 1.1rem;">History Part 2: UI Overhaul, Complex Analysis & More &rarr;</a></p>
+    </div>
+
+    <p style="margin-top: 2rem; color: var(--muted); text-align: center; font-size: 0.85rem;">
+        Symbolic Math Engine &mdash; Built with Ruby &mdash; <a href="index.html">Back to Engine</a>
+    </p>
+</div>
+</body>
+</html>

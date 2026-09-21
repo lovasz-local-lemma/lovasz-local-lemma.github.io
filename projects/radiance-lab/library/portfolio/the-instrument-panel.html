@@ -1,0 +1,890 @@
+<!doctype html><html lang="en" data-theme="dark"><head><script src="../../../../portfolio-lab-frame.js"></script><script defer src="../../../../portfolio-document-frame.js"></script><script defer src="../../../../portfolio-media.js"></script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>The instrument panel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300&display=swap">
+
+<style>
+/* ============================================================
+   Single-theme dark by deliberate commitment: this is a page about
+   light transport, and the renders are dark. Every colour is painted
+   explicitly so the page holds on any host ground.
+   ============================================================ */
+:root{
+  color-scheme: dark;
+  --bg:#070a0c; --bg-deep:#040607; --bg-lift:#0b1013;
+  --surface:rgba(255,255,255,.035);
+  --surface-2:rgba(255,255,255,.06);
+  --line:rgba(255,255,255,.10);
+  --line-2:rgba(255,255,255,.18);
+  --text:#eef2f0; --muted:#98a5a8; --muted-2:#6c797d;
+
+  /* Literal wavelength ramp — these are the section identities, not decoration */
+  --l400:#7B6CF6; --l460:#4E93F5; --l500:#3FD0D4;
+  --l540:#5FDD9B; --l560:#A9D877; --l580:#E3C55F; --l600:#EDA457; --l620:#F09A4E; --l680:#F2685C;
+
+  --accent:#E3B45F;            /* caustic gold: the light itself */
+  --accent-soft:rgba(227,180,95,.13);
+  --good:#5FDD9B; --bad:#F2685C;
+  --shadow:0 28px 80px rgba(0,0,0,.55), 0 3px 18px rgba(0,0,0,.4);
+
+  --sans:Inter,ui-sans-serif,-apple-system,"Segoe UI",sans-serif;
+  --display:Newsreader,"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--text);
+  font-family:var(--sans); font-size:16.5px; line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1140px;margin:0 auto;padding:0 32px}
+.narrow{max-width:720px}
+
+h1,h2,h3{font-family:var(--display);font-weight:400;letter-spacing:-.01em;text-wrap:balance}
+.mono{font-family:var(--mono)}
+em{font-style:italic;color:#cfd8d6}
+
+/* ---------------- side navigation ---------------- */
+#rail{
+  position:fixed;left:22px;top:50%;transform:translateY(-50%);z-index:50;
+  display:flex;flex-direction:column;gap:15px;align-items:flex-start
+}
+#railtrack,#railfill{position:absolute;left:4px;width:1px;top:3px;pointer-events:none}
+#railtrack{bottom:3px;background:rgba(255,255,255,.10)}
+#railfill{height:0;background:linear-gradient(to bottom,var(--l460),var(--l620));
+  transition:height .18s linear;box-shadow:0 0 8px rgba(255,255,255,.18)}
+#rail a{
+  display:flex;align-items:center;gap:11px;position:relative;text-decoration:none;
+  opacity:.34;transition:opacity .35s
+}
+#rail a::before{
+  content:"";width:9px;height:9px;border-radius:50%;background:var(--dot,#444);flex:none;
+  transition:transform .35s, box-shadow .35s
+}
+#rail a:hover,#rail a.on{opacity:1}
+#rail a.on::before{transform:scale(1.5);box-shadow:0 0 14px var(--dot)}
+#rail a span{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--dot);white-space:nowrap
+}
+@media (max-width:1439px){#rail a span{display:none}#rail{gap:16px}}
+@media (max-width:1180px){#rail{display:none}}
+
+/* ---------------- video placeholder: a shooting instruction, not a grey box ---------------- */
+.vslot{
+  border:1px dashed rgba(255,255,255,.22);border-radius:12px;padding:18px 20px;margin:22px 0;
+  background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.012))
+}
+.vslot-h{
+  font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--secc,#9fb0ad);margin-bottom:9px
+}
+.vslot-r{font-size:13.5px;color:#c8d2d0;line-height:1.55}
+.vslot-n{font-size:12.5px;color:var(--muted);margin-top:8px}
+.vslot-n b{color:#c8d2d0;font-weight:600}
+
+/* ---------------- hero ---------------- */
+.hero{position:relative;overflow:hidden;border-bottom:1px solid var(--line)}
+.hero-img{position:absolute;inset:0;z-index:0}
+.hero-img img{width:100%;height:100%;object-fit:cover;opacity:.62;filter:saturate(1.15)}
+.hero-img::after{
+  content:"";position:absolute;inset:0;
+  background:
+    radial-gradient(120% 90% at 50% 42%, rgba(7,10,12,0) 0%, rgba(7,10,12,.55) 48%, var(--bg) 88%),
+    linear-gradient(to bottom, rgba(7,10,12,.75) 0%, rgba(7,10,12,0) 25%, rgba(7,10,12,.9) 100%);
+}
+.hero-in{position:relative;z-index:1;padding:132px 0 70px}
+.eyebrow{
+  font-family:var(--mono);font-size:11px;letter-spacing:.26em;text-transform:uppercase;
+  color:var(--accent);margin:0 0 26px
+}
+.hero h1{
+  font-size:clamp(46px,8.2vw,96px);line-height:.96;margin:0 0 26px;
+  font-weight:300;letter-spacing:-.025em
+}
+.hero h1 i{font-style:italic;color:var(--accent)}
+.thesis{
+  font-family:var(--display);font-size:clamp(19px,2.4vw,25px);line-height:1.5;
+  color:#d3dbd9;max-width:30ch;margin:0 0 46px;font-weight:300
+}
+.spectrum{
+  height:2px;width:100%;margin:0 0 40px;border-radius:2px;
+  background:linear-gradient(90deg,var(--l400),var(--l460),var(--l500),var(--l540),var(--l580),var(--l620),var(--l680))
+}
+.stats{display:flex;flex-wrap:wrap;gap:14px}
+.stat{
+  background:var(--surface);border:1px solid var(--line);border-radius:11px;
+  padding:15px 20px 16px;backdrop-filter:blur(9px);min-width:168px;flex:1 1 168px
+}
+.stat .k{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--muted-2);display:block;margin-bottom:9px
+}
+.stat .v{
+  font-family:var(--mono);font-size:23px;font-weight:700;font-variant-numeric:tabular-nums;
+  letter-spacing:-.02em;display:flex;align-items:baseline;gap:8px
+}
+.stat .from{color:var(--bad)}
+.stat .arr{color:var(--muted-2);font-size:14px;font-weight:400}
+.stat .to{color:var(--good)}
+.stat .sub{font-size:12px;color:var(--muted-2);margin-top:5px;line-height:1.4}
+
+/* ---------------- sections ---------------- */
+section{padding:104px 0;border-bottom:1px solid var(--line)}
+section:last-of-type{border-bottom:0}
+.sec-label{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--secc,var(--accent));margin:0 0 16px;display:flex;align-items:center;gap:11px
+}
+.sec-label::before{content:"";width:22px;height:1px;background:var(--secc,var(--accent));opacity:.65}
+h2{font-size:clamp(30px,4.4vw,46px);line-height:1.1;margin:0 0 22px;font-weight:300}
+h3{font-size:22px;margin:44px 0 12px;font-weight:400;color:#e6ece9}
+p{margin:0 0 19px;color:#c2ccca}
+.lead{font-size:19px;line-height:1.62;color:#d5ddda;font-family:var(--display);font-weight:300}
+strong{color:var(--text);font-weight:600}
+code{
+  font-family:var(--mono);font-size:.85em;background:var(--surface-2);
+  padding:2px 6px;border-radius:4px;color:#d6e0dd;border:1px solid var(--line)
+}
+
+/* ---------------- schematics + screenshot slots ---------------- */
+.schem{
+  border:1px solid var(--line);border-radius:12px;background:var(--bg-lift);
+  padding:14px 10px;overflow-x:auto
+}
+.schem svg{width:100%;height:auto;display:block;max-width:900px;margin:0 auto}
+.slot{
+  border:1px dashed var(--line-2);border-radius:12px;min-height:180px;
+  display:flex;align-items:center;justify-content:center;text-align:center;
+  padding:28px 24px;font-family:var(--mono);font-size:12.5px;line-height:1.7;
+  color:var(--muted-2);background:var(--surface)
+}
+
+/* ---------------- figures ---------------- */
+figure{margin:44px 0}
+figure img{width:100%;display:block;border-radius:12px;border:1px solid var(--line);background:#000}
+figcaption{
+  margin-top:13px;font-size:13.5px;color:var(--muted);line-height:1.55;
+  display:flex;gap:9px;align-items:baseline
+}
+figcaption b{color:var(--muted-2);font-family:var(--mono);font-size:10px;letter-spacing:.14em;
+  text-transform:uppercase;white-space:nowrap;padding-top:2px}
+
+.paircap{margin-top:13px;font-size:13.5px;color:var(--muted);line-height:1.55;display:flex;gap:9px;align-items:baseline}
+.paircap b{color:var(--muted-2);font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap;padding-top:2px}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:760px){.pair{grid-template-columns:1fr}}
+.pane{position:relative}
+.pane img{width:100%;display:block;border-radius:11px;border:1px solid var(--line);background:#000}
+.tag{
+  position:absolute;top:11px;left:11px;font-family:var(--mono);font-size:10px;
+  letter-spacing:.12em;text-transform:uppercase;padding:4px 9px;border-radius:5px;
+  background:rgba(4,6,7,.8);border:1px solid var(--line-2);backdrop-filter:blur(6px)
+}
+.tag.a{color:var(--bad)} .tag.b{color:var(--good)}
+
+/* measured readout rows — straight from the reference UI */
+.readout{
+  margin:22px 0 0;border:1px solid var(--line);border-radius:11px;overflow:hidden;
+  background:var(--surface)
+}
+.readout .row{
+  display:flex;justify-content:space-between;align-items:center;gap:18px;
+  padding:11px 17px;border-bottom:1px solid var(--line);font-size:13.5px
+}
+.readout .row:last-child{border-bottom:0}
+.readout .row .lbl{color:var(--muted)}
+.readout .row .val{
+  font-family:var(--mono);font-variant-numeric:tabular-nums;font-weight:500;
+  font-size:13.5px;white-space:nowrap
+}
+.readout .row.hi .val{color:var(--accent);font-weight:700}
+.readout .row .val .d{color:var(--muted-2)}
+
+/* ---------------- roster table ---------------- */
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface);margin:34px 0}
+table{border-collapse:collapse;width:100%;min-width:640px;font-size:13.5px}
+th{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.15em;text-transform:uppercase;
+  text-align:left;color:var(--muted-2);padding:13px 16px;border-bottom:1px solid var(--line);
+  white-space:nowrap;font-weight:500
+}
+td{padding:11px 16px;border-bottom:1px solid rgba(255,255,255,.055);color:#bcc6c4;vertical-align:top}
+tr:last-child td{border-bottom:0}
+td:first-child{font-family:var(--mono);color:var(--text);font-weight:500;white-space:nowrap}
+td b{color:var(--text);font-weight:600}
+tr.key td{background:var(--accent-soft)}
+tr.key td:first-child{color:var(--accent)}
+
+/* ---------------- formula ---------------- */
+.formula{
+  margin:30px 0;padding:26px 28px;border-radius:12px;
+  background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.02));
+  border:1px solid var(--line);text-align:center
+}
+.formula .f{
+  font-family:var(--mono);font-size:clamp(14px,2.1vw,19px);color:var(--text);
+  letter-spacing:.01em;line-height:1.75
+}
+.formula .f .hl{color:var(--accent)}
+.formula .n{margin-top:14px;font-size:13px;color:var(--muted-2);line-height:1.5}
+
+/* ---------------- notes / honesty ---------------- */
+.note{
+  border-left:2px solid var(--secc,var(--accent));padding:3px 0 3px 22px;margin:30px 0;
+  color:var(--muted);font-size:15px
+}
+.note b{color:#dbe3e0}
+ul.clean{padding-left:0;list-style:none;margin:26px 0}
+ul.clean li{
+  padding:15px 0 15px 26px;border-bottom:1px solid var(--line);position:relative;
+  color:#bcc6c4;font-size:15px
+}
+ul.clean li:last-child{border-bottom:0}
+ul.clean li::before{
+  content:"";position:absolute;left:0;top:24px;width:7px;height:7px;border-radius:50%;
+  background:var(--secc,var(--accent));opacity:.75
+}
+ul.clean li b{color:var(--text)}
+
+/* ---------------- footer ---------------- */
+footer{padding:76px 0 96px;background:var(--bg-deep)}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:30px;margin-top:36px}
+.fgrid div .k{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--muted-2);display:block;margin-bottom:8px
+}
+.fgrid div .v{font-size:14.5px;color:#c2ccca;line-height:1.55}
+.scope{
+  margin-top:52px;padding:22px 26px;border:1px solid var(--line);border-radius:12px;
+  background:var(--surface);font-size:14.5px;color:var(--muted)
+}
+.scope b{color:var(--text)}
+
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media (max-width:640px){
+  .wrap{padding:0 20px}
+  .hero-in{padding:92px 0 54px}
+  section{padding:72px 0}
+}
+
+/* ---------------- index: card grid ---------------- */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:22px;margin:44px 0 10px}
+.card{
+  display:block;text-decoration:none;color:inherit;position:relative;overflow:hidden;
+  border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.022);
+  transition:border-color .3s, transform .3s, background .3s
+}
+.card:hover{border-color:var(--cc,#7a8a88);transform:translateY(-3px);background:rgba(255,255,255,.045)}
+.card::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:var(--cc,#666)}
+.card-in{padding:20px 22px 22px}
+.card .eyebrow{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.17em;text-transform:uppercase;
+  color:var(--cc,#8fa09d);opacity:.9
+}
+.card h3{font-family:var(--display),serif;font-size:22px;line-height:1.2;margin:9px 0 8px;font-weight:500}
+.card p{font-size:13.5px;line-height:1.6;color:var(--muted);margin:0 0 14px}
+.card-thumb{
+  border-radius:9px;overflow:hidden;border:1px solid var(--line);margin:0 0 14px;
+  background:#0c100f;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center
+}
+.card-thumb img,.card-thumb svg{width:100%;height:100%;object-fit:cover;display:block}
+.card-num{display:flex;align-items:baseline;gap:9px;margin-bottom:12px}
+.card-num b{font-family:var(--mono);font-size:19px;color:var(--cc,#d8e0de);font-weight:600;letter-spacing:-.01em}
+.card-num span{font-size:11.5px;color:var(--muted-2,#7f8b89)}
+.card-st{display:flex;gap:13px;flex-wrap:wrap;font-family:var(--mono);font-size:9.5px;
+  letter-spacing:.09em;color:var(--muted-2,#7f8b89);border-top:1px solid var(--line);padding-top:11px}
+
+/* ---------------- status marks: same object as a rail dot ---------------- */
+.st{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.st::before{content:"";width:9px;height:9px;border-radius:50%;flex:none;box-sizing:border-box}
+.st-a::before{background:var(--good,#7BD88F)}
+.st-b::before{background:linear-gradient(90deg,var(--l500) 50%,transparent 50%);border:1px solid var(--l500)}
+.st-c::before{border:1px solid var(--l580);background:none}
+.st-d::before{border:1px solid var(--muted-2,#7f8b89);background:none;border-radius:2px;transform:rotate(45deg)}
+
+/* ---------------- index: the honest ledger ---------------- */
+.chips{display:flex;gap:9px;flex-wrap:wrap;margin:26px 0 16px}
+.chip{
+  font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  padding:7px 13px;border-radius:999px;border:1px solid var(--line);background:none;color:var(--muted);
+  cursor:pointer;transition:border-color .25s,color .25s
+}
+.chip:hover{color:#d5dedc}
+.chip[aria-pressed="true"]{border-color:var(--accent,#EDA457);color:#e9efee}
+table.ledger{width:100%;border-collapse:collapse;font-size:13px}
+table.ledger th{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--muted-2,#7f8b89);text-align:left;padding:0 14px 9px 0;border-bottom:1px solid var(--line);font-weight:500
+}
+table.ledger td{padding:9px 14px 9px 0;border-bottom:1px solid rgba(255,255,255,.045);vertical-align:top}
+table.ledger td:nth-child(2){color:var(--muted)}
+table.ledger td:nth-child(3){font-family:var(--mono);font-size:11.5px;color:#c3ceccff}
+</style>
+<style>.portfolio-document-return{position:relative;z-index:100;display:flex;flex-wrap:wrap;gap:10px;padding:16px 24px;background:#111d25;border-bottom:1px solid #b3ceb74d;font:12px/1.5 Arial,sans-serif}.portfolio-document-return a{color:#cbded2;text-decoration:none;padding:8px 12px;border:1px solid #b3ceb733;border-radius:8px;transition:color .5s,box-shadow .5s,border-color .5s}.portfolio-document-return a:hover{color:#fff;border-color:#d9c18488;box-shadow:0 0 16px #d9c18422}@media(prefers-reduced-motion:reduce){.portfolio-document-return a{transition:none}}</style><link rel="stylesheet" href="../../../../portfolio-controls.css"><style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head><body><aside class="portfolio-document-return"><a href="../../index.html#html-library">← RadianceLab brochure</a><a href="../index.html">Document library</a><a href="../../technical/index.html">Current technical documents</a><a href="../../../../index.html">← Back to portfolio</a></aside><nav id="rail" aria-label="Sections">
+  <i id="railtrack"></i><i id="railfill"></i>
+  <a href="#claim" style="--dot:var(--l400)" data-s="claim"><span>The claim</span></a>
+  <a href="#nodes" style="--dot:var(--l460)" data-s="nodes"><span>Node editor</span></a>
+  <a href="#report" style="--dot:var(--l500)" data-s="report"><span>Report</span></a>
+  <a href="#split" style="--dot:var(--l540)" data-s="split"><span>Split</span></a>
+  <a href="#viewport" style="--dot:var(--l580)" data-s="viewport"><span>Viewport</span></a>
+  <a href="#alarms" style="--dot:var(--l600)" data-s="alarms"><span>Alarms</span></a>
+  <a href="#presets" style="--dot:var(--l620)" data-s="presets"><span>Presets</span></a>
+  <a href="#inert" style="--dot:var(--l680)" data-s="inert"><span>Inert</span></a>
+</nav>
+
+<!-- ================= HERO ================= -->
+<header class="hero">
+  <div class="wrap hero-in">
+    <p class="eyebrow">Light transport research &middot; RadianceLab</p>
+    <h1>The instrument<br><i>panel</i></h1>
+    <p class="thesis">Not a renderer with a GUI bolted on. An instrument you drive — and the reason the research moved as fast as it did.</p>
+    <p class="note" style="max-width:56ch;margin:14px 0 0;color:#9fb0ad">Every other page on this site shows a picture and then argues about it. This one is about the apparatus that decided which picture to take.</p>
+    <div class="spectrum"></div>
+    <div class="stats">
+      <div class="stat"><span class="k">Node types</span>
+        <div class="v"><span>57</span></div>
+        <div class="sub">in 7 palette categories, with live 2-D and orbiting 3-D previews</div></div>
+      <div class="stat"><span class="k">Unit assertions</span>
+        <div class="v"><span class="to">61</span></div>
+        <div class="sub">one compiled test binary, exit code 1 on any failure</div></div>
+      <div class="stat"><span class="k">Scene presets</span>
+        <div class="v"><span>63</span></div>
+        <div class="sub">menu entries &middot; 62 of them build &middot; 65 scene builds in all</div></div>
+      <div class="stat"><span class="k">Controls that do nothing</span>
+        <div class="v"><span class="from">32</span></div>
+        <div class="sub">catalogued and published as a claim about standards; three of them fake a response, and the catalogue's own addendum has since found five more</div></div>
+    </div>
+  </div>
+</header>
+
+<!-- ================= 01 · THE CLAIM ================= -->
+<section id="claim" style="--secc:var(--l400)" data-nav="The claim">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">01 — The claim</p>
+      <h2>The tools were built alongside the estimator, not after it</h2>
+      <p class="lead">A photon-primitive estimator fails in ways a single number cannot describe. It is unbiased and still wrong at one arc of one surface; it converges and still to the wrong constant; it looks perfect and is four and a half times too bright. Debugging that requires <em>looking at the sampling geometry</em>, not at the image.</p>
+      <p>So the instruments came first, or at least alongside. The primitive explorer that draws a swept manifold in world space, the correlated batch that freezes the sample set so a weight change is the only thing that moves, the split wipe that puts two estimators in one frame — those three are argued in full on <a href="where-the-fireflies-come-from.html" style="color:var(--l500)">Where the fireflies come from</a>, and this page does not repeat them.</p>
+      <p>What this page covers is the rest of the panel: the parts that are not about photon primitives at all, and which a reader would have no way to guess exist. A node graph with fifty-seven node types whose output the GPU tracer evaluates per entity. A comparison-report generator that renders each configuration and writes a browsable HTML page. A ray tree you can fire backwards out of a light. An alarm that notices the renderer has been left in a diagnostic state and offers a way out.</p>
+      <p><strong>Most of it has never been deliberately rendered, and that is said with some pride.</strong> It is the most interesting category on the site: the tools were built to answer a question, the question got answered, and nobody went back to photograph the tool. Instruments get used, not photographed. Where that is the case, the row says so.</p>
+    </div>
+    <div class="readout">
+      <div class="row"><span class="lbl"><span class="st st-a">measured</span> &nbsp;a number exists, and the page says which source produced it</span><span class="val">92</span></div>
+      <div class="row"><span class="lbl"><span class="st st-b">seen</span> &nbsp;looked at, unquantified</span><span class="val">251</span></div>
+      <div class="row hi"><span class="lbl"><span class="st st-c">never viewed</span> &nbsp;reachable, apparently never deliberately rendered</span><span class="val">116</span></div>
+      <div class="row"><span class="lbl"><span class="st st-d">inert / absent</span> &nbsp;a reachable control that reaches nothing, or a stub</span><span class="val">31 / 24</span></div>
+      <div class="row"><span class="lbl">superseded &middot; scene-dependent &nbsp;works but elsewhere &middot; real but silent without particular content</span><span class="val">18 / 16</span></div>
+      <div class="row hi"><span class="lbl">Total</span><span class="val">548</span></div>
+    </div>
+    <div class="narrow">
+      <p>The first four rows are the four marks used across this site; the catalogue keeps two more, and the sibling pages fold them into <span class="st st-c">never viewed</span> and <span class="st st-d">inert / orphan</span> rather than drawing new glyphs. They are printed here so the column adds up: an earlier version of this read-out stopped after four rows and left a reader 34 short of the total it claimed beside them.</p>
+      <p>The counts are the whole renderer, not this page: <b>555 catalogued features, of which 500 work</b> — 253 seen, 116 never viewed, 97 measured, 18 superseded, 16 scene-dependent — and <strong>116 have never been deliberately rendered</strong>. The remaining 55 are the 31 inert and the 24 absent, which closes. (Those figures are counted by <span class="mono">docs/portfolio/coverage.py</span> on every run. Until 2026-09-06 the catalogue's headline said 544 / 115 / 89 / 32 against its own rows, and this page copied it; the inert difference was a withdrawal the catalogue recorded in an addendum and never carried up.) (Earlier counts are superseded in order: 457, which closed against nothing; 515, what <span class="mono">docs/FEATURE-CATALOGUE.md</span> said before the features added on 2026-09-04 and 05 were catalogued; 521 and 523 during the 05th; then 526 with the passthrough surfaces, the exterior preset and the headless camera override; 528 with the surface caustic map and its acceptance harness; then, through 2026-09-06, 529 as passthrough support reached the whole integrator roster, 534 with the four gate-family presets and the aperture vocabulary they share, 536 with BSDF-general surface shading and its self-consistency read-out, 537 with the volume-light rig, 542 with the refraction chain, the post-ball mirror and their four presets, and 544 with photon ring-alt and the five-member gloss series; then, on 2026-09-07, 546 with the scene refusal printed for every strategy and 548 with the one-dimensional group and its frozen-batch swarm; 551 before the hourglass-medium mode and its walk-medium flag were catalogued on 2026-09-10; 553 before preset 79, “The Atrium” — the big room built for that mode — was catalogued the same day; and 554 before THE COLLAGE, the two-render mode, was catalogued that afternoon.) A disproportionate share of that 116 is on this page, which is exactly what a working instrument looks like.</p>
+    </div>
+    <div class="tw"><table>
+      <thead><tr><th>Instrument</th><th>What it is</th><th>Route</th><th>Grade</th></tr></thead>
+      <tbody>
+        <tr class="key"><td>Node editor</td><td>57 node types, 7 categories, live previews, detached editing with a Commit; output evaluated per entity by the GPU tracer</td><td>View ▸ Node Editor</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr class="key"><td>Comparison report</td><td>Renders up to 8 integrators on a time budget, writes PNGs, a browsable HTML report and replayable JSON. The only working image export</td><td>Advanced ▸ Compare</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>Split A/B</td><td>Two independent estimator passes over one scene, composited as a draggable wipe</td><td>Compare menu &middot; <span class="mono">pp.split</span></td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>PP vs GPU window</td><td>Live CPU estimator beside a live GPU path trace at an aligned bounce depth</td><td>PP Estimator ▸ Compare</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>Ray tree</td><td>A branching tree from a picked point, or in reverse from a random emitter</td><td>Visual ▸ Ray Tree</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>Gizmo + panel mirror</td><td>MMB transform gizmo; the panel draws an animated copy that is itself draggable</td><td>MMB &middot; Visual ▸ Visualization</td><td><span class="st st-b">seen</span> / mirror <span class="st st-c">never viewed</span></td></tr>
+        <tr><td>Clean view</td><td>Hides every viewport indicator so only the renderer's output remains</td><td><span class="mono">G</span></td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>Dolly zoom</td><td>Pins a target and solves focal length from distance as you move</td><td><span class="mono">Q</span> in FPS capture</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>Non-standard-state alarm</td><td>Detects five diagnostic configurations and offers one-click escape</td><td>automatic, Technique tab</td><td><span class="st st-b">seen</span></td></tr>
+        <tr class="key"><td><span class="mono">PrismShapeTest</span></td><td>The only unit tests in the repo. 61 assertions, glm-only link, non-zero exit on failure</td><td><span class="mono">build/bin/&lt;cfg&gt;/PrismShapeTest</span></td><td><span class="st st-a">measured</span></td></tr>
+        <tr><td>Scene preset menu</td><td>63 entries in one submenu, in labelled bands — and the only way to change what is in the scene</td><td>File ▸ Scene Presets</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>Film dumps &middot; PGR1</td><td>Three hooks writing linear-HDR float films; the format every number on this site was measured from</td><td><span class="mono">pp.dump*At</span></td><td><span class="st st-a">measured</span></td></tr>
+        <tr><td>Scene authoring</td><td>Adding or deleting an entity or a light from the UI</td><td>—</td><td><span class="st st-d">absent</span></td></tr>
+        <tr><td>Inert controls</td><td>Reachable widgets that reach nothing, three of which visibly rebuild the photon map</td><td>§08</td><td><span class="st st-d">inert &times;32</span></td></tr>
+      </tbody>
+    </table></div>
+    <div class="narrow">
+      <p class="note"><b>What was checked, and how.</b> Every count on this page was read out of the source in this repository rather than taken from a summary — the node-type enum at <span class="mono">core/NodeGraph.h:272-346</span>, the preset menu items at <span class="mono">ui/UIManager.cpp:275-372</span>, the assertion call sites in <span class="mono">tests/</span>, the tab tables at <span class="mono">ui/UIManagerRender.cpp:29-120</span>. Three of those readings disagree with the project's own feature catalogue, and §06 and §07 say where and by how much.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 02 · NODE EDITOR ================= -->
+<section id="nodes" style="--secc:var(--l460)" data-nav="Node editor">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">02 — The node editor</p>
+      <h2>Fifty-seven node types is a subsystem, not a feature</h2>
+      <p class="lead">Every page on this site closes with the same scope note, and buried in it is one clause: the renderer "also carries a node-graph material and projection editor with texture-space baking". That clause has been carrying a two-and-a-half-thousand-line editor, a thousand-line preview engine and fifty-seven node types on its back. This section is that clause spelled out.</p>
+      <p>It is a <strong>parameter graph, not a shader compiler</strong>. Nodes are evaluated on the CPU into per-entity material overrides and a GPU-uploaded noise configuration; nothing is codegen'd and no pipeline is rebuilt. That is the design constraint that makes everything else in this section cheap — a live preview is just the same evaluator on a small domain.</p>
+    </div>
+    <div class="tw"><table>
+      <thead><tr><th>Category</th><th>n</th><th>What is in it</th></tr></thead>
+      <tbody>
+        <tr><td>Sources</td><td>5</td><td>Constant Float, Constant Colour, Time, WorldPos, UV</td></tr>
+        <tr class="key"><td>Texture</td><td>11</td><td>Texture (a GL handle from a loaded image), two checkers, Noise2D, FBM2D, Noise Lab 2D, reaction–diffusion 2D, legacy noise 2D, SDF 2D, Eulerian fluid 2D, physics 2D</td></tr>
+        <tr class="key"><td>Vol</td><td>10</td><td>The 3-D forms — Checker3D, Noise3D, Noise Lab 3D, reaction–diffusion 3D, legacy noise 3D, SDF 3D, Eulerian fluid 3D, volume incremental, physics 3D — plus Medium Container</td></tr>
+        <tr class="key"><td>Math</td><td>21</td><td>Add, Subtract, Multiply, Divide, Power, Sqrt, Abs, Sin, Cos, Clamp, Lerp, Remap, Scale, Step, SmoothStep, OneMinus, Fract, Floor, Min, Max, Negate</td></tr>
+        <tr><td>Vector</td><td>5</td><td>SeparateXYZ, CombineXYZ, Normalize, Length, Dot</td></tr>
+        <tr><td>Output</td><td>3</td><td>BSDF, Medium, Emission — the three terminals the tracer reads</td></tr>
+        <tr><td>Scene</td><td>2</td><td>Camera (a captured view-projection pose) and DataMosh Projector</td></tr>
+        <tr><td><b>Total</b></td><td><b>57</b></td><td>Seven categories, read straight off the <span class="mono">cats[]</span> table at <span class="mono">NodeEditor.cpp:2485</span>. The 58th enumerator is the <span class="mono">COUNT</span> sentinel, which is where the 56 / 57 / 58 disagreement in the catalogue's own footnote F1 came from</td></tr>
+      </tbody>
+    </table></div>
+    <div class="narrow">
+      <h3>What actually reaches the render</h3>
+      <p>Wiring a BSDF, Medium or Emission output node bakes the graph into <strong>three RGBA8 layers</strong> of a 2-D texture array, one slice per entity, at a resolution the user sets between 64 and 1024 px (default 256). The packing is fixed and worth stating plainly, because it is the contract between the editor and the tracer:</p>
+    </div>
+    <div class="formula">
+      <div class="f">layer 0 &nbsp;=&nbsp; <span class="hl">albedo</span>.rgb + roughness.a<br>
+      layer 1 &nbsp;=&nbsp; <span class="hl">emission</span>.rgb + metallic.a<br>
+      layer 2 &nbsp;=&nbsp; ior.r + opacity.g + anisotropy.b + <span class="hl">dispersion spread</span>.a</div>
+      <div class="n">Twelve channel slots, three uploads, one array — and the twelfth slot is booked twice. A wired <em>dispersive gate</em> reads that same alpha and zeroes the spread below 0.05, so the gate and the value it gates cannot both be authored.</div>
+    </div>
+    <div class="narrow">
+      <p class="note"><b>A correction to this page, found by reading the write instead of the comment.</b> That last line said <em>anisotropy angle</em> until now, because the vector's declaration comment says <span class="mono">AnisoAngle.A</span>. Four hundred lines below it the byte that is actually stored is <span class="mono">clamp01(dispersionSpread / 10)</span>, and the megakernel decodes it by multiplying by ten again. Anisotropy angle is baked nowhere: the channel mask has ten bits — albedo, roughness, metallic, emission colour, emission strength, IOR, opacity, anisotropy, dispersion spread and the dispersive gate — while the auto-seeded BSDF node offers <em>eleven</em> inputs. Three of them, anisotropy angle, thin-film thickness and glint density, can be wired to anything you like and will never leave the editor. The angle still reaches the shader, as a per-material uniform; it just cannot be driven by a graph.</p>
+      <p>Two details in that path are more interesting than the bake itself. A <strong>directly-wired 3-D procedural is deliberately excluded from the bake mask</strong> and evaluated in the shader instead, so a socket-level Multiply keeps the real material's base value rather than flattening it into a texture. And box faces, which normally deduplicate to a single primitive, are <strong>kept unmerged when baking to UV</strong>, so a photograph projected onto a box puts a different part of itself on each of the six faces.</p>
+      <p>Selecting an entity auto-creates and pre-seeds a graph from its current material — eleven BSDF inputs including anisotropy angle, thin-film thickness, glint density and dispersion spread — with an automatic unique-material split so an override on one box does not leak to its siblings.</p>
+
+      <h3>The medium half is a different machine, and the page that says otherwise is being generous</h3>
+      <p>Everything above is the <em>surface</em> half. Two node types are the medium — a <span class="mono">MediumOutput</span> terminal carrying absorption, scattering, phase <em>g</em> and colour, and a bakeable <span class="mono">MediumContainer</span> — and eleven upstream types can drive a volume live. It is tempting to describe that as the same machinery pointed at fog. It is not. There are exactly three routes from a medium graph to a rendered voxel, and they behave differently enough that a user would be surprised by two of them:</p>
+      <ul class="clean">
+        <li><b>Constant fold.</b> Anything the resolver does not recognise as a live 3-D generator is evaluated <em>once</em>, at the entity's centre, and averaged to a scalar. So an arbitrary math chain does not become a field; it becomes one number for the whole volume, silently and at full fidelity to what you wired.</li>
+        <li><b>The live handshake, and its one slot.</b> A recognised generator reaches the shader as a procedural-type integer plus a three-component multiplier, <em>per primitive</em> — and the source says the limit out loud: <span class="mono">&ldquo;The live GPU path only has one procedural payload slot per primitive.&rdquo;</span> Wire two different generators into absorption and scattering and the second wins while the first's target bits are cleared. Noise Lab 3-D is deliberately routed around this into its own block of the noise buffer, which is why it is the only route that carries a per-channel replace-or-multiply blend mask.</li>
+        <li><b>The explicit bake.</b> <span class="mono">bakeMediumContainer</span> walks a resolution-cubed grid on the CPU and uploads a <em>pair</em> of floating-point 3-D textures — absorption, scattering and two channels of tint in one, the third tint channel and emission in the other — up to eight containers at a time. This is the only route that stores a real field, and it is the one route on this site graded <span class="st st-c">never viewed</span> on both halves of the catalogue.</li>
+      </ul>
+      <p><strong>And none of it reaches the CPU.</strong> The photon-primitive estimator contains no reference to the node graph at all; it reads a volume's scattering and absorption coefficients straight off the entity. The CPU integrators that <em>do</em> consult the graph — every one of them except the estimator, through the photon mapper's header — share a single helper whose output struct has twelve fields: albedo, roughness, metallic, IOR, opacity, anisotropy, anisotropy angle, thin-film thickness, glint density, dispersion spread, emission colour and emission strength. None for absorption, scattering or phase. There is no medium equivalent on the CPU to leave unimplemented; the structure has no slot for one. A node-authored fog is a GPU-only object, and the baked-node-graph row of the density-source table on <a href="ten-integrators-one-scene.html" style="color:var(--l460)">Ten integrators, one scene</a> now says so.</p>
+
+      <h3>Detached editing, and why it is the right default</h3>
+      <p>The editor keeps a shadow copy of the graph. With <em>Detached Editing</em> on, the scene points at the committed copy and keeps rendering it while you rewire; the <em>Commit</em> button is disabled until there is something to commit, and pressing it swaps the graphs. A renderer that resets a 4000-pass accumulation every time you drag a node is not usable for material work, and this is the mechanism that avoids it.</p>
+
+      <h3>Previews</h3>
+      <p>Per-node inline 64&sup2; thumbnails, lazily-created 256&sup2; detail views, and — for Medium outputs — a <strong>ray-marched 3-D volume preview with its own orbit camera</strong>, drawn by a dedicated preview shader. Three preview modes (GPU, CPU Fast, CPU Full) trade fidelity for frame time. Double-clicking a node detaches it into its own manipulator window with its own orbit preview, and a checkbox decides whether you may have several open at once.</p>
+      <p>The create menu is <strong>type-filtered</strong>: dragging from a pin and releasing on empty canvas offers only nodes whose primary output type is compatible with that pin, and creates the node already connected.</p>
+
+      <h3>Two instruments on the toolbar, one of which explains itself</h3>
+      <p>The editor is a floating window over a viewport in which you have just selected the thing you are editing, so it has a <strong>placement solver</strong>: it measures the selected entity's screen rectangle and tries to fit itself left, right, above or below it. When it cannot, it says which of six reasons applied — the screen is really tiny, the item takes most of the screen, the item is larger than half the screen, there is not enough free space around it, the item is clipped by the viewport edge, or none of those and it covers the selection anyway. Each reason exists in two forms, <em>overlaps</em> and <em>fully covers</em>. <strong>Placement debug</strong> is where you watch it think: a scaled map of the work area with four rectangles drawn on it — the viewport, the selection's screen bounds, where the window actually is, and where the solver would put it — under the sentence it chose.</p>
+      <p>A window that tells you why it is in your way is a small thing, and it is the same instinct as the alarm in &sect;06: the program would rather explain a bad state than present it.</p>
+    </div>
+    <div class="tw"><table>
+      <thead><tr><th>Toolbar control</th><th>What it does</th><th>Grade</th></tr></thead>
+      <tbody>
+        <tr><td>Debug ▸ Show Layout Map</td><td><b>Placement debug.</b> The 220-pixel map above, plus the solver's twelve-way reason string</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>Bake / Clear Bake</td><td><b>Medium bake.</b> On a Medium Container node: freeze the live procedural into a cached grid, after which the node reads &ldquo;Baked N&sup3; static field&rdquo; instead of &ldquo;Live preview only until baked&rdquo;, and a Clear Bake button appears. The node's own Bake Res slider stops at 96; the dispatcher clamps at 128 and, at zero, falls back to the graph's master volume reference resolution — so the slider cannot reach the resolutions the baker will accept</td><td><span class="st st-c">never viewed</span></td></tr>
+      </tbody>
+    </table></div>
+    <div class="slot">Screenshot — View ▸ Node Editor on preset 47 "Vol Caustic Lab" &middot; click the floor plane in the viewport so the selection fills most of the frame &middot; in the editor toolbar press Debug and tick "Show Layout Map" &middot; shoot the top of the editor window with the map in it: the outer work-area rectangle, the viewport rectangle inside it, the selection's bounds, the editor's own window and the solver's suggested placement, with the reason sentence printed under the map &mdash; on this selection it should read that the placement covers or overlaps the visible selection because the selected item is larger than half the screen &middot; keep the viewport in shot so the covered selection is visible behind the window</div>
+    <div class="narrow">
+
+      <h3>Photographs, in and out</h3>
+      <p>Dropping an image file over the open editor makes it a Texture node at the cursor. Eleven extensions are accepted — <span class="mono">png jpg jpeg bmp tga gif psd hdr pic ppm pgm</span> — and the drop is <em>silently ignored</em> unless the node editor panel is open — a wart, named here because it should be: there is no feedback for a drop that goes nowhere.</p>
+      <p>The other direction is stranger and better. Any Texture node can request a snapshot of the <strong>clean frame</strong> — after the effects chain, before data moshing — as its own image. So you can photograph the scene from where you are standing and then project that photograph back into the scene through a captured camera pose, where it lands in the tracer's albedo array and receives correct global illumination. It is the strangest and best thing in the editor. Nothing on this site has shown it happening yet; the recording below is the shooting instruction.</p>
+    </div>
+    <div class="slot">Screenshot — View ▸ Node Editor with preset 3 (Material Showcase) loaded &middot; select the rough-glass sphere so a graph auto-seeds &middot; wire NoiseLab3D → Multiply → BSDFOutput.roughness &middot; Previews ON, mode "GPU" &middot; open one Medium-output node's manipulator window and orbit its 3-D volume preview about 30 degrees so the shell reads as solid &middot; Detached Editing ON with the Commit button lit &middot; frame the canvas, the inline thumbnails and the detached window together</div>
+    <div class="vslot"><div class="vslot-h">video &middot; A photograph becomes a material</div><div class="vslot-r">Preset 3 (Material Showcase). Frame the sphere row, press G for clean view, and let it accumulate ~10 s. Then: open the node editor, add a Camera node to capture the current pose, add a Texture node and use its in-engine capture to snapshot the clean frame, wire Texture → BSDFOutput.albedo on the large floor plane with Bake to UV on, and Commit. Hold on the result for 10 s while it re-accumulates. Do not move the camera at any point.</div><div class="vslot-n"><b>Watch for</b> The floor is now wearing a photograph of the room it is in — and the photograph is lit. Watch the sphere row's reflections pick up the baked image, and watch the image darken in the shadowed corner: it entered the tracer as an albedo, not as a decal, so it receives global illumination like any other surface.</div></div>
+    <div class="narrow">
+      <p class="note"><b>The limitation, in the same breath.</b> <span class="mono">nodeGraph</span> appears nowhere in <span class="mono">src/scene/</span>. <strong>No scene preset builds a node graph.</strong> Every textured or procedurally-shaded frame this project has ever produced was hand-authored in the editor and cannot be shipped as a preset, replayed from a config, or captured headlessly. That is also why nothing here is photographed yet: the tool has no persistent output the rest of the pipeline can pick up, and the shot list above is how it gets photographed anyway.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 03 · THE REPORT ================= -->
+<section id="report" style="--secc:var(--l500)" data-nav="Report">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">03 — The comparison report</p>
+      <h2>A portfolio about comparing transport algorithms that ships a comparison-report generator</h2>
+      <p class="lead">Pick two or more of eight integrators, give each a time budget, press one button. The renderer switches modes on a timer, captures each one, and writes a folder you can open in a browser: one PNG per integrator, an <span class="mono">index.html</span> that wipes between them under your cursor, and a <span class="mono">config.json</span> that replays the run.</p>
+      <p>It is the most on-message tool in the program, and this section is the first place on the site it gets more than a ledger row. That row grades it <em>measured</em>, which is the wrong axis: it emits PNGs, HTML and JSON, not a validation number, and no generated report exists in this repository. This page grades it <span class="st st-c">never viewed</span> and stands by the stricter mark.</p>
+    </div>
+    <div class="tw"><table>
+      <thead><tr><th>Stage</th><th>What happens</th><th>Detail</th></tr></thead>
+      <tbody>
+        <tr><td>Select</td><td>Eight checkboxes: GPU Path Tracer, Photon Mapper, VCM, MLT, PSSMLT, UPBP, Path Guiding, Manifold</td><td>The Generate button is disabled below two</td></tr>
+        <tr><td>Budget</td><td>Seconds per integrator, 1&ndash;120, with the estimated total printed live</td><td><b>Equal time, not equal sample</b></td></tr>
+        <tr><td>Run</td><td>Saves your current mode and every per-integrator enable flag, then walks the list, invalidating and re-arming each integrator as it goes</td><td>Progress bar, per-integrator status line, and a tooltip asking you not to turn the camera</td></tr>
+        <tr><td>Capture</td><td>Reads back the display texture and writes <span class="mono">&lt;Integrator&gt;.png</span></td><td>CPU integrators render at <b>half</b> the scaled viewport</td></tr>
+        <tr><td>Report</td><td>Writes <span class="mono">index.html</span> with the images, names and layout inlined as JS</td><td>Three layouts, below</td></tr>
+        <tr><td>Round-trip</td><td>Writes <span class="mono">config.json</span> — 81 leaf fields across viewport, camera, render, compare, eight integrator blocks and the scene</td><td>Droppable back onto the panel to restore the run</td></tr>
+        <tr><td>Restore</td><td>Puts your integrator mode and all seven enable flags back the way it found them</td><td>Output folder <span class="mono">test_YYYYMMDD_HHMMSS/</span></td></tr>
+      </tbody>
+    </table></div>
+    <div class="narrow">
+      <h3>The report itself is a cursor-driven wipe</h3>
+      <p>The generated page is a single canvas that redraws on every mouse move, clipping each integrator's image into a region defined by the cursor. There are three:</p>
+      <ul class="clean">
+        <li><b>2-way</b> — a vertical divider that lives at the cursor's x. Drag left and right and the boundary between two algorithms sweeps across the frame.</li>
+        <li><b>4-way</b> — quadrants meeting at the cursor, so four integrators share one image and you can put the crossing point on the exact caustic you are arguing about.</li>
+        <li><b>9-way</b> — a radial pizza: up to nine sectors fanning out from the cursor. Absurd and, for a nine-way comparison, correct.</li>
+      </ul>
+      <p>A <em>Shuffle</em> button rotates which integrator lands in which region, which matters more than it sounds: a wipe comparison has an ordering bias, and rotating the assignment is how you check that what you are seeing is the algorithm and not the position.</p>
+    </div>
+    <div class="slot">Screenshot — Advanced ▸ Compare &middot; preset 47 "Vol Caustic Lab" &middot; tick GPU Path Tracer, Photon Mapper, VCM and UPBP &middot; Seconds per integrator = 60 &middot; Layout = 4-way &middot; press Generate and shoot the panel MID-RUN, with the progress bar filled and the status line reading "Rendering 3/4: VCM" &middot; include the estimated-total line</div>
+    <div class="vslot"><div class="vslot-h">video &middot; Four integrators, one cursor</div><div class="vslot-r">Open the generated test_*/index.html from the shot above in a browser. Start with the cursor at the top-left corner, then move it slowly in a diagonal to the bottom-right over 8 s so all four quadrants pass over the caustic in turn. Then press Shuffle twice, pausing 3 s each time, with the cursor held still on the brightest part of the caustic.</div><div class="vslot-n"><b>Watch for</b> The same fifteen seconds of compute spent four ways. Watch the caustic core specifically: two of the four resolve it and two are still noise there at equal time. The Shuffle presses are the control — the caustic changes character when the algorithm behind the quadrant changes, and does not when only the position does.</div></div>
+    <div class="narrow">
+      <h3>Three things it does not do, and one of them is a bug</h3>
+      <p><strong>The export is 8-bit.</strong> Capture reads the display texture back as float, clamps each channel to [0,1], quantises to a byte and writes PNG. So the "only working image export in the program" is a post-tonemap, low-dynamic-range screenshot. It is fine for a side-by-side and useless for a ratio — which is exactly why <em>not one number anywhere on this site came from it</em>. Every measured result was taken from a PGR1 float film dump instead (§04).</p>
+      <p><strong>Equal time is a choice, and it is the harder one to read.</strong> Eight integrators with wildly different per-sample costs, each given the same wall clock, produces the comparison a user cares about and not the comparison a paper reports. Nothing in the panel records sample counts, so a report cannot be converted to an equal-sample comparison after the fact.</p>
+      <p><strong>The JSON round-trip has a hole</strong>, and it is the whole reason the <em>Comparison JSON import</em> is graded <b>scene-dependent</b> — one of the two grades this site draws no glyph for — rather than <span class="st st-b">seen</span>: what it restores is restored correctly, and whether the restored run means anything depends on which room happens to be loaded. The exporter writes <span class="mono">scene.preset</span>. The importer never reads it. Everything else comes back — camera pose, focal length, f-stop, focus distance, film size, aspect, max bounces, exposure, light strategy, spectral mode, resolution scale, the budget, the layout, the eight selection flags and every parameter of all eight integrators — but the scene does not. Load a saved comparison while a different preset is up and you will replay the settings against the wrong room, silently.</p>
+      <p class="note"><b>And one latent trap worth naming.</b> The importer restores the photon mapper's <span class="mono">v2Mode</span> flag from JSON. That flag gates the entire photon-gather pass. It has exactly three references in the source — its declaration, one read in the render loop, one read in a status string — and <b>no widget anywhere</b>. A <span class="mono">config.json</span> carrying <span class="mono">"v2Mode": false</span> therefore turns photon gathering off with no control in the program that can turn it back on.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 04 · SPLIT ================= -->
+<section id="split" style="--secc:var(--l540)" data-nav="Split">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">04 — Two images in one frame</p>
+      <h2>Three ways to put two renders in one frame — and the numbers came from a fourth</h2>
+      <p class="lead">The comparison report is the offline one. Two more run live, and the distinction between them matters: one compares two configurations of the same estimator, the other compares two different estimators of the same scene.</p>
+
+      <h3>Split A/B</h3>
+      <p>Two independent estimator passes over the same scene and camera, composited as a wipe with a draggable divider, and a radio deciding which side advances so you can freeze one and let the other climb — the frozen side is labelled as such. Side B overrides strategy, bounce counts, beam radius, guard, MIS point, visualisation, and the comp-mode backup and seam, so "A composited against A alone" is one field apart.</p>
+      <p>Its mechanics — why both panes bypass the stylisation chain, and why identical settings give bit-identical panes because the two sides share an RNG stream — are argued on <a href="where-the-fireflies-come-from.html" style="color:var(--l500)">Where the fireflies come from</a>, and this page defers to it.</p>
+      <p class="note"><b>A grade disagreement, resolved in the strict direction.</b> The feature catalogue marks both Split A/B and clean view <em>seen</em>; the visualisation page marks both <em>never viewed</em>. The two are answering different questions — "is this code path exercised" versus "has a person driven it and looked at the result". This page uses the second, stricter reading for Split A/B, because the page that owns that feature says no capture of it exists anywhere in the repository; and it keeps <em>seen</em> for clean view, because clean view is exercised deliberately in nearly every capture instruction on this site even though nobody has photographed the act of pressing G. Where two of this project's own documents disagree, the disagreement is worth printing rather than picking a winner quietly.</p>
+
+      <h3>PP versus GPU</h3>
+      <p>A separate window: the CPU photon-primitive estimator live on the left, a live GPU path trace on the right, at an aligned bounce depth, with a draggable divider and a bounce-offset slider for the GPU side. Two switches make it usable rather than decorative — a <em>GPU medium-only</em> mode that restricts the right-hand pane to medium transport through the path-type filter with no shader change, and a full-resolution toggle for a true pixel-for-pixel compare rather than a scaled one.</p>
+
+      <h3>And the one that actually produced the numbers</h3>
+      <p>Neither. Every ratio, median and byte-identity claim on this site came out of the linear-HDR <strong>PGR1</strong> film dumps, whose format and validation role are set out on <a href="how-i-know.html" style="color:var(--l500)">How I know the pictures are right</a>. What belongs here is only the driving surface: three hooks, one analysis script, and enough config keys to run the whole estimator with no window at all.</p>
+    </div>
+    <div class="readout">
+      <div class="row"><span class="lbl">GPU reference hook</span><span class="val mono">pp.dumpGpuRefAt &rarr; pp_gpu_ref.bin</span></div>
+      <div class="row"><span class="lbl">PP film hook</span><span class="val mono">pp.dumpPpRefAt &rarr; pp_pp_ref.bin</span></div>
+      <div class="row"><span class="lbl">CPU integrator hook</span><span class="val mono">pp.dumpCpuAt</span></div>
+      <div class="row hi"><span class="lbl">Analysis</span><span class="val mono">docs/tools/filmstats.py — stats · png · chroma · ratio</span></div>
+      <div class="row"><span class="lbl">Headless drive</span><span class="val">67 <span class="mono">pp.*</span> config keys &mdash; 62 in <span class="mono">Engine.cpp</span>, 5 in <span class="mono">EngineRender.cpp</span> (the three hooks plus the camera override)</span></div>
+    </div>
+    <div class="narrow">
+      <p>One detail of the GPU hook is an instrument in its own right: as it writes, it prints four probe luminances — centre, two points toward the light, and a corner — so a dump alone tells you the GPU's scatter-order semantics before you have compared it with anything. That is the kind of thing that only gets built after it has cost somebody a day.</p>
+      <p class="note"><b>The division of labour.</b> The visualisation page puts it best and it applies to everything in this section: these tools decide <em>where to look</em>. They never decide whether the answer is right. A wipe is an argument; a float film and a median ratio are evidence.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 05 · VIEWPORT ================= -->
+<section id="viewport" style="--secc:var(--l580)" data-nav="Viewport">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">05 — Driving the viewport</p>
+      <h2>Everything in the frame is pickable, and the picker is one linear scan</h2>
+      <p class="lead">Clicking in the viewport does three things at once: it selects, it can focus, and it can set the autofocus distance from the clicked point. All three run through the same 169-line CPU intersector that also serves the gizmo, the ray tree and every CPU integrator — a flat scan over visible entities, no acceleration structure, because there are at most a few dozen analytic primitives in any scene.</p>
+
+      <h3>The gizmo, and the copy of it in the panel</h3>
+      <p>Middle-mouse on a selection raises a transform gizmo: translate arrows, rotate rings, per-axis scale squares, and a right-button uniform-scale circle. Point-light proxies get the same gizmo restricted to movement, which is the correct restriction and a nice touch — a light has no scale to drag.</p>
+      <p>The part nobody has photographed is in the Visualization panel. It draws an <strong>animated mirror of the gizmo</strong> — three breathing axis arrows and their handles, hand-drawn into the panel's draw list — and that diagram is itself draggable and drives the real transform, staying in sync with the viewport gizmo in both directions. The legend adapts when the target is a light. It is a legend that works.</p>
+
+      <h3>The ray tree</h3>
+      <p>Fire a branching tree of rays and look at where light actually goes. Forward from a point you click, or <strong>in reverse from a random emitter</strong>, which is the mode that answers "why is nothing reaching this corner".</p>
+    </div>
+    <div class="readout">
+      <div class="row"><span class="lbl">Direction</span><span class="val">camera &rarr; scene, or emitter &rarr; scene</span></div>
+      <div class="row"><span class="lbl">Bounces</span><span class="val">1 &ndash; 6</span></div>
+      <div class="row"><span class="lbl">Splits per bounce</span><span class="val">1 &ndash; 12</span></div>
+      <div class="row"><span class="lbl">Render modes</span><span class="val">Unbounded (X-ray) &middot; Occluded + Bounded &middot; Bounded</span></div>
+      <div class="row hi"><span class="lbl">Occlusion samples</span><span class="val">20 &ndash; 100,000, on a log slider</span></div>
+      <div class="row"><span class="lbl">Continuous mode</span><span class="val">re-shoots to screen centre, or continuously from the light</span></div>
+    </div>
+    <div class="narrow">
+      <p>Segments are coloured by weight, interaction type and whether they are inside a medium, sharing the same glyph vocabulary as every other overlay in the program — cyan for the camera side, warm yellow for the photon side, a red dot at a swept or specular vertex. Six bounces at twelve splits is 3&nbsp;million leaves if you took it literally; the render modes exist because you cannot look at that, and the occlusion-sample slider exists because deciding which of those segments are actually blocked is the expensive part.</p>
+    </div>
+    <div class="slot">Screenshot — Visual ▸ Ray Tree on preset 44 "Caustic Foggy Room" &middot; Reverse (from light source) ON &middot; Bounces 4 &middot; Splits/Bounce 6 &middot; Render Mode "Occluded + Bounded" &middot; Show Hit Points ON &middot; Occlusion Samples 20000 &middot; press Shoot Ray Tree &middot; clean view OFF so the tree is visible &middot; frame the glass spheres and the two mirror reflectors so the refracted and reflected branches are both in shot</div>
+    <div class="vslot"><div class="vslot-h">video &middot; Watching light leave the lamp</div><div class="vslot-r">Preset 44, Ray Tree ON, Reverse ON, Bounces 4, Splits 6, Interactive ON, Occlusion Samples 20000, render mode "Occluded + Bounded". Let it re-shoot continuously for 12 s without touching anything, then switch render mode to "Unbounded (X-ray)" and hold 6 s.</div><div class="vslot-n"><b>Watch for</b> In occluded mode the tree is sparse and the surviving branches cluster on the glass spheres and the mirrors — that clustering is the caustic, drawn as geometry before any estimator has run. In X-ray mode the same tree fills the room, and the difference between the two frames is precisely the fraction of emitted directions that reach anything.</div></div>
+    <div class="narrow">
+      <h3>Clean view, and dolly zoom</h3>
+      <p><span class="mono">G</span> hides viewport indicators so that what is left is the renderer's output — nine guard sites across the render and overlay paths honour it, including a blanket early-return in the debug-viz frame and a suppression of all HUD text. It is why almost every capture instruction on this site says "press G". The visualisation page's inspection also found what it misses: photon dots, path overlays, the KD-tree, physics particles, the hover material badge and the dolly-zoom HUD are drawn outside those nine guards and survive it. Nine guards is the coverage, six overlays is the gap, and both are counted.</p>
+      <p class="note"><b>A correction to the sentence above.</b> It called the last of those six a &ldquo;read-out&rdquo; until 2026-09-06. It is a full cinematic HUD — letterbox bars, pulsing accent lines, a crosshair, four corner brackets, a <span class="mono">DOLLY ZOOM [Q]</span> title and a live focal-length pair — and it is drawn <em>inside</em> the performance overlay's own function, after that function's early return. The performance overlay defaults to off, so by default pressing <span class="mono">Q</span> puts nothing on screen at all; turn View ▸ Performance on and clean view then hides none of it. Worse, the greyed <em>Debug Overlay</em> checkbox beside the dolly controls carries a tooltip reading &ldquo;no dolly overlay was ever written&rdquo; — and some fifty lines of one sit about a hundred and fifty lines below it in the same file. The checkbox really is <span class="st st-d">inert</span>; the sentence next to it is simply false. Argued in full on <a href="the-camera-is-not-a-viewpoint.html" style="color:var(--l680)">The camera is not a viewpoint</a>.</p>
+      <p><span class="mono">Q</span>, in FPS capture, pins a target at the current focus distance and then solves focal length from distance on every frame:</p>
+    </div>
+    <div class="formula">
+      <div class="f">f<sub>new</sub> = f<sub>ref</sub> &middot; ( d<sub>new</sub> / d<sub>ref</sub> ) &nbsp;&nbsp;<span class="hl">clamped to [4, 1200] mm</span></div>
+      <div class="n">A Hitchcock zoom, solved rather than keyframed. Disabling it optionally restores the camera and focal length it started from.</div>
+    </div>
+    <div class="narrow">
+      <h3>The hotkey surface</h3>
+    </div>
+    <div class="tw"><table>
+      <thead><tr><th>Key</th><th>Does</th><th>Note</th></tr></thead>
+      <tbody>
+        <tr><td><b>1</b>–<b>9</b>, <b>0</b></td><td>Select integrator mode 0–9 and jump to that mode's settings tab</td><td>Suppressed while Ctrl is held</td></tr>
+        <tr><td><b>Tab</b></td><td>Cycle all ten techniques</td><td>The switch is deferred three frames so the GPU can drain</td></tr>
+        <tr><td><b>Ctrl+1/2/3</b></td><td>Pinhole / thin lens / tilt-shift camera</td><td>The third is <span class="st st-d">inert</span> and honestly marked (WIP)</td></tr>
+        <tr><td><b>F1</b>–<b>F8</b></td><td>Shaded, Wireframe, Normals, UV, Depth, Tangent, Material ID, Checker</td><td></td></tr>
+        <tr><td><b>G</b></td><td>Clean view</td><td>Chosen over Q because Q was taken twice already</td></tr>
+        <tr><td><b>B</b> / <b>Home</b></td><td>Selection outline off / all selection and hover visuals off</td><td>B exists because standing inside a selected fog volume tints the whole screen</td></tr>
+        <tr><td><b>Enter</b> / <b>Esc</b></td><td>Capture and release the mouse</td><td>Right-button also releases</td></tr>
+        <tr><td><b>V</b></td><td>Walk ⇄ noclip</td><td>WASD, Space to jump with grounding, scroll sets speed, Shift/Ctrl/Alt multiply it</td></tr>
+        <tr class="key"><td><b>E</b> / <b>Q</b></td><td>Projector on-off / dolly zoom, in FPS capture — <b>and</b> ascend / descend, in noclip and fly</td><td><b>Double-bound.</b> In captured noclip both fire from one press</td></tr>
+        <tr><td><b>R</b></td><td>Camera-driven wind force on the physics sim</td><td></td></tr>
+        <tr><td><b>F12</b></td><td>Take Snapshot</td><td><span class="st st-d">absent</span> — logs "Snapshot requested" and returns</td></tr>
+      </tbody>
+    </table></div>
+    <div class="narrow">
+      <p class="note"><b>The double binding is real and the source half-knows it.</b> The comment next to the clean-view key explains that <span class="mono">G</span> was chosen "because Q is already the FPS descend key AND the dolly-zoom toggle" — the collision is documented as a reason to avoid a third use, and never fixed. Both handlers are gated on viewport capture; the movement handlers run in noclip and fly. So in captured noclip, <span class="mono">E</span> ascends <em>and</em> toggles the projector, and <span class="mono">Q</span> descends <em>and</em> toggles the dolly zoom. Found by reading both handlers, not by driving it.</p>
+
+      <h3>The rest of the control surface, one row each</h3>
+      <p>What follows is the tail: overlays, chrome and shell controls that work, that this site has been photographed through for twelve pages, and that have nothing to argue. Under the rule published on <a href="everything-else.html" style="color:var(--l680)">Everything else</a> a feature earns prose only where the page can say something its own name does not — so these get a row, a clause and their grade, and no paragraph.</p>
+    </div>
+    <div class="tw"><table>
+      <thead><tr><th>Control</th><th>What it is, in one clause</th><th>Grade</th></tr></thead>
+      <tbody>
+        <tr><td>Pick-ray debug</td><td>The last picking ray in yellow with a red dot at the hit, a green image-plane quad one metre out built from the live field of view and aspect, and a text line giving the origin, direction and hit distance. Its own legend reads &ldquo;Yellow=pick ray, Cyan=aperture, Green=image plane&rdquo; &mdash; and the cyan ring is a fixed 0.05-unit marker of <em>where</em> the aperture is, not a drawing of how big it is</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>Better selection / Selection occlusion</td><td>Projected glow silhouettes instead of the coarse screen-space box, and a second toggle that filters the silhouette against the depth buffer so hidden parts fade. Both are read in the render path and both honour clean view</td><td><span class="st st-b">seen</span></td></tr>
+        <tr class="key"><td>Interactive gizmo mirror</td><td>The panel-drawn gizmo described at the head of this section: animated, draggable, two-way with the viewport gizmo, legend adapting for lights</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>Accel structure overlay</td><td>Orange dashed BVH internal nodes, or yellow non-empty grid cells with an option to show the empty ones, plus green and cyan per-primitive AABBs. It is the only consumer either structure has: the panel prints its own not-implemented border beside both, so the overlay draws boxes no ray traverses</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>Window title telemetry</td><td><span class="mono">RadianceLab | FPS | renderer | camera | frame</span>, rebuilt every frame. The fourth field is the <em>camera</em> class's own name, not the integrator mode as the catalogue's copy of the format string has it — which makes the title bar one of exactly two places in the program that read <span class="mono">typeName()</span>, the other being the estimator's refusal message on <a href="the-camera-is-not-a-viewpoint.html" style="color:var(--l680)">the camera page</a></td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>Renderer radios</td><td>Rasterizer or Path Tracer. <span class="mono">activeRenderer</span> has 21 references outside <span class="mono">src/ui/</span> and every one of them is a read</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>Menu-bar right cluster</td><td>A Node Editor button under a three-layer pulsing glow, a Top-Down projector-setup button with the same treatment, an FPG Select / Pick-Off toggle, and the live frame rate</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>Custom font stack</td><td><em>One</em> face, not four: <span class="mono">SourceCodePro-Regular.ttf</span> is loaded four times at 16, 21, 13 and 17 px with rasteriser multipliers 1.15, 1.25, 1.10 and 1.30, so the four &ldquo;weights&rdquo; are synthesised from one file. Three search paths are tried and the default ImGui font is used silently if none hits</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>Entity context menu</td><td>Right-click a Scene Hierarchy row: one item, Hide or Show, which flips <span class="mono">visible</span> and marks the scene dirty</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>PP quick settings on the Overall tab</td><td>The estimator's 31-entry strategy combo, the arbitrary-plane angle when strategy 16 is up, and medium bounces — without leaving the tab. Its own comment explains the length is taken with <span class="mono">IM_ARRAYSIZE</span> rather than a literal, because a hardcoded count is what hid strategies 17, 18 and 19 from this dropdown until one commit fixed it</td><td><span class="st st-b">seen</span></td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</section>
+
+<!-- ================= 06 · ALARMS ================= -->
+<section id="alarms" style="--secc:var(--l600)" data-nav="Alarms">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">06 — Things that argue back</p>
+      <h2>The renderer notices when you have left it in a diagnostic state</h2>
+      <p class="lead">A path tracer has a failure mode that costs more hours than any bug: you turn on a filter to isolate something, you get distracted, and three days later you are debugging a black image caused by a checkbox you set on purpose. So the Technique tab watches for it.</p>
+      <p>The <strong>restricted-render warning banner</strong> pulses orange at the top of the panel whenever any of five conditions holds, and it names each one it found rather than saying something is wrong:</p>
+      <ul class="clean">
+        <li><b>Path Type Filter is ON</b> — only a subset of light paths render</li>
+        <li><b>Bounce Filter is ON</b> — only a range of bounces render</li>
+        <li><b>Path Length (ToF) Filter is ON</b></li>
+        <li><b>Max Bounces = 0</b> — no light transport, near-black</li>
+        <li><b>Medium Isolation is ON</b> — surfaces absorb, so walls go black</li>
+      </ul>
+      <p>Underneath is a single button, <em>Reset to full render</em>, that clears all five and puts max bounces back to 8. That last part is the design decision worth naming: the alarm does not restore the value you had, it restores a value that renders. An escape hatch that returns you to an unknown state is not an escape hatch.</p>
+
+      <h3>Two more warning families, in the same panel</h3>
+      <p>The banner is the loudest of three. The other two fire on the light-strategy combo, and they are worth separating because they warn about different things: one warns that the estimator you picked will be <em>noisy</em> on this scene, the other that it cannot fire <em>at all</em> with the camera you have.</p>
+      <p>The <strong>variance warning</strong> is the interesting one, because it does not say &ldquo;high variance&rdquo; and stop. Selecting naive sampling prints <span class="mono">(!) Naive fog is high-variance</span>, and hovering it gives the mechanism and then the two cases in this program's own preset library where it bites: a scene's tiny ceiling lights, and the <span class="mono">pow(cos,500)</span> laser profile, which random scattered rays almost never hit. Beside it each strategy prints its own path-type algebra as a coloured line — <span class="mono">+ L(D|S|V)*E</span> for what it gains, <span class="mono">&minus; LS(D|V)*E&nbsp;&nbsp;(no caustics)</span> in red for what pure next-event estimation loses. A warning that names the preset it will fail on is a different object from a warning that names a risk.</p>
+      <p>The <strong>pinhole-size warnings</strong> have three severities and two thresholds, both readable off the source: red <span class="mono">Needs pinhole size &gt; 0!</span> below 0.01&nbsp;mm on a pinhole camera; red on a thin-lens camera at any size, because its aperture is too small for a naive light tracer whatever you do; and amber <span class="mono">Naive LT converges slowly. Try pinhole 500+ mm.</span> up to 200&nbsp;mm, above which it stops being drawn. What that estimator needs, and why, is argued on <a href="the-camera-is-not-a-viewpoint.html" style="color:var(--l680)">The camera is not a viewpoint</a>.</p>
+    </div>
+    <div class="tw"><table>
+      <thead><tr><th>Warning</th><th>Fires when</th><th>Grade</th></tr></thead>
+      <tbody>
+        <tr class="key"><td>Restricted-render banner</td><td>Any of five narrowing filters is on, or max bounces is 0. Names each, and offers one button that clears all five</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>Variance warning per strategy</td><td>Naive sampling is selected; names tiny ceiling lights and the <span class="mono">pow(cos,500)</span> laser as the cases it fails on</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>Pinhole-size warnings, three severities</td><td>A light-tracer strategy is selected with an aperture that cannot receive it: &lt; 0.01 mm, any thin lens, or &lt; 200 mm</td><td><span class="st st-b">seen</span></td></tr>
+      </tbody>
+    </table></div>
+    <div class="slot">Screenshot — Technique ▸ Overall on any preset &middot; first set Max Bounces = 0, turn Medium Isolation ON, and enable the Path Type Filter with one pattern &middot; shoot the top of the panel with the banner showing three bullets at once and the "Reset to full render" button beneath &middot; catch the pulse at its bright phase &middot; include enough of the near-black viewport to show what the banner is explaining</div>
+    <div class="narrow">
+      <h3>The unit tests, and a correction to two of this project's own documents</h3>
+      <p><span class="mono">PrismShapeTest</span> is a real compiled binary, linked against glm and nothing else — no GL, no window — so it builds in seconds and runs headless. It is produced by every ordinary build, and <span class="mono">main</span> returns 1 on any failure, which makes it a CI gate that already exists rather than one somebody should add.</p>
+      <p>It covers the two pieces of the photon-primitive machinery that are pure functions: the analytical shape classifier (which swept dimensions produce which shape) and the descriptor and evaluation helpers (Jacobians against finite differences, sphere-shell two-root cases, domain rejection, the legacy-versus-canonical warp, an inverse-square check, a multi-light furnace fold, and a Henyey&ndash;Greenstein sampler checked against a 200,000-point quadrature).</p>
+    </div>
+    <div class="readout">
+      <div class="row"><span class="lbl"><span class="mono">test_ppshape_classify.cpp</span> — 166 lines</span><span class="val">31 assertions</span></div>
+      <div class="row"><span class="lbl"><span class="mono">test_pp_eval.cpp</span> — 326 lines</span><span class="val">30 assertions</span></div>
+      <div class="row hi"><span class="lbl">Total</span><span class="val">61</span></div>
+      <div class="row"><span class="lbl">What the binary prints</span><span class="val">two subtotals, never a sum</span></div>
+      <div class="row"><span class="lbl">Links</span><span class="val">glm only</span></div>
+      <div class="row"><span class="lbl">Exit code on any failure</span><span class="val">1</span></div>
+    </div>
+    <div class="narrow">
+      <p><strong>Sixty-one, not forty-four — and the visualisation page was right all along.</strong> This project's feature catalogue says 44 in a footnote; <a href="where-the-fireflies-come-from.html" style="color:var(--l500)">the visualisation page</a> says 61. The catalogue counted only <span class="mono">expectTrue</span> and <span class="mono">expectApprox</span>, missing the classifier's two other assertion helpers entirely, and it adds that "several are inside loops" — there are three loops in the test files and not one of them contains an assertion.</p>
+      <p>The count that matters is the number of times the counter increments. Each of the four helpers — <span class="mono">expectTrue</span>, <span class="mono">expectApprox</span>, <span class="mono">expectType</span>, <span class="mono">expectPath</span> — increments once per call, <span class="mono">expectApprox</span> delegates rather than double-counting, and none is called from a loop. That is 14 + 10 + 7 = 31 in <span class="mono">test_ppshape_classify.cpp</span> and 18 + 12 = 30 in <span class="mono">test_pp_eval.cpp</span>: <b>61</b>.</p>
+      <p class="note"><b>A correction to this section, which was itself a correction.</b> It first published 60 and called 61 wrong, by counting six <span class="mono">expectPath</span> calls where there are seven — the missed one is at <span class="mono">test_ppshape_classify.cpp:150</span>. And it said the binary prints a total: it does not. Each translation unit declares its own <span class="mono">static int g_total</span> (<span class="mono">test_pp_eval.cpp:12</span>, <span class="mono">test_ppshape_classify.cpp:16</span>), so <span class="mono">main</span> at <span class="mono">test_pp_eval.cpp:322</span> runs two independently-counting suites and prints two subtotals, never a sum. A section written to correct two other documents got the arithmetic wrong in the direction that made its own case, which is the only direction that matters. A claim about a test suite that nobody re-derives is not a gate, it is a rumour — including this one.</p>
+
+      <h3>Byte-identity as a contract</h3>
+      <p>Five options in the estimator ship with an explicit guarantee in their own tooltip — <em>off is byte-identical</em>. Correlated batching off, surface NEE off, specular continuation off in both surface-NEE states, Lambertian emitter off, camera-leg far cap off. The claim is testable in the strongest way available: render, hash, flip the switch off, render, hash again, compare. A feature that promises to be free when disabled and is checked by md5 is a different kind of object from a feature that promises it in a comment.</p>
+      <p>Beside them sits the comp-mode class counter, which is the same instinct pointed at a harder target: per-class hit and energy counters on both estimator layers, printed at a fixed pass count, that raise <span class="mono">&lt;&lt;&lt; BOTH LAYERS -- DOUBLE COUNT</span> when a bucket is non-empty on both. Its own comment explains why it has to exist — a mean averages a double count away, a median ignores it, and a seam shift cancels it out of both films. <span class="st st-a">measured</span></p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 07 · PRESETS ================= -->
+<section id="presets" style="--secc:var(--l620)" data-nav="Presets">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">07 — The preset menu</p>
+      <h2>Sixty-two ways to load a scene, because there is no other way to make one</h2>
+      <p class="lead">One submenu, sixty-three entries, labelled bands, one click each. It reads like a convenience. It is the scene editor.</p>
+      <p>The menu spans the whole history of the project: the Cornell Box that every CPU-versus-GPU ratio was measured in, the noise and reaction–diffusion volumes, four NEE test rigs, the Veach MIS plate, two analytic gate scenes that exist only to be checked against closed-form answers, the caustic labs, six showcase rooms with names like <em>The Reliquary</em> and <em>Verdigris Cellar</em>, and — added through 2026-09-06 — the four gate apertures, the two chain pairs and the five-member gloss series that the newest estimators were validated on.</p>
+    </div>
+    <div class="tw"><table>
+      <thead><tr><th>Count</th><th>What</th><th>Note</th></tr></thead>
+      <tbody>
+        <tr class="key"><td>63</td><td>Menu entries</td><td>Verified by counting the writes to <span class="mono">scenePresetRequested</span> in <span class="mono">UIManager.cpp</span> at the current commit — 62 of them, with 62 distinct values, plus the one greyed entry that writes nothing. It was 44 until 2026-09-05, then 50, then 63 as the gate, chain, mirror and gloss families landed on 2026-09-06. It is <em>one</em> <span class="mono">BeginMenu</span>, split into visual bands by <span class="mono">TextDisabled</span> headers &mdash; &ldquo;eight submenus&rdquo; was the wrong noun for a right number</td></tr>
+        <tr><td>62</td><td>Menu entries that build something</td><td>Not quite 62 <em>distinct</em> scenes: 70 and 71 are one scene from two poses, so the menu reaches 61 rooms. Preset 9, "Outdoor", is the entry that builds nothing &mdash; it has no dispatch branch. Until 2026-09-04 it fell through and built a plain Cornell Box under the wrong name; since then the entry is greyed out, disabled and labelled "(not built)", with a tooltip naming the two open scenes to use instead &mdash; still an <span class="st st-d">inert</span> entry, now an honest one</td></tr>
+        <tr><td>3</td><td>Builders with no menu entry</td><td>Presets 38, 39 and 43 — the sphere-, cube- and ball-light foggy boxes — reachable only through <span class="mono">pp.scenePreset</span></td></tr>
+        <tr><td>65</td><td>Scene builders in total</td><td>Counted as scenes built, not functions: presets 58&ndash;62 are one function, <span class="mono">createLightSizeRig</span>, called at five emitter sizes; 72&ndash;76 are one <span class="mono">createGlossRig</span> at five roughnesses; 70 and 71 are <em>one</em> scene from two poses, the second of which is a reference view rather than a picture</td></tr>
+        <tr><td>2</td><td>Numbers that do not exist</td><td>45 and 53 have neither a menu entry nor a branch</td></tr>
+        <tr><td>13</td><td>Call sites of one factory</td><td><span class="mono">vclBuildShowcase</span> assembles a room, a ball, an occluder and a prop from typed structs, and it is now called thirteen times in <span class="mono">ScenePresetVolCaustic.cpp</span> — the four showcase scenes, the three rich rooms, <em>The Gate</em> and three of its four apertures, the light-size rig, and the gloss rig, which calls it with no glass ball at all. This row has been wrong twice: it first said seven and omitted <em>The Apothecary</em>, then said eight and stopped counting when the gate and gloss families arrived</td></tr>
+        <tr><td>4</td><td>Shortcut buttons in the PP panel</td><td>The gate scenes, one click from the estimator that uses them</td></tr>
+      </tbody>
+    </table></div>
+    <div class="narrow">
+      <h3>Eleven of the sixty-three, and the two that build them</h3>
+      <p>The whole menu is a list of names, and a list of names is not worth a page. These are the entries the rest of this site keeps referring to without ever saying what is in them — plus the two source-only routines that assemble most of the recent ones, and the two numbers that are not there at all.</p>
+    </div>
+    <div class="tw"><table>
+      <thead><tr><th>Entry</th><th>What is in the room</th><th>Grade</th></tr></thead>
+      <tbody>
+        <tr><td>Preset 4 — Glowing Spheres</td><td>Five tinted emissive volume spheres on the legacy noise bands</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>Presets 10-13 — RD Box</td><td>The four reaction&ndash;diffusion patterns as one large volume box</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>Preset 16 — Cornell + Glowing Volume</td><td>One fire-band volume with a positive volume-emission strength: a volume that <em>is</em> the light</td><td><span class="st st-b">seen</span></td></tr>
+        <tr class="key"><td>Preset 30 — Prism (Rainbow)</td><td>A dispersive glass prism and a laser emitter. It auto-enables spectral mode, and it holds the repository's <b>only</b> rotated box</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>Preset 34 — Foggy Cornell, black walls</td><td>The apples-to-apples reference room for the estimator's gate C</td><td><span class="st st-a">measured</span></td></tr>
+        <tr><td>Preset 35 — Simple Foggy Box</td><td>One ceiling quad emitter, pure-scattering fog, black walls — the simplest scene in which a volume estimator can be wrong</td><td><span class="st st-a">measured</span></td></tr>
+        <tr><td>Preset 37 — Multi-Light Foggy Box</td><td>Four lights of four kinds — quad, line, laser, point — each with its own colour and emission profile. It is the scene the variance warning in &sect;06 is describing</td><td><span class="st st-a">measured</span></td></tr>
+        <tr class="key"><td>Preset 42 — Cam-Ray Hit Ref</td><td>One area light dead ahead in vacuum, so the centre pixel must read exactly the emitted radiance. A scene built to have a known answer</td><td><span class="st st-a">measured</span></td></tr>
+        <tr><td>Preset 47 — Vol Caustic Lab</td><td>Three glass balls and two auto-aimed reflectors, the second red-tinted. A site hero image, and the room most of the capture recipes on this page name</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>Preset 49 — Lens Array</td><td>Five identical glass balls, five analytic caustic cones. Wants a minimum bounce of 2, or the direct light drowns what it is showing</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>Preset 50 — IOR Ladder</td><td>Equal radii at index 1.3, 1.5, 1.7 and 2.0 — a staircase of foci. Same minimum-bounce caveat</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>Presets 45 and 53</td><td>Do not exist. No menu entry, no dispatch branch, no builder — two gaps in the numbering rather than two missing scenes</td><td><span class="st st-d">absent</span></td></tr>
+        <tr class="key"><td>Parametrised showcase factory</td><td><span class="mono">vclBuildShowcase</span> composes a room, a ball, an occluder and a prop from typed structs, so a new showcase is a struct literal rather than a new function. It is the mechanism behind the count in the table above</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td><span class="mono">vclSlottedPlane</span> — gobo generator</td><td>Tiles a rectangle with a rectangular hole out of four coplanar quads. Any band thinner than 0.15 in half-extent is <em>dropped rather than emitted</em> — the comment beside the test reads &ldquo;too thin to survive the pads&rdquo;, and the pads are the +0.01 the quad builder adds and the +0.02 the plane intersector adds on top of it, which between them would grow a thin band across the hole it borders</td><td><span class="st st-b">seen</span></td></tr>
+      </tbody>
+    </table></div>
+    <div class="narrow">
+      <p>Several presets configure the renderer as well as the scene, which is the difference between a demo and a rig: the prism scene auto-enables spectral mode, the Veach test auto-selects power-weighted light selection because its lights span a factor of five hundred, and two of the config-only fog boxes force volume-emitter sampling on. Fourteen of them now have an opinion about lensing, across ten dispatch branches — 24 to 34 mm, each with its framing reason written beside it in source. That is also the origin of a bug this site reports fixed on <a href="the-camera-is-not-a-viewpoint.html" style="color:var(--l680)">the camera page</a>: a focal length set by one preset used to leak into every preset loaded after it, and it is fixed by a global reset in the prologue that the dolly-zoom solver overwrites one frame later.</p>
+      <p class="note"><b>Now the part that makes the menu load-bearing.</b> <span class="mono">entities.push_back</span> and <span class="mono">lights.push_back</span> occur only inside preset builders — nowhere in <span class="mono">src/ui/</span>. There is no way to add or delete an entity or a light from the interface. You can move, scale, retexture, relight and rewire what a preset built, and you cannot change the cast. <span class="st st-d">absent</span></p>
+      <p>File ▸ Save Scene, File ▸ Open Scene and File ▸ Export Image are menu stubs that draw a "not implemented" border; F12 logs a line and returns. So the scene graph has no serialisation in either direction, which is the same fact from the other side: the sixty-five builders are the file format.</p>
+      <p>This is worth stating plainly rather than burying, because it reframes the node editor in §02. That editor is not a scene authoring tool that happens to lack a save button. It is a <em>material</em> authoring tool for a fixed cast, and the reason no preset ships a node graph is that presets are C++ and graphs are runtime state, with nothing in between.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 08 · INERT ================= -->
+<section id="inert" style="--secc:var(--l680)" data-nav="Inert">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">08 — Inert and mislabelled</p>
+      <h2>Thirty-two controls that do nothing, and eighteen that lie</h2>
+      <p class="lead">Publishing this list is a claim about standards, so it belongs on the page about the instrument rather than in a footnote somewhere. A knob that reaches nothing is a bug in the interface even when the algorithm underneath is perfect, because the whole premise of this site is that a screenshot means what it appears to mean.</p>
+      <p>The test applied to every one of them: <em>the variable this widget writes has zero reads outside</em> <span class="mono">src/ui/</span>, <em>and there is no alias or derived write carrying the behaviour elsewhere</em>. That second clause is not decoration — two candidates failed it during the audit and are graded live instead. The projector's "Size Matching" block looks UI-local and in fact computes an angle that three render-side files read; the fixed-tracer-seed toggle greps as four UI-only references and reaches the GPU through a reference alias one line long.</p>
+    </div>
+    <div class="tw"><table>
+      <thead><tr><th>Control</th><th>Where</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr class="key"><td>Photon ▸ Jacobian</td><td>Photon tab</td><td>Two references: its declaration and its own toggle. <b>Sets the rebuild flag</b></td></tr>
+        <tr class="key"><td>Photon ▸ Base Primitive</td><td>Photon tab</td><td>Three references, all in <span class="mono">src/ui/</span>. <b>Sets the rebuild flag</b></td></tr>
+        <tr class="key"><td>Photon ▸ Final Primitive</td><td>Photon tab</td><td>Same. <b>Sets the rebuild flag</b></td></tr>
+        <tr><td>Russian Roulette toggle</td><td>Tracer ▸ Basics</td><td>The algorithm runs unconditionally regardless — kill below 0.1 throughput after bounce 3</td></tr>
+        <tr><td>Light tracer ▸ Paths/Frame</td><td>Light Strategy</td><td>Sits directly above the working Paths/Pixel slider</td></tr>
+        <tr><td>Reconstruction Kernel</td><td>Tracer ▸ Basics</td><td>Box / Tent / Gaussian, none of them read</td></tr>
+        <tr><td>MSAA / Antialiasing knob</td><td>Raster</td><td>Greyed, labelled <span class="mono">[inert]</span> and tooltipped: the window is created at one sample per pixel and no multisample framebuffer is ever built. Its neighbour, backface culling, is live</td></tr>
+        <tr><td>Tonemapping combo</td><td>Effects ▸ HDR</td><td>All three options render Reinhard. ACES exists in a shader that is never used</td></tr>
+        <tr><td>Dolly ▸ Debug Overlay</td><td>View ▸ POV</td><td>Declaration and checkbox</td></tr>
+        <tr><td>Physics ▸ Show Debug Viz</td><td>Advanced ▸ Volume</td><td>The Fluid Viz combo beside it is the real gate</td></tr>
+        <tr><td>Manifold ▸ Newton iterations / step size</td><td>Manifold tab</td><td>Sliders on a solver whose Newton step count is a hard zero</td></tr>
+        <tr><td>Active Integrators ▸ Photon Mapper thumbnail</td><td>always visible</td><td><span class="mono">bgTexPM</span> is declared and never assigned, so mode 2 shows the path tracer's image — under a caption, added later, that says so. Mode 9 falls back the same way and has no caption</td></tr>
+        <tr><td><span class="mono">prism.json</span> decorative keys</td><td>config file</td><td>Backend, integrator, spp, russianRoulette, spectralMode, tileSize, and the whole camera, debug and physics blocks are read by nothing</td></tr>
+      </tbody>
+    </table></div>
+    <div class="narrow">
+      <p>Thirteen of thirty-two are above; the full list is in <span class="mono">docs/FEATURE-CATALOGUE.md</span> §8, and nine of them are <em>honest</em> — they say "(WIP)", or draw a not-implemented border, or in one case are literally labelled <span class="mono">[inert]</span> in the widget text. Those nine are a completeness gap, not a communication failure, and they are not the problem. The list also grows in the right direction: the catalogue's own addendum, §8a, written while acting on §8, withdrew one row (the UPBP beam overlay draws after all) and found five more inert controls by chasing the ones it had &mdash; a "Shoot Ray" button with an empty handler, two placeholder overlays, a Regen button that regenerates nothing, and a beam radius no estimator integrates over. The true figure is therefore at least thirty-six. The headline stays at thirty-two because that is what the four-sweep count produced; the delta is recorded rather than a new total invented.</p>
+
+      <h3>The three that fake a response</h3>
+      <p>These are the ones that matter, and they are all in the same panel. The Photon Mapper's <em>Jacobian</em> toggle and its <em>Base Primitive</em> and <em>Final Primitive</em> combos each set the photon-map rebuild flag and the accumulation reset when you touch them. Nothing else reads them. So the map visibly rebuilds, the image visibly restarts from zero, several seconds pass, and a new image resolves that is identical to the old one.</p>
+      <p><strong>That is worse than doing nothing quietly.</strong> A dead control teaches you it is dead the first time you try it. A control that performs the ritual of working teaches you that the parameter has no effect on this scene — a conclusion about the renderer drawn from a defect in the panel. If any single item on this page is a bug rather than a gap, it is these three.</p>
+
+      <h3>The mislabelled ones</h3>
+      <p>Eighteen controls promise something other than what they do. The worst are not the inert ones — they are the ones that are busily doing something else:</p>
+      <ul class="clean">
+        <li><b>UPBP ▸ Photon Beams</b> claims beam segments for volumetric gathering. It is a global homogeneous-fog fallback, a light-path-count multiplier and a connection-transmittance factor. Beams are generated, packed and uploaded; the buffer is never bound.</li>
+        <li><b>Photon ▸ gather mode "Final Gather"</b> silently renders kNN density instead. The shader has two branches; the selector does not choose between them.</li>
+        <li><b>Manifold ▸ SDS / Newton solve</b> is primary-sample-space Metropolis with a specular heuristic that shrinks sigma by ten. There is no manifold walk.</li>
+        <li><b>Tracer ▸ Path-type filter</b> advertises expressions over <span class="mono">L D S V E *</span>. Each pattern compresses to four integers — first type, last type, exact length, minimum length — and interior vertices are never inspected, so <span class="mono">LDSDE</span> and <span class="mono">LDDDE</span> are the same query.</li>
+        <li><b>A tooltip advertising "denoising"</b> describes a temporal exponential average and a 5-pixel Gaussian. There is no OIDN, no OptiX denoiser, no A-SVGF anywhere in the source.</li>
+        <li><b>A source comment</b> in the path tracer says BDPT interior connections are "NOT YET IMPLEMENTED"; they are implemented fourteen hundred lines below it, and the strategy tooltip repeats the stale claim to the user.</li>
+        <li><b>A nineteenth, found after the count was taken.</b> The greyed <em>Dolly ▸ Debug Overlay</em> checkbox in the table above is honestly inert — and its own disabled tooltip explains that "no dolly overlay was ever written". Some fifty lines of one live about a hundred and fifty lines below it in the same file. As with the inert list, the headline stays at eighteen because that is what the four-sweep count produced, and the delta is recorded rather than a new total invented.</li>
+        <li><b>A twentieth, found the same way.</b> <em>Experimental ▸ Allow Negative Emission</em> carries a tooltip stating that "sampling uses abs(intensity) so both positive and negative emitters contribute proportionally". Nothing implements it: the switch has four references in the program and no reader outside <span class="mono">src/ui/</span>, and every emissive gate in the megakernel is a signed <span class="mono">&gt; 0.01</span>. The catalogue copied the tooltip into its own record, which is how a wrong sentence gets a second life. Argued on <a href="ten-integrators-one-scene.html" style="color:var(--l460)">Ten integrators, one scene</a>; the headline stays at eighteen for the same reason as above.</li>
+      </ul>
+      <p>Two entries on that list of eighteen are rows on <em>this site's own</em> landing-page ledger, wrong for the same reason as everything else here: a claim written once and never re-derived. One of them said four material models are unreachable from any preset; a preset added later reaches all four.</p>
+      <h3>Four more, one row each — and one the grades disagree about</h3>
+      <p>The four inert ones below are the honest kind: each is greyed, bordered or captioned in its own widget text, so nobody is misled by them. They are listed because a completeness gap you can see is still a gap, and because three of the four were made honest <em>after</em> the audit that found them, which is the useful half of publishing a list like this.</p>
+    </div>
+    <div class="tw"><table>
+      <thead><tr><th>Control</th><th>What is really there</th><th>Grade</th></tr></thead>
+      <tbody>
+        <tr><td>Volume Tracking ▸ Ratio Tracking / Null Scattering / Ray Marching</td><td>Three of a four-entry combo whose selection is a function-local <span class="mono">static int</span>. Picking one draws a not-implemented border and the words &ldquo;Not yet implemented&rdquo;; picking the fourth, delta tracking, prints a green line claiming the active, unbiased method — which is the one the shader really runs</td><td><span class="st st-d">inert</span></td></tr>
+        <tr><td>Menu bar ▸ Physics (Start / Pause / Reset)</td><td>Three disabled items under two lines of their own text saying that the physics <em>is</em> implemented and that its start, pause and reset controls live in Render Settings ▸ Volume. A dead menu that points at the live one</td><td><span class="st st-d">inert</span></td></tr>
+        <tr><td>Advanced VFX ▸ <span class="mono">stAdvIterations</span></td><td>An iteration count on a transfer that is a fixed two-pass structure-tensor plus statistics transfer. Greyed and labelled <span class="mono">[inert]</span>, with a tooltip naming the three sliders beside it that are live</td><td><span class="st st-d">inert</span></td></tr>
+        <tr><td>Advanced VFX ▸ <span class="mono">ddAdvChannels</span></td><td>An 8-or-16 channel combo read only to set its own index — no uniform, no dispatch size. Greyed and labelled the same way</td><td><span class="st st-d">inert</span></td></tr>
+        <tr class="key"><td>Expr ▸ Negative Emission</td><td>The switch from the list above, and the one row here whose grade this page disputes. The catalogue grades it <span class="st st-c">never viewed</span> — reachable, never deliberately rendered — and records its tooltip's promise that sampling takes the absolute intensity so both signs contribute. The source disagrees: the flag has no reader outside <span class="mono">src/ui/</span>, and every emissive gate in the megakernel is a signed comparison against 0.01. Graded here as the catalogue grades it, and contradicted in the same row</td><td><span class="st st-c">never viewed</span></td></tr>
+      </tbody>
+    </table></div>
+    <div class="narrow">
+      <p class="note"><b>Why publish it at all.</b> Because the alternative is a portfolio in which every control looks equally trustworthy, and this one contains three that rebuild a photon map to convince you they did something. The list is the standard: a feature is not shipped when it compiles, and a number is not true because it was written down.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="spectrum" style="margin-bottom:34px"></div>
+    <h2 style="font-size:28px;margin:0 0 10px">RadianceLab</h2>
+    <p style="color:var(--muted);max-width:56ch;margin:0">A from-scratch physically-based renderer in C++ and OpenGL compute, written to make estimator research directly visible.</p>
+    <div class="fgrid">
+      <div><span class="k">Renderer</span><span class="v">GPU megakernel path tracer, rasterizer, and seven CPU integrators — photon mapping, VCM, MLT, PSSMLT, UPBP, path guiding</span></div>
+      <div><span class="k">This work</span><span class="v">31 strategy slots in the picker: 0–2 are the baselines the rest are measured against, 3–24 and 26–30 are the photon-primitive family, 25 is a rasterised gather, and 21 of the slots are analytic swept manifolds sharing one MIS network</span></div>
+      <div><span class="k">Validation</span><span class="v">Ratio and byte-identical harnesses, degenerate-limit pins, standalone numerical gates in Python</span></div>
+      <div><span class="k">Media</span><span class="v">Homogeneous and heterogeneous participating media, Henyey–Greenstein and Mie phase functions, dispersive dielectrics</span></div>
+    </div>
+    <div class="scope">
+      <b>Scope note.</b> This page covers one subsystem. The renderer also carries a structured-light projector and time-of-flight pipeline, off-axis holography with a GPU FFT and phase unwrapping, five physics solvers coupled to volumetric density, a node-graph material and projection editor with texture-space baking, and roughly 140 post-process and NPR passes. Those are documented separately.
+    </div>
+    <p style="margin:28px 0 0"><a href="index.html" style="color:var(--muted);font-size:13px;letter-spacing:.03em;text-decoration:none;border-bottom:1px solid var(--line)">&larr; All eleven threads</a></p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var links = Array.prototype.slice.call(document.querySelectorAll('#rail a'));
+  var secs  = links.map(function(a){ return document.getElementById(a.dataset.s); });
+  var fill  = document.getElementById('railfill');
+  var track = document.getElementById('railtrack');
+
+  links.forEach(function(a){
+    a.addEventListener('click', function(e){
+      var t = document.getElementById(a.dataset.s);
+      if (!t) return;
+      e.preventDefault();
+      t.scrollIntoView({ behavior:'smooth', block:'start' });
+      if (history.replaceState) history.replaceState(null, '', '#' + a.dataset.s);
+    });
+  });
+
+  function progress(){
+    if (!fill || !track) return;
+    var h = document.documentElement.scrollHeight - window.innerHeight;
+    var p = h > 0 ? Math.min(1, Math.max(0, window.scrollY / h)) : 0;
+    fill.style.height = (p * track.offsetHeight) + 'px';
+  }
+  var queued = false;
+  window.addEventListener('scroll', function(){
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(function(){ progress(); queued = false; });
+  }, { passive:true });
+  window.addEventListener('resize', progress, { passive:true });
+  progress();
+
+  if (!('IntersectionObserver' in window)) return;
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      var i = secs.indexOf(e.target);
+      if (i < 0) return;
+      links[i].classList.toggle('on', e.isIntersecting && e.intersectionRatio > 0.12);
+    });
+  }, { threshold:[0, .12, .5] });
+  secs.forEach(function(s){ if (s) io.observe(s); });
+})();
+</script>
+
+</body></html>

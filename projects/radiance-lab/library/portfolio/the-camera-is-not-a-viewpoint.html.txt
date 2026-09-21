@@ -1,0 +1,679 @@
+<title>The camera is not a viewpoint</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300&display=swap">
+
+<style>
+/* ============================================================
+   Single-theme dark by deliberate commitment: this is a page about
+   light transport, and the renders are dark. Every colour is painted
+   explicitly so the page holds on any host ground.
+   ============================================================ */
+:root{
+  color-scheme: dark;
+  --bg:#070a0c; --bg-deep:#040607; --bg-lift:#0b1013;
+  --surface:rgba(255,255,255,.035);
+  --surface-2:rgba(255,255,255,.06);
+  --line:rgba(255,255,255,.10);
+  --line-2:rgba(255,255,255,.18);
+  --text:#eef2f0; --muted:#98a5a8; --muted-2:#6c797d;
+
+  /* Literal wavelength ramp — these are the section identities, not decoration */
+  --l400:#7B6CF6; --l460:#4E93F5; --l500:#3FD0D4;
+  --l540:#5FDD9B; --l560:#A9D877; --l580:#E3C55F; --l600:#EDA457; --l620:#F09A4E; --l680:#F2685C;
+
+  --accent:#E3B45F;            /* caustic gold: the light itself */
+  --accent-soft:rgba(227,180,95,.13);
+  --good:#5FDD9B; --bad:#F2685C;
+  --shadow:0 28px 80px rgba(0,0,0,.55), 0 3px 18px rgba(0,0,0,.4);
+
+  --sans:Inter,ui-sans-serif,-apple-system,"Segoe UI",sans-serif;
+  --display:Newsreader,"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--text);
+  font-family:var(--sans); font-size:16.5px; line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1140px;margin:0 auto;padding:0 32px}
+.narrow{max-width:720px}
+
+h1,h2,h3{font-family:var(--display);font-weight:400;letter-spacing:-.01em;text-wrap:balance}
+.mono{font-family:var(--mono)}
+em{font-style:italic;color:#cfd8d6}
+
+/* ---------------- side navigation ---------------- */
+#rail{
+  position:fixed;left:22px;top:50%;transform:translateY(-50%);z-index:50;
+  display:flex;flex-direction:column;gap:15px;align-items:flex-start
+}
+#railtrack,#railfill{position:absolute;left:4px;width:1px;top:3px;pointer-events:none}
+#railtrack{bottom:3px;background:rgba(255,255,255,.10)}
+#railfill{height:0;background:linear-gradient(to bottom,var(--l460),var(--l620));
+  transition:height .18s linear;box-shadow:0 0 8px rgba(255,255,255,.18)}
+#rail a{
+  display:flex;align-items:center;gap:11px;position:relative;text-decoration:none;
+  opacity:.34;transition:opacity .35s
+}
+#rail a::before{
+  content:"";width:9px;height:9px;border-radius:50%;background:var(--dot,#444);flex:none;
+  transition:transform .35s, box-shadow .35s
+}
+#rail a:hover,#rail a.on{opacity:1}
+#rail a.on::before{transform:scale(1.5);box-shadow:0 0 14px var(--dot)}
+#rail a span{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--dot);white-space:nowrap
+}
+@media (max-width:1439px){#rail a span{display:none}#rail{gap:16px}}
+@media (max-width:1180px){#rail{display:none}}
+
+/* ---------------- video placeholder: a shooting instruction, not a grey box ---------------- */
+.vslot{
+  border:1px dashed rgba(255,255,255,.22);border-radius:12px;padding:18px 20px;margin:22px 0;
+  background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.012))
+}
+.vslot-h{
+  font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--secc,#9fb0ad);margin-bottom:9px
+}
+.vslot-r{font-size:13.5px;color:#c8d2d0;line-height:1.55}
+.vslot-n{font-size:12.5px;color:var(--muted);margin-top:8px}
+.vslot-n b{color:#c8d2d0;font-weight:600}
+
+/* ---------------- hero ---------------- */
+.hero{position:relative;overflow:hidden;border-bottom:1px solid var(--line)}
+.hero-img{position:absolute;inset:0;z-index:0}
+.hero-img img{width:100%;height:100%;object-fit:cover;opacity:.62;filter:saturate(1.15)}
+.hero-img::after{
+  content:"";position:absolute;inset:0;
+  background:
+    radial-gradient(120% 90% at 50% 42%, rgba(7,10,12,0) 0%, rgba(7,10,12,.55) 48%, var(--bg) 88%),
+    linear-gradient(to bottom, rgba(7,10,12,.75) 0%, rgba(7,10,12,0) 25%, rgba(7,10,12,.9) 100%);
+}
+.hero-in{position:relative;z-index:1;padding:132px 0 70px}
+.eyebrow{
+  font-family:var(--mono);font-size:11px;letter-spacing:.26em;text-transform:uppercase;
+  color:var(--accent);margin:0 0 26px
+}
+.hero h1{
+  font-size:clamp(46px,8.2vw,96px);line-height:.96;margin:0 0 26px;
+  font-weight:300;letter-spacing:-.025em
+}
+.hero h1 i{font-style:italic;color:var(--accent)}
+.thesis{
+  font-family:var(--display);font-size:clamp(19px,2.4vw,25px);line-height:1.5;
+  color:#d3dbd9;max-width:30ch;margin:0 0 46px;font-weight:300
+}
+.spectrum{
+  height:2px;width:100%;margin:0 0 40px;border-radius:2px;
+  background:linear-gradient(90deg,var(--l400),var(--l460),var(--l500),var(--l540),var(--l580),var(--l620),var(--l680))
+}
+.stats{display:flex;flex-wrap:wrap;gap:14px}
+.stat{
+  background:var(--surface);border:1px solid var(--line);border-radius:11px;
+  padding:15px 20px 16px;backdrop-filter:blur(9px);min-width:168px;flex:1 1 168px
+}
+.stat .k{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--muted-2);display:block;margin-bottom:9px
+}
+.stat .v{
+  font-family:var(--mono);font-size:23px;font-weight:700;font-variant-numeric:tabular-nums;
+  letter-spacing:-.02em;display:flex;align-items:baseline;gap:8px
+}
+.stat .from{color:var(--bad)}
+.stat .arr{color:var(--muted-2);font-size:14px;font-weight:400}
+.stat .to{color:var(--good)}
+.stat .sub{font-size:12px;color:var(--muted-2);margin-top:5px;line-height:1.4}
+
+/* ---------------- sections ---------------- */
+section{padding:104px 0;border-bottom:1px solid var(--line)}
+section:last-of-type{border-bottom:0}
+.sec-label{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--secc,var(--accent));margin:0 0 16px;display:flex;align-items:center;gap:11px
+}
+.sec-label::before{content:"";width:22px;height:1px;background:var(--secc,var(--accent));opacity:.65}
+h2{font-size:clamp(30px,4.4vw,46px);line-height:1.1;margin:0 0 22px;font-weight:300}
+h3{font-size:22px;margin:44px 0 12px;font-weight:400;color:#e6ece9}
+p{margin:0 0 19px;color:#c2ccca}
+.lead{font-size:19px;line-height:1.62;color:#d5ddda;font-family:var(--display);font-weight:300}
+strong{color:var(--text);font-weight:600}
+code{
+  font-family:var(--mono);font-size:.85em;background:var(--surface-2);
+  padding:2px 6px;border-radius:4px;color:#d6e0dd;border:1px solid var(--line)
+}
+
+/* ---------------- schematics + screenshot slots ---------------- */
+.schem{
+  border:1px solid var(--line);border-radius:12px;background:var(--bg-lift);
+  padding:14px 10px;overflow-x:auto
+}
+.schem svg{width:100%;height:auto;display:block;max-width:900px;margin:0 auto}
+.slot{
+  border:1px dashed var(--line-2);border-radius:12px;min-height:180px;
+  display:flex;align-items:center;justify-content:center;text-align:center;
+  padding:28px 24px;font-family:var(--mono);font-size:12.5px;line-height:1.7;
+  color:var(--muted-2);background:var(--surface)
+}
+
+/* ---------------- figures ---------------- */
+figure{margin:44px 0}
+figure img{width:100%;display:block;border-radius:12px;border:1px solid var(--line);background:#000}
+figcaption{
+  margin-top:13px;font-size:13.5px;color:var(--muted);line-height:1.55;
+  display:flex;gap:9px;align-items:baseline
+}
+figcaption b{color:var(--muted-2);font-family:var(--mono);font-size:10px;letter-spacing:.14em;
+  text-transform:uppercase;white-space:nowrap;padding-top:2px}
+
+.paircap{margin-top:13px;font-size:13.5px;color:var(--muted);line-height:1.55;display:flex;gap:9px;align-items:baseline}
+.paircap b{color:var(--muted-2);font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap;padding-top:2px}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:760px){.pair{grid-template-columns:1fr}}
+.pane{position:relative}
+.pane img{width:100%;display:block;border-radius:11px;border:1px solid var(--line);background:#000}
+.tag{
+  position:absolute;top:11px;left:11px;font-family:var(--mono);font-size:10px;
+  letter-spacing:.12em;text-transform:uppercase;padding:4px 9px;border-radius:5px;
+  background:rgba(4,6,7,.8);border:1px solid var(--line-2);backdrop-filter:blur(6px)
+}
+.tag.a{color:var(--bad)} .tag.b{color:var(--good)}
+
+/* measured readout rows — straight from the reference UI */
+.readout{
+  margin:22px 0 0;border:1px solid var(--line);border-radius:11px;overflow:hidden;
+  background:var(--surface)
+}
+.readout .row{
+  display:flex;justify-content:space-between;align-items:center;gap:18px;
+  padding:11px 17px;border-bottom:1px solid var(--line);font-size:13.5px
+}
+.readout .row:last-child{border-bottom:0}
+.readout .row .lbl{color:var(--muted)}
+.readout .row .val{
+  font-family:var(--mono);font-variant-numeric:tabular-nums;font-weight:500;
+  font-size:13.5px;white-space:nowrap
+}
+.readout .row.hi .val{color:var(--accent);font-weight:700}
+.readout .row .val .d{color:var(--muted-2)}
+
+/* ---------------- roster table ---------------- */
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface);margin:34px 0}
+table{border-collapse:collapse;width:100%;min-width:640px;font-size:13.5px}
+th{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.15em;text-transform:uppercase;
+  text-align:left;color:var(--muted-2);padding:13px 16px;border-bottom:1px solid var(--line);
+  white-space:nowrap;font-weight:500
+}
+td{padding:11px 16px;border-bottom:1px solid rgba(255,255,255,.055);color:#bcc6c4;vertical-align:top}
+tr:last-child td{border-bottom:0}
+td:first-child{font-family:var(--mono);color:var(--text);font-weight:500;white-space:nowrap}
+td b{color:var(--text);font-weight:600}
+tr.key td{background:var(--accent-soft)}
+tr.key td:first-child{color:var(--accent)}
+
+/* ---------------- formula ---------------- */
+.formula{
+  margin:30px 0;padding:26px 28px;border-radius:12px;
+  background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.02));
+  border:1px solid var(--line);text-align:center
+}
+.formula .f{
+  font-family:var(--mono);font-size:clamp(14px,2.1vw,19px);color:var(--text);
+  letter-spacing:.01em;line-height:1.75
+}
+.formula .f .hl{color:var(--accent)}
+.formula .n{margin-top:14px;font-size:13px;color:var(--muted-2);line-height:1.5}
+
+/* ---------------- notes / honesty ---------------- */
+.note{
+  border-left:2px solid var(--secc,var(--accent));padding:3px 0 3px 22px;margin:30px 0;
+  color:var(--muted);font-size:15px
+}
+.note b{color:#dbe3e0}
+ul.clean{padding-left:0;list-style:none;margin:26px 0}
+ul.clean li{
+  padding:15px 0 15px 26px;border-bottom:1px solid var(--line);position:relative;
+  color:#bcc6c4;font-size:15px
+}
+ul.clean li:last-child{border-bottom:0}
+ul.clean li::before{
+  content:"";position:absolute;left:0;top:24px;width:7px;height:7px;border-radius:50%;
+  background:var(--secc,var(--accent));opacity:.75
+}
+ul.clean li b{color:var(--text)}
+
+/* ---------------- footer ---------------- */
+footer{padding:76px 0 96px;background:var(--bg-deep)}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:30px;margin-top:36px}
+.fgrid div .k{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--muted-2);display:block;margin-bottom:8px
+}
+.fgrid div .v{font-size:14.5px;color:#c2ccca;line-height:1.55}
+.scope{
+  margin-top:52px;padding:22px 26px;border:1px solid var(--line);border-radius:12px;
+  background:var(--surface);font-size:14.5px;color:var(--muted)
+}
+.scope b{color:var(--text)}
+
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media (max-width:640px){
+  .wrap{padding:0 20px}
+  .hero-in{padding:92px 0 54px}
+  section{padding:72px 0}
+}
+
+/* ---------------- index: card grid ---------------- */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:22px;margin:44px 0 10px}
+.card{
+  display:block;text-decoration:none;color:inherit;position:relative;overflow:hidden;
+  border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.022);
+  transition:border-color .3s, transform .3s, background .3s
+}
+.card:hover{border-color:var(--cc,#7a8a88);transform:translateY(-3px);background:rgba(255,255,255,.045)}
+.card::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:var(--cc,#666)}
+.card-in{padding:20px 22px 22px}
+.card .eyebrow{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.17em;text-transform:uppercase;
+  color:var(--cc,#8fa09d);opacity:.9
+}
+.card h3{font-family:var(--display),serif;font-size:22px;line-height:1.2;margin:9px 0 8px;font-weight:500}
+.card p{font-size:13.5px;line-height:1.6;color:var(--muted);margin:0 0 14px}
+.card-thumb{
+  border-radius:9px;overflow:hidden;border:1px solid var(--line);margin:0 0 14px;
+  background:#0c100f;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center
+}
+.card-thumb img,.card-thumb svg{width:100%;height:100%;object-fit:cover;display:block}
+.card-num{display:flex;align-items:baseline;gap:9px;margin-bottom:12px}
+.card-num b{font-family:var(--mono);font-size:19px;color:var(--cc,#d8e0de);font-weight:600;letter-spacing:-.01em}
+.card-num span{font-size:11.5px;color:var(--muted-2,#7f8b89)}
+.card-st{display:flex;gap:13px;flex-wrap:wrap;font-family:var(--mono);font-size:9.5px;
+  letter-spacing:.09em;color:var(--muted-2,#7f8b89);border-top:1px solid var(--line);padding-top:11px}
+
+/* ---------------- status marks: same object as a rail dot ---------------- */
+.st{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.st::before{content:"";width:9px;height:9px;border-radius:50%;flex:none;box-sizing:border-box}
+.st-a::before{background:var(--good,#7BD88F)}
+.st-b::before{background:linear-gradient(90deg,var(--l500) 50%,transparent 50%);border:1px solid var(--l500)}
+.st-c::before{border:1px solid var(--l580);background:none}
+.st-d::before{border:1px solid var(--muted-2,#7f8b89);background:none;border-radius:2px;transform:rotate(45deg)}
+
+/* ---------------- index: the honest ledger ---------------- */
+.chips{display:flex;gap:9px;flex-wrap:wrap;margin:26px 0 16px}
+.chip{
+  font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  padding:7px 13px;border-radius:999px;border:1px solid var(--line);background:none;color:var(--muted);
+  cursor:pointer;transition:border-color .25s,color .25s
+}
+.chip:hover{color:#d5dedc}
+.chip[aria-pressed="true"]{border-color:var(--accent,#EDA457);color:#e9efee}
+table.ledger{width:100%;border-collapse:collapse;font-size:13px}
+table.ledger th{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--muted-2,#7f8b89);text-align:left;padding:0 14px 9px 0;border-bottom:1px solid var(--line);font-weight:500
+}
+table.ledger td{padding:9px 14px 9px 0;border-bottom:1px solid rgba(255,255,255,.045);vertical-align:top}
+table.ledger td:nth-child(2){color:var(--muted)}
+table.ledger td:nth-child(3){font-family:var(--mono);font-size:11.5px;color:#c3ceccff}
+</style>
+<nav id="rail" aria-label="Sections">
+  <i id="railtrack"></i><i id="railfill"></i>
+  <a href="#claim" style="--dot:var(--l400)" data-s="claim"><span>The claim</span></a>
+  <a href="#aperture" style="--dot:var(--l460)" data-s="aperture"><span>Aperture</span></a>
+  <a href="#dof" style="--dot:var(--l500)" data-s="dof"><span>Depth of field</span></a>
+  <a href="#dead" style="--dot:var(--l540)" data-s="dead"><span>The dead model</span></a>
+  <a href="#switches" style="--dot:var(--l580)" data-s="switches"><span>Two switches</span></a>
+  <a href="#focal" style="--dot:var(--l600)" data-s="focal"><span>Focal length</span></a>
+  <a href="#inverse" style="--dot:var(--l620)" data-s="inverse"><span>Run backwards</span></a>
+  <a href="#absent" style="--dot:var(--l680)" data-s="absent"><span>Absent &amp; unnamed</span></a>
+</nav>
+
+<!-- ================= HERO ================= -->
+<header class="hero">
+  <div class="wrap hero-in">
+    <p class="eyebrow">The measurement device &middot; RadianceLab</p>
+    <h1>The camera is not<br>a <i>viewpoint</i></h1>
+    <p class="thesis">It is an aperture with a measure &mdash; and here every camera control either changes the transport or changes nothing.</p>
+    <p class="note" style="max-width:56ch;margin:14px 0 0;color:#9fb0ad">The lens model is the one subsystem in this renderer with two independent implementations of the same idea, of which only one has ever produced a pixel. This page is about which, and how that is known.</p>
+    <div class="spectrum"></div>
+    <div class="stats">
+      <div class="stat"><span class="k">Lens samples ever drawn</span>
+        <div class="v"><span class="from">0</span></div>
+        <div class="sub">every <span class="mono">generateRay</span> call site in the program passes a zero lens sample</div></div>
+      <div class="stat"><span class="k">Aperture implementations</span>
+        <div class="v"><span>2</span></div>
+        <div class="sub">different shape sets; the one in <span class="mono">src/camera/</span> has no writer outside it</div></div>
+      <div class="stat"><span class="k">Projection self-check</span>
+        <div class="v"><span class="to">15</span></div>
+        <div class="sub">probes at 0.05 px; on failure the gather refuses rather than draw wrong</div></div>
+      <div class="stat"><span class="k">Presets that set a focal length</span>
+        <div class="v"><span>14</span></div>
+        <div class="sub">across ten branches, 24&ndash;34 mm; one global reset stands between them and a leak</div></div>
+    </div>
+  </div>
+</header>
+
+<!-- ================= 01 · THE CLAIM ================= -->
+<section id="claim" style="--secc:var(--l400)" data-nav="The claim">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">01 &mdash; What a control has to reach</p>
+      <h2>A camera control is a transport change, or it is a lie</h2>
+      <p class="lead">In a rasteriser a camera is a matrix and the argument ends there. In a path tracer it is a measurement device: an aperture of finite area that light can physically arrive at, an importance function with units, and a mapping from world points to pixels that some estimators have to invert. Change the aperture and you have changed which light paths exist. Change the focal length and you have changed the measure every integrator in the program integrates against.</p>
+      <p>So a camera panel in a renderer like this one is making a claim every time it draws a slider, and the claim is checkable. There are exactly three things a lens control can reach here, and a control that reaches none of them is decoration no matter how physical its label:</p>
+      <ul class="clean">
+        <li><b>The ray generator the renderer actually calls.</b> <span class="mono">Camera::generateRay</span> is a virtual with three implementations. Whether a control reaches it is a question about call sites, and &sect;04 answers it.</li>
+        <li><b>A uniform the megakernel reads.</b> The GPU tracer builds its own primary ray and never calls the C++ camera at all, so a control reaches it only by way of an integer or a float named <span class="mono">uSomething</span>.</li>
+        <li><b>An estimator that inverts the projection.</b> Two of the photon-primitive strategies do not walk from the eye; they compute where a point lands on the film. Those read the camera backwards, and they check that they are allowed to (&sect;07).</li>
+      </ul>
+      <p>Every row below is graded by that test. The panel itself never says which column a control is in, and three of these look identical while they sit on opposite sides of it.</p>
+    </div>
+    <div class="tw"><table>
+      <thead><tr><th>Control</th><th>What it reaches</th><th>Grade</th></tr></thead>
+      <tbody>
+        <tr class="key"><td>Focal length</td><td>Field of view for <em>every</em> renderer &mdash; the megakernel through a uniform, the other CPU integrators by rebuilding a pinhole from <span class="mono">camera.fovY()</span></td><td><span class="st st-b">seen</span></td></tr>
+        <tr class="key"><td>Pinhole size</td><td>A uniform, and through it the BDPT strategy count: a finite aperture adds a connection strategy to the MIS denominator</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>f-stop / focus distance</td><td>Two uniforms; the megakernel's own thin-lens ray. GPU only</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>Aperture shape and its five parameters</td><td>One uniform and a rejection sampler in <span class="mono">pt_aperture.glsl</span>. GPU only, and <b>not</b> the enum of the same name in <span class="mono">src/camera/</span></td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>Focus indicator</td><td>The display image, after tonemap. A tint, not a measurement &mdash; the float film never sees it</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>Ctrl+1 / 2 / 3</td><td>The C++ camera class, which the megakernel does not read. Two log strings are the only consumers of the result</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>Tilt-shift block</td><td>Nothing. The Scheimpflug ray is written and correct; no field it needs has a writer</td><td><span class="st st-d">inert</span>, honestly marked (WIP)</td></tr>
+        <tr><td>Film size (43 mm)</td><td>Every field of view in the program &mdash; and it has no slider anywhere</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>Shutter open / close</td><td><span class="mono">ray.time</span>, which nothing downstream reads</td><td><span class="st st-d">absent</span></td></tr>
+      </tbody>
+    </table></div>
+    <div class="narrow">
+      <p class="note"><b>The one sentence a reader should keep.</b> Every depth-of-field pixel this program has produced came from a re-implementation, because <span class="mono">Camera::generateRay</span> has never once been called with a lens sample. The lens model that ships in <span class="mono">src/camera/</span> is complete, correct and unexercised; the lens that renders is a couple of dozen lines of GLSL in the megakernel. &sect;04 is that census.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 02 · APERTURE ================= -->
+<section id="aperture" style="--secc:var(--l460)" data-nav="Aperture">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">02 &mdash; The pinhole with a size</p>
+      <h2>Opening the pinhole adds a strategy to the MIS count</h2>
+      <p class="lead">The default camera is a pinhole, and the slider beside it gives the pinhole an <em>area</em>. The blur that results is uniform rather than depth-dependent &mdash; the ray origin moves on a disk and the direction is left alone, so there is no focus plane and nothing is sharp. As an image that is a curiosity. As transport it is the difference between a light path existing and not existing.</p>
+      <p>The naive light tracer walks from the emitter and contributes only when a ray <em>physically enters the aperture disk in space</em>. A point aperture has measure zero, so that strategy contributes with probability zero, and the panel says so in red the moment you select it: <em>Needs pinhole size &gt; 0!</em> &mdash; then, once it is positive but small, a second line in amber advising 500 mm or more. A tooltip that tells you the estimator you just picked cannot fire is doing the job of a paper's footnote.</p>
+      <p>The same radius is read one level up, inside the bidirectional path tracer's MIS weight. The strategy counter that normalises every connection asks whether the aperture is feasible before it counts the <span class="mono">s&nbsp;&ge;&nbsp;2, t&nbsp;=&nbsp;0</span> cell:</p>
+    </div>
+    <div class="formula">
+      <div class="f">bool aperFeasible = <span class="hl">_bdptAperRadius() &gt; 0.00001</span>;<br>
+      if (totalVerts &ge; 2 &amp;&amp; (uLightStrategy == 3 || uLightStrategy == 5) &amp;&amp; aperFeasible) count++;</div>
+      <div class="n">From <span class="mono">shaders/modules/pt_bdpt.glsl</span>. The aperture is not a post-process on the image; it is a term in the denominator of every other strategy's weight. Turn the pinhole up and the light-tracer aperture hit joins the mixture, and every other connection is re-weighted to make room for it.</div>
+    </div>
+    <div class="narrow">
+      <p>Two smaller pieces of the same panel are worth naming because they are the sort of thing that only gets built after somebody has lost an afternoon. The pinhole slider is on a <strong>perceptual power curve</strong> rather than linear, so the useful range is not compressed into the first two percent of its travel. And beneath it the panel prints a graded verdict &mdash; <em>Subtle</em>, <em>Moderate</em>, <em>Heavy blur</em>, with the millimetre figure &mdash; so a screenshot of the panel records what the picture should look like as well as what was set.</p>
+    </div>
+    <div class="slot">Screenshot — View &#9656; Camera &middot; preset 47 "Vol Caustic Lab" &middot; Render &#9656; Integrator &#9656; Light Tracer (naive) so the aperture warning is live &middot; shoot the panel TWICE at the same camera pose: once with Pinhole size 0 and the red "Needs pinhole size &gt; 0!" line showing, once at 500 mm with the "Heavy blur" verdict &middot; if you want the amber "Naive LT converges slowly. Try pinhole 500+ mm." line in shot as well, take a third frame on the way up, below 200 mm, because it stops being drawn above that &middot; include the viewport in both so the difference between an empty light-traced frame and a blurred one is in the same shot</div>
+    <div class="narrow">
+      <p class="note"><b>What that pair of frames proves.</b> Not that the blur is pretty &mdash; that the estimator's support changed. At pinhole 0 the naive light tracer has no target to hit and the frame is whatever the eye path alone found. At 500 mm the same light paths terminate on a disk that exists, and a whole family of connections starts contributing. It is the cleanest demonstration on this site that a camera parameter is a transport parameter.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 03 · DOF ================= -->
+<section id="dof" style="--secc:var(--l500)" data-nav="Depth of field">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">03 &mdash; The thin lens, and five shapes</p>
+      <h2>Bokeh is a rejection sampler, and the focus indicator is a tint</h2>
+      <p class="lead">Switch the model to Thin Lens and the aperture stops being a hole and becomes a lens: the ray origin moves on the aperture and the direction is re-aimed at the point where the pinhole ray crosses the focal plane. That is a real thin-lens camera, with an aperture radius derived the photographic way &mdash; focal length over f-stop, halved, in metres &mdash; from an f-stop slider that runs from 0.1 to 10000 on a log scale and a focus distance from 0.01 to 100 m.</p>
+      <p>The aperture it samples is not a disk unless you ask for one. Five shapes are implemented and rejection-sampled in the shader, each with its own parameters:</p>
+    </div>
+    <div class="readout">
+      <div class="row"><span class="lbl">Circle</span><span class="val">the concentric-disk default</span></div>
+      <div class="row"><span class="lbl">Polygon</span><span class="val">3 &ndash; 12 blades, tilt 0 &ndash; 360&deg;</span></div>
+      <div class="row"><span class="lbl">Star</span><span class="val">3 &ndash; 12 tips, tilt, inner radius 0.05 &ndash; 0.95 &mdash; <span class="d">lower = sharper tips</span></span></div>
+      <div class="row"><span class="lbl">Cross</span><span class="val">arm width 0.05 &ndash; 0.8, tilt; arms 2 &ndash; 8 on the slider, <span class="d">floored at 4 in the shader</span></span></div>
+      <div class="row"><span class="lbl">Ellipse</span><span class="val">aspect 0.1 &ndash; 3.0 &mdash; <span class="d">&lt;1 tall, &gt;1 wide</span></span></div>
+      <div class="row hi"><span class="lbl">Where it runs</span><span class="val mono">pt_aperture.glsl &mdash; GPU only</span></div>
+    </div>
+    <div class="narrow">
+      <p>Every one of those is <span class="st st-b">seen</span> in the catalogue and appears in no figure anywhere on this site, which makes the shaped-aperture block the largest photographable feature on this page.</p>
+
+      <h3>The focus indicator, and why it is not evidence</h3>
+      <p>What the roster calls DOF visualisation is one collapsing block in the Camera panel, spelled <em>DOF Visualization</em> there, and it holds three controls:</p>
+    </div>
+    <div class="tw"><table>
+      <thead><tr><th>Control</th><th>Range</th><th>Grade</th></tr></thead>
+      <tbody>
+        <tr><td>Focus Indicator</td><td>Off &middot; Green = In Focus &middot; Red = Out of Focus</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>Focus Sharpness</td><td>0.005 to 0.5 on a log slider, under the panel's own hint &mdash; &ldquo;Lower = thinner in-focus line&rdquo;. It sets how narrow a band counts as sharp, and nothing else</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>Auto-Focus (click viewport)</td><td>On, with an <em>Instant</em> sub-checkbox; otherwise the focus distance eases to the clicked point</td><td><span class="st st-b">seen</span></td></tr>
+      </tbody>
+    </table></div>
+    <div class="narrow">
+      <p>Two facts about it matter more than the modes. It is <strong>gated on the aperture radius</strong>, not on the camera model &mdash; <span class="mono">uFocusIndicator &gt; 0 &amp;&amp; uApertureRadius &gt; 0.0001</span> &mdash; so on a pinhole camera it does nothing however large you make the pinhole, which is correct (a uniform blur has no focal plane to indicate) and completely unexplained in the panel. And it is applied <strong>after</strong> exposure, Reinhard and gamma, straight onto the display image. It is a tint over a tonemapped frame, not a channel of the render. The linear film that every number on this site was measured from never sees it, which is exactly the property you want in a diagnostic overlay and exactly the property that makes it useless as a measurement.</p>
+    </div>
+    <div class="vslot"><div class="vslot-h">video &middot; An f-stop sweep with the focus plane drawn on it</div><div class="vslot-r">Preset 3 (Material Showcase), GPU path tracer, camera model = Thin Lens. Frame the sphere row obliquely so there is real depth from front to back. Set Focus Distance on the middle sphere by clicking it. Then sweep f-stop from 22 down to 1.4 over 10 s and hold; switch Focus Indicator from Off to "Green = In Focus" and hold 5 s; switch to "Red = Out of Focus" and hold 5 s; then set Aperture Shape to Star, tips 6, inner radius 0.15, and hold 8 s on a frame with a specular highlight behind the focal plane.</div><div class="vslot-n"><b>Watch for</b> The depth of field collapsing onto one sphere while the others bloom, then the green band appearing exactly where the collapse left the image sharp — the indicator and the blur are computed from the same two numbers, so they agree by construction. At the end, the out-of-focus highlights stop being discs and become six-pointed stars: that is a rejection sampler in the aperture, not a post-process on the image.</div></div>
+  </div>
+</section>
+
+<!-- ================= 04 · DEAD ================= -->
+<section id="dead" style="--secc:var(--l540)" data-nav="The dead model">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">04 &mdash; The census</p>
+      <h2><span class="mono">src/camera/</span> is a complete lens model that has never rendered a pixel</h2>
+      <p class="lead">There is a proper camera abstraction in this repository. A base class with a virtual ray generator, three concrete cameras, an aperture sampler with five shapes, a Scheimpflug tilted-film implementation, a shutter, and a projection routine documented as the exact inverse of the pinhole ray. It is good code. Almost none of it runs.</p>
+      <p>The test is a single grep, and it is the kind of check that is worth more than any amount of reading: <em>what is passed as the lens sample at every call site?</em></p>
+    </div>
+    <div class="formula">
+      <div class="f">Ray camRay = cam.generateRay(Vec2(uvx, uvy), <span class="hl">Vec2(0.0f)</span>, rng);</div>
+      <div class="n">Ten call sites, all in <span class="mono">src/render/PPIntegrator.cpp</span> &mdash; one in the camera walk, three in the primitive explorer's trace, one in the raster projection check, two in the correlated paths and three in the pass driver. All ten pass that literal <span class="mono">Vec2(0.0f)</span>; no call site anywhere in <span class="mono">src/</span> passes anything else. And no other renderer calls the class at all: the megakernel builds its primary ray in GLSL, and the other CPU integrators &mdash; MLT and PSSMLT, VCM, UPBP, path guiding, manifold exploration &mdash; each rebuild a bare pinhole from <span class="mono">position</span>, <span class="mono">lookAt</span> and <span class="mono">camera.fovY()</span>.</div>
+    </div>
+    <div class="narrow">
+      <p>Three consequences follow, and the third is the one that makes the section worth writing.</p>
+    </div>
+    <div class="tw"><table>
+      <thead><tr><th>Object</th><th>State</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr class="key"><td><span class="mono">ThinLensCamera</span>'s aperture sampling</td><td><span class="st st-d">never executes</span></td><td>Its lens sample is always the origin, under which it collapses exactly onto the pinhole ray. Every depth-of-field pixel came from the megakernel's own re-implementation instead</td></tr>
+        <tr class="key"><td><span class="mono">TiltShiftCamera</span> &mdash; the Scheimpflug ray</td><td><span class="st st-d">never executes</span></td><td>The tilted-film ray is really implemented. Every field it needs &mdash; <span class="mono">filmTiltX/Y</span>, <span class="mono">filmShiftX/Y</span>, <span class="mono">filmCurvature</span>, <span class="mono">apertureTiltX/Y</span>, <span class="mono">usePlanarFocalRef</span> &mdash; occurs only inside <span class="mono">src/camera/</span>. No writer, no uniform. It degenerates exactly to a thin lens, which degenerates to a pinhole</td></tr>
+        <tr class="key"><td><span class="mono">CameraParams::apertureShape</span></td><td><span class="st st-d">unreachable</span></td><td><b>The two-implementation finding.</b> The enum is <span class="mono">{ Circular, Hexagonal, Square, Star, Custom }</span> and it is read in exactly one place, inside <span class="mono">Camera::sampleAperture</span>, which is only ever called from the zero-lens path. The panel writes a <em>different</em> integer &mdash; <span class="mono">{ circle, polygon, star, cross, ellipse }</span> &mdash; into a GLSL uniform. Two aperture implementations, two different shape sets, one of them with no writer outside its own directory</td></tr>
+        <tr><td><span class="mono">chromaticAberration</span></td><td><span class="st st-d">absent</span></td><td>One declaration in <span class="mono">Camera.h</span>. Zero other references in <span class="mono">src/</span> or <span class="mono">shaders/</span></td></tr>
+      </tbody>
+    </table></div>
+    <div class="narrow">
+      <p class="note"><b>Why this is a finding and not a complaint.</b> Two implementations of one idea, diverging silently, is the failure mode this whole site is organised against &mdash; and it is invisible to every test that renders an image, because the image is <em>correct</em>. The megakernel's lens is right. The panel's shape list is right. Nothing looks wrong; there is simply a second camera model in the repository that agrees with the first only because it is never asked. It was found by grepping an argument position, which is the cheapest audit in this document and the one that returned the most.</p>
+      <p>The honest half: the tilt-shift block is labelled <em>(WIP)</em> in the panel, so it is a completeness gap rather than a lie. The aperture-shape divergence is not labelled anywhere.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 05 · SWITCHES ================= -->
+<section id="switches" style="--secc:var(--l580)" data-nav="Two switches">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">05 &mdash; Two switches, no wire between them</p>
+      <h2>Ctrl+3 builds a camera that no renderer reads</h2>
+      <p class="lead">There are two ways to change the camera model and they do different things to different objects. Nothing keeps them in step, and the panel shows only one of them.</p>
+      <ul class="clean">
+        <li><b>The hotkeys.</b> Ctrl+1, Ctrl+2 and Ctrl+3 call <span class="mono">Engine::setCameraType</span>, which destroys the current camera object and constructs a <span class="mono">PinholeCamera</span>, a <span class="mono">ThinLensCamera</span> or a <span class="mono">TiltShiftCamera</span> in its place. That function has three call sites in the program, and all three are those keys.</li>
+        <li><b>The panel radios.</b> Pinhole and Thin Lens write <span class="mono">m_ui.cameraModel</span>, an integer that is 0 or 1 and has no third value. That integer is what reaches <span class="mono">uCameraModel</span> and decides which branch the megakernel's primary-ray code takes.</li>
+      </ul>
+      <p>So the two switches move two different objects. Press Ctrl+3 and a tilt-shift camera really is constructed &mdash; and the megakernel keeps rendering whatever the radios last said, the estimator's zero lens sample collapses the new camera back onto a pinhole ray, and the panel still reads <em>Pinhole</em>. The only consumers of the class you just built are <span class="mono">typeName()</span>'s two readers, and one of them is the window frame: the <strong>title bar</strong>, rebuilt every frame as <span class="mono">RadianceLab | FPS | renderer | camera | frame</span>, and the estimator's own refusal message when a camera it cannot invert shows up (&sect;07).</p>
+      <p class="note"><b>A correction to this section.</b> It said the first of those two readers was a line in the frame log. It is not: the line <span class="mono">setCameraType</span> logs reports the <em>string it was passed</em> &mdash; &ldquo;pinhole&rdquo;, &ldquo;thin_lens&rdquo;, &ldquo;tilt_shift&rdquo; &mdash; and never asks the object what it is. So the only place in the program that interrogates the constructed camera and puts the answer where a person can see it is the operating system's window title, which is also the one place the mismatch in this section is visible without a console: press Ctrl+3 and the title bar changes while the panel does not.</p>
+      <p>Which makes the refusal message the interesting one. It is the single place in the program where the C++ camera class is allowed to change a rendering decision &mdash; and what it decides is to <em>stop</em>.</p>
+    </div>
+    <div class="slot">Screenshot — Any preset &middot; open View &#9656; Camera and View &#9656; Console side by side &middot; press Ctrl+3 &middot; shoot the whole application window, title bar included, in one frame: the title bar's fourth field now reading tilt_shift, the console line naming the camera type that was just constructed, and the Model radios still showing Pinhole selected &middot; leave the viewport visible and unchanged between them</div>
+    <div class="narrow">
+      <p class="note"><b>The fix is one line and it is not the point.</b> Syncing the radio to <span class="mono">setCameraType</span> would take a minute. What the shot records is a structural fact worth more than the fix: a program can hold two representations of the same user-visible state, keep both correct, and still be wrong &mdash; and the only reason anyone found out here is that a third component, the rasterised gather, refuses to run against a camera it has not verified.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 06 · FOCAL ================= -->
+<section id="focal" style="--secc:var(--l600)" data-nav="Focal length">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">06 &mdash; The one parameter everything honours</p>
+      <h2>A 43 mm sensor with no slider, and the leak that came out of it</h2>
+      <p class="lead">Field of view is derived, not set. The camera holds a film size in millimetres, takes sixty percent of it as the sensor height, and computes the vertical field of view from that and the focal length. So focal length is the only lens parameter that reaches every renderer in the program &mdash; the megakernel through a uniform, the estimator through <span class="mono">generateRay</span>, and every other CPU integrator by rebuilding its own pinhole from <span class="mono">camera.fovY()</span>.</p>
+    </div>
+    <div class="formula">
+      <div class="f">fovY = 2 &middot; atan( <span class="hl">0.6 &middot; filmSize</span> / (2 &middot; focalLength) )</div>
+      <div class="n"><span class="mono">filmSize</span> is 43 mm, the full-frame diagonal, and there is no slider for it anywhere in the interface. The only writer in the entire program is the comparison-report JSON importer, which round-trips it along with everything else. So the sensor is a constant that one file-load path can quietly change.</div>
+    </div>
+    <div class="narrow">
+      <h3>The leak</h3>
+      <p>Until recently exactly one preset set a focal length &mdash; <em>The Gate</em>, at 26 mm, chosen so the slot mouth lands where it should in frame. Presets do not reset what they do not set. So loading The Gate and then loading anything else left the camera at 26 mm forever: every later frame rendered at a vertical field of view of 52.8&deg; instead of 40.5&deg;, a thirty percent wider field, permanent until restart, with nothing on screen saying so.</p>
+      <p>The fix is one line in the preset prologue &mdash; <span class="mono">focalLength = 35.0f</span> before the dispatch &mdash; and the comment beside it is the part worth publishing:</p>
+      <p class="note"><b>&ldquo;The byte-identity harness is structurally blind to it, because every headless render launches a fresh process and so never loads two presets in sequence.&rdquo;</b> That is a whole class of bug named precisely. A regression suite built on rendering one scene and hashing the film cannot see state that only accumulates across scene loads, however many films it pins. The suite is not weak; it is answering a different question, and knowing which question a test answers is the difference between a gate and a comfort.</p>
+      <p>Fourteen presets now set a focal length, across ten dispatch branches: <em>The Gate</em>, the three rich rooms and the exterior Reliquary at 26 or 28 mm; the four gate-family apertures at 34, 26, 26 and 24 mm; and the five-member gloss series, one branch, at 30 mm because its subject is the halo around the ball rather than the ball. Each of those numbers is a framing decision recorded in source with its own comment; together they are the reason the reset had to exist.</p>
+
+      <h3>The dolly zoom, which is the leak's exception</h3>
+      <p><span class="mono">Q</span> in FPS capture pins a target at the current focus distance, stores the focal length and distance it started from, and then solves the focal length from the distance on every frame:</p>
+    </div>
+    <div class="formula">
+      <div class="f">f<sub>new</sub> = f<sub>ref</sub> &middot; ( d<sub>new</sub> / d<sub>ref</sub> ) &nbsp;&nbsp;<span class="hl">clamped to [4, 1200] mm</span></div>
+      <div class="n">A Hitchcock zoom, solved rather than keyframed &mdash; there are no keyframes anywhere in this program. Mouse look is locked out, only forward and back along the pinned axis are allowed, and you are stopped half a unit short of the target. Note the clamp range: the Camera panel's own focal-length slider runs 10 to 200 mm and cannot reach either end of it.</div>
+    </div>
+    <div class="narrow">
+      <p>The order within a frame is input, update, render. The dolly solve is in input; the preset prologue's 35 mm reset is in render. So <strong>with the dolly zoom on, both the reset and a preset's own focal length survive exactly one frame</strong> before the solver overwrites them &mdash; from a reference captured before the load, against a target still pinned in the previous scene's coordinates. The leak this section reports fixed is fixed only while the dolly is off, and the page says so rather than leaving the paragraph above it standing unqualified.</p>
+
+      <h3>And a correction to two of this site's own pages</h3>
+      <p>Both of them call what <span class="mono">Q</span> draws a &ldquo;read-out&rdquo;. It is not. It is a cinematic HUD: letterbox bars top and bottom, pulsing accent lines, a crosshair, four corner brackets, a <span class="mono">DOLLY ZOOM [Q]</span> title and a live <span class="mono">FL / ref</span> pair in the bottom bar. Two things about it were wrong on this site until now, and one thing about it is wrong in the program:</p>
+      <ul class="clean">
+        <li><b>By default, pressing Q shows none of it.</b> The whole HUD sits inside <span class="mono">renderPerformanceOverlay()</span>, after that function's early return &mdash; and the performance overlay defaults to off, because the FPS figure moved to the menu bar. Turn View &#9656; Performance on and the HUD appears; leave it off and the dolly zoom is invisible except in the panel.</li>
+        <li><b>Clean view hides none of it.</b> That was already recorded as one of the six overlays that survive <span class="mono">G</span>, and it is correct &mdash; conditional, now, on the performance overlay being on in the first place.</li>
+        <li><b>The panel beside it says the overlay does not exist.</b> The greyed <em>Debug Overlay</em> checkbox carries a disabled tooltip reading &ldquo;no dolly overlay was ever written&rdquo;. There are some fifty lines of one about a hundred and fifty lines further down the same file. The checkbox <em>is</em> inert &mdash; that part is true and honestly marked &mdash; but the sentence next to it is false, and it is exactly the kind of confident annotation that costs somebody an hour.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 07 · INVERSE ================= -->
+<section id="inverse" style="--secc:var(--l620)" data-nav="Run backwards">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">07 &mdash; The camera, inverted</p>
+      <h2>Fifteen probes, 0.05 pixels, and a component that refuses</h2>
+      <p class="lead">Most of this renderer walks from the eye, so the camera is a ray generator and nothing else. Two things here do not, and they need the camera run the other way: world point in, pixel out. That inverse is where the camera stops being a viewpoint in the most literal sense &mdash; it becomes a function whose correctness another component has to <em>establish</em> before it is allowed to use it.</p>
+      <ul class="clean">
+        <li><b>Strategy 17, the camera sphere,</b> is the camera-side dual of the light sweep: it sweeps the <em>camera</em> subpath into a manifold and splats the result onto the film. It produces a whole-image estimate per pass rather than a value per pixel, which is why it is the one member of the family that never reaches the per-pixel sampler at all &mdash; and the one strategy that opts out of correlated batching, because it returns before the branch.</li>
+        <li><b>The rasterised gather</b> inverts the projection for a different reason: to bound each primitive in screen space and walk scanlines, instead of tracing every pixel against every primitive. That bound is only conservative if the projection really is the inverse of the ray the gather generates.</li>
+      </ul>
+      <p>So it checks, and the check is the part of this page that earns it. Five pixel positions &mdash; the centre, two off-centre, two near corners &mdash; are turned into rays by the real <span class="mono">cam.generateRay</span>. Three points are taken along each ray at 0.5, 7 and 250 units. All fifteen are projected back. If any lands more than <strong>0.05 pixels</strong> from where it started, the rasteriser <em>refuses</em>:</p>
+    </div>
+    <div class="readout">
+      <div class="row"><span class="lbl">Probe grid</span><span class="val">5 pixel positions &times; 3 distances = <b>15</b></span></div>
+      <div class="row"><span class="lbl">Tolerance</span><span class="val">worst residual &lt; 0.05 px</span></div>
+      <div class="row hi"><span class="lbl">On failure</span><span class="val">refuses; names the camera; the tracing gather runs</span></div>
+      <div class="row"><span class="lbl">Film consequence</span><span class="val">none &mdash; the two paths are md5-identical when both run</span></div>
+    </div>
+    <div class="narrow">
+      <p>Read the guard's own comment and the reason it exists is a camera, not a bug: <em>&ldquo;a camera whose <span class="mono">generateRay</span> is not the pinhole formula (PP always passes a ZERO lens sample, under which <span class="mono">ThinLensCamera</span> happens to collapse onto the pinhole ray &mdash; CHECKED here rather than assumed, and a finite-aperture camera primitive would break it).&rdquo;</em> The word doing the work is <em>happens</em>. The collapse in &sect;04 is a coincidence of the zero lens sample, the author knew it was a coincidence, and rather than write it down as an invariant he wrote a fifteen-probe test that fires every time the raster path starts.</p>
+      <p>That is the shape of this whole project's relationship with its own camera. The correct thing is not to assume the pinhole; it is to <strong>measure</strong> that the pinhole assumption holds, at run time, and give up the optimisation rather than the answer when it does not. A component that would rather be slow than wrong is worth more than one that is fast and usually right, and it is why the finite-aperture camera primitive the guard's own comment names as the thing that would break it can be added later without silently corrupting anything.</p>
+      <p class="note"><b>The comment ends &ldquo;It was fired on purpose; see <span class="mono">ppMakeProj</span>.&rdquo;</b> The guard was not written and hoped for. Somebody broke the projection deliberately to watch it refuse. That is the difference between a check and a decoration, and it is the same standard the byte-identity harness on <a href="how-i-know.html" style="color:var(--l540)">How I know the pictures are right</a> is built to.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 08 · ABSENT ================= -->
+<section id="absent" style="--secc:var(--l680)" data-nav="Absent &amp; unnamed">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">08 &mdash; Written, and read by nothing</p>
+      <h2>Motion blur is one field away and zero renderers away</h2>
+      <p class="lead">Three things in the camera are finished on the writing side and have no reader. They are listed together because they share a shape: somebody built the producer, nobody built the consumer, and nothing in the interface admits it.</p>
+      <ul class="clean">
+        <li><b>Shutter.</b> <span class="mono">shutterOpen</span> and <span class="mono">shutterClose</span> exist, and every one of the three ray generators <em>consumes</em> them &mdash; each writes <span class="mono">ray.time</span> as a mix of the two, drawing a random number to do it. Nothing downstream reads <span class="mono">ray.time</span>. The draw is not wasted, as it happens: the estimator's correlated mode counts it as part of the three-float camera prefix it has to reproduce bit for bit, so a field nothing reads is load-bearing for a byte-identity guarantee. <span class="st st-d">absent</span></li>
+        <li><b>Chromatic aberration.</b> One boolean in the camera header, no other reference in the program. <span class="st st-d">absent</span></li>
+        <li><b>F12 / Render &#9656; Take Snapshot.</b> Logs <span class="mono">"Snapshot requested"</span> and returns. The only working image export in the program is the comparison report's 8-bit PNG writer, argued on <a href="the-instrument-panel.html" style="color:var(--l580)">The instrument panel</a>. <span class="st st-d">absent</span></li>
+      </ul>
+
+      <h3>And the surface every screenshot on this site is taken through</h3>
+      <p>One more inventory belongs here, because it is the largest thing on this site that has never been named: the interface itself. Every capture instruction on every page &mdash; press G, open this panel, read that line &mdash; is an instruction about a custom widget library and nine standalone panels that no page has ever described. They make no argument, so they get a ledger rather than a section.</p>
+    </div>
+    <div class="tw"><table>
+      <thead><tr><th>Panel</th><th>What is in it</th><th>Grade</th></tr></thead>
+      <tbody>
+        <tr class="key"><td>FancyWidgets</td><td><b>Nineteen</b> <span class="mono">Fancy*</span> entry points in one 2,859-line header &mdash; toggle, knob, slider, an emission slider with log, linear and signed modes, collapsing header, progress bar, radio group, colour badge, spinner, tooltip marker, separator text, mini plot, vec3 input, meter, LED, dropdown, tab bar &mdash; plus box groups, a coloured tab item and the knob and toggle row helpers, over a palette of <b>eight named styles</b> (Default, Ocean, Ember, Violet, Mint, Mono, Neon, Gold), of which the toggle carries all eight and the knob seven: there is no <span class="mono">KnobStyle_Neon</span>. It is why every screenshot on this site looks the way it does</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>UI Test panel and tab</td><td>Two different things under one name. The floating <em>panel</em> is a small demo &mdash; two toggles and a knob in the default style, beside a node-editor sample. The <em>tab</em> is the real gallery: six knob styles, three knob sizes at 36&times;18, 56&times;30 and 80&times;42 pixels, all eight toggle styles, meters, LEDs and progress bars &mdash; the widget library rendering itself. <b>Six knob styles, not eight</b>: the gallery omits Gold, and there is no Neon knob to omit, so the catalogue's count for this tab counts two styles it does not draw</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>Style Editor</td><td>One of <b>22</b> collapsing-header styles, set globally and then overridden in four named scopes &mdash; Render Settings, Scene, Properties, Camera &mdash; where &minus;1 means &ldquo;follow the global&rdquo; and one button puts all four back to it. Below that, small-widget vertical alignment in <em>absolute pixels</em> (&minus;4 to 8, default 2.0) and again as a relative factor (&minus;0.5 to 0.5, default 0.12), and a box-label grouping mode with its own colour</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>Scene Hierarchy</td><td>Parented multi-face entities with per-face leaves, visibility icons, right-click hide/show, a Scene Lights section that lists the environment light as a selectable entry, and a Scene Nodes section that focuses the node editor on a click</td><td><span class="st st-b">seen</span></td></tr>
+        <tr class="key"><td>Properties</td><td>Four tabs and two panels-within-the-panel. Where an entity becomes physical &mdash; argued at length on <a href="ten-integrators-one-scene.html" style="color:var(--l460)">Ten integrators, one scene</a></td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>Properties ▸ Transform</td><td>Position, scale and rotation, all three of them per primitive type and all three of them applied to the whole <em>selection group</em>, so dragging one face of a box moves, scales or turns all six. A sphere's &ldquo;Scale&rdquo; is three fields averaged back into one radius &mdash; there are no ellipsoids &mdash; and a plane gets a normal and an offset instead of a rotation. The rotation control is three fields of which the third does nothing: pitch and yaw are recovered from the primitive's normal, roll is written as zero, and only pitch and yaw are read back. There is exactly one rotated box in the repository, and it is built in C++</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>Console</td><td>Level filter from All to Suppress (which also silences stderr), a substring filter across body, technique and topic, Clear, Copy All, and per-line copy to clipboard</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>Performance overlay</td><td>Two numbers, FPS and milliseconds, in a borderless floating window &mdash; and, as &sect;06 found, the dolly HUD drawn from the same function, which is why it is not as dull as it looks</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>Render Settings shell</td><td>Four colour-coded categories opening 21 tabs, auto-wrapping to the window width, remembering the last tab you used <em>per category</em></td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>Active Integrators panel</td><td>Defaults visible and has <b>no menu entry</b>, so closing it leaves no route back short of deleting the layout file</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>Docking and layout persistence</td><td>A full dockspace with a default layout built once; the arrangement survives restart through <span class="mono">imgui.ini</span>, with no filename override set</td><td><span class="st st-b">seen</span></td></tr>
+      </tbody>
+    </table></div>
+    <div class="narrow">
+      <p class="note"><b>Why a ledger and not a section.</b> Every other page here exists because a subsystem makes an argument &mdash; about bias, about variance, about what a number means. This one does not: it is thirty widgets and ten panels, all working, all <span class="st st-b">seen</span>, none of them research. Listing them is the honest thing, expanding them would be padding, and the distinction between those two is the editorial rule this site is built on.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="spectrum" style="margin-bottom:34px"></div>
+    <h2 style="font-size:28px;margin:0 0 10px">RadianceLab</h2>
+    <p style="color:var(--muted);max-width:56ch;margin:0">A from-scratch physically-based renderer in C++ and OpenGL compute, written to make estimator research directly visible.</p>
+    <div class="fgrid">
+      <div><span class="k">Renderer</span><span class="v">GPU megakernel path tracer, rasterizer, and seven CPU integrators — photon mapping, VCM, MLT, PSSMLT, UPBP, path guiding</span></div>
+      <div><span class="k">This work</span><span class="v">31 strategy slots in the picker: 0–2 are the baselines the rest are measured against, 3–24 and 26–30 are the photon-primitive family, 25 is a rasterised gather, and 21 of the slots are analytic swept manifolds sharing one MIS network</span></div>
+      <div><span class="k">Validation</span><span class="v">Ratio and byte-identical harnesses, degenerate-limit pins, standalone numerical gates in Python</span></div>
+      <div><span class="k">Media</span><span class="v">Homogeneous and heterogeneous participating media, Henyey–Greenstein and Mie phase functions, dispersive dielectrics</span></div>
+    </div>
+    <div class="scope">
+      <b>Scope note.</b> This page covers one subsystem. The renderer also carries a structured-light projector and time-of-flight pipeline, off-axis holography with a GPU FFT and phase unwrapping, five physics solvers coupled to volumetric density, a node-graph material and projection editor with texture-space baking, and roughly 140 post-process and NPR passes. Those are documented separately.
+    </div>
+    <p style="margin:28px 0 0"><a href="index.html" style="color:var(--muted);font-size:13px;letter-spacing:.03em;text-decoration:none;border-bottom:1px solid var(--line)">&larr; All eleven threads</a></p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var links = Array.prototype.slice.call(document.querySelectorAll('#rail a'));
+  var secs  = links.map(function(a){ return document.getElementById(a.dataset.s); });
+  var fill  = document.getElementById('railfill');
+  var track = document.getElementById('railtrack');
+
+  links.forEach(function(a){
+    a.addEventListener('click', function(e){
+      var t = document.getElementById(a.dataset.s);
+      if (!t) return;
+      e.preventDefault();
+      t.scrollIntoView({ behavior:'smooth', block:'start' });
+      if (history.replaceState) history.replaceState(null, '', '#' + a.dataset.s);
+    });
+  });
+
+  function progress(){
+    if (!fill || !track) return;
+    var h = document.documentElement.scrollHeight - window.innerHeight;
+    var p = h > 0 ? Math.min(1, Math.max(0, window.scrollY / h)) : 0;
+    fill.style.height = (p * track.offsetHeight) + 'px';
+  }
+  var queued = false;
+  window.addEventListener('scroll', function(){
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(function(){ progress(); queued = false; });
+  }, { passive:true });
+  window.addEventListener('resize', progress, { passive:true });
+  progress();
+
+  if (!('IntersectionObserver' in window)) return;
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      var i = secs.indexOf(e.target);
+      if (i < 0) return;
+      links[i].classList.toggle('on', e.isIntersecting && e.intersectionRatio > 0.12);
+    });
+  }, { threshold:[0, .12, .5] });
+  secs.forEach(function(s){ if (s) io.observe(s); });
+})();
+</script>
+

@@ -1,0 +1,159 @@
+<!doctype html><html lang="en"><head><style data-portfolio-paint>html{background:#0b0d0c;color-scheme:dark}html.portfolio-booting body{opacity:0}</style><script src="../../../portfolio-navigation.js?v=688f1905bc"></script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Two charts, one refracted chain — RadianceLab</title><meta name="description" content="What the disk actually sweeps, why a plane need not add a bounce, and how the two charts meet on a common path measure."><meta name="color-scheme" content="dark"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="../../../portfolio.css?v=b7ed8602e5"><link rel="stylesheet" href="../../../portfolio-effects.css?v=62be30dafa"><link rel="stylesheet" href="../../../portfolio-atmospheres.css?v=4b74c57939"><link rel="stylesheet" href="../../../portfolio-motion.css?v=4b098d8184"><link rel="stylesheet" href="../../../portfolio-case-studies.css?v=243caf2b0d"><link rel="stylesheet" href="../../../portfolio-brochures.css?v=a1e5e16132"><link rel="stylesheet" href="../../../portfolio-project-themes.css?v=a898c35e78"><link rel="stylesheet" href="../../../portfolio-location.css?v=9c4c1ad84f"><link rel="stylesheet" href="../../../portfolio-controls.css?v=9376de7761"><link rel="stylesheet" href="../../../portfolio-media.css?v=c51f7712ea"><link rel="stylesheet" href="../../../portfolio-overviews.css?v=8612c4ee0a"><link rel="stylesheet" href="../../../portfolio-motivations.css?v=ccc1c1d866"><link rel="stylesheet" href="../../../portfolio-claims.css?v=058dbd00ef"><link rel="stylesheet" href="../../../portfolio-feature-atlas.css?v=e73f02cb31"><script type="application/json" id="media-framing">{"media/brochures/physics-2d/thermal-furnace-magnetic-field-probe.png":{"width":1602,"height":940,"top":39},"media/brochures/physics-2d/magnetic-field-direction-appearance-controls.png":{"width":1602,"height":940,"top":39},"media/brochures/physics-2d/time-bomb-blast-particle-plume.png":{"width":1602,"height":940,"top":39}}</script><script defer src="../../../portfolio-claims.js?v=ed914a4d3a"></script><script defer src="../../../portfolio-visual-defaults.js?v=eecfd5c771"></script><script defer src="../../../portfolio-motion.js?v=a642c710f9"></script><script defer src="../../../portfolio-fire-studies.js?v=7717e15582"></script><script defer src="../../../portfolio-embers.js?v=8a8be5569d"></script><script defer src="../../../portfolio-atmospheres.js?v=021b2f100e"></script><script defer src="../../../portfolio-effects.js?v=03a6c89d6c"></script><script defer src="../../../portfolio-brochures.js?v=055cad29d6"></script><script defer src="../../../portfolio-location.js?v=3846586893"></script><script defer src="../../../portfolio-media.js?v=d2d555a888"></script><script defer src="../../../portfolio-articles.js?v=acb89575ce"></script><script defer src="../../../portfolio-labs.js?v=a0b86a3809"></script><link rel="stylesheet" href="../../../portfolio-technical.css?v=0ecb3a48c7"><script defer src="../../../portfolio-technical.js"></script><!-- universal-navigation:start --><script defer src="../../../portfolio-routes.js?v=054b6b462c"></script><script defer src="../../../portfolio-universal-navigation.js?v=054b6b462c"></script><!-- universal-navigation:end --><style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head><body data-page="technical" data-project-theme="optics" data-project-id="radiance-lab" data-default-atmosphere="caustics"><canvas class="spark-field" aria-hidden="true"></canvas><a class="skip-link" href="#main">Skip to content</a><nav class="site-nav portfolio-route" data-route-group="flagships" aria-label="Portfolio location"><div class="route-path"><a class="route-node route-home" href="../../../index.html#project-radiance-lab" aria-label="Portfolio"><img class="route-mark" src="../../../media/identity/portfolio-mark.svg" alt="" width="52" height="52"><span class="route-copy"><small>Work / ideas</small><strong>Portfolio</strong></span></a><span class="route-wire" aria-hidden="true"><i></i><b></b></span><div class="route-node route-group"><span class="route-glyph" aria-hidden="true">✦</span><span class="route-copy"><small>Collection</small><strong>Flagship</strong></span></div><span class="route-wire" aria-hidden="true"><i></i><b></b></span><a class="route-node route-project" href="../index.html"><span class="route-glyph" hidden aria-hidden="true">◈</span><img class="route-thumb" src="../../../media/previews/radiance-lab/caustic-showcase.png" width="42" height="42" alt=""><span class="route-copy"><small>Project</small><strong>RadianceLab</strong></span></a><span class="route-wire" aria-hidden="true"><i></i><b></b></span><a class="route-node technical-route" href="index.html"><span class="route-copy"><small>Technical reading room</small><strong>Two charts, one refracted chain</strong></span></a></div><div class="route-end"><span class="route-meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><a class="route-back" href="../../../index.html#project-radiance-lab">← Back to portfolio</a></div></nav><nav class="section-rail technical-rail" aria-label="Technical document sections"><span class="rail-indicator" aria-hidden="true"></span><a href="#technical-top" data-section="technical-top"><span>⌂</span><span>Start</span></a><a href="#the-question-worth-testing" data-section="the-question-worth-testing" title="The question worth testing"><small>01</small><span>The question worth testing</span></a><a href="#does-a-plane-require-two-medium-bounces" data-section="does-a-plane-require-two-medium-bounces" title="Does a plane require two medium bounces?"><small>02</small><span>Does a plane require two medium bounces?</span></a><a href="#a-common-map-two-charts" data-section="a-common-map-two-charts" title="A common map, two charts"><small>03</small><span>A common map, two charts</span></a><a href="#the-cheap-solve-and-the-expensive-part" data-section="the-cheap-solve-and-the-expensive-part" title="The cheap solve and the expensive part"><small>04</small><span>The cheap solve and the expensive part</span></a><a href="#where-the-partner-can-help-and-where-it-can-lose" data-section="where-the-partner-can-help-and-where-it-can-lose" title="Where the partner can help—and where it can lose"><small>05</small><span>Where the partner can help—and where it can lose</span></a><a href="#area-light-planes-through-glass-the-next-experiment" data-section="area-light-planes-through-glass-the-next-experiment" title="Area-light planes through glass: the next experiment"><small>06</small><span>Area-light planes through glass: the next experiment</span></a><a href="#acceptance-and-recording-checklist" data-section="acceptance-and-recording-checklist" title="Acceptance and recording checklist"><small>07</small><span>Acceptance and recording checklist</span></a></nav><main id="main" class="project-page technical-page"><header id="technical-top" class="technical-hero"><span class="eyebrow">RadianceLab · Native implementation document</span><h1>Two charts, one refracted chain</h1><p>What the disk actually sweeps, why a plane need not add a bounce, and how the two charts meet on a common path measure.</p><div class="technical-actions"><a href="../index.html">← RadianceLab brochure</a><a href="index.html">Technical reading room</a><a href="../validation/index.html">Rendered evidence ↗</a></div></header><aside class="technical-scope"><span>◈</span><p>Implementation notes describe the native application. A working experiment, an approximate preview and a general transport estimator establish different things; each document states its own scope.</p></aside><article class="technical-document"><p>Status: 2026-09-19. Derivation and acceptance criteria for a bounded native experiment. Implementation and measured results belong in the experiment&#39;s recording/validation report; the derivation alone does not establish the accuracy of a finite numerical solver.</p>
+<h2 id="the-question-worth-testing">The question worth testing</h2><p>Can two different sheets describe the same sharp volume caustic more reliably than either sheet alone?</p>
+<p>Keep the transport class deliberately small:</p>
+<pre><code>point source L -&gt; glass entry S -&gt; glass exit S -&gt; one medium scatter V -&gt; camera E
+</code></pre>
+<p>The two glass events are deterministic transmissions. There is no medium bounce before the glass and exactly one after it. This keeps the source&#39;s structure visible instead of comparing the hourglass with a diffuse higher-order fog field. Reflections, internal reflection chains, heterogeneous media, arbitrary glass meshes and a refracted camera path are outside this first comparison.</p>
+<p>The hourglass holds the incident polar angle fixed and sweeps azimuth and exit distance. Its partner holds azimuth fixed and sweeps polar angle and exit distance. The latter is the refracted counterpart of RadianceLab&#39;s photon disk: a <strong>meridian disk chart</strong>, not a disk-shaped area emitter or a flat disk kernel placed at a scattering event.</p>
+<p>For a point source and a spherical lens, this meridian stays in a plane. The source, sphere center, interface normals and refracted rays share that plane. Glass changes its support and can fold different incident directions onto the same location. A cheap camera-plane crossing therefore leaves a nontrivial inverse problem; it does not finish the estimator.</p>
+<h2 id="does-a-plane-require-two-medium-bounces">Does a plane require two medium bounces?</h2><p>That depends on which coordinates generated it.</p>
+<div class="case-table-wrap technical-table" tabindex="0" role="region" aria-label="Technical comparison"><table>
+<thead>
+<tr>
+<th>Construction</th>
+<th>Coordinates swept</th>
+<th>Minimum medium scattering relevant here</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Two-flight distance plane</td>
+<td>Two flight distances on a photon chain</td>
+<td>A preceding medium vertex plus the final scattering event</td>
+</tr>
+<tr>
+<td>Existing native UV emitter plane, strategy 3</td>
+<td>Two coordinates of a quad light</td>
+<td>One medium scatter</td>
+</tr>
+<tr>
+<td>Existing native UV/UT/VT set, strategy 12</td>
+<td>Two of light U, light V and flight distance T</td>
+<td>One medium scatter</td>
+</tr>
+<tr>
+<td>Photon disk, strategy 8</td>
+<td>One direction angle and distance</td>
+<td>One medium scatter; the existing implementation does not refract through glass</td>
+</tr>
+<tr>
+<td>Hourglass, strategy 20</td>
+<td>Azimuth and exit distance through a spherical glass chain</td>
+<td>One medium scatter after glass</td>
+</tr>
+<tr>
+<td>Proposed/research refracted disk</td>
+<td>Polar angle and exit distance through the same chain</td>
+<td>The same one medium scatter after glass</td>
+</tr>
+</tbody></table></div>
+<p>The multiple-bounce distance construction is the one developed in the higher-dimensional photon-sample literature. It is not a universal definition of every possible planar sweep. The project&#39;s area-emitter plane code supplies its dimensions at the light instead. <a href="https://benedikt-bitterli.me/photon-planes/photon-planes.pdf" rel="noopener">Bitterli and Jarosz, <em>Beyond Points and Beams</em></a>.</p>
+<p>Higher scattering order does not make MIS mathematically forbidden. It makes two techniques disjoint if one generates only <code>LSSVE</code> and the other only a longer path class. They cannot rescue each other&#39;s singularities on a path neither can generate. The meridian partner is attractive precisely because it reaches the hourglass&#39;s own <code>LSSVE</code> paths.</p>
+<h2 id="a-common-map-two-charts">A common map, two charts</h2><p>Let the point source be <code>y</code>, the sphere center <code>C</code>, radius <code>R</code>, relative index <code>eta</code>, and <code>L=|C-y|</code>. Put <code>a=(C-y)/L</code>, choose perpendicular unit vectors <code>u,v</code>, and define</p>
+<pre><code>e(phi) = u cos(phi) + v sin(phi)
+phiHat = a cross e(phi)
+</code></pre>
+<p>For an incident polar angle <code>psi</code>, the sphere&#39;s two transmission events are described by</p>
+<pre><code>theta_i = asin(L sin(psi) / R)
+theta_t = asin(sin(theta_i) / eta)
+gamma   = psi - theta_i + 2 theta_t
+chi     = psi - 2 theta_i + 2 theta_t
+
+z2   = L + R cos(gamma)       rho2 = R sin(gamma)
+wz   = cos(chi)               wr   = sin(chi)
+exit = y + z2 a + rho2 e
+omega = wz a + wr e
+X(psi,phi,r) = exit + r omega
+</code></pre>
+<p><code>psi</code> lies in the sphere&#39;s incident cap, <code>0 &lt; psi &lt; asin(R/L)</code>. Positive <code>r</code> is the distance from the exit interface. All finite scene, medium and visibility tests apply after reconstructing the complete path.</p>
+<p>For a normalized camera ray <code>o+s d</code>, introduce the derivatives <code>X_psi</code>, <code>X_phi</code> and <code>X_r=omega</code> and</p>
+<pre><code>J_H = abs(dot(cross(X_phi, X_r), d))
+J_D = abs(dot(cross(X_psi, X_r), d))
+D   = abs(dot(X_psi, cross(X_phi, X_r)))
+</code></pre>
+<p>Hourglass samples <code>psi</code> with density <code>p_psi</code>, sweeping <code>(phi,r)</code>. Disk samples <code>phi</code> with density <code>p_phi</code>, sweeping <code>(psi,r)</code>. The per-branch densities induced along camera distance are</p>
+<pre><code>q_H(s,branch) = p_psi J_H / D
+q_D(s,branch) = p_phi J_D / D
+</code></pre>
+<p>These are expected crossing intensities: a sheet may deposit more than once. They need not integrate to one over the whole ray. Every valid crossing and every distinct refracted branch contributes.</p>
+<p>For uniform emitted solid angle on the incident cap, <code>p_psi=sin(psi)/(1-cos(psiMax))</code>; for the meridian chart, <code>p_phi=1/(2 pi)</code>. Other sampling laws are possible, but their actual densities must be used.</p>
+<p>Use the same physical numerator for both charts,</p>
+<pre><code>F = I(omega_in) sin(psi) T_entry T_exit
+    * sigma_s phase(omega,-d) Tr_light Tr_exit Tr_camera * visibility
+</code></pre>
+<p>Here <code>I</code> is emitted intensity per solid angle. The <code>sin(psi)</code> belongs to the angular integration measure. For source selection or sampled area-light positions, include their shared sampling factors consistently. Fresnel transmission is in <code>F</code> because both charts deterministically follow the transmitted branch; it is not a random branch probability in their chart densities. Glass absorption, if added, is another matched payload factor. The two interface radiance index factors cancel because the chain begins and ends in the same optical medium.</p>
+<p>The individual estimators deposit <code>F/(p_psi J_H)</code> or <code>F/(p_phi J_D)</code>. At a shared physical branch, <code>D</code> cancels from balance MIS:</p>
+<pre><code>A_H = p_psi J_H
+A_D = p_phi J_D
+w_H = n_H A_H / (n_H A_H + n_D A_D)
+w_D = n_D A_D / (n_H A_H + n_D A_D)
+</code></pre>
+<p>For one randomly selected chart per sample with probabilities <code>alpha_H</code> and <code>alpha_D</code>, each accepted root contributes</p>
+<pre><code>F / (alpha_H A_H + alpha_D A_D)
+</code></pre>
+<p>after accounting for any other shared sampled dimensions. Do not apply another factor of two to this one-sample mixture. The balance heuristic combines densities on a common measure and includes the actual sample allocation. <a href="https://graphics.stanford.edu/courses/cs348b-03/papers/veach-chapter9.pdf" rel="noopener">Veach, <em>Multiple Importance Sampling</em>, Chapter 9</a>.</p>
+<p>Per-branch is important: summing disk roots in one denominator while evaluating only the hourglass&#39;s actual branch in the other does not define a common weight. A valid alternative would marginalize <strong>all</strong> techniques over the same unknown branches, but is unnecessary here.</p>
+<h2 id="the-cheap-solve-and-the-expensive-part">The cheap solve and the expensive part</h2><p>For a sampled meridian, intersect the camera ray with its full plane:</p>
+<pre><code>s = dot(y-o,phiHat) / dot(d,phiHat)
+x = o+s d
+z = dot(x-y,a)
+rho = dot(x-y,e(phi))              // signed, not a length
+</code></pre>
+<p>Solve every admissible root of</p>
+<pre><code>R(psi) = wz (rho-rho2) - wr (z-z2) = 0
+r(psi) = wz (z-z2) + wr (rho-rho2) &gt; 0
+</code></pre>
+<p>The signed radial coordinate is essential. After focus, a ray emitted on the positive side of its meridian may cross to negative <code>rho</code>. The unrefracted disk&#39;s positive-half-plane rejection must not be copied blindly. A second sampled azimuth <code>phi+pi</code> represents different incident rays, even though its support plane is the same.</p>
+<p>Define</p>
+<pre><code>theta_i&#39; = L cos(psi) / (R cos(theta_i))
+theta_t&#39; = L cos(psi) / (eta R cos(theta_t))
+gamma&#39;   = 1 - theta_i&#39; + 2 theta_t&#39;
+chi&#39;     = 1 - 2 theta_i&#39; + 2 theta_t&#39;
+M        = R cos(theta_i) gamma&#39; + r chi&#39;
+</code></pre>
+<p>Then <code>R&#39;(psi)=-M</code> when <code>r</code> is the projection above, including away from a root. This gives the inverse solver an analytic derivative. At a root,</p>
+<pre><code>rho_signed = rho2 + r wr
+m = wz e(phi) - wr a
+J_H = abs(rho_signed) abs(dot(m,d))
+J_D = abs(M) abs(dot(phiHat,d))
+D   = abs(rho_signed M)
+</code></pre>
+<p>These formulas give a cheap independent check of the vector derivatives. Changing from <code>psi</code> to <code>c=cos(psi)</code> divides <code>J_D</code> and <code>D</code> by <code>sin(psi)</code> while replacing <code>p_psi</code> with <code>p_c sin(psi)</code> in the sampled-angle density. The full estimator must change coordinates consistently; mixing the cosine-coordinate Jacobian with the polar-angle numerator is an energy error.</p>
+<p>A fixed sign-change grid can miss two nearby roots around a fold. Bracket stationary points using <code>R&#39;</code>, subdivide monotonic intervals, bracket <code>R</code> on each interval and refine in double precision. Check root convergence under further subdivision. A finite root grid without a completeness argument remains a numerical limitation; increasing it is a useful diagnostic, not a proof.</p>
+<h2 id="where-the-partner-can-help-and-where-it-can-lose">Where the partner can help—and where it can lose</h2><ul>
+<li>At a meridian fold, <code>M</code> approaches zero. Disk-only contributions can become large; the hourglass&#39;s branch density rises there and its MIS share takes over.</li>
+<li>When the camera is tangent to the hourglass, <code>J_H</code> is small. A non-grazing disk crossing can provide the alternative.</li>
+<li>When the camera lies nearly within a meridian plane, the disk has poor conditioning. Its own MIS share should shrink.</li>
+<li>Near the axis and combinations of grazing/fold conditions, both constructions require care. A two-chart mixture does not guarantee bounded variance in every scene.</li>
+<li>The hourglass&#39;s analytic quadric can be much cheaper than the disk&#39;s all-root inverse. A mixture that wins per sample can still lose per second.</li>
+<li>Ideal point-source caustics can be singular. Pixel filtering and sufficient sampling matter; tone mapping and bloom are display choices, not evidence of estimator convergence.</li>
+</ul>
+<p>An entirely useful outcome is: <strong>the meridian is a valid alternate chart, but the hourglass alone is the practical choice in this setup</strong>. The experiment should preserve that result rather than tune a scene solely to force a win.</p>
+<h2 id="area-light-planes-through-glass-the-next-experiment">Area-light planes through glass: the next experiment</h2><p>An area source can supply sweep dimensions without any pre-glass medium scattering. Write its position as <code>Y(u,v)</code> and the full refracted map as <code>X(u,v,theta,phi,r)</code>. For fixed sampled incoming direction:</p>
+<ul>
+<li>UV samples <code>r</code> and sweeps light position <code>(u,v)</code>.</li>
+<li>UT samples <code>v</code> and sweeps <code>(u,r)</code>.</li>
+<li>VT samples <code>u</code> and sweeps <code>(v,r)</code>.</li>
+</ul>
+<p>Through a sphere, UV generally becomes a curved surface; UT and VT remain ruled in exit distance but are not generally planes. Their camera crossing is a nonlinear solve. A rotated source coordinate basis gives additional emitter-line charts; it does not itself create a new scattering order.</p>
+<p>To MIS these with a point-sampled hourglass, condition on the <strong>same area emitter</strong> and compare joint densities on the same remaining path coordinates, including source-area Jacobians. The disk/hourglass&#39;s convenient cancellation for a fixed source point cannot simply be reused while treating a swept source location as if it had been sampled.</p>
+<p>A large quad may give useful broad sheet support, but it also averages displaced caustics and can reduce source-to-glass interception. Keep emitted power and camera exposure matched when comparing source sizes. This area-light extension is a proposal until its inverse solver, support and measure have been implemented and checked. It should not be captioned as an existing refracted UV/UT/VT renderer.</p>
+<h2 id="acceptance-and-recording-checklist">Acceptance and recording checklist</h2><ol>
+<li>Index one recovers the same cap-restricted cone and meridian estimators without refraction.</li>
+<li>Snell construction, analytic derivatives and finite-difference derivatives agree away from singular endpoints.</li>
+<li>Round trips retain pre-focus and post-focus signed branches; multiple-root test cases are explicit.</li>
+<li>Common weights are finite/nonnegative and sum to one on valid shared paths. Visibility, finite-medium bounds and numerical rejection gates agree between cross-evaluations.</li>
+<li>Compare hourglass, disk and declared mixture against camera-distance integration of the same branch-resolved transport. This reference is separately parameterized but still shares the Snell model, so it is not an independent general path tracer.</li>
+<li>Show a narrow caustic, a camera grazing one sheet family, and a failure case. Report raw linear error as well as matched-exposure images.</li>
+<li>Compare equal samples <strong>and equal wall time</strong>. Record root work and missed/invalid roots rather than presenting only the cheapest plane crossing.</li>
+<li>Clearly separate the native numerical experiment from the browser&#39;s illustrative mesh and display glow. Neither a finite root solve nor a beautiful image alone justifies a universal unbiasedness or speed claim.</li>
+</ol>
+<p>Local references: <code>docs/hourglass/hg_mis_spec_full.txt</code>, <code>docs/hourglass/FLAVOURS.md</code>, <code>src/render/PPIntegrator.cpp</code> strategies 3/8/12/20, <code>src/render/SurfaceCurveMeasure.h</code>. The last file concerns forward receiver curves; its equal emitted-direction marginals do not imply equal inverse-camera chart weights.</p>
+</article><footer class="technical-footer"><div class="technical-actions"><a href="../index.html">← RadianceLab brochure</a><a href="index.html">Technical reading room</a><a href="../validation/index.html">Rendered evidence ↗</a></div></footer></main></body></html>

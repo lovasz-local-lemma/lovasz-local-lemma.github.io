@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+  <head><style id="portfolio-early-paint">html{background:#0b0d0c;color-scheme:dark}html.portfolio-booting body{opacity:0}</style><script src="../../portfolio-navigation.js"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Membrane · One surface, two routes to equilibrium</title>
+    <script type="module" crossorigin src="./assets/index-CSwNQgyB.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-Dk-RmCpg.css">
+    <link rel="stylesheet" href="./portfolio-return.css">
+<link rel="stylesheet" href="../../portfolio-controls.css"><link rel="stylesheet" href="../../portfolio-demo-return.css"><script defer src="../../portfolio-demo-return.js" data-project="membrane" data-title="Minimal Membrane" data-overview="projects/membrane/overview.html" data-group="graphics" data-thumbnail="media/projects/membrane/source-1.webp" data-routes="[{&quot;project&quot;:&quot;membrane&quot;,&quot;title&quot;:&quot;Minimal Membrane&quot;,&quot;group&quot;:&quot;graphics&quot;,&quot;thumbnail&quot;:&quot;media/projects/membrane/source-1.webp&quot;,&quot;overview&quot;:&quot;projects/membrane/overview.html&quot;,&quot;path&quot;:&quot;live_demos/membrane/index.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:2},{&quot;project&quot;:&quot;membrane&quot;,&quot;title&quot;:&quot;Minimal Membrane&quot;,&quot;group&quot;:&quot;graphics&quot;,&quot;thumbnail&quot;:&quot;media/projects/membrane/source-1.webp&quot;,&quot;overview&quot;:&quot;projects/membrane/overview.html&quot;,&quot;path&quot;:&quot;live_demos/membrane/index.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:1},{&quot;project&quot;:&quot;membrane&quot;,&quot;title&quot;:&quot;Minimal Membrane&quot;,&quot;group&quot;:&quot;graphics&quot;,&quot;thumbnail&quot;:&quot;media/projects/membrane/source-1.webp&quot;,&quot;overview&quot;:&quot;projects/membrane/overview.html&quot;,&quot;path&quot;:&quot;live_demos/membrane/&quot;,&quot;query&quot;:{},&quot;priority&quot;:-1}]"></script><!-- universal-navigation:start --><link rel="stylesheet" href="../../portfolio-location.css?v=054b6b462c"><script defer src="../../portfolio-location.js?v=054b6b462c"></script><script defer src="../../portfolio-routes.js?v=054b6b462c"></script><script defer src="../../portfolio-universal-navigation.js?v=054b6b462c"></script><!-- universal-navigation:end --><style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head>
+  <body>
+    <main id="app">
+      <aside id="theory" aria-label="How the two membrane methods work">
+        <header class="theory-heading">
+          <span class="eyebrow">A controlled comparison</span>
+          <h2>One boundary.<br>Two routes to rest.</h2>
+          <p>Pin the same triangular sheet to a wire loop. Find a small-area surface directly, or let surface tension move it there.</p>
+        </header>
+        <svg class="energy-sketch" viewBox="0 0 240 96" role="img" aria-label="Two schematic paths descend the same area landscape: direct descent in mint and an oscillating damped path in amber.">
+          <path d="M12 10V82H229" fill="none" stroke="#789492" opacity=".5"/>
+          <path d="M22 20Q108 112 220 24" fill="none" stroke="#c0a4ff" stroke-width="2" opacity=".5"/>
+          <path d="M29 25L54 44 78 57 101 63 120 65" fill="none" stroke="#9fe8dc" stroke-width="2.5"/>
+          <path d="M31 28C80 98 186 5 146 65S95 40 120 65" fill="none" stroke="#ffcf9a" stroke-width="2"/>
+          <circle cx="120" cy="65" r="4" fill="#eafff9"/>
+          <text x="19" y="12" fill="#bed0cf" font-size="10">area landscape · schematic</text>
+        </svg>
+        <article class="method-card optimizer-theory">
+          <div class="method-title"><span class="swatch" data-solver="optimizer"></span><h3>Optimizer</h3><span>01</span></div>
+          <p>Move down the area gradient. Each step forgets the previous motion.</p>
+          <div class="formula">x ← x − α ∇A</div>
+          <small>No inertia. The step is bounded for stability and capped per vertex.</small>
+        </article>
+        <article class="method-card physical-theory">
+          <div class="method-title"><span class="swatch" data-solver="physical"></span><h3>Physical</h3><span>02</span></div>
+          <p>The same gradient becomes a force. Velocity carries motion forward; damping removes it.</p>
+          <div class="formula">force = −∇A + downward load</div>
+          <small>Momentum can overshoot. Gravity affects this solver only.</small>
+        </article>
+        <details class="theory-detail">
+          <summary>Why compare them?</summary>
+          <p>At zero gravity both target stationarity of the same discrete area energy, ∇A = 0 at free vertices. Their transients and rate of convergence differ.</p>
+          <p>Try <b>Run</b>, reduce damping, then add gravity. A loaded physical equilibrium need not minimize area alone.</p>
+          <p>This is not a timing benchmark: Compare uses three optimizer iterations and five physical substeps per frame.</p>
+        </details>
+        <details class="theory-detail">
+          <summary>Model &amp; measurement</summary>
+          <p>A is the sum of triangle areas. The boundary is fixed and both meshes retain the same disk connectivity; there is no tearing, remeshing or topology search.</p>
+          <p>The physical update uses equal implicit vertex masses, a scaled downward load, per-substep damping and a speed limit. Its time and gravity are demonstration parameters, not calibrated material units.</p>
+          <p>Both routes include tangential mesh smoothing. Nonlinear geometry and discretization mean convergence to one identical global minimum is not guaranteed.</p>
+          <p>The coil and knot presets are topology stress cases: their radial disk mesh can degenerate and fail to settle. A general soap-film solver would need a different mesh or topology treatment.</p>
+          <p><b>Δy = y<sub>physical</sub> − y<sub>optimizer</sub></b> compares matched mesh vertices. They may also drift sideways: arrows and the pale zero contour are not a closest-surface distance or an exact intersection curve.</p>
+          <p>Area-normalized gradient magnitude approximates |2H| at free vertices. It reduces mesh-spacing dependence; it is still a discrete estimate. A gravity-loaded equilibrium can have nonzero area gradient.</p>
+          <p>The thin-film shader supplies optical color only. Thickness and color flow do not feed back into either solver.</p>
+        </details>
+      </aside>
+      <section id="viewport" aria-label="Membrane viewport">
+        <div class="viewport-heading"><span class="eyebrow">Membrane laboratory</span><strong id="view-label">Optimizer ← matched geometry → Physical</strong></div>
+        <p class="viewport-guide">Drag to orbit · wheel to zoom <span>Run evolves the mesh · Step advances once</span></p>
+      </section>
+      <aside id="panel" aria-label="Simulation controls">
+        <a class="portfolio-return" href="../../projects/membrane/index.html" aria-label="Back to this project's portfolio page"><span aria-hidden="true">←</span> Project overview</a>
+        <div class="panel-header">
+          <h1>Membrane Physics</h1>
+          <div id="status-pill">Ready</div>
+        </div>
+
+        <div class="control-block">
+          <label for="mode">Solver</label>
+          <div class="segmented" id="mode" role="group" aria-label="Solver mode">
+            <button data-mode="optimizer" aria-pressed="false">Optimizer</button>
+            <button data-mode="physical" aria-pressed="false">Physical</button>
+            <button data-mode="compare" class="active" aria-pressed="true">Compare</button>
+          </div>
+        </div>
+
+        <div class="control-block" id="compare-controls">
+          <label>Two independent display options</label>
+          <div class="comparison-options" role="group" aria-label="Compare view options">
+            <button id="toggle-split" type="button" class="active" aria-pressed="true"><span class="option-symbol" aria-hidden="true">◧ ◨</span><span>Side by side<small>Separate the two surfaces</small></span><output>On</output></button>
+            <button id="toggle-diff" type="button" class="active" aria-pressed="true"><span class="option-symbol" aria-hidden="true">↑↓</span><span>Difference arrows<small>Signed height difference Δy</small></span><output>On</output></button>
+          </div>
+          <p class="legend-note" id="compare-hint">
+            Side by side: optimizer left · physical right. On the left surface: red ↑ means positive Δy;
+            blue ↓ means negative Δy. The pale contour marks Δy = 0 for matched vertices.
+          </p>
+        </div>
+
+        <div class="control-block">
+          <label id="boundary-label" for="boundary-button">Boundary</label>
+          <div class="dropdown" id="boundary-picker" data-open="false">
+            <button
+              class="dropdown-button"
+              id="boundary-button"
+              type="button"
+              aria-haspopup="listbox"
+              aria-expanded="false"
+              aria-labelledby="boundary-label boundary-value"
+            >
+              <span id="boundary-value">Saddle loop</span>
+            </button>
+            <div class="dropdown-menu" id="boundary-menu" role="listbox" aria-labelledby="boundary-label">
+              <button type="button" role="option" data-boundary="circle">Circle</button>
+              <button type="button" role="option" data-boundary="saddle" aria-selected="true">Saddle loop</button>
+              <button type="button" role="option" data-boundary="twist">Twisted oval</button>
+              <button type="button" role="option" data-boundary="flower">Flower loop</button>
+              <button type="button" role="option" data-boundary="spiral">Spiral ribbon</button>
+              <button type="button" role="option" data-boundary="cage">Smooth cage</button>
+              <button type="button" role="option" data-boundary="coil">Coil stack</button>
+              <button type="button" role="option" data-boundary="orbit">Orbital cells</button>
+              <button type="button" role="option" data-boundary="knot">Lissajous knot</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="button-row">
+          <button id="play">Run</button>
+          <button id="step">Step</button>
+          <button id="reset">Reset</button>
+        </div>
+
+        <div class="control-block">
+          <label for="resolution">Resolution</label>
+          <input id="resolution" type="range" min="24" max="128" step="8" value="80" />
+        </div>
+
+        <div class="control-block">
+          <label for="relaxation">Step strength</label>
+          <input id="relaxation" type="range" min="0.02" max="0.3" step="0.01" value="0.09" />
+        </div>
+
+        <div class="control-block">
+          <label for="damping">Damping <span>physical only</span></label>
+          <input id="damping" type="range" min="0.01" max="0.22" step="0.01" value="0.08" />
+        </div>
+
+        <div class="control-block">
+          <label for="gravity">Gravity <span>physical only</span></label>
+          <input id="gravity" type="range" min="0" max="1.4" step="0.05" value="0.0" />
+        </div>
+
+        <div class="control-block">
+          <label for="thickness">Film thickness</label>
+          <input id="thickness" type="range" min="120" max="900" step="10" value="420" />
+        </div>
+
+        <div class="control-block">
+          <label for="flow">Color flow</label>
+          <input id="flow" type="range" min="0" max="2" step="0.05" value="0.7" />
+        </div>
+
+        <p class="metrics-label">Diagnostics · <b id="metrics-solver">Optimizer</b></p>
+        <dl id="metrics">
+          <div>
+            <dt>Optimizer area</dt>
+            <dd id="optimizer-area">0.000</dd>
+          </div>
+          <div>
+            <dt>Physical area</dt>
+            <dd id="physical-area">0.000</dd>
+          </div>
+          <div>
+            <dt title="Mean |grad A| per free vertex. Scales with mesh spacing, so it is NOT comparable across resolutions.">Residual</dt>
+            <dd id="residual">0.000</dd>
+          </div>
+          <div>
+            <dt title="Mean |grad A| / barycentric vertex area. A discrete approximation of |2H|, less dependent on mesh spacing than the raw residual.">Curvature proxy |2H|</dt>
+            <dd id="mean-curvature">0.000</dd>
+          </div>
+          <div>
+            <dt title="Maximum |y_physical − y_optimizer| over matched mesh vertices, not the nearest-point distance between surfaces.">Max matched |Δy|</dt>
+            <dd id="height-diff">0.000</dd>
+          </div>
+        </dl>
+      </aside>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="en">
+<head><style id="portfolio-early-paint">html{background:#0b0d0c;color-scheme:dark}html.portfolio-booting body{opacity:0}</style><script src="../../portfolio-navigation.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hackenbush Lab — What the Engine Does (and Doesn't)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Space+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+  :root {
+    --bg: #f4efe4;
+    --surface: #fffdf8;
+    --surface-2: #faf6ec;
+    --ink: #132135;
+    --muted: #5f5e5a;
+    --line: rgba(19, 33, 53, 0.12);
+    --teal: #1f8f87;
+    --blue: #2f6fde;
+    --red: #d83a2f;
+    --green: #3b9a3b;
+    --amber: #b9810f;
+    --heading: "Fraunces", Georgia, serif;
+    --body: "Space Grotesk", system-ui, sans-serif;
+    --mono: "JetBrains Mono", monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0a1324;
+      --surface: #14233b;
+      --surface-2: #16253d;
+      --ink: #e8eefa;
+      --muted: #9aa6bd;
+      --line: rgba(255, 255, 255, 0.12);
+      --teal: #46c0b6;
+      --blue: #6ea2ff;
+      --red: #ff7a6e;
+      --green: #7ed27e;
+      --amber: #e3b35a;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { scrollbar-width: thin; scrollbar-color: rgba(31,143,135,0.45) transparent; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--body);
+    line-height: 1.65;
+    font-size: 16px;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 48px 22px 96px; }
+  header.hero { margin-bottom: 8px; }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin: 0 0 8px;
+  }
+  h1 { font-family: var(--heading); font-weight: 600; font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.08; margin: 0 0 10px; }
+  h2 { font-family: var(--heading); font-weight: 600; font-size: 1.5rem; margin: 56px 0 6px; padding-top: 14px; border-top: 1px solid var(--line); }
+  h3 { font-family: var(--heading); font-weight: 600; font-size: 1.12rem; margin: 26px 0 4px; }
+  p { margin: 10px 0; }
+  a { color: var(--teal); }
+  .lede { font-size: 1.18rem; color: var(--muted); margin: 0 0 14px; max-width: 64ch; }
+  code, .mono { font-family: var(--mono); font-size: 0.9em; }
+  code { background: var(--surface-2); border: 1px solid var(--line); border-radius: 5px; padding: 0.05em 0.4em; }
+  .rbg-b { color: var(--blue); font-weight: 600; }
+  .rbg-r { color: var(--red); font-weight: 600; }
+  .rbg-g { color: var(--green); font-weight: 600; }
+  .callout {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--teal);
+    border-radius: 12px;
+    padding: 18px 22px;
+    margin: 22px 0;
+  }
+  .callout.warn { border-left-color: var(--amber); }
+  .callout h3 { margin-top: 0; }
+  ul, ol { padding-left: 22px; }
+  li { margin: 5px 0; }
+  .toc {
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px 20px;
+    margin: 28px 0;
+    font-size: 0.95rem;
+  }
+  .toc strong { font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 6px; }
+  .toc a { text-decoration: none; display: inline-block; margin: 3px 14px 3px 0; }
+  .status-list { list-style: none; padding: 0; margin: 14px 0; }
+  .status-list li { display: flex; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--line); align-items: flex-start; }
+  .status-list li:last-child { border-bottom: 0; }
+  .badge {
+    flex: 0 0 auto;
+    width: 24px; height: 24px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 7px; font-size: 0.82rem; font-weight: 600; margin-top: 2px;
+  }
+  .b-done { background: rgba(59,154,59,0.16); color: var(--green); }
+  .b-partial { background: rgba(185,129,15,0.16); color: var(--amber); }
+  .b-planned { background: rgba(47,111,222,0.16); color: var(--blue); }
+  .b-out { background: rgba(216,58,47,0.14); color: var(--red); }
+  .status-list .name { font-weight: 600; }
+  .status-list .note { color: var(--muted); font-size: 0.95rem; }
+  .ww { font-style: italic; color: var(--muted); }
+  .tick { color: var(--green); font-weight: 600; }
+  .cross { color: var(--red); font-weight: 600; }
+  .video-card { display: flex; gap: 16px; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; margin: 16px 0; }
+  .video-card .play { flex: 0 0 auto; width: 52px; height: 52px; border-radius: 50%; background: var(--red); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; text-decoration: none; }
+  .video-card .meta { font-size: 0.95rem; }
+  .video-card .meta a { font-weight: 600; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; font-size: 0.93rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  footer { margin-top: 64px; padding-top: 18px; border-top: 1px solid var(--line); color: var(--muted); font-size: 0.9rem; }
+  .pill { font-family: var(--mono); font-size: 0.72rem; background: var(--surface-2); border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; color: var(--muted); }
+  .backlink { font-family: var(--mono); font-size: 0.8rem; }
+</style>
+  <link rel="stylesheet" href="portfolio.css">
+<link rel="stylesheet" href="../../portfolio-controls.css"><link rel="stylesheet" href="../../portfolio-demo-return.css"><script defer src="../../portfolio-demo-return.js" data-project="hackenbush" data-title="Hackenbush Lab" data-overview="projects/hackenbush/overview.html" data-group="mathematics" data-thumbnail="media/previews/hackenbush/native-colored-graph-and-game-library.png" data-routes="[{&quot;project&quot;:&quot;hackenbush&quot;,&quot;title&quot;:&quot;Hackenbush Lab&quot;,&quot;group&quot;:&quot;mathematics&quot;,&quot;thumbnail&quot;:&quot;media/previews/hackenbush/native-colored-graph-and-game-library.png&quot;,&quot;overview&quot;:&quot;projects/hackenbush/overview.html&quot;,&quot;path&quot;:&quot;live_demos/hackenbush/index.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:2},{&quot;project&quot;:&quot;hackenbush&quot;,&quot;title&quot;:&quot;Hackenbush Lab&quot;,&quot;group&quot;:&quot;mathematics&quot;,&quot;thumbnail&quot;:&quot;media/previews/hackenbush/native-colored-graph-and-game-library.png&quot;,&quot;overview&quot;:&quot;projects/hackenbush/overview.html&quot;,&quot;path&quot;:&quot;live_demos/hackenbush/index.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:1},{&quot;project&quot;:&quot;hackenbush&quot;,&quot;title&quot;:&quot;Hackenbush Lab&quot;,&quot;group&quot;:&quot;mathematics&quot;,&quot;thumbnail&quot;:&quot;media/previews/hackenbush/native-colored-graph-and-game-library.png&quot;,&quot;overview&quot;:&quot;projects/hackenbush/overview.html&quot;,&quot;path&quot;:&quot;live_demos/hackenbush/status.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:1},{&quot;project&quot;:&quot;hackenbush&quot;,&quot;title&quot;:&quot;Hackenbush Lab&quot;,&quot;group&quot;:&quot;mathematics&quot;,&quot;thumbnail&quot;:&quot;media/previews/hackenbush/native-colored-graph-and-game-library.png&quot;,&quot;overview&quot;:&quot;projects/hackenbush/overview.html&quot;,&quot;path&quot;:&quot;live_demos/hackenbush/&quot;,&quot;query&quot;:{},&quot;priority&quot;:-1}]"></script><!-- universal-navigation:start --><link rel="stylesheet" href="../../portfolio-location.css?v=054b6b462c"><script defer src="../../portfolio-location.js?v=054b6b462c"></script><script defer src="../../portfolio-routes.js?v=054b6b462c"></script><script defer src="../../portfolio-universal-navigation.js?v=054b6b462c"></script><!-- universal-navigation:end --><style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head>
+<body class="portfolio-hackenbush">
+  <div class="portfolio-return" data-theme="dark" role="navigation" aria-label="Portfolio"><a class="portfolio-return-link" href="../../projects/hackenbush/index.html" target="_top"><span aria-hidden="true">←</span> Project overview</a></div>
+<div class="wrap">
+
+<header class="hero">
+  <p class="eyebrow">Status &amp; Theory · Hackenbush Lab</p>
+  <h1>What this engine does — and what it doesn&rsquo;t</h1>
+  <p class="lede">An honest account of the combinatorial game theory behind Hackenbush Lab: the parts that are exact and tested, the parts that are heuristic or approximate, and the parts that are genuinely out of reach. The book to read alongside it is <em>Winning Ways for Your Mathematical Plays</em> (Berlekamp, Conway &amp; Guy).</p>
+  <p><a class="backlink" href="./index.html">&larr; back to the lab</a></p>
+</header>
+
+<div class="callout warn">
+  <h3>Read this first: it is not a general solver</h3>
+  <p>This is a <strong>practical tool for small and medium Red-Blue-Green Hackenbush positions</strong>, not a complete combinatorial-game engine. It computes <em>exact</em> answers within a budget by recursively unfolding game trees. That recursion is exponential in the worst case: <span class="rbg-g">green</span> edges (playable by either side) and <em>stable</em> &ldquo;no-fall&rdquo; edges multiply the branching, and around <strong>a dozen live edges</strong> a single tangled component can already become slow &mdash; or, on adversarial inputs, take effectively forever. The heaviest curated positions (the <em>Boss</em> tier) solve <strong>off the main thread</strong> in a Web Worker, behind a Solve button with a live state counter and a Cancel button &mdash; but every other analysis, including each edit in Create and each move in Play, still runs <strong>synchronously on the main thread</strong>, so a hard position you build yourself can still freeze the page. Finite values are reduced to <strong>canonical form</strong> (domination plus reversible-option bypass), so what is displayed is the game&rsquo;s simplest name; some theoretical refinements (deep transfinite arithmetic, a full thermal solver, mis&egrave;re quotients) remain deliberately <em>not</em> implemented. The sections below say exactly where the lines are.</p>
+</div>
+
+<nav class="toc">
+  <strong>Contents</strong>
+  <a href="#video">Start with the video</a>
+  <a href="#game">The game</a>
+  <a href="#theory">The theory we use</a>
+  <a href="#solid">What&rsquo;s solid</a>
+  <a href="#partial">Partial &amp; approximate</a>
+  <a href="#planned">Planned</a>
+  <a href="#hard">Hard / out of scope</a>
+  <a href="#limits">Why it&rsquo;s not general</a>
+  <a href="#testing">How we check it</a>
+  <a href="#refs">References</a>
+</nav>
+
+<h2 id="video">Start with the video</h2>
+<p>The clearest visual introduction to this whole world is Owen Maitzen&rsquo;s <em>HACKENBUSH</em> video. It walks from cutting colored edges all the way up to the surreal numbers, and it is the best way to build intuition before poking at the lab.</p>
+<div class="video-card">
+  <a class="play" href="https://www.youtube.com/watch?v=ZYj4NkeGPdM" target="_blank" rel="noopener" aria-label="Watch the video">&#9658;</a>
+  <div class="meta">
+    <a href="https://www.youtube.com/watch?v=ZYj4NkeGPdM" target="_blank" rel="noopener">HACKENBUSH: a window to a new world of math</a><br>
+    <span class="ww">Owen Maitzen &middot; youtube.com/watch?v=ZYj4NkeGPdM</span>
+  </div>
+</div>
+<p>Here is how the ideas the video shows line up with what this engine actually computes:</p>
+<table>
+  <tr><th>In the video</th><th>In this engine</th></tr>
+  <tr><td>Blue-Red Hackenbush; who wins a position</td><td><span class="tick">&#10003;</span> fully &mdash; and it adds <span class="rbg-g">Green</span> (impartial) edges the video doesn&rsquo;t cover</td></tr>
+  <tr><td>Giving a position a numeric value</td><td><span class="tick">&#10003;</span> exact dyadic / surreal value for cold positions</td></tr>
+  <tr><td>The &ldquo;simplest number&rdquo; rule &amp; the number tree; dyadic fractions (&frac12;, &frac34;&hellip;)</td><td><span class="tick">&#10003;</span> with a day-by-day construction path</td></tr>
+  <tr><td>Adding two positions together</td><td><span class="tick">&#10003;</span> disjunctive sum + component decomposition</td></tr>
+  <tr><td>An infinite blue stalk = &omega;</td><td><span class="tick">&#10003;</span> for the infinite shapes it recognizes (&omega;, &omega;&plusmn;n, &omega;&middot;n, &omega;&sup2;, grass)</td></tr>
+  <tr><td>That <em>any</em> infinite Hackenbush position yields a surreal number (&#8531; from an infinite zig-zag, &epsilon;, &hellip;)</td><td><span class="cross">&times;</span> <strong>not general.</strong> The engine pattern-matches a fixed family of infinite shapes from edge topology; it does <em>not</em> evaluate an arbitrary infinite Blue-Red path to its exact surreal value</td></tr>
+</table>
+<p>So the engine is a faithful calculator for the <em>finite</em> story the video tells (and adds impartial Green/Nim on top), but the video&rsquo;s grand finale &mdash; that <em>every</em> surreal number falls out of infinite Hackenbush &mdash; is exactly the part this engine only approximates, for a handful of recognized patterns.</p>
+
+<h2 id="game">The game</h2>
+<p>Hackenbush is played on a graph of colored edges standing on the <em>ground</em> (a baseline). On your turn you cut one edge of a color you control; any edges left disconnected from the ground then fall away.</p>
+<ul>
+  <li><span class="rbg-b">Blue</span> edges are cut only by <strong>Blue</strong> (Conway&rsquo;s <em>Left</em>).</li>
+  <li><span class="rbg-r">Red</span> edges are cut only by <strong>Red</strong> (<em>Right</em>).</li>
+  <li><span class="rbg-g">Green</span> edges are cut by <strong>either</strong> player (impartial).</li>
+  <li>An edge survives only while it has a path to a <strong>grounded</strong> node. After a cut, ordinary edges with no remaining support fall.</li>
+  <li><span class="pill">app extension</span> <em>Stable</em> edges are a Hackenbush-Lab addition: anchor edges that never fall, so they can hold otherwise-unsupported structure in place. They are not part of classical Hackenbush.</li>
+</ul>
+<p>The player who cannot move loses (normal play). The whole point of the theory is to assign each position a <em>value</em> that says who wins, by how much, and how the position behaves when added to others.</p>
+
+<h2 id="theory">The theory we use</h2>
+<p>Every position is read as a partizan game <code>G = { Blue options | Red options }</code> and analyzed recursively. The concepts below are the ones the engine actually computes; each is annotated with where it sits in the literature.</p>
+
+<h3>Game values, outcomes &amp; order</h3>
+<p>Positions are compared with Conway&rsquo;s order relations (<code>G &ge; H</code> defined recursively), which yields the four outcome classes (Left wins / Right wins / first player wins / second player wins). <span class="ww">Winning Ways, Ch.&nbsp;1&ndash;2; On Numbers and Games, Conway.</span></p>
+
+<h3>Surreal numbers (cold positions)</h3>
+<p>When a position is a genuine <em>number</em> &mdash; every Blue option strictly below every Red option, and all options themselves numbers &mdash; the engine extracts the exact dyadic/surreal value via the simplicity (&ldquo;simplest number&rdquo;) rule, and can show the day-by-day construction and birthday. Crucially, it does <strong>not</strong> pretend every position is a number: hot and fuzzy positions are shown as their raw short-game forms instead. <span class="ww">Winning Ways, Ch.&nbsp;2 (&ldquo;Whose Game?&rdquo;).</span></p>
+
+<h3>Disjunctive sums &amp; components</h3>
+<p>Independent grounded subgraphs are solved separately and combined as a disjunctive sum, which keeps many real positions tractable. This decomposition is transfinite-aware (it carries infinite components through the sum). <span class="ww">Winning Ways, Ch.&nbsp;2.</span></p>
+
+<h3>Nimbers &amp; Sprague&ndash;Grundy</h3>
+<p>Green &ldquo;bamboo&rdquo; stalks are impartial: the engine computes their nim-values with the <code>mex</code> rule and recognizes <code>*n</code> symbolically. <span class="ww">Winning Ways, Ch.&nbsp;3 (&ldquo;Nim&rdquo;); Sprague&ndash;Grundy.</span></p>
+
+<h3>Infinitesimals</h3>
+<p>The named infinitesimals that show up next to numbers are recognized for display: star <code>*</code>, up/down <code>&uarr; &darr;</code>, <code>&uarr;*</code>, double-up/down <code>&#8657; &#8659;</code>, and <code>tiny(n)</code>/<code>miny(n)</code>. <span class="ww">Winning Ways, Ch.&nbsp;3&ndash;4 (&ldquo;Uppitiness&rdquo;).</span></p>
+
+<h3>Switches, temperature &amp; thermography</h3>
+<p>Hot positions of the form <code>{a | b}</code> with <code>a &gt; b</code> are detected as switches; for the cases it recognizes directly the engine reports the mean value and temperature and draws a thermograph (a frozen vertical wall for cold numbers, a V for switches). This is the engine&rsquo;s <strong>weakest area</strong> &mdash; see the partial list. <span class="ww">Winning Ways, Ch.&nbsp;6 (&ldquo;Heating, Cooling&hellip;&rdquo;).</span></p>
+
+<h3>Transfinite values (infinite edges)</h3>
+<p>Edges flagged <code>infinite</code> stand for unbounded stalks. From the edge topology the engine pattern-matches ordinal values <code>&omega;, -&omega;, &omega;&plusmn;n, &omega;&middot;n, &omega;&sup2;</code>, and combines parallel infinite green &ldquo;grass&rdquo; into <code>&omega;*[n]</code> by a stalk-count rule. This is <strong>heuristic pattern-matching, not general ordinal arithmetic</strong> &mdash; it is deliberately guarded by negative regression tests so it does not over-fire (e.g. two bridged &omega;&rsquo;s must <em>not</em> collapse to plain &omega;). <span class="ww">ONAG (ordinals as games); transfinite Hackenbush.</span></p>
+
+<h3>Loopy games</h3>
+<p>Edges flagged <code>loop</code> invoke loopy values: <code>on, off, over, under, dud</code>, with real arithmetic for sums, comparison, outcome and display. This covers the five named values and their shifts, not the whole of Conway&rsquo;s loopy theory. <span class="ww">Winning Ways, Ch.&nbsp;11 (&ldquo;Survival in the Lost World&rdquo;).</span></p>
+
+<h3>Canonical position hashing</h3>
+<p>To avoid re-solving isomorphic subpositions, the memo keys positions by a Weisfeiler&ndash;Lehman color-refinement hash (~17&times; state reduction on symmetric positions). Note: this de-duplicates <em>graph-isomorphic</em> positions; it is <strong>not</strong> the same as reducing a game to canonical form by domination and reversibility (see below).</p>
+
+<h2 id="solid">What&rsquo;s solid <span class="pill">regression-tested</span></h2>
+<p>These behave correctly end-to-end on the tested range:</p>
+<ul class="status-list">
+  <li><span class="badge b-done">&#10003;</span><div><span class="name">Red / Blue / Green ruleset</span> &mdash; <span class="note">standard RBG Hackenbush with ground-support cascade pruning.</span></div></li>
+  <li><span class="badge b-done">&#10003;</span><div><span class="name">Cold positions &rarr; exact surreal numbers</span> &mdash; <span class="note">with a day-by-day construction path.</span></div></li>
+  <li><span class="badge b-done">&#10003;</span><div><span class="name">Green bamboo &rarr; nimbers</span> &mdash; <span class="note">Sprague&ndash;Grundy via mex; <code>*n</code> recognized.</span></div></li>
+  <li><span class="badge b-done">&#10003;</span><div><span class="name">Switches</span> &mdash; <span class="note"><code>{a|b}</code>, <code>a&gt;b</code> detected; mean &amp; temperature reported.</span></div></li>
+  <li><span class="badge b-done">&#10003;</span><div><span class="name">Named short games</span> &mdash; <span class="note"><code>*, ↑, ↓, ↑*, ⇑, ⇓, tiny(n), miny(n)</code> in display.</span></div></li>
+  <li><span class="badge b-done">&#10003;</span><div><span class="name">Component decomposition + sum</span> &mdash; <span class="note">independent subgraphs solved separately, transfinite-aware.</span></div></li>
+  <li><span class="badge b-done">&#10003;</span><div><span class="name">Canonical position hashing</span> &mdash; <span class="note">Weisfeiler&ndash;Lehman refinement de-duplicates isomorphic subpositions.</span></div></li>
+  <li><span class="badge b-done">&#10003;</span><div><span class="name">Infinite edges &rarr; &omega;, -&omega;, &omega;&plusmn;n, &omega;&middot;n, &omega;&sup2;</span> &mdash; <span class="note">pattern-matched from topology.</span></div></li>
+  <li><span class="badge b-done">&#10003;</span><div><span class="name">Grass (parallel infinite green) &rarr; &omega;*[n]</span> &mdash; <span class="note">stalk-count combination rule.</span></div></li>
+  <li><span class="badge b-done">&#10003;</span><div><span class="name">Loopy games (on/off/over/under/dud)</span> &mdash; <span class="note">arithmetic via the <code>loop</code> attribute.</span></div></li>
+  <li><span class="badge b-done">&#10003;</span><div><span class="name">Thermograph plot</span> &mdash; <span class="note">left/right walls vs temperature.</span></div></li>
+  <li><span class="badge b-done">&#10003;</span><div><span class="name">Stable &ldquo;no-fall&rdquo; edges</span> &mdash; <span class="note">experimental anchor extension, tagged in displays.</span></div></li>
+</ul>
+<p class="note" style="color:var(--muted)">Also solid (tooling rather than theory): auto-play / AI&nbsp;vs&nbsp;AI, multi-edge curving, floating-vertex cues, component thumbnails, light/dark theme, and shareable-position URLs.</p>
+
+<h2 id="partial">Partial &amp; approximate <span class="pill">use with care</span></h2>
+<p>These work in common cases but have documented gaps or fall back to weaker answers:</p>
+<ul class="status-list">
+  <li><span class="badge b-partial">&#9888;</span><div><span class="name">Multi-infinite mixed with finite edges in one component</span> &mdash; <span class="note">bails the shallow heuristic and falls back to general recursion; may return a general game form rather than a clean transfinite number.</span></div></li>
+  <li><span class="badge b-partial">&#9888;</span><div><span class="name">Mixed-color infinite &ldquo;flowers&rdquo;</span> &mdash; <span class="note">tagged <code>approximate</code>; move-by-move scoring is suppressed.</span></div></li>
+  <li><span class="badge b-partial">&#9888;</span><div><span class="name">&omega;&sup2; detection</span> &mdash; <span class="note">only a strict trunk + branches topology; <code>&omega;&sup2;&middot;n</code>, <code>&omega;&sup2;+&omega;</code> are not derived.</span></div></li>
+  <li><span class="badge b-partial">&#9888;</span><div><span class="name">Hot positions with infinitesimal options</span> &mdash; <span class="note">reported as <code>{X|X}</code>-style switches with temperature 0 &mdash; no clean V-shape thermograph. This is the engine&rsquo;s thinnest area.</span></div></li>
+  <li><span class="badge b-partial">&#9888;</span><div><span class="name">Loopy game arithmetic</span> &mdash; <span class="note">five named values + shifts; doesn&rsquo;t capture every subtle case (e.g. <code>{on|over}</code> falls back to dominance).</span></div></li>
+  <li><span class="badge b-done">&#10003;</span><div><span class="name">Canonical form (domination + reversibility)</span> &mdash; <span class="note"><strong>applied to every finite short game.</strong> Dominated options are removed and reversible options are bypassed, so the displayed value is the game&rsquo;s unique simplest name &mdash; the worst label in the curated library fell from 4,024 characters to 17, and forms like <code>{ * | * }</code> now print as the <code>0</code> they always were. Verified by an invariant run (no outcome and no search size changed anywhere), by fuzzing G&nbsp;+&nbsp;(&minus;G)&nbsp;=&nbsp;0, and by over-simplification guards (<code>{1|1}</code> stays <code>{1|1}</code>). Loopy and transfinite games are left untouched &mdash; the theory does not cover them &mdash; and are badged red <strong>Heuristic</strong>, since they were pattern-matched rather than derived in the first place. Measured across all 98 loadable positions the badges now come out 9 <em>Proved</em>, 78 <em>Exact</em>, 11 <em>Heuristic</em> and <strong>zero</strong> <em>Not simplified</em>: the amber level survives only as a fail-open signal, for the case where the simplifier hits its iteration guard and returns an unreduced form rather than a wrong one.</span></div></li>
+  <li><span class="badge b-partial">&#9888;</span><div><span class="name">Performance on dense post-infinite-cut positions</span> &mdash; <span class="note">off-thread for Boss-tier positions; everywhere else still synchronous, so large chains show an in-board shimmer and can still feel slow.</span></div></li>
+</ul>
+
+<h2 id="planned">Planned <span class="pill">doable, not yet built</span></h2>
+<ul class="status-list">
+  <li><span class="badge b-planned">&#128679;</span><div><span class="name">Atomic-weight / uptimal arithmetic</span> &mdash; <span class="note">distinguish <code>&uarr;&uarr;</code> from <code>&uarr;+&uarr;</code> beyond pattern matching.</span></div></li>
+  <li><span class="badge b-planned">&#128679;</span><div><span class="name">Touch / mobile-tuned interactions</span> &mdash; <span class="note">pointer events work; ergonomics aren&rsquo;t tuned.</span></div></li>
+</ul>
+
+<h2 id="hard">Hard / out of scope <span class="pill">research-level</span></h2>
+<ul class="status-list">
+  <li><span class="badge b-out">&times;</span><div><span class="name">General loopy game solver</span> &mdash; <span class="note">full loopy theory with arbitrary recursive cycles is a research project.</span></div></li>
+  <li><span class="badge b-out">&times;</span><div><span class="name">Full thermal solver for arbitrary hot compounds</span> &mdash; <span class="note">beyond simple switches; needs full thermograph algebra in the solver.</span></div></li>
+  <li><span class="badge b-out">&times;</span><div><span class="name">Deep transfinite arithmetic past &omega;&middot;n / &omega;+n</span> &mdash; <span class="note">Conway normal form with arbitrary nested ordinals.</span></div></li>
+  <li><span class="badge b-out">&times;</span><div><span class="name">Loopy interpretation of ordinary graph cycles</span> &mdash; <span class="note">cycles are treated as plain (terminating) Hackenbush; loopy semantics require explicit <code>loop</code> edges.</span></div></li>
+</ul>
+
+<h2 id="limits">Why it&rsquo;s not a general engine</h2>
+<p>Three honest constraints, in order of how often they bite:</p>
+<ol>
+  <li><strong>Exponential search.</strong> Exact analysis unfolds the game tree. <span class="rbg-g">Green</span> edges double the moves available at each node, and stable edges keep more structure alive to branch on. The README puts it plainly: pure cold <span class="rbg-b">blue</span>/<span class="rbg-r">red</span> positions stay practical longest; green and stable edges enlarge the space sharply; and <em>&ldquo;around a dozen live edges, exact recursive search can already become expensive unless the position splits into independent grounded components.&rdquo;</em> Some inputs simply do not finish in reasonable time.</li>
+  <li><strong>It can still block the page.</strong> Boss-tier positions were moved into a Web Worker, so those solve without freezing and can be cancelled. Everything else &mdash; each edit you make in Create, each move in Play, Auto mode, the self-test &mdash; is still synchronous JavaScript on the UI thread. A hard position you build yourself shows an in-board shimmer, but the tab can stutter or freeze until it resolves, and there is no timeout that guarantees a fast bail.</li>
+  <li><strong>Some theory is heuristic or skipped.</strong> Transfinite values are pattern-matched from topology, not derived by general ordinal arithmetic (and are fenced in by negative tests precisely because a naive matcher over-fires). Canonical reduction by domination and reversibility <em>is</em> applied to every finite short game, but loopy and transfinite values are pattern-matched and left unreduced. The thermal machinery has never actually been exercised: no position anywhere in this app reaches a positive temperature (see the testing section), so &ldquo;handles simple switches&rdquo; is untested rather than proven. For anything outside the recognized patterns, the engine returns an honest general game form (or, for a few mixed-infinite shapes, an explicitly <code>approximate</code> result) rather than a false clean value.</li>
+</ol>
+<div class="callout">
+  <p>The design choice throughout is <strong>honesty over false precision</strong>: when the engine cannot prove a clean value it says so &mdash; showing a raw short-game form, an <code>approximate</code> tag, or a fuzzy outcome &mdash; instead of guessing a tidy number. That is also why it is best described as a <em>workbench for small and medium exact studies</em>, not a general-purpose Hackenbush solver.</p>
+</div>
+
+<h2 id="testing">How we check it (and where coverage is thin)</h2>
+<p>An in-app regression harness (the <strong>Run Self-Test</strong> button) currently runs <strong>88 cases across 14 categories</strong>, asserting on the analyzer&rsquo;s computed value fields. Coverage is uneven &mdash; deliberately heaviest where bugs have bitten, lightest exactly where the theory is weakest:</p>
+<table>
+  <tr><th>Category</th><th>Cases</th><th>What it guards</th></tr>
+  <tr><td>Gallery</td><td>18</td><td>curated named positions keep their solved values</td></tr>
+  <tr><td>Loopy</td><td>14</td><td>on/off/over/under/dud arithmetic; incl. 4 fixes for &omega; being dropped in mixed sums</td></tr>
+  <tr><td>Numbers</td><td>9</td><td>surreal/dyadic extraction</td></tr>
+  <tr><td>SignExpansion</td><td>7</td><td>L/R sign strings</td></tr>
+  <tr><td>Thermograph</td><td>7</td><td>wall/temperature plotting</td></tr>
+  <tr><td>Structural</td><td>6</td><td>normalization &amp; pruning despite visual defects</td></tr>
+  <tr><td>Transfinite</td><td>5</td><td>&omega; family pattern matching</td></tr>
+  <tr><td>Nimbers · AtomicWeight · ShareableURL</td><td>4 each</td><td>mex values · uptimal weights · URL round-trips</td></tr>
+  <tr><td>Regression · Construction</td><td>3 each</td><td>negative guards on the transfinite matcher · day-by-day paths</td></tr>
+  <tr><td><strong>Hot</strong> · <strong>Composites</strong></td><td><strong>2 each</strong></td><td>switches/temperature &amp; basic sums &mdash; <strong>the least-guarded, and the weakest, areas</strong></td></tr>
+</table>
+<p>Two caveats worth stating. These in-browser checks are separate from the <code>npm test</code> suite, which adds 137 Node tests (165 with <code>HB_SLOW=1</code>, which re-solves every curated position instead of the cheap subset) covering the engine primitives, canonical form, the Fusion Principle, mis&egrave;re play, and locking every curated position's winner against a golden file. Most importantly, <strong>Hot and Composites have only two cases each</strong>, and one Hot check passes on a loose condition &mdash; so the thermal/switch behavior is the part you should trust least.</p>
+
+<p><strong>And it did not survive checking.</strong> Measuring every position in the app found that <strong>not one has a positive temperature</strong>: all seven &ldquo;Hot Games&rdquo;, and 3,398 randomly generated mixed boards, come out at temperature&nbsp;0. Several positions had been labelled &ldquo;&plusmn;1&rdquo;, &ldquo;switch&rdquo; or &ldquo;hot&rdquo; purely because their value printed with braces &mdash; but <code>{ X | X }</code> is tepid, not a switch, and the partisan options here keep resolving to infinitesimals. Those labels have been corrected to state the winner instead, and a test now refuses any entry that advertises heat the solver cannot find. Whether Blue-Red-Green Hackenbush can be hot at these sizes is left open; what is certain is that nothing in this library is.</p>
+
+<h2 id="refs">References</h2>
+<ul>
+  <li>Owen Maitzen &mdash; <a href="https://www.youtube.com/watch?v=ZYj4NkeGPdM" target="_blank" rel="noopener"><em>HACKENBUSH: a window to a new world of math</em></a> (video). The friendliest way in; the concept-by-concept mapping above shows what this engine does and doesn&rsquo;t reproduce.</li>
+  <li>E.&nbsp;Berlekamp, J.&nbsp;Conway, R.&nbsp;Guy &mdash; <em>Winning Ways for Your Mathematical Plays</em>. The primary reference; Hackenbush, numbers, nimbers, uppitiness, heating/cooling, and loopy games all live here.</li>
+  <li>J.&nbsp;Conway &mdash; <em>On Numbers and Games</em>. Surreal numbers, the order relation, and ordinals-as-games.</li>
+  <li>A.&nbsp;Siegel &mdash; <em>Combinatorial Game Theory</em>. Modern, rigorous treatment of canonical forms, temperature theory, and loopy games. Canonical form here follows this book&rsquo;s treatment; temperature theory and loopy games remain the refinements this engine does <em>not</em> fully implement.</li>
+</ul>
+
+<footer>
+  <p>Hackenbush Lab &mdash; an experimental combinatorial-game workbench. This page reflects the engine&rsquo;s self-reported roadmap, its README, and its test suite as of the current build; the roadmap inside the app is the live source of truth. <a href="./index.html">Open the lab &rarr;</a></p>
+</footer>
+
+</div>
+</body>
+</html>

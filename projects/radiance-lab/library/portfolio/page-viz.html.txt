@@ -1,0 +1,341 @@
+{{SECTION:_head.html}}
+{{NAV}}
+
+<!-- ================= HERO ================= -->
+<header class="hero">
+  <div class="hero-img">{{DOCPNG:correlated/fig-cone-9.png}}</div>
+  <div class="wrap hero-in">
+    <p class="eyebrow">Visualisation · RadianceLab</p>
+    <h1>Where the<br><i>fireflies</i> come from</h1>
+    <p class="thesis">The renderer can draw its own sampling geometry and colour it by the place its outliers are born.</p>
+    <p class="note" style="max-width:54ch;margin:14px 0 0;color:#9fb0ad">Above: sixteen photon cones sharing one apex at the light, frozen for a whole frame instead of redrawn per sample. Ordinarily they average away before anyone sees one; this is the estimator's own geometry, photographed.</p>
+    <div class="spectrum"></div>
+    <div class="stats">
+      <div class="stat"><span class="k">Film maximum, one frozen batch</span>
+        <div class="v"><span class="from">4.9×10⁴</span><span class="arr">→</span><span class="to">368.7</span></div>
+        <div class="sub">cone alone → trio under the balance heuristic; 4562 at flat weights in between</div></div>
+      <div class="stat"><span class="k">Fold tail index</span>
+        <div class="v"><span class="to">2.00</span></div>
+        <div class="sub">measured 1.96 / 2.00 — the variance never converges</div></div>
+      <div class="stat"><span class="k">Photon sphere, best-in-pixel</span>
+        <div class="v"><span class="from">0.0%</span></div>
+        <div class="sub">of 1600 pixels; it never wins anywhere</div></div>
+      <div class="stat"><span class="k">Explorer coverage</span>
+        <div class="v"><span class="to">12 / 31</span></div>
+        <div class="sub">the other nineteen slots render flat grey</div></div>
+    </div>
+  </div>
+</header>
+
+<!-- ================= 01 · WHAT A FIREFLY IS ================= -->
+<section id="firefly" style="--secc:var(--l400)" data-nav="The firefly">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">01 — What a firefly actually is</p>
+      <h2>A firefly is a Jacobian going to zero, and there are four ways it can do that</h2>
+      <p class="lead">Every estimator in this renderer's analytic family sweeps two dimensions of a light path into a surface, intersects the camera ray with it, and divides by the co-area Jacobian of the sweep. The Jacobian sits in the denominator. A camera ray tangent to the swept sheet drives it toward zero and the sample explodes.</p>
+      <p>So a bright isolated pixel is not a mystery to be denoised. It is a geometric event with a location, and the location is computable. The useful question is not <em>how big</em> the outlier was but <em>how</em> the Jacobian vanished, because that decides whether the estimator has a heavy tail at all.</p>
+    </div>
+    <div class="formula">
+      <div class="f">W = f / ( p <span class="hl">·</span> J )<span style="opacity:.4">&nbsp;&nbsp;&nbsp;</span>J = <span class="hl">|</span> ( ∂x/∂a × ∂x/∂b ) · d <span class="hl">|</span></div>
+      <div class="n">One weight, one Jacobian, the whole family. Only the two swept dimensions <span class="mono">a, b</span> change.</div>
+    </div>
+    <div class="tw"><table>
+      <thead><tr><th>How J vanishes</th><th>Members</th><th>What the tail does</th><th>Consequence</th></tr></thead>
+      <tbody>
+        <tr><td>constant</td><td>3</td><td>max / median <b>1.7–3.0</b></td><td>No in-pixel tail at all. The tangency shows up <em>across</em> pixels instead, as the crossing probability collapsing</td></tr>
+        <tr><td>linear</td><td>10, 11, 14, 16</td><td>max / median <b>200–7000</b>, top-1% share 20–45%</td><td>Integrable. The mean converged on all 16,758 (ray, estimator) pairs tested</td></tr>
+        <tr><td>square-root <b>fold</b></td><td>7, 9, 20, 22, 23, 24</td><td>W ~ ε<sup>−1/2</sup>, Hill index <b>2</b></td><td>E[W²] is log-divergent. The sample variance grows like ln N and <b>never converges</b></td></tr>
+        <tr><td>Cauchy fan</td><td>8</td><td>relvar × δ<sub>axis</sub> = <b>0.42–0.45</b></td><td>Bounded weights, no fold. Two exactly silent rays instead — through the axis and parallel to it</td></tr>
+      </tbody>
+    </table></div>
+    <div class="narrow">
+      <p>The fold row is the one that changes how you read every other number on this site. Two quadric roots merge at the silhouette of the swept surface, the weight diverges like the inverse square root of the distance to that merge, and the resulting Pareto tail has index exactly 2 — measured at 1.96 for the photon sphere and 2.00 for the photon cone, over three decades of the complementary CDF. A tail index of 2 puts the second moment on the boundary of existence, so a variance estimate from a fold member is a lower bound that keeps rising as you sample.</p>
+
+      <h3>What the renderer does with a firefly &mdash; and the one it structurally cannot see</h3>
+      <p>There are two firefly instruments in the megakernel and they answer two different questions. <span class="mono">pathTrace.comp</span> carries <b>eight</b> non-finite tests. One discards a splat outright: <span class="mono">splatToImage</span> returns before writing anything, under the comment <em>&ldquo;discard invalid contributions to prevent pixel poisoning&rdquo;</em>. Two replace a sample with black rather than dropping it &mdash; the returned radiance and the eye-subpath result. The other five gate a connection&rsquo;s add: the BDPT connection, the light tracer&rsquo;s emitter and camera contributions, the internal-connection loop and next-event estimation. Separately, a large but <em>finite</em> sample meets a hard clamp at 1000.0 with no UI at all, applied after the MIS weight; the source records that it replaced a pre-weight clamp of 100 which had been truncating bright glossy splats the path tracer counts in full.</p>
+      <p>Neither instrument can see the fireflies this page is about. A fold weight is <span class="mono">W ~ &epsilon;<sup>&minus;1/2</sup></span>: enormous, and perfectly finite. <span class="mono">isnan</span> and <span class="mono">isinf</span> are false for every one of them, so the guard never fires on a grazing event &mdash; it is there for a division that produced a NaN, which is a different failure. Only the clamp touches a fold sample, and the clamp lives on the GPU megakernel.</p>
+      <p>The film that actually carries this family has neither. In <span class="mono">PPIntegrator.cpp</span> the only finiteness test on a contribution is inside the camera-side splat of strategy 17; the main film write is an unguarded, unclamped running mean. That is a decision, not an oversight &mdash; a clamp is a bias, and this family&rsquo;s whole acceptance argument is a ratio against a reference that has no clamp either. It is also the reason the statistics used on the evidence page are a per-pixel median or a top-0.1&thinsp;% clipped total and never a raw frame energy. The 8.44 in section 03 is one pixel arriving in a film with nothing at all in its way.</p>
+      <div class="readout">
+        <div class="row"><span class="lbl">Non-finite tests in <span class="mono">pathTrace.comp</span></span><span class="val">8 &mdash; 1 discard, 2 zeroings, 5 gated adds &nbsp;<span class="st st-b" style="font-size:12px">seen</span></span></div>
+        <div class="row"><span class="lbl">Firefly clamp, megakernel</span><span class="val">1000.0, hard-coded, post-MIS-weight</span></div>
+        <div class="row"><span class="lbl">Finiteness tests on the PP film</span><span class="val">1, in the strategy-17 splat only</span></div>
+        <div class="row hi"><span class="lbl">Clamp on the PP film</span><span class="val">none, deliberately</span></div>
+      </div>
+    </div>
+    <figure>
+      {{PNG:dirsweep_fig_var_vs_N.png}}
+      <figcaption><b>Variance vs N</b><span>Running relative variance for the sphere and the cone as the sample count climbs from 10³ to 1.6×10⁷. It does not settle — it steps up each time a new record weight arrives. Sphere 5.2 → 20.1, cone 4.3 → 18.9. Reporting a variance for these estimators without stating N is meaningless, which is why the acceptance statistic used everywhere else on this site is a per-pixel <em>median</em> ratio.</span></figcaption>
+    </figure>
+    <div class="narrow">
+      <p>The amplitude of that tail is not only observed; it is predicted in closed form, and the prediction lands within half a percent on the top 0.1 % of the tail. Working the fold out from the sampled density gives a scale of 1.537 for the sphere and 1.011 for the cone; the measured values are 1.536 and 1.016.</p>
+      <p>The same analysis says which member is worth using where. A 40×40 pinhole map, point light, 6000 samples per pixel per strategy, colouring each pixel by the strategy with the lowest relative variance × cost:</p>
+    </div>
+    <div class="readout">
+      <div class="row"><span class="lbl">08 photon disk — best in</span><span class="val">38.8% of pixels</span></div>
+      <div class="row"><span class="lbl">09 photon cone — best in</span><span class="val">22.2%</span></div>
+      <div class="row hi"><span class="lbl">13 direction-trio mixture — best in</span><span class="val">39.0%</span></div>
+      <div class="row"><span class="lbl">07 photon sphere — best in</span><span class="val">0.0%</span></div>
+      <div class="row"><span class="lbl">13 worst pixel, relvar × cost</span><span class="val">3.9 <span class="d">(sphere 2.7e3, cone 1.66e3)</span></span></div>
+    </div>
+    <figure>
+      {{PNG:dirsweep_fig_best_point.png}}
+      <figcaption><b>Best estimator per pixel</b><span>Notice the disk's vertical silence: a column of pixels through the light where it is exactly zero and something else has to carry the estimate. Notice also that the photon sphere is never the winner in any pixel of this image — it survives in the family only because it is the cheapest member to evaluate and because mixtures need partners whose singular loci sit elsewhere.</span></figcaption>
+    </figure>
+    <div class="narrow">
+      <p class="note"><b>Where these numbers come from.</b> Every number in this section is from <code>docs/variance/</code>, a numpy port of the C++ estimator validated against finite-difference co-area to a median agreement of 1e-10, with Monte-Carlo means matching closed-form quadrature on all 16,758 (ray, estimator) pairs of the plane study. It is a result about the mathematics, and <b>the renderer was not run</b> for these figures. The renderer takes over below this line — and the fold row arrives in it, measured, in section 03.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 02 · THE EXPLORER ================= -->
+<section id="explorer" style="--secc:var(--l460)" data-nav="Explorer">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">02 — The Primitive Explorer</p>
+      <h2>Ray-trace the manifold itself and jet-colour it by its own singularity</h2>
+      <p class="lead">Tick one checkbox and the renderer stops estimating light and starts drawing the object it would have sampled. One representative primitive, ray-traced per pixel, deterministic, coloured blue where the camera ray meets the sheet face-on and red where it grazes. The red band is the firefly locus, drawn in the picture.</p>
+      <p>This is the difference between a theorem and an instrument. The variance study above locates the singularity in parameter space, as a condition on tangent vectors. The explorer locates it <em>on screen</em>, in the same scene and from the same camera you are about to render from — the difference between knowing an estimator has a grazing band and knowing where that band is going to land across your caustic.</p>
+      <p>Nothing is hardcoded per primitive. The tool evaluates <code>x(a,b) = y(u,v) + t·ω(θ,φ)</code> on a grid, with <span class="mono">a</span> and <span class="mono">b</span> picked from {u, v, θ, φ, t}, and tessellates the result — so the sphere, the cone, the meridian half-plane and the ruled plane all emerge from which two dimensions you chose to sweep, rather than from twelve special cases.</p>
+    </div>
+    <figure>
+      {{SHOT:preset 35 · Render Settings ▸ PP Estimator ▸ Primitive Explorer (theory) ▸ "Trace this primitive in the viewport" ON · Jacobian resolution 80 · strategy 9 · capture the whole window so the theory readout and the 2D schematic are both in frame}}
+      <figcaption><b>Explorer · strategy 09</b><span>Three things are on screen at once, and they are the reason the estimator work moved as fast as it did: the traced manifold with its grazing band, the algebraic readout of the same object, and a 2D schematic driven by the same evaluator.</span></figcaption>
+    </figure>
+    <div class="narrow">
+      <h3>What is in the panel</h3>
+      <ul class="clean">
+        <li><b>The traced manifold.</b> Blocked AABB acceleration over the tessellated grid, so it stays interactive while you orbit. The representative light path is drawn over it — yellow node at the emitter, yellow leg along ω, white node at the scatter point — solid where it passes in front of the sheet and marching-dashed where it passes behind. The camera leg is not drawn, because you are sighting straight down it.</li>
+        <li><b>The theory readout.</b> Swept dimensions, both tangent vectors, the Jacobian written out for that primitive (<span class="mono">t·sinθ·|θ̂·d|</span> for the cone), and a green <span class="mono">Σ free = 2 swept + 1 camera-ray = 3 → UNBIASED</span> check. Dimension counting is where this family's bugs live, so the count is on screen rather than in a comment.</li>
+        <li><b>A distance-term class.</b> Orange <span class="mono">EXPECTED VALUE</span> when <span class="mono">t</span> is one of the swept dimensions and the transmittance is carried explicitly, blue <span class="mono">TRACK LENGTH</span> when <span class="mono">t</span> is free-flight sampled and the transmittance has already cancelled to an albedo. The viewport reflects it: swept-<span class="mono">t</span> primitives are dimmed along <span class="mono">t</span> and drawn long, sampled-<span class="mono">t</span> primitives are flat and drawn at about a mean free path.</li>
+        <li><b>A mixture draws its whole set.</b> For strategies 12, 13 and 15 every member appears at once, alpha-composited, each in its own tint — and the MIS weighting toggle is reflected in the shading, so switching from flat to balance weights visibly <em>dims</em> each member's grazing band. The picture and the estimator agree because the singular member really does down-weight itself.</li>
+      </ul>
+    </div>
+    {{VIDEO:The estimator drawing itself | preset 35 · Render Settings ▸ PP Estimator ▸ Primitive Explorer ▸ trace ON · Jacobian resolution 80 · slow continuous orbit throughout · step the Strategy combo 3 → 7 → 8 → 9 → 10 → 11 → 14 → 16 (drag the plane angle 0 → 90 → 180) → 15 → 12 → 13, about 1.5 s on each · 20 s | the shape changing because the two swept dimensions changed, not because a different draw routine ran; then on 12 and 13, the red grazing band dimming the moment the MIS weighting combo goes from Flat average to Balance heuristic}}
+    <div class="narrow">
+      <h3>What it does not draw</h3>
+      <p>The explorer covers twelve of the thirty-one strategy slots — 3, 4 and 7 through 16: the quad, sphere, disk, cone and plane primitives and three of the four mixtures. The rest fall through to a flat grey fill: the NEE baselines, the volume-light chords, the camera-side splat, the rasterised gather, the cross-family mixture, the glossy ring, the one-dimensional group, and <b>the entire hourglass family</b>, which is the research this renderer exists for. The tool that best explains the estimators does not yet draw the best one; the frozen batch in the next section does, stochastically, and that is where the hourglass is photographed.</p>
+      <p>Two smaller limits, both worth knowing before a capture session. It needs an emissive quad in the scene — <code>findEmissiveQuad</code> failing gives the same flat grey as an unsupported strategy, so grey is ambiguous. And the manifold trace runs at a maximum internal width of 420 pixels and is nearest-neighbour upsampled to the viewport, so a full-screen capture is soft. It is cached against a camera fingerprint and re-traced only when the camera or the parameters move, which is what keeps the orbit smooth.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 03 · FROZEN BATCH ================= -->
+<section id="batch" style="--secc:var(--l500)" data-nav="Frozen batch">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">03 — The frozen batch</p>
+      <h2>Stop redrawing the primitive every sample and the estimator becomes a picture</h2>
+      <p class="lead">Normally each camera sample draws a fresh photon primitive, so the sheets average away before anything is visible. Freeze a batch of sixteen instead, share it across the whole frame, and skip the divide by N — and the estimator's own geometry appears, one hue per member, at its own brightness.</p>
+      <p>The hero image at the top of this page is that picture, and it is the clearest explanation of the family that exists anywhere in this project. Sixteen photon cones, apexes coincident at the light, each a distinct hue, each with a thin incandescent outline where the camera ray runs tangent to it. It is the same object the explorer traces analytically, except that here it was <em>sampled</em>: these are real primitives that a real render drew, carrying real weights, and the bright outline is a real firefly locus rather than a colour ramp.</p>
+    </div>
+    <figure>
+      {{DOCPNG:correlated/fig-cone-9.png}}
+      <figcaption><b>Strategy 09 · preset 41 · N = 16 · all-N</b><span>What to notice is the apex. All sixteen conics meet at one point, because the apex of a photon cone is the light and all sixteen were seeded from the same emitter. The half-angle differs per member because cos θ is the sampled dimension; φ and t are the swept ones. This camera sits almost level with the light, so the conics degenerate to near-straight wedges — exactly as predicted, the shape is camera-versus-axis dependent, and this camera picked the degenerate case.</span></figcaption>
+    </figure>
+    <div class="narrow">
+      <h3>Three modes, because they are three different pictures</h3>
+    </div>
+    <div class="tw"><table>
+      <thead><tr><th><span class="mono">pp.correlated</span></th><th>Estimator</th><th>Cost / pass</th><th>What it looks like</th></tr></thead>
+      <tbody>
+        <tr><td>0 · off</td><td>a fresh primitive per camera sample</td><td>1×</td><td><b>Byte-identical</b> to before the feature existed</td></tr>
+        <tr><td>1 · stippled</td><td>one uniformly chosen member of the batch per sample; no 1/N, one uniform pick is already the mean</td><td>1×</td><td>Neighbours show different sheets — the primitives read as dithered together</td></tr>
+        <tr><td>2 · all-N</td><td>every pixel sums the whole batch and divides by N <b>drawn</b></td><td>N×</td><td>Clean hard-edged overlapping sheets, roughly N× less noise</td></tr>
+      </tbody>
+    </table></div>
+    <div class="narrow">
+      <p>It cost almost nothing to build, for a structural reason worth stating. <code>sampleOnePixel</code> already draws every photon-side random number <em>after</em> the camera ray is built, in every one of its strategy blocks. So correlating is a split of the RNG stream rather than a refactor: re-seed once, immediately after <code>cam.generateRay</code> returns, and every pixel handed batch index <span class="mono">k</span> reconstructs primitive <span class="mono">k</span> bit for bit. Not one strategy block was touched, and the mode covers strategies 0–16 and 18–30 — the mixtures, the hourglass family, the glossy ring and the one-dimensional group included; the swarm of rings and hooks in section 04b of <a href="photon-hourglass.html#onedim" style="color:var(--l460)">Caustics without a kernel</a> is that reach arriving on three strategies that did not exist when the mode was written, and it needed no code. Only strategy 17 opts out, because it is a whole-image splat pass that returns before the branch.</p>
+      <p class="note"><b>The count that used to be in that sentence.</b> It read &ldquo;all nineteen strategy blocks&rdquo;, which was true when it was written and is a figure the source's own comment still carries at the correlated branch. Strategies 26 and 27 have blocks of their own now, and rather than print a new number that will go stale the same way, this page states the property that is actually load-bearing: <em>every</em> block draws its photon-side randomness after the camera ray, and the byte-identity guarantee is what proves none was missed.</p>
+      <p>The palette is deliberately shared with the explorer: primitive <span class="mono">k</span> gets the same hue circle the explorer uses for strategy 15's orientation set, so a sheet in the deterministic picture and a sheet in the stochastic one are the same colour.</p>
+      <h3>The one way to ship this quietly wrong</h3>
+      <p>The divisor is N <em>drawn</em>, never N that crossed the camera ray. Dividing by the crossing count inflates the image by the reciprocal of the crossing probability. That was built behind a debug flag, fired on purpose, measured, and deleted:</p>
+    </div>
+    <div class="readout">
+      <div class="row"><span class="lbl">Frame energy, wrong divisor / reference</span><span class="val">2.1× – 6.8×</span></div>
+      <div class="row"><span class="lbl">Per lit pixel, wrong / correct</span><span class="val">6.6× – 14.2×</span></div>
+      <div class="row hi"><span class="lbl">Wrong / reference at 150 / 600 / 2400 passes</span><span class="val">4.39 <span class="d">/</span> 4.45 <span class="d">/</span> 4.45</span></div>
+      <div class="row"><span class="lbl">Correct / reference, same passes</span><span class="val">0.96 <span class="d">/</span> 0.99 <span class="d">/</span> 0.99</span></div>
+    </div>
+    <div class="narrow">
+      <p class="note"><b>Read the third row again.</b> The wrong normalisation is flat to 1.5% over a sixteen-fold range in pass count. It does not flicker, it does not drift, it does not look noisy. It converges cleanly to four and a half times the right answer, and nothing in the image says so. This is the failure mode a picture cannot catch and only a reference can.</p>
+      <p>The design record's own prediction was 2.5×–3.7×, from a Python model of the cone. The renderer's answer is 2.1×–6.8× on frame energy, because the crossing probability in these presets is much smaller than in the model's geometry. Same mechanism, bigger multiplier here — so the page quotes the mechanism, and the correction stands in the record next to the prediction it replaced.</p>
+      <h3>How it was accepted</h3>
+      <p>Twelve films were pinned from the pre-change binary and re-rendered from the final one at 300 passes each, across three presets and ten strategies. All twelve byte-identical, checked twice — once with the debug trap compiled in and once after removing it. Then the correlated films were compared against the uncorrelated reference at 2400 passes:</p>
+    </div>
+    <div class="tw"><table>
+      <thead><tr><th>Film / reference</th><th>N = 64</th><th>N = 1024</th><th>N = 65536</th></tr></thead>
+      <tbody>
+        <tr><td>p47 s8 disk · stippled</td><td>1.0087</td><td>1.0024</td><td>1.0009</td></tr>
+        <tr><td>p47 s18 beam · stippled</td><td>—</td><td>0.9993</td><td>1.0003</td></tr>
+        <tr><td>p48 s21 MIS · stippled</td><td>—</td><td>1.0012</td><td>1.0034</td></tr>
+        <tr><td>p47 s9 cone · stippled, <b>raw</b></td><td>1.1239</td><td>0.9221</td><td><b>8.4436</b></td></tr>
+        <tr><td>p47 s9 cone · stippled, <b>top-0.1% clipped</b></td><td>1.0022</td><td>0.9989</td><td><b>0.9985</b></td></tr>
+      </tbody>
+    </table></div>
+    <div class="narrow">
+      <p>The last two rows are the fold row of section 01 arriving in the shipped renderer. Strategy 9's raw frame energy wanders in both directions with no trend and the 8.44 is one pixel; clip the top 0.1% from both films and every fold member agrees to 0.2% at every N. That is a finding about the <em>reference</em>, not about correlation — the uncorrelated film is itself unconverged in its own tail at 2400 passes. Strategy 8, the one member with bounded weights, needs no clipping at all and agrees to four digits raw, which is why it is the clean unbiasedness gate.</p>
+      <p class="note"><b>And one thing the frozen mode is not, by design.</b> Freezing the batch across passes converges the film to <em>that batch's realisation</em>, not to L. More camera samples only clean up the camera side; the light-side error is permanent. The UI says so in orange while the toggle is on. Relatedly, the per-pixel variance of a correlated pass is not an error estimate — the correlation coefficient is independent of N, so a bigger batch shrinks the amplitude of the structure without changing its shape, and any adaptive sampler or denoiser reading that variance is being lied to.</p>
+    </div>
+    {{VIDEO:Sixteen sheets becoming an image | preset 41 · integrator 9 · strategy 9 · PP full resolution · Render Settings ▸ PP Estimator ▸ Correlated batch ▸ All N · Show primitives ON · Freeze batch ON · let it settle, then drag Primitives / pass from 1 to 256 over 8 s, then turn Show primitives OFF and let 200 passes accumulate · 18 s | the individual tinted conics staying sharp while their apex stays pinned to the light; then, as N climbs, the hues washing to grey as the batch starts to look like the answer; then the hard rims going soft the moment the display mode is switched off and the film divides by N again}}
+  </div>
+</section>
+
+<!-- ================= 04 · THE ROSTER ================= -->
+<section id="roster" style="--secc:var(--l540)" data-nav="The roster">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">04 — One primitive, one picture</p>
+      <h2>Each family has a visual signature, and it is the row of the variance table it belongs to</h2>
+      <p class="lead">These five frames are the same feature pointed at different strategies. Read them against the table in section 01: the shape you see is how that member's Jacobian vanishes, made visible, because the Jacobian is in the denominator and the bright places are where it is small.</p>
+    </div>
+    <div class="pair">
+      <div class="pane"><span class="tag b">07 · photon sphere</span>{{DOCPNG:correlated/fig-sphere-7.png}}</div>
+      <div class="pane"><span class="tag b">10 · UT plane</span>{{DOCPNG:correlated/fig-plane-10.png}}</div>
+    </div>
+    <div class="paircap"><b>Fold and linear</b><span>Left, preset 41, N = 16, all-N: nested bubbles centred on the light, each a filled disc with an incandescent rim, and the rims sear as they close on the light. That rim is the fold — two quadric roots merging at the silhouette. Right, preset 35, N = 128, stippled: a pick-up-sticks pile of straight tinted bands converging in perspective from the ceiling quad's edge into the fog, each with a hot streak running along it. That streak is the linear zero, and it is integrable, which is why the plane family is usable solo and the sphere is not.</span></div>
+    <div class="pair">
+      <div class="pane"><span class="tag b">08 · photon disk</span>{{DOCPNG:correlated/fig-disk-8.png}}</div>
+      <div class="pane"><span class="tag b">03 · UV quad</span>{{DOCPNG:correlated/fig-quad-3.png}}</div>
+    </div>
+    <div class="paircap"><b>Fan and constant</b><span>Left, preset 35, N = 16, all-N: blades radiating from the light's image, brightening toward the axis like 1/δ. No fold anywhere — this is the Cauchy fan, the calmest member of the family and the one that wins 38.8% of the pixels in the map above. Right, preset 35, N = 64, stippled: hard-edged parallelogram slabs of fog, evenly lit, no interior structure at all. Strategy 3's Jacobian is constant over its sheet, so there is nothing to see inside one — it is literally the light quad, translated.</span></div>
+    <figure>
+      {{DOCPNG:correlated/fig-hourglass-20.png}}
+      <figcaption><b>Strategy 20 · preset 48 · N = 16 · all-N</b><span>The photon hourglass: the exit ray from a glass sphere revolved about the light-to-centre axis. Two things to notice. The individual swept sheets are visible as fine crossing lines, so you can count the sixteen. And every one of them piles its brightest region on the same central axial line — that is the paraxial focus, the reason the finished caustic's skeleton is already legible at sixteen primitives. The speckle along the sheets is real: the grazing guard is forced off in this display mode, because the guard's whole job is to delete the rim this picture exists to show.</span></figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ================= 05 · PREDICTIONS THAT FAILED ================= -->
+<section id="wrong" style="--secc:var(--l580)" data-nav="Wrong twice">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">05 — Two predictions that did not survive</p>
+      <h2>The design record predicted every frame before it existed. Six landed as predicted; two did not, for the same reason</h2>
+      <p class="lead">Section 3 of the correlated-mode design record predicted every frame in the gallery above before any of them existed, reading each prediction off the variance classification. Six landed as predicted. Two did not, and neither failure was in the mathematics — both were geometry that no preset in this repository can produce.</p>
+
+      <h3>The disk's pinwheel is unreachable</h3>
+      <p>Predicted: a pinwheel of blades with a dark hole through the light. What appeared: a fan of vertical blades hanging off the light, with a bright seam where the hole was supposed to be.</p>
+      <p>The blades are half-planes that all contain the light's axis, so a pinwheel is what you see looking <em>down</em> that axis. The axis is the emitter's normal for an area light and world-up for a point light, so in every scene here it is vertical — and every PP preset points the camera level. The pinwheel view would require looking straight down at the ceiling light, and no preset does. From the side it projects to a fan; on preset 41, with the camera almost at the light's own height, it degenerates further into two half-frames split by the axis. The predicted dark column is there, but neighbouring blades close over it, so it reads bright.</p>
+
+      <h3>The quad's tangency is one scanline, not scattered slivers</h3>
+      <p>Predicted: a few blinding thin slivers among ordinary patches, wherever a quad happened to be seen edge-on. What appeared: a single incandescent line straight across the frame at the camera's own eye height, carrying essentially all of the estimator's variance.</p>
+      <p>Strategy 3 <em>translates</em> the emissive quad along ω; it does not rotate it. A ceiling quad therefore stays horizontal at every distance, and a level camera sees every member of the batch near edge-on at exactly one height — its own. The slivers are not scattered because nothing scatters them. The same geometry explains why this family needs a batch in the thousands before anything crosses the frame: its screen footprint is small <em>because</em> of the edge-on geometry, not incidentally.</p>
+
+      <p class="note"><b>Why this stays on the page.</b> Both misses came from reasoning about a sheet in isolation and forgetting that a camera has to look at it — a specific, repeatable failure mode, and the same one the triage document records after three confident wrong conclusions in a single session, each settled by one counter. The rule it left behind is the reason the two tools above exist: instrument first.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 06 · THE MIXTURE ================= -->
+<section id="mixture" style="--secc:var(--l600)" data-nav="Mixture">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">06 — The mixture, on one frozen batch</p>
+      <h2>Same sixteen primitives, same seeds, same pixels. Only the edge weights changed</h2>
+      <p class="lead">This is the strongest argument for multiple importance sampling anywhere in this project, and it is an argument that only a frozen batch can make. The balance heuristic changes a weight formula and draws no random numbers, so freezing the batch pins every shape in place and lets the weighting act alone: one batch, film maximum 4.9 × 10⁴ for the cone by itself, 368.7 for the trio under the balance heuristic, and every rim between them going out along its whole length.</p>
+    </div>
+    <div class="pair">
+      <div class="pane"><span class="tag a">A · flat 1/N weights</span>{{DOCPNG:correlated/fig-mis-13-flat.png}}</div>
+      <div class="pane"><span class="tag b">B · balance heuristic</span>{{DOCPNG:correlated/fig-mis-13-balance.png}}</div>
+    </div>
+    <div class="paircap"><b>Strategy 13 · sphere + disk + cone · identical batch</b><span>The bubbles, blades and wedges are in exactly the same places in both panes, because they are the same primitives. On the left every rim is a hard bright line and there are firefly dots between them. On the right the rims have gone soft. Nothing moved; the singular member simply stopped being trusted where it is singular.</span></div>
+    <div class="readout">
+      <div class="row"><span class="lbl">Film maximum — cone alone</span><span class="val">4.9 × 10⁴</span></div>
+      <div class="row"><span class="lbl">Film maximum — trio, flat weights</span><span class="val">4562</span></div>
+      <div class="row hi"><span class="lbl">Film maximum — trio, balance weights</span><span class="val">368.7</span></div>
+      <div class="row"><span class="lbl">Knockdown attributable to the heuristic alone</span><span class="val">12.4×</span></div>
+    </div>
+    <div class="narrow">
+      <p>Both panes are unbiased. Flat weights are a legitimate MIS combination and converge to the same image; they are simply a bad one. What the balance heuristic does is replace the effective Jacobian with the sum of the members' densities, so a set whose tangency loci are disjoint has no zero that any camera ray can reach. In the numpy study the same change turns the folds of the sphere and the cone into Hill indices between 5 and 60, and the worst pixel of the image from 2.7×10³ to 3.9.</p>
+      <p>Correlation also changes how this reads in motion. Uncorrelated, "MIS removes fireflies" looks like isolated pixels going out. Correlated, it looks like a hot rim extinguishing along its whole length — which is what is actually happening, and is much harder to mistake for a denoiser.</p>
+    </div>
+    {{VIDEO:One weight formula, twice | preset 41 · integrator 9 · strategy 13 · Correlated batch ▸ All N · N = 16 · Show primitives ON · Freeze batch ON · 300 passes · hold 3 s, then toggle MIS weighting between Balance heuristic and Flat average twice, 2 s apart · 12 s | the shapes not moving at all — every bubble, blade and wedge is pinned — while every rim goes hard, then soft, then hard again. Shoot this before anything else in the session: it is the clip that proves the frozen batch is really frozen}}
+    <figure>
+      {{DOCPNG:correlated/fig-mis-21.png}}
+      <figcaption><b>Strategy 21 · beam + hourglass</b><span>A bonus the design document did not predict: correlation makes a <em>heterogeneous</em> mixture legible. Both primitive kinds are in the frame at once — thick straight tinted beam segments at their kernel width, and the analytic horn between them. Compare the horn's sheets against the solo hourglass in section 04: smooth here, speckled with J → 0 fireflies there. That difference is the picture of the same fact the source records numerically, that under strategy 21 the grazing guard is retired in all but name.</span></figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ================= 07 · THE BENCH ================= -->
+<section id="bench" style="--secc:var(--l620)" data-nav="The bench">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">07 — The rest of the bench</p>
+      <h2>Three more tools, one shared vocabulary</h2>
+      <p class="lead">The explorer and the frozen batch are the two that changed how the research ran. Three others sit alongside them, and one of them has never been looked at.</p>
+
+      <h3>Split A/B</h3>
+      <p>Two independent estimator passes over the same scene and the same camera, composited as a wipe in the main viewport with a draggable divider, plus a radio for which side advances so you can freeze one and let the other climb. Side B's configuration is a copy of side A's with only the compared fields overridden, so a field added later stays in lockstep automatically instead of silently diverging.</p>
+      <p>Two deliberate details. Both panes show <em>raw</em> estimator output with the post-process and stylisation chain bypassed — that chain is single-input and carries temporal state, so running it on one side only would put a filter on half of an A/B, which is a lie. And identical settings on both sides give bit-identical panes, because the two sides share an RNG stream. That is correct and it reads as broken, so it is the first thing to test in a capture session.</p>
+      <p><span class="st st-c">never viewed</span> &nbsp;Built, headless-reachable through <code>pp.split</code>, and not yet seen by a person on screen — which is why it is first on the shooting list.</p>
+    </div>
+    {{VIDEO:Two estimators, one divider | preset 48 · integrator 9 · PP full resolution · Compare ▸ Split A/B ON · A = strategy 20, B = strategy 18 with B min bounce 2 and B max bounces 3 · FIRST set B strategy to 20 as well and confirm both panes are bit-identical, then set it back to 18 · let both climb from 1 to 200 passes with the pass counters visible, dragging the divider slowly across · 14 s | the analytic caustic on one side of the divider and the kernel-blurred one on the other, converging at different rates from the same camera; and the bit-identity test at the head of the clip, which is the reason the rest of it can be believed}}
+    <div class="narrow">
+      <h3>The Photon Primitive Validator (PPE)</h3>
+      <p>A separate tool with a different job: it visualises sampling geometry, it does not estimate. The panel names itself &mdash; <em>Photon Primitive Validator</em>, at Render Settings &#9656; Photon Primitives &#9656; Enable &mdash; and it is as unphotographed as anything here: eleven rows in the inventory, and <b>every single one of them graded never viewed</b>. Take one traced sub-path, choose vertices, sweep {θ, φ, distance} at them, and watch the endpoint become a curve, a surface or a volume. Nine render modes, of which four are worth naming — the <b>seamless surface</b>, whose quad corners are the neighbouring real sample points rather than a bilinear guess, so curved sweeps show no diagonal seams; the <b>ray-marched volume</b>, which splats photons into an integer voxel grid through atomics, converts to a filterable float texture and marches it fullscreen, so a two-dimensional sweep reads as a glowing shell; the <b>MIS double primitive</b>, shading each cell by the harmonic mean of its own and the other primitive's Jacobian; and the <b>analytical tracer</b>, which ray-traces the exact closed-form surface per pixel with a per-hit exact Jacobian.</p>
+      <p><b>You pick both ends of the path by hand, and the panel prices the picks.</b> One pick-mode radio puts the cursor in Camera or Photon mode; a camera pick is a viewport pixel, committed and then locked in world space along with the camera basis, field of view and aspect at pick time, so the gizmo stays where you put it when you orbit away; a photon pick is a world-space hit on a light, and the panel reports which light and whether it came from <span class="mono">scene.lights[]</span> or from an emissive entity. Above them sits one shared bounce budget, and this is the part worth copying: the camera and photon sliders are each clamped by the other, and the remainder is printed as its own line &mdash; green <span class="mono">Slack: n (available for sweep)</span>, grey <span class="mono">Slack: 0 (no sweep capacity)</span>, orange <span class="mono">Over budget by n</span>. The dimension count this family&rsquo;s bugs live in is on the panel face, exactly as it is in the explorer&rsquo;s <span class="mono">&Sigma; free</span> readout in section 02.</p>
+    </div>
+
+    <div class="tw"><table>
+      <thead><tr><th>Row</th><th>What it is</th><th>Mark</th></tr></thead>
+      <tbody>
+        <tr><td>PPE &mdash;<br><b>Per-leg bounce budgets and seeds</b></td><td>Total budget 2&ndash;16, split between a camera leg and a photon leg with the slack readout above. Each leg carries its own RNG seed, shown as an integer beside a <b>Resample</b> button that increments it &mdash; so a sub-path is addressable as a side and a number, and can be returned to</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>PPE &mdash;<br><b>Regex path descriptors</b></td><td>A per-vertex type string for each leg, printed live. Not a pattern and not a filter &mdash; see below</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>PPE &mdash;<br><b>Occlusion and reachability gates</b></td><td>Two different mechanisms sharing a heading. <em>Occlusion</em> depth-tests the drawn segments against the raster pre-pass and continues a blocked one at low alpha. <em>Reachability</em> is a real cull, run per photon inside the march shader &mdash; see below</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>PPE &mdash;<br><b>Derived-path diagnostic</b></td><td>Answers &ldquo;why is this pairing zero&rdquo;: occluded photons are tinted dark red instead of being culled, and hovering one draws its whole reconstructed sub-path in magenta with red overdraw on the segments that are blocked. Disabled in the volume-march mode, which has no per-photon path to draw</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>PPE &mdash;<br><b>Batch and pinning</b></td><td>The hover gathers every photon whose screen projection lands inside a pick radius &mdash; 5 to 200 px on a logarithmic slider, default 30 &mdash; and depth-stratifies the result to 32; the GPU picker keeps up to 1024 hits before the CPU thins them. Left-click pins that whole set, right-click clears it. A <b>Show structure</b> sub-toggle draws a regular 64-path grid across the swept parameter space at low alpha, independent of the cursor</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>PPE &mdash;<br><b>9 render modes</b></td><td>Disc, oriented splat, surface patch, seamless surface, transport estimate, ray-marched volume, analytical surface, MIS double primitive, analytical tracer. Modes 1&ndash;4 need <em>exactly</em> two swept dimensions and the panel says so in place, falling back to Disc rather than drawing something wrong</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>PPE &mdash;<br><b>Volume grid march</b></td><td>Core GL has no atomic add on a float image and none on a four-component one, so the accumulation grid is four separate <span class="mono">r32ui</span> images and each photon&rsquo;s rgb is added as fixed point scaled by 1024, with a fourth image counting hits. A convert pass turns it into a filterable float texture and a fullscreen pass marches it. Grid 32&ndash;256 (default 128), steps 16&ndash;256 (default 256) or auto-tracked to about twice the grid resolution; deposit either a flat 1.0 for clean geometry or the transport weight</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>PPE &mdash;<br><b>Analytical primitive rendering, 4 materials</b></td><td>Matte, Glossy, Metallic and Anisotropic (silk), the last elongating its highlight along the parametric <span class="mono">u</span> direction so a swept sheet reads as brushed metal. Shaded fill and wireframe are independent toggles &mdash; with both off, nothing renders &mdash; and a smoothing option takes the fragment normal from screen-space derivatives of world position instead of the per-cell cross product, to remove faceting at cell boundaries</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>PPE &mdash;<br><b>A/B harmonic-mean MIS editing</b></td><td>Mode 7 marches two fully independent swept primitives and draws both clouds at once; the MIS toggle replaces each cell&rsquo;s own Jacobian with the harmonic mean of its own and the other primitive&rsquo;s. The result is cached on a hash of all four march hashes plus the toggle, so editing B does not re-march A</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>PPE &mdash;<br><b>The floating sweep editor</b></td><td>A separate auto-resizing window joined to the selected vertex by a dashed arrow, opened by clicking a vertex in either the schematic or the viewport. Per-dimension enable, 2&ndash;1024 samples and a range: &theta; is a full sphere at &pi;, &phi; a full revolution at 2&pi;, and <span class="mono">dist</span> scales the leg by <span class="mono">u&middot;R</span>, so R = 0 collapses the vertex and the sweep closes into a solid ball. In mode 7 the same window switches between primitive A and primitive B</td><td><span class="st st-c">never viewed</span></td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="narrow">
+      <p><b>The &ldquo;regex&rdquo; is a label, not a pattern.</b> <span class="mono">buildRegex</span> walks a sub-path&rsquo;s vertices and emits one character each from a seven-letter alphabet &mdash; <span class="mono">L</span> light, <span class="mono">E</span> camera, <span class="mono">D</span> diffuse, <span class="mono">S</span> specular, <span class="mono">V</span> volume, <span class="mono">G</span> glass, <span class="mono">e</span> emitter &mdash; separated by spaces, and the panel prints it. Nothing is matched against it and nothing is filtered by it. It is the path&rsquo;s type written down so that the eye can check the pairing it is looking at, which is the right thing for a validator to do and is not what the name promises. It is also a different object from the path-type filter on the tracer&rsquo;s own Filters tab, which does filter.</p>
+      <p><b>The reachability cull carries this project&rsquo;s byte-identity convention into a visualiser.</b> With the gate off, per-photon visibility is left at 1.0 and the march shader&rsquo;s own comment records that the output is byte-identical to the behaviour before the feature existed. With it on, every segment of the reconstructed sub-path gets an any-hit test, and the photon is culled on the first blocked one. The tests are written inside the march shader to mirror the CPU intersector exactly &mdash; the comment says <em>same epsilons, same clip and slab arithmetic</em>, and the same <span class="mono">minT</span> semantics &mdash; because a cull that disagreed with the renderer&rsquo;s own intersector would delete photons the estimator can genuinely reach, and a picture of a sampling geometry that quietly drops reachable samples is worse than no picture.</p>
+      <p>Underneath it is a taxonomy: a header-only classifier that maps a set of swept dimensions to an analytical shape, unit-tested by a target that links glm and nothing else. The test binary carries 61 assertions across two files — the shape classifier and the evaluator — and returns non-zero on any failure, so it doubles as a gate.</p>
+      <p>Self-described status is <b>ongoing</b>, and the document says where. The analytic tracer handles sphere, cone, disk, parallelogram, parallelepiped, planar sector and ball sector; the higher-dimensional shapes have no closed form and are not traced. The rasterised MIS mode has a cache-timing bug where the density sometimes only appears after a resample, and its own notes propose deprecating it in favour of doing MIS in the analytic tracer instead.</p>
+    </div>
+    {{VIDEO:Sweeping a path into a shape | preset 33 · Render Settings ▸ Photon Primitives ▸ Enable · pin a path · render mode 5 (ray-marched volume), hold 4 s, then mode 8 (analytical tracer) · drag the θ, φ and distance ranges through their full extent on each · 18 s | in mode 5, a two-dimensional sweep reading as a solid glowing shell rather than a film, because of the splat radius; in mode 8, the same object as an exact traced surface with no tessellation — watch the silhouette stay clean as the ranges move}}
+    {{VIDEO:Picking both ends of a path, and asking one why it is zero | preset 33 · Render Settings ▸ Photon Primitives ▸ Enable · Total bounce budget 4 · set Cam bounces to 1 and Photon bounces to 3 so the slack line reads 0, then drop the photon leg to 2 so it reads green "Slack: 1 (available for sweep)" · Pick mode Camera, click a pixel on the caustic; Pick mode Photon, click the light · read the two descriptor strings in the panel · turn on Show derived path, then Reachable only, then hover a photon and left-click to pin the bundle · 25 s | first, the slack line changing colour as the two sliders are moved against a fixed total — that number is the sweep capacity, and it is the same count as the explorer's Σ free check. Then, at the reachable-only toggle, whole regions of the point cloud vanishing at once: those photons cannot see their own origin. Then the pinned magenta sub-paths, with the blocked segments overdrawn red — the diagnostic answering "why is this pairing zero" in the picture rather than in a log}}
+    <div class="narrow">
+      <h3>The overlay bank, and what it reveals</h3>
+      <p>Fifteen overlay draw functions cover the rest of the renderer — seven of them per-integrator path and photon visualisations for the photon mapper, VCM, MLT, PSSMLT, UPBP, path guiding and manifold exploration, plus ray differentials, normal arrows, the light tree, the acceleration structures and the BDPT strategy pyramid.</p>
+      <p>The acceleration overlay is worth calling out because of what it reveals rather than what it draws. The BVH and the uniform grid are built, and the overlay is their <em>only</em> consumer — nothing traverses them on either the CPU or the GPU, where the tracer is a flat linear scan over all primitives. The visualiser is drawing a data structure the renderer does not use.</p>
+      <p>All of the estimator-side drawing shares one glyph vocabulary: cyan for the camera side, warm yellow for the photon side, a red centre dot for a swept or specular vertex, a dashed ring for a camera or light endpoint and a solid ring for an emitter or a surface. The same vocabulary is used by the in-app 2D schematic, the 3D overlay, and the schematics drawn for these pages — which is why a diagram here and a screenshot from the app read as the same object.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 08 · INVISIBLE ================= -->
+<section id="invisible" style="--secc:var(--l680)" data-nav="Invisible">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">08 — What is still invisible</p>
+      <h2>The interesting category is the built-and-never-seen one, so it gets a list rather than a silence</h2>
+      <p class="lead">A page about visualisation should be able to say which of its own things have never been on a screen. These compile, pass their headless or numeric checks, and have never been looked at by a person. Anything odd in them is a real candidate bug, not an expected gap.</p>
+    </div>
+    <div class="tw"><table>
+      <thead><tr><th>Thing</th><th>Status</th><th>Note</th></tr></thead>
+      <tbody>
+        <tr class="key"><td>The Photon Primitive Validator, entire</td><td><span class="st st-c">never viewed</span></td><td>Eleven rows in the inventory and not one of them has been on a screen; I have not found another cluster on this site that size. Section 07 is its roster, and the two clips there are the shooting list</td></tr>
+        <tr><td>Split A/B compare</td><td><span class="st st-c">never viewed</span></td><td>Headless-reachable via <code>pp.split</code>. Shoot it early, in case it is broken</td></tr>
+        <tr><td>Clean view (<span class="mono">G</span>)</td><td><span class="st st-c">never viewed</span></td><td>And it is incomplete by inspection — it does not hide photon dots, path overlays, the KD-tree, physics particles, the hover BSDF badge or the dolly-zoom HUD</td></tr>
+        <tr><td>Hourglass controls — mirror relays, J-floor slider, include-photon-point</td><td><span class="st st-c">never viewed</span></td><td>All three are measured; none has been driven by hand</td></tr>
+        <tr><td>Explorer coverage for strategies 0–2, 5, 6, 17–30</td><td><span class="st st-d">design only</span></td><td>Nineteen of thirty-one render flat grey — including the whole hourglass family, the cross-family mixture, the glossy ring and the one-dimensional group</td></tr>
+        <tr><td>Correlated <b>rasterising</b> gather</td><td><span class="st st-a">measured</span></td><td>Built. Bounds each primitive in screen space and gathers per scanline instead of tracing per pixel, and it passed the strongest acceptance test here: <b>md5-identical</b> to the all-N tracer on 97 of 97 comparisons, the same sum in a different order. 16.7× on the quad and 5.8× on the beam at N = 256, 1.1× on the hourglass. Invisible in the truest sense — its film is bit for bit the traced one</td></tr>
+        <tr><td>Photon Mapper panel · "Show Jacobian"</td><td><b class="mono" style="color:var(--bad)">dead</b></td><td>The flag has <b>no reader anywhere in the source</b>. Since 2026-09-04 the toggle is greyed and labelled <span class="mono">[inert]</span>, and the two placeholder switches beside it are greyed with it</td></tr>
+      </tbody>
+    </table></div>
+    <div class="narrow">
+      <p>The last row is the one to keep, and it is why the control was greyed rather than left alone. A control that looks like a visualiser and does nothing is worse than a missing feature, because a screenshot of it would be a lie, and this whole page is built on screenshots meaning what they appear to mean.</p>
+      <p class="note"><b>What none of this replaces.</b> Every picture on this page is a diagnostic, not evidence. The frozen batch is explicitly not converging to the right answer; the display mode skips the divide by N and switches the grazing guard off; the explorer's colour is a ramp, not a radiance. The wrong-divisor experiment in section 03 is the whole argument in one number — an image that looked entirely correct at every sample count was four and a half times too bright, and only a reference film and a median ratio ever said so. These tools decide <em>where to look</em>. They never decide whether the answer is right.</p>
+    </div>
+  </div>
+</section>
+
+{{SECTION:_foot.html}}

@@ -13,6 +13,7 @@ class GraphVisualizer {
         this.styleManager = new VisualStyleManager();
         this.currentStyle = this.styleManager.getCurrentStyle();
         this.currentStyleName = 'modern'; // Track current style name
+        this.canvasTone = 'paper';
         
         // Physics system
         this.physics = new SpringPhysics(this.currentStyle.getPhysicsConfig());
@@ -1495,9 +1496,10 @@ class GraphVisualizer {
         
         // Draw elegant background gradient
         const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-        gradient.addColorStop(0, '#f8f9fa');
-        gradient.addColorStop(0.5, '#ffffff');
-        gradient.addColorStop(1, '#f1f3f5');
+        const paper = this.canvasTone === 'paper';
+        gradient.addColorStop(0, paper ? '#f8f9fa' : '#15222d');
+        gradient.addColorStop(0.5, paper ? '#ffffff' : '#101c24');
+        gradient.addColorStop(1, paper ? '#f1f3f5' : '#0a111b');
         
         ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -1507,7 +1509,7 @@ class GraphVisualizer {
             canvas.width / 2, canvas.height / 2, 0,
             canvas.width / 2, canvas.height / 2, Math.max(canvas.width, canvas.height) / 2
         );
-        radial.addColorStop(0, 'rgba(255, 255, 255, 0.3)');
+        radial.addColorStop(0, paper ? 'rgba(255, 255, 255, 0.3)' : 'rgba(140, 210, 198, 0.07)');
         radial.addColorStop(1, 'rgba(0, 0, 0, 0.02)');
         
         ctx.fillStyle = radial;
@@ -1892,7 +1894,7 @@ class GraphVisualizer {
                     "Blue edge": "Currently exploring",
                     "Red edge": "Updated distance (will fade)"
                 },
-                complexity: "Time: O((V+E)log V)"
+                complexity: "Core: O((V+E) log V) with adjacency lists"
             },
             prim: {
                 title: "Prim's Algorithm (Lazy)",
@@ -1906,13 +1908,13 @@ class GraphVisualizer {
                     "Green (top of PQ)": "Top of PQ (will be popped next)",
                     "Red crossed": "Internal edge (rejected - already in MST)"
                 },
-                complexity: "Time: O((V+E)log V)"
+                complexity: "Core: O((V+E) log V) with adjacency lists"
             },
             'prim-optimized': {
                 title: "Prim's Algorithm (Optimized)",
                 description: "Optimized Prim's MST using eager update with decreaseKey. Maintains best edge to each non-tree node. No stale/duplicate entries in PQ.",
                 howItWorks: "Uses key array to track minimum edge weight to each node. When finding better edge, uses decreaseKey to update PQ instead of inserting duplicate. Some edges never enter PQ if worse than current key.",
-                comparison: "vs Lazy: Never has stale entries. Uses decreaseKey to update existing PQ entries. More efficient with fewer PQ operations. Some edges get rejected immediately without entering PQ.",
+                comparison: "vs Lazy: Never has stale entries. Uses decreaseKey to update existing PQ entries. Some edges get rejected immediately without entering PQ; savings depend on the graph and heap implementation.",
                 colorLegend: {
                     "Purple edge": "In MST (accepted)",
                     "Green edge": "Adding to PQ",
@@ -1920,7 +1922,7 @@ class GraphVisualizer {
                     "Light red": "Rejected (weight ≥ current key, never in PQ)",
                     "🔑 Keys": "Min cost to reach each node (orange glow = just changed)"
                 },
-                complexity: "Time: O((V+E)log V)"
+                complexity: "Core: O((V+E) log V) with adjacency lists"
             },
             kruskal: {
                 title: "Kruskal's Algorithm",
@@ -1930,7 +1932,7 @@ class GraphVisualizer {
                     "Purple edge": "In MST (accepted)",
                     "Node colors": "Union-Find sets (same color = same set)"
                 },
-                complexity: "Time: O(E log E)"
+                complexity: "Core: O(E log E)"
             },
             bellman: {
                 title: "Bellman-Ford Algorithm",
@@ -1941,20 +1943,20 @@ class GraphVisualizer {
                     "Blue edge": "Currently checking",
                     "Red edge": "Relaxed (improved distance)"
                 },
-                complexity: "Time: O(VE)"
+                complexity: "Core: O(VE)"
             },
             spfa: {
                 title: "SPFA (Shortest Path Faster Algorithm)",
-                description: "Optimized Bellman-Ford using a queue. Only processes nodes whose distance changed. Much faster in practice.",
-                howItWorks: "Maintains queue of nodes to process. When node's distance improves, enqueue it. Only relax edges from nodes in queue. Often faster than Dijkstra on dense graphs with negative edges.",
-                comparison: "vs Bellman-Ford: Only checks edges from nodes whose distance changed (in queue). Average O(E) vs O(VE). Still detects negative cycles.",
+                description: "Optimized Bellman-Ford using a queue. Revisits the outgoing edges of vertices whose distances improved. Its queue can save work, but adversarial inputs still take O(VE).",
+                howItWorks: "Maintains queue of nodes to process. When node's distance improves, enqueue it. Only relax edges from nodes in queue. Dijkstra requires nonnegative weights; it is not a valid comparison on a graph with negative edges.",
+                comparison: "vs Bellman-Ford: Only checks edges from nodes whose distance changed (in queue). No universal O(E) average-case guarantee. Still detects reachable negative cycles.",
                 colorLegend: {
                     "Blue edge": "Currently exploring",
                     "Red edge": "Relaxed (improved distance)",
                     "Cyan node": "In queue (pending)",
                     "Green node": "Just dequeued (processing)"
                 },
-                complexity: "Time: O(VE) worst, O(E) average"
+                complexity: "Core: O(VE) worst case"
             },
             floyd: {
                 title: "Floyd-Warshall Algorithm",
@@ -1966,22 +1968,31 @@ class GraphVisualizer {
                     "Purple node": "To vertex J",
                     "Matrix cell": "Current shortest distance i→j"
                 },
-                complexity: "Time: O(V³)"
+                complexity: "Core: O(V³)"
             }
         };
         
         const algoData = info[this.selectedAlgorithm];
+        const requirements = {
+            dijkstra: 'Requires nonnegative edge weights. A stale heap entry is a superseded candidate, not an incorrect shortest path.',
+            prim: 'Requires an undirected graph. On disconnected input this run covers the starting component; Kruskal can build a forest.',
+            'prim-optimized': 'Requires an undirected graph. This educational heap locates decrease-key entries by a linear scan, so fewer queue entries do not imply a faster implementation.',
+            kruskal: 'Requires an undirected graph. Disconnected input produces a minimum spanning forest.',
+            bellman: 'Negative edges are allowed. A reachable negative cycle prevents finite distances downstream.',
+            spfa: 'Negative edges are allowed. Queue scheduling changes the work order, not the shortest-path problem.',
+            floyd: 'Negative edges are allowed. A negative diagonal indicates a negative cycle; finite path claims through it are invalid.'
+        };
         let html = `
-            <p><strong>${algoData.title}</strong></p>
+            <p><strong>${algoData.title}</strong></p><p class="study-note">${requirements[this.selectedAlgorithm]}</p>
             <p style="font-size: 13px; line-height: 1.4;">${algoData.description}</p>
         `;
         
         if (algoData.howItWorks) {
-            html += `<p style="font-size: 14px; color: #838383ff; margin-top: 8px; line-height: 1.4;"><strong>How it works:</strong> ${algoData.howItWorks}</p>`;
+            html += `<p class="study-explanation" style="font-size: 14px; margin-top: 8px; line-height: 1.4;"><strong>How it works:</strong> ${algoData.howItWorks}</p>`;
         }
         
         if (algoData.comparison) {
-            html += `<p style="font-size: 12px; color: #0066cc; margin-top: 8px; line-height: 1.4;"><strong>📊 ${algoData.comparison}</strong></p>`;
+            html += `<p class="study-comparison" style="font-size: 12px; margin-top: 8px; line-height: 1.4;"><strong>📊 ${algoData.comparison}</strong></p>`;
         }
         
         if (algoData.colorLegend) {
@@ -1994,6 +2005,7 @@ class GraphVisualizer {
         }
         
         html += `<p class="complexity" style="margin-top: 10px;">${algoData.complexity}</p>`;
+        html += `<p class="study-note">Core bounds describe standard implementations. This visualizer also scans edge lists, copies step snapshots and draws them; its runtime is not an algorithm benchmark.</p>`;
         
         this.ui.algoInfo.innerHTML = html;
     }
@@ -2384,4 +2396,8 @@ class GraphVisualizer {
 // Initialize when page loads
 window.addEventListener('DOMContentLoaded', () => {
     window.visualizer = new GraphVisualizer();
+    document.getElementById('canvas-tone').addEventListener('change', event => {
+        window.visualizer.canvasTone = event.target.value;
+        window.visualizer.render();
+    });
 });

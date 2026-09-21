@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head><style id="portfolio-early-paint">html{background:#0b0d0c;color-scheme:dark}html.portfolio-booting body{opacity:0}</style><script src="../../portfolio-navigation.js"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Clique Proofs — Curator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Space+Grotesk:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #040911;
+        --panel: #0a1522;
+        --panel-2: #0d1b2b;
+        --line: rgba(255, 255, 255, 0.1);
+        --text: #e7eef7;
+        --muted: #8ea3ba;
+        --accent: #f0a85d;
+        --keep: #4fc4a1;
+        --cut: #d65f5f;
+        --core: #e0c060;
+      }
+      * { box-sizing: border-box; }
+      html { background: var(--bg); }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+        font-size: 15px;
+        line-height: 1.5;
+      }
+      a { color: var(--accent); }
+      .wrap { max-width: 1060px; margin: 0 auto; padding: 28px 20px 120px; }
+
+      header.top h1 {
+        font-family: Fraunces, Georgia, serif;
+        font-size: clamp(1.7rem, 3.2vw, 2.5rem);
+        margin: 0 0 8px;
+      }
+      header.top p { color: var(--muted); margin: 0 0 6px; max-width: 70ch; }
+      .backlink { font-size: 0.86rem; }
+
+      /* sticky action bar */
+      .bar {
+        position: sticky; top: 0; z-index: 20;
+        margin: 22px 0 18px; padding: 12px 14px;
+        background: rgba(8, 18, 30, 0.94);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--line); border-radius: 12px;
+        display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+      }
+      .tally { display: flex; gap: 14px; flex-wrap: wrap; font-size: 0.85rem; }
+      .tally b { font-size: 1.05rem; font-weight: 700; }
+      .tally .k b { color: var(--keep); }
+      .tally .c b { color: var(--cut); }
+      .tally .s b { color: var(--core); }
+      .bar .spacer { flex: 1 1 auto; }
+      button {
+        font: inherit; font-size: 0.82rem; cursor: pointer;
+        color: var(--text); background: rgba(255, 255, 255, 0.06);
+        border: 1px solid var(--line); border-radius: 999px; padding: 6px 13px;
+      }
+      button:hover { border-color: var(--accent); }
+      button.primary { background: var(--accent); color: #1b1206; border-color: transparent; font-weight: 700; }
+
+      .group { margin: 26px 0 0; }
+      .group-head {
+        display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;
+        border-bottom: 1px solid var(--line); padding-bottom: 8px; margin-bottom: 10px;
+      }
+      .group-head h2 {
+        font-family: Fraunces, Georgia, serif; font-size: 1.18rem; margin: 0;
+      }
+      .group-head .count { color: var(--muted); font-size: 0.82rem; }
+      .group-head .mini { margin-left: auto; display: flex; gap: 6px; }
+      .group-head .mini button { padding: 3px 10px; font-size: 0.74rem; }
+
+      .row {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        gap: 12px; align-items: start;
+        padding: 10px 12px; margin-bottom: 6px;
+        background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+      }
+      .row.is-cut { opacity: 0.44; border-style: dashed; }
+      .row.is-core { border-color: rgba(224, 192, 96, 0.5); }
+      .row input[type='checkbox'] { width: 17px; height: 17px; margin-top: 3px; accent-color: var(--keep); cursor: pointer; }
+      .name { font-weight: 700; }
+      .row.is-cut .name { text-decoration: line-through; }
+      .meta { color: var(--muted); font-size: 0.8rem; margin-top: 2px; }
+      .meta .eyebrow { color: var(--accent); }
+      .actions { display: flex; align-items: center; gap: 6px; }
+      .star {
+        border-radius: 999px; padding: 3px 10px; font-size: 0.74rem;
+        background: transparent; border: 1px solid var(--line); color: var(--muted);
+      }
+      .star.on { background: rgba(224, 192, 96, 0.16); border-color: var(--core); color: var(--core); }
+      .expand { font-size: 0.74rem; padding: 3px 10px; }
+
+      .topics { grid-column: 1 / -1; margin: 8px 0 2px; padding: 10px 12px;
+                background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px; }
+      .topics[hidden] { display: none; }
+      .topics .tier { color: var(--accent); font-size: 0.72rem; text-transform: uppercase;
+                      letter-spacing: 0.06em; margin: 8px 0 4px; }
+      .topics .tier:first-child { margin-top: 0; }
+      .topic { display: flex; gap: 8px; align-items: center; padding: 2px 0; font-size: 0.86rem; }
+      .topic input { width: 15px; height: 15px; accent-color: var(--keep); cursor: pointer; }
+      .topic.is-cut { opacity: 0.42; text-decoration: line-through; }
+      .topic .sym { color: var(--muted); font-size: 0.74rem; min-width: 46px; }
+
+      .export { margin-top: 34px; }
+      .export h2 { font-family: Fraunces, Georgia, serif; font-size: 1.15rem; margin: 0 0 6px; }
+      .export p { color: var(--muted); font-size: 0.85rem; margin: 0 0 10px; max-width: 78ch; }
+      textarea {
+        width: 100%; min-height: 190px; resize: vertical;
+        background: #060e18; color: var(--text); border: 1px solid var(--line);
+        border-radius: 10px; padding: 12px; font-family: ui-monospace, Menlo, Consolas, monospace;
+        font-size: 0.78rem; line-height: 1.45;
+      }
+      .hint { color: var(--muted); font-size: 0.8rem; margin-top: 8px; }
+      @media (max-width: 620px) { .row { grid-template-columns: auto 1fr; } .actions { grid-column: 2; } }
+    </style>
+    <link rel="stylesheet" href="portfolio.css">
+<link rel="stylesheet" href="../../portfolio-controls.css"><link rel="stylesheet" href="../../portfolio-demo-return.css"><script defer src="../../portfolio-demo-return.js" data-project="clique-proofs" data-title="Clique Proofs" data-overview="projects/clique-proofs/overview.html" data-group="mathematics" data-thumbnail="media/previews/clique-proofs/native-compactness-clique-proof-bridge.png" data-routes="[{&quot;project&quot;:&quot;clique-proofs&quot;,&quot;title&quot;:&quot;Clique Proofs&quot;,&quot;group&quot;:&quot;mathematics&quot;,&quot;thumbnail&quot;:&quot;media/previews/clique-proofs/native-compactness-clique-proof-bridge.png&quot;,&quot;overview&quot;:&quot;projects/clique-proofs/overview.html&quot;,&quot;path&quot;:&quot;live_demos/clique-proofs/curated.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:2},{&quot;project&quot;:&quot;clique-proofs&quot;,&quot;title&quot;:&quot;Clique Proofs&quot;,&quot;group&quot;:&quot;mathematics&quot;,&quot;thumbnail&quot;:&quot;media/previews/clique-proofs/native-compactness-clique-proof-bridge.png&quot;,&quot;overview&quot;:&quot;projects/clique-proofs/overview.html&quot;,&quot;path&quot;:&quot;live_demos/clique-proofs/curated.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:1},{&quot;project&quot;:&quot;clique-proofs&quot;,&quot;title&quot;:&quot;Clique Proofs&quot;,&quot;group&quot;:&quot;mathematics&quot;,&quot;thumbnail&quot;:&quot;media/previews/clique-proofs/native-compactness-clique-proof-bridge.png&quot;,&quot;overview&quot;:&quot;projects/clique-proofs/overview.html&quot;,&quot;path&quot;:&quot;live_demos/clique-proofs/index.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:1},{&quot;project&quot;:&quot;clique-proofs&quot;,&quot;title&quot;:&quot;Clique Proofs&quot;,&quot;group&quot;:&quot;mathematics&quot;,&quot;thumbnail&quot;:&quot;media/previews/clique-proofs/native-compactness-clique-proof-bridge.png&quot;,&quot;overview&quot;:&quot;projects/clique-proofs/overview.html&quot;,&quot;path&quot;:&quot;live_demos/clique-proofs/&quot;,&quot;query&quot;:{},&quot;priority&quot;:-1}]"></script><!-- universal-navigation:start --><link rel="stylesheet" href="../../portfolio-location.css?v=054b6b462c"><script defer src="../../portfolio-location.js?v=054b6b462c"></script><script defer src="../../portfolio-routes.js?v=054b6b462c"></script><script defer src="../../portfolio-universal-navigation.js?v=054b6b462c"></script><!-- universal-navigation:end --><style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head>
+  <body class="portfolio-clique-proofs">
+  <div class="portfolio-return" data-theme="dark" role="navigation" aria-label="Portfolio"><a class="portfolio-return-link" href="../../projects/clique-proofs/index.html" target="_top"><span aria-hidden="true">←</span> Project overview</a></div>
+    <div class="wrap">
+      <header class="top">
+        <h1>Curator</h1>
+        <p>
+          Every section of the site, with a checkbox. <strong>Checked = keep.</strong>
+          Uncheck what should be dropped, and star the handful that are genuinely
+          the interesting core. Roadmaps can be opened to keep or cut individual
+          topics.
+        </p>
+        <p>
+          Nothing here changes the site. Your choices are saved in this browser as
+          you go; when you are done, copy the JSON at the bottom and hand it back
+          so the cuts can be applied (hidden behind a flag first, never deleted
+          outright).
+        </p>
+        <p class="backlink"><a href="index.html">&larr; back to the site</a></p>
+      </header>
+
+      <div class="bar">
+        <div class="tally">
+          <span class="k">keep <b id="tKeep">0</b></span>
+          <span class="c">cut <b id="tCut">0</b></span>
+          <span class="s">core <b id="tCore">0</b></span>
+          <span class="t">topics kept <b id="tTopics">0</b></span>
+        </div>
+        <span class="spacer"></span>
+        <button id="allOn">Check all</button>
+        <button id="allOff">Uncheck all</button>
+        <button id="reset">Reset</button>
+        <button id="copy" class="primary">Copy JSON</button>
+        <button id="download">Download</button>
+      </div>
+
+      <main id="groups"></main>
+
+      <section class="export">
+        <h2>Selection JSON</h2>
+        <p>
+          This updates live. Paste it back into the chat (or download it) and the
+          unchecked sections get hidden behind a config flag, with the content left
+          in place so anything can be brought back.
+        </p>
+        <textarea id="json" readonly spellcheck="false"></textarea>
+        <p class="hint" id="savedNote"></p>
+      </section>
+    </div>
+
+    <script src="curator-data.js"></script>
+    <script>
+      (function () {
+        var DATA = window.CURATION_DATA;
+        var KEY = 'cliqueproofs.curation.v1';
+        var groupsEl = document.getElementById('groups');
+        if (!DATA || !DATA.groups) {
+          groupsEl.textContent = 'curator-data.js failed to load. Run: py tools/gen_curator_data.py';
+          return;
+        }
+
+        // ---- state ---------------------------------------------------------
+        // Default is "keep everything" so the exercise is subtractive.
+        var state = { sections: {}, topics: {} };
+        DATA.groups.forEach(function (g) {
+          g.items.forEach(function (it) {
+            state.sections[it.id] = { keep: true, core: false };
+            (it.topics || []).forEach(function (t) { state.topics[t.id] = true; });
+          });
+        });
+
+        try {
+          var saved = JSON.parse(localStorage.getItem(KEY) || 'null');
+          if (saved) {
+            Object.keys(saved.sections || {}).forEach(function (k) {
+              if (state.sections[k]) state.sections[k] = saved.sections[k];
+            });
+            Object.keys(saved.topics || {}).forEach(function (k) {
+              if (k in state.topics) state.topics[k] = saved.topics[k];
+            });
+          }
+        } catch (e) { /* corrupt or unavailable storage: fall back to defaults */ }
+
+        function save() {
+          try {
+            localStorage.setItem(KEY, JSON.stringify(state));
+            note('Saved in this browser · ' + new Date().toLocaleTimeString());
+          } catch (e) {
+            note('Could not save locally — copy the JSON before leaving.');
+          }
+        }
+        function note(msg) { document.getElementById('savedNote').textContent = msg; }
+
+        // ---- render --------------------------------------------------------
+        function esc(s) {
+          return String(s).replace(/[&<>"]/g, function (c) {
+            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+          });
+        }
+
+        DATA.groups.forEach(function (g, gi) {
+          var sec = document.createElement('section');
+          sec.className = 'group';
+          var rows = g.items.map(function (it) {
+            var topics = it.topics || [];
+            var byTier = {};
+            topics.forEach(function (t) { (byTier[t.tier] = byTier[t.tier] || []).push(t); });
+            var topicHtml = Object.keys(byTier).map(function (tier) {
+              return '<div class="tier">' + esc(tier || 'topics') + '</div>' +
+                byTier[tier].map(function (t) {
+                  return '<label class="topic" data-topic="' + esc(t.id) + '">' +
+                    '<input type="checkbox" data-topic-cb="' + esc(t.id) + '" />' +
+                    '<span class="sym">' + esc(t.symbol || '') + '</span>' +
+                    '<span>' + esc(t.title) + '</span></label>';
+                }).join('');
+            }).join('');
+
+            return '<div class="row" data-row="' + esc(it.id) + '">' +
+              '<input type="checkbox" data-cb="' + esc(it.id) + '" />' +
+              '<div><div class="name">' + esc(it.nav) + '</div>' +
+                '<div class="meta">' +
+                  (it.eyebrow ? '<span class="eyebrow">' + esc(it.eyebrow) + '</span> · ' : '') +
+                  esc(it.title || '') + (it.stats ? ' · ' + esc(it.stats) : '') +
+                '</div>' +
+                (topics.length ? '<div class="topics" hidden data-topics="' + esc(it.id) + '">' + topicHtml + '</div>' : '') +
+              '</div>' +
+              '<div class="actions">' +
+                (topics.length ? '<button class="expand" data-expand="' + esc(it.id) + '">' + topics.length + ' topics</button>' : '') +
+                '<button class="star" data-star="' + esc(it.id) + '">★ core</button>' +
+              '</div>' +
+            '</div>';
+          }).join('');
+
+          sec.innerHTML =
+            '<div class="group-head"><h2>' + esc(g.label) + '</h2>' +
+            '<span class="count">' + g.items.length + ' sections</span>' +
+            '<span class="mini"><button data-gon="' + gi + '">all</button>' +
+            '<button data-goff="' + gi + '">none</button></span></div>' + rows;
+          groupsEl.appendChild(sec);
+        });
+
+        // ---- sync DOM from state -------------------------------------------
+        function paint() {
+          var keep = 0, cut = 0, core = 0, tk = 0;
+          DATA.groups.forEach(function (g) {
+            g.items.forEach(function (it) {
+              var st = state.sections[it.id];
+              var row = groupsEl.querySelector('[data-row="' + it.id + '"]');
+              var cb = groupsEl.querySelector('[data-cb="' + it.id + '"]');
+              var star = groupsEl.querySelector('[data-star="' + it.id + '"]');
+              cb.checked = st.keep;
+              row.classList.toggle('is-cut', !st.keep);
+              row.classList.toggle('is-core', !!st.core);
+              star.classList.toggle('on', !!st.core);
+              st.keep ? keep++ : cut++;
+              if (st.core) core++;
+              (it.topics || []).forEach(function (t) {
+                var on = state.topics[t.id];
+                if (on) tk++;
+                var tcb = groupsEl.querySelector('[data-topic-cb="' + t.id + '"]');
+                if (tcb) {
+                  tcb.checked = on;
+                  tcb.closest('.topic').classList.toggle('is-cut', !on);
+                }
+              });
+            });
+          });
+          document.getElementById('tKeep').textContent = keep;
+          document.getElementById('tCut').textContent = cut;
+          document.getElementById('tCore').textContent = core;
+          document.getElementById('tTopics').textContent = tk;
+          document.getElementById('json').value = exportJson();
+        }
+
+        function exportJson() {
+          var keepSections = [], cutSections = [], coreSections = [], cutTopics = [];
+          DATA.groups.forEach(function (g) {
+            g.items.forEach(function (it) {
+              var st = state.sections[it.id];
+              (st.keep ? keepSections : cutSections).push(it.id);
+              if (st.core) coreSections.push(it.id);
+              (it.topics || []).forEach(function (t) {
+                if (!state.topics[t.id]) cutTopics.push(t.id);
+              });
+            });
+          });
+          return JSON.stringify({
+            curation: 'clique-proofs',
+            savedAt: new Date().toISOString(),
+            core: coreSections,
+            keep: keepSections,
+            cut: cutSections,
+            cutTopics: cutTopics
+          }, null, 2);
+        }
+
+        // ---- events --------------------------------------------------------
+        groupsEl.addEventListener('click', function (e) {
+          var t = e.target;
+          var id;
+          if ((id = t.getAttribute && t.getAttribute('data-star'))) {
+            state.sections[id].core = !state.sections[id].core;
+            if (state.sections[id].core) state.sections[id].keep = true;
+            paint(); save(); return;
+          }
+          if ((id = t.getAttribute && t.getAttribute('data-expand'))) {
+            var box = groupsEl.querySelector('[data-topics="' + id + '"]');
+            if (box) box.hidden = !box.hidden;
+            return;
+          }
+          var gon = t.getAttribute && t.getAttribute('data-gon');
+          var goff = t.getAttribute && t.getAttribute('data-goff');
+          if (gon !== null && gon !== undefined) { setGroup(+gon, true); return; }
+          if (goff !== null && goff !== undefined) { setGroup(+goff, false); return; }
+        });
+
+        groupsEl.addEventListener('change', function (e) {
+          var id = e.target.getAttribute('data-cb');
+          if (id) {
+            state.sections[id].keep = e.target.checked;
+            if (!e.target.checked) state.sections[id].core = false;
+            paint(); save(); return;
+          }
+          var tid = e.target.getAttribute('data-topic-cb');
+          if (tid) { state.topics[tid] = e.target.checked; paint(); save(); }
+        });
+
+        function setGroup(gi, on) {
+          DATA.groups[gi].items.forEach(function (it) {
+            state.sections[it.id].keep = on;
+            if (!on) state.sections[it.id].core = false;
+          });
+          paint(); save();
+        }
+        function setAll(on) {
+          Object.keys(state.sections).forEach(function (k) {
+            state.sections[k].keep = on;
+            if (!on) state.sections[k].core = false;
+          });
+          paint(); save();
+        }
+
+        document.getElementById('allOn').onclick = function () { setAll(true); };
+        document.getElementById('allOff').onclick = function () { setAll(false); };
+        document.getElementById('reset').onclick = function () {
+          Object.keys(state.sections).forEach(function (k) { state.sections[k] = { keep: true, core: false }; });
+          Object.keys(state.topics).forEach(function (k) { state.topics[k] = true; });
+          paint(); save();
+        };
+        document.getElementById('copy').onclick = function () {
+          var ta = document.getElementById('json');
+          ta.select();
+          var ok = false;
+          try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+          if (navigator.clipboard && !ok) navigator.clipboard.writeText(ta.value).catch(function () {});
+          note('Copied — paste it back into the chat.');
+        };
+        document.getElementById('download').onclick = function () {
+          var blob = new Blob([exportJson()], { type: 'application/json' });
+          var a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = 'clique-proofs-curation.json';
+          document.body.appendChild(a); a.click(); a.remove();
+          setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
+        };
+
+        paint();
+        note('Loaded. Choices save automatically in this browser.');
+      })();
+    </script>
+  </body>
+</html>

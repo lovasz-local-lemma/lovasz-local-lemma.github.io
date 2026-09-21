@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
-<head>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head><style id="portfolio-early-paint">html{background:#0b0d0c;color-scheme:dark}html.portfolio-booting body{opacity:0}</style><script src="../../portfolio-navigation.js"></script>
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>Time-of-Flight Imaging</title>
+  <title>Holography &amp; CW Time-of-Flight · Encoding depth in a single image</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=Lora:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&family=Source+Code+Pro:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
     * {
@@ -483,100 +483,67 @@
     }
   </style>
   <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      const navLinks = document.querySelectorAll('nav#TOC a');
-      
-      // Smooth scroll with easing for navigation links
-      navLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
-          e.preventDefault();
-          const targetId = this.getAttribute('href').substring(1);
-          const targetElement = document.getElementById(targetId);
-          
-          if (targetElement) {
-            smoothScrollTo(targetElement);
-          }
-        });
-      });
-      
-      // Update active link on scroll
-      window.addEventListener('scroll', updateActiveLink);
-      updateActiveLink();
-      
-      function updateActiveLink() {
-        const sections = document.querySelectorAll('section[id]');
-        let current = '';
-        
-        sections.forEach(section => {
-          const sectionTop = section.offsetTop - 150;
-          if (window.pageYOffset >= sectionTop) {
-            current = section.getAttribute('id');
-          }
-        });
-        
-        navLinks.forEach(link => {
-          link.classList.remove('active');
-          if (link.getAttribute('href') === '#' + current) {
-            link.classList.add('active');
-          }
-        });
-      }
-      
-      function smoothScrollTo(element) {
-        const startPosition = window.pageYOffset;
-        const targetPosition = element.offsetTop - 80;
-        const distance = targetPosition - startPosition;
-        const duration = 1100;
-        let start = null;
-        
-        function easeInOutQuad(t) {
-          return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
-        }
-        
-        function animation(currentTime) {
-          if (start === null) start = currentTime;
-          const elapsed = currentTime - start;
-          const progress = Math.min(elapsed / duration, 1);
-          const ease = easeInOutQuad(progress);
-          
-          window.scrollTo(0, startPosition + distance * ease);
-          
-          if (elapsed < duration) {
-            requestAnimationFrame(animation);
-          }
-        }
-        
-        requestAnimationFrame(animation);
-      }
-    });
-  </script>
-</head>
-<body>
+
+<link rel="stylesheet" href="../../portfolio-feature-atlas.css">
+
+<link rel="stylesheet" href="../../media/research-labs/research-pages.css">
+<link rel="stylesheet" href="holography-flow.css">
+<script defer src="../../portfolio-labs.js"></script>
+<script defer src="../../media/research-labs/research-pages.js"></script>
+<script defer src="../../portfolio-media.js"></script><link data-project-motivation-style rel="stylesheet" href="../../portfolio-motivations.css?v=ccc1c1d866"><!-- project-context-style:start --><style>
+.project-context{box-sizing:border-box;min-width:0;max-width:1120px;margin:22px auto;padding:17px 20px;border:1px solid rgba(218,190,120,.3);border-left:3px solid #d7bc77;border-radius:12px;background:rgba(20,29,29,.9);color:#dfdfd5;font-family:Inter,Arial,sans-serif;text-align:left}
+.project-context>p{display:grid;grid-template-columns:7.5rem minmax(0,1fr);gap:12px;margin:0;font-size:.94rem;line-height:1.6;letter-spacing:normal}
+.project-context>p+p{margin-top:8px}
+.project-context>p>strong{color:#e3ca88;font-size:.75rem;font-weight:600;line-height:2;letter-spacing:.04em}
+.project-context>p>span{min-width:0;overflow-wrap:anywhere}
+.project-context-links{display:flex;flex-wrap:wrap;gap:10px 22px;margin-top:12px;padding-top:11px;border-top:1px solid rgba(218,190,120,.18)}
+.project-context-links>a{max-width:100%;color:#e3ca88;font-size:.86rem;line-height:1.5;text-decoration:underline;text-underline-offset:3px;overflow-wrap:anywhere}
+.project-context-links>a>small{display:block;color:#b6bdb6;font-size:.74rem;text-decoration:none}
+.project-context-links>a:focus-visible{outline:2px solid #f4d98c;outline-offset:4px;border-radius:2px}
+.overview-masthead .project-context{margin:18px 0 0;padding:13px 15px}
+.overview-masthead .project-context>p{grid-template-columns:1fr;gap:2px;font-size:.88rem}
+.overview-masthead .project-context-links>a{font-size:.82rem}
+@media(max-width:600px){.project-context{padding:14px;margin:18px 0}.project-context>p{grid-template-columns:1fr;gap:2px}.project-context>p+p{margin-top:10px}}
+</style><!-- project-context-style:end --><link rel="stylesheet" href="../../portfolio-controls.css"><link rel="stylesheet" href="../../portfolio-demo-return.css"><script defer src="../../portfolio-demo-return.js" data-project="tof_render" data-title="Holography &amp; depth reconstruction" data-overview="projects/tof_render/overview.html" data-group="research" data-thumbnail="media/thumbs/tof_render.webp" data-routes="[{&quot;project&quot;:&quot;tof_render&quot;,&quot;title&quot;:&quot;Holography &amp; depth reconstruction&quot;,&quot;group&quot;:&quot;research&quot;,&quot;thumbnail&quot;:&quot;media/thumbs/tof_render.webp&quot;,&quot;overview&quot;:&quot;projects/tof_render/overview.html&quot;,&quot;path&quot;:&quot;showcases/TOF_render_deep_dive/TOF.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:1}]"></script><!-- universal-navigation:start --><link rel="stylesheet" href="../../portfolio-location.css?v=054b6b462c"><script defer src="../../portfolio-location.js?v=054b6b462c"></script><script defer src="../../portfolio-routes.js?v=054b6b462c"></script><script defer src="../../portfolio-universal-navigation.js?v=054b6b462c"></script><!-- universal-navigation:end --><style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head>
+<body class="research-page research-holography">
   <a href="../../index.html" class="back-button">Back to Portfolio</a>
-<nav id="TOC" role="doc-toc">
-<h2>Contents</h2>
-<ul>
+<nav id="TOC" role="doc-toc"><h2>Contents</h2><ul>
 <li><a href="#background" id="toc-background">Background</a></li>
-<li><a href="#basic-setup" id="toc-basic-setup">Basic Setup & Derivation</a></li>
-<li><a href="#some-observations-and-caveats" id="toc-some-observations-and-caveats">Observations & Caveats</a>
-<ul>
-<li><a href="#the-setups-that-wont-work" id="toc-the-setups-that-wont-work">Setups That Won't Work</a></li>
-<li><a href="#the-setups-that-can-work" id="toc-the-setups-that-can-work">Setups That Can Work</a></li>
-</ul></li>
-<li><a href="#indirect-lighting" id="toc-indirect-lighting">Indirect Lighting</a>
-<ul>
-<li><a href="#open-lambertian-scene" id="toc-open-lambertian-scene">Open Lambertian Scene</a></li>
-<li><a href="#closed-semi-specular-high-albedo-scene" id="toc-closed-semi-specular-high-albedo-scene">Closed Scene</a></li>
-</ul></li>
-<li><a href="#Conclusions" id="toc-Conclusions">Conclusions</a></li>
-</ul>
-</nav>
+<li><a href="#basic-setup" id="toc-basic-setup">Basic setup &amp; derivation</a></li>
+<li><a href="#some-observations-and-caveats" id="toc-some-observations-and-caveats">Observations &amp; caveats</a></li>
+<li><a href="#the-setups-that-wont-work" id="toc-the-setups-that-wont-work">Source-side carrier</a></li>
+<li><a href="#source-coordinate-bench" data-media="interactive">↔ Phase placement</a></li>
+<li><a href="#interactive-diagnostic" id="toc-interactive-diagnostic" data-media="interactive">↔ Fourier sidebands</a></li>
+<li><a href="#the-setups-that-can-work" id="toc-the-setups-that-can-work">Image-side carrier</a></li>
+<li><a href="#illumination-shutter" id="toc-illumination-shutter" data-media="interactive">↔ Measure &amp; reconstruct</a></li>
+<li><a href="#phase-ambiguity" data-media="interactive">↔ Phase &amp; depth</a></li>
+<li><a href="#indirect-lighting" id="toc-indirect-lighting">Indirect lighting</a></li>
+<li><a href="#phasor-measurement" data-media="interactive">↔ Paths become phasors</a></li>
+<li><a href="#scan-selection-bench" data-media="interactive">↔ Synchronized exposure</a></li>
+<li><a href="#open-lambertian-scene" id="toc-open-lambertian-scene">Open Lambertian scene</a></li>
+<li><a href="#closed-semi-specular-high-albedo-scene" id="toc-closed-semi-specular-high-albedo-scene">Closed reflective scene</a></li>
+<li><a href="#Conclusions" id="toc-Conclusions">Conclusions &amp; connections</a></li>
+</ul></nav>
 
 <header id="title-block-header">
-<h1 class="title">Single-Shot Depth Reconstruction via Off-Axis Holography <span class="language-badge">C++</span></h1>
-<p>A side project inspired by time-of-flight imaging</p>
-</header>
+<h1 class="title">Holography &amp; Time-of-Flight</h1>
+<p style="color:var(--research);font:26px/1.4 Georgia,serif">Can a spatial carrier turn delayed light into a single-image measurement?</p>
+<p>This research uses a time-resolved renderer to investigate a CW-ToF measurement inspired by off-axis holography. A modulation phase pattern separates a complex correlation term in Fourier space. The interesting part is establishing <strong>when that separation survives scene geometry, sampling and indirect light</strong>.</p>
+<div class="research-hero-map">
+<a href="#phasor-measurement"><svg viewBox="0 0 200 90" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="88" cy="46" r="33"/><path d="M44 46h91M88 5v81"/><path d="m88 46 24-12-11-21m-13 33 13-33" stroke-width="3"/><circle cx="101" cy="13" r="3"/></svg><strong>Light paths → phasors ↔</strong><small>What the demodulating sensor actually measures</small></a>
+<a href="#interactive-diagnostic"><svg viewBox="0 0 200 90" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M17 71h167M21 71V12"/><path d="M30 71q9-73 18 0m29 0q16-115 32 0m27 0q9-73 18 0"/><rect x="31" y="20" width="34" height="56" rx="6"/><path d="m48 17 47-8m0 0-9-4m9 4-8 7"/></svg><strong>Carrier → Fourier sidebands ↔</strong><small>Where one-shot reconstruction works and fails</small></a>
+<a href="#phase-ambiguity"><svg viewBox="0 0 200 90" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M20 12v63h162M20 75 174 15"/><path d="m20 75 31-28v28l31-28v28l31-28v28l31-28v28l31-28"/><path d="m20 75 93-52v52l62-35" stroke-width="3"/></svg><strong>Phase → depth ↔</strong><small>Range ambiguity and frequency sensitivity</small></a>
+</div>
+<p class="note"><strong>Keep the physics distinct:</strong> optical holography interferes coherent electromagnetic fields. This project uses sinusoidally modulated intensity and sensor correlation. Their complex algebra is related; MHz modulation phase is not optical-carrier phase. The experiments below are simulation evidence, not a built sensor.</p>
+</header><!-- project-context:start --><aside class="project-context" aria-label="Start here: the idea and what to watch"><p><strong>The idea</strong><span>Light travel time contains information about distance, but a camera needs a way to encode that timing into a measurement. This simulation study uses patterned illumination and phase measurements to reconstruct depth and expose ambiguous readings.</span></p><p class="project-context-watch"><strong>What to watch</strong><span>Compare the true scene with the recovered depth as timing, phase wrapping or multiple light paths change.</span></p></aside><!-- project-context:end --><!-- project-motivation:start --><aside class="project-motivation" id="project-motivation" data-motivation-status="user-grounded" aria-label="The idea behind the project"><div class="motivation-heading"><span>The idea behind it</span></div><p class="motivation-copy">I want the strange-looking fringes to become as understandable as the depth image they eventually reveal. Connecting the light source and shutter to every reconstruction step makes the subtle part visible: how a choice made during capture changes what can be recovered afterward.</p><p class="motivation-takeaway"><span>Working intuition</span> A fringe pattern carries phase; calibration and unwrapping turn that phase into usable depth.</p></aside><!-- project-motivation:end -->
 
 <section>
 <h1 class="unnumbered" id="background">Background</h1>
@@ -584,8 +551,7 @@
 <div class="highlight-new">
 <p><strong>Welcome!</strong> 
   This project develops a flexible simulation framework for <strong>continuous-wave (CW) time-of-flight (TOF)</strong>  imaging  and uses it to investigate how CW-TOF measurements can be repurposed to achieve <strong>single-shot depth estimation</strong> through a mechanism analogous to <strong>off-axis holography</strong>.
-</div>
-</div>
+</p></div>
 <strong>Off-Axis Holography and CW Time-of-Flight Sensing</strong>
 <p>
 Off-axis holography and continuous-wave (CW) time-of-flight (TOF) sensing represent two distinct but mathematically related approaches to recovering scene information from modulated optical signals.
@@ -601,7 +567,7 @@ A modulated illumination signal is reflected by the scene and correlated with a 
 <p>Although framed differently, both techniques rely on heterodyning and correlation, implemented either optically in space or electronically in time.</p>
 <!-- <p>Continuous-wave time-of-flight (CW-TOF) cameras use a temporally-modulated light source and a sensor with modulated sensitivity. A carrier wave gets sent out by the light source and the sensor is controlled by a demodulation wave with the same frequency. The end result is equivalent to taking the cross-correlation of the demodulation wave and the received object wave which is the carrier wave with an extra phase shift caused by interacting with the scene.</p> -->
 <!-- <p>Normally, it requires taking multiple shots, which can be restricting, since the whole scene is assumed to be static during the whole process.</p> -->
-<p>We propose a new method that takes advantage of off-axis holography and show that with specific setup of the sensor and light source, the depth of the scene can be reconstructed from one single image. We show the theoretical derication, reasoning on the detailed setups, and the results produced by our implementation.</p>
+<p>We propose a new method that takes advantage of off-axis holography and show that with specific setup of the sensor and light source, the depth of the scene can be reconstructed from one single image. We show the theoretical derivation, reasoning on the detailed setups, and the results produced by our implementation.</p>
 <div class="highlight-new">
 <p>From an implementation standpoint, the system is fundamentally a CW-TOF pipeline:
 light sources emit temporally modulated signals, and the sensor performs lock-in correlation with a reference waveform. The core objective is not to replicate off-axis holography directly, but to show that a <strong>properly configured CW-TOF system can reproduce off-axis behavior</strong> — and thus recover complex-valued scene information from a single exposure.</p>
@@ -624,7 +590,7 @@ light sources emit temporally modulated signals, and the sensor performs lock-in
 <strong> Theory-wise</strong> , the core contribution is deriving the conditions under which a CW-TOF sensor, combined with spatial heterodyning, produces an isolatable cross-correlation term—equivalent to the off-axis holography cross-term—and can therefore recover a complex field from a single shot. The analysis also reveals that several configurations that appear valid at first glance actually fail due to subtle issues such as spatial–temporal aliasing, mismatch between the heterodyne carrier and the sampling lattice, or destructive mixing of undesired interference terms.
 </p>
 <p>
-  Using the modular simulation framework, we validate these insights experimentally. Configurations predicted to succeed do indeed produce clean reconstructions, while the ones predicted to fail exhibit exactly the artifacts anticipated by the theory. The simulator thus serves both as an engineering platform for modulated light transport and as a tool for understanding the delicate conditions under which spatial and temporal heterodyning interact.
+  Using the modular simulation framework, we test these insights in rendered experiments. Configurations predicted to succeed do indeed produce clean reconstructions, while the ones predicted to fail exhibit exactly the artifacts anticipated by the theory. The simulator thus serves both as an engineering platform for modulated light transport and as a tool for understanding the delicate conditions under which spatial and temporal heterodyning interact.
 </p>
 <!-- This project develops a flexible simulation framework for modulated imaging, capable of reproducing and extending the behavior of both off-axis holography and continuous-wave (CW) time-of-flight (TOF) sensing.  -->
 <!-- Standard implementations of these systems are relatively straightforward to simulate in isolation, but combining spatial and temporal modulation within a physically based renderer introduces several subtle challenges. Our goal is not to reproduce existing optical systems verbatim, but to build a general platform that exposes the underlying structure shared by these techniques and enables exploration of mixed spatiotemporal demodulation strategies. -->
@@ -632,12 +598,13 @@ light sources emit temporally modulated signals, and the sensor performs lock-in
 </p>
 <figure>
 <div class="center">
-<img src="figs/cbox_.png" />
+<img src="figs/cbox_.png" width="1600" height="1600" />
 </div>
 <figcaption>For demonstration, we perform all the tests in this simple Cornell Box scene (with the light source removed). For some tests, we also changed some materials in the scene to make some unwanted artifacts stand out more.</figcaption>
 </figure>
 
 </section>
+
 
 <section>
 <h1 class="unnumbered" id="basic-setup">Basic Setup & Derivation</h1>
@@ -661,36 +628,42 @@ light sources emit temporally modulated signals, and the sensor performs lock-in
     I(x,y) &= \lim_{T\rightarrow\infty}  \int_{-\frac{T}{2}}^{+\frac{T}{2}} \frac{A}{T} \cos(\omega t + \kappa \cdot x)\cos(\omega t - \phi(x,y)) \mathrm{d}t \\
     &= \frac{A}{2} \cos(\kappa \cdot x + \phi(x,y))
 \end{align}\]</div>
+<p class="research-note"><strong>Frequency convention:</strong> κ is an angular spatial frequency in radians per pixel. The transform below uses cycles per pixel, so its sideband shift is κ/(2π). The amplitude A may vary across the image and therefore stays inside the transformed complex field.</p>
 <p>If we take the Fourier transformation:</p>
 <div class="math display">\[\begin{align}
 F[I](k_x,k_y) &=  \int_{-\infty}^\infty \int_{-\infty}^\infty \frac{A}{2} \cos(\kappa \cdot x +\phi(x,y)) e^{-2\pi j(k_x x + k_y y)} \mathrm{d}x\mathrm{d}y \\
-&= \frac{A}{4} \iint e^{ j(\kappa\cdot x + \phi(x,y)) -2\pi j (k_x x + k_y y)} + e^{ -j(\kappa\cdot x + \phi(x,y)) -2\pi j(k_x x + k_y y)} \mathrm{d}x\mathrm{d}y
+&= \frac{1}{4} \iint A(x,y) \left[e^{ j(\kappa\cdot x + \phi(x,y)) -2\pi j (k_x x + k_y y)} + e^{ -j(\kappa\cdot x + \phi(x,y)) -2\pi j(k_x x + k_y y)}\right] \mathrm{d}x\mathrm{d}y
 \end{align}\]</div>
 <p>This has 2 components, we call them <span class="math inline">\(g_1\)</span> and <span class="math inline">\(g_2\)</span>:</p>
 <div class="math display">\[\begin{align}
-g_1 &= \frac{A}{4} \iint e^{ j(\kappa\cdot x + \phi(x,y)) -2\pi j (k_x x + k_y y)}  \mathrm{d}x\mathrm{d}y \\
-g_2 &= \frac{A}{4} \iint e^{ -j(\kappa\cdot x + \phi(x,y)) -2\pi j (k_x x + k_y y)}  \mathrm{d}x\mathrm{d}y
+g_1 &= \frac{1}{4} \iint A(x,y) e^{ j(\kappa\cdot x + \phi(x,y)) -2\pi j (k_x x + k_y y)}  \mathrm{d}x\mathrm{d}y \\
+g_2 &= \frac{1}{4} \iint A(x,y) e^{ -j(\kappa\cdot x + \phi(x,y)) -2\pi j (k_x x + k_y y)}  \mathrm{d}x\mathrm{d}y
 \end{align}\]</div>
 <p>Since:</p>
 <div class="math display">\[\begin{align}
-g_1 &= \frac{A}{4} \iint e^{ j(\kappa\cdot x + \phi(x,y)) -2\pi j (k_x x + k_y y)}  \mathrm{d}x\mathrm{d}y \\
-&= \frac{A}{4} \iint e^{ j \phi(x,y) -2\pi j (k_x x + k_y y)} e^{j(\kappa\cdot x) } \mathrm{d}x\mathrm{d}y  \\
-&= \frac{A}{4} F[e^{ j \phi(x,y)}](k_x - \kappa, k_y)
+g_1 &= \frac{1}{4} \iint A(x,y) e^{ j(\kappa\cdot x + \phi(x,y)) -2\pi j (k_x x + k_y y)}  \mathrm{d}x\mathrm{d}y \\
+&= \frac{1}{4} \iint A(x,y) e^{ j \phi(x,y) -2\pi j (k_x x + k_y y)} e^{j(\kappa\cdot x) } \mathrm{d}x\mathrm{d}y  \\
+&= \frac{1}{4} F[A(x,y)e^{ j \phi(x,y)}](k_x - \kappa/(2\pi), k_y)
 \end{align}\]</div>
 <p>Similarly:</p>
 <div class="math display">\[\begin{align}
-g_2 = \frac{A}{4} F[e^{ -j \phi(x,y)}](k_x + \kappa, k_y)
+g_2 = \frac{1}{4} F[A(x,y)e^{ -j \phi(x,y)}](k_x + \kappa/(2\pi), k_y)
 \end{align}\]</div>
-<p>As we can see, from this setup, we expect to see 2 images centered at <span class="math inline">\([\kappa,0]\)</span> and <span class="math inline">\([-\kappa,0]\)</span>. We can use either of them to reconstruct a hologram that includes the phase <span class="math inline">\(\phi\)</span> (first shifting it back to the center, then take the inverse Fourier transformation).</p>
-<p>As long as we can create a phase shift that only linearly depends on the spatial pixel position on the image, this will work, or else it's not simply a translation anymore. We'll give more details in the next section.</p>
+<p>As we can see, from this setup, we expect to see 2 images centered at <span class="math inline">\([\kappa/(2\pi),0]\)</span> and <span class="math inline">\([-\kappa/(2\pi),0]\)</span>. We can use either of them to reconstruct a hologram that includes the phase <span class="math inline">\(\phi\)</span> (first shifting it back to the center, then take the inverse Fourier transformation).</p>
+<p>A spatially linear phase produces a global Fourier translation. Clean isolation additionally requires sufficient carrier separation, object bandwidth and sampling resolution. A nonlinear carrier is not a simple translation; recovering it would require a different, calibrated reconstruction model.</p>
 </section>
+
+
+
+
+
 
 <section>
 <h1 class="unnumbered" id="some-observations-and-caveats">Observations and Caveats</h1>
 <div class="highlight-new">
 <p>The setup described above only works under very specific conditions, and not merely because of parameter tuning. 
   There are multiple ways to introduce the carrier and reference waves—through illumination delay, sensor-side tilts, or reference-phase shifts—but only a subset of these configurations produces a usable cross-term.
-  Certain classes of configurations are fundamentally incapable of producing an isolatable cross-term, regardless of how their parameters are adjusted. These failures arise from structural incompatibilities in how spatial and temporal heterodyning interact with the sensor’s sampling process.</p>
+  Some tested configurations fail to produce a globally shifted, separable cross-term under this Fourier-crop reconstruction. These are failures of the stated measurement/reconstruction pairing; they do not rule out every calibrated inverse method for a different carrier.</p>
 </div>
 <p>One thing we can notice is that: adding a phase shift on the object wave will have the same effect as adding one to the demodulation wave. Instead of:</p>
 <div class="math display">\[\begin{align}
@@ -704,17 +677,17 @@ g_2 = \frac{A}{4} F[e^{ -j \phi(x,y)}](k_x + \kappa, k_y)
     \text{Object wave:~}&E_o = A \cos(\omega t - \kappa \cdot x - \phi(x,y)) \\
     \text{Reference wave:~} &E_r = \cos(\omega t)
 \end{align}\]</div>
-<p>The important thing is that either way we do it, the extra phase shift <span class="math inline">\(\kappa \cdot x\)</span> has to be linear with respect to pixel position <span class="math inline">\(x\)</span>. Since the phase shift rate <span class="math inline">\(\kappa\)</span> directly determines the amount of shift in the frequency domain, if it's not constant across the whole image, that means different frequency component gets shifted differently and there's not a single central frequency shift anymore.</p>
-<p>Some seemingly correct setup will fail due to this.</p>
+<p>For one global Fourier shift-and-crop reconstruction, the convenient condition is that the extra phase shift <span class="math inline">\(\kappa \cdot x\)</span> is linear with respect to pixel position <span class="math inline">\(x\)</span>. Since the phase shift rate <span class="math inline">\(\kappa\)</span> directly determines the amount of shift in the frequency domain, if it's not constant across the whole image, that means different frequency component gets shifted differently and there's not a single central frequency shift anymore.</p>
+<p>A setup can therefore produce a valid measurement while failing this particular reconstruction. The distinction matters in interpreting the experiments below.</p>
 
 <figure>
 <div class="center">
-<img src="figs/output2.png" />
+<img src="figs/output2.png" width="476" height="476" />
 </div>
 <figcaption>An example of a setup that doesn't work. It's easy to visually tell that the stripes have different widths.</figcaption>
 </figure>
 
-<h2 class="unnumbered" id="the-setups-that-wont-work">The setups that won't work</h2>
+<h2 class="unnumbered" id="the-setups-that-wont-work">Setups that defeat one global Fourier crop</h2>
 <ol>
 <li><p>Sweeping a thin laser source and use an un-tilted plane wave for demodulation.</p></li>
 <li><p>Using a quad laser light on which different positions activates with a delay depending on the position and an un-tilted plane wave for demodulation.</p></li>
@@ -722,25 +695,42 @@ g_2 = \frac{A}{4} F[e^{ -j \phi(x,y)}](k_x + \kappa, k_y)
 </ol>
 
 <figure>
-<img src="figs/delta-1.png" />
+<img src="figs/delta-1.png" width="4537" height="2172" />
 <figcaption>As we can see, the left and right halves of the image plane correspond to different amounts of phase shift, causing <span class="math inline">\(\kappa\)</span> to be varying across the whole image.</figcaption>
 </figure>
 
-<p>These are basically the same. They all create a tilted plane wave as the carrier wave. The main issue with this type of setup is that the phase shift depends on the position on the light source not the position on the image. The position on the light source directly corresponds to the position of the hitpoint in the scene, and this will cause the <strong>phase shift/pixel position</strong> rate to differ depending on how far the object is. As a result, in the frequency domain, different parts of the scene will be shifted differently and there won't be a central frequency, meaning we can't expect to shift it to the center and demodulate using one single frequency.</p>
+<section class="research-inset setup-inset" id="source-coordinate-bench" data-media="interactive">
+<section class="interactive-study is-suspended" id="lab-source-coordinate-bench" data-lab-src="../../showcases/TOF_render_deep_dive/setup-lab.html?view=carrier" data-lab-selected="source-coordinate-bench" data-lab-preview="frame" style="--lab-height:1380px">
+<div class="lab-heading"><span class="lab-mark" aria-hidden="true">↔</span><div><span class="eyebrow">Interactive setup schematic</span><h3>Where does the extra phase come from?</h3></div></div>
+<div class="lab-view-copy"><h4 class="lab-view-title">Where does the extra phase come from?</h4><p class="lab-summary">Start from the source-side diagram above. Move the same phase ramp to a calibrated projector or the sensor; vary relief and physical front tilt separately, then inspect the waveform and the image-coordinate fringe pattern.</p></div>
+<div class="lab-actions"><button type="button" data-lab-toggle aria-pressed="false" aria-controls="lab-source-coordinate-bench-frame">Run now ↗</button><button class="lab-reset" type="button" data-lab-reset aria-controls="lab-source-coordinate-bench-frame">Reset ↺</button><a data-lab-open href="../../showcases/TOF_render_deep_dive/setup-lab.html?view=carrier" target="_blank" rel="noopener">Open separately ↗</a><span class="lab-state" aria-hidden="true">Suspended · hover to run</span></div>
+<div class="lab-frame" id="lab-source-coordinate-bench-frame" role="region" aria-label="Where does the extra phase come from?"><img class="lab-poster" src="figs/delta-1.png" alt="Original setup illustration paired with the interactive model" loading="lazy" decoding="async" width="4537" height="2172"><div class="lab-live" inert></div><span class="lab-preview-label" aria-hidden="true">Move inside to run</span></div>
+<p class="lab-caption">Computed AMCW path phases and exposure gates. Slow scanning and fast intensity modulation use separate illustrative clocks; this is not optical-field interference.</p><p class="lab-status" role="status">Suspended · hover to inspect without losing state.</p>
+</section></section>
+
+<p>These tested setups share a source-side phase variation; their detailed propagation and calibration need not be identical. The issue here is that the phase code is attached to a position on the light source or in the scene, rather than directly to a position in the image. The position on the light source directly corresponds to the position of the hitpoint in the scene, and this will cause the <strong>phase shift/pixel position</strong> rate to differ depending on how far the object is. As a result, in the frequency domain, different parts of the scene will be shifted differently and there won't be a central frequency, meaning we can't expect to shift it to the center and demodulate using one single frequency.</p>
 
 <figure>
-<img src="figs/S0.png" />
+<img src="figs/S0.png" width="1356" height="605" />
 <figcaption>An example of a setup that doesn't work. As we can see, the 3 streaks correspond to the 3 regions with different pattern widths.</figcaption>
 </figure>
 
 <p>If there're multiple objects at multiple distances, they will be shifted differently in the frequency domain; the same happens if there's one big object with a ramp. If we can first separate the frequency components, this kind of setup could potentially work, but it requires extra work.</p>
 
 <figure>
-<img src="figs/NG_G.png" />
+<img src="figs/NG_G.png" width="845" height="504" />
 <figcaption>The one on the left (shifted quad light) doesn't work, and the one on the right (shifted demodulation wave) works. As we can tell visually, in the image produced by a non-working setup, the stripes have different width on different regions, corresponding to a different frequency component. We can't make 2 frequency components centered at the same time with one single phase shift.</figcaption>
 </figure>
 
-<p>For this type of setup to work directly, we need an orthographic camera, so that now <span class="math inline">\(\kappa\)</span> doesn't depend on the depth anymore and is constant. Besides using an orthographic camera, there're other easier working setups:</p>
+<section class="research-inset" id="interactive-diagnostic">
+<h1 class="unnumbered">Interactive Fourier diagnostic</h1>
+<div class="highlight-new"><p><strong>Inspect the full inference chain:</strong> generate the recorded correlation, locate both sidebands, choose a crop, and compare the recovered wrapped phase with the known object field. Reducing carrier clearance makes DC overlap visible; enabling a depth-coupled carrier reproduces the sideband smearing discussed below.</p></div>
+<!-- holo-fourier:start -->
+<section class="interactive-study is-suspended" id="lab-research-fourier" data-lab-src="../../projects/radiance-lab/holography-lab.html" data-lab-selected="research-fourier" data-lab-preview="frame" data-lab-fit="true" style="--lab-height:930px"><div class="lab-heading"><span class="lab-mark" aria-hidden="true">↔</span><div><span class="eyebrow">Interactive schematic</span><h3>Fourier sidebands: record, isolate, reconstruct</h3></div></div><div class="lab-view-copy"><h4 class="lab-view-title">Fourier sidebands: record, isolate, reconstruct</h4><p class="lab-summary">Control carrier clearance, crop size, sideband choice and noise. Compare optical field interference with CW correlation without confusing their image-formation models.</p></div><div class="lab-contract" hidden><p data-lab-contract="runtime" hidden><b>Draws with</b> <span></span></p><p data-lab-contract="artifact" hidden><b>Artifact</b> <span></span></p><p data-lab-contract="export-route" hidden><b>Export</b> <span></span></p><p data-lab-contract="purpose" hidden><b>Purpose</b> <span></span></p><p data-lab-contract="provenance" hidden><b>Made with</b> <span></span></p><p data-lab-contract="takeaway" hidden><b>Demonstrates</b> <span></span></p></div><div class="lab-actions"><button type="button" data-lab-toggle aria-pressed="false" aria-controls="lab-research-fourier-frame">Run now ↗</button><button class="lab-reset" type="button" data-lab-reset aria-controls="lab-research-fourier-frame">Reset ↺</button><button type="button" data-lab-focus aria-pressed="false" title="Keep this demo in a steady view without resetting it. Escape returns to the page.">Pop out ⛶</button><a data-lab-open href="../../projects/radiance-lab/holography-lab.html" target="_blank" rel="noopener">Open separately ↗</a><span class="lab-state" aria-hidden="true">Suspended · hover to run</span></div><p class="lab-interaction-hint">Wheel over the scene may zoom; move outside it to scroll the page.</p><div class="lab-frame" id="lab-research-fourier-frame" role="region" aria-label="Fourier sidebands: record, isolate, reconstruct"><img class="lab-poster" src="../../media/brochures/radiance-lab/native-off-axis-holography-fft-pipeline.png" alt="Preview of Fourier sidebands: record, isolate, reconstruct" loading="lazy" decoding="async" width="1280" height="720"><div class="lab-live" inert></div><span class="lab-preview-label" aria-hidden="true">Move inside to run</span></div><p class="lab-caption">The live view performs an actual discrete Fourier transform on a synthetic field; the cover is a recorded native example.</p><p class="lab-status" role="status">Suspended · activate to run; playback pauses after the full panel leaves the vertical viewport.</p></section>
+<!-- holo-fourier:end -->
+</section>
+
+<p>For a planar phase ramp expressed in world position, an orthographic camera can remove this particular perspective depth dependence. In that restricted case <span class="math inline">\(\kappa\)</span> doesn't depend on the depth anymore and is constant. Besides using an orthographic camera, there're other easier working setups:</p>
 
 <h2 class="unnumbered" id="the-setups-that-can-work">The setups that can work</h2>
 <p>If we can modulate pixels differently, we can simply make the demodulation wave tilted instead, as discussed above:</p>
@@ -750,20 +740,20 @@ g_2 = \frac{A}{4} F[e^{ -j \phi(x,y)}](k_x + \kappa, k_y)
 
 <figure>
 <div class="center">
-<img src="figs/delta_inv-1.png" />
-  <img src="figs/delta.png" />
+<img src="figs/delta_inv-1.png" width="4111" height="2172" />
+  <img src="figs/delta.png" width="512" height="512" />
 </div>
 <figcaption>An example of a working setup, as we can see, one key difference is that the width of the stripes doesn't depend on the distance anymore. Since it's still a unidirectional light, the side walls are completely invisible.</figcaption>
 </figure>
 
 <figure>
 <div class="center">
-<img src="figs/XY2.png" />
+<img src="figs/XY2.png" width="775" height="1362" />
 </div>
 <figcaption>A plane wave as carrier and tilted plane wave as demodulation wave. In this setup, the walls are completely dark since they're parallel to any light emitted from the light source, making them contain no depth information. The lit parts are reconstructed properly.</figcaption>
 </figure>
 
-<p>In fact, the carrier wave can be anything, as long as we can have a tilted plane wave for demodulation.</p>
+<p>Illumination can vary across the scene while a sensor-side image-linear reference supplies the carrier. Clean reconstruction still depends on nonzero signal, object bandwidth and sideband separation.</p>
 <ol start="2">
 <li><p>A laser projector as the light source and a tilted plane wave for demodulation.</p></li>
 </ol>
@@ -776,23 +766,40 @@ g_2 = \frac{A}{4} F[e^{ -j \phi(x,y)}](k_x + \kappa, k_y)
 <p>This is easy to implement by using a rotating mirror to reflect a line source, as done in some other papers.</p>
 
 <figure>
-<img src="figs/projector-1.png" />
+<img src="figs/projector-1.png" width="4073" height="1444" />
 <figcaption>With a laser projector, we can generate the exact same result adding a phase shift on either the light source or the demodulation wave.</figcaption>
 </figure>
 
+<section class="research-experiment-section research-inset" id="illumination-shutter">
+<h1>Put the carrier in the right coordinates</h1>
+<p>A tilted source, a programmed delay and a rolling shutter manipulate different parts of the measurement. This experiment keeps them separate: propagation determines path phase, illumination and sensor codes add phase, and a synchronized exposure selects which source-to-pixel connections are admitted.</p>
+<div class="research-route"><a href="#lab-research-illumination"><span>01</span><strong>Change the setup</strong><small>World delay → projector code → sensor code</small></a><a href="#indirect-lighting"><span>02</span><strong>Select transport</strong><small>What a synchronized column can reject</small></a></div>
+<!-- holo-illumination:start -->
+<section class="interactive-study is-suspended" id="lab-research-illumination" data-lab-src="../../showcases/TOF_render_deep_dive/illumination-lab.html" data-lab-selected="research-illumination" data-lab-preview="frame" data-lab-fit="true" style="--lab-height:1290px"><div class="lab-heading"><span class="lab-mark" aria-hidden="true">↔</span><div><span class="eyebrow">Interactive schematic</span><h3>Illumination × shutter: measure, isolate, reconstruct</h3></div></div><div class="lab-view-copy"><h4 class="lab-view-title">Illumination × shutter: measure, isolate, reconstruct</h4><p class="lab-summary">Try a world-space phase ramp on a relief surface, then move the code to projector or sensor coordinates. Compare global and synchronized exposure while inspecting actual Fourier recovery.</p></div><div class="lab-contract" hidden><p data-lab-contract="runtime" hidden><b>Draws with</b> <span></span></p><p data-lab-contract="artifact" hidden><b>Artifact</b> <span></span></p><p data-lab-contract="export-route" hidden><b>Export</b> <span></span></p><p data-lab-contract="purpose" hidden><b>Purpose</b> <span></span></p><p data-lab-contract="provenance" hidden><b>Made with</b> <span></span></p><p data-lab-contract="takeaway" hidden><b>Demonstrates</b> <span></span></p></div><div class="lab-actions"><button type="button" data-lab-toggle aria-pressed="false" aria-controls="lab-research-illumination-frame">Run now ↗</button><button class="lab-reset" type="button" data-lab-reset aria-controls="lab-research-illumination-frame">Reset ↺</button><button type="button" data-lab-focus aria-pressed="false" title="Keep this demo in a steady view without resetting it. Escape returns to the page.">Pop out ⛶</button><a data-lab-open href="../../showcases/TOF_render_deep_dive/illumination-lab.html" target="_blank" rel="noopener">Open separately ↗</a><span class="lab-state" aria-hidden="true">Suspended · hover to run</span></div><p class="lab-interaction-hint">Wheel over the scene may zoom; move outside it to scroll the page.</p><div class="lab-frame" id="lab-research-illumination-frame" role="region" aria-label="Illumination × shutter: measure, isolate, reconstruct"><img class="lab-poster" src="../../media/research-labs/poster-illumination.svg" alt="Preview of Illumination × shutter: measure, isolate, reconstruct" loading="lazy" decoding="async" width="1280" height="720"><div class="lab-live" inert></div><span class="lab-preview-label" aria-hidden="true">Move inside to run</span></div><p class="lab-caption">Analytic delays on a finite synthetic transport operator. The four-tap reference uses additional measurements; it is not a native renderer capture.</p><p class="lab-status" role="status">Suspended · activate to run; playback pauses after the full panel leaves the vertical viewport.</p></section>
+<!-- holo-illumination:end -->
+<p class="research-note"><strong>Nonuniform does not mean impossible.</strong> One constant image carrier is particularly convenient because it translates the entire object spectrum by one amount. A world-dependent phase can broaden or overlap that spectrum, so one fixed crop can lose information. A calibrated reference, coordinate correction, extra phase measurements or another inverse method may still recover it. The four-tap reference in this experiment is an additional measurement model, not information conjured from a damaged single image.</p>
+</section>
+
 <figure>
 <div class="center">
-<img src="figs/z0x.png" />
+<img src="figs/z0x.png" width="786" height="673" />
 </div>
 <figcaption>With a laser projector, the most noticeable visual difference is that now all the side walls are illuminated, as expected. Adding the phase shift on the light source or the sensor are equivalent and can produce the exact same results when tuned properly.</figcaption>
 </figure>
 
 <figure>
 <div class="center">
-<img src="figs/z1xx.png" />
+<img src="figs/z1xx.png" width="758" height="673" />
 </div>
 <figcaption>The depth reconstructed using the laser projector setup. This one also includes the side walls.</figcaption>
 </figure>
+
+<section class="research-inset" id="phase-ambiguity"><h1>Recovering phase is not yet recovering absolute depth</h1>
+<p>The complex correlation gives a phase modulo 2π. Under a single direct round-trip model, that means depth modulo c/(2f). A second frequency can extend the interval; it also exposes a tradeoff between long range and sensitivity to phase error.</p>
+<!-- holo-ambiguity:start -->
+<section class="interactive-study is-suspended" id="lab-research-ambiguity" data-lab-src="../../showcases/TOF_render_deep_dive/ambiguity-lab.html" data-lab-selected="research-ambiguity" data-lab-preview="frame" data-lab-fit="true" style="--lab-height:1040px"><div class="lab-heading"><span class="lab-mark" aria-hidden="true">↔</span><div><span class="eyebrow">Interactive schematic</span><h3>Wrapped phase → continuous geometry</h3></div></div><div class="lab-view-copy"><h4 class="lab-view-title">Wrapped phase → continuous geometry</h4><p class="lab-summary">Recover a continuous depth profile from wrapped measurements. Break the continuity assumption, remove the absolute anchor, then compare with two-frequency recovery.</p></div><div class="lab-contract" hidden><p data-lab-contract="runtime" hidden><b>Draws with</b> <span></span></p><p data-lab-contract="artifact" hidden><b>Artifact</b> <span></span></p><p data-lab-contract="export-route" hidden><b>Export</b> <span></span></p><p data-lab-contract="purpose" hidden><b>Purpose</b> <span></span></p><p data-lab-contract="provenance" hidden><b>Made with</b> <span></span></p><p data-lab-contract="takeaway" hidden><b>Demonstrates</b> <span></span></p></div><div class="lab-actions"><button type="button" data-lab-toggle aria-pressed="false" aria-controls="lab-research-ambiguity-frame">Run now ↗</button><button class="lab-reset" type="button" data-lab-reset aria-controls="lab-research-ambiguity-frame">Reset ↺</button><button type="button" data-lab-focus aria-pressed="false" title="Keep this demo in a steady view without resetting it. Escape returns to the page.">Pop out ⛶</button><a data-lab-open href="../../showcases/TOF_render_deep_dive/ambiguity-lab.html" target="_blank" rel="noopener">Open separately ↗</a><span class="lab-state" aria-hidden="true">Suspended · hover to run</span></div><p class="lab-interaction-hint">Wheel over the scene may zoom; move outside it to scroll the page.</p><div class="lab-frame" id="lab-research-ambiguity-frame" role="region" aria-label="Wrapped phase → continuous geometry"><img class="lab-poster" src="../../media/research-labs/poster-ambiguity.svg" alt="Preview of Wrapped phase → continuous geometry" loading="lazy" decoding="async" width="1280" height="720"><div class="lab-live" inert></div><span class="lab-preview-label" aria-hidden="true">Move inside to run</span></div><p class="lab-caption">Actual nearest-neighbor phase integration. The error perturbation is synthetic and the model assumes one direct path.</p><p class="lab-status" role="status">Suspended · activate to run; playback pauses after the full panel leaves the vertical viewport.</p></section>
+<!-- holo-ambiguity:end -->
+</section>
 </section>
 
 <section>
@@ -805,7 +812,7 @@ g_2 = \frac{A}{4} F[e^{ -j \phi(x,y)}](k_x + \kappa, k_y)
 
 <figure class="small">
 <div class="center">
-<img src="figs/SS-1.png" />
+<img src="figs/SS-1.png" width="1133" height="1153" />
 </div>
 <figcaption>Single scatter: each shading point only corresponds to one light path.</figcaption>
 </figure>
@@ -814,41 +821,61 @@ g_2 = \frac{A}{4} F[e^{ -j \phi(x,y)}](k_x + \kappa, k_y)
 
 <figure class="small">
 <div class="center">
-<img src="figs/MS-1.png" />
+<img src="figs/MS-1.png" width="1133" height="1153" />
 </div>
-<figcaption>Multi scatter: now each shading point correspond to a group of light paths with different lengths and doesn't directly correspond to the distance anymore. Limiting the direction of the incoming light can solve this problem.</figcaption>
+<figcaption>Multi scatter: now each shading point correspond to a group of light paths with different lengths and doesn't directly correspond to the distance anymore. Selecting source-to-sensor connections can reduce this ambiguity; indirect paths that satisfy the same selection can remain.</figcaption>
 </figure>
 
-<p>Since the path lengths now follow a distribution with a large range, we expect to see a lot of noise. In a real scene dominated by multi-scatter light transport, for example, an indoor scene in which light can bounce multiple times without exiting, this is likely to happen.</p>
+<section class="research-inset" id="phasor-measurement"><h3>From the paths above to the quantity the sensor measures</h3>
+<p>Before adding a spatial carrier, inspect the temporal measurement. The sensor adds all returning path contributions, then estimates the phase of that sum. A bright indirect return can bias depth without adding random noise.</p>
+<!-- holo-phasor:start -->
+<section class="interactive-study is-suspended" id="lab-research-phasor" data-lab-src="../../showcases/TOF_render_deep_dive/phasor-lab.html" data-lab-selected="research-phasor" data-lab-preview="frame" data-lab-fit="true" style="--lab-height:930px"><div class="lab-heading"><span class="lab-mark" aria-hidden="true">↔</span><div><span class="eyebrow">Interactive schematic</span><h3>How path delays become a measured phasor</h3></div></div><div class="lab-view-copy"><h4 class="lab-view-title">How path delays become a measured phasor</h4><p class="lab-summary">Add an indirect return, change its delay, then inspect the four sensor taps and the resulting single-path depth estimate.</p></div><div class="lab-contract" hidden><p data-lab-contract="runtime" hidden><b>Draws with</b> <span></span></p><p data-lab-contract="artifact" hidden><b>Artifact</b> <span></span></p><p data-lab-contract="export-route" hidden><b>Export</b> <span></span></p><p data-lab-contract="purpose" hidden><b>Purpose</b> <span></span></p><p data-lab-contract="provenance" hidden><b>Made with</b> <span></span></p><p data-lab-contract="takeaway" hidden><b>Demonstrates</b> <span></span></p></div><div class="lab-actions"><button type="button" data-lab-toggle aria-pressed="false" aria-controls="lab-research-phasor-frame">Run now ↗</button><button class="lab-reset" type="button" data-lab-reset aria-controls="lab-research-phasor-frame">Reset ↺</button><button type="button" data-lab-focus aria-pressed="false" title="Keep this demo in a steady view without resetting it. Escape returns to the page.">Pop out ⛶</button><a data-lab-open href="../../showcases/TOF_render_deep_dive/phasor-lab.html" target="_blank" rel="noopener">Open separately ↗</a><span class="lab-state" aria-hidden="true">Suspended · hover to run</span></div><p class="lab-interaction-hint">Wheel over the scene may zoom; move outside it to scroll the page.</p><div class="lab-frame" id="lab-research-phasor-frame" role="region" aria-label="How path delays become a measured phasor"><img class="lab-poster" src="../../media/research-labs/poster-phasor.svg" alt="Preview of How path delays become a measured phasor" loading="lazy" decoding="async" width="1280" height="720"><div class="lab-live" inert></div><span class="lab-preview-label" aria-hidden="true">Move inside to run</span></div><p class="lab-caption">CW intensity modulation and lock-in correlation; this is not optical-carrier interference.</p><p class="lab-status" role="status">Suspended · activate to run; playback pauses after the full panel leaves the vertical viewport.</p></section>
+<!-- holo-phasor:end -->
+</section>
+
+<p>A broad path-length distribution can produce a biased or low-amplitude correlation phasor. Finite-sample rendering adds random noise on top of that structured multipath effect. In a real scene dominated by multi-scatter light transport, for example, an indoor scene in which light can bounce multiple times without exiting, this is likely to happen.</p>
 <p>There exist papers that deal with extracting information from multi-scatter light transport, but for now, we assume we want to exclude the multi-scatter light transport.</p>
-<p>If we use the line-source-sweeping setup, one possible way to achieve this is by synchronizing the sensor with the sweeping of the light source: at each specific point of time, as the light source sweeps over the scene, only one column of pixels is activated. This will exclude the vast majority of multi-scatter light transport.</p>
+<p>If we use the line-source-sweeping setup, one possible way to reduce indirect transport is by synchronizing the sensor with the sweeping light source: at each scan position, only the corresponding column of pixels is activated. The gate selects source–sensor correspondences. It does not inspect every bounce: an indirect path can leave the active plane and return to an accepted receiver pixel. Same-plane interreflection, near-diagonal scattering and a finite exposure width also limit rejection.</p>
+
+<aside class="research-inset" id="epipolar-imaging"><h3>The established connection: epipolar imaging</h3>
+<p>The synchronized projector and exposure are an instance of <a href="https://imaging.cs.cmu.edu/publications/episcan3d/">epipolar imaging</a> when their geometric calibration matches illumination sheets to camera rows or columns. Adding modulated illumination and correlation measurements leads to <a href="https://www.cs.toronto.edu/~kyros/pubs/17.siggraph.epitof.pdf">Epipolar Time-of-Flight Imaging</a>. The browser study below illustrates these measurement ingredients with a simplified, collocated source and camera; it does not reproduce the calibrated hardware.</p>
+<p><strong>Scan synchronization selects transport; modulation phase measures delay; a spatial carrier encodes the image.</strong> These are three separate operations. The holography connection in this project is the Fourier separation of a coded correlation signal. It is not interference between coherent optical fields, and matching the scan is not optical phase matching.</p></aside>
 
 <figure>
-<img src="figs/sync-1.png" />
-<figcaption>If we can synchronize the sensor with the light source, making only the corresponding line of pixels to be activated at any time, most multi-scatter light transport can be excluded.</figcaption>
+<img src="figs/sync-1.png" width="1237" height="926" />
+<figcaption>Synchronizing the source scan with the exposed sensor line rejects mismatched source–sensor correspondences. Indirect paths that return to an accepted pixel can remain, even if intermediate bounces leave the plane.</figcaption>
 </figure>
 
 <figure>
-<img src="figs/streak.png" />
-<figcaption>At any instant, a single scanline of the sensor is active, and the illumination is confined to the corresponding region of the scene. The light source is temporally synchronized with the sensor’s rolling-shutter exposure so that the active illumination band and the sensing band coincide. In this way, we filtered out the unwanted multiple-scattering contribution (the width is exaggerated here for demonstration purpose).</figcaption>
+<img src="figs/streak.png" width="512" height="512" />
+<figcaption>At any instant, a single scanline of the sensor is active, and the illumination is confined to the corresponding region of the scene. The light source is temporally synchronized with the sensor’s rolling-shutter exposure so that the active illumination band and the sensing band coincide. Source–sensor pairs outside that correspondence are suppressed; accepted indirect returns can remain (the width is exaggerated here).</figcaption>
 </figure>
+
+<section class="research-inset setup-inset" id="scan-selection-bench" data-media="interactive">
+<section class="interactive-study is-suspended" id="lab-scan-selection-bench" data-lab-src="../../showcases/TOF_render_deep_dive/setup-lab.html?view=shutter" data-lab-selected="scan-selection-bench" data-lab-preview="frame" style="--lab-height:1380px">
+<div class="lab-heading"><span class="lab-mark" aria-hidden="true">↔</span><div><span class="eyebrow">Interactive setup schematic</span><h3>Watch illumination and exposure move together</h3></div></div>
+<div class="lab-view-copy"><h4 class="lab-view-title">Watch illumination and exposure move together</h4><p class="lab-summary">Animate a line or point scan beside the sensor. Switch global, column or point-matched exposure; misalign the scan and inspect which indirect paths survive in the measured correlation.</p></div>
+<div class="lab-actions"><button type="button" data-lab-toggle aria-pressed="false" aria-controls="lab-scan-selection-bench-frame">Run now ↗</button><button class="lab-reset" type="button" data-lab-reset aria-controls="lab-scan-selection-bench-frame">Reset ↺</button><a data-lab-open href="../../showcases/TOF_render_deep_dive/setup-lab.html?view=shutter" target="_blank" rel="noopener">Open separately ↗</a><span class="lab-state" aria-hidden="true">Suspended · hover to run</span></div>
+<div class="lab-frame" id="lab-scan-selection-bench-frame" role="region" aria-label="Watch illumination and exposure move together"><img class="lab-poster" src="figs/sync-1.png" alt="Original setup illustration paired with the interactive model" loading="lazy" decoding="async" width="1237" height="926"><div class="lab-live" inert></div><span class="lab-preview-label" aria-hidden="true">Move inside to run</span></div>
+<p class="lab-caption">Computed AMCW path phases and exposure gates. Slow scanning and fast intensity modulation use separate illustrative clocks; this is not optical-field interference.</p><p class="lab-status" role="status">Suspended · hover to inspect without losing state.</p>
+</section></section>
 
 
 <h2 class="unnumbered" id="open-lambertian-scene">Open lambertian scene</h2>
 <p>In the scene, every material is Lambertian and the scene is not closed (the whole wall on the side of the camera is removed). As a result, multi-scatter contribution is not so strong. In this case, although we can see some noticeable random noise, even without doing anything extra, we can reconstruct the depth without much trouble.</p>
 
 <figure>
-<img src="figs/MS.png" />
+<img src="figs/MS.png" width="786" height="673" />
 <figcaption>We can see the noise in this setup, though it's not too pronounced.</figcaption>
 </figure>
 
 <figure>
-<img src="figs/DS_bright.png" />
+<img src="figs/DS_bright.png" width="512" height="512" />
 <figcaption>If we only visualize double-scattering, we can see the noise as expected (the original output was dark, the exposure was raised high for demonstration purpose).</figcaption>
 </figure>
 
 <figure>
-<img src="figs/MS_X.png" />
+<img src="figs/MS_X.png" width="758" height="657" />
 <figcaption>The reconstructed result also looks noisy.</figcaption>
 </figure>
 
@@ -858,27 +885,27 @@ g_2 = \frac{A}{4} F[e^{ -j \phi(x,y)}](k_x + \kappa, k_y)
 <p>To make the multi-scatter contribution more pronounced, I added a different scene: the shape of the box is similar but the camera and light source are now inside. The material is a rough metal with really high albedo.</p>
 
 <figure>
-<img src="figs/n1x.png" />
+<img src="figs/n1x.png" width="1024" height="512" />
 <figcaption>Left: single-scatter only; Right: multi-scatter enabled. With this setup, we see much more pronounced noise created by multi-scatter.</figcaption>
 </figure>
 
 <figure>
-<img src="figs/noisy_SS_2.png" />
+<img src="figs/noisy_SS_2.png" width="743" height="659" />
 <figcaption>If only single-scatter is enabled, it works normally.</figcaption>
 </figure>
 
 <figure>
-<img src="figs/noisy_MS_2.png" />
+<img src="figs/noisy_MS_2.png" width="758" height="673" />
 <figcaption>If we also enable multi-scatter, now large regions are covered by noise.</figcaption>
 </figure>
 
 <figure>
-<img src="figs/after_filter.png" />
+<img src="figs/after_filter.png" width="1021" height="512" />
 <figcaption>After synchronizing the shutter and the light source, most noise is removed.</figcaption>
 </figure>
 
 <figure>
-<img src="figs/noisy_sync.png" />
+<img src="figs/noisy_sync.png" width="743" height="659" />
 <figcaption>If you synchronize the shutter with the sweeping line light projector, we get a lot of noise removed and the boundaries also become much clearer.</figcaption>
 </figure>
 
@@ -900,17 +927,22 @@ This project shows that a CW time-of-flight (TOF) imaging system—normally requ
 </p>
 
 <p>
-A key contribution of this work is identifying <strong>exactly which configurations work and why</strong>. We demonstrate that only setups imposing a <strong>spatially linear phase directly in image coordinates</strong> generate a clean, shiftable spectral component. Configurations that impose phase through illumination geometry (e.g., swept or offset laser patterns) break this alignment and cannot be salvaged by parameter tuning alone. These failure modes are rarely discussed but critically important for anyone attempting mixed spatiotemporal demodulation.
+The analysis identifies why a <strong>spatially linear phase in image coordinates</strong> gives a globally shiftable spectral component, subject to bandwidth separation and sampling. Some tested illumination-geometry carriers couple to unknown scene depth and lose that simple structure. Retuning a Fourier crop does not repair the model mismatch; a different calibrated inverse problem would be needed.
 </p>
 
 <p>
-On the engineering side, the project introduces a <strong>general-purpose, time-resolved simulation framework</strong> capable of evaluating a wide family of modulation schemes. This required extending a path tracer with modulated emitters and sensors, rolling/global-shutter behavior, waveform-controlled demodulation, and per-pixel synchronization—tools that do not exist in standard rendering systems. The simulator makes it possible to probe subtle interactions between optical coding and light transport that would be extremely difficult to isolate on hardware.
+On the engineering side, the project introduces a <strong>general-purpose, time-resolved simulation framework</strong> capable of evaluating a wide family of modulation schemes. This required extending a path tracer with modulated emitters and sensors, rolling/global-shutter behavior, waveform-controlled demodulation, and per-pixel synchronization. These tools let the experiment expose the measurement process as well as the final image. The simulator makes it possible to probe subtle interactions between optical coding and light transport that would be extremely difficult to isolate on hardware.
 </p>
 
 <p>
 Finally, we analyze and address a major practical obstacle: <strong>multi-scatter contamination</strong>. Through controlled experiments, we show how higher-order transport destroys the sinusoidal structure needed for holographic recovery, and we demonstrate that synchronizing illumination and sensor activation can suppress most of these contributions even in high-albedo scenes.
 </p>
 
+<div class="research-connections" aria-label="Related implementations">
+<a href="../../live_demos/pipeline/index.html"><span aria-hidden="true">∿</span><strong>WebGPU Atelier</strong><small>Individual → Waves &amp; quantum models → Classical wave optics. Propagate the field itself and compare diffraction with these modulation-phase measurements.</small></a>
+<a href="../../projects/radiance-lab/index.html"><span aria-hidden="true">✦</span><strong>RadianceLab</strong><small>Explore the renderer, transient transport and Fourier reconstruction tools behind the broader light-transport work.</small></a>
+<a href="../../live_demos/aperture/index.html"><span aria-hidden="true">◉</span><strong>Aperture</strong><small>Investigate cameras, spectral transport and time-resolved imaging through an interactive rendering workbench.</small></a>
+</div>
 </section>
 
 

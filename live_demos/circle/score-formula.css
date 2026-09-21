@@ -1,0 +1,59 @@
+/* Native math typesetting and leader lines; no font downloads or compilation. */
+[data-measure="rms"] { --measure-color: #286b9b; }
+[data-measure="zone"] { --measure-color: #aa492b; }
+[data-measure="compactness"] { --measure-color: #31754d; }
+[data-measure="curvature"] { --measure-color: #79509f; }
+[data-measure="harmonics"] { --measure-color: #8a680d; }
+.policy-equation { padding: 17px 15px; gap: 13px; container-type: inline-size; }
+.policy-equation > .sr-only { position: absolute; }
+.formula-prefix { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+.formula-prefix math { font-size: 23px; }
+.formula-prefix > span { font-size: 11px; color: var(--ink-soft); letter-spacing: .04em; }
+.formula-terms { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; position: relative; }
+.formula-term { min-width: 0; text-align: center; color: var(--measure-color); }
+.formula-symbol { position: relative; height: 37px; display: grid; place-items: center; }
+.formula-symbol math { font-size: 22px; text-shadow: 0 0 12px color-mix(in srgb, var(--measure-color) 20%, transparent); }
+.formula-operator { position: absolute; left: -5px; color: var(--ink-soft); font: 17px Georgia, serif; }
+.formula-leader { position: relative; display: block; width: 1px; height: 21px; margin: 3px auto 8px; background: linear-gradient(to bottom, currentColor, transparent); opacity: .6; }
+.formula-leader::before { content: ""; position: absolute; top: 0; left: -2px; width: 4px; height: 4px; border-left: 1px solid; border-top: 1px solid; transform: rotate(45deg); }
+.formula-caption { display: grid; gap: 4px; padding: 0 2px; }
+.formula-caption b { font-size: 11.5px; font-weight: 650; line-height: 1.35; }
+.formula-caption small { color: var(--ink-soft); font-size: 10.5px; line-height: 1.4; }
+.formula-min::before, .formula-min::after { position: absolute; top: -2px; color: var(--ink-soft); font: 32px/1.2 Georgia, serif; }
+.formula-min { padding: 0 9px; }
+.formula-min::before { content: "("; left: 0; }
+.formula-min::after { content: ")"; right: 0; }
+.formula-sum { padding: 0 7px; gap: 8px; }
+.formula-sum .formula-symbol math { font-size: 17px; }
+.formula-sum::before, .formula-sum::after { position: absolute; top: 2px; color: var(--ink-soft); font: 28px/1.2 Georgia, serif; }
+.formula-sum::before { content: "("; left: 0; }
+.formula-sum::after { content: ")"; right: 0; }
+.policy-equation .formula-key { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; padding-top: 14px; margin-top: 13px; border-top: 1px solid rgba(50, 82, 63, .13); }
+.formula-key math { font-size: 15px; }
+.formula-key > span { font-size: 10.5px; }
+.formula-details { border-top: 1px solid rgba(50, 82, 63, .15); padding-top: 10px; }
+.formula-details summary { font-size: 12px; font-weight: 650; cursor: pointer; padding: 4px 0; color: #45604f; transition: color 500ms ease, text-shadow 500ms ease; }
+.formula-details summary:hover { color: #255c3a; text-shadow: 0 0 14px #8fc6a8; }
+.quality-transform { display: flex; gap: 25px; align-items: center; padding: 18px 6px; }
+.quality-transform > math { font-size: 28px; }
+.quality-callouts { display: grid; gap: 9px; font-size: 12px; }
+.quality-callouts b { font: italic 19px Georgia, serif; margin-right: 5px; }
+.formula-error { color: #aa492b; }
+.formula-anchor { color: #286b9b; }
+.policy-equation .formula-exception { font-size: 12px; }
+.formula-exception math { font-size: 19px; vertical-align: middle; margin: 5px; }
+.formula-anchors { display: flex; flex-wrap: wrap; gap: 6px 12px; margin: 13px 0; }
+.formula-anchors > span { color: var(--measure-color); font-size: 11px; }
+.formula-anchors b { display: inline-grid; place-items: center; border: 1px solid currentColor; width: 18px; height: 18px; border-radius: 6px; margin-right: 3px; }
+.policy-equation .formula-footnote, .policy-equation .formula-calibration { font-size: 11px; line-height: 1.6; margin-top: 12px; }
+.score-component .component-code { color: var(--measure-color); border-color: color-mix(in srgb, var(--measure-color) 45%, transparent); background: color-mix(in srgb, var(--measure-color) 6%, transparent); }
+.score-component .component-track i { background: linear-gradient(90deg, color-mix(in srgb, var(--measure-color) 60%, white), var(--measure-color)); }
+@container (max-width: 360px) {
+  .formula-symbol math { font-size: 18px; }
+  .formula-sum .formula-symbol math { font-size: 14px; }
+  .formula-caption b { font-size: 10.5px; }
+  .formula-caption small { font-size: 10px; }
+  .formula-prefix > span { font-size: 10px; }
+  .quality-transform { gap: 15px; }
+}
+@media (prefers-reduced-motion: reduce) { .formula-details summary { transition: none; } }

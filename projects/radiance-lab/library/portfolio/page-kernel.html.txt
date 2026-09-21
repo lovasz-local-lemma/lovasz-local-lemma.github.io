@@ -1,0 +1,377 @@
+{{SECTION:_head.html}}
+{{NAV}}
+
+<!-- ================= HERO ================= -->
+<header class="hero">
+  <div class="hero-img">{{IMG:gate}}</div>
+  <div class="wrap hero-in">
+    <p class="eyebrow">Light transport research · RadianceLab</p>
+    <h1>Caustics without<br>a <i>kernel</i></h1>
+    <p class="thesis">A volumetric caustic through glass, solved in closed form. No neural network, no clamp, no denoiser — and blitzing fast. The sheet is exact; the pair that renders the frame above is consistent, not unbiased, and the number is on this page.</p>
+    <p class="note" style="max-width:52ch;margin:14px 0 0;color:#9fb0ad">Above: a shaft of light meets a glass sphere and leaves its underside as a waisted horn. That image is the pair: computed on the sheet, gathered by the beam it hands off to. In the equal-pass A/B further down, this caustic's waist is 7.7 px wide where the kernel estimator's is 70 at r = 0.70 and, with the beam at the pair's own radius, 16.1 px.</p>
+    <div class="spectrum"></div>
+    <div class="stats">
+      <div class="stat"><span class="k">Per pass</span>
+        <div class="v"><span class="from">7.05</span><span class="arr">→</span><span class="to">1.17 ms</span></div>
+        <div class="sub">after the vsync fix; 0.76 ms of it is estimation &middot; 217×140 film.</div></div>
+      <div class="stat"><span class="k">Cone → MIS trio</span>
+        <div class="v"><span class="from">6291</span><span class="arr">→</span><span class="to">1</span></div>
+        <div class="sub">worst-pixel ratio vs reference.</div></div>
+      <div class="stat"><span class="k">Hourglass solo → paired</span>
+        <div class="v"><span class="from">0.976</span><span class="arr">→</span><span class="to">1.0000</span></div>
+        <div class="sub">converged median against the beam at the same radius; by energy on the isolated caustic the pair reads 1.2 % above it.</div></div>
+      <div class="stat"><span class="k">Equal-pass error</span>
+        <div class="v"><span class="to">2.1×</span></div>
+        <div class="sub">lower than the beam alone at 200 passes, on preset 51's fold.</div></div>
+      <div class="stat"><span class="k">Analytic primitives</span>
+        <div class="v"><span class="to">21</span></div>
+        <div class="sub">kernel-free swept manifolds of 31 slots, plus six that carry a kernel (18, 19, 21, 28, 29, 30)</div></div>
+    </div>
+  </div>
+</header>
+
+<!-- ================= PROBLEM ================= -->
+<section id="problem" style="--secc:var(--l400)" data-nav="Problem">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">01 — The problem</p>
+      <h2>A single grazing ray can ruin the whole frame</h2>
+      <p class="lead">Volumetric caustics are the light that has already passed through glass before it scatters in fog. They are among the hardest paths in rendering: the light is focused to a thin, bright sheet, and almost no random path finds it.</p>
+      <p>The usual answer is photon mapping — fire photons, store them, and gather with a kernel of radius <em>r</em>. That works, but the radius is a lie you agree to: it blurs the caustic and biases the answer, and shrinking it trades the blur for noise. This page is about refusing the lie and keeping the speed.</p>
+      <p>An analytic estimator avoids the kernel entirely, but buys a new problem. Sweeping a photon into a surface and intersecting the camera ray with it introduces a <strong>Jacobian in the denominator</strong> — and when the camera ray grazes that surface tangentially, the Jacobian collapses toward zero and the estimator explodes.</p>
+    </div>
+    <figure>
+      {{SVG:f09-photon-cone.svg}}
+      <figcaption><b>Schematic</b><span>The photon cone: emission direction fixed in polar angle, swept in azimuth and distance. Where the camera ray runs tangent to the cone the co-area Jacobian vanishes — that arc is the firefly locus.</span></figcaption>
+    </figure>
+    <div class="narrow">
+      <p class="note"><b>A photograph used to sit here, and it was pulled on 2026-09-08.</b> It showed the photon-cone estimator alone on preset 41 at 400 passes and its caption called the bright pixels the tangency locus, at <span class="mono">1189.8&times;</span> the scene mean. When every film on this site was regenerated from its own producer, that one did not come back: the estimator's own recorded config produces a frame with a twentieth of the shipped film's mean, and on this build the mixture that is supposed to fix it has the <em>higher</em> peak. The frames and the full retraction are kept in section 03 rather than deleted, but they are not evidence for this section's claim, so this section no longer shows them. <b>That the cone is the family's worst primitive is measured elsewhere and stands</b>: worst pixel against the reference, <b>6291 &rarr; 1</b> once it is mixed &mdash; the stat tile at the top of this page.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= IDEA ================= -->
+<section id="idea" style="--secc:var(--l460)" data-nav="The idea">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">02 — The idea</p>
+      <h2>Sweep the photon into a surface you can intersect</h2>
+      <p class="lead">A photon arriving at a scattering event still has unused degrees of freedom. Rather than committing them randomly and storing the result, let them sweep.</p>
+      <p>Fix every dimension of a light path but two, and let those two vary. The scatter point traces out an analytic two-dimensional manifold in space — a sphere, a cone, a disk, a ruled plane. That manifold is a <strong>photon primitive</strong>, and a camera ray can be intersected with it exactly.</p>
+      <p>The kernel disappears. In its place is a co-area Jacobian relating the swept parameters to the measure the camera ray actually integrates:</p>
+    </div>
+    <div class="formula">
+      <div class="f">J = <span class="hl">|</span> ( ∂x/∂a × ∂x/∂b ) · d <span class="hl">|</span></div>
+      <div class="n">One expression for every primitive in the family. The shape changes; the estimator does not.</div>
+    </div>
+    <div class="pair">
+      <div class="pane">{{SVG:f01-nee-longball.svg}}</div>
+      <div class="pane">{{SVG:f07-photon-sphere.svg}}</div>
+    </div>
+    <div class="paircap"><b>Schematics</b><span>Left: the reference — a light point connected to a scatter point, no sweep. Right: the photon sphere — sweep the emission direction at a fixed free-flight distance and the scatter point traces a sphere about the light; the camera ray meets it at isolated points, and the two tangents at that point are the Jacobian.</span></div>
+    <div class="narrow">
+      <p>Because the manifold is exact, the estimate is unbiased with <em>no radius parameter at all</em> — the caustic is as sharp as the geometry, not as sharp as your kernel. What remains is the variance problem from section one, and it has an answer that costs nothing but bookkeeping.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FAMILY ================= -->
+<section id="family" style="--secc:var(--l500)" data-nav="Family">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">03 — The family</p>
+      <h2>One measure, twenty-one swept manifolds</h2>
+      <p class="lead">Which two dimensions you sweep determines the shape. Twenty-one of them are built, and every one was divided against an independent reference before the next was started &mdash; the straight-line members against the next-event oracle to a median of 1.000, the dielectric members against the stochastic beam. The ratios are in the ledger; the one that lands off, the solo hourglass at 0.976, closes to 1.0000 paired. The roster below is the useful part of the space.</p>
+      <p>Twenty-one is the count that closes the picker: thirty-one slots, less the three baselines that are ordinary sampling, the six kernel estimators, and the one slot that is a rasterised gather rather than an estimator. Earlier versions of this page said nineteen, then twenty-two, and its siblings said twenty; none of those closed against the roster as it is filed today, and the discrepancy is what caused them all to be re-derived. <b>The kernel class used to be two</b> &mdash; the tracer beam and the tracer point. Section 04b is where three more arrived, and why they had to. The sixth is the hourglass pair, filed with them on 2026-09-08: analytic on its sheet, it carries the beam's radius everywhere else, and section 05 measures what that radius does to its energy.</p>
+    </div>
+    <div class="tw"><table>
+      <thead><tr><th>#</th><th>Primitive</th><th>Swept</th><th>Character</th></tr></thead>
+      <tbody>
+        <tr><td>01</td><td>NEE long-ball</td><td>θ, φ, t</td><td><b>The oracle.</b> Every primitive is validated against this</td></tr>
+        <tr><td>03</td><td>UV light quad</td><td>u, v</td><td>Noisiest toward the light</td></tr>
+        <tr><td>05 / 06</td><td>UVW cube / ball</td><td>u, v, w</td><td><b>No grazing band at all</b> — t² cancels 1/r². Cleanest of the family</td></tr>
+        <tr><td>07</td><td>Photon sphere</td><td>θ, φ</td><td>Works with point lights; casts real shadow rays</td></tr>
+        <tr><td>08</td><td>Photon disk</td><td>cos θ, t</td><td>Signature artifact: a radial firefly fan</td></tr>
+        <tr><td>09</td><td>Photon cone</td><td>φ, t</td><td><b>Worst single primitive.</b> Also the ior→1 limit of the hourglass</td></tr>
+        <tr><td>10 / 11</td><td>UT / VT plane</td><td>u,t / v,t</td><td>Grazing bands perpendicular to one another</td></tr>
+        <tr class="key"><td>12</td><td>MIS · three planes</td><td>shared (s,u,v)</td><td><b>259 → 1.</b> Each member's singular band is where the others are healthy</td></tr>
+        <tr class="key"><td>13</td><td>MIS · direction trio</td><td>conditional</td><td><b>6291 → 1.</b> Sphere + disk + cone under one measure</td></tr>
+        <tr class="key"><td>26</td><td>MIS · planes + trio</td><td>shared (s,u,v), six densities</td><td><b>Both regimes in one estimator.</b> Lowest per-pass variance at every emitter size; its masks reproduce 12 and 13 bit for bit</td></tr>
+        <tr><td>15</td><td>Continuous-φ MIS</td><td>closed-form envelope</td><td>∫|a cos φ + b sin φ| dφ = 2√(a²+b²). <b>Grazing band gone</b></td></tr>
+        <tr><td>18</td><td>Tracer photon beam</td><td>t &mdash; 1D kernel</td><td>First estimator to show a glass caustic. Ground truth for 20. <b>Also the t column of the lattice</b></td></tr>
+        <tr><td>28</td><td>Photon ring</td><td>φ &mdash; 1D kernel</td><td>A circle of radius <i>t</i>&thinsp;sin&thinsp;θ about the axis. Singular where the camera ray is coplanar with it</td></tr>
+        <tr><td>29</td><td>Photon arc</td><td>θ &mdash; 1D kernel</td><td>A half-circle of radius <i>t</i> about the vertex. Singular along the frame axis, and nowhere the ring is</td></tr>
+        <tr class="key"><td>30</td><td>MIS &middot; ring + arc + beam</td><td>arclength on the camera ray</td><td><b>Worst pixel 545.7 &rarr; 5.0</b>, lower than the beam's own. <b>Consistent, not unbiased:</b> like every kernel member it blurs, and on top of that its weights do not sum to one at finite radius &mdash; so complement mode refuses it as a primary by name</td></tr>
+        <tr class="key"><td>20</td><td>Photon hourglass</td><td>φ, r about the axis</td><td><b>The novel one.</b> Kernel-free refractive caustic; solo it reads 0.976, and its guard is a discard, not a clamp.</td></tr>
+        <tr class="key"><td>21</td><td>Hourglass MIS</td><td>branch measure</td><td><b>Converged median 1.0000 against the beam at the same radius.</b> The one to use &mdash; and <b>consistent, not unbiased</b>: it carries the beam's kernel at weight O(r) on the caustic and at one everywhere else, and its energy moves with that radius, +0.9 % at r = 0.15</td></tr>
+        <tr class="key"><td>27</td><td>Photon ring-alt</td><td>φ, t about the mirror direction</td><td><b>The first glossy vertex.</b> Five free dimensions instead of three &mdash; a rough surface imposes no reflection law, so the light point and the polar angle are sampled rather than solved</td></tr>
+      </tbody>
+    </table></div>
+    <div class="pair">
+      <div class="pane">{{SVG:f03-uv-quad.svg}}</div>
+      <div class="pane">{{SVG:f08-photon-disk.svg}}</div>
+      <div class="pane">{{SVG:f10-ut-vt-planes.svg}}</div>
+      <div class="pane">{{SVG:f15-continuous-phi.svg}}</div>
+      <div class="pane">{{SVG:f17-camera-sphere.svg}}</div>
+      <div class="pane">{{SVG:f18-tracer-beam.svg}}</div>
+    </div>
+    <div class="paircap"><b>Schematics</b><span>Six members, one vocabulary: yellow is the photon side, blue the camera side, a red dot marks a swept or dielectric vertex, and the white ring is where the camera ray meets the sheet. The disk's radial fan and the two perpendicular plane bands are the singular loci that the mixtures below are built to cancel.</span></div>
+    <figure>
+      {{SHOT:H2 · preset 35 · Primitive Explorer on · step strategies 3 → 7 → 8 → 9 → 10 → 11 → 14 → 16 → 15 → 12 → 13 · Jacobian resolution 80 · shoot the whole window}}
+      <figcaption><b>Primitive Explorer</b><span>The renderer's own view of the same objects: each swept manifold ray-traced in world space and jet-coloured by its grazing Jacobian (blue face-on, red grazing), with the theory readout alongside. Nothing is hardcoded per primitive — the shape emerges from the two swept dimensions.</span></figcaption>
+    </figure>
+    <div class="narrow">
+      <p class="note"><b>The design criterion that mattered:</b> Jacobian flatness first, evaluation cost second, ease of connection third. A primitive that is cheap but singular everywhere is worth less than one that is expensive and well-conditioned — because in a mixture, the singular member is the one that poisons the estimate.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= MIS ================= -->
+<section id="mis" style="--secc:var(--l540)" data-nav="MIS">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">04 — Why a diverse set wins</p>
+      <h2>The singular estimator down-weights itself</h2>
+      <p class="lead">Each primitive has a grazing locus. The observation that makes the family usable is that <em>they are in different places</em>.</p>
+      <p>Where one primitive's Jacobian collapses, another's is well-conditioned — and the balance heuristic weights each sample by how well every strategy could have generated it. The member that is about to produce a firefly is precisely the member that assigns itself a low weight. The singularity does not need to be clamped, guarded, or clipped away. It cancels.</p>
+    </div>
+
+    <div class="pair">
+      <div class="pane">{{SVG:f12-three-plane-mis.svg}}</div>
+      <div class="pane">{{SVG:f13-direction-trio.svg}}</div>
+    </div>
+    <div class="paircap"><b>Schematics</b><span>Left: the three plane sheets share one quad, and their grazing bands are perpendicular, so the balance weights dim whichever member is about to fail. Right: sphere, disk and cone share one light origin, which is what lets the common selection and area densities cancel before any weight is computed.</span></div>
+
+    <div class="pair">
+      <div class="pane"><span class="tag a">A · single plane</span>{{IMG:plane_single}}</div>
+      <div class="pane"><span class="tag b">B · three-plane MIS</span>{{IMG:plane_mis}}</div>
+    </div>
+    <div class="narrow">
+      <div class="readout">
+        <div class="row"><span class="lbl">Mean radiance — A</span><span class="val">0.12640</span></div>
+        <div class="row"><span class="lbl">Mean radiance — B</span><span class="val">0.12642</span></div>
+        <div class="row hi"><span class="lbl">Agreement</span><span class="val">4 decimal places</span></div>
+        <div class="row"><span class="lbl">Peak pixel — A</span><span class="val" style="color:var(--bad)">13.7952</span></div>
+        <div class="row"><span class="lbl">Peak pixel — B</span><span class="val" style="color:var(--good)">0.6637</span></div>
+        <div class="row hi"><span class="lbl">Variance reduction</span><span class="val">20.8× lower peak</span></div>
+      </div>
+      <p style="margin-top:20px">Both images are unbiased estimates of the same integral, at the same sample count, and their means agree to four decimals — they are computing the same answer. One of them is usable. That gap is the entire contribution of the mixture, and it costs nothing but bookkeeping: the weights are closed-form.</p>
+    </div>
+
+    <div class="pair" style="margin-top:52px">
+      <div class="pane"><span class="tag a">A · cone alone</span>{{IMG:fireflies}}</div>
+      <div class="pane"><span class="tag b">B · direction trio</span>{{IMG:mis_clean}}</div>
+    </div>
+    <div class="paircap"><b>Withdrawn 2026-09-08 — this pair no longer shows a contrast</b><span>Preset 41, 400 passes, strategy 9 against strategy 13. The panes are what the two estimators render on the current build, and they are indistinguishable.</span></div>
+    <div class="narrow">
+      <div class="readout">
+        <div class="row"><span class="lbl">Frame mean — cone alone / trio</span><span class="val">0.03829 / 0.03840</span></div>
+        <div class="row"><span class="lbl">Peak ÷ frame mean — cone alone</span><span class="val">858×</span></div>
+        <div class="row"><span class="lbl">Peak ÷ frame mean — trio</span><span class="val">1138×</span></div>
+        <div class="row hi"><span class="lbl">Reduction shown by this pair</span><span class="val">none</span></div>
+      </div>
+      <p style="margin-top:20px"><b>What this readout used to say, and why it does not say it any more.</b> It read 1189.81 against 13.38, an 88.9&times; reduction. When <span class="mono">renders.py</span> was written and every film on this site was regenerated from its own producer, ten of the eleven came back byte-identical or agreed in energy to 3e&#8209;4 &mdash; and this one did not. The shipped <span class="mono">fireflies</span> film carried a frame mean of 0.21171 with 63&nbsp;% of its energy in ten pixels; the film that the recorded config actually produces has a mean of 0.03829 and 1.2&nbsp;% in its top ten, and at ten times the passes it still does. On this build the two estimators are indistinguishable on this preset, and the trio's peak is <em>higher</em> than the cone's. The numbers above are the two films measured (<span class="mono">py docs/tools/filmstats.py stats</span>, peak divided by frame mean); no film has been swapped, and the pair is left standing rather than deleted so that the retraction is where the claim was.</p>
+      <p><b>The claim itself is not withdrawn &mdash; its illustration is.</b> The direction trio's variance reduction is measured on the roster, not on this frame: worst pixel against the reference, <b>6291 &rarr; 1</b>, the number in the stat tile at the top of this page; and the plane pair two panes up, which regenerates byte-identical, shows the same mechanism at <b>20.8&times;</b> on a scene where the grazing band is genuine. What preset 41 needs to illustrate it again is a scene whose tangency tail is real at 400 passes &mdash; a scene choice, not a new number, and it has not been made.</p>
+      <p>The three direction-swept primitives share a conditional-given-<em>p</em> measure, which lets the common selection and area factors cancel before any weight is computed. Without that cancellation the mixture would not be tractable at all.</p>
+    </div>
+
+    <div class="narrow" style="margin-top:52px">
+      <h3>Which mixture, at which light size — and the two predictions the rig overturned</h3>
+      <p>The two mixtures are built for different regimes. The planes sample a point on the light, so they should improve as the lamp grows; the direction trio conditions on one light point, so it should lose ground as that point wanders. The variance study wrote the crossover down before anything was rendered: the planes overtake the trio once the emitter subtends about 35° at the ball. A second prediction sat beside it for the caustic: the vertex-seeded hourglass (22) overtakes the light-seeded one (20) at 35–41°.</p>
+      <p>Presets 58–62 are one rig built to settle both: a glass ball in fog under a downward quad whose edge steps 0.2, 0.5, 1.25, 3.2 and 8.0 at constant power — 2° to 77° at the ball — with every cell timed, eight independent pass-batches per cell, and the energy checked against the camera walk at every row. <b>Neither crossover arrived.</b> The trio beats the planes at every size: by 43× on equal time under the smallest lamp, narrowing to about 1.3× at 77°, where the cost slopes carry a 10–30 % timing uncertainty and the equal-time margin is inside it — the per-pass ratio of 2.2× at that row is not. The light-seeded hourglass beats the vertex one at every size, by 236× down to 1.9×. Both trends run the predicted way, so the crossovers exist — beyond the rig, near an emitter edge of 9–10 for the airlight pair and further still for the caustic, where the lamp would be nearly half the width of the fog box. The miss was on the side the study trusted most: the trio's variance floor is 1.10 per pass, not 3.8, and it rises 1.35× over a 1,600× increase in emitter area, not 2×. Both corrections are written into the study beside the predictions they replace.</p>
+    </div>
+    <figure>
+      {{DOCPNG:variance/lightsize/fig_crossover.png}}
+      <figcaption><b>Equal-time variance against emitter size</b><span>Left, the airlight: three planes (12), the direction trio (13) and the cross-family mixture (26). Right, the caustic: the light-seeded hourglass (20) against the vertex hourglass (22), with the beam-paired 21 above them both at full transport and isolated to the caustic. The dashed line is where each crossover was predicted. Presets 58–62, 217×140 film, 640 and 2,048 equal passes per row; relative variance per pass times milliseconds per pass, so lower is better.</span></figcaption>
+    </figure>
+    <div class="narrow">
+      <div class="tw"><table>
+        <thead><tr><th>Emitter edge</th><th>Angle at the ball</th><th>12 · planes</th><th>13 · trio</th><th>26 · both</th><th>22 / 20, caustic</th></tr></thead>
+        <tbody>
+          <tr><td>0.2</td><td>2.3°</td><td>114.7</td><td><b>2.7</b></td><td>3.5</td><td>236</td></tr>
+          <tr><td>0.5</td><td>5.7°</td><td>41.5</td><td><b>3.0</b></td><td>3.5</td><td>111</td></tr>
+          <tr><td>1.25</td><td>14°</td><td>43.4</td><td><b>2.2</b></td><td>3.7</td><td>23</td></tr>
+          <tr><td>3.2</td><td>35° — the predicted crossover</td><td>17.3</td><td><b>2.9</b></td><td>3.4</td><td>3.8</td></tr>
+          <tr><td>8.0</td><td>77°</td><td>4.7</td><td>3.6</td><td><b>3.0</b></td><td>1.9</td></tr>
+        </tbody>
+      </table></div>
+      <p class="note">Equal-time cost of one unit of noise for the three airlight estimators; the last column is the vertex hourglass's cost divided by the light-seeded one's. The cost slopes carry 10–30 % error bars (±0.35 on the trio and ±0.2 on the mixture at the last row), so the bottom row's equal-time verdicts are marginal and the per-pass ones are not. The three airlight estimators agree on energy to 0.1 % at every row, and all three read 2–3 % above the camera walk — every bit of that excess sits inside the glass ball's disc, where a swept estimator integrates fog along the unrefracted camera ray and the walk stops at the glass. Outside the disc they agree with the walk to 0.03 %. That is the one camera-leg convention the whole light-sweep family shares, and the camera-leg cap that complement mode switches on closes it.</p>
+      <p style="margin-top:20px">The third column answers the question the two mixtures invite: why not both? <b>Strategy 26</b> mixes the three planes with the direction trio under one measure. The obstacle looked like a change of variables — the trio's densities are conditional on a light point, the planes' live on the light's area — and turned out to be bookkeeping: multiplying the trio's densities by the light-point selection density puts all six on the same light-area measure, the area factor cancels exactly, and the six weights are closed-form with no root-find. It has the lowest per-pass variance of the three at every emitter size and, from the third row on, the cleanest tail; it costs 1.2–1.8× the trio per pass because it draws six members rather than three and pays a shadow ray for every crossing that lands, and under the widest lamp it edges ahead on equal time, inside the timing uncertainty. It captures both regimes per sample. Masking its members down to the planes alone or the trio alone reproduces 12 and 13 bit for bit; the check that the shared measure is right is the energy, which agrees with 12 and with 13 to 0.1 % across a 1,600× range of emitter area. Use it when the light size is unknown.</p>
+      <p>One bug came out of the rig, and it is on the page because the rig is what found it: inside the trio, the sphere and disk members cast no shadow ray while the cone did, so on preset 48 the trio read 1.25× the walk under a glass ball's shadow. Fixed the same day; the trio now reads 1.016, and the mixture inherits the fix.</p>
+      <p><b>And the rig's own oracle is the estimator to beat.</b> The reference at every row was the camera walk's single-scatter next-event estimate: a free-flight-sampled scatter point and one shadow ray. Its variance was recorded and never tabulated, and it is lower than any swept member's at every emitter size — 0.35 to 0.67 per pass against the trio's 1.10 to 1.49, and 1.4 to 3.6× better on equal time. That is the honest boundary of this family. Sweeping a dimension of an area light's single scatter does not beat connecting to it; what sweeping buys is the mixture mechanism above, and the connections next-event estimation cannot make at all. Hold on to that sentence — the next section reproduces it exactly, on a different construction, and the section after that is where sweeping stops being optional.</p>
+    </div>
+    {{SHOT:H8 · presets 58 → 62 in order · Split A/B with strategy 13 on the left and 12 on the right · MinBounce 0 · 640 passes each · one frame per preset, framing the fog under the ball as the lamp grows}}
+  </div>
+</section>
+
+{{SECTION:sections-one-dimensional.html}}
+
+<!-- ================= HOURGLASS ================= -->
+<section id="hourglass" style="--secc:var(--l580)" data-nav="Hourglass">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">05 — The contribution</p>
+      <h2>An analytic caustic through a glass sphere</h2>
+      <p class="lead">Refraction is where analytic connections stop. A path that bends at two dielectric interfaces has no closed-form connection — which is why caustics have been left to photons and kernels. This one is not.</p>
+      <p>For a spherical dielectric there is a symmetry that rescues it. Take the axis <code>a = normalize(C − y)</code> from the light through the sphere's centre. The entire refraction chain — entry, interior, exit — is <strong>rotationally symmetric about that axis</strong>. Rotating the whole chain is a rigid motion, so the exit rays sweep a surface of revolution: a waisted, hourglass-shaped caustic envelope that can be intersected in closed form.</p>
+    </div>
+
+    <figure>
+      {{SVG:f20-hourglass.svg}}
+      <figcaption><b>Schematic</b><span>The meridian chain at φ = 0 — emitted at polar angle ψ, refracted in at x₁, out at x₂ — and its revolution about the axis <code>a</code>. The exit rays sweep a waisted surface; the camera ray meets it where the white ring sits, and the two tangents there are <code>a × (x − y)</code> and <code>ω_out</code>.</span></figcaption>
+    </figure>
+    <div class="formula">
+      <div class="f">J = <span class="hl">|</span> ( ( a × (x − y) ) × ω<sub>out</sub> ) · d <span class="hl">|</span></div>
+      <div class="n">The co-area Jacobian of the swept exit surface. The fold dilation <code>det3</code> cancels per branch,<br>so the MIS weights are closed-form and O(1) — no root-finding anywhere in the estimator.</div>
+    </div>
+
+    <div class="narrow">
+      <p>Two properties make it a result rather than a trick. First, the density <code>p = Σ p<sub>c</sub>·|J| / |det3|</code> was derived four independent ways and then <em>measured</em> against the sampler, agreeing to 1.0007. Second, as the index of refraction approaches 1 the hourglass degenerates exactly onto the photon cone — strategy 09 — which pins the measure convention against an estimator that was already validated. That limit matches to nine digits.</p>
+    </div>
+
+    <div class="pair">
+      <div class="pane"><span class="tag a">A · kernel estimator, r = 0.70</span>{{IMG:kernel_blur}}</div>
+      <div class="pane"><span class="tag b">B · analytic pair, r = 0.15</span>{{IMG:hourglass}}</div>
+    </div>
+    <div class="paircap"><b>Preset 48</b><span>The acceptance scene: one glass ball, one point light, dark walls — built so the stochastic beam and the hourglass pair describe <em>exactly</em> the same transport and can be divided against each other. Both frames are 1000 passes over the same bounce range; the only difference is the estimator. B is strategy 21 at r = 0.15, its beam member included.</span></div>
+    <div class="narrow">
+      <h3>How much of the pair is still the kernel</h3>
+      <p>The pair carries the beam's radius, so it has to be read the way strategy 30 is read one section up: as a ladder. Preset 48's caustic isolated to the pure transmit-transmit class (min bounce 2, max bounce 3), 217×140, eight disjoint batches of 400 passes per cell, and batch <span class="mono">k</span> of every cell is the same block of pass indices, so every ratio below carries its batch-paired bar. Producer: <span class="mono">docs/hourglass/hg21_ladder.py</span>, artifact <span class="mono">hg21_ladder.json</span>, run 2026-09-08. Energy is the currency: a kernel estimator on an open receiver blurs shape and conserves energy, so the energy column is the one to read.</p>
+      <div class="tw"><table>
+        <thead><tr><th>kernel radius</th><th>18 · beam alone, energy</th><th>21 · pair, energy</th><th>21 / 20</th><th>21 / 18 at the same r</th><th>21 / its own r = 0.0375 rung</th><th>18 / its own r = 0.0375 rung</th></tr></thead>
+        <tbody>
+          <tr><td>0.30</td><td>0.03477 ± 0.00004</td><td>0.03548 ± 0.00002</td><td>1.0247 ± 0.0004</td><td>1.0205 ± 0.0009</td><td><b>1.0185 ± 0.0004</b> · 44 σ</td><td>0.9982 ± 0.0022</td></tr>
+          <tr class="key"><td>0.15 — every frame on this site</td><td>0.03471 ± 0.00006</td><td>0.03514 ± 0.00002</td><td>1.0150 ± 0.0005</td><td>1.0124 ± 0.0015</td><td><b>1.0089 ± 0.0004</b> · 20 σ</td><td>0.9966 ± 0.0022</td></tr>
+          <tr><td>0.075</td><td>0.03472 ± 0.00008</td><td>0.03495 ± 0.00002</td><td>1.0092 ± 0.0005</td><td>1.0064 ± 0.0022</td><td>1.0032 ± 0.0003 · 12 σ</td><td>0.9969 ± 0.0021</td></tr>
+          <tr><td>0.0375</td><td>0.03483 ± 0.00009</td><td>0.03483 ± 0.00002</td><td>1.0060 ± 0.0005</td><td>1.0001 ± 0.0026</td><td>—</td><td>—</td></tr>
+        </tbody>
+      </table></div>
+      <p class="note">Solo strategy 20 on the same isolation: 0.03463 ± 0.00002, the row every 21 / 20 ratio divides by. Energies are whole-frame mean luminance; ± is the standard error over the eight batches, and the two right-hand columns divide batch by batch. Re-run 2026-09-08 after the hourglass crossing solver went to double precision: the 18 cells are byte-identical, solo 20 rose 0.16 %, and every rung moved by 0.0005 or less.</p>
+      <p><b>The beam alone is flat in its radius</b>, as a kernel estimator should be: 0.9982 ± 0.0022 and 0.9966 ± 0.0022 at r = 0.30 and 0.15 against its own r = 0.0375 rung. <b>The pair is not.</b> Its energy rises with the radius it carries, first order in r — +0.9 % at the radius every frame on this site is rendered at, +1.9 % at twice that, both resolved on the paired bar beyond argument. That is the structure complement mode refuses strategy 30 for as a primary: at a finite radius the beam deposits within r of the sheet while the hourglass numerator is evaluated as though the deposit were on it, so the balance weights do not sum to one pointwise, and the total the pair reports for its box moves with r. It vanishes only as r → 0, which is the definition of consistent. Its shape does not move: the energy in its brightest 1 % of pixels is 0.133–0.136 at every rung against the solo hourglass's 0.136, and on the Gate frame its waist is 7.7 px at r = 0.15 and 7.5 at r = 0.05. The kernel shows in the energy, not the width.</p>
+      <p>What the pair buys is unchanged by this. The solo hourglass reads 0.25 % below the beam on this isolation (0.03463 against 0.03471), and a straight line through the four 21 / 20 rungs meets r = 0 at 1.004 — the guard's discards handed to the beam at weight one. Solo, the hourglass is kernel-free and discards. Paired, it discards nothing and carries a kernel. No shipped estimator of this caustic earns the word <em>unbiased</em>, and this site stopped using it on 2026-09-08.</p>
+    </div>
+    <figure>
+      {{SVG:f21-hourglass-mis.svg}}
+      <figcaption><b>Schematic</b><span>One deposit reached three ways — the beam's tube, the point's kernel, the hourglass's exact sheet — and the ledger that combines them. Because the fold dilation is a property of the chain rather than the estimator, it cancels per branch and the weights are closed-form.</span></figcaption>
+    </figure>
+    <figure>
+      {{SHOT:A7 · Compare ▸ Split A/B · preset 48 · A strategy 20, B strategy 18 with Min bounce 2 · drag the divider · then preset 52, strategy 21, spectral}}
+      <figcaption><b>Split A/B</b><span>The kernel-blurred beam on one side of a draggable divider and the analytic hourglass on the other, same scene, same passes — and the dispersive prism fan under the paired estimator.</span></figcaption>
+    </figure>
+
+    <h3 style="max-width:720px">Dispersion comes free</h3>
+    <div class="narrow">
+      <p>Because the estimator is parameterised by the refractive index rather than by a stored photon, making it spectral costs one substitution: draw a hero wavelength, evaluate Cauchy's relation, and let the beam and the hourglass share the same channel so the two techniques stay correlated. The caustic separates into a spectrum on its own — a dispersive volumetric caustic, analytic on the sheet and consistent as a pair, for the price of one line.</p>
+    </div>
+    <figure>
+      {{IMG:prism_fan}}
+      <figcaption><b>Spectral</b><span>Dispersive glass under the paired estimator. The fan is the wavelength-dependent caustic; nothing in the estimator changed except the index.</span></figcaption>
+    </figure>
+    <figure>
+      {{IMG:caustic_room}}
+      <figcaption><b>Relays</b><span>Three glass spheres and two aimed mirrors in fog. The light is reflected to a virtual origin before refraction, so a straight virtual chain stands in for the bent real one — mirror relays without a second bounce integrator.</span></figcaption>
+    </figure>
+
+    <h3 style="max-width:720px">How far the sheet can be pushed, and where it refuses</h3>
+    <div class="narrow">
+      <p class="lead">Three extensions landed after the hourglass itself, and they share a method worth naming before the numbers: each one asks whether some new transport is still a <em>rigid motion</em> of the same swept surface. Where it is, the existing quadric solver is untouched and the extension is exact. Where it is not, the estimator does not approximate &mdash; it refuses, by name, in the log.</p>
+      <ul class="clean">
+        <li><b>The refraction chain.</b> Push the sheet through a chain of glass balls instead of one. The revolution about the axis from the light to the first centre is a rigid motion of the <em>whole chain</em> if and only if every centre lies on that line — so a collinear chain costs nothing in the solver and a ball off the axis is refused rather than approximated. Which also makes it a <em>point</em>-source result: with a finite emitter the axis moves every sample, and the measured mean perpendicular offset for a half-0.4 quad is 0.395, with fifteen samples in a hundred thousand inside tolerance. The spec did not carry that correction; the measurement did.</li>
+        <li><b>The post-ball mirror.</b> Light, ball, fog, then a mirror, then the eye. A reflection is an isometry, so the camera ray is reflected in the plane and the <em>same</em> quadric is solved against it; a root survives only when the bent path is real at every leg. It composes with the light-side relay and with the chain, and it is the one flag that turns the rasterised gather off — the screen bound projects the sheet where it is, not where its mirror image is seen.</li>
+        <li><b>The glossy ring.</b> Strategy 24's reflection cone taken off the delta: the family's first vertex on a <em>rough</em> surface. A glossy vertex imposes no reflection law, so where every other member solves for the light point and the polar angle, this one samples both — five free dimensions rather than three — and evaluates the BRDF at every crossing rather than once.</li>
+      </ul>
+    </div>
+    <div class="readout">
+      <div class="row hi"><span class="lbl">Chain &mdash; variance per pass against the stochastic beam</span><span class="val">60.4&times; / 116&times; &middot; <span class="d">35.5&times; / 48.5&times; on equal time</span></span></div>
+      <div class="row"><span class="lbl">Chain &mdash; energy on the caustic mask</span><span class="val">1.0023 &plusmn; 0.0061 &middot; 0.9966 &plusmn; 0.0068</span></div>
+      <div class="row"><span class="lbl">Chain &mdash; the off-axis pair, same config</span><span class="val">film sum exactly 0.000000, one refusal line</span></div>
+      <div class="row hi"><span class="lbl">Mirror &mdash; against the same scene from the eye's mirror image</span><span class="val">0.9979 &plusmn; 0.0017 by energy</span></div>
+      <div class="row"><span class="lbl">Mirror &mdash; cost of the flag</span><span class="val">1.038 ms/pass (2.507 with, 1.469 without)</span></div>
+      <div class="row hi"><span class="lbl">Glossy ring &mdash; against the camera walk on the same path class</span><span class="val">1.0005 &plusmn; 0.0088 at roughness 0.16</span></div>
+      <div class="row"><span class="lbl">Glossy ring &mdash; variance per pass, three roughnesses</span><span class="val">2.22&times; / 3.13&times; / 2.61&times; &middot; <span class="d">6.6&times; / 8.3&times; / 6.8&times; on equal time</span></span></div>
+      <div class="row"><span class="lbl">All three</span><span class="val">21 of 21 pinned films byte-identical with the flags off</span></div>
+    </div>
+    <div class="narrow">
+      <p>Two of those rows say more than their numbers. The chain's refusal is the <em>acceptance criterion</em> for the whole approach: a scene the estimator cannot represent exactly renders as a black film and a named log line, not as a plausible picture that is quietly wrong. And the glossy ring's variance row falsified a written prediction &mdash; the design note said the ordinary camera walk would overtake the swept estimator as roughness rose, and it does not, at any roughness in range.</p>
+      <p class="note"><b>What the ring cost, and why it is on this page rather than in a footnote.</b> Sampling the polar angle from a lobe-shaped density pins one coefficient of the shared cone quadric to exactly 1, at which point the leading term cancels in single precision and the estimator invents energy: measured at <b>81.5&times;</b>, <b>108.8&times;</b> and <b>8.7&times;</b> the correct value at roughness 0.05, 0.09 and 0.16. It is the sharpest illustration on this site of why every member is divided against an independent reference before the next is started &mdash; the picture at roughness 0.16 looked entirely reasonable while carrying nearly nine times the energy it should have. <b>And the defect was never the ring's alone.</b> Strategies 9, 13, 23, 24 and 26 solve the same quadric, and on 2026-09-07 the shared solver was reformulated &mdash; ray-centred, both differences of squares factored, the roots paired &mdash; and moved to double for every one of them; 27 keeps the separate double crossing it already had. Five of the twenty-one pinned films moved at 217&times;140 and 150 passes, and they are exactly the five that reach a cone. The direction was then settled by an arbiter that shares no line with either build, rather than by the fix arguing for itself: the quadric re-derived in exact rationals and cross-checked against mpmath at 120 digits, the two agreeing to <b>4&times;10<sup>&minus;39</sup></b>, run on the individual samples that moved. Six of the seven films move decisively onto it; the seventh moves by an ulp the other way with its maximum unchanged. The largest single change, <b>&minus;3.80&nbsp;%</b> on one preset-48 film, is <em>carried</em> by one sample at pixel (83,&nbsp;52) whose exact crossing lands 0.00275 outside the emitter &mdash; no light path, true contribution zero, and the 55.42 the old arithmetic paid it was invented energy. It is not the <em>whole</em> of the &minus;3.80&nbsp;%, and saying so was sloppy: the film sum moves 1135.22 to 1092.10, a net of &minus;43.12, so that single sample is <b>128&nbsp;%</b> of the net and the rest is paid back by pixels that <em>rise</em> &mdash; +9.72 at (102,&nbsp;61) and +2.38 at (90,&nbsp;56), the two places the Jacobian was too big rather than the root wrong. One number, two mechanisms, and they point opposite ways. One residual is open and is recorded rather than smoothed over: the solver builds its leading coefficient assuming the camera direction is exactly unit length, and on one near-tangency sample the shipped Jacobian is still <b>1.93&times;</b> the arbiter's, against the old form's 6.27&times;.</p>
+      <p>One boundary is also now measured rather than assumed. A general, non-collinear chain was costed with a standalone harness that links nothing from the renderer and implements the crossing exactly as the specification describes it: <b>2 475&ndash;3 251 ns per footprint pixel</b>, 1.79 roots per pixel, a sheet covering 6.7&ndash;9.4 % of the frame. At the batch sizes this estimator runs, that is 188 ms per pass at the theoretical floor and 443&ndash;557 as implemented, against one-ball strategy 20's 13.1 &mdash; fourteen to forty-two times. The general chain is a <b>no-go</b>, and it is a no-go because somebody wrote the harness rather than because somebody estimated.</p>
+    </div>
+    {{SHOT:CHAIN: two collinear balls (preset 68) &middot; integrator mode 9 &middot; strategy 20 with Chain length = 2 &middot; Min bounce 2 &middot; 2000+ passes &middot; clean view (G) &middot; frame both balls and the waist between them; then load CHAIN: the same pair OFF-AXIS (preset 69) at the identical settings and shoot the black film beside the console line reading [PP][hgchain] REFUSED}}
+    <div class="narrow">
+      <p class="note"><b>The second half of that shot is the point.</b> An estimator that renders nothing, loudly, on a scene it cannot represent is worth more than one that renders something on every scene. It is the same standard as the projection self-check on <a href="the-camera-is-not-a-viewpoint.html" style="color:var(--l680)">The camera is not a viewpoint</a>, arrived at independently in a different part of the estimator: refuse rather than approximate, and say which line refused.</p>
+    </div>
+  </div>
+</section>
+
+{{SECTION:sections-surfaces-flavours.html}}
+{{SECTION:sections-variance.html}}
+{{SECTION:sections-correlated.html}}
+
+<!-- ================= SPEED ================= -->
+<section id="speed" style="--secc:var(--l600)" data-nav="Speed">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">06b — The speed</p>
+      <h2>Blitzing fast, no neural network, no kernel on the sheet</h2>
+      <p class="lead">Those three do not usually share a sentence about a volumetric caustic. Neural methods buy speed with a network; kernel methods buy it with blur; exact methods have been slow. The hourglass solves its sheet in closed form at the speed below. The word it does not get is <em>unbiased</em>: solo, its guard discards; paired, it carries the beam's kernel at weight O(r), and section 05's ladder says what that costs. The numbers below are what make the rest of the sentence true.</p>
+      <div class="readout">
+        <div class="row"><span class="lbl">Per pass — before</span><span class="val" style="color:var(--bad)">7.05 ms</span></div>
+        <div class="row hi"><span class="lbl">Per pass — shipped</span><span class="val" style="color:var(--good)">1.17 ms</span></div>
+        <div class="row"><span class="lbl">Film for these rows</span><span class="val">217×140 &middot; preset 48 &middot; strategy 20 &middot; CPU, i9-13980HX, 32 threads; the GPU only displays the film</span></div>
+        <div class="row"><span class="lbl">Of which estimation</span><span class="val">0.76 ms</span></div>
+        <div class="row"><span class="lbl">Rasterized gather, bit-identical to tracing</span><span class="val">quad 16.7× · beam 5.8× · hourglass 1.1× &mdash; it crosses half the frame, so there is nothing to skip</span></div>
+      </div>
+      <p style="margin-top:20px">The first row is worth a sentence, because it is the kind of number this project publishes rather than hides. Eighty-eight percent of a photon-primitive pass was the renderer waiting for a vertical blank: the window hardcoded a swap interval of one and drew one accumulation pass per frame, so every pass paid a display refresh against 0.76 ms of actual work. It was found by one measurement — a twenty-fold change in film size moved the per-pass cost by seven percent, so nothing inside the pass could own it — and fixed with a passes-per-frame budget. Thirty-three films, byte-identical before and after. The estimator had been fast all along; the display was hiding it. <b>How reproducible is a millisecond on this site?</b> Measured, and only once: the one cost column that has been run three times, interleaved, on a single binary holds to <b>4.4&ndash;9.1&nbsp;%</b> within a session, and moved by about <b>1.6&times;</b> between two sessions a day apart on this laptop (<span class="mono">docs/ring-arc/harness/ra_gate/cost.json</span>). Every wall-clock number on this site carries that precision, this one included. The ratios it is spent on &mdash; 7.05 against 1.17, 16.7&times; on the rasterised gather &mdash; are taken inside one session, which is the half of it that reproduces.</p>
+      <p>The frame at the top of this page is the measurement. The Gate, preset 54, 363&times;505, strategy 21, 16,000 passes. Shot as a pixel-registered A/B at 6,000 passes against the stochastic beam at <code>r = 0.70</code>: the analytic side's waist peaks <b>5.3&times;</b> higher and its full width at half maximum is <b>7.7 px against 70</b>, while the two frames agree on total energy to 4&nbsp;%. Same transport, nine times sharper, at the same pass count &mdash; <b>against a beam given nearly five times the pair's radius.</b> A 1D kernel's width scales with its radius, so on 2026-09-08 the same frame was rendered with the beam at the pair's own radius, 16.1 px across the waist (14.1&ndash;18.2 over the band): at matched radius the pair's waist is the tighter by a factor of <b>2.0</b>, and the remaining 4.5 was the competitor's knob. The pair at a third of its radius, <code>r = 0.05</code>, stays at 7.5 px, so the waist is the sheet's and not the kernel's; its energy is where the kernel shows, and section 05 has that ladder. Both extra films are measured by the same producer over the same band and stored beside the four numbers below. <b>Two of those four numbers are a correction.</b> The readout published 4.4&times; and 57 px until 2026-09-08; those came from a hand reading whose row was never recorded, and the films measure neither at any row. <span class="mono">docs/tools/waist.py</span> is now the producer: it takes the peak and the full width at half maximum of every row in the seventeen-row waist band of the same two films this page inlines, and reports the band median with its row-to-row spread &mdash; peak ratio 5.3&times; (4.7&ndash;6.2 across the band), width 70 px (68.5&ndash;73.1) against 7.7 px (6.1&ndash;10.4), energy ratio 0.96003. The wall-clock of that frame is the one number this section does not yet print: it is what the recording below is for, and it goes in the caption the day it is shot.</p>
+    </div>
+    <div class="pair">
+      <div class="pane"><span class="tag a">A · stochastic beam, r = 0.70</span>{{IMG:gate_ab_kernel}}</div>
+      <div class="pane"><span class="tag b">B · analytic pair, r = 0.15</span>{{IMG:gate_ab_analytic}}</div>
+    </div>
+    <div class="paircap"><b>Preset 54, equal passes</b><span>The beam's 70-px smear and the hourglass pair's 7.7-px pinch, same scene, same camera, same number of passes. Neither frame has a denoiser, a neural network or a clamp on it; B carries a kernel too, at r = 0.15, and with the beam at the pair's own radius A's waist is 16.1 px.</span></div>
+    <div class="narrow">
+      <h3>What the photon-surface line of work reported, and what this adds</h3>
+      <p>The idea of sweeping a photon's unused dimensions into an analytic manifold is not mine, and it is earlier: Bitterli and Jarosz's photon planes (2017) and Deng et al.'s photon surfaces (2019) proved the variance argument. They proved it at offline cost. The planes paper ran on sixteen Xeon threads, compared estimators at ten minutes each, and reports absolute times of hundreds to thousands of seconds per image, for a 2.4&ndash;40&times; variance reduction over photon beams. The surfaces paper publishes no wall-clock and no hardware at all; its results are equal-time variance ratios, and it shows individual spinning estimators with variance up to 1.8 million times path tracing before MIS tames them. It also names, in its own limitations, the regime it lacks a robust solution for: a medium interaction immediately after a surface event.</p>
+      <p>This project does not implement either paper's primitive. Its swept planes are a different split of the same dimension count, and the published multi-scatter construction is structurally inexpressible in the class table this family is built on — the transport page says exactly where. What it shares with that work is the idea. What it adds is an implementation fast enough to show what the idea is worth: 1.17 ms a pass on a laptop's CPU cores with no GPU compute in the loop, a rasterized gather that is byte-identical to tracing, a MIS network whose weights are closed-form with no root-find, and a dielectric member — the hourglass — that lands the specular case of the regime the surfaces paper left open, and, paired with the beam, converging to 1.0000 against the beam at the same radius &mdash; consistent, with its radius-dependence measured at +0.9 %. No speed ratio against the published work is printed here, because the scenes, resolutions and hardware differ; the comparison that is fair is the one above, against the kernel estimator in the same renderer, and it is 9&times; in width at equal passes against the beam at r = 0.70 and a factor of 2.0 at the pair's own radius.</p>
+    </div>
+    {{VIDEO:The Gate, converging — the recording | Preset 54 (The Gate), integrator mode 9 (key 0). Compare ▸ Split A/B (PP estimator): side A strategy 18, beamRadius 0.70, Min bounce 2; side B strategy 21, beamRadius 0.15, Min bounce 0, hgGuard on, misPoint on. Load preset 54 fresh: its focal length leaks into presets loaded after it, not before. PP Estimator ▸ Passes / frame = 0 (Auto). Whatever film size the window gives; the pass counter is the measurement, so write the film size into the caption beside the clock. Do NOT press G: keep View ▸ Integrators HUD on so its SPP row is the on-screen pass counter, and keep the divider at mid-frame through the ball. Start a wall-clock in the capture tool's overlay at pass 0; the app has no ms-per-pass readout, so burn in "1.17 ms / pass measured on a 217×140 film" and a second caption reading "no neural network · side B is the pair at r = 0.15 · consistent, not unbiased" from the capture tool. Record from pass 0 to pass 6,000 in one unbroken take, real time, no speed-up, no cut; then hold 5 s on the finished frame and drag the divider once across the waist. Note the wall-clock at pass 6,000 and write it into this caption. | Both sides start as noise. Watch the waist: side B collapses to a 7.7-px pinch while side A settles into a 70-px smear at the same pass count, and the shaft above the ball converges to the same brightness on both sides — same energy, different sharpness. Watch the pass counter climb and the clock beside it: that pair is the speed claim, measured on camera.}}
+  </div>
+</section>
+
+<!-- ================= PROOF ================= -->
+<section id="proof" style="--secc:var(--l620)" data-nav="Proof">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">06 — How it was proven</p>
+      <h2>Two independent estimators, or it didn't happen</h2>
+      <p class="lead">Every primitive in the family had to divide against something it shares no code with, and land on 1.000. Every row that claims it has the run behind it; the ones that land elsewhere — the solo hourglass at 0.976, the beam at 1.048, the reflection cone at 0.998 — say so in the ledger, and the pair closes the first to 1.0000.</p>
+      <ul class="clean">
+        <li><b>Ratio against the oracle.</b> Each estimator renders the same configuration as the NEE reference until the per-pixel median ratio converges to 1.000. Median, not mean — a single firefly cannot hide a systematic error.</li>
+        <li><b>Byte-identical regression.</b> The strongest test available, and the one that caught the most. A refactor that should not change the image must produce a bit-identical file; an extra random draw shifting the stream, or a gate that quietly became more permissive, shows up nowhere else.</li>
+        <li><b>Degenerate limits as measure pins.</b> ior→1 collapses the hourglass onto the cone; σ→0 collapses a stochastic surface onto its mean. Limits where a new estimator becomes an old one are free, exact tests.</li>
+        <li><b>Four-way derivation, then measurement.</b> The MIS density was derived independently four times before being compared against the sampler's empirical histogram. Agreement to 1.0007 — the derivation and the code were checked against each other, not against expectation.</li>
+      </ul>
+      <p class="note"><b>The habit that mattered most was negative.</b> Reasoning about why an image is dark does not work. One investigation ran for several rounds on careful inference, reached a confident wrong conclusion, and recorded it in a commit message as settled. A single counter in the actual code overturned it in one run: 27657 rays, 15131 hits, 63% correctly blocked. The bug was elsewhere. Instrument first.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= LIMITS ================= -->
+<section id="limits" style="--secc:var(--l680)" data-nav="Limits">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">07 — What it does not do</p>
+      <h2>The honest boundary</h2>
+      <p class="lead">The scope is stated as precisely as the results, because a boundary you can name is what makes a result usable. These six are the boundary, and the first one is the thesis of the whole family.</p>
+      <ul class="clean">
+        <li><b>Not a better sampler for easy paths.</b> A swept primitive is more machinery than a light sample and a shadow ray, and on transport that was easy to sample to begin with, the machinery does not pay. Single scatter from an area light is the measured case: the camera walk's next-event estimate beats every swept member at every emitter size, 2.2 to 3.1× per pass. The family earns its cost on the paths that have no connection to make: the caustic through glass, where a connection would have to bend; the emitter too sharp to hit by sampling; the light source with more dimensions than a point sample can cover. There it lands what path sampling finds only by chance and what kernels can only blur. The hourglass is the proof; the sharp emitter and the volumetric light are the next two cases to measure.</li>
+        <li><b>Medium-only.</b> Surfaces occlude and emit, but do not bounce. Walls look dark next to a full path tracer — that is the declared scope, and it is why every comparison here is against a medium-only reference that describes exactly the same transport.</li>
+        <li><b>Straight-line primitives cannot refract.</b> Strategies 0–17 and the cross-family mixture at 26 are exact connections; none of them can bend at a dielectric interface. A glass ball under those estimators casts a correct shadow and no caustic. Neither can the one-dimensional group at 28&ndash;30, and there the failure is sharper than dimness: a smooth dielectric's emission profile is a two-dimensional delta, integrating a delta over one swept coordinate leaves a delta, and those three read <em>identically zero</em>. Structural, and the reason the hourglass exists. Strategy 27 is the one member that turns at a surface without being a dielectric &mdash; it reflects at a rough one, and still does not refract.</li>
+        <li><b>The hourglass needs rotational symmetry, and now it is tested.</b> It is derived for spherical dielectrics: a glass box or a lens has no axis about which the refraction chain is invariant, and the derivation does not survive. The chain extension is the sharpest statement of that boundary, because it makes the condition <em>checkable at run time</em> — several balls are still one rigid motion if and only if every centre lies on the light-to-first-centre line, and the estimator tests that and refuses when it fails. It is also why the chain is a point-source result: a finite emitter moves the axis every sample. A fixed-apex form for the general case is derived and numerically validated; its light-side closure is measure-zero, and a standalone harness has since costed the general chain at fourteen to forty-two times one-ball strategy 20, which settles it as a no-go rather than an open problem.</li>
+        <li><b>Solo, it is 2.4% low; paired, it is 1.0000.</b> The pairing with the stochastic beam, which carries internal-reflection chains at weight one, closes the gap: 0.976 → 1.0000. The attribution of the solo shortfall is not settled. The hourglass cannot express internal-reflection chains, which is the obvious explanation — but the grazing guard discards samples rather than clamping them, and the variance study measures it rejecting <em>2.4% of this strategy's energy at the waist</em> in the same configuration. The two candidate explanations are numerically the same size and have not been separated.</li>
+        <li><b>Paired, it is consistent, not unbiased.</b> The pair's energy on the isolated caustic moves with the beam radius it carries — +0.9 % at r = 0.15, +1.9 % at r = 0.30, first order in r and resolved at 20 and 44 sigma on the paired bar — while the beam alone is flat in r to 0.2 %. Its waist does not move: 7.7 px at r = 0.15, 7.5 at r = 0.05 on the Gate. That is the same structure complement mode refuses strategy 30 for; the difference is that the pair's box is the one no other estimator can own, so it ships as the production primary with the number beside it rather than without it.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+{{SECTION:_foot.html}}

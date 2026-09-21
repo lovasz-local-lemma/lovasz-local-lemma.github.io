@@ -1,0 +1,117 @@
+<!doctype html><html lang="en"><head><style data-portfolio-paint>html{background:#0b0d0c;color-scheme:dark}html.portfolio-booting body{opacity:0}</style><script src="../../../portfolio-navigation.js?v=688f1905bc"></script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Sharp support, signed receiver curves — RadianceLab</title><meta name="description" content="Move a collimated source and integrate its zero-width boundary derivative over finite film pixels. Compare against displaced images."><meta name="color-scheme" content="dark"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="../../../portfolio.css?v=b7ed8602e5"><link rel="stylesheet" href="../../../portfolio-effects.css?v=62be30dafa"><link rel="stylesheet" href="../../../portfolio-atmospheres.css?v=4b74c57939"><link rel="stylesheet" href="../../../portfolio-motion.css?v=4b098d8184"><link rel="stylesheet" href="../../../portfolio-case-studies.css?v=243caf2b0d"><link rel="stylesheet" href="../../../portfolio-brochures.css?v=a1e5e16132"><link rel="stylesheet" href="../../../portfolio-project-themes.css?v=a898c35e78"><link rel="stylesheet" href="../../../portfolio-location.css?v=9c4c1ad84f"><link rel="stylesheet" href="../../../portfolio-controls.css?v=9376de7761"><link rel="stylesheet" href="../../../portfolio-media.css?v=c51f7712ea"><link rel="stylesheet" href="../../../portfolio-overviews.css?v=8612c4ee0a"><link rel="stylesheet" href="../../../portfolio-motivations.css?v=ccc1c1d866"><link rel="stylesheet" href="../../../portfolio-claims.css?v=058dbd00ef"><link rel="stylesheet" href="../../../portfolio-feature-atlas.css?v=e73f02cb31"><script type="application/json" id="media-framing">{"media/brochures/physics-2d/thermal-furnace-magnetic-field-probe.png":{"width":1602,"height":940,"top":39},"media/brochures/physics-2d/magnetic-field-direction-appearance-controls.png":{"width":1602,"height":940,"top":39},"media/brochures/physics-2d/time-bomb-blast-particle-plume.png":{"width":1602,"height":940,"top":39}}</script><script defer src="../../../portfolio-claims.js?v=ed914a4d3a"></script><script defer src="../../../portfolio-visual-defaults.js?v=eecfd5c771"></script><script defer src="../../../portfolio-motion.js?v=a642c710f9"></script><script defer src="../../../portfolio-fire-studies.js?v=7717e15582"></script><script defer src="../../../portfolio-embers.js?v=8a8be5569d"></script><script defer src="../../../portfolio-atmospheres.js?v=021b2f100e"></script><script defer src="../../../portfolio-effects.js?v=03a6c89d6c"></script><script defer src="../../../portfolio-brochures.js?v=055cad29d6"></script><script defer src="../../../portfolio-location.js?v=3846586893"></script><script defer src="../../../portfolio-media.js?v=d2d555a888"></script><script defer src="../../../portfolio-articles.js?v=acb89575ce"></script><script defer src="../../../portfolio-labs.js?v=a0b86a3809"></script><link rel="stylesheet" href="../../../portfolio-technical.css?v=0ecb3a48c7"><script defer src="../../../portfolio-technical.js"></script><!-- universal-navigation:start --><script defer src="../../../portfolio-routes.js?v=054b6b462c"></script><script defer src="../../../portfolio-universal-navigation.js?v=054b6b462c"></script><!-- universal-navigation:end --><style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head><body data-page="technical" data-project-theme="optics" data-project-id="radiance-lab" data-default-atmosphere="caustics"><canvas class="spark-field" aria-hidden="true"></canvas><a class="skip-link" href="#main">Skip to content</a><nav class="site-nav portfolio-route" data-route-group="flagships" aria-label="Portfolio location"><div class="route-path"><a class="route-node route-home" href="../../../index.html#project-radiance-lab" aria-label="Portfolio"><img class="route-mark" src="../../../media/identity/portfolio-mark.svg" alt="" width="52" height="52"><span class="route-copy"><small>Work / ideas</small><strong>Portfolio</strong></span></a><span class="route-wire" aria-hidden="true"><i></i><b></b></span><div class="route-node route-group"><span class="route-glyph" aria-hidden="true">✦</span><span class="route-copy"><small>Collection</small><strong>Flagship</strong></span></div><span class="route-wire" aria-hidden="true"><i></i><b></b></span><a class="route-node route-project" href="../index.html"><span class="route-glyph" hidden aria-hidden="true">◈</span><img class="route-thumb" src="../../../media/previews/radiance-lab/caustic-showcase.png" width="42" height="42" alt=""><span class="route-copy"><small>Project</small><strong>RadianceLab</strong></span></a><span class="route-wire" aria-hidden="true"><i></i><b></b></span><a class="route-node technical-route" href="index.html"><span class="route-copy"><small>Technical reading room</small><strong>Sharp support, signed receiver curves</strong></span></a></div><div class="route-end"><span class="route-meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><a class="route-back" href="../../../index.html#project-radiance-lab">← Back to portfolio</a></div></nav><nav class="section-rail technical-rail" aria-label="Technical document sections"><span class="rail-indicator" aria-hidden="true"></span><a href="#technical-top" data-section="technical-top"><span>⌂</span><span>Start</span></a><a href="#why-the-older-image-had-width" data-section="why-the-older-image-had-width" title="Why the older image had width"><small>01</small><span>Why the older image had width</span></a><a href="#boundary-formula-and-normalization" data-section="boundary-formula-and-normalization" title="Boundary formula and normalization"><small>02</small><span>Boundary formula and normalization</span></a><a href="#deliberate-scope" data-section="deliberate-scope" title="Deliberate scope"><small>03</small><span>Deliberate scope</span></a><a href="#validation" data-section="validation" title="Validation"><small>04</small><span>Validation</span></a><a href="#native-receiver-images" data-section="native-receiver-images" title="Native receiver images"><small>05</small><span>Native receiver images</span></a></nav><main id="main" class="project-page technical-page"><header id="technical-top" class="technical-hero"><span class="eyebrow">RadianceLab · Native implementation document</span><h1>Sharp support, signed receiver curves</h1><p>Move a collimated source and integrate its zero-width boundary derivative over finite film pixels. Compare against displaced images.</p><div class="technical-actions"><a href="../index.html">← RadianceLab brochure</a><a href="index.html">Technical reading room</a><a href="../validation/index.html">Rendered evidence ↗</a></div></header><aside class="technical-scope"><span>◈</span><p>Implementation notes describe the native application. A working experiment, an approximate preview and a general transport estimator establish different things; each document states its own scope.</p></aside><article class="technical-document"><p>The new <strong>Sharp boundary derivative</strong> tab is an additive, isolated radiometric
+experiment. It does not replace the legacy finite-edge-kernel study or the
+current-scene <strong>Light-position differential mode</strong>.</p>
+<p>A downward collimated quad illuminates a Lambertian floor and two spheres. Camera
+rays intersect the actual surfaces; upward rays test receiver shadows. The
+uniform incident irradiance is projected by the receiver cosine and multiplied
+by albedo / pi. The source translates along an editable vector. Red is positive
+change, blue is negative; the original illumination can appear beneath it at a
+separate dimming level.</p>
+<h2 id="why-the-older-image-had-width">Why the older image had width</h2><p>Three different quantities were visually conflated:</p>
+<ol>
+<li>In <code>OpticsExperiments.h</code>, the legacy <code>SurfaceConfig::blur</code> is a <strong>world-space
+smoothing kernel</strong>. The UI clamps it to 0.015–0.3. Its <code>Thin sheet</code> also sets
+source half-width to <code>blur * 0.5</code>, so it never displays a zero-width sheet.</li>
+<li>A central finite difference moves the emitter to <code>X ± epsilon</code>. Its change is
+distributed across a <strong>finite displacement band</strong>, even for a sharp source.</li>
+<li>A physical film integrates light over pixels. A mathematical zero-width line
+can contribute finite energy to a <strong>finite film pixel</strong>. The displayed line
+can also grow when that image is enlarged in the UI.</li>
+</ol>
+<p>The new analytic image has no world-space blur, finite difference band, or
+arbitrary line-thickness setting. It integrates the sharp boundary measure over
+the film pixel. Finite epsilon affects only the comparison image.</p>
+<h2 id="boundary-formula-and-normalization">Boundary formula and normalization</h2><p>For a collimated source, let <code>(u,v)</code> be the receiver point projected into the
+emitter plane. Let the source support be <code>[l,r] × [b,f]</code>. With translation
+velocity <code>(a,0,c)</code> and fixed receiver response <code>K</code>,</p>
+<div class="manual-equation math-scroll"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>L</mi><mo>=</mo><mi>K</mi><mtext> </mtext><msub><mn mathvariant="bold">1</mn><mrow><mo stretchy="false">[</mo><mi>l</mi><mo separator="true">,</mo><mi>r</mi><mo stretchy="false">]</mo></mrow></msub><mo stretchy="false">(</mo><mi>u</mi><mo stretchy="false">)</mo><mtext> </mtext><msub><mn mathvariant="bold">1</mn><mrow><mo stretchy="false">[</mo><mi>b</mi><mo separator="true">,</mo><mi>f</mi><mo stretchy="false">]</mo></mrow></msub><mo stretchy="false">(</mo><mi>v</mi><mo stretchy="false">)</mo><mo separator="true">,</mo></mrow><annotation encoding="application/x-tex">L=K\,\mathbf{1}_{[l,r]}(u)\,\mathbf{1}_{[b,f]}(v),</annotation></semantics></math></span></div>
+<div class="manual-equation math-scroll"><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mfrac><mrow><mi mathvariant="normal">d</mi><mi>L</mi></mrow><mrow><mi mathvariant="normal">d</mi><mi>t</mi></mrow></mfrac><mo>=</mo><mi>K</mi><mi>a</mi><mtext> </mtext><mo stretchy="false">[</mo><mi>δ</mi><mo stretchy="false">(</mo><mi>u</mi><mo>−</mo><mi>r</mi><mo stretchy="false">)</mo><mo>−</mo><mi>δ</mi><mo stretchy="false">(</mo><mi>u</mi><mo>−</mo><mi>l</mi><mo stretchy="false">)</mo><mo stretchy="false">]</mo><mtext> </mtext><msub><mn mathvariant="bold">1</mn><mrow><mo stretchy="false">[</mo><mi>b</mi><mo separator="true">,</mo><mi>f</mi><mo stretchy="false">]</mo></mrow></msub><mo stretchy="false">(</mo><mi>v</mi><mo stretchy="false">)</mo><mo>+</mo><mi>K</mi><mi>c</mi><mtext> </mtext><mo stretchy="false">[</mo><mi>δ</mi><mo stretchy="false">(</mo><mi>v</mi><mo>−</mo><mi>f</mi><mo stretchy="false">)</mo><mo>−</mo><mi>δ</mi><mo stretchy="false">(</mo><mi>v</mi><mo>−</mo><mi>b</mi><mo stretchy="false">)</mo><mo stretchy="false">]</mo><mtext> </mtext><msub><mn mathvariant="bold">1</mn><mrow><mo stretchy="false">[</mo><mi>l</mi><mo separator="true">,</mo><mi>r</mi><mo stretchy="false">]</mo></mrow></msub><mo stretchy="false">(</mo><mi>u</mi><mo stretchy="false">)</mo><mi mathvariant="normal">.</mi></mrow><annotation encoding="application/x-tex">\frac{\mathrm dL}{\mathrm dt}
+=Ka\,[\delta(u-r)-\delta(u-l)]\,\mathbf{1}_{[b,f]}(v)
++Kc\,[\delta(v-f)-\delta(v-b)]\,\mathbf{1}_{[l,r]}(u).</annotation></semantics></math></span></div>
+<p>An X-only translation activates two extruded planes. General in-plane
+translation activates up to four edges. Their intersections with a plane are
+lines; intersections with a sphere are curves. Translation parallel to the
+collimated rays changes neither support nor steady irradiance here, so the Y
+component correctly gives zero. That statement would change for attenuation,
+finite propagation-time measurements, varying emission, or a different source.</p>
+<p>For each film pixel, <code>(u,v)</code> is approximated as affine in screen coordinates using
+the actual receiver tangent. The baseline is the pixel-square area clipped by the
+four emitter half-planes. The analytic derivative integrates each boundary line
+through that square. The line&#39;s weight is its clipped length divided by
+<code>|grad_screen u|</code> (or <code>|grad_screen v|</code>), the coarea factor. This division is what
+makes the boundary energy correct when the camera, receiver tilt or resolution
+changes. It is not a line drawn at a chosen cosmetic thickness.</p>
+<p>Central differences evaluate the same clipped baseline at <code>±epsilon</code> and
+<code>±epsilon/2</code>. The UI reports their relative L2 error against the analytic
+derivative. Raw exports retain signed radiance derivatives; tone mapping and
+display gain do not change those values.</p>
+<h2 id="deliberate-scope">Deliberate scope</h2><p>This demonstrates <strong>the derivative of sharp support with fixed transport</strong>.
+The beam direction, source irradiance, receiver response and visibility remain
+fixed while the source aperture translates. No autodiff is necessary for this
+case. Source and image boundary events are handled by the boundary integral.</p>
+<p>It is not a general derivative of diffuse area lighting, moving occluders,
+specular paths, indirect illumination, medium attenuation or changing material
+parameters. Such cases also differentiate smooth transport and/or visibility.
+Curved receiver coordinates use a local affine approximation per pixel, and
+silhouettes and visibility discontinuities are center-sampled rather than fully
+filtered. Refining the film reduces the tangent approximation, but the FD
+comparison alone validates only the derivative of this declared pixel model.</p>
+<h2 id="validation">Validation</h2><p><code>tests/test_boundary_derivative.cpp</code> checks:</p>
+<ul>
+<li>independent dense subpixel quadrature against clipped pixel area;</li>
+<li>signed coarea boundary weights against independently displaced polygon area;</li>
+<li>conservation of integrated boundary energy when a pixel is subdivided;</li>
+<li>the zero derivative for vertical collimated-source movement;</li>
+<li>shadow geometry and actual signed curves on both planar and spherical
+receivers;</li>
+<li>finite-difference convergence on the complete rendered receiver image.</li>
+</ul>
+<p>Passing an output folder to the test exports original, signed, finite-difference
+and residual images plus numeric convergence measurements. The live tab exports
+the same images and a per-pixel CSV with radiance, analytic derivative and both
+finite-difference estimates.</p>
+<p>For the default two-sphere/floor scene at 360 × 230 pixels, translation vector
+<code>(1, 0, 0.35)</code>, the measured relative L2 errors against the sharp analytic image
+were:</p>
+<div class="case-table-wrap technical-table" tabindex="0" role="region" aria-label="Technical comparison"><table>
+<thead>
+<tr>
+<th>Central-difference epsilon</th>
+<th>Relative L2 error</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0.030</td>
+<td>69.3310%</td>
+</tr>
+<tr>
+<td>0.015</td>
+<td>40.0734%</td>
+</tr>
+<tr>
+<td>0.001</td>
+<td>1.4268%</td>
+</tr>
+</tbody></table></div>
+<p>The initially large error is expected: a finite displacement distributes the
+change over a band wider than a film pixel, while the analytic image concentrates
+it at the boundary. These values establish convergence of the declared image
+model, not a performance comparison against the general scene integrators.</p>
+<h2 id="native-receiver-images">Native receiver images</h2><p>These display captures are 1200 × 768 pixels and use the same native pixel
+model as the interactive tab. The convergence table above uses its separately
+declared 360 × 230 test film. Red means added radiance and blue means removed
+radiance; the display gain does not change the raw signed derivative.</p>
+<figure class="technical-figure"><img src="../../../media/radiance-technical/experimental-receivers/evidence/boundary/original-radiance.png" alt="Original sharp collimated illumination on the floor and spheres" width="1200" height="768" loading="lazy" decoding="async"><figcaption>Original sharp collimated illumination on the floor and spheres</figcaption></figure>
+<figure class="technical-figure"><img src="../../../media/radiance-technical/experimental-receivers/evidence/boundary/signed-boundary.png" alt="Sharp analytic boundary over dim original illumination" width="1200" height="768" loading="lazy" decoding="async"><figcaption>Sharp analytic boundary over dim original illumination</figcaption></figure>
+<figure class="technical-figure"><img src="../../../media/radiance-technical/experimental-receivers/evidence/boundary/signed-only.png" alt="Signed boundary measure alone" width="1200" height="768" loading="lazy" decoding="async"><figcaption>Signed boundary measure alone</figcaption></figure>
+<figure class="technical-figure"><img src="../../../media/radiance-technical/experimental-receivers/evidence/boundary/finite-difference.png" alt="Finite-displacement comparison: the band is the approximation width, not an extra blur applied to the analytic boundary" width="1200" height="768" loading="lazy" decoding="async"><figcaption>Finite-displacement comparison: the band is the approximation width, not an extra blur applied to the analytic boundary</figcaption></figure>
+<figure class="technical-figure"><img src="../../../media/radiance-technical/experimental-receivers/evidence/boundary/finite-difference-error.png" alt="Residual between the finite-difference image and sharp analytic image" width="1200" height="768" loading="lazy" decoding="async"><figcaption>Residual between the finite-difference image and sharp analytic image</figcaption></figure>
+</article><footer class="technical-footer"><div class="technical-actions"><a href="../index.html">← RadianceLab brochure</a><a href="index.html">Technical reading room</a><a href="../validation/index.html">Rendered evidence ↗</a></div></footer></main></body></html>

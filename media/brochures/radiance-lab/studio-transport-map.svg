@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 800" role="img" aria-labelledby="title desc">
+  <title id="title">RadianceLab: one interactive studio, ten rendering modes</title>
+  <desc id="desc">Scene authoring, cameras, light sources and controls feed GPU raster and path tracing, hybrid photon mapping, and seven CPU progressive modes. Each lane supplies a film and its own diagnostic records. This is an architecture diagram, not a performance measurement.</desc>
+  <defs>
+    <linearGradient id="bg" x2="1" y2="1"><stop stop-color="#171b22"/><stop offset="1" stop-color="#0b1016"/></linearGradient>
+    <linearGradient id="glass" x2="0" y2="1"><stop stop-color="#ffffff" stop-opacity=".045"/><stop offset="1" stop-color="#ffffff" stop-opacity=".008"/></linearGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M1 1 9 5 1 9" fill="none" stroke="#cdb878" stroke-width="1.3"/></marker>
+  </defs>
+  <rect width="1240" height="800" rx="24" fill="url(#bg)"/>
+  <rect x="1" y="1" width="1238" height="798" rx="24" fill="none" stroke="#d7bd78" stroke-opacity=".35"/>
+  <g font-family="Inter,Segoe UI,Arial,sans-serif" fill="#ecebe5">
+    <text x="36" y="43" fill="#ddc47f" font-size="13" letter-spacing="2.2">RADIANCELAB / SYSTEM MAP</text>
+    <text x="36" y="82" font-size="30" font-weight="650">One scene. Ten ways to form an image.</text>
+    <text x="36" y="110" font-size="16" fill="#aeb8c2">Shared authoring and interaction; distinct transport implementations and films.</text>
+    <g stroke="#cdb878" stroke-opacity=".32" fill="url(#glass)">
+      <rect x="36" y="143" width="277" height="94" rx="13"/><rect x="333" y="143" width="277" height="94" rx="13"/>
+      <rect x="630" y="143" width="277" height="94" rx="13"/><rect x="927" y="143" width="277" height="94" rx="13"/>
+    </g>
+    <g font-size="18" font-weight="600"><text x="55" y="173">Scene &amp; geometry</text><text x="352" y="173">Node-based authoring</text><text x="649" y="173">Camera &amp; projector</text><text x="946" y="173">Light &amp; media</text></g>
+    <g font-size="14" fill="#aeb8c2"><text x="55" y="199">Presets · selection · transforms</text><text x="352" y="199">Materials · density · image inputs</text><text x="649" y="199">FPS view · tilt-shift · dolly</text><text x="946" y="199">Sources · optical experiments</text></g>
+    <g stroke="#cdb878" stroke-opacity=".6" fill="none" stroke-width="1.5">
+      <path d="M174 237 V266 H1066 V237 M471 237 V266 M768 237 V266"/>
+      <path d="M213 266 V291" marker-end="url(#arrow)"/><path d="M620 266 V291" marker-end="url(#arrow)"/><path d="M1027 266 V291" marker-end="url(#arrow)"/>
+    </g>
+    <rect x="36" y="301" width="364" height="255" rx="15" fill="#71d3c6" fill-opacity=".065" stroke="#71d3c6" stroke-opacity=".6"/>
+    <rect x="438" y="301" width="364" height="255" rx="15" fill="#dec07a" fill-opacity=".065" stroke="#dec07a" stroke-opacity=".6"/>
+    <rect x="840" y="301" width="364" height="255" rx="15" fill="#a5b5f1" fill-opacity=".065" stroke="#a5b5f1" stroke-opacity=".6"/>
+    <g font-size="14" letter-spacing="1.4" font-weight="650"><text x="58" y="331" fill="#8be1d5">GPU</text><text x="460" y="331" fill="#e7ca88">CPU → GPU</text><text x="862" y="331" fill="#b6c3ff">CPU PROGRESSIVE</text></g>
+    <g font-size="20" font-weight="600"><text x="58" y="371">01  Rasterizer</text><text x="58" y="405">02  Tracer</text><text x="460" y="371">03  Photon mapper</text></g>
+    <g font-size="15" fill="#bdc8cf"><text x="58" y="438">Path tracer · light tracer · BDPT</text><text x="58" y="462">Surface / volume transport</text><text x="58" y="510">Compute tracing + raster viewing</text><text x="460" y="407">Emit and build a KD-tree on CPU</text><text x="460" y="434">Upload photon records</text><text x="460" y="461">Gather on GPU</text><text x="460" y="510">Map build and film update differ</text></g>
+    <g font-size="17"><text x="862" y="370">04  VCM</text><text x="1021" y="370">05  MLT</text><text x="862" y="402">06  PSSMLT</text><text x="1021" y="402">07  UPBP</text><text x="862" y="434">08  Path guiding</text><text x="862" y="466">09  Manifold exploration</text><text x="862" y="498">10  Photon primitives</text></g>
+    <text x="862" y="532" font-size="13" fill="#bdc8cf">Partial models and research variants are labeled.</text>
+    <g stroke="#cdb878" stroke-opacity=".6" fill="none" stroke-width="1.5"><path d="M213 556 V585 H1027 V556 M620 556 V606" marker-end="url(#arrow)"/></g>
+    <rect x="36" y="618" width="1168" height="112" rx="14" fill="url(#glass)" stroke="#cdb878" stroke-opacity=".45"/>
+    <text x="58" y="650" font-size="20" font-weight="600">Inspect the image and the work that produced it</text>
+    <text x="58" y="680" font-size="17" fill="#cbd5da">Paths &amp; photon maps</text><text x="335" y="680" font-size="17" fill="#cbd5da">MIS &amp; chain diagnostics</text><text x="639" y="680" font-size="17" fill="#cbd5da">Primitive Explorer</text><text x="913" y="680" font-size="17" fill="#cbd5da">Split views &amp; film exports</text>
+    <text x="58" y="709" font-size="14" fill="#aeb8c2">Moving: refresh the view. Stationary: accumulate. Record producer, resolution, sample count and elapsed work separately.</text>
+    <text x="36" y="766" font-size="13" fill="#97a6b3">Architecture schematic from the native dispatch. Mode names describe selectable experiments, not universal feature parity or FPS.</text>
+  </g>
+</svg>

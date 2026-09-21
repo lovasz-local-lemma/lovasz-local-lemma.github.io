@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><style id="portfolio-early-paint">html{background:#0b0d0c;color-scheme:dark}html.portfolio-booting body{opacity:0}</style><script src="../../portfolio-navigation.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Symbolic Math Engine — Technical Reference</title>
+    <style>
+        :root {
+            --bg: #0f172a; --bg2: #1e293b; --bg3: #334155;
+            --text: #f1f5f9; --muted: #94a3b8; --accent: #667eea;
+            --green: #4ade80; --red: #f87171; --yellow: #fbbf24;
+            --purple: #a78bfa; --cyan: #22d3ee; --pink: #f472b6; --orange: #fb923c;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; line-height: 1.6; }
+        .container { max-width: 1100px; margin: 0 auto; padding: 2rem; }
+        h1 { font-size: 2.2rem; margin-bottom: 0.4rem; background: linear-gradient(135deg, var(--accent), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        h2 { font-size: 1.45rem; margin-top: 2.6rem; margin-bottom: 1rem; color: var(--cyan); border-bottom: 1px solid var(--bg3); padding-bottom: 0.5rem; scroll-margin-top: 1rem; }
+        h3 { font-size: 1.08rem; margin-top: 1.5rem; margin-bottom: 0.5rem; color: var(--purple); }
+        h4 { font-size: 0.95rem; margin-top: 1rem; margin-bottom: 0.3rem; color: var(--text); }
+        p, li { color: var(--muted); margin-bottom: 0.5rem; }
+        strong { color: var(--text); }
+        a { color: var(--accent); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        code { background: var(--bg); padding: 2px 6px; border-radius: 4px; font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 0.86em; color: var(--cyan); border: 1px solid var(--bg3); }
+        .nav { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+        .nav a { padding: 8px 14px; background: var(--bg2); border-radius: 8px; color: var(--accent); font-size: 0.9rem; }
+        .sub { color: var(--muted); font-size: 1.05rem; margin-bottom: 1.5rem; }
+        .card { background: var(--bg2); border-radius: 12px; padding: 1.25rem 1.5rem; margin: 1rem 0; border: 1px solid var(--bg3); }
+        .card-cyan { border-left: 3px solid var(--cyan); }
+        .card-green { border-left: 3px solid var(--green); }
+        .card-yellow { border-left: 3px solid var(--yellow); }
+        .card-red { border-left: 3px solid var(--red); }
+        .card-purple { border-left: 3px solid var(--purple); }
+        .tag { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.72rem; font-weight: 600; margin-left: 6px; vertical-align: middle; }
+        .tag-yellow { background: rgba(251,191,36,0.15); color: var(--yellow); }
+        .tag-cyan { background: rgba(34,211,238,0.15); color: var(--cyan); }
+
+        .ok    { color: #6ee7b7; }
+        .gap   { color: #fca5a5; }
+        .mixed { color: #fcd34d; }
+        table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.88rem; }
+        th, td { padding: 8px 11px; text-align: left; border-bottom: 1px solid var(--bg3); vertical-align: top; }
+        th { color: var(--cyan); font-weight: 600; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        td { color: var(--muted); }
+        td code { white-space: nowrap; }
+        tr:hover td { color: var(--text); }
+        .formula { font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; color: var(--text); background: var(--bg); border: 1px solid var(--bg3); border-radius: 8px; padding: 0.7rem 1rem; margin: 0.7rem 0; overflow-x: auto; white-space: pre-wrap; }
+        .pipeline { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 1rem 0; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; }
+        .pipeline span.step { background: var(--bg); border: 1px solid var(--bg3); border-radius: 7px; padding: 6px 10px; color: var(--text); }
+        .pipeline span.arr { color: var(--accent); }
+        .toc { columns: 2; column-gap: 2rem; background: var(--bg2); border-radius: 10px; padding: 1rem 1.5rem; }
+        .toc a { display: block; font-size: 0.9rem; padding: 2px 0; }
+        @media (max-width: 720px) { .toc { columns: 1; } }
+        ol.routine { counter-reset: phase; list-style: none; margin-left: 0; }
+        ol.routine > li { position: relative; padding: 0.55rem 0 0.55rem 3.4rem; border-bottom: 1px solid var(--bg3); margin-bottom: 0; }
+        ol.routine > li::before { counter-increment: phase; content: attr(data-n); position: absolute; left: 0; top: 0.55rem; width: 2.8rem; text-align: center; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; color: var(--cyan); background: var(--bg); border: 1px solid var(--bg3); border-radius: 6px; padding: 2px 0; }
+        ol.routine .meth { color: var(--purple); font-family: 'JetBrains Mono', monospace; font-size: 0.82em; }
+        ol.routine .when { color: var(--muted); font-size: 0.85rem; }
+        .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin: 1.5rem 0; }
+        .stat { background: var(--bg2); border-radius: 10px; padding: 1rem; text-align: center; }
+        .stat-num { font-size: 1.9rem; font-weight: 700; background: linear-gradient(135deg, var(--accent), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .stat-label { font-size: 0.78rem; color: var(--muted); margin-top: 4px; }
+        ul { margin-left: 1.2rem; margin-bottom: 0.6rem; }
+        .muted-note { font-size: 0.85rem; color: var(--muted); font-style: italic; }
+        /* ---- architecture diagrams (inline SVG, self-contained) ---- */
+        figure.diagram { margin: 1.5rem 0; }
+        figure.diagram svg { width: 100%; height: auto; display: block; background: var(--bg); border: 1px solid var(--bg3); border-radius: 12px; padding: 6px; }
+        figure.diagram figcaption { font-size: 0.82rem; color: var(--muted); margin-top: 0.55rem; text-align: center; font-style: italic; }
+        .dg-box { fill: var(--bg2); stroke: var(--bg3); stroke-width: 1.4; }
+        .dg-box2 { fill: var(--bg); stroke: var(--bg3); stroke-width: 1.2; }
+        .dg-zone { fill: none; stroke: var(--bg3); stroke-width: 1.4; }
+        .dg-funnel { fill: rgba(102,126,234,0.06); stroke: var(--accent); stroke-width: 1.6; }
+        .dg-div { stroke: var(--bg3); stroke-width: 1; }
+        .dg-edge { stroke: var(--accent); stroke-width: 1.6; fill: none; }
+        .dg-dash { stroke: var(--accent); stroke-width: 1.5; fill: none; stroke-dasharray: 5 4; }
+        .dg-t { fill: var(--text); font-family: 'JetBrains Mono','Fira Code',monospace; font-weight: 700; }
+        .dg-m { fill: var(--text); font-family: 'JetBrains Mono','Fira Code',monospace; }
+        .dg-s { fill: var(--muted); font-family: 'Segoe UI',system-ui,sans-serif; }
+        .o-cyan{stroke:var(--cyan);stroke-width:1.8} .o-green{stroke:var(--green);stroke-width:1.8}
+        .o-purple{stroke:var(--purple);stroke-width:1.8} .o-orange{stroke:var(--orange);stroke-width:1.8}
+        .o-yellow{stroke:var(--yellow);stroke-width:1.8} .o-pink{stroke:var(--pink);stroke-width:1.8}
+        .o-accent{stroke:var(--accent);stroke-width:1.8} .o-red{stroke:var(--red);stroke-width:1.8}
+        .o-muted{stroke:var(--muted);stroke-width:1.4} .o-dash{stroke-dasharray:6 4}
+        .t-cyan{fill:var(--cyan)} .t-green{fill:var(--green)} .t-purple{fill:var(--purple)}
+        .t-orange{fill:var(--orange)} .t-yellow{fill:var(--yellow)} .t-pink{fill:var(--pink)}
+        .t-accent{fill:var(--accent)} .t-red{fill:var(--red)} .t-muted{fill:var(--muted)}
+    </style>
+  <link rel="stylesheet" href="portfolio.css">
+<link rel="stylesheet" href="../../portfolio-controls.css"><link rel="stylesheet" href="../../portfolio-demo-return.css"><script defer src="../../portfolio-demo-return.js" data-project="symbolic_math" data-title="Symbolic Unfolded" data-overview="projects/symbolic_math/overview.html" data-group="signature" data-thumbnail="media/brochures/symbolic_math/residue-theorem-contour.png" data-routes="[{&quot;project&quot;:&quot;symbolic_math&quot;,&quot;title&quot;:&quot;Symbolic Unfolded&quot;,&quot;group&quot;:&quot;signature&quot;,&quot;thumbnail&quot;:&quot;media/brochures/symbolic_math/residue-theorem-contour.png&quot;,&quot;overview&quot;:&quot;projects/symbolic_math/overview.html&quot;,&quot;path&quot;:&quot;live_demos/symbolic_math/index.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:2},{&quot;project&quot;:&quot;symbolic_math&quot;,&quot;title&quot;:&quot;Symbolic Unfolded&quot;,&quot;group&quot;:&quot;signature&quot;,&quot;thumbnail&quot;:&quot;media/brochures/symbolic_math/residue-theorem-contour.png&quot;,&quot;overview&quot;:&quot;projects/symbolic_math/overview.html&quot;,&quot;path&quot;:&quot;live_demos/symbolic_math/index.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:1},{&quot;project&quot;:&quot;symbolic_math&quot;,&quot;title&quot;:&quot;Symbolic Unfolded&quot;,&quot;group&quot;:&quot;signature&quot;,&quot;thumbnail&quot;:&quot;media/brochures/symbolic_math/residue-theorem-contour.png&quot;,&quot;overview&quot;:&quot;projects/symbolic_math/overview.html&quot;,&quot;path&quot;:&quot;live_demos/symbolic_math/technical.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:1},{&quot;project&quot;:&quot;symbolic_math&quot;,&quot;title&quot;:&quot;Symbolic Unfolded&quot;,&quot;group&quot;:&quot;signature&quot;,&quot;thumbnail&quot;:&quot;media/brochures/symbolic_math/residue-theorem-contour.png&quot;,&quot;overview&quot;:&quot;projects/symbolic_math/overview.html&quot;,&quot;path&quot;:&quot;live_demos/symbolic_math/&quot;,&quot;query&quot;:{},&quot;priority&quot;:-1}]"></script><!-- universal-navigation:start --><link rel="stylesheet" href="../../portfolio-location.css?v=054b6b462c"><script defer src="../../portfolio-location.js?v=054b6b462c"></script><script defer src="../../portfolio-routes.js?v=054b6b462c"></script><script defer src="../../portfolio-universal-navigation.js?v=054b6b462c"></script><!-- universal-navigation:end --><style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head>
+<body class="portfolio-symbolic_math">
+  <div class="portfolio-return" data-theme="dark" role="navigation" aria-label="Portfolio"><a class="portfolio-return-link" href="../../projects/symbolic_math/index.html" target="_top"><span aria-hidden="true">←</span> Project overview</a></div>
+<div class="container">
+    <div class="nav">
+        <a href="index.html">&larr; Back to Engine</a>
+        <a href="history.html">History · Part 1</a>
+        <a href="history2.html">Part 2</a>
+        <a href="history3.html">Part 3</a>
+    </div>
+
+    <h1>Technical Reference</h1>
+    <p class="sub">A developer-level walkthrough of the engine: the data model, every module's algorithm, and — in full — the ordered routine the integrator follows. Companion to the narrative <a href="history3.html">History</a> pages. Method names, constants, and orderings below are taken from the source in <code>symbolic/</code>.</p>
+
+    <div class="card card-cyan">
+        <strong>One-paragraph summary.</strong> A pure-Ruby CAS on a binary-tree AST. Differentiation is exact rule-based recursion. Integration is a <em>deterministic heuristic cascade</em> of ~17 ordered phases (not Risch), each gated by a structural predicate; the first to return a marker-free result wins, and anything unsolved becomes an honest <code>integral(…)</code> marker. Completed candidate antiderivatives carry a Monte-Carlo derivative check (d/dx of the answer vs the integrand). This numerical spot-check can detect errors; it is not an identity proof, and a sample agreement percentage is not a probability of correctness. A Sinatra server (or, for GitHub Pages, an in-browser ruby.wasm VM) drives a zero-dependency vanilla-JS frontend.
+    </div>
+
+    <h2 id="toc">Contents</h2>
+    <nav class="toc">
+        <a href="#arch">1 · Architecture, object model &amp; data flow</a>
+        <a href="#tools">1.5 · The six self-contained tools</a>
+        <a href="#modes">1.6 · Every mode, and what stands behind it</a>
+        <a href="#modules">2 · Full module map</a>
+        <a href="#parser">3 · Parser</a>
+        <a href="#ast">4 · AST &amp; evaluation</a>
+        <a href="#deriv">5 · Differentiation (rule order)</a>
+        <a href="#routine">6 · The integration routine — exact order</a>
+        <a href="#standard">7 · The standard integrator</a>
+        <a href="#techniques">8 · Integration technique modules</a>
+        <a href="#special">9 · Special products &amp; functions</a>
+        <a href="#norm">10 · Normalizer, Polynomial &amp; Simplify</a>
+        <a href="#verify">11 · Verification (the honesty layer)</a>
+        <a href="#series">12 · Series (Taylor / Laurent / Padé)</a>
+        <a href="#residue">13 · Residue theorem</a>
+        <a href="#vector">14 · Vector calculus &amp; transport</a>
+        <a href="#lebesgue">15 · Lebesgue &amp; complex/quaternion</a>
+        <a href="#tracer">16 · Tracer, strategy reporter &amp; web/frontend</a>
+        <a href="#sindy">17 · Equation discovery (SINDy)</a>
+        <a href="#certified">18 · Conditional interval bounds</a>
+        <a href="#gr">19 · General relativity</a>
+        <a href="#exact">20 · Exact arithmetic (ℚ, ℚ(α)) — the gate</a>
+        <a href="#test">21 · Testing harnesses</a>
+        <a href="#limits">22 · Limits &amp; the Risch question</a>
+        <a href="#sota">23 · Where this sits — an honest comparison</a>
+    </nav>
+
+    <h2 id="arch">1 · Architecture, object model &amp; data flow</h2>
+    <p>Every request follows one pipeline. The expression is parsed once and stored server-side (or VM-side) by id; operations transform the stored tree, and integrals pass through the verifier before serialization.</p>
+    <div class="pipeline">
+        <span class="step">text</span><span class="arr">→</span>
+        <span class="step">Parser</span><span class="arr">→</span>
+        <span class="step">AST</span><span class="arr">→</span>
+        <span class="step">operation module</span><span class="arr">→</span>
+        <span class="step">Normalize / Simplify</span><span class="arr">→</span>
+        <span class="step">Verify (MC)</span><span class="arr">→</span>
+        <span class="step">JSON</span><span class="arr">→</span>
+        <span class="step">render</span>
+    </div>
+    <p>The core class <code>MathematicalExpression</code> <code>include</code>s every capability as a mix-in module, so one object answers <code>.derivative</code>, <code>.integrate</code>, <code>.series_expand</code>, <code>.try_residue_integration</code>, etc. Most phases are gated by <code>respond_to?(:method, true)</code> — a module that is <code>require</code>d but not <code>include</code>d is silently skipped (a bug we hit twice). Instance flags <code>@use_experimental_integration</code> and <code>@use_experimental_simplification</code> select the aggressive paths.</p>
+
+    <h3>Object model</h3>
+    <p>The whole engine rests on <strong>six plain Ruby types with no inheritance</strong> — structure is by <em>composition</em> and <em>mix-in</em>, never subclassing. The AST node is self-referential (its <code>left</code>/<code>right</code> are themselves <code>ExpressionNode</code>s); the parser builds those trees; the facade owns one <em>root</em> node and folds in every capability module.</p>
+    <figure class="diagram">
+    <svg viewBox="0 0 980 440" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Class diagram: ExpressionNode, ExpressionParser, Polynomial, MathematicalExpression, MathExpression and their relationships">
+      <defs>
+        <marker id="aArrow" markerWidth="9" markerHeight="9" refX="7.5" refY="3" orient="auto"><path d="M0,0 L7.5,3 L0,6 Z" style="fill:var(--accent)"/></marker>
+        <marker id="aDia" markerWidth="18" markerHeight="12" refX="15" refY="6" orient="auto"><path d="M1,6 L8,2 L15,6 L8,10 Z" style="fill:var(--green);stroke:var(--green)"/></marker>
+      </defs>
+      <!-- ExpressionParser -->
+      <rect class="dg-box o-purple" x="30" y="44" width="232" height="104" rx="9"/>
+      <text class="dg-t t-purple" x="46" y="72" font-size="15">ExpressionParser</text>
+      <text class="dg-s" x="46" y="90" font-size="10.5">«class methods»</text>
+      <line class="dg-div" x1="40" y1="100" x2="252" y2="100"/>
+      <text class="dg-m" x="46" y="121" font-size="11">parse(s) → ExpressionNode</text>
+      <text class="dg-s" x="46" y="138" font-size="10">tokenize · reverse shunting-yard</text>
+      <!-- ExpressionNode -->
+      <rect class="dg-box o-cyan" x="372" y="24" width="256" height="152" rx="9"/>
+      <text class="dg-t t-cyan" x="388" y="52" font-size="15">ExpressionNode</text>
+      <text class="dg-s" x="388" y="70" font-size="10.5">binary AST node</text>
+      <line class="dg-div" x1="382" y1="80" x2="628" y2="80"/>
+      <text class="dg-m" x="388" y="100" font-size="11">isleaf · data · type</text>
+      <text class="dg-m" x="388" y="118" font-size="11">left · right · parent</text>
+      <line class="dg-div" x1="382" y1="128" x2="628" y2="128"/>
+      <text class="dg-m" x="388" y="148" font-size="11">evaluate(vars) → Float</text>
+      <text class="dg-m" x="388" y="166" font-size="11">deep_clone · connect</text>
+      <path class="dg-edge" d="M628,42 C674,38 674,74 630,70" marker-end="url(#aArrow)"/>
+      <text class="dg-s t-muted" x="636" y="38" font-size="9.5">left / right (recursive)</text>
+      <!-- Polynomial -->
+      <rect class="dg-box o-orange" x="738" y="44" width="216" height="110" rx="9"/>
+      <text class="dg-t t-orange" x="754" y="72" font-size="15">Polynomial</text>
+      <text class="dg-s" x="754" y="90" font-size="10.5">canonical form</text>
+      <line class="dg-div" x1="748" y1="100" x2="944" y2="100"/>
+      <text class="dg-m" x="754" y="121" font-size="11">@coeffs {deg→coeff}</text>
+      <text class="dg-m" x="754" y="139" font-size="11">divmod · gcd · roots</text>
+      <!-- MathematicalExpression -->
+      <rect class="dg-box o-green" x="300" y="252" width="400" height="162" rx="9"/>
+      <text class="dg-t t-green" x="318" y="282" font-size="16">MathematicalExpression</text>
+      <text class="dg-s" x="318" y="301" font-size="10.5">«facade» — one object, every operation</text>
+      <line class="dg-div" x1="310" y1="312" x2="690" y2="312"/>
+      <text class="dg-m" x="318" y="334" font-size="11.5">root : ExpressionNode</text>
+      <text class="dg-m" x="318" y="353" font-size="11">variables · steps · @use_experimental_*</text>
+      <line class="dg-div" x1="310" y1="364" x2="690" y2="364"/>
+      <text class="dg-t t-green" x="318" y="386" font-size="11.5">includes 20 capability modules  ▷</text>
+      <text class="dg-s" x="318" y="404" font-size="10.5">derivative · integrate · series_expand · …</text>
+      <!-- MathExpression -->
+      <rect class="dg-box o-muted" x="30" y="300" width="216" height="92" rx="9"/>
+      <text class="dg-t t-muted" x="46" y="328" font-size="14">MathExpression</text>
+      <text class="dg-s" x="46" y="346" font-size="10.5">«factory»</text>
+      <line class="dg-div" x1="40" y1="356" x2="246" y2="356"/>
+      <text class="dg-m" x="46" y="378" font-size="11">parse() · from_file()</text>
+      <!-- edges -->
+      <line class="dg-dash" x1="262" y1="96" x2="368" y2="96" marker-end="url(#aArrow)"/>
+      <text class="dg-s t-muted" x="286" y="89" font-size="10">builds</text>
+      <line class="dg-dash" x1="628" y1="99" x2="734" y2="99" marker-end="url(#aArrow)"/>
+      <text class="dg-s t-muted" x="650" y="92" font-size="10">to / from</text>
+      <line class="dg-edge" x1="450" y1="176" x2="450" y2="250" marker-end="url(#aDia)"/>
+      <text class="dg-s t-muted" x="458" y="216" font-size="10">root  ◆ composition</text>
+      <line class="dg-dash" x1="300" y1="272" x2="154" y2="150" marker-end="url(#aArrow)"/>
+      <text class="dg-s t-muted" x="196" y="214" font-size="10">parses via</text>
+      <line class="dg-dash" x1="700" y1="300" x2="844" y2="156" marker-end="url(#aArrow)"/>
+      <text class="dg-s t-muted" x="724" y="244" font-size="10">uses</text>
+      <line class="dg-dash" x1="246" y1="338" x2="296" y2="332" marker-end="url(#aArrow)"/>
+      <text class="dg-s t-muted" x="250" y="326" font-size="10">creates</text>
+    </svg>
+    <figcaption>Object model. Solid diamond ◆ = composition (the facade owns its root node); dashed arrows = uses / creates. No class inherits from another — every relationship is composition or mix-in.</figcaption>
+    </figure>
+
+    <h3>Capability modules</h3>
+    <p>The 20 modules <code>MathematicalExpression</code> mixes in are grouped below by concern. Because they are <em>included</em>, every one becomes an instance method on the single facade object, and phases call their siblings through <code>respond_to?</code>. The seven <strong>POST</strong> modules are a different animal: standalone <code>module_function</code> services the transport layer calls directly — they are <em>not</em> mixed into the facade.</p>
+    <figure class="diagram">
+    <svg viewBox="0 0 980 600" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Module architecture: the facade, its twenty mix-in modules grouped by concern, and the standalone POST services">
+      <rect class="dg-box o-green" x="240" y="16" width="500" height="58" rx="10"/>
+      <text class="dg-t t-green" x="490" y="40" font-size="14" text-anchor="middle">MathematicalExpression — the facade</text>
+      <text class="dg-s" x="490" y="58" font-size="9.5" text-anchor="middle">.derivative · .integrate · .series_expand · .try_residue_integration · …</text>
+      <text class="dg-t t-green" x="490" y="93" font-size="11" text-anchor="middle">▼ includes 20 capability modules — dispatched by respond_to?</text>
+      <!-- cluster -->
+      <rect class="dg-zone o-green o-dash" x="8" y="104" width="964" height="348" rx="10"/>
+      <text class="dg-s t-green" x="20" y="124" font-size="11">20 mix-in modules · grouped by concern</text>
+      <!-- row 1 -->
+      <rect class="dg-box o-cyan" x="24" y="140" width="210" height="156" rx="8"/>
+      <text class="dg-t t-cyan" x="36" y="168" font-size="12">parse / normalize</text>
+      <line class="dg-div" x1="32" y1="176" x2="226" y2="176"/>
+      <text class="dg-m" x="36" y="198" font-size="11">Normalizer</text>
+      <text class="dg-m" x="36" y="216" font-size="11">Simplification</text>
+      <text class="dg-m" x="36" y="234" font-size="11">TrigIdentities</text>
+      <rect class="dg-box o-purple" x="262" y="140" width="210" height="156" rx="8"/>
+      <text class="dg-t t-purple" x="274" y="168" font-size="12">integration cascade</text>
+      <line class="dg-div" x1="270" y1="176" x2="464" y2="176"/>
+      <text class="dg-m" x="274" y="198" font-size="11">IntegrationOperations</text>
+      <text class="dg-m" x="274" y="216" font-size="11">ExperimentalRisch</text>
+      <text class="dg-m" x="274" y="234" font-size="11">GeneralUSubstitution</text>
+      <text class="dg-m" x="274" y="252" font-size="11">IntegralTable</text>
+      <text class="dg-m" x="274" y="270" font-size="11">RationalIntegration</text>
+      <rect class="dg-box o-pink" x="500" y="140" width="210" height="156" rx="8"/>
+      <text class="dg-t t-pink" x="512" y="168" font-size="12">special / series</text>
+      <line class="dg-div" x1="508" y1="176" x2="702" y2="176"/>
+      <text class="dg-m" x="512" y="198" font-size="11">SpecialProducts</text>
+      <text class="dg-m" x="512" y="216" font-size="11">SpecialFunctions</text>
+      <text class="dg-m" x="512" y="234" font-size="11">SeriesExpansion</text>
+      <rect class="dg-box o-orange" x="738" y="140" width="210" height="156" rx="8"/>
+      <text class="dg-t t-orange" x="750" y="168" font-size="12">definite / residue</text>
+      <line class="dg-div" x1="746" y1="176" x2="940" y2="176"/>
+      <text class="dg-m" x="750" y="198" font-size="11">DefiniteIntegral</text>
+      <text class="dg-m" x="750" y="216" font-size="11">ResidueTheorem</text>
+      <text class="dg-m" x="750" y="234" font-size="11">Lebesgue</text>
+      <!-- row 2 -->
+      <rect class="dg-box o-green" x="24" y="320" width="210" height="124" rx="8"/>
+      <text class="dg-t t-green" x="36" y="348" font-size="12">differentiation</text>
+      <line class="dg-div" x1="32" y1="356" x2="226" y2="356"/>
+      <text class="dg-m" x="36" y="378" font-size="11">DerivativeOperations</text>
+      <text class="dg-s" x="36" y="398" font-size="9.5">exact rule-based recursion</text>
+      <rect class="dg-box o-yellow" x="262" y="320" width="210" height="124" rx="8"/>
+      <text class="dg-t t-yellow" x="274" y="348" font-size="12">verify / trace / viz</text>
+      <line class="dg-div" x1="270" y1="356" x2="464" y2="356"/>
+      <text class="dg-m" x="274" y="378" font-size="11">Verification</text>
+      <text class="dg-m" x="274" y="396" font-size="11">StrategyReporter</text>
+      <text class="dg-m" x="274" y="414" font-size="11">IntegrationTracer</text>
+      <text class="dg-m" x="274" y="432" font-size="11">TreeVisualizer</text>
+      <rect class="dg-box o-accent" x="500" y="320" width="448" height="124" rx="8"/>
+      <text class="dg-t t-accent" x="512" y="348" font-size="12">vector calculus</text>
+      <line class="dg-div" x1="508" y1="356" x2="940" y2="356"/>
+      <text class="dg-m" x="512" y="378" font-size="11">VectorCalculus</text>
+      <text class="dg-s" x="512" y="398" font-size="9.5">gradient · laplacian · directional · differential (instance)</text>
+      <text class="dg-s" x="512" y="416" font-size="9.5">divergence / curl also exposed as VectorCalculus.* (standalone)</text>
+      <!-- POST band -->
+      <rect class="dg-zone o-muted o-dash" x="8" y="468" width="964" height="116" rx="10"/>
+      <text class="dg-s t-muted" x="20" y="488" font-size="10.5">POST · standalone services — invoked directly by web_server.rb / Engine.dispatch, NOT mixed into the facade</text>
+      <text class="dg-m" x="24" y="518" font-size="11">ComplexOperations     TaylorSeries (legacy)     VectorIntegrals     SurfaceIntegrals</text>
+      <text class="dg-m" x="24" y="542" font-size="11">LeibnizRule     LeibnizHigher     ReynoldsTransport          Engine — wasm_dispatch</text>
+      <text class="dg-s" x="24" y="566" font-size="9.5">each returns a closed-form-or-cross-check result; several build their own MathematicalExpression instances internally</text>
+    </svg>
+    <figcaption>The facade is a thin shell: 20 included modules supply every operation. The dashed lower band holds the POST services, which live <em>outside</em> the facade and are called straight from the transport layer.</figcaption>
+    </figure>
+
+    <h3>The two transports — one engine</h3>
+    <p>The same engine code runs two ways. Natively, a Sinatra server answers <code>/api/*</code>. On GitHub Pages there is no server: <code>wasm_runtime.js</code> shims <code>fetch</code> so the identical paths route into an in-browser ruby.wasm VM, where <code>Engine.solve</code> (<code>wasm_dispatch.rb</code>) mirrors every Sinatra route. Both paths construct the <em>same</em> <code>MathematicalExpression</code> and produce identical results.</p>
+    <figure class="diagram">
+    <svg viewBox="0 0 980 380" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Dual transport: browser to either Sinatra or ruby.wasm, both reaching the same MathematicalExpression engine, then verify and JSON back to the browser">
+      <defs>
+        <marker id="cArrow" markerWidth="9" markerHeight="9" refX="7.5" refY="3" orient="auto"><path d="M0,0 L7.5,3 L0,6 Z" style="fill:var(--accent)"/></marker>
+      </defs>
+      <text class="dg-s" x="490" y="32" font-size="12" text-anchor="middle">Two transports, one engine</text>
+      <rect class="dg-box o-cyan" x="24" y="150" width="156" height="80" rx="9"/>
+      <text class="dg-t t-cyan" x="40" y="184" font-size="14">Browser</text>
+      <text class="dg-s" x="40" y="204" font-size="10">vanilla-JS UI</text>
+      <rect class="dg-box o-cyan" x="250" y="64" width="252" height="76" rx="9"/>
+      <text class="dg-t t-cyan" x="266" y="90" font-size="12.5">Sinatra route</text>
+      <text class="dg-s" x="266" y="108" font-size="9.5">web_server.rb · /api/* · :4567</text>
+      <text class="dg-s" x="266" y="124" font-size="9.5">server-side Ruby process</text>
+      <rect class="dg-box o-purple" x="250" y="240" width="252" height="76" rx="9"/>
+      <text class="dg-t t-purple" x="266" y="266" font-size="12.5">ruby.wasm fetch shim</text>
+      <text class="dg-s" x="266" y="284" font-size="9.5">wasm_runtime.js → Engine.solve</text>
+      <text class="dg-s" x="266" y="300" font-size="9.5">in-browser · no server (Pages)</text>
+      <rect class="dg-box o-green" x="560" y="150" width="232" height="80" rx="9"/>
+      <text class="dg-t t-green" x="576" y="178" font-size="13">MathematicalExpression</text>
+      <text class="dg-s" x="576" y="197" font-size="9.5">facade + 20 modules</text>
+      <text class="dg-s" x="576" y="214" font-size="9.5">Normalize · Simplify</text>
+      <rect class="dg-box o-yellow" x="820" y="150" width="138" height="80" rx="9"/>
+      <text class="dg-t t-yellow" x="834" y="180" font-size="12">Verify (MC)</text>
+      <text class="dg-s" x="834" y="199" font-size="9.5">dF/dx ≟ f</text>
+      <text class="dg-s" x="834" y="216" font-size="9.5">→ JSON</text>
+      <path class="dg-edge" d="M180,178 C214,150 222,108 246,102" marker-end="url(#cArrow)"/>
+      <text class="dg-s t-muted" x="196" y="126" font-size="10">native</text>
+      <path class="dg-edge" d="M180,204 C214,250 222,290 246,290" marker-end="url(#cArrow)"/>
+      <text class="dg-s t-muted" x="190" y="266" font-size="10">Pages</text>
+      <path class="dg-edge" d="M502,108 C534,150 542,168 556,176" marker-end="url(#cArrow)"/>
+      <path class="dg-edge" d="M502,290 C534,250 542,222 556,204" marker-end="url(#cArrow)"/>
+      <line class="dg-edge" x1="792" y1="190" x2="816" y2="190" marker-end="url(#cArrow)"/>
+      <text class="dg-s t-muted" x="676" y="250" font-size="9.5" text-anchor="middle">wasm_dispatch mirrors every</text>
+      <text class="dg-s t-muted" x="676" y="263" font-size="9.5" text-anchor="middle">Sinatra route → identical results</text>
+      <path class="dg-edge" d="M889,230 L889,348 L106,348 L106,232" marker-end="url(#cArrow)"/>
+      <text class="dg-s t-muted" x="450" y="342" font-size="10.5" text-anchor="middle">JSON response  →  render</text>
+    </svg>
+    <figcaption>Native (Sinatra) and GitHub Pages (ruby.wasm) are interchangeable front doors onto one engine; the verifier gate and JSON shape are shared.</figcaption>
+    </figure>
+
+    <h2 id="tools">1.5 · The six self-contained tools — what each one does</h2>
+    <p>Most operations in the right-hand panel act on the formula in the input bar. Six do not: they open a dialog carrying their own inputs, and the panel separates them under <em>self-contained · own inputs</em>. They are the least self-explanatory part of the engine, so here is what each actually computes and how. Vector calculus joined this group when it stopped being able to work from the bar alone — divergence and curl consume a whole vector field, which has to be typed (§14).</p>
+
+    <h3>⟦f⟧ Interval bounds <span class="tag tag-cyan">conditional</span></h3>
+    <p><strong>What it does:</strong> carries bounds over a whole region. The enclosure guarantee for transcendental functions is conditional on the platform math-library error bound. Three modes: the range of f over a box, its global minimum, and a bracket around a definite integral.</p>
+    <p><strong>How:</strong> a third evaluator, <code>evaluate_interval</code>, walks the same AST as ordinary evaluation but carries <code>[lo, hi]</code> bounds through every operation with <em>outward rounding</em> — basic-operation results widen by one ULP; transcendental results widen by two, assuming that covers the platform library error. Subdivision can tighten dependency overestimation. The global minimum uses branch &amp; bound: if a box's interval lower bound exceeds the best value found so far, that box provably cannot contain the minimum and is discarded. This can retain narrow dips missed by point sampling, though finite search budgets can leave wide bounds.</p>
+    <p><strong>Why trust it:</strong> 4 000–20 000 sample comparisons and an independent Simpson estimate check for regressions. Passing these checks does not establish the transcendental library assumption. Full detail in §18.</p>
+
+    <h3>Q Exact ℚ, ℚ(α) — exact arithmetic <span class="tag tag-cyan">proven</span></h3>
+    <p><strong>What it does:</strong> computes with <em>no rounding error at all</em>, or refuses. Four modes: compare float vs interval vs exact on one expression; float-only (what the engine did before); exact-only; a polynomial lab (GCD, squarefree decomposition, resultants); and ℚ(α), arithmetic in an algebraic extension.</p>
+    <p><strong>How:</strong> <code>evaluate_exact</code> returns a Ruby <code>Rational</code> — <code>0.1 + 0.2</code> is <em>exactly</em> 3/10 — and returns nothing at all when no rational answer exists (√2, sin 1, e). For ℚ(α), an element is a polynomial in α reduced modulo a minimal polynomial, so √2 is stored as the symbol α plus the rule α² = 2; squaring it gives exactly 2 where a float gives 2.0000000000000004. Inverses come from the extended Euclidean algorithm in ℚ[x].</p>
+    <p><strong>Why it matters:</strong> "is this coefficient zero?" is a <em>guess</em> at 1e−10 in floating point and a <em>fact</em> in ℚ. Every decision procedure is built out of exact zero-tests. The demo worth trying: <code>gcd((x−1/3)⁴, f′)</code> is degree 3 exactly, and the float path returns degree 0 — "no common factor" — which is structurally wrong, not merely imprecise. See §20.</p>
+
+    <h3>ẋ=Θξ Discovery — SINDy <span class="tag tag-cyan">verified</span></h3>
+    <p><strong>What it does:</strong> runs the engine <em>backwards</em>. Given only a trajectory — a table of numbers — it recovers the differential equation that produced it.</p>
+    <p><strong>How:</strong> build a library Θ(x) of candidate terms (monomials, optionally sin/cos), estimate ẋ from the data, then solve <code>Ẋ = Θ(X)·Ξ</code> for <em>sparse</em> Ξ by sequential thresholded least squares: solve, zero every coefficient below λ, re-solve on the survivors, repeat. Sparsity is the prior that turns a curve fit into a candidate physical law.</p>
+    <p><strong>Why trust it:</strong> the discovered model is judged by oracles the regression never saw — agreement with the true vector field at every sample (the verdict), plus RK4 re-simulation (corroboration). Lorenz comes back exactly, −8/3 included. Remove <code>sin</code> from the library and ask for the pendulum, and it reports FAILED with the fabricated terms flagged rather than presenting a plausible polynomial. See §17.</p>
+
+    <h3>g<sub>μν</sub> Relativity — symbolic differential geometry <span class="tag tag-cyan">verified</span></h3>
+    <p><strong>What it does:</strong> takes a spacetime metric and derives its curvature — Christoffel symbols, Riemann and Ricci tensors — then flies a test particle along a geodesic.</p>
+    <p><strong>How:</strong> every quantity comes from the engine's own symbolic derivatives, composed through parseable infix, so parameters like mass M stay symbolic in the output (Γ<sup>t</sup><sub>tr</sub> = M/(r(r−2M))). The orbit is RK4 integration of <code>ẍ^μ = −Γ^μ<sub>αβ</sub> ẋ^α ẋ^β</code> on those computed symbols.</p>
+    <p><strong>Why trust it:</strong> Schwarzschild must be a vacuum (all ten Ricci components vanish) <em>and</em> its Kretschmann scalar must equal 48M²/r⁶ — a <strong>nonzero</strong> oracle, so "everything came out zero" cannot fake a pass. De Sitter must satisfy R<sub>μν</sub> = 3H²g<sub>μν</sub>, whose sign pins the curvature convention. Along the orbit, energy, angular momentum and the 4-velocity norm must stay conserved. Mercury's numbers in the verified formula give 42.98″/century. See §19.</p>
+
+    <h3>∮∬∭ Field Theorems &amp; Moving Domains <span class="tag tag-yellow">EXPERIMENTAL</span></h3>
+    <p><strong>What it does:</strong> a launcher for seven numeric tools — line integrals (work/flux/arc-length), surface integrals, Green's, Stokes' and Gauss's theorems, the Leibniz rule in 1D/2D/3D, Reynolds transport, and the Lebesgue integral.</p>
+    <p><strong>How:</strong> tangents, curls and divergences are symbolic; the domain integrals are Monte Carlo or quadrature. The transport tools use a flow-map identity — a fixed unit ball mapped by φ<sub>t</sub>(u) = c(t) + A(t)u — so the boundary-motion term comes from symbolic <code>det(A)′</code> and ∇f rather than surface quadrature.</p>
+    <p><strong>What kind of evidence stands behind it:</strong> this is the one group <em>not</em> checked against closed forms. Each instead computes its quantity <strong>two independent ways and shows they agree</strong> (e.g. a line integral directly versus Green's theorem over the enclosed region), which is strong evidence but weaker than an oracle. They also carry Monte-Carlo noise, so results wobble in the last digits. Laurent sits in the same category: its pole order is detected numerically and unstable coefficients truncate the series rather than being trusted.</p>
+
+    <div class="card card-cyan">
+        <strong>Why there is no E badge on the buttons.</strong> An earlier build tagged the numeric tools with a small <em>E</em>. It was dropped, because it labelled the wrong thing: for these tools the closed <em>forms</em> are standard and not in doubt — what varies is the quality of the <em>evaluation</em> (Monte-Carlo noise, numerically detected pole orders, sampled derivative stencils). A single badge on the button could not say which, and it competed with the per-result verdict, which states the actual evidence far more precisely: conditional interval bounds, verified against an oracle, corroborated two ways, or FAILED. Read the verdict on the result, not a badge on the button.
+    </div>
+
+    <h2 id="modes">1.6 · Every mode, and what stands behind it</h2>
+    <p>Twenty-three operations are reachable from the panel: sixteen buttons, and seven more inside the <em>Field Theorems</em> launcher. The sections that follow go deep on the subsystems; this one is the index — what each mode eats, what it hands back, which module does the work, and above all <strong>what kind of evidence supports the answer</strong>. That last column is the one to read first, because the modes differ far more in how well they are checked than in how hard they are.</p>
+
+    <div class="card card-cyan">
+        <strong>Five kinds of evidence.</strong>
+        <span class="ok">CONDITIONAL INTERVAL BOUND</span> — an outward-rounded enclosure; transcendental guarantees assume the platform library error fits within two ULPs.
+        <span class="ok">VERIFIED</span> — checked against an oracle <em>independent</em> of the computation: a closed form, a finite difference, a conservation law, the true vector field.
+        <span class="mixed">SELF-CONSISTENT</span> — computed two ways <em>by the same engine from the same parsed tree</em> and shown to agree. Strong evidence that the implementation is coherent; no evidence that the model is right.
+        <span class="mixed">EXACT, UNCHECKED</span> — symbolic and correct by construction (differentiation), with no check run because none is thought necessary.
+        <span class="gap">HEURISTIC</span> — a search or a rewrite with no normal form, no completeness claim, and no verdict.
+    </div>
+
+    <h3>The sixteen panel buttons</h3>
+    <table>
+        <tr><th>Mode</th><th>Consumes</th><th>Produces</th><th>Algorithm (module)</th><th>Evidence</th></tr>
+        <tr><td><strong>∫ Integrate</strong></td><td>the formula bar</td><td>antiderivative + C, steps, trace logs</td><td>ordered heuristic cascade, ~17 phases (§6; <code>experimental_risch.rb</code> and friends)</td><td class="mixed">HEURISTIC search, but the ANSWER is checked: <code>verify_integral</code> differentiates the result and compares it to the integrand at 15 random points, and the verdict now rides on the result as a badge beside it. The search is heuristic; the answer is verified. (Until recently the verdict was computed and then dropped — the debug log was snapshotted one line before the verify entry was appended — so it was reachable only through Strategy View.)</td></tr>
+        <tr><td><strong>∫ab Definite</strong></td><td>bar + bounds dialog</td><td>a value, a <em>method</em> badge, region plot</td><td>four rungs: residue → FTC → known special forms → Simpson (<code>definite_integral.rb</code>)</td><td class="mixed">Read the badge — it is the honesty signal. Exact on <code>ftc</code>/<code>residue</code>, numeric otherwise. A continuity check now refuses divergent integrals outright (§6).</td></tr>
+        <tr><td><strong>∑Res Residue</strong></td><td>bar + bounds</td><td>value, poles with multiplicity, contour</td><td>two closable contours only: semicircle at ∞, and the unit circle for a full period (§13)</td><td class="mixed">ASYMMETRIC, and worth knowing. The trigonometric route is checked against periodic-trapezoid quadrature — spectrally accurate here — and <strong>refuses</strong> above 1e−6 relative error. The improper route has no numeric oracle at all; it only warns if the imaginary part comes out large.</td></tr>
+        <tr><td><strong>d/dx Derivative</strong></td><td>bar + variable</td><td>derivative, rule-by-rule steps, tree</td><td>exact recursive rules (§5, <code>derivative_operations.rb</code>)</td><td class="mixed">EXACT, UNCHECKED — differentiation is a total decision procedure, so nothing can go structurally missing. Nothing is checked either.</td></tr>
+        <tr><td><strong>df Differential</strong></td><td>bar + variables</td><td>Σ (∂f/∂xᵢ)dxᵢ with per-term breakdown</td><td>one exact partial per variable (<code>vector_calculus.rb</code>)</td><td class="mixed">EXACT, UNCHECKED</td></tr>
+        <tr><td><strong>Σ Taylor</strong></td><td>bar + centre, order</td><td>terms as exact rationals, plot, remainder</td><td>successive symbolic derivatives at the centre (§12)</td><td class="mixed">Coefficients are exact. The Lagrange remainder is a <em>bound</em>, not a check — and its M is estimated by sampling, so the bound itself is heuristic.</td></tr>
+        <tr><td><strong>P/Q Padé</strong></td><td>bar text + L, M, centre</td><td>P/Q, poles flagged genuine or spurious, plot</td><td>Toeplitz solve then Durand–Kerner (§12)</td><td class="ok">VERIFIED against f itself: defining-equation residuals, near-centre error, and median error versus the Taylor polynomial over the window.</td></tr>
+        <tr><td><strong>Σ± Laurent</strong></td><td>bar + centre, order</td><td>series with a principal part, truncation flag</td><td>numeric pole-order detection, symbolic cancellation, limit sampling (§12)</td><td class="gap">HEURISTIC, and the weakest thing in the panel. On <code>1/(x(x−1))</code> the x² coefficient prints as −6145/6144 where the truth is −1 — wrong in the fourth significant figure — <em>before</em> the honest truncation notice appears.</td></tr>
+        <tr><td><strong>⚡ Simplify</strong></td><td>the current expression</td><td>before/after, named rewrite steps</td><td>rewrite to a fixed point, ≤30 passes (§10)</td><td class="gap">HEURISTIC. A rewrite system, not a canonicaliser: no normal form and no zero test. It will collect 2x+3x into 5x and then rewrite sin²+cos² into half-angle form and stop, never reaching the 1.</td></tr>
+        <tr><td><strong>🔢 Evaluate</strong></td><td>bar + variable values</td><td>one float</td><td>direct recursive float evaluation (§4)</td><td class="gap">This <em>is</em> the float lane that §20 exists to contrast against.</td></tr>
+        <tr><td><strong>∇ Grad · Div · Curl · Laplacian</strong></td><td>its own dialog: dimension slider, axis names, then a scalar or one component per axis</td><td>the intermediate partials, then a vector or scalar, with the arity stated</td><td>exact symbolic partials assembled per operator (§14, <code>vector_field_ops.rb</code>)</td><td class="mixed">EXACT, UNCHECKED — but the <em>signatures</em> are enforced: curl is offered only where it exists, and refuses elsewhere with the component count it would have had.</td></tr>
+        <tr><td><strong>[f] Interval bounds</strong></td><td>its own dialog only</td><td>naive vs certified enclosure, minimiser boxes, integral bracket</td><td>interval arithmetic with outward rounding, branch &amp; bound, Darboux sums (§18)</td><td class="ok">CONDITIONAL INTERVAL BOUND — subject to the stated transcendental library assumption. Sampling is a regression check.</td></tr>
+        <tr><td><strong>Q Exact ℚ, ℚ(α)</strong></td><td>its own dialog only</td><td>three lanes side by side, or a polynomial lab, or a field report</td><td>exact rationals, primitive-PRS GCD, Yun squarefree, ℚ[x]/(m) (§20)</td><td class="ok">EXACT — or an honest refusal, which is the actual product.</td></tr>
+        <tr><td><strong>ẋ=Θξ Discovery</strong></td><td>its own dialog only</td><td>the recovered equations, per-term coefficients, spurious flags</td><td>candidate library + sequentially thresholded least squares (§17)</td><td class="ok">VERIFIED against an independent oracle — the true vector field, which the regression never sees. The re-simulation is corroboration only.</td></tr>
+        <tr><td><strong>g<sub>μν</sub> Relativity</strong></td><td>its own dialog only</td><td>Γ, Ricci, Kretschmann, a precessing orbit</td><td>symbolic differentiation of a diagonal metric, then RK4 on the computed connection (§19)</td><td class="ok">VERIFIED against closed forms for the presets. A <em>custom</em> metric gets only the structural identities, and the verdict says so.</td></tr>
+        <tr><td><strong>∮∬∭ Field Theorems</strong></td><td>—</td><td>a launcher for the seven below</td><td>—</td><td>—</td></tr>
+    </table>
+
+    <h3>The seven inside the launcher</h3>
+    <p>All numeric, all labelled EXPERIMENTAL, and all sharing one doctrine: <strong>compute the quantity two independent ways and show they agree</strong>. That doctrine is worth stating precisely, because it is weaker than it sounds — both ways are computed by this engine from the same parsed tree, so agreement demonstrates that the implementation is coherent, not that the answer is right. The tolerances are listed because they vary by two orders of magnitude and the loosest would pass almost anything.</p>
+    <table>
+        <tr><th>Tool</th><th>What it computes</th><th>Cross-check, and its tolerance</th></tr>
+        <tr><td><strong>∫μ Lebesgue</strong></td><td>partitions the RANGE — ∫f dμ = ∫μ({f&gt;t})dt over 64 level sets</td><td class="mixed">Simpson on the same tree; UI turns green under |Δ| &lt; 0.05. On x² over [0,3] the layer cake gives 8.99666 against 9 — off by 3.3e−3 on a polynomial.</td></tr>
+        <tr><td><strong>∮F·dr Line integral</strong></td><td>work / flux / arc length with symbolic tangents</td><td class="mixed">Green's theorem over the enclosed region by Monte Carlo; passes at 3σ + 1e−3. On the unit circle with F = (−y, x) the two sides differ by 0.35%.</td></tr>
+        <tr><td><strong>∬·dS Surface</strong></td><td>flux on a parametric surface, symbolic r<sub>u</sub>×r<sub>v</sub> and curl</td><td class="mixed">Stokes and Gauss both ways; 0.5% relative. Hemisphere with F = (−y, x, 0): both sides land within 2.3e−4 of 2π.</td></tr>
+        <tr><td><strong>d/dt∫ Leibniz 1D</strong></td><td>moving interval [a(t), b(t)], boundary + bulk split</td><td class="mixed">an independent numeric d/dt of the whole integral; 0.1% relative.</td></tr>
+        <tr><td><strong>Leibniz 2D / 3D</strong></td><td>deforming ellipse / ellipsoid via the flow map φ<sub>t</sub>(u) = c(t) + A(t)u</td><td class="gap">same shape; <strong>2.5% relative</strong> — the loosest band in the app. The measured runs agree to 1e−13, but the band would have accepted far worse.</td></tr>
+        <tr><td><strong>Reynolds</strong></td><td>the physics framing: d/dt∭f dV = ∭∂f/∂t + ∬f(v<sub>b</sub>·n)</td><td class="mixed">common-random-number Monte-Carlo finite difference; 2% relative. Measured 0.05% apart.</td></tr>
+    </table>
+
+    <h2 id="modules">2 · Full module map</h2>
+    <table>
+        <tr><th>File</th><th>What it does (algorithm in one line)</th></tr>
+        <tr><td><code>mathematical_expression.rb</code></td><td>Core class; mixes in all modules; holds the root node + mode flags.</td></tr>
+        <tr><td><code>parser.rb</code></td><td>Tokenize → normalize → <em>reverse</em> shunting-yard → prefix → tree. Owns <code>OPERATORS</code> precedence + <code>FUNCTION_NAMES</code>.</td></tr>
+        <tr><td><code>expression_node.rb</code></td><td><code>ExpressionNode</code> (binary tree); float <code>evaluate</code>; special-function quadrature.</td></tr>
+        <tr><td><code>normalizer.rb</code></td><td>Non-mutating 9-step canonicalization pipeline (fold, identities, radicals, power-products, polynomial collection, GCD cancel).</td></tr>
+        <tr><td><code>polynomial.rb</code></td><td>Sparse <code>{degree=&gt;coeff}</code> polynomial: arithmetic, <code>divmod</code>, <code>gcd</code>, rational-root factoring, discriminant.</td></tr>
+        <tr><td><code>tree_visualizer.rb</code></td><td><code>to_readable_string</code>, <code>to_latex</code> (special fns as <code>\operatorname</code>), ASCII tree.</td></tr>
+        <tr><td><code>derivative_operations.rb</code></td><td>Exact rule-based differentiation; one ordered <code>case</code> over node type.</td></tr>
+        <tr><td><code>experimental_risch.rb</code></td><td>The integration cascade orchestrator (<code>risch_integrate_inner</code>, ~17 phases). <em>Misnomer</em> — see §22.</td></tr>
+        <tr><td><code>integration_operations.rb</code></td><td><code>integrate</code> entry + dispatch; <code>compute_integral</code> standard integrator; <code>finalize_integration</code>.</td></tr>
+        <tr><td><code>integral_table.rb</code></td><td>Ordered <code>TABLE_ENTRIES</code> pattern table (arctan, ln-linear, arcsin, sec²/csc², …).</td></tr>
+        <tr><td><code>general_u_substitution.rb</code></td><td>u = g(x) candidate collection, ranking, factor-match against du/dx, back-substitution.</td></tr>
+        <tr><td><code>trig_identities.rb</code></td><td>Ordered rewrite pre-pass (Pythagorean, power-split, half-angle, product-to-sum…).</td></tr>
+        <tr><td><code>rational_integration.rb</code></td><td>Long division → linear/irreducible-quad → completing-square → partial fractions.</td></tr>
+        <tr><td><code>special_products.rb</code></td><td>Closed forms: poly·exp·trig reduction recursion, mixed odd trig powers, poly·trig².</td></tr>
+        <tr><td><code>special_functions.rb</code></td><td>Non-elementary integrals → erf/Si/Ci/Ei/li/Fresnel nodes.</td></tr>
+        <tr><td><code>simplification.rb</code></td><td>Fixed-point pass rewriter; constant folding; <code>track_steps</code>.</td></tr>
+        <tr><td><code>verification.rb</code></td><td>Monte-Carlo dF/dx==f check (15 pts, 1% tol, 90% threshold).</td></tr>
+        <tr><td><code>series_expansion.rb</code></td><td>Taylor (symbolic derivatives) / Laurent (flow-map cancel) + Lagrange remainder.</td></tr>
+        <tr><td><code>residue_theorem.rb</code></td><td>Improper rational integrals via contour residues; real-axis guard.</td></tr>
+        <tr><td><code>definite_integral.rb</code></td><td>FTC → known special forms → Simpson; Monte-Carlo mode; plot samples.</td></tr>
+        <tr><td><code>lebesgue.rb</code></td><td>Layer-cake (range partition) integral; Riemann cross-check.</td></tr>
+        <tr><td><code>vector_integrals.rb</code></td><td>2D line integrals (work/flux/arc) + Green/divergence cross-check + parameter sweep.</td></tr>
+        <tr><td><code>surface_integrals.rb</code></td><td>Parametric surfaces; scalar dS / flux / Stokes / Gauss (two-way).</td></tr>
+        <tr><td><code>leibniz_rule.rb</code>, <code>leibniz_higher.rb</code>, <code>reynolds_transport.rb</code></td><td>Differentiation under the integral over moving 1D/2D/3D domains (flow-map).</td></tr>
+        <tr><td><code>complex_operations.rb</code></td><td>Trig → complex-exponential (Euler) rewrite.</td></tr>
+        <tr><td><code>integration_tracer.rb</code>, <code>strategy_reporter.rb</code></td><td>Thread-local decision-tree / flat-log instrumentation for the live view.</td></tr>
+        <tr><td><code>exact_arithmetic.rb</code> · <code>algebraic_field.rb</code> · <code>exact_lab.rb</code></td><td>Exact rationals over the same AST; ExactPolynomial (GCD / squarefree / resultant / ext-Euclid); ℚ(α) algebraic extensions; the float-vs-interval-vs-exact comparison (§20).</td></tr>
+        <tr><td><code>sindy.rb</code></td><td>Discovers the governing ODE from trajectory data: candidate library + sequential thresholded least squares (§17).</td></tr>
+        <tr><td><code>pade.rb</code></td><td>Rational [L/M] approximant from Taylor coefficients; captures poles, flags Froissart artifacts (§12).</td></tr>
+        <tr><td><code>interval_arithmetic.rb</code></td><td>Outward-rounded <code>evaluate_interval</code> + conditional range / global-min / integral bounds (§18).</td></tr>
+        <tr><td><code>general_relativity.rb</code></td><td>Diagonal metric → Christoffel → Riemann → Ricci, with vacuum/Kretschmann/de Sitter oracles + geodesics (§19).</td></tr>
+        <tr><td><code>web_server.rb</code> · <code>wasm_dispatch.rb</code></td><td>Sinatra routes · the in-browser ruby.wasm dispatch mirroring them.</td></tr>
+    </table>
+
+    <h2 id="parser">3 · Parser</h2>
+    <p>All class methods on <code>ExpressionParser</code>; entry is <code>parse(input)</code> = <code>tokenize → infix_to_prefix → build_tree</code>.</p>
+    <ul>
+        <li><strong>Tokenize.</strong> <code>pi</code>/<code>e</code> are textually replaced with <code>Math::PI</code>/<code>Math::E</code> before scanning; numbers become <code>Float</code>. Precedence map <code>OPERATORS</code>: <code>+ -</code> = 1, <code>* /</code> = 2, <code>^</code> = 3, functions = 4.</li>
+        <li><strong>Normalize.</strong> <code>insert_unary_minus</code> rewrites a leading/post-operator <code>-</code> into the pair <code>-1.0, *</code> (the raw form caused a <code>SystemStackError</code>) &mdash; except after <code>^</code>, where the negated operand is parenthesised instead (see the card below). <code>insert_implicit_multiplication</code> inserts <code>*</code> between operand-enders and operand-starters (<code>2x</code>, <code>2(x+1)</code>, <code>2sin(x)</code>, <code>(x+1)(x-2)</code>).</li>
+        <li><strong>Reverse shunting-yard.</strong> The token list is reversed, parens swapped, run through a modified shunting-yard to postfix, then reversed to prefix. Functions are pushed and popped immediately after their <code>)</code>.</li>
+    </ul>
+    <div class="card card-yellow">
+        <strong>The associativity fix.</strong> Because the list is reversed, <code>should_pop_for_postfix?</code> uses <em>flipped</em> comparisons: left-associative operators pop on strict <code>stack_prec &gt; current_prec</code>, while the right-associative <code>^</code> pops on <code>stack_prec &ge; current_prec</code>. The pre-fix code had these inverted, so <code>5-2+1</code>, <code>8/2/2</code>, and <code>2^3^2</code> evaluated wrongly. Guarded by <code>test_associativity.rb</code> (17 cases).
+    </div>
+    <div class="card card-red">
+        <strong>A silent wrong answer, and why <code>x^-1</code> hid it.</strong> The <code>(-1) *</code> rewrite is sound only where the minus sits at a precedence <em>below</em> multiplication. <code>^</code> binds tighter than <code>*</code>, so in an exponent the multiplication escaped: <code>x^-3</code> became <code>(x^-1) * 3</code>, a different function &mdash; 1.5 at x=2 instead of 0.125. Nothing errored; the answer was simply wrong. <code>x^-1</code> is the form that appears most often, and it is the one case the bug cannot touch (multiplying by 1 changes nothing), so the engine looked healthy while <code>x^-2</code>, <code>x^-3</code> and <code>x^-0.5</code> were all quietly incorrect.
+        <br><br>
+        It also poisoned composition. <code>to_infix</code> <em>prints</em> that form &mdash; d&sup2;/dx&sup2;(1/x) renders as <code>2 * (x ^ -3)</code> &mdash; so every module that builds expressions by re-parsing printed infix (<code>vector_field_ops</code>, <code>general_relativity</code>) got back a different function than it put in. That is how it surfaced: a divergence card showed two correct partials, <code>2&middot;x&#8315;&sup3;</code> and <code>0</code>, and then reported their sum as <code>6&middot;x&#8315;&sup9;&#185;</code>. Now the exponent keeps its own parentheses. Guarded by <code>probe_parser_exponent.rb</code> (29 checks, scored against Ruby&rsquo;s own float arithmetic rather than against the engine).
+    </div>    <div class="card card-red">
+        <strong>The scanner dropped what it could not read.</strong> <code>tokenize</code> splits with <code>String#scan</code>, which silently skips any character its pattern misses &mdash; and the pattern never matched <code>&times;</code> or <code>&divide;</code>, the very glyphs <code>to_readable_string</code> <em>prints</em>. So <code>6 &divide; 2</code> lost the operator and parsed as the implicit product <code>6 &times; 2 = 12</code>, and <code>2 &times; -3</code> lost it and parsed as the subtraction <code>2 - 3 = -1</code>. Copying a displayed answer back into the input bar quietly changed the function. Display glyphs (<code>&times; &middot; &divide; &minus;</code> and friends) are now folded to their ASCII operators before scanning, and a character the scanner still cannot classify <strong>raises</strong> instead of vanishing &mdash; a typo should be an error, not a different question.
+    </div>    <p class="muted-note">Constants are not symbolic: <code>pi</code>/<code>e</code> are float literals at lex time and every number is a <code>Float</code>. This one decision shapes — and bounds — everything downstream (§20, §22).</p>
+
+    <h2 id="ast">4 · AST &amp; evaluation</h2>
+    <p><code>ExpressionNode</code> fields: <code>isleaf</code>, <code>data</code> (operator/function/variable string, or <code>Numeric</code>), <code>left</code>, <code>right</code>, <code>parent</code>, <code>type</code>. Unary functions hang their argument on <code>right</code>. <code>connect(child, "L"|"R")</code> wires children + back-pointer; <code>deep_clone</code> copies the subtree.</p>
+    <p><strong><code>evaluate(var_values)</code></strong> is the numeric oracle the whole verification philosophy rests on. Recursion: number leaves → <code>to_f</code>; variable leaves → <code>var_values[data]</code> (missing → <code>0.0</code>); operators dispatch via a large <code>case</code>:</p>
+    <ul>
+        <li>Arithmetic <code>+ - * / ^</code> (division by zero → <code>Float::INFINITY</code>).</li>
+        <li>Standard functions map to Ruby <code>Math</code>; reciprocal trig is computed as <code>1/tan</code>, <code>1/cos</code>, <code>1/sin</code> with zero-guards; <code>ln</code>/<code>sqrt</code> return <code>NaN</code> out of domain; <code>arcsin</code>/<code>arccos</code> require <code>|arg| &le; 1</code>.</li>
+        <li>Special functions <code>Si, Ci, Ei, li, FresnelS, FresnelC</code> are evaluated by <strong>composite Simpson quadrature</strong> (<code>sf_quad</code>, n = 600) over their defining integral; <code>Ci/Ei/li</code> add the <code>SF_EULER_GAMMA + ln(…)</code> offset. <code>erf</code> uses <code>Math.erf</code>. (All match published tables to ~1e-10.)</li>
+    </ul>
+    <p><code>to_readable_string</code>/<code>to_latex</code> (in <code>tree_visualizer.rb</code>) render the three output forms; <code>to_latex</code> emits special functions as <code>\operatorname{…}</code> so <code>li(x)</code> is not mistaken for a variable product.</p>
+
+    <h2 id="deriv">5 · Differentiation (rule order)</h2>
+    <p>Exact and total — there is no "can't differentiate." <code>compute_derivative(node, variable, steps, aggressive_simplify)</code> is one <code>case node.data</code> evaluated top to bottom; subtrees are reused via <code>deep_clone</code> to avoid aliasing. With <code>track_steps</code>, each rule appends <code>{rule, from, to}</code>.</p>
+    <ol>
+        <li>Leaf base cases: <code>x → 1</code>, constant → <code>0</code>.</li>
+        <li><code>+</code> sum, <code>-</code> difference.</li>
+        <li><code>*</code> product <code>u'v + uv'</code>; <code>/</code> quotient <code>(u'v − uv')/v²</code>.</li>
+        <li><code>^</code> three branches in order: (a) <strong>power rule</strong> <code>xⁿ → n·xⁿ⁻¹</code> (base = var, const exponent); (b) <strong>generalized power + chain</strong> <code>fⁿ → n·fⁿ⁻¹·f'</code> (const exponent); (c) <strong>general</strong> <code>f^g</code> via logarithmic differentiation <code>f^g·(g'·ln f + g·f'/f)</code>.</li>
+        <li>Trig (chain ·u'): <code>sin cos tan cot sec csc</code>; hyperbolic <code>sinh cosh tanh sech csch coth</code>; inverse hyperbolic <code>arcsinh arccosh arctanh</code>.</li>
+        <li><code>ln</code>, <code>exp</code>; inverse trig <code>arctan arcsin arccos</code>; <code>sqrt → 1/(2√u)·u'</code>.</li>
+        <li><strong>Special functions</strong> (one shared branch): <code>erf' = (2/√π)e^(−u²)</code>, <code>Si' = sin u/u</code>, <code>Ci' = cos u/u</code>, <code>Ei' = e^u/u</code>, <code>li' = 1/ln u</code>, <code>FresnelS' = sin(u²)</code>, <code>FresnelC' = cos(u²)</code> — each ·u'.</li>
+        <li><code>abs → (u/|u|)·u'</code>. Fallback: unknown operator → <code>0</code>.</li>
+    </ol>
+
+    <h2 id="routine">6 · The integration routine — exact order</h2>
+    <p>This is the heart of the engine. <code>integrate(variable)</code> dispatches on <code>@use_experimental_integration</code>: when true it runs the cascade (<code>integrate_experimental → risch_integrate</code>); otherwise it calls the standard integrator <code>compute_integral</code> directly (§7). Both results pass through <code>finalize_integration</code>.</p>
+    <div class="card card-yellow">
+        <strong>Depth / budget guard.</strong> <code>risch_integrate</code> wraps <code>risch_integrate_inner</code> with <code>RISCH_MAX_DEPTH = 30</code> and <code>RISCH_MAX_CALLS = 4000</code>. On exceed it returns an <code>integral(…)</code> marker instead of recursing — the anti-hang stop (e.g. <code>sin(x)/x</code> returns a marker in ~0.04 s).
+    </div>
+    <p><code>risch_integrate_inner</code> runs these phases <strong>in this order</strong>; each is gated by a <code>respond_to?</code> capability check plus a structural predicate, and the first to yield a marker-free result <strong>returns immediately</strong>. Phases marked <em>(rewrite)</em> mutate the working node and fall through; phases marked <em>(recurse)</em> transform and re-enter <code>risch_integrate</code>.</p>
+    <ol class="routine">
+        <li data-n="0.0"><strong>Division u-sub on the raw form.</strong> <span class="when">if <code>node.data == '/'</code> and not a rational function</span> — <span class="meth">attempt_u_sub_division</span>. Catches <code>ln(x)/x</code>, <code>sin(ln x)/x</code> before normalization rewrites <code>a/b → a·b⁻¹</code>.</li>
+        <li data-n="0.05"><strong>Special-function forms.</strong> <span class="when">on the raw shape</span> — <span class="meth">special_function_integral</span> → erf, Si, Ci, Ei, li, Fresnel (§9).</li>
+        <li data-n="0"><strong>Normalize</strong> <em>(rewrite)</em> — <span class="meth">normalize_expression</span> (§10), then <span class="meth">algebraic_simplify</span>.</li>
+        <li data-n="0.1"><strong>Table lookup.</strong> <span class="meth">table_lookup_integral</span> — the fastest closed-form path (§8).</li>
+        <li data-n="0.2"><strong>General u-substitution.</strong> <span class="when">if <code>node.data == '*'</code></span> — <span class="meth">attempt_general_u_sub</span>; logs the candidate list. Runs <em>before</em> trig identities.</li>
+        <li data-n="0.22"><strong>Special product families.</strong> <span class="when">if <code>node.data == '*'</code></span> — <span class="meth">attempt_special_product</span>: poly·exp·trig, mixed odd trig powers, poly·trig² (§9).</li>
+        <li data-n="0.25"><strong>Trig identity rewrite</strong> <em>(rewrite)</em> — <span class="meth">apply_trig_identities</span> (§8).</li>
+        <li data-n="0.3"><strong>Distribute product over sum</strong> <em>(recurse)</em>. <span class="when">if <code>*</code> over <code>+</code>/<code>-</code></span> — expand and re-integrate.</li>
+        <li data-n="0.4"><strong>Product-to-sum trig</strong> <em>(recurse)</em> — <span class="meth">apply_product_to_sum</span> (sin·cos, sin·sin, cos·cos).</li>
+        <li data-n="0.5"><strong>Inverse trig / lnⁿ.</strong> <span class="when">if <code>is_inverse_trig?</code></span> — <span class="meth">integrate_inverse_trig</span> (with an <code>ln^n</code> reduction).</li>
+        <li data-n="1"><strong>Rational function.</strong> <span class="when">if <code>is_rational_function?</code></span> — <span class="meth">attempt_rational_integration</span> → partial fractions (§8). Highest-priority "type" phase.</li>
+        <li data-n="2"><strong>Trig power reduction.</strong> <span class="when">if <code>is_trig_power?</code> (sin/cos/…ⁿ, n&gt;1)</span> — <span class="meth">attempt_trig_power_reduction</span>.</li>
+        <li data-n="3"><strong>Quadratic radical / trig sub.</strong> <span class="when">if <code>has_quadratic_radical?</code></span> — <span class="meth">attempt_radical_integration</span>.</li>
+        <li data-n="4"><strong>Smart substitution.</strong> <span class="when">if <code>can_apply_smart_substitution?</code></span> — <span class="meth">attempt_smart_substitution</span>. Deliberately before by-parts.</li>
+        <li data-n="5"><strong>Integration by parts.</strong> <span class="when">if <code>can_apply_integration_by_parts?</code></span> — <span class="meth">attempt_integration_by_parts</span>: LIATE choice, special-cases exp×trig, computes <code>du</code>, recursively gets <code>v</code> and <code>∫v du</code> via <code>risch_integrate</code>.</li>
+        <li data-n="∞"><strong>Fallback.</strong> <span class="meth">compute_integral</span> — the standard integrator (§7); returns a marker if it too cannot solve.</li>
+    </ol>
+    <figure class="diagram">
+    <svg viewBox="0 0 980 540" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Integration cascade funnel: phases narrow from raw-form catches to type handlers; first marker-free match returns immediately, the fallback is the standard integrator, and everything passes the Monte-Carlo verifier">
+      <defs>
+        <marker id="dArrow" markerWidth="9" markerHeight="9" refX="7.5" refY="3" orient="auto"><path d="M0,0 L7.5,3 L0,6 Z" style="fill:var(--accent)"/></marker>
+      </defs>
+      <rect class="dg-box o-cyan" x="400" y="14" width="180" height="38" rx="9"/>
+      <text class="dg-t t-cyan" x="490" y="39" font-size="14" text-anchor="middle">∫ f(x) dx</text>
+      <line class="dg-edge" x1="490" y1="52" x2="490" y2="70" marker-end="url(#dArrow)"/>
+      <!-- funnel -->
+      <path class="dg-funnel" d="M210,72 L770,72 L620,372 L360,372 Z"/>
+      <line class="dg-div" x1="236" y1="124" x2="744" y2="124"/>
+      <line class="dg-div" x1="260" y1="172" x2="740" y2="172"/>
+      <line class="dg-div" x1="287" y1="226" x2="713" y2="226"/>
+      <line class="dg-div" x1="319" y1="290" x2="661" y2="290"/>
+      <text x="490" y="102" font-size="11" text-anchor="middle"><tspan class="t-muted" font-family="'JetBrains Mono',monospace">[0.0–0.05] </tspan><tspan class="dg-m">raw-form catches — ÷ u-sub · special functions</tspan></text>
+      <text x="490" y="152" font-size="11" text-anchor="middle"><tspan class="t-muted" font-family="'JetBrains Mono',monospace">[0] </tspan><tspan class="dg-m">normalize → algebraic simplify</tspan></text>
+      <text x="490" y="201" font-size="11" text-anchor="middle"><tspan class="t-muted" font-family="'JetBrains Mono',monospace">[0.1–0.22] </tspan><tspan class="dg-m">table lookup · general u-sub · special products</tspan></text>
+      <text x="490" y="260" font-size="10.5" text-anchor="middle"><tspan class="t-muted" font-family="'JetBrains Mono',monospace">[0.25–0.5] </tspan><tspan class="dg-m">trig identities · distribute · product→sum · inv-trig</tspan></text>
+      <text x="490" y="322" font-size="10.5" text-anchor="middle"><tspan class="t-muted" font-family="'JetBrains Mono',monospace">[1–5] </tspan><tspan class="dg-m">type handlers:</tspan></text>
+      <text x="490" y="338" font-size="10" text-anchor="middle"><tspan class="dg-m">rational · trig^n · radical · sub · by-parts</tspan></text>
+      <!-- first-match capture -->
+      <rect class="dg-box o-green" x="792" y="104" width="176" height="140" rx="9"/>
+      <text class="dg-t t-green" x="806" y="130" font-size="12">✓ marker-free</text>
+      <text class="dg-s" x="806" y="150" font-size="10">→ return now</text>
+      <text class="dg-s t-muted" x="806" y="178" font-size="9.5">first match wins —</text>
+      <text class="dg-s t-muted" x="806" y="192" font-size="9.5">no later phase runs</text>
+      <text class="dg-s t-muted" x="700" y="92" font-size="10" text-anchor="middle">match? →</text>
+      <line class="dg-edge" x1="756" y1="100" x2="788" y2="126" marker-end="url(#dArrow)"/>
+      <line class="dg-edge" x1="706" y1="200" x2="788" y2="150" marker-end="url(#dArrow)"/>
+      <line class="dg-edge" x1="677" y1="258" x2="788" y2="178" marker-end="url(#dArrow)"/>
+      <line class="dg-edge" x1="641" y1="330" x2="788" y2="210" marker-end="url(#dArrow)"/>
+      <!-- fallback -->
+      <line class="dg-edge" x1="490" y1="372" x2="490" y2="390" marker-end="url(#dArrow)"/>
+      <rect class="dg-box o-accent" x="300" y="392" width="380" height="44" rx="9"/>
+      <text class="dg-m" x="490" y="419" font-size="11" text-anchor="middle">∞  compute_integral — standard integrator (fallback)</text>
+      <line class="dg-edge" x1="490" y1="436" x2="490" y2="454" marker-end="url(#dArrow)"/>
+      <rect class="dg-box o-yellow" x="250" y="456" width="480" height="44" rx="9"/>
+      <text class="dg-m" x="490" y="483" font-size="11" text-anchor="middle">finalize · Verify (MC: d/dx ≟ f, ≥ 90% of 15 pts)</text>
+      <text x="490" y="524" font-size="10.5" text-anchor="middle"><tspan class="t-green">✓ verified → closed form shown</tspan><tspan class="t-muted">      ·      </tspan><tspan class="t-red">✗ unsolved → honest integral( ) marker · FAILED</tspan></text>
+    </svg>
+    <figcaption>The cascade as a funnel: each phase is tried in order; the first marker-free result returns immediately (green lane). Anything unsolved falls to the standard integrator, and <em>every</em> result must pass the independent Monte-Carlo verifier — unsolved parts collapse to an honest marker rather than a wrong answer.</figcaption>
+    </figure>
+    <div class="card card-green">
+        <strong>Honest-marker finalize.</strong> <code>finalize_integration</code> runs once on the top-level result: if the tree still contains an <code>integral</code> marker but is not itself a lone marker, it <em>collapses the whole tree to one marker</em> over the original integrand. This stops a later simplify pass from cancelling a partial marker and presenting a clean-but-wrong antiderivative (the historical <code>x²·eˣ·sin x</code> bug). Combined with §11, this is why the engine never reports a confidently-wrong integral.
+    </div>
+
+
+    <div class="card card-red">
+        <strong>The Fundamental Theorem needs a continuity check, and did not have one.</strong> <code>F(b) &minus; F(a)</code> was evaluated straight across a pole. <code>∫₋₁¹ dx/x²</code> is divergent and came back as <strong>&minus;2</strong> — a negative area under a strictly positive integrand, so not merely inaccurate but impossible. <code>∫₋₁¹ dx/x</code> came back as 0 with no mention that this is a principal value, and <code>∫₋∞<sup>∞</sup> dx/(x³+1)</code> came back as 1.79 from Simpson, which skips non-finite samples and so integrates straight <em>through</em> a singularity.
+        <br><br>
+        A continuity check now runs before any of the three routes. Finding a singularity is only half of it, because an interior one does not imply divergence — <code>∫₋₁¹ dx/√|x| = 4</code> converges. The guard locates the blow-up by <strong>ternary search on |f|</strong> (a refined grid fails: its points sit at fixed offsets, so on <code>tan</code> near π/2 it never lands closer than the original scan and a real pole reads as a plateau), then asks the one-sided limits by watching the sliver <code>∫</code> over <code>[x₀&minus;εₖ, x₀&minus;εₖ₊₁]</code> as the cutoff shrinks:
+        <div class="formula">convergent   slivers collapse      1/√|x| → 0.137, 0.043, 0.014
+log          slivers hold steady   1/x    → ln 10 each time
+power        slivers grow          1/x²   → 900, 9 000, 90 000</div>
+        A side that diverges makes the integral divergent <em>even when the two sides cancel</em> — that is <code>∫₋₁¹ dx/x</code>, whose halves both diverge and whose symmetric combination is 0. The Cauchy principal value is reported as a labelled extra, never as the answer. Endpoint singularities are deliberately out of scope: <code>∫₀¹ dx/√x</code> and <code>∫₀¹ ln x dx</code> are improper only at a bound and both converge, so flagging them would be a false refusal. Guarded by <code>probe_improper.rb</code> (19 checks), and the regression output is byte-identical.
+    </div>
+    <h2 id="standard">7 · The standard integrator</h2>
+    <p><code>compute_integral(node, variable, steps)</code> is the non-experimental engine and the universal fallback. Order: normalize → table lookup → <code>simple_algebraic_simplify</code> (division-focused) → leaf case (<code>∫x = x²/2</code>, <code>∫c = c·x</code>) → operator <code>case</code>:</p>
+    <table>
+        <tr><th>Node</th><th>Handling (in order)</th></tr>
+        <tr><td><code>+</code> / <code>-</code></td><td>sum / difference rule — recurse both sides.</td></tr>
+        <tr><td><code>*</code></td><td>constant factor → constant-multiple rule; else <code>sin·cos → sin²/2</code>; else <code>attempt_general_u_sub</code>; else <code>integral</code> marker.</td></tr>
+        <tr><td><code>/</code></td><td>constant denominator → <code>(1/c)∫f</code>; <code>c/x → c·ln|x|</code>; then pattern checks: <code>sec²</code>, <code>csc²</code>, <code>ln(x)/x → (ln x)²/2</code>, <code>arctan</code>; then <code>∫f'/f = ln|f|</code> (u-sub); then <code>attempt_u_sub_division</code>; then <code>attempt_rational_integration</code>; else marker.</td></tr>
+        <tr><td><code>^</code></td><td>power rule <code>∫xⁿ</code>: n=−1 → <code>ln|x|</code>, else <code>xⁿ⁺¹/(n+1)</code> (rational coefficient); other powers → marker.</td></tr>
+        <tr><td>trig / transcendental</td><td>whole-node constant → <code>c·x</code>; argument = variable → the known antiderivative; linear argument <code>ax+b</code> → <code>(1/a)</code>-scaled (sin/cos/exp); else marker.</td></tr>
+        <tr><td><code>else</code></td><td>unknown operator → <code>integral</code> marker, "cannot integrate."</td></tr>
+    </table>
+    <p>It never raises — failure is always an <code>ExpressionNode("integral")</code> wrapping the integrand, detected everywhere by <code>contains_integral_marker?</code>.</p>
+
+    <h2 id="techniques">8 · Integration technique modules</h2>
+    <h3>integral_table.rb — the lookup table</h3>
+    <p><code>table_lookup_integral</code> walks an ordered <code>TABLE_ENTRIES</code> list, matching each via <code>match_pattern</code> (a <code>case</code> on <code>:type</code>) and checking an optional condition lambda. Trial order:</p>
+    <table>
+        <tr><th>#</th><th>Form</th><th>Result</th></tr>
+        <tr><td>1</td><td><code>c/(x²+a²)</code></td><td><code>(c/a)·arctan(x/a)</code></td></tr>
+        <tr><td>2</td><td><code>c/(ax+b)</code></td><td><code>(c/a)·ln|ax+b|</code></td></tr>
+        <tr><td>3</td><td><code>c/√(a²−x²)</code></td><td><code>c·arcsin(x/a)</code></td></tr>
+        <tr><td>4</td><td><code>c/(x²−a²)</code></td><td><code>(c/2a)·ln|(x−a)/(x+a)|</code></td></tr>
+        <tr><td>5–6</td><td><code>tan·sec</code>, <code>cot·csc</code></td><td><code>sec</code>, <code>−csc</code></td></tr>
+        <tr><td>7</td><td><code>sec²·tan</code></td><td><code>½sec²</code></td></tr>
+        <tr><td>8–9</td><td><code>sec²</code> / <code>csc²</code> (and <code>cos⁻²</code>, <code>1/sin²</code> encodings)</td><td><code>tan</code> / <code>−cot</code></td></tr>
+    </table>
+    <h3>general_u_substitution.rb</h3>
+    <p><code>collect_substitution_candidates</code> gathers inner functions, power bases, sum subtrees, and denominators, then ranks them <strong>deepest-first, then shortest infix</strong> (<code>sort_by { [-depth, infix.length] }</code>). For each candidate, <code>try_u_substitution</code> computes <code>du/dx</code> and runs <code>try_factor_match</code> (three cases: left ∝ du/dx, right ∝ du/dx, nested <code>const·factor</code>), using <code>compute_proportionality</code> (float ratio) and <code>can_express_in_u?</code> (recursively verifies no residual <code>x</code> remains). On success it integrates <code>f(u)</code> via <code>compute_integral</code> in the placeholder variable <code>__u__</code>, back-substitutes, and scales by the constant factor. <code>attempt_u_sub_division</code> first rewrites division shapes (<code>f/√g → f·g⁻ᐟ²</code>, <code>c/(a·b)</code> splits, <code>f/gⁿ → f·g⁻ⁿ</code>) then retries.</p>
+    <h3>trig_identities.rb — ordered rewrite pre-pass</h3>
+    <p><code>apply_trig_identities</code> deep-clones, then applies identities top-down (order is load-bearing): Pythagorean <code>sin²+cos² → 1</code> → <code>1+tan² → sec²</code> → <strong>mixed-power split</strong> (odd <code>sinᵐcosⁿ</code> → factor one for u-sub; returns early, does <em>not</em> recurse, to preserve the pattern) → <code>sin²cos² → ⅛(1−cos 4x)</code> → <code>1/(sin·cos) → tan+cot</code> → recurse into children → <code>tan² → sec²−1</code> → double-angle <code>2 sin cos → sin 2x</code> → half-angle <code>sin²/cos² → (1∓cos 2x)/2</code>.</p>
+    <h3>rational_integration.rb</h3>
+    <p><code>attempt_rational_integration</code> builds numerator/denominator <code>Polynomial</code>s and tries, in order: (1) <strong>long division</strong> if improper (<code>divmod</code>, integrate quotient + remainder fraction); (2) <strong>linear / irreducible quadratic</strong> (split <code>Ax+B</code> into a <code>ln|den|</code> part + a <code>∫1/(quad)</code> part); (3) <strong>completing the square</strong> → <code>arctan</code>; (4) <strong>general partial fractions</strong> via <code>factor_linear_roots</code> → distinct-linear (cover-up <code>Aᵢ = P(rᵢ)/∏(rᵢ−rⱼ)</code>), repeated-linear (solve a linear system), or linear + irreducible-quadratic (numerically solve <code>n+2</code> unknowns). The linear systems use Gaussian elimination with partial pivoting at deterministic non-root sample points.</p>
+
+    <h2 id="special">9 · Special products &amp; functions</h2>
+    <h3>special_products.rb</h3>
+    <p>Three closed-form families the generic cascade can't finish; each formula was verified numerically <em>before</em> implementation, then every output is re-verified by §11.</p>
+    <div class="formula">∫ xⁿ e^(ax) sin(bx) dx   via   I(n,sin) = xⁿ·Eₛ − n[a·I(n−1,sin) − b·I(n−1,cos)]/(a²+b²)
+Eₛ = e^(ax)(a·sin bx − b·cos bx)/(a²+b²)        (a = 0 degenerates to the plain poly·trig recursion)</div>
+    <p>Plus mixed trig powers <code>sinᵐ cosⁿ</code> with one odd power (binomial u-sub closed form), and <code>xⁿ·sin²/cos²(cx)</code> via half-angle + family 1.</p>
+    <h3>special_functions.rb</h3>
+    <p>erf/Si/Ci/Ei/li/Fresnel are first-class nodes (§4 numerics, §5 derivatives), so non-elementary integrals become genuine, <em>verifiable</em> closed forms: <code>∫e^(−ax²) → erf</code>, <code>∫sin(ax)/x → Si</code>, <code>∫cos/x → Ci</code>, <code>∫e^(ax)/x → Ei</code>, <code>∫1/ln x → li</code>, <code>∫sin(x²) → FresnelS</code>, <code>∫eˣ ln x → eˣ ln x − Ei(x)</code>.</p>
+
+    <h2 id="norm">10 · Normalizer, Polynomial &amp; Simplify</h2>
+    <h3>normalizer.rb — canonicalization (non-mutating)</h3>
+    <p><code>normalize_expression</code> deep-clones, normalizes children, then applies a fixed pipeline: fold constants → canonical operand order (constant left) → negation (<code>0−x → −1·x</code>) → identity laws (<code>x+0</code>, <code>x·1</code>, <code>x/x→1</code>, <code>x^0→1</code>, …) → radicals (<code>√x → x^½</code>) → reciprocal powers (<code>f/xⁿ → f·x⁻ⁿ</code>) → combine power products (<code>xᵃ·xᵇ → x^(a+b)</code>) → polynomial term collection (for <code>+</code>/<code>-</code> roots, via <code>Polynomial</code>) → common-factor cancellation (for <code>/</code>, GCD, only on exact division).</p>
+    <h3>polynomial.rb</h3>
+    <p>Sparse <code>@coeffs = {degree =&gt; coefficient}</code> (zero polynomial = empty hash, <code>degree == -1</code>). Provides arithmetic, <code>divmod</code> (long division), Euclidean <code>gcd</code> (monic), <code>derivative</code>/<code>integral</code>, and root finding: <code>rational_roots</code> (rational-root theorem, root test at <code>|eval| &lt; 1e-10</code>), <code>factor_linear_roots</code> (divide out <code>(x−r)</code> with multiplicity), <code>discriminant</code>/<code>quadratic_roots</code>. <code>from_expression</code> returns <code>nil</code> for anything non-polynomial (transcendental, non-integer/negative power, non-constant denominator).</p>
+    <h3>simplification.rb</h3>
+    <p>A fixed-point pass rewriter: identity laws, constant folding, like-term collection, sign normalization, repeated until stable. <code>track_steps</code> records each rewrite for the Solution Steps panel and the live "polish" phase.</p>
+    <div class="card card-red">
+        <strong>A representative bug class.</strong> The <code>+</code> constant-folding branch set <code>node.left = node.right = nil</code> and <em>then</em> referenced <code>node.left.data</code> in the step message — a use-after-null that only fired when steps were tracked (which the server always does), crashing every <code>∫xⁿ</code>. The lesson: the harness must exercise the same path the server uses.
+    </div>
+
+    <div class="card card-red">
+        <strong>A second constant-folding bug, in the sibling branch.</strong> The <code>+</code> and <code>*</code> arms fold constants <em>inside</em> their <code>if/elsif</code> chain, so a fold runs only when no other rule fired. The <code>-</code> arm&rsquo;s fold sat outside the chain, as a trailing <code>if</code>. The rule <code>0 - x = -x</code> rewrites the node in place into <code>(-1) * x</code>, so for numeric <code>x</code> the trailing fold then saw two fresh numeric leaves and folded them with a <em>minus</em> that no longer matched the node&rsquo;s operator: <code>0 - 1</code> became <code>-2</code>.
+        <br><br>
+        Every <code>c / v</code> derivative runs the quotient rule, whose numerator is <code>0&middot;v - c&middot;v&prime;</code>. Whenever <code>v&prime;</code> collapsed to a constant the answer came out short by exactly one, so <code>d/dx(1/x)</code> returned <code>-2&middot;x&#8315;&sup2;</code> instead of <code>-1&middot;x&#8315;&sup2;</code>. The raw derivative was always right; the simplifier broke it afterwards. The fold is now guarded on <code>node.data == &#39;-&#39;</code>. Guarded by <code>probe_simplify_zero.rb</code> (41 checks, derivatives scored against a central difference).
+    </div>
+    <div class="card card-red">
+        <strong>A dropped coefficient, and a dropped parenthesis.</strong> Two more of the same family, found together.
+        <br><br>
+        <code>normalizer.rb</code>&rsquo;s <code>extract_var_power</code> returns a <code>[constant, exponent]</code> pair for a power of the variable. Both its recursive branches threw the inner constant away into an unused <code>_</code>: <code>1/(2&middot;x)</code> came back as <code>1&middot;x&#8315;&sup1;</code> instead of <code>0.5&middot;x&#8315;&sup1;</code>, and <code>-1&middot;(1/(2&middot;x<sup>0.5</sup>))</code> as <code>-1&middot;x&#8315;&#8304;&#183;&#8309;</code> instead of <code>-0.5&middot;x&#8315;&#8304;&#183;&#8309;</code>. That is a factor-of-k error in every <code>c/(k&middot;x&#8319;)</code> &mdash; precisely the shape the quotient rule emits. <code>1/(2x)&middot;x</code> simplified to <code>1</code> rather than <code>0.5</code>, and <code>d/dx(&radic;x/x)</code> simplified to <strong>0</strong>. It fired only under the experimental simplifier, which is the one the derivative, integral and vector-calculus endpoints all switch on.
+        <br><br>
+        <code>tree_visualizer.rb</code> printed the right operand of a minus without its parentheses, in both <code>to_readable_string</code> and <code>to_latex</code>: <code>a - (b + c)</code> rendered as <code>a - b + c</code>. The tree was correct and every numeric check passed, because the checks read the tree &mdash; but the formula on screen was a different function. Seven integration-by-parts results inside <code>headless_test.rb</code> had been displayed wrong this way while reporting &ldquo;verified 12/12&rdquo;; <code>&int;x&sup2;e&#8339;</code> showed a string that evaluates to &minus;10.68 where the answer is 3.9995. Fixing the printer changed those seven lines of expected output and nothing else in the suite.
+        <br><br>
+        Guarded by <code>probe_display_roundtrip.rb</code> (47 checks): simplification must not change a value, the engine must read back the glyphs it writes, and a printed derivative retyped into the parser must evaluate to the number it came from.
+    </div>
+    <div class="card card-green">
+        <strong>A rewrite that checks itself.</strong> The collectors above are polynomial-shaped &mdash; they go through <code>Polynomial.from_expression</code>, which returns <code>nil</code> for anything transcendental &mdash; and the two general rules that did fire (<code>x + x = 2x</code>, <code>x &minus; x = 0</code>) demand an exact node match, so any explicit coefficient defeated them. <code>e&#8339;&middot;cos y + (&minus;1)&middot;e&#8339;&middot;cos y</code> stayed on screen as a sum whose terms cancel, which is how the Laplacian of a harmonic function came out correct but visibly unfinished.
+        <br><br>
+        <code>collect_like_terms_general</code> takes a whole <code>+</code>/<code>&minus;</code> chain at once: it flattens the chain (the right operand of a minus flipping sign), splits each term into a numeric coefficient and a multiset of factors, keys the term on the <em>sorted</em> factor list so <code>a&middot;b</code> and <code>b&middot;a</code> agree, sums the coefficients and rebuilds. <code>&nabla;&sup2;(e&#8339;cos y)</code>, <code>&nabla;&sup2;(e&#178;&#8339;cos 2y)</code> and <code>&nabla;&sup2;(x&sup2;&minus;y&sup2;)</code> now all print <code>0</code>.
+        <br><br>
+        <strong>It refuses to apply itself unless it can show the value is unchanged.</strong> Two of the bugs documented above were rewrites that silently altered an expression, and this one is more aggressive than either, so before replacing anything it evaluates the old and new subtrees at several sample points and abandons the rewrite on any disagreement (points where either side is non-finite prove nothing and are skipped, but at least one usable comparison is required). The probe tests the guard in both directions &mdash; that a correct collection is accepted <em>and</em> that one with a deliberately wrong coefficient is rejected &mdash; because a guard that only ever says yes is not a guard.
+    </div>
+    <div class="card card-red">
+        <strong>A hang, found by fuzzing rather than by guessing.</strong> <code>Polynomial#divmod</code> is Euclidean long division: each step is meant to cancel the remainder&rsquo;s leading term exactly. <code>Polynomial#initialize</code> prunes a coefficient only when it is <em>exactly</em> <code>0.0</code>, and in floating point that cancellation routinely leaves a residue around 1e&minus;16 instead. The remainder&rsquo;s degree therefore never dropped, the loop never exited, and <code>Polynomial#gcd</code> &mdash; reached from <code>normalizer.rb</code>&rsquo;s <code>cancel_common_factors</code> &mdash; spun forever. Simplifying <code>12.25 / (y &minus; 2)</code> hung the engine outright; in the browser build that is a frozen tab rather than an error message. Neighbouring inputs like <code>12 / (y &minus; 2)</code> and <code>3.5 / (y &minus; 2)</code> were fine, which is why no example-based test ever met it.
+        <br><br>
+        <code>divmod</code> now compares the degree before and after each step. A residue that is negligible against the rest of the polynomial is rounding and is discarded so the degree strictly decreases; a residue large enough to be real means the step did not divide as intended, and the loop stops rather than spinning. Termination no longer depends on exact float cancellation.
+        <br><br>
+        <strong>How it was found matters more than the fix.</strong> <code>probe_simplify_fuzz.rb</code> generates random expressions from a fixed seed, simplifies each under a per-expression timeout, and demands that the value at three sample points is unchanged. It currently clears <strong>5 585 expressions in about four seconds</strong> with no value change, no exception and no timeout. Three separate value-changing rewrites and this hang had all survived the example-based suites; a property that must hold for <em>every</em> expression finds the next one without anyone having to guess where it will be.
+    </div>
+    <h2 id="verify">11 · Verification — the honesty layer</h2>
+    <p>After integration, <code>verify_integral(integrand, result, variable, n_points: 15)</code> checks the result <em>against independent numerics</em>, never against the engine's own reasoning:</p>
+    <div class="formula">for 15 sample points x:   F'(x) ≈ (F(x+h) − F(x−h)) / 2h   must match the integrand f(x)
+accept a point if relative error &lt; 1%   ·   accept the result if ≥ 90% of points pass</div>
+    <p>Tolerance was tightened 5%→1% and threshold 80%→90% after the looser bounds accepted ~3%-wrong answers. The same dF/dx==f principle verifies special-function results; an analogous "compute it two ways and compare" verifies every field theorem and transport identity (§14). <strong>Principle:</strong> a proof the engine generates is trusted only once an oracle it did not write agrees.</p>
+
+
+    <div class="card card-red">
+        <strong>A check whose outcome nobody sees is not a check.</strong> This verification has run on every experimental integration since it was written, and its verdict went nowhere. <code>integrate_experimental</code> snapshotted the debug log one line <em>before</em> the verify block appended its entry, so <code>[Verify] Verified at 15/15 points</code> never reached the result object. The only way to see it was to switch on Strategy View, which reaches the same conclusion by a different route through <code>integration_tracer.rb</code>. The engine was marking its own homework and then filing the mark in a bin.
+        <br><br>
+        The snapshot now happens after verification, and the verdict is carried as a first-class field rather than a log line, so both transports hand it to the client and it appears as a badge <em>beside the antiderivative</em>. The absence of a badge is meaningful too: when the result still holds an unevaluated integral marker there is nothing to differentiate, so no check is attempted and none is claimed. Guarded by <code>probe_integrate_verdict.rb</code> (14 checks), which asserts both the presence of the verdict on solved integrals and its absence on <code>x^x</code>.
+    </div>
+    <h2 id="series">12 · Series — Taylor / Laurent / Padé</h2>
+    <p><strong>Taylor:</strong> coefficients <code>f⁽ⁿ⁾(c)/n!</code> from successive <em>symbolic</em> derivatives at the center, rendered as exact rationals when one matches to 1e-9. <strong>Laurent</strong> <span class="tag tag-yellow">EXPERIMENTAL</span>: a pole of order m is detected numerically, the principal part recovered by symbolically simplifying <code>(x−c)ᵐ·f</code> so the pole cancels exactly (evaluating the uncancelled form near a pole is catastrophically ill-conditioned); unstable coefficients truncate the series honestly. <strong>Inaccuracy</strong> bounded by the Lagrange remainder <code>|R| ≤ M·|x−c|ⁿ⁺¹/(n+1)!</code>, M sampled on <code>[c−½, c+½]</code>. (The old <code>taylor_series.rb</code> is demo scaffolding; the real engine is <code>series_expansion.rb</code>.)</p>
+    <h3>Padé approximants (<code>pade.rb</code>)</h3>
+    <p>A Taylor polynomial is blind to poles — it diverges outside the circle through the nearest singularity. The <strong>[L/M] Padé approximant</strong> <code>P(u)/Q(u)</code> matches the Taylor series through order L+M but its <em>denominator puts the poles back</em>: the M×M Toeplitz system <code>Σ c_{k−j} q_j = −c_k</code> (Gaussian elimination, partial pivoting) fixes Q, and the numerator follows by convolution. <code>[3/3]</code> of <code>tan x</code> is <code>(x − x³/15)/(1 − 2x²/5)</code> with a Q-root at √(5/2) = 1.5811 — within 0.7% of π/2 — and keeps tracking far beyond the Taylor radius (<code>ln(1+x)</code> at x=3: Padé 1.3636 vs truth 1.3863, while Taylor-4 gives −12.75). For rational f the table <em>closes</em>: the approximant is exact and reported as such.</p>
+    <div class="card card-yellow">
+        <strong>Spurious poles, flagged.</strong> Finite Padé tables can produce <em>Froissart doublets</em> — poles of Q where f is perfectly finite. Every real Q-root is therefore tested against f itself (does |f| actually blow up in a neighbourhood scaled to the pole-location error?); artifacts are labelled SPURIOUS in the UI rather than hidden. Verification: defining-relation residuals + numeric agreement with f near the center and across the window. 34/34 probe cases (amplitude-invariant pole tests and distant-pole root-finding hardened by an adversarial review pass). Fixing the Taylor-coefficient pipeline also uncovered and fixed a derivative-core bug: repeated differentiation accumulated <code>((n−1)−1)…</code> exponent subtrees until <code>0·x⁻¹ = 0·∞ = NaN</code>; exponents are now folded at derivative time (§5).
+    </div>
+
+    <h2 id="residue">13 · Residue theorem</h2>
+    <div class="card card-cyan">
+        <strong>Why not every definite integral?</strong> The residue theorem computes <em>contour</em> integrals. To use it on a real integral you must embed that integral in a closed loop whose remaining part you can evaluate. <code>∫₀¹ x² dx</code> admits no such loop — [0,1] is not a cycle and nothing closes it — so this is a structural limit, not a missing feature. Two shapes do close: an infinite interval (a semicircle at infinity, whose contribution vanishes when <code>deg Q ≥ deg P + 2</code>) and <strong>a full period [0, 2π]</strong>, which closes into the unit circle. The remaining classical families — Fourier-type via Jordan's lemma, and keyhole contours for branch cuts — are not implemented.
+    </div>
+    <h3>Type 1 — improper rational integrals</h3>
+    <p>Improper integrals of rational <code>P/Q</code> with <code>deg Q ≥ deg P + 2</code> over <code>(−∞,∞)</code> (and even integrands over <code>(0,∞)</code>) by contour integration: <code>∫ = 2πi · Σ Res</code> (upper half-plane). Procedure: extract <code>Polynomial</code>s → find roots (quadratic formula → rational-root factoring → Durand-Kerner for any remaining degree ≥ 3) → <strong>real-axis guard</strong> → select upper-half poles → compute residues → sum → <code>2πi·Σ</code>.</p>
+    <div class="card card-green">
+        <strong>Three correctness fixes</strong> (found by a 16-case headless battery before de-experimentalizing):
+        <ul>
+            <li><strong>Real-axis poles:</strong> a pole on the contour means the integral diverges / is principal-value only. The guard now declines if <em>any</em> pole is on the real axis (it previously declined only when <em>all</em> were, so <code>1/(x³+1)</code> returned a bogus finite number).</li>
+            <li><strong>Repeated poles:</strong> simple poles use <code>Res = P(z₀)/Q'(z₀)</code>; order-m poles use <code>(1/2πi)∮f dz</code> on a small circle (trapezoid is spectrally accurate). The radius was a tiny <code>1e-5</code> that bled precision (<code>1/(x²+1)²</code> was 0.5% off); it now adapts to <code>0.3 ×</code> the nearest other pole — exact.</li>
+            <li><strong>Sextics+:</strong> root dispatch only routed degree 2 and 4 to the numerical finder; all degree ≥ 3 now go to Durand-Kerner, so <code>1/(x⁶+1)</code>, <code>1/(x⁸+1)</code> work.</li>
+        </ul>
+        16/16 closed forms exact, 4/4 inapplicable cases declined.
+    </div>
+    <h3>Type 2 — trigonometric integrals over a full period <span class="tag tag-cyan">NEW</span></h3>
+    <p>A <em>finite</em> interval that works, because it closes. Substituting <code>z = e^{iθ}</code> walks the unit circle exactly once, turning a rational function of sin and cos into a rational function of z:</p>
+    <div class="formula">cos θ = (z + 1/z)/2      sin θ = (z − 1/z)/(2i)      dθ = dz/(iz)
+
+∫₀^2π R(cos θ, sin θ) dθ  =  ∮|z|=1 R(…) · dz/(iz)  =  2πi · Σ Res inside |z| &lt; 1</div>
+    <p>The integrand is converted to a numerator/denominator pair of <strong>complex</strong> polynomials by walking the AST (<code>polynomial.rb</code> is real-only, so this uses a small local complex-coefficient helper), roots come from a complex Durand-Kerner, and residues use <code>N/Q′</code> for simple poles or a small numerical contour for higher order — <code>1/(2+cos θ)²</code> exercises the double-pole path. Verified examples: <code>∫₀^2π dθ/(a + cos θ) = 2π/√(a²−1)</code>, <code>∫₀^2π dθ/(5 − 4cos θ) = 2π/3</code>, <code>∫₀^2π dθ/(1 + sin²θ) = π√2</code>, <code>∫₀^2π cos⁴θ dθ = 3π/4</code>.</p>
+    <div class="card card-green">
+        <strong>Refusals and the oracle.</strong> A pole <em>on</em> the unit circle means the integral diverges or is principal-value only — <code>1/(1 + cos θ)</code> is declined, mirroring the real-axis guard of Type 1. Integrands that are not rational in sin/cos (<code>exp(cos θ)</code>, a bare <code>θ</code>, or <code>cos(2θ)</code> whose argument is not the bare variable) are refused rather than approximated. Every accepted result is then checked against <strong>periodic trapezoid quadrature</strong>, which converges <em>exponentially</em> for smooth periodic integrands and so is an unusually sharp oracle; a disagreement above 1e−6 relative causes the contour result to be withdrawn. 23/23 probe cases.
+    </div>
+    <div class="card card-red">
+        <strong>A bug this feature exposed.</strong> Both transports parsed integration bounds with <code>String#to_f</code>, so <code>"2*pi"</code> silently became <code>2.0</code> and <code>"pi"</code> became <code>0.0</code> — the engine integrated over the wrong interval and reported the answer as if it were the requested one. Harmless-looking until <code>[0, 2π]</code> became a meaningful interval. Bounds now go through the engine's own parser (which substitutes π at lex time), so <code>2*pi</code>, <code>pi/2</code> and <code>2*pi/3</code> all work; <code>∫₀^π sin x</code> now returns 2 rather than 0.
+    </div>
+
+    <h2 id="vector">14 · Vector calculus &amp; transport</h2>
+
+    <h3>∇ Grad · Div · Curl · Laplacian — one driver, exact partials <span class="tag tag-cyan">proven</span></h3>
+    <p>Not numeric and not experimental: every component is an <em>exact symbolic derivative</em> from the same code path as the Derivative button (§5). One module, <code>vector_field_ops.rb</code>, serves both transports — the Sinatra route and the in-browser wasm dispatcher call it identically, so the two cannot drift apart.</p>
+
+    <p><strong>The design is the signatures.</strong> Two operators consume a scalar and two consume a whole vector field, and the dialog asks for whichever the operator actually takes:</p>
+    <table>
+        <tr><th>Operator</th><th>Takes</th><th>Returns</th><th>Dimensions</th></tr>
+        <tr><td><code>∇f</code> gradient</td><td>scalar</td><td>vector, <em>n</em> components</td><td>any <em>n</em></td></tr>
+        <tr><td><code>∇·F</code> divergence</td><td><strong>vector</strong>, <em>n</em> components</td><td>scalar</td><td>any <em>n</em></td></tr>
+        <tr><td><code>∇×F</code> curl</td><td><strong>vector</strong>, <em>n</em> components</td><td>vector in 3D; <strong>scalar</strong> in 2D</td><td><em>n</em> = 2 or 3 <strong>only</strong></td></tr>
+        <tr><td><code>∇²f</code> Laplacian</td><td>scalar</td><td>scalar</td><td>any <em>n</em></td></tr>
+    </table>
+
+    <div class="card card-red">
+        <strong>The mistake this replaced.</strong> An earlier build tried to save the user from typing a vector field: for curl and divergence it defaulted <code>F</code> to <code>∇f</code>, taken from the input bar. That is not a shortcut, it is a different operator — <code>∇·(∇f)</code> is the <em>Laplacian</em>. Asking for a divergence and being handed a Laplacian is a correct answer to a question nobody posed, which is only marginally better than a wrong one. The Laplacian is now its own mode, and <code>F</code> is always exactly the field that is on screen. The convenience survives as an explicit <em>fill from ∇f</em> button, which writes the gradient's components <em>into the boxes</em> where they can be seen and edited — so the identities are still one click away, but nothing is substituted behind the user's back:
+        <div class="formula">fill from ∇f, then ∇×F   →  (0, 0, 0)     curl of a gradient, always
+fill from ∇f, then ∇·F   →  ∇²f          which is what the Laplacian mode computes directly</div>
+    </div>
+
+    <p><strong>Dimension is a slider, and it gates the menu.</strong> Grad, div and the Laplacian are defined for every <em>n</em>; at <em>n</em> = 1 they degenerate to <code>f′</code>, <code>F′</code> and <code>f″</code>, which the engine computes and labels rather than forbidding — watching the general formula collapse to the familiar one is the point. Curl is the sole exception, and for a structural reason rather than an implementation limit. The curl is the antisymmetric part of the derivative, which has <strong>n(n−1)/2</strong> independent components:</p>
+    <div class="formula">n = 1 →  0 components   nothing for a curl to be
+n = 2 →  1 component    a SCALAR:  ∂F_y/∂x − ∂F_x/∂y
+n = 3 →  3 components   a vector  ← the coincidence that makes ∇×F a vector at all
+n = 4 →  6 components   a bivector, not a vector
+n = 5 → 10 components</div>
+    <p>Only at <em>n</em> = 3 does the component count coincide with the dimension, which is the entire reason the cross product and the curl exist in their familiar form. So the dialog offers curl at <em>n</em> = 2 and <em>n</em> = 3 and <strong>disables it everywhere else, naming the count it would have had</strong>; if the dimension changes out from under a selected curl, the menu falls back rather than computing something that is not one. Fabricating a 4-component "curl" would be exactly the failure mode the rest of the engine exists to avoid.</p>
+
+    <p><strong>What it refuses, and why.</strong> Each of these would otherwise produce a confident wrong number. An axis named <code>pi</code>, <code>e</code>, or any function name is refused: the parser substitutes those textually before a variable lookup can happen (§3), so <code>∂/∂e</code> would come back as <code>0</code> and the echoed input would read <code>2.718^2</code>. A repeated axis name is refused: two slots called <code>x</code> are not two dimensions, and <code>∇·F</code> over <code>[x, x]</code> would add <code>∂F/∂x</code> to itself and report twice the true divergence. A vector mode with a missing or mis-counted component is refused rather than padded. And the dialog caps at six axes — stated up front, never silently truncated.</p>
+
+    <h3>&#8750;&#8751;&#8752; The transport tools</h3>
+    <p>The rest of &sect;14 sits under the "Field Theorems &amp; Moving Domains" launcher, is <span class="tag tag-yellow">numeric</span>, and shares one doctrine: <strong>compute the quantity two independent ways and show they agree.</strong> Tangents, curls and divergences inside them are the same <em>symbolic</em> partials as above (&sect;5); region/domain integrals use Monte-Carlo with point-in-polygon / inside tests; the parameter integral uses Simpson.</p>
+    <table>
+        <tr><th>Tool</th><th>Direct</th><th>Theorem cross-check</th></tr>
+        <tr><td>Line integral (2D)</td><td>work <code>∮ P dx + Q dy</code> / flux <code>∮ P dy − Q dx</code> / arc-length</td><td>Green &amp; divergence over the enclosed region (MC).</td></tr>
+        <tr><td>Surface (3D)</td><td>scalar <code>∬ f dS</code> / flux <code>∬ F·dS</code>, symbolic <code>r_u × r_v</code></td><td>Stokes: boundary <code>∮ F·dr</code> vs flux of curl. Gauss: surface flux vs MC volume integral of div.</td></tr>
+        <tr><td>Leibniz 1D/2D/3D, Reynolds</td><td>numeric <code>d/dt ∫_Ω f</code> over a deforming interval / ellipse / ellipsoid / sphere</td><td>bulk <code>∫_Ω ∂f/∂t</code> + boundary motion (flow-map).</td></tr>
+    </table>
+    <p>The transport tools use the <strong>flow-map identity</strong>: a fixed unit ball B is mapped by <code>φ_t(u) = c(t) + A(t)u</code>, so the boundary-motion term comes from symbolic <code>det(A)'</code>, <code>∇f</code>, <code>φ'</code> over B — no surface quadrature. The LHS is an independent central difference of <code>I(t)</code> using common-random-number Monte Carlo (the same samples rescaled at <code>t±h</code>).</p>
+    <div class="formula">I(t) = det A(t) · ∫_B f(φ_t(u), t) du
+d/dt I = det A · ∫_B ∂f/∂t du   +   (det A)' ∫_B f du + det A ∫_B ∇f·φ' du
+         └─ bulk = ∫_Ω ∂f/∂t ──┘   └──────── boundary motion = ∮/∬_∂Ω f (v_b·n) ────────┘</div>
+
+    <h2 id="lebesgue">15 · Lebesgue &amp; complex / quaternion</h2>
+    <p><strong>Lebesgue</strong> <span class="tag tag-yellow">EXPERIMENTAL</span> (<code>lebesgue.rb</code>): the genuine layer-cake construction (range partition), <code>∫f dμ = ∫₀^∞ μ({f &gt; t}) dt</code> with <code>f = f⁺ − f⁻</code>, level-set measures on a grid, cross-checked against Simpson. <strong>Complex/Euler</strong> (<code>complex_operations.rb</code>): <code>to_complex_form</code> rewrites trig/hyperbolic into <code>e^(ix)</code> form (imaginary units as string leaves). <strong>Quaternions:</strong> <code>i, j, k</code> are opaque symbolic constants worked componentwise through differentiation/integration; full non-commutative algebra is intentionally unsupported (the simplifier reorders products, which would corrupt signs).</p>
+
+    <h2 id="tracer">16 · Tracer, strategy reporter &amp; web/frontend</h2>
+    <p><strong><code>integration_tracer.rb</code></strong> records a thread-local decision tree of <code>TraceNode</code>s (<code>trace_technique</code> wraps each attempt; all top-level attempts hang off one synthetic <code>∫ solve</code> root) and renders it as an ASCII tree, Mermaid flowchart, or complexity×depth scatter; <code>integrate_verbose</code> drives the live "strategy view." <strong><code>strategy_reporter.rb</code></strong> is a lighter flat logger with a <code>suggest_technique</code> heuristic recommender.</p>
+    <p><strong>Web:</strong> a Sinatra server (<code>web_server.rb</code>, port 4567) stores parsed expressions by id and exposes one endpoint per operation; <code>wasm_dispatch.rb</code> mirrors all 16 routes for the in-browser ruby.wasm build. <strong>Frontend:</strong> dependency-free vanilla JS — <code>mathHtml</code> syntax-highlights math (functions, numbers, the variable, <code>i/j/k</code>, depth-cycled parentheses), and 3D is software-projected on a 2D canvas (depth-sorted Lambert-shaded quads, rAF-batched, drag to rotate). A result still containing <code>integral</code> turns the panel red with a FAILED badge.</p>
+
+    <h2 id="sindy">17 · Equation discovery — SINDy</h2>
+    <p>Every other operation here runs <em>forwards</em>: given an expression, produce a derivative, an integral, a series. <code>sindy.rb</code> runs the engine <em>backwards</em> — given only a trajectory, recover the differential equation that produced it. The method is <strong>Sparse Identification of Nonlinear Dynamics</strong> (Brunton, Proctor &amp; Kutz, PNAS 2016).</p>
+    <div class="formula">Ẋ = Θ(X) · Ξ        Θ = library of candidate terms   ·   Ξ = coefficients, forced SPARSE</div>
+    <p>Θ(X) holds every candidate evaluated along the trajectory — monomials up to a chosen total degree, optionally <code>sin</code>/<code>cos</code> of each variable. Ξ is found by <strong>STLSQ</strong>: solve the least-squares problem, zero every coefficient below λ, re-solve on the survivors, repeat to convergence. Sparsity is the prior that turns a mere fit into a candidate <em>physical law</em> — a dense Ξ would interpolate the data equally well and mean nothing.</p>
+    <h3>Pipeline</h3>
+    <ul>
+        <li><strong>Truth is the engine's own.</strong> Each preset system is a set of ordinary expression strings parsed by <code>MathematicalExpression</code>, integrated with RK4. A user-supplied ODE therefore works exactly like a preset — you can type any autonomous system and watch it get rediscovered.</li>
+        <li><strong>Derivatives.</strong> The estimate of <code>Ẋ</code> is the accuracy bottleneck. On clean data the <strong>4th-order 5-point stencil</strong> (O(dt⁴)) is used, which is what lets coefficients come back at full precision; with noise the code switches to a <strong>Savitzky-Golay</strong> window (quadratic fit, widened with the noise level), which smooths and differentiates in one pass.</li>
+        <li><strong>Regression.</strong> Normal equations with a scale-relative ridge (1e-12·max diagonal) and Gaussian elimination with partial pivoting.</li>
+    </ul>
+    <h3>Verification — and a chaos caveat</h3>
+    <p>The discovered model is judged only by oracles the regression never saw:</p>
+    <ol>
+        <li><strong>Vector-field agreement</strong> — <code>‖f_disc(X) − f_true(X)‖ / ‖f_true(X)‖</code> at every sampled state. This carries the verdict.</li>
+        <li><strong>Re-simulation</strong> — RK4-integrate the <em>discovered</em> model from the same initial condition and compare trajectories.</li>
+    </ol>
+    <div class="card card-yellow">
+        <strong>Why the trajectory check cannot carry the verdict.</strong> For a chaotic system (Lorenz) two nearby trajectories separate exponentially <em>even when the model is exactly right</em>. Scoring long-horizon trajectory error would therefore condemn a perfect model. So the re-simulation is scored over roughly one Lyapunov time and reported as corroboration only, with the divergence labelled as genuine physics rather than model error. Reporting it any other way would be precisely the sort of confidently-wrong result the rest of the engine refuses to emit.
+    </div>
+    <h3>Measured results</h3>
+    <table>
+        <tr><th>System</th><th>Recovered</th><th>Vector-field error</th></tr>
+        <tr><td>Lorenz (chaotic)</td><td><code>−10x + 10y</code>, <code>28x − y − xz</code>, <code>−2.6667z + xy</code></td><td>8.8e−07 — exact, incl. −8/3</td></tr>
+        <tr><td>Van der Pol</td><td><code>y</code>, <code>−x + 2y − 2x²y</code></td><td>2.9e−08</td></tr>
+        <tr><td>Damped pendulum</td><td><code>y</code>, <code>−0.2y − sin(x)</code></td><td>3.5e−10</td></tr>
+        <tr><td>Linear / cubic oscillator</td><td>both recovered</td><td>6.7e−09 / 4.8e−06</td></tr>
+        <tr><td>Custom <code>−9.8·sin(x) − 0.3y</code></td><td>recovered exactly</td><td>3.6e−08</td></tr>
+        <tr><td>Pendulum, 1% noise</td><td>structure still exact</td><td>2.3e−04</td></tr>
+    </table>
+    <div class="card card-green">
+        <strong>The honesty test.</strong> Remove <code>sin</code> from the library and ask it to find the pendulum. The truth is now outside the span of Θ, and the regression happily returns a dense polynomial fit — so the verifier must catch it. It does: vector-field error 0.107, verdict <strong>FAILED</strong>, and the three fabricated terms are flagged <em>spurious</em> in the coefficient table. The engine reports that it could not find the law rather than presenting a plausible-looking equation. This case is in the probe suite (11/11) precisely to keep that behaviour honest.
+    </div>
+    <p class="muted-note">Cost: ~0.3 s natively; ~8 s under ruby.wasm on the Pages build, dominated by tree-walking the right-hand side through ~30 000 RK4 evaluations. Resolution was kept (rather than traded for speed) because lowering it costs the exact-recovery result.</p>
+
+    <div class="card card-green">
+        <strong>What you should see.</strong> The engine hides a system's equations from itself and then has to find them again.
+        <br><br>
+        <strong>Run Lorenz at zero noise.</strong> Out of a 10-term library and 30 candidate coefficients, exactly <strong>7 come back non-zero</strong>, and they are the right 7:
+        <div class="formula">dx/dt = −10.0·x + 10.0·y
+dy/dt =  27.9999·x − 1.0·y − 1.0·x·z
+dz/dt = −2.6667·z + 1.0·x·y</div>
+        including both quadratic couplings and <strong>−8/3 = −2.6667</strong>, with a vector-field relative error of <strong>8.8×10⁻⁷</strong>. Nothing spurious survives.
+        <br><br>
+        <strong>Then turn λ down to zero</strong> and watch the point of the whole method. With thresholding off, the regression returns <strong>30 of 30</strong> non-zero coefficients and a vector-field error of 1.4×10⁻⁶ — a <em>better</em> fit than the sparse one, and not a law. Every extra term is fitting noise in the derivative estimate. Sparsity is not a tidiness preference; it is the prior that separates a model from a curve fit. Push the noise slider instead and the structure survives to about 0.1% (coefficients within 1%), then breaks: by 1% a spurious constant slips past the threshold and <code>structure_match</code> flips to false.
+        <br><br>
+        <strong>What honest failure looks like — the test worth running.</strong> Ask for the damped pendulum but <em>uncheck the trig library</em>. The truth is <code>ẏ = −sin(x) − 0.2y</code>, and sin(x) is now outside the span of the candidates, so no correct answer exists. The regression does not refuse — it cheerfully returns a dense, plausible-looking polynomial: <code>ẏ = −0.0537 − 0.7875x − 0.1876y + 0.1283x²</code>. What the tool does is mark each term against the truth: three of them flagged <strong>spurious</strong>, the verdict <strong>FAILED</strong>. That is the difference between a regression and a discovery tool — the regression always answers, and the oracle is what makes the answer mean something.
+    </div>
+
+    <h2 id="certified">18 · Conditional interval bounds</h2>
+    <p><code>evaluate_interval</code> walks the same expression tree as ordinary evaluation, carrying <code>[lo, hi]</code> through each operation. Basic floating-point operations widen outward using adjacent representable values. Library transcendental results widen by two ULPs. <strong>That last step assumes a bound on the platform math library’s error; it is not independently certified for every input or platform.</strong> The UI therefore calls these conditional interval bounds. Exact rational and algebraic checks are a separate capability.</p>
+    <ul>
+        <li><strong>Range enclosure.</strong> Repeated variables introduce dependency overestimation: <code>x − x</code> on [0,1] gives [−1,1] when the two occurrences are treated independently. Subdivision narrows that excess. Division by an interval containing zero returns an unbounded interval.</li>
+        <li><strong>Global-minimum bounds.</strong> A 1D/2D branch-and-bound search discards a box when its interval lower bound exceeds the best available upper bound. Surviving boxes may contain a minimizer; they are not each a proven unique root. Narrow dips can survive even when point samples miss them. A finite search budget can leave a wide gap.</li>
+        <li><strong>Integral brackets.</strong> Adaptive Darboux-style sums accumulate segment width times a function enclosure. They give a conditional bracket rather than just a point estimate. The independent Simpson estimate is a regression check, not a proof of the library assumption.</li>
+    </ul>
+    <div class="card card-green"><strong>What is checked.</strong> Dense samples test range containment and global-minimum lower bounds; integral probes compare against known results and independent quadrature. These checks catch implementation errors. They do not establish a uniform bound on every transcendental-library call. Unsupported functions, unbound variables and invalid domains are refused; unbounded answers remain visibly uninformative.</div>
+    <div class="card card-green"><strong>Try the dependency example.</strong> For <code>x² − x</code> on [0,1], the one-box interval is about [−1,1]. Thirty-two subdivisions narrow it to about [−0.28125,0.03125], containing the true range [−0.25,0]. Then try the narrow Gaussian dip: compare the plotted samples with the region retained by interval subdivision. Wide bounds and unsupported cases are useful diagnostics, too.</div>
+
+    <h2 id="gr">19 · General relativity — metric → curvature</h2>
+    <p><code>general_relativity.rb</code>: give a diagonal metric with symbolic parameters and the engine derives Christoffel symbols <code>Γ^λ_{μν} = (∂_μ g_λν + ∂_ν g_λμ − ∂_λ g_μν)/(2g_λλ)</code>, the Riemann tensor, and Ricci by contraction — every derivative the engine's own symbolic <code>derivative</code>, composed through <code>to_infix</code> round-trips so <code>M</code> and <code>H</code> stay symbolic in the displayed symbols (Γ<sup>t</sup><sub>tr</sub> = M/(r(r−2M)), …). Signature (−+++), MTW conventions.</p>
+    <p><strong>The oracles</strong> (all numeric, all independent of the construction):</p>
+    <table>
+        <tr><th>Check</th><th>What it proves</th><th>Measured</th></tr>
+        <tr><td>Schwarzschild Ricci ≡ 0</td><td>vacuum — one wrong sign or index anywhere and it fails</td><td>max |R<sub>μν</sub>| &lt; 1e−7 over random points</td></tr>
+        <tr><td>Kretschmann = 48M²/r⁶</td><td>a NONZERO closed form: "everything is zero" cannot fake it</td><td>rel. dev &lt; 1e−6</td></tr>
+        <tr><td>de Sitter R<sub>μν</sub> = 3H²g<sub>μν</sub></td><td>solves the Λ-vacuum equation; the <em>sign</em> pins the convention</td><td>dev &lt; 1e−7·3H²</td></tr>
+        <tr><td>Riemann identities + first Bianchi</td><td>antisymmetries, pair symmetry, cyclicity — numeric, scaled to the summed terms</td><td>&lt; 1e−9</td></tr>
+        <tr><td>Geodesic conservation</td><td>E, L, 4-velocity norm along an orbit run on the COMPUTED Γ</td><td>drift ~1e−8</td></tr>
+    </table>
+    <p><strong>The rosette.</strong> A bound orbit (default r<sub>p</sub>=40M, r<sub>a</sub>=60M) is integrated by RK4 directly on the computed connection: <code>ẍ^μ = −Γ^μ_{αβ} ẋ^α ẋ^β</code>. The ellipse's axis visibly swings each pass; the measured perihelion advance (24.86°/orbit) is compared against <code>6πM/ℓ</code> (22.5°) — first-order PN, so the ~10% gap at this field strength is expected and labelled corroboration, not the verdict. Plugging Mercury's real numbers into the same verified formula gives <strong>42.98″/century</strong> — the famous 43.</p>
+    <p class="muted-note">Scope: diagonal metrics (Schwarzschild, de Sitter, FLRW-family, custom). Kerr's t–φ cross term needs a 2×2 block inverse and much heavier simplification — out of scope this pass. Custom metrics get the structural identities only, and the verdict says so. 36/36 probe cases; an adversarial review pass added the honesty regressions (tiny-M Christoffels not pruned, H=0 de Sitter, unbound-symbol refusal, PN mismatch as corroboration rather than verdict).</p>
+
+    <div class="card card-green">
+        <strong>What you should see.</strong> A metric goes in and curvature comes out, with the mass left as a symbol.
+        <br><br>
+        <strong>Run the Schwarzschild preset.</strong> Nine non-zero Christoffel symbols appear with <strong>M still symbolic</strong> — not evaluated at some fiducial mass, but carried through as an unknown, which is what makes them checkable against a textbook. Spot-checked at M = 1, r = 5, θ = 1.1, every one matches its closed form to machine precision: Γ<sup>t</sup><sub>tr</sub> = 0.0666666667 against M/(r(r−2M)); Γ<sup>r</sup><sub>tt</sub> = 0.024 against M(r−2M)/r³; Γ<sup>r</sup><sub>θθ</sub> = −3 against −(r−2M); Γ<sup>θ</sup><sub>φφ</sub> = −0.4042482 against −sinθcosθ. This is the one place the connection <em>itself</em> is checked component by component rather than through a downstream contraction.
+        <br><br>
+        <strong>Read the verdicts in order of strength.</strong> All ten Ricci components vanish — a vacuum. Then the one that matters: <strong>Kretschmann = 48M²/r⁶</strong> to better than 10⁻¹⁴. Ricci = 0 alone is a weak test, because a bug that zeroes everything passes it; a <em>nonzero</em> closed form cannot be faked that way, and the payload says exactly that. The four Riemann index identities hold to 10⁻¹⁴ — but those are structural self-consistency, not an external oracle, and the report distinguishes them.
+        <br><br>
+        <strong>Then fly the orbit.</strong> RK4 runs on the computed connection, not on a textbook formula, and energy, angular momentum and the 4-velocity norm drift by 10⁻¹⁴, 2×10⁻¹³ and 2×10⁻¹⁴ over four orbits — conservation laws holding on symbols the engine derived itself. The rosette advances <strong>24.86° per orbit</strong> against a first-order post-Newtonian 6πM/ℓ of 22.5°. That is 10.5% apart, and it is <em>not</em> an error: at r ≈ 40–60M the first-order PN formula genuinely under-predicts. The payload labels it <em>corroboration, not the verdict</em>, which is the honest reading. Mercury, where the expansion is valid, gives <strong>42.98″/century</strong>.
+        <br><br>
+        <strong>What honest failure looks like.</strong> Supply a custom diagonal metric and no closed-form oracle exists, so only the structural identities run — and the verdict says so rather than borrowing confidence from the presets. Kerr is out of reach entirely: its t–φ cross term needs a 2×2 block inverse the diagonal machinery does not have.
+    </div>
+
+    <h2 id="exact">20 · Exact arithmetic (ℚ, ℚ(α)) — the gate</h2>
+    <p>Sections 18 and 19 pushed on <em>verification</em>. This one pushes on the constraint underneath everything: <strong>the float-only numeric core</strong> (§3). <code>exact_arithmetic.rb</code> adds a third evaluator beside the two we had, on the same AST. They are not competing implementations — they answer three different questions, and the UI colour-codes them from data the engine itself tags:</p>
+    <table>
+        <tr><th>Evaluator</th><th>Colour</th><th>Answers</th><th>Cost</th></tr>
+        <tr><td><code>evaluate</code> (float)</td><td><span style="color:var(--yellow);">amber</span></td><td><strong>always</strong>, never refuses</td><td>silently approximate: <code>0.1+0.2 → 0.30000000000000004</code></td></tr>
+        <tr><td><code>evaluate_interval</code> (interval bounds, §18)</td><td><span style="color:var(--green);">green</span></td><td>conditional enclosure, or refusal</td><td>a range, not a number: <code>[0.3, 0.3000000000000001]</code></td></tr>
+        <tr><td><code>evaluate_exact</code> (ℚ) <span class="tag tag-cyan">NEW</span></td><td><span style="color:var(--purple);">purple</span></td><td>exactly, <strong>or refuses</strong></td><td>only rational answers exist: <code>0.1+0.2 → 3/10</code></td></tr>
+    </table>
+    <p><strong>The refusal is the feature.</strong> <code>sqrt(2)</code>, <code>sin(1)</code>, <code>exp(1)</code>, <code>ln(5)</code> return no value and say why, rather than degrading to a float. <code>sin(0)</code>, <code>cos(0)</code>, <code>ln(1)</code>, <code>sqrt(9/4)</code> come back exactly. Recovering a rational from a parsed float distinguishes two genuinely different cases and reports which: <em>exact</em> (2.0 <em>is</em> 2; binary fractions are exact) versus <em>recovered</em> (0.1 is not 1/10 — it is 3602879701896397/36028797018963968 — but 1/10 is the only simple rational whose double this is). A double with no small-denominator reading is refused rather than silently rationalised, and a runaway numerator hits a bit-length budget and refuses instead of hanging.</p>
+    <h3>Why the zero-test is the whole point</h3>
+    <p>"Is this coefficient zero?" is a <em>guess</em> at 1e−10 tolerance in float and a <em>fact</em> in ℚ. Every decision procedure — Risch, Rothstein–Trager, Gosper — is assembled out of exact zero-tests, which is precisely why none of them could be built on the existing core (§22). <code>ExactPolynomial</code> is the parallel to <code>polynomial.rb</code>, which cannot be retrofitted: its constructor runs <code>coeff.to_f</code> on every coefficient, so a <code>Rational</code> cannot survive being stored, and its GCD normalises by float division.</p>
+    <div class="card card-red">
+        <strong>A measured failure, not a hypothetical one.</strong> Take <code>f = (x − 1/3)⁴</code> and ask for <code>gcd(f, f′)</code>. The true answer is <code>(3x − 1)³</code>, degree 3. The exact path returns exactly that. <strong>The float path returns degree 0 — "no common factor at all."</strong> That is not a rounding discrepancy but a structurally wrong answer: 1/3 is not a representable double, so a remainder that should be exactly zero never lands on <code>0.0</code>, and the Euclidean algorithm runs on to a nonzero constant. <code>(x − 1/7)³</code> fails the same way (exact degree 2, float degree 0). This is the operation Rothstein–Trager is built on.
+    </div>
+    <h3>What this unlocks</h3>
+    <ul>
+        <li><strong>Exact GCD</strong> via the primitive PRS — intermediate coefficients stay bounded instead of exploding as naive rational Euclid does, and the result is <em>canonical primitive</em> (integer coefficients, positive leading term) rather than merely monic.</li>
+        <li><strong>Squarefree decomposition</strong> (Yun) — splits f by root multiplicity; Rothstein–Trager runs on the squarefree part, so this is a hard prerequisite. Requires characteristic 0 <em>and</em> an exact GCD.</li>
+        <li><strong>Resultants</strong> via the Euclidean PRS with the standard sign/leading-coefficient bookkeeping. <code>Res(f, f′) = 0</code> exactly when f has a repeated root — an exact test where the float path could only compare against a tolerance.</li>
+        <li><strong>Exact rational roots</strong> — rational-root theorem with exact verification, so "x² − 2 has no rational roots" is proven rather than measured.</li>
+    </ul>
+    <h3>ℚ(α) — algebraic extensions <span class="tag tag-cyan">NEW</span></h3>
+    <p>The step above made a point of <em>refusing</em> <code>sqrt(2)</code>, because √2 is not rational and inventing a rational for it would be a lie. <code>algebraic_field.rb</code> is the field where it no longer has to. An element of ℚ(α) is a polynomial in α of degree &lt; deg(m) with rational coefficients, reduced modulo the minimal polynomial. So √2 is not stored as <code>1.4142135623730951</code> (which squares to <code>2.0000000000000004</code>) — it is stored as the <em>symbol</em> α together with the <em>rule</em> α² = 2, and squaring it gives exactly 2.</p>
+    <ul>
+        <li><strong>Inverses</strong> come from the extended Euclid added to <code>ExactPolynomial</code>: solve <code>u·p + v·m = 1</code>, then <code>p⁻¹ ≡ u (mod m)</code>. This is the step that makes ℚ[x]/(m) a <em>field</em> rather than a ring, and it is only possible exactly — a float Euclid never terminates cleanly. <code>(1+√2)⁻¹ = √2−1</code>, <code>φ⁻¹ = φ−1</code>, <code>(∛2)⁻¹ = (∛2)²/2</code>, all exact.</li>
+        <li><strong>Norm and trace</strong> are computed <em>two independent ways</em> — the resultant of m with the element, and the determinant/trace of the multiplication matrix in the basis 1, α, …, α<sup>n−1</sup> — and the two must agree. A built-in oracle rather than a claim.</li>
+        <li><strong>The numeric embedding is decorative.</strong> α's float value is used only for display and as an independent cross-check; it is never fed back into the exact arithmetic. ℚ(i) has no real embedding at all and works perfectly.</li>
+    </ul>
+    <div class="card card-yellow">
+        <strong>What "irreducible" is allowed to claim.</strong> ℚ[x]/(m) is a field only when m is irreducible, and proving irreducibility over ℚ in general is real work. The module states exactly what it checked: squarefree (exact) and no rational roots (exact) — which for <strong>degree ≤ 3 is a proof</strong>, and for <strong>degree ≥ 4 is not</strong> (m could split into two quadratics). Degree-4+ fields are therefore labelled <em>ASSUMED</em>, not proven. And if an inverse later fails because <code>gcd(p, m)</code> has positive degree, that failure is reported as what it actually is: a <strong>proof that m factors</strong>. Probed with <code>(a²+1)(a²+2)</code>, which passes both cheap checks and is then caught by the inverse.
+    </div>
+    <p class="muted-note">Scope: strictly additive and switchable — a mode on the existing ℚ tool, not a new one. No existing operation is routed through the exact path, the float default is untouched, and "float only" reproduces precisely what the engine did before any of this existed. 44/44 + 40/40 probe cases. What is still <em>not</em> here: <strong>polynomials over ℚ(α)</strong> (the immediate next step — RT's <code>gcd(f − c·g′, g)</code> has coefficients in this field), factorisation over ℚ, and the differential-field tower.</p>
+
+    <div class="card card-green">
+        <strong>What you should see.</strong> Three lanes, and the interesting one is the lane that says nothing.
+        <br><br>
+        <strong>Run <code>0.1 + 0.2 − 0.3</code> in <em>compare</em> mode.</strong> This is the zero-test in its sharpest form, and the three lanes take three genuinely different epistemic positions on the same question. Float answers <strong>5.551115123125783e−17</strong> — it says the expression is <em>not</em> zero, and it is wrong. The interval evaluator answers <strong>[−5e−324, 1.1102230246251568e−16]</strong> — an interval straddling zero, which is the honest statement that double precision <em>cannot decide</em> this. Exact answers <strong>0</strong>. Not "approximately zero": zero. Plain <code>0.1 + 0.2</code> shows the same shape — float <code>0.30000000000000004</code>, exact <code>3/10</code>, delta <code>5.55e−17</code>.
+        <br><br>
+        <strong>Then run the polynomial lab on f = (3x−1)⁴/81.</strong> Ask for gcd(f, f′). The exact lane returns <strong>27x³ − 27x² + 9x − 1</strong>, degree 3. The float lane returns <strong>1</strong>, degree 0 — "these polynomials share no factor". That is not a rounding error, it is a <em>structurally</em> wrong answer to a yes/no question, and it is why every decision procedure downstream of this (Risch, Rothstein–Trager) needs exact arithmetic rather than a tolerance. Yun's squarefree decomposition alongside it reports (3x−1) with multiplicity 4, and Res(f, f′) = 0 exactly.
+        <br><br>
+        <strong>What honest failure looks like.</strong> Ask for <code>sqrt(2)</code>. The exact lane returns no value, its colour drops to grey, and it says: <em>"sqrt(2/1) is irrational. Refusing beats inventing a rational that is not there."</em> The refusal <em>is</em> the product. In ℚ(α) the same √2 becomes representable — α with the rule α² = 2, where squaring gives exactly 2 rather than 2.0000000000000004, the inverse comes from the extended Euclid as ½α with a product of exactly 1, and the norm is computed two independent ways that must agree. Note what the field report claims and what it does not: for α² − 2 it says <em>PROVEN irreducible — squarefree with no rational roots, and for degree 2 that is sufficient</em>. Above degree 3 irreducibility is <strong>assumed</strong>, and the report says <em>assumed</em>.
+    </div>
+
+    <h2 id="test">21 · Testing harnesses</h2>
+    <ul>
+        <li><code>headless_test.rb</code> — runs the UI's example set through the engine, verifying each by independent numerics (current: <strong>ok = 159, xfail = 1</strong>).</li>
+        <li><code>comprehensive_test.rb</code> + <code>compare_results.rb</code> — a ~174-case, version-agnostic battery (takes an engine directory argument) for A/B comparison between revisions.</li>
+        <li><code>test_associativity.rb</code> — the 17-case parser-precedence guard.</li>
+        <li><strong>Probe scripts</strong> — every nontrivial feature was verified against closed forms <em>before</em> wiring any UI (residue vs π/√2, transport vs <code>(4/3)π(abc)'</code>, series coefficients). The doctrine: verify against an oracle you didn't write.</li>
+    </ul>
+
+    <h2 id="limits">22 · Limits &amp; the Risch question</h2>
+    <h3>Is the integrator "Risch"? No.</h3>
+    <p>Despite the filename <code>experimental_risch.rb</code>, integration is the <strong>deterministic heuristic cascade</strong> of §6 — a fixed strategy order. The true Risch algorithm is a <em>decision procedure</em>: it returns an elementary antiderivative or <em>proves none exists</em> (Liouville's theorem). That needs a differential-field tower, Hermite reduction, Rothstein–Trager (resultants), and the Risch differential equation — none present. The only probabilistic component here is the <em>verifier</em>.</p>
+    <h3>Do we still need it? — out of scope now, the natural successor later</h3>
+    <ul>
+        <li><strong>It presupposes exact arithmetic.</strong> Risch lives on exact zero-tests, GCDs, resultants, factorization over ℚ and algebraic extensions. On a float-only core (<code>sin(pi) ≈ 1.2e−16</code>) those tests are meaningless — so Risch is gated on the exact-rational/algebraic-number rewrite (the same one motivating a C++/WASM-native port).</li>
+        <li><strong>It needs a different data model:</strong> canonical sparse polynomials over a field tower, not a representation-dependent expression tree.</li>
+        <li><strong>But it's the one capability heuristics fundamentally can't give:</strong> the <em>decision</em>. Today a marker means "ran out of patterns," not "proven non-elementary."</li>
+    </ul>
+    <div class="card card-purple">
+        <strong>Recommended sequencing.</strong> (1) exact arithmetic (rationals → algebraic numbers); (2) canonical polynomial / rational-function representation + a differential-field tower; (3) the <em>transcendental</em> Risch (Hermite + Rothstein–Trager + Risch DE) — the tractable ~80%. Skip full <em>algebraic</em> Risch (research-grade). High-value middle ground needing only step 1: <strong>Rothstein–Trager for the rational-function logarithmic part</strong>, which alone conquers <code>1/(x⁴+1)</code> and the general <code>P/Q</code> log cases — today's biggest coverage gap.
+        <br><br>
+        <strong>Status:</strong> step 1 is now essentially <em>done</em> (§20). Exact rationals, exact polynomial GCD, squarefree decomposition, resultants, extended Euclid, and <strong>algebraic extensions ℚ(α)</strong> all exist and are probe-verified — that is the toolkit Rothstein–Trager consumes, including the field its constants live in. What remains before RT is a build rather than a research project: <strong>polynomials with coefficients in ℚ(α)</strong> (so <code>gcd(f − c·g′, g)</code> can be computed where c is algebraic), and factorisation over ℚ for the general case. Step 2's differential-field tower is untouched. The gate is open; RT itself is <em>not</em> implemented and is not claimed to be.
+    </div>
+    <h3>Other known limits</h3>
+    <ul>
+        <li><strong>Float-only numeric core</strong> — no exact rationals or symbolic constants (the deepest constraint).</li>
+        <li><strong><code>1/(x⁴+1)</code></strong> — elementary but unsolved; needs irrational quadratic factoring.</li>
+        <li><strong>Matrix exponentials</strong> (<code>A^x</code>, <code>e^(At)</code>) — need a matrix value type + non-commutative products; assessed HARD, not shipped.</li>
+        <li><strong>Pattern fragility</strong> — heuristic matching is representation-dependent; normalization mitigates but doesn't eliminate it.</li>
+    </ul>
+
+    <h2 id="sota">23 · Where this sits — an honest comparison</h2>
+    <p>Every section above says what the engine does. This one says how that compares to the tools a professional would actually reach for, area by area, without flattering the project. The reference points are Mathematica and Maple (commercial), SymPy and SageMath/PARI (open source), Arb and INTLAB (rigorous numerics), xAct and SageManifolds (differential geometry), and PySINDy (equation discovery).</p>
+
+    <table>
+        <tr><th>Area</th><th>State of the art</th><th>This engine</th><th>Verdict</th></tr>
+        <tr>
+            <td><strong>Differentiation</strong></td>
+            <td>A solved problem everywhere. Rule-based, exact, fast.</td>
+            <td>The same: rule-based and exact, over a float-valued AST (§5).</td>
+            <td class="ok"><strong>On par.</strong> Nothing here is behind; differentiation is the easy direction.</td>
+        </tr>
+        <tr>
+            <td><strong>Indefinite integration</strong></td>
+            <td>The <em>Risch algorithm</em> — a decision procedure that returns an elementary antiderivative or <em>proves</em> none exists. Implemented substantially in Mathematica and Maple, partially in SymPy.</td>
+            <td>A deterministic heuristic cascade of ~17 ordered phases (§6), explicitly <strong>not</strong> Risch, with every result checked numerically (§11).</td>
+            <td class="gap"><strong>Behind, structurally.</strong> A cascade cannot prove non-existence; it can only fail to find. And Risch is not merely unimplemented here — it is unavailable, because it presupposes exact arithmetic the float core cannot provide (§22).</td>
+        </tr>
+        <tr>
+            <td><strong>Simplification</strong></td>
+            <td>Nobody has solved it. Deciding whether an expression is zero is undecidable for a rich enough class (Richardson's theorem), so every CAS ships heuristics and every CAS occasionally embarrasses itself.</td>
+            <td>A fixed-point rewriter (§10), weaker than Mathematica's, roughly comparable to a basic <code>sympy.simplify</code> on polynomial and rational forms.</td>
+            <td class="mixed"><strong>Behind on coverage, ahead on one habit.</strong> The like-term collector <em>refuses to apply itself unless it can show the value is unchanged</em>. Mainstream CASes do not numerically self-check their rewrites — and this engine shipped three value-changing rewrites before adopting the habit, so the caution is earned rather than decorative.</td>
+        </tr>
+        <tr>
+            <td><strong>Conditional interval bounds</strong></td>
+            <td>Arb (arbitrary-precision ball arithmetic, the engine under SageMath's rigorous numerics), INTLAB, MPFI, Julia's IntervalArithmetic.jl with branch-and-bound global optimisers.</td>
+            <td>Outward-rounded interval evaluation over the same AST, branch-and-bound global minimisation, Darboux integral brackets (§18).</td>
+            <td class="mixed"><strong>Right in kind, small in scale.</strong> Transcendental enclosures assume a two-ULP library error bound. This is double-precision only where Arb is arbitrary-precision, handles 1D/2D searches rather than general dimensions, and has much less special-function coverage. The <em>ideas</em> are current; the implementation is a demonstration of them.</td>
+        </tr>
+        <tr>
+            <td><strong>Exact arithmetic &amp; algebraic numbers</strong></td>
+            <td>Complete and routine: ℚ, ℚ(α), factorisation over ℚ (Zassenhaus, van Hoeij), full ideal machinery. PARI/GP and Sage do this at research scale.</td>
+            <td>A deliberately partial <em>gate</em> bolted onto a float core (§20): exact ℚ evaluation that refuses when no rational answer exists, exact polynomial GCD/squarefree/resultants, and ℚ(α) as polynomials modulo a minimal polynomial.</td>
+            <td class="gap"><strong>Far behind, and honest about it.</strong> The sharpest gap: irreducibility of the minimal polynomial is <em>proven</em> only up to degree 3 and <strong>assumed</strong> above, which the tool states rather than hides. A real system factors over ℚ properly and never has to assume.</td>
+        </tr>
+        <tr>
+            <td><strong>Padé approximants</strong></td>
+            <td>Classical (1892) and standard everywhere. The modern refinement is SVD-based robust Padé (Gonnet–Güttel–Trefethen) for suppressing spurious Froissart doublets.</td>
+            <td>Toeplitz solve for the denominator, Durand–Kerner for its roots, plus an amplitude-relative test that flags spurious poles (§12).</td>
+            <td class="ok"><strong>Comparable for the textbook case.</strong> The spurious-pole detection is simpler than the SVD approach but does the job it claims: it labels Froissart artifacts instead of presenting them as structure.</td>
+        </tr>
+        <tr>
+            <td><strong>Contour integration</strong></td>
+            <td>General residue machinery with automatic contour selection over wide classes of integrand.</td>
+            <td>Two contours: a semicircle at infinity for improper rational integrals, and the unit circle for full-period trigonometric ones (§13).</td>
+            <td class="gap"><strong>Narrow.</strong> Correct and verified within those two families, and it declines outside them rather than guessing.</td>
+        </tr>
+        <tr>
+            <td><strong>Symbolic differential geometry</strong></td>
+            <td>xAct/xTensor (Mathematica), SageManifolds, EinsteinPy, GRTensor — arbitrary metrics, index gymnastics, full tensor algebra.</td>
+            <td>Diagonal metrics only; Christoffel → Riemann → Ricci → Kretschmann, symbolic in the parameters, checked against known oracles (§19).</td>
+            <td class="mixed"><strong>Far behind in scope, unusually rigorous in verification.</strong> Kerr is out of reach (the t–φ cross term needs a block inverse). But checking against a <em>nonzero</em> closed form — Kretschmann = 48M²/r⁶ — is a stronger self-test than most tutorial implementations attempt, because collapsing everything to zero cannot fake it.</td>
+        </tr>
+        <tr>
+            <td><strong>Equation discovery</strong></td>
+            <td>SINDy (Brunton, Proctor &amp; Kutz, <em>PNAS</em> 2016) with PySINDy as the reference implementation; the field has since added weak-form, implicit (SINDy-PI) and control variants.</td>
+            <td>The core method faithfully: candidate library, sequential thresholded least squares, verification against the true vector field (§17).</td>
+            <td class="ok"><strong>The most current thing here.</strong> The algorithm is genuinely modern research and the implementation is honest — including reporting FAILED when the truth lies outside the library's span. It has none of the later variants, and the library is small.</td>
+        </tr>
+    </table>
+
+    <div class="card card-cyan">
+        <strong>What is actually distinctive.</strong> Not any single algorithm — every one above exists in a more capable form somewhere. Two habits are the unusual part.
+        <br><br>
+        <strong>First, the refusal discipline.</strong> Mainstream systems will hand you a wrong-branch antiderivative or a coefficient that is zero only to within a tolerance, with no indication that anything is uncertain. This engine is built so that the failure mode is a marker rather than a confident wrong answer: unsolved integrals come back as markers, residues decline when a pole sits on the contour, the exact evaluator returns nothing rather than a float, curl refuses in 4D rather than inventing a vector, and a variable named <code>e</code> is rejected rather than silently read as 2.718. That is a design stance, not an algorithmic achievement — but it is the stance that makes a small engine trustworthy.
+        <br><br>
+        <strong>The stance has to be enforced, not assumed.</strong> Fact-checking the paragraph above found a place where it was simply false. The definite-integral path did not check for a singularity <em>inside</em> the interval, so it applied the Fundamental Theorem straight across a pole: <code>∫₋₁¹ dx/x²</code> is divergent and the engine reported <strong>&minus;2</strong> — a negative area under a strictly positive integrand, which no correct answer could be. <code>∫₋₁¹ dx/x</code> reported 0 without calling it a principal value, and <code>∫₋∞<sup>∞</sup> dx/(x³+1)</code> reported 1.79 by Simpson <em>after</em> the residue route had correctly declined the very same integral. A continuity check now runs first (§6), and all three refuse. The lesson is the one this whole document keeps arriving at: a doctrine is only as good as the check that enforces it, and the claim was worth less than the ten minutes spent testing it.
+        <br><br>
+        <strong>Second, the testing method.</strong> Results are scored against oracles independent of the computation that produced them — closed forms, finite differences, conservation laws, a nonzero curvature invariant — never against the engine's own reasoning. And two techniques have repeatedly found what example-based tests missed: a <strong>property fuzz</strong> asserting that simplification never changes a value (§21), which found a non-terminating polynomial division on its first wide run, and <strong>diffing the whole regression output against a pristine worktree of <code>HEAD</code></strong>, which is how seven silently mis-printed antiderivatives were caught — they had been passing their numeric checks for months because the checks read the tree while the bug was in the printer.
+    </div>
+
+    <p class="muted-note">The fair summary: as a computer algebra system this is a competent, unusually well-verified undergraduate-to-graduate scale engine, decisively behind the established tools in coverage and depth, and behind them structurally in integration until exact arithmetic replaces the float core. As a demonstration of <em>how to know whether a symbolic result is right</em>, it is doing something the big systems largely do not.</p>
+
+    <div class="stat-grid">
+        <div class="stat"><div class="stat-num">~17</div><div class="stat-label">Ordered integration phases</div></div>
+        <div class="stat"><div class="stat-num">159</div><div class="stat-label">Headless examples verified</div></div>
+        <div class="stat"><div class="stat-num">0</div><div class="stat-label">Confidently-wrong answers</div></div>
+        <div class="stat"><div class="stat-num">2-way</div><div class="stat-label">verification on every theorem</div></div>
+    </div>
+
+    <p style="margin-top: 2.5rem; text-align: center; color: var(--muted); font-size: 0.85rem;">
+        Symbolic Math Engine — Ruby + Sinatra + vanilla JS (+ ruby.wasm) — <a href="index.html">Back to Engine</a> · <a href="history3.html">History Part 3</a>
+    </p>
+</div>
+</body>
+</html>

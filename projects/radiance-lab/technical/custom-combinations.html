@@ -1,0 +1,147 @@
+<!doctype html><html lang="en"><head><style data-portfolio-paint>html{background:#0b0d0c;color-scheme:dark}html.portfolio-booting body{opacity:0}</style><script src="../../../portfolio-navigation.js?v=688f1905bc"></script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Custom primitive combinations — RadianceLab</title><meta name="description" content="Common-measure MIS within the kernel-free group and an explicit blend for finite-radius curves."><meta name="color-scheme" content="dark"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="../../../portfolio.css?v=b7ed8602e5"><link rel="stylesheet" href="../../../portfolio-effects.css?v=62be30dafa"><link rel="stylesheet" href="../../../portfolio-atmospheres.css?v=4b74c57939"><link rel="stylesheet" href="../../../portfolio-motion.css?v=4b098d8184"><link rel="stylesheet" href="../../../portfolio-case-studies.css?v=243caf2b0d"><link rel="stylesheet" href="../../../portfolio-brochures.css?v=a1e5e16132"><link rel="stylesheet" href="../../../portfolio-project-themes.css?v=a898c35e78"><link rel="stylesheet" href="../../../portfolio-location.css?v=9c4c1ad84f"><link rel="stylesheet" href="../../../portfolio-controls.css?v=9376de7761"><link rel="stylesheet" href="../../../portfolio-media.css?v=c51f7712ea"><link rel="stylesheet" href="../../../portfolio-overviews.css?v=8612c4ee0a"><link rel="stylesheet" href="../../../portfolio-motivations.css?v=ccc1c1d866"><link rel="stylesheet" href="../../../portfolio-claims.css?v=058dbd00ef"><link rel="stylesheet" href="../../../portfolio-feature-atlas.css?v=e73f02cb31"><script type="application/json" id="media-framing">{"media/brochures/physics-2d/thermal-furnace-magnetic-field-probe.png":{"width":1602,"height":940,"top":39},"media/brochures/physics-2d/magnetic-field-direction-appearance-controls.png":{"width":1602,"height":940,"top":39},"media/brochures/physics-2d/time-bomb-blast-particle-plume.png":{"width":1602,"height":940,"top":39}}</script><script defer src="../../../portfolio-claims.js?v=ed914a4d3a"></script><script defer src="../../../portfolio-visual-defaults.js?v=eecfd5c771"></script><script defer src="../../../portfolio-motion.js?v=a642c710f9"></script><script defer src="../../../portfolio-fire-studies.js?v=7717e15582"></script><script defer src="../../../portfolio-embers.js?v=8a8be5569d"></script><script defer src="../../../portfolio-atmospheres.js?v=021b2f100e"></script><script defer src="../../../portfolio-effects.js?v=03a6c89d6c"></script><script defer src="../../../portfolio-brochures.js?v=055cad29d6"></script><script defer src="../../../portfolio-location.js?v=3846586893"></script><script defer src="../../../portfolio-media.js?v=d2d555a888"></script><script defer src="../../../portfolio-articles.js?v=acb89575ce"></script><script defer src="../../../portfolio-labs.js?v=a0b86a3809"></script><link rel="stylesheet" href="../../../portfolio-technical.css?v=0ecb3a48c7"><script defer src="../../../portfolio-technical.js"></script><!-- universal-navigation:start --><script defer src="../../../portfolio-routes.js?v=054b6b462c"></script><script defer src="../../../portfolio-universal-navigation.js?v=054b6b462c"></script><!-- universal-navigation:end --><style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head><body data-page="technical" data-project-theme="optics" data-project-id="radiance-lab" data-default-atmosphere="caustics"><canvas class="spark-field" aria-hidden="true"></canvas><a class="skip-link" href="#main">Skip to content</a><nav class="site-nav portfolio-route" data-route-group="flagships" aria-label="Portfolio location"><div class="route-path"><a class="route-node route-home" href="../../../index.html#project-radiance-lab" aria-label="Portfolio"><img class="route-mark" src="../../../media/identity/portfolio-mark.svg" alt="" width="52" height="52"><span class="route-copy"><small>Work / ideas</small><strong>Portfolio</strong></span></a><span class="route-wire" aria-hidden="true"><i></i><b></b></span><div class="route-node route-group"><span class="route-glyph" aria-hidden="true">✦</span><span class="route-copy"><small>Collection</small><strong>Flagship</strong></span></div><span class="route-wire" aria-hidden="true"><i></i><b></b></span><a class="route-node route-project" href="../index.html"><span class="route-glyph" hidden aria-hidden="true">◈</span><img class="route-thumb" src="../../../media/previews/radiance-lab/caustic-showcase.png" width="42" height="42" alt=""><span class="route-copy"><small>Project</small><strong>RadianceLab</strong></span></a><span class="route-wire" aria-hidden="true"><i></i><b></b></span><a class="route-node technical-route" href="index.html"><span class="route-copy"><small>Technical reading room</small><strong>Custom primitive combinations</strong></span></a></div><div class="route-end"><span class="route-meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><a class="route-back" href="../../../index.html#project-radiance-lab">← Back to portfolio</a></div></nav><nav class="section-rail technical-rail" aria-label="Technical document sections"><span class="rail-indicator" aria-hidden="true"></span><a href="#technical-top" data-section="technical-top"><span>⌂</span><span>Start</span></a><a href="#estimator-contract" data-section="estimator-contract" title="Estimator contract"><small>01</small><span>Estimator contract</span></a><a href="#multiple-quads-source-identity-is-part-of-the-sampling-measure" data-section="multiple-quads-source-identity-is-part-of-the-sampling-measure" title="Multiple quads: source identity is part of the sampling measure"><small>02</small><span>Multiple quads: source identity is part of the sampling measure</span></a><a href="#multi-source-validation-2026-09-13" data-section="multi-source-validation-2026-09-13" title="Multi-source validation, 2026-09-13"><small>03</small><span>Multi-source validation, 2026-09-13</span></a><a href="#initial-single-quad-validation-2026-09-13" data-section="initial-single-quad-validation-2026-09-13" title="Initial single-quad validation, 2026-09-13"><small>04</small><span>Initial single-quad validation, 2026-09-13</span></a></nav><main id="main" class="project-page technical-page"><header id="technical-top" class="technical-hero"><span class="eyebrow">RadianceLab · Native implementation document</span><h1>Custom primitive combinations</h1><p>Common-measure MIS within the kernel-free group and an explicit blend for finite-radius curves.</p><div class="technical-actions"><a href="../index.html">← RadianceLab brochure</a><a href="index.html">Technical reading room</a><a href="../validation/index.html">Rendered evidence ↗</a></div></header><aside class="technical-scope"><span>◈</span><p>Implementation notes describe the native application. A working experiment, an approximate preview and a general transport estimator establish different things; each document states its own scope.</p></aside><article class="technical-document"><p>Strategy <strong>31</strong> exposes selected pairs and trios through PP quick settings and PP Estimator. Zero <code>pp.misMask</code> selects <strong>136: UV + sphere</strong>. The checklist permits one member as a diagnostic control; the underlying mask can select larger sets.</p>
+<div class="case-table-wrap technical-table" tabindex="0" role="region" aria-label="Technical comparison"><table>
+<thead>
+<tr>
+<th>Bit / standalone ID</th>
+<th>Member</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>3, 10, 11, 16</td>
+<td>UV, UT, VT, fixed arbitrary plane</td>
+</tr>
+<tr>
+<td>7, 8, 9</td>
+<td>Sphere, disk, cone</td>
+</tr>
+<tr>
+<td>18, 28, 29</td>
+<td>First-segment beam, ring, arc</td>
+</tr>
+</tbody></table></div>
+<p>Presets: 136 = UV+sphere; 384 = sphere+disk; 66176 = arbitrary+sphere+cone; 805568512 = beam+ring+arc. Bit 18 is the direct single-scatter beam here, not standalone 18&#39;s complete traced path. The arbitrary-plane angle remains <code>pp.arbPlaneAngle</code>.</p>
+<h2 id="estimator-contract">Estimator contract</h2><ul>
+<li>Exact members use the same <code>(source label,s,u,v)</code> density ledger. The arbitrary-plane conversion includes the actual uniform offset interval <code>[-R,R]</code>, with conditional density <code>A/(2R) |(eHat cross omega) dot d| pOmega/t^2</code>. With multiple emitters, the selected source&#39;s probability multiplies this density as described below.</li>
+<li>Curve subsets use the existing shared-radius construction, excluding deselected member densities. Their finite-radius biases remain. The new curve source sampler and radiometry match the exact group; legacy 28/29/30 remain unchanged.</li>
+<li>A mixed selection is a <strong>fixed blend</strong>, <code>(1-lambda) L_sheet + lambda L_curve</code>, where lambda is curve member count / total count. Misses do not change lambda. It is not cross-group extended MIS. Curve bias contributes lambda times its group bias.</li>
+<li>Both groups target direct single scattering from sources fully contained in one homogeneous convex scattering volume. Additional absorbing/scattering volumes are refused. Plane selections require one or more emissive quads, with no other emitter types in the source roster. Comp ownership is refused; the ordinary primary experiment remains available.</li>
+<li>Optional camera capping is applied consistently in custom31. Kernel-free refers to the ideal estimator construction, not an absence of inherited finite-precision grazing/root/pole safeguards.</li>
+</ul>
+<p>UPBP section 6 gives the appropriate future framework for true cross-group MIS: conditional second moments over kernel offsets, with common-path/support bookkeeping and explicit bias bounds. Equal radii alone do not establish those weights. See <a href="https://cs.uwaterloo.ca/~thachisu/upbp.pdf" rel="noopener">https://cs.uwaterloo.ca/~thachisu/upbp.pdf</a>.</p>
+<h2 id="multiple-quads-source-identity-is-part-of-the-sampling-measure">Multiple quads: source identity is part of the sampling measure</h2><p>Each plane member independently selects a quad with the existing entity-emitter
+CDF, using weight <code>max(luminance(Le),1e-4) * area</code>. It then generates its swept
+primitive from that source. A directional member continues to select its own
+source point. When either family evaluates competing densities, it reconstructs
+the actual selected quad; it does not substitute the brightest source.</p>
+<p>For source <code>ell</code> with selection probability <code>kappa_ell</code>, the common measure is
+<code>(ell,s,u,v)</code> and every technique&#39;s joint density is
+<code>P_i(ell,z) = kappa_ell * p_i(z | ell)</code>. The target on that source&#39;s chart remains
+<code>f_ell = A_ell * g_ell</code>. With one draw per selected member, the balance contribution
+is <code>f_ell / (kappa_ell * sum_i p_i)</code>. A directional record already includes inverse
+source selection in its single-technique contribution and receives the matching
+balance ratio. Different lamps are different labels; their densities are not
+summed at this lamp&#39;s connection. The flat-average path also retains inverse
+selection probability.</p>
+<p>The single-quad branch retains its former arithmetic and RNG order, as does
+legacy strategy 26. The new presets 80–82 exercise source size, emission profile,
+and all nine size/profile combinations. Their matched-position isolated probes
+separate emitter properties from source roster and spatial arrangement. See
+<span class="technical-source-label"><code>../primitive-emitter-studies/README.md</code></span>
+for the scene definition and equal-power convention, and
+<span class="technical-source-label"><code>../emitter-study/analyze_study.py</code></span> for the
+retained numerical analysis.</p>
+<p>Auto emission evaluates the material&#39;s actual angular radiance profile in the
+payload. This does <strong>not</strong> make the geometric sampling proposal profile-adaptive.
+Likewise, the source CDF weights area times peak luminance and does not integrate
+the angular profile. These choices affect efficiency but must not be conflated
+with the light&#39;s integrated physical power.</p>
+<h2 id="multi-source-validation-2026-09-13">Multi-source validation, 2026-09-13</h2><p>Compact configurations, film/binary hashes, check counts, accepted comparisons
+and rejected-reference reasons are retained in
+<span class="technical-source-label"><code>../emitter-study/validation/conformance.json</code></span>,
+with an accompanying <span class="technical-source-label">validation narrative</span>.
+Raw float films remain in the local experiment artifacts, outside this source
+documentation folder. The study&#39;s performance analysis remains variance-only.</p>
+<p>The extended first-use production check passes <strong>1,074 checks</strong>, including the
+actual unequal-color/area source CDF, source geometry/profile identity, its
+low-luminance selection floor, mixed-emitter refusal, and independent angular
+flux integration. <code>PrismShapeTest</code> passes 31 classifier and 58 evaluator checks;
+28 of the latter independently enumerate the labeled-source MIS measure and
+detect omitted source probabilities and unrelated-source density sums.</p>
+<p>At preset 47, 217x140, 128 passes, six saved-baseline/current film pairs remain
+byte-identical: custom31 masks 136, 3080, 896 and 66176; legacy26 mask 3976;
+and legacy30. This checks historical single-source behavior alongside the new
+multi-source tests. These are conformance results, not performance timings.</p>
+<p><strong>Reference selection matters for angular emitters.</strong> The legacy strategy-2
+continuation-to-light payload uses bare radiance, while its NEE payload applies
+the emitter profile. Consequently it is not a valid reference for the new
+laser-like/cone comparisons. Use strategy 1 (pure NEE) at one scattering bounce
+with the camera <strong>inside</strong> the medium, excluding directly seen source surfaces
+geometrically because custom31 renders only direct single scattering. The older
+strategy-2 implementation is unchanged.</p>
+<p>An additional existing camera-walk limitation was exposed by the external
+nine-light camera: <code>freeFlightStep</code> probes just inside the boundary, but later
+reclassifies the unshifted boundary point with a strict inside test. Depending on
+roundoff, that rejects valid incoming-medium segments. Thus the outside-camera
+pure-NEE film is not an acceptance oracle either. Custom31 uses the inside probe
+for its entry distance and does not take this camera-walk branch. These limits
+are recorded rather than repaired as an unrelated change during the experiment.</p>
+<p>Matched-position, inside-camera spot checks compare the six seeded 1,024-pass
+all-six films against a separately seeded 8,192-pass pure-NEE1 film, at 160x100.
+Conservative projected source bounds exclude directly seen lights, including
+subpixel emitters. Ratios of masked mean luminance are:</p>
+<div class="case-table-wrap technical-table" tabindex="0" role="region" aria-label="Technical comparison"><table>
+<thead>
+<tr>
+<th>Probe</th>
+<th>Source</th>
+<th align="right">All-six / pure NEE</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0</td>
+<td>0.5-edge, cosine-power-500 laser-like</td>
+<td align="right">1.01829</td>
+</tr>
+<tr>
+<td>4</td>
+<td>2.0-edge, 25-degree cone</td>
+<td align="right">0.99657</td>
+</tr>
+<tr>
+<td>8</td>
+<td>6.4-edge, diffuse</td>
+<td align="right">0.99989</td>
+</tr>
+</tbody></table></div>
+<p>These checks give an independent finite-budget normalization comparison. The
+sharpest source still differs by 1.83%; this result does not distinguish its
+reference sampling error from a smaller systematic discrepancy. Dispersion of
+the six all-six films alone is not the uncertainty of the independently sampled
+reference. The three-diffuse-light scene also agrees with inside-camera pure
+NEE to 0.042% at 1,024 passes. No exact-integral or blanket unbiasedness claim
+follows from these finite tests.</p>
+<h2 id="initial-single-quad-validation-2026-09-13">Initial single-quad validation, 2026-09-13</h2><p>Start checkpoint: <code>8da3fb2</code>. Release build and <code>PrismShapeTest</code> pass. The automatic first-use <code>custom-mis-check</code> passes <strong>1,063 checks</strong>: all 1,023 nonempty masks, default selection, finite-difference arbitrary-plane change of variables, selected curve partitions, and adversarial source/medium/comp guards. Maximum arbitrary-PDF relative error: <strong>1.66e-7</strong>.</p>
+<p>At preset47, 217x140 film, 128 passes:</p>
+<ul>
+<li>Original 26 plane/spin masks and original 30 are byte-identical to the saved pre-change executable.</li>
+<li>New31 reproduces 26 with masks 3080, 896 and 136 byte-for-byte when the camera cap is disabled.</li>
+<li>New sphere+disk, arbitrary+sphere+cone, curve subsets, default pair and mixed selection produce finite, nonblack films.</li>
+<li>Unsupported bits/minimum bounce produce a refused black film. Comp ownership logs its specific refusal and leaves the ordinary primary experiment running.</li>
+</ul>
+<p>At 4,096 passes, the mean RGB of UV+sphere is 0.0108358413, beam is 0.0108448938, and their 2/3 + 1/3 hybrid is 0.0108387955. The predicted fixed-blend mean is 0.0108388588: <strong>0.000584% relative difference</strong>. This is a normalization smoke test, not a variance/efficiency result. Standalone and hybrid reruns consume different RNG subsequences, so matching pixels is not a valid test of their mixture coefficient.</p>
+<p>New31 is not expected to reproduce every legacy singleton image: old16 omits the light-visibility test applied by custom31; old30 samples the separately authored <code>scene.lights</code> roster, while new31 shares the emissive-entity source convention with the sheets. Compare supported path classes and radiometry, not just numeric strategy IDs.</p>
+<p><code>validation.json</code> records configs, image means and hashes. Launch-to-dump seconds include startup and must not be reported as native estimator benchmark timings.</p>
+<p>To reproduce the small film suite, copy the saved old <code>Prism.exe</code> plus <code>data/</code> and <code>shaders/</code> into an isolated <code>baseline/</code> folder, and the built new runtime into its sibling <code>current/</code>. Then run:</p>
+<pre><code class="language-powershell">python docs/custom-combinations/check_films.py C:/path/to/isolated-check baseline
+python docs/custom-combinations/check_films.py C:/path/to/isolated-check current
+</code></pre>
+<p>The harness writes only inside that supplied root; it never changes the working app&#39;s configuration. NumPy is needed to inspect float films. The browser diagnostic and derivation are integrated into the portfolio&#39;s Photon Primitives / Combination design and RadianceLab / Custom combinations chapters.</p>
+</article><footer class="technical-footer"><div class="technical-actions"><a href="../index.html">← RadianceLab brochure</a><a href="index.html">Technical reading room</a><a href="../validation/index.html">Rendered evidence ↗</a></div></footer></main></body></html>

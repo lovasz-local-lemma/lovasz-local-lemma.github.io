@@ -1,0 +1,1739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>noita_gish &#8212; Why This Version</title>
+<link rel="stylesheet" href="assets/docs-dark.css">
+</head>
+<body>
+<main>
+
+  <aside class="note" id="audit-20260919" aria-label="Dated source audit correction">
+    <p><strong>Source audit update · 2026-09-19.</strong> The version history below is retained,
+    including its original claims. Read the <a href="model_audit_20260919.md">current model audit</a>
+    before using them as validation: Contact Heat v2 is bidirectional neighborhood-mixture relaxation,
+    not a proven globally conserving exchange; the fracture length is authored as a multiple of grid
+    spacing, so resolution-independent crack width/speed has not been established; and Thermo Metal
+    implements stress relaxation and heat-treatment memory, not a calibrated annealing cycle.
+    Local code inspection, prior measurements and unrun visual expectations are distinguished in the audit.</p>
+  </aside>
+
+  <header class="hero">
+    <div class="hero-grid">
+      <div>
+        <p class="eyebrow">Engineering history</p>
+        <h1>Why this version</h1>
+        <p class="lede">Nine mechanics in this project ship as two or three generations at once, all
+        still selectable. This page is the argument for each current default: what the old version
+        actually did, the exact way it failed, what replaced it, why that fixes the cause rather than
+        the symptom &#8212; and what is still wrong with the one you are running now.</p>
+        <nav class="toc">
+          <strong>Families</strong>
+          <a href="#how">How to read</a>
+          <a href="#magnetic">Magnetics</a>
+          <a href="#living">Living material</a>
+          <a href="#regrowth">Ash regrowth</a>
+          <a href="#fracture">Fracture</a>
+          <a href="#stiffness">Stiffness</a>
+          <a href="#blast">Blast</a>
+          <a href="#contact-heat">Contact heat</a>
+          <a href="#burn">Burn front</a>
+          <a href="#coupling">MPM&#8596;SPH</a>
+          <a href="#where">Detail tables</a>
+        </nav>
+      </div>
+      <div class="hero-side">
+        <p class="kicker">Companion pages</p>
+        <p><a href="mechanics_relationships.html">Mechanics Relationship Map</a><br>
+           <span class="meta">how the solvers exchange state</span></p>
+        <p><a href="mechanics_status.html">Mechanics Status Report</a><br>
+           <span class="meta">what works, per material</span></p>
+        <p><a href="technique_guide.html">Technique Guide</a><br>
+           <span class="meta">material atlas and roadmap</span></p>
+        <p><a href="explosive_lab.html">The Explosive Lab</a><br>
+           <span class="meta">one pressure vessel, three charges</span></p>
+        <p><a href="solver_internals.html">Solver Internals</a><br>
+           <span class="meta">the MPM step, opened</span></p>
+        <p class="stamp">Source of record: <code>data/changelog.json</code>.
+        Where the changelog and the code disagree, the code wins and this page says so.</p>
+      </div>
+    </div>
+  </header>
+
+  <section id="how">
+    <div class="section-top">
+      <div class="colorbar debug"></div>
+      <p class="eyebrow">Preface</p>
+      <h2>How to read this page</h2>
+    </div>
+    <div class="grid-2">
+      <div class="panel">
+        <h3>Why old versions are still here</h3>
+        <p>The project convention is that an improvement ships as a <strong>selectable</strong>
+        version and the old one is never deleted. That is not sentiment. Every one of these rewrites
+        was justified by an A/B that a person had to be able to run, and several of the old paths
+        still own mechanisms the new path never ported. A toggle that is only ever left at its
+        default is a toggle that was never worth the cost; each section below therefore ends with a
+        concrete reason to move it.</p>
+        <p>Almost every entry in the changelog carries <code>"verified": false</code>. That flag means
+        the numeric bounds were machine-checked and the build ran clean, but the question of whether
+        the thing <em>reads right</em> was deferred to a human looking at it. Treat the numbers as
+        measured and the aesthetics as claimed.</p>
+      </div>
+      <div class="panel">
+        <h3>What the badges mean here</h3>
+        <div class="legend">
+          <span><span class="b green">default</span>What you get out of the box</span>
+          <span><span class="b yellow">selectable</span>Still in the UI, still useful</span>
+          <span><span class="b orange">superseded</span>Selectable, but strictly worse</span>
+          <span><span class="b gray">gone</span>Removed, or archived only</span>
+        </div>
+        <p class="footer-note">A generation marked <span class="b orange">superseded</span> is one
+        where the only remaining reason to select it is diagnosis or demonstration. A generation
+        marked <span class="b yellow">selectable</span> owns behaviour the newer one does not have.
+        The distinction matters: several of the nine families below have no strictly dominant
+        generation at all.</p>
+      </div>
+    </div>
+    <div class="note">
+      <p><strong>A pattern worth naming up front.</strong> Most of these rewrites replaced a
+      <em>compensator</em> with a <em>cause fix</em>. The legacy magnetic force multiplied a wrong
+      field by five gates; the legacy ash regrowth had two shaders writing one buffer and tuned the
+      thresholds instead; the legacy contact heat could not cool, so a second one-way channel was
+      bolted on to cool. In every case the tuning log embedded in the shader comments is the tell:
+      when a comment reads like a history of threshold changes, the layer underneath it is wrong.</p>
+    </div>
+  </section>
+
+
+  <section id="magnetic">
+    <div class="section-top">
+      <div class="colorbar field"></div>
+      <p class="eyebrow">Magnetics &#183; three backends</p>
+      <h2>Ferrofluid: from a truncated Poisson solve to a closed-form field</h2>
+      <p class="lede">A ferrofluid needs a field <em>H</em> everywhere a particle might be, so it can
+      feel the Kelvin body force <em>F</em> = &#189;&#967;&#8711;|H|&#178;. Getting that field right in
+      2D is the whole problem: solve it on a grid and you pay for accuracy in iterations; evaluate it
+      analytically and you give up the contribution of the magnetized matter itself. Both mistakes
+      were made here, in that order, and each produced a distinct, nameable artifact.</p>
+    </div>
+
+    <div class="chip-row">
+      <span class="chip">Legacy (Poisson + gates)</span>
+      <span class="chip">New Magnetic</span>
+      <span class="chip">Fantasy (arcane)</span>
+    </div>
+
+    <h3>The generations</h3>
+    <table>
+      <tr><th>Generation</th><th>What it did</th><th>The symptom you saw</th><th>Root cause</th></tr>
+
+      <tr>
+        <td class="name">Pre-April 2026<br><span class="b gray">gone</span></td>
+        <td>Per-particle magnetization from <code>langevin_response()</code>, which dodged the
+        <code>coth(0)</code> singularity by flooring the argument:
+        <code>x = max(alpha * hmag, 1e-4)</code>.</td>
+        <td class="notes">Ferrofluid clumped into lumps and then dots <strong>with no external field at
+        all</strong> &#8212; cursor off, no scene magnets, ambient H = 0. A puddle that should have been
+        a plain viscous fluid gathered itself.</td>
+        <td class="notes">The floor is applied <em>per particle</em>, but the rasterizer <em>sums</em> M
+        into shared cells. At the floor, L(x) = x/3 = 3.33e&#8722;5, so N co-located particles create
+        roughly N&#183;sat/30000 of cell magnetization out of nothing. That non-zero source closed a
+        feedback loop with no entry condition. Only the high-x branch ever needed divisor
+        protection.</td>
+      </tr>
+
+      <tr>
+        <td class="name">Legacy backend<br><span class="b green">still default</span><br><span class="b yellow">selectable</span></td>
+        <td>Cold-start Jacobi Poisson on 1024&#178;, run <strong>seven times per frame</strong>
+        (scene, drive, three induction passes, remanent particles, total). On top of the solved field,
+        <code>magnetic_body_force()</code> multiplies the Kelvin force by five stacked heuristic gates
+        before a per-material acceleration cap.</td>
+        <td class="notes">The project's number one complaint, verbatim: <em>"moving the magnet doesn't
+        pull the ferrofluid; it affects a ring, then a new ring; most material doesn't follow."</em>
+        A held, stationary magnet also did not hold &#8212; the gathered blob slumped and fell.</td>
+        <td class="notes"><strong>Two independent causes, and the ring is where they meet.</strong>
+        (A) <em>Truncation:</em> &#966; is cleared to zero before every solve and Jacobi moves
+        information one cell per iteration; at the runtime setting of 52 iterations (the header's 144
+        is overridden), |H| exists only about 10 to 20 cells out and is <em>exactly</em> zero beyond,
+        recovering under 0.4&#37; of the 1/r&#178; tail. Converging that grid needs roughly 30k to 490k
+        iterations. And because &#966; restarts cold, moving the cursor drops the old field entirely.
+        (B) <em>The gate stack:</em> <code>ext_drive</code> closes far from the pole,
+        <code>hf_suppress</code> divides by field sharpness so it closes <em>at</em> the pole,
+        <code>wall_gate</code> multiplies by 0.22 within about 2 cells of an SDF surface (which is where
+        a ferro pond rests), <code>density_damp</code> cuts the inward force to 8&#37; inside a blob,
+        and <code>sink_cancel</code> subtracts up to 92&#37; of the rest. Their pass-bands overlap only
+        on a thin annulus. (C) <em>Holding</em> was pure velocity entrainment toward the cursor
+        velocity, with a gate that floors at 0.35 when the cursor is still &#8212; so a stationary held
+        magnet drives particle velocity toward zero. It <em>brakes</em>.</td>
+      </tr>
+
+      <tr>
+        <td class="name">Ferro D1<br><span class="b yellow">selectable</span></td>
+        <td>Five opt-in patches rather than a rebuild: an M Raw debug view, a runtime
+        256/512/1024/2048 grid selector, capillary halved 0.34 to 0.18 with spike strength raised
+        1.0 to 1.6, surface-only corrugation, and an explicit <code>apply_distance_falloff</code>
+        offered as a cleaner replacement for the ad-hoc gates.</td>
+        <td class="notes">Spikes still did not appear; the ring survived every setting.</td>
+        <td class="notes">D1 tuned the constitutive and surface layer, and added a <em>sixth</em>
+        composable gate, while the field underneath was still truncated and cold-started. Raising
+        spike strength cannot manufacture a spike lattice when the surface has no symmetry-breaking
+        perturbation to amplify. Its own changelog entry pre-registered the failure: <em>"D1 is the
+        experiment, D2 is the principled rebuild&#8230; if no spike-like behavior appears,
+        escalate."</em></td>
+      </tr>
+
+      <tr>
+        <td class="name">New Magnetic v1<br><span class="b gray">folded in</span></td>
+        <td>Deleted the solver from the drive path. Cursor presets and SDF magnets are decomposed on
+        the CPU into at most 32 signed 2D pole kernels and evaluated in closed form per particle:
+        H(p) = ambient + &#8721; q<sub>i</sub>(p&#8722;x<sub>i</sub>)/(|p&#8722;x<sub>i</sub>|&#178;+c<sub>i</sub>&#178;).
+        One plain Kelvin force, one per-material accel cap, no spatial gates. Holding became a real
+        positional spring-damper.</td>
+        <td class="notes">Not a failure, a deliberately narrow v1 &#8212; but the field looked
+        <em>too clean</em>: two magnetized bodies did not distort each other's pull, no dipole chains
+        formed, and a magnet over a pool produced a smooth dome instead of a Rosensweig spike row. The
+        field overlay did not work at all, because it sampled a texture this path never produces.</td>
+        <td class="notes">The analytic pole list contains only <em>external</em> sources. Magnetized
+        matter contributed nothing to the field, so a neighbour's M was simply not in the force
+        gradient.</td>
+      </tr>
+
+      <tr>
+        <td class="name">New Magnetic (current)<br><span class="b yellow">selectable</span></td>
+        <td>Three additions closed the v1 gaps. (1) Per-particle M state in its own SSBO, with
+        per-material relaxation and thermal decay &#8212; hard magnets keep M, Curie ferro fades past
+        about 680&#160;K, superconductors expel field below about 180&#160;K. (2) <em>NM Self-Field</em>:
+        particle M is scattered onto a 256&#178; grid tracking the MPM grid and solved with a
+        <strong>warm-started</strong> Jacobi (32 iterations, &#966; deliberately never cleared).
+        (3) Rosensweig spikes on that field, with a corrugation seed.</td>
+        <td class="notes">Current. Its live defects are listed below, not fixed by a later
+        generation.</td>
+        <td class="notes">The structural decision that makes the self-field safe is an
+        <strong>asymmetry</strong>: <code>H_here = H_at(pos)</code> <em>excludes</em> the demag texture
+        and is the only thing that magnetizes M; <code>h2_at()</code> <em>includes</em> it and is the
+        only thing that feels it. The self-field enters the force and never the magnetization.</td>
+      </tr>
+
+      <tr>
+        <td class="name">Fantasy v1<br><span class="b yellow">selectable</span></td>
+        <td>A byte-for-byte clone of New with its physical safety switches deliberately flipped to
+        wild. M is magnetized off the <em>total</em> field so activation propagates edge to edge; a
+        write gate latches M under a weak field, giving remanence; an orbital vortex makes matter
+        spiral rather than clamp; chain boost 2.2&#215;, self-field 1.6, spike strength 3.0 against
+        New's 1.0 / 1.6 / 9.0.</td>
+        <td class="notes">A permanent-magnet body that had been magnetized and then left alone
+        <strong>strobed</strong> &#8212; its colour and its overlay membrane oscillated frame to frame.
+        Legacy and New never flickered.</td>
+        <td class="notes">Follows directly from the design choice. For a latched body with the cursor
+        away the external field is near zero, so H<sub>total</sub> is dominated by the body's
+        <em>own</em> demagnetizing field, which by definition points opposite its M. The target
+        <code>langevin(|H_total|) * dir(-M)</code> tried to reverse M every frame; the demag field
+        reversed with it. The bug and the feature share one mechanism, which is why the fix had to be
+        a coercivity model rather than a retreat to the external field.</td>
+      </tr>
+
+      <tr>
+        <td class="name">Fantasy + Anti-Flicker<br><span class="b yellow">selectable</span></td>
+        <td>A coercivity rule that forbids the <em>self</em>-field from reversing a latched M while
+        leaving a strong <em>external</em> field free to re-magnetize. The target is decomposed along
+        and perpendicular to the previous M; the reversing component is clamped out
+        (<code>max(along, 0)</code>), the perpendicular swing is damped to 0.6, and the raw target is
+        blended back by <code>smoothstep(0.15, 0.60, |H_external|)</code>.</td>
+        <td class="notes">Current for Fantasy. Latched bodies settle and hold; propagation and
+        activation strength still come from the total field, so the wild behaviour survives.</td>
+        <td class="notes">A heuristic ratchet, not hysteresis &#8212; see the caveats below.</td>
+      </tr>
+    </table>
+
+    <figure class="schem-fig">
+      <div class="schem">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img"
+             aria-label="Left: the legacy Langevin response floored its argument at 1e-4, so a particle in a zero field still returned a magnetization of about saturation over thirty thousand; summed over the particles in a cell that seeded a closed feedback loop of magnetization, source, Poisson solve, field gradient and Kelvin force which had no external entry condition. Right: the current code returns exactly zero below 1e-6, and the loop is opened permanently because magnetization is read only from the analytic external field while the demagnetizing field enters only the force.">
+        <defs>
+          <marker id="fgY" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#FFD264"/></marker>
+          <marker id="fgB" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#78C8FF"/></marker>
+          <marker id="fgG" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#DDE3E0" fill-opacity="0.45"/></marker>
+        </defs>
+        <g font-family="ui-monospace, 'Cascadia Mono', Consolas, monospace" font-size="12" fill="#DDE3E0" stroke-width="1.5">
+
+          <rect x="16" y="21" width="18" height="2" fill="#FFD264" stroke="none"/>
+          <text x="40" y="26" fill-opacity="0.75">grid / field state</text>
+          <rect x="176" y="21" width="18" height="2" fill="#78C8FF" stroke="none"/>
+          <text x="200" y="26" fill-opacity="0.75">particle state</text>
+          <circle cx="317" cy="25" r="3" fill="#FF4646"/>
+          <text x="326" y="26" fill-opacity="0.75">the seed</text>
+          <text x="624" y="26" text-anchor="end" fill="#9AA3A0">external field = 0</text>
+
+          <rect x="14" y="40" width="300" height="262" rx="6" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.25)"/>
+          <rect x="326" y="40" width="300" height="262" rx="6" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.25)"/>
+          <text x="26" y="60">legacy: x = max(alpha|H|, 1e-4)</text>
+          <text x="338" y="60">current: L(x) = 0.0 below 1e-6</text>
+
+          <path d="M44,124 H150" fill="none" stroke="#DDE3E0" stroke-opacity="0.35" stroke-width="1"/>
+          <path d="M44,124 V76" fill="none" stroke="#DDE3E0" stroke-opacity="0.35" stroke-width="1"/>
+          <text x="30" y="80" fill-opacity="0.6">M</text>
+          <text x="156" y="128" fill-opacity="0.6">x</text>
+          <path d="M46,120 L150,84" fill="none" stroke="#FFD264"/>
+          <circle cx="46" cy="120" r="3.5" fill="#FF4646"/>
+          <path d="M50,122 L74,144" fill="none" stroke="#DDE3E0" stroke-opacity="0.35" stroke-width="1"/>
+          <text x="78" y="148">M(0) = sat/30000</text>
+
+          <path d="M356,124 H462" fill="none" stroke="#DDE3E0" stroke-opacity="0.35" stroke-width="1"/>
+          <path d="M356,124 V76" fill="none" stroke="#DDE3E0" stroke-opacity="0.35" stroke-width="1"/>
+          <text x="342" y="80" fill-opacity="0.6">M</text>
+          <text x="468" y="128" fill-opacity="0.6">x</text>
+          <path d="M356,124 L462,84" fill="none" stroke="#FFD264"/>
+          <circle cx="356" cy="124" r="3.5" fill="none" stroke="#DDE3E0"/>
+          <path d="M360,126 L384,144" fill="none" stroke="#DDE3E0" stroke-opacity="0.35" stroke-width="1"/>
+          <text x="388" y="148">M(0) = 0 exactly</text>
+
+          <text x="26" y="170">N particles per cell; M sums</text>
+          <circle cx="34" cy="184" r="2.5" fill="#78C8FF"/><circle cx="48" cy="184" r="2.5" fill="#78C8FF"/>
+          <circle cx="62" cy="184" r="2.5" fill="#78C8FF"/><circle cx="76" cy="184" r="2.5" fill="#78C8FF"/>
+          <circle cx="90" cy="184" r="2.5" fill="#78C8FF"/><circle cx="104" cy="184" r="2.5" fill="#78C8FF"/>
+          <circle cx="118" cy="184" r="2.5" fill="#78C8FF"/><circle cx="132" cy="184" r="2.5" fill="#78C8FF"/>
+          <text x="148" y="188" fill="#FFD264">cell M grows with N</text>
+
+          <text x="338" y="170">the same sum, seeded with 0</text>
+          <circle cx="346" cy="184" r="2.5" fill="#78C8FF"/><circle cx="360" cy="184" r="2.5" fill="#78C8FF"/>
+          <circle cx="374" cy="184" r="2.5" fill="#78C8FF"/><circle cx="388" cy="184" r="2.5" fill="#78C8FF"/>
+          <circle cx="402" cy="184" r="2.5" fill="#78C8FF"/><circle cx="416" cy="184" r="2.5" fill="#78C8FF"/>
+          <circle cx="430" cy="184" r="2.5" fill="#78C8FF"/><circle cx="444" cy="184" r="2.5" fill="#78C8FF"/>
+          <text x="460" y="188" fill="#FFD264">cell M = 0</text>
+
+          <text x="200" y="202" text-anchor="middle" fill="#FFD264" fill-opacity="0.7">1024, cleared</text>
+          <text x="512" y="202" text-anchor="middle" fill="#FFD264" fill-opacity="0.7">256, warm</text>
+
+          <rect x="26" y="206" width="44" height="28" rx="4" fill="rgba(255,255,255,0.06)" stroke="#78C8FF" stroke-opacity="0.45"/>
+          <text x="48" y="224" text-anchor="middle">M</text>
+          <rect x="82" y="206" width="84" height="28" rx="4" fill="rgba(255,255,255,0.06)" stroke="#FFD264" stroke-opacity="0.45"/>
+          <text x="124" y="224" text-anchor="middle">div M</text>
+          <rect x="178" y="206" width="44" height="28" rx="4" fill="rgba(255,255,255,0.06)" stroke="#FFD264" stroke-opacity="0.45"/>
+          <text x="200" y="224" text-anchor="middle">phi</text>
+          <rect x="234" y="206" width="72" height="28" rx="4" fill="rgba(255,255,255,0.06)" stroke="#FFD264" stroke-opacity="0.45"/>
+          <text x="270" y="224" text-anchor="middle">&#8711;|H|&#178;</text>
+          <path d="M70,220 L80,220" fill="none" stroke="#DDE3E0" stroke-opacity="0.45" marker-end="url(#fgG)"/>
+          <path d="M166,220 L176,220" fill="none" stroke="#DDE3E0" stroke-opacity="0.45" marker-end="url(#fgG)"/>
+          <path d="M222,220 L232,220" fill="none" stroke="#DDE3E0" stroke-opacity="0.45" marker-end="url(#fgG)"/>
+          <path d="M270,236 V264 H48 V238" fill="none" stroke="#78C8FF" marker-end="url(#fgB)"/>
+          <text x="34" y="282">density rises, so cell M rises</text>
+          <text x="34" y="296" fill="#9AA3A0">no gate on an external source</text>
+
+          <rect x="338" y="206" width="44" height="28" rx="4" fill="rgba(255,255,255,0.06)" stroke="#78C8FF" stroke-opacity="0.45"/>
+          <text x="360" y="224" text-anchor="middle">M</text>
+          <rect x="394" y="206" width="84" height="28" rx="4" fill="rgba(255,255,255,0.06)" stroke="#FFD264" stroke-opacity="0.45"/>
+          <text x="436" y="224" text-anchor="middle">div M</text>
+          <rect x="490" y="206" width="44" height="28" rx="4" fill="rgba(255,255,255,0.06)" stroke="#FFD264" stroke-opacity="0.45"/>
+          <text x="512" y="224" text-anchor="middle">phi</text>
+          <rect x="546" y="206" width="72" height="28" rx="4" fill="rgba(255,255,255,0.06)" stroke="#FFD264" stroke-opacity="0.45"/>
+          <text x="582" y="224" text-anchor="middle">&#8711;|H|&#178;</text>
+          <path d="M382,220 L392,220" fill="none" stroke="#DDE3E0" stroke-opacity="0.45" marker-end="url(#fgG)"/>
+          <path d="M478,220 L488,220" fill="none" stroke="#DDE3E0" stroke-opacity="0.45" marker-end="url(#fgG)"/>
+          <path d="M534,220 L544,220" fill="none" stroke="#DDE3E0" stroke-opacity="0.45" marker-end="url(#fgG)"/>
+          <path d="M582,236 V264 H360 V238" fill="none" stroke="#78C8FF" stroke-opacity="0.5" stroke-dasharray="4 3" marker-end="url(#fgB)"/>
+          <circle cx="471" cy="264" r="5" fill="none" stroke="#FFFFFF" stroke-width="2"/>
+          <text x="346" y="282">H_here = H_at(pos) only</text>
+          <text x="346" y="296" fill="#9AA3A0">demag pushes; never magnetizes</text>
+
+          <text x="320" y="348" text-anchor="middle">the floor was the seed; the loop was the amplifier</text>
+        </g>
+        </svg>
+      </div>
+      <div class="schem-legend">
+        <i class="grid"></i><span>solved / field state<em>the magnetization source, phi, and the field gradient</em></span>
+        <i class="part"></i><span>particle state<em>per-particle M, and the force that packs particles</em></span>
+        <i class="mark"></i><span>the seed<em>a non-zero M returned for a genuinely zero field</em></span>
+      </div>
+      <figcaption>The bug was four characters wide and the fix is one line, but neither number is the
+      point. A per-particle floor of 3.33e&#8722;5 is harmless in isolation; it is decisive because
+      the rasterizer sums M into shared cells and because the loop it feeds has gain above one. On the
+      right, the same loop still exists &#8212; the self-field is back, and it is what produces
+      interference, dipole chains and real spikes &#8212; but it is opened permanently at one edge
+      (the white ring): the analytic external field is the only input to magnetization, and the
+      demagnetizing field is the only thing excluded from it.</figcaption>
+    </figure>
+
+    <div class="grid-2">
+      <div class="panel">
+        <h3>Why the current backend is good enough</h3>
+        <p>It removed a cause instead of adding a compensator. The field is now a closed-form sum of at
+        most 32 softened 2D pole kernels evaluated per particle: exact at every distance, zero solver
+        cost, zero lag, and structurally incapable of truncating. Once the field was exact, all five
+        gates became unnecessary <em>at once</em>, because every one of them had been tuned against the
+        truncated field. The ring had an outer edge (Jacobi never reached there) and an inner edge
+        (<code>hf_suppress</code> and <code>sink_cancel</code> closing at the pole and inside blobs);
+        both edges disappear when the field is right. What survives as force shaping is one
+        per-material acceleration cap, so the falloff you see is physics rather than tuning.</p>
+        <p>The collapse those gates were also fighting was independently re-diagnosed as a
+        <strong>Langevin feedback runaway</strong> rather than mechanical compression &#8212; M read
+        off the full field grows M &#8212; and that loop is now broken structurally rather than damped.
+        The dead numerical seed is gone at the source. Holding became a spring-damper, so a stationary
+        held magnet holds instead of braking.</p>
+        <p>It is also two orders of magnitude cheaper: seven cold-start 1024&#178; solves at 52 to 96
+        iterations per frame (roughly 380 to 700 million Jacobi cell updates) became one
+        warm-started 256&#178; solve at 32 iterations (about 2.1 million), and that solve accumulates
+        convergence across frames instead of throwing it away.</p>
+      </div>
+      <div class="panel">
+        <h3>What is still wrong</h3>
+        <ul class="bullet-list">
+          <li><strong>The biggest one is a regression the other docs do not mention.</strong> Selecting
+          New or Fantasy sets <code>suppressed_by_new_backend</code>, which makes
+          <code>physics_active()</code> return false, which sets <code>u_use_real_magnetics = 0</code>
+          in both p2g and g2p. That silently switches off five of the seven anti-compaction mitigations
+          the status page still advertises: the demag pressure, the occupancy anti-collapse pressure,
+          <code>hf_suppress</code>, the positional cursor gate and the per-cell M cap
+          (<code>CELL_M_CAP = 28</code>), plus the legacy surface force and chain force. Under New and
+          Fantasy, compaction is held by the unconditional Tait <code>j_floor</code> alone (0.85 ferro,
+          0.90 heavy, i.e. 10 to 15&#37; maximum compression) and one accel cap. <em>Ferro compacts more
+          than physical under a strong source</em> is therefore <strong>not</strong> fixed by the
+          current backend; the stack that used to fight it is off and a blunt clamp replaced it. The
+          project's own remedy is a slider.</li>
+          <li><strong>A world-up bias.</strong> With poles off and ambient zero but self-field on,
+          <code>field_dir</code> falls back to a hardcoded (0,1) and
+          <code>chi_eff = dot(m, field_dir)/M_REF</code> collapses to <code>m.y/M_REF</code>. A remanent
+          body whose M points sideways gets near-zero force; one pointing downward is
+          <em>repelled</em> from its own gradient.</li>
+          <li><strong>The demag solve lags.</strong> Warm-started but never converged (32 iterations,
+          256&#178; over the whole MPM grid, far coarser than the legacy 1024&#178;). Chain spacing and
+          spike sharpness are resolution-limited, and fast material outruns its own field. Truncation
+          was traded for lag, not eliminated.</li>
+          <li><strong>Silent pole overflow.</strong> <code>kMaxPoles = 32</code> with an early return;
+          permanent magnets cost two poles each, so past about 16 magnetic SDF objects the extras
+          contribute literally nothing, with no warning.</li>
+          <li><strong>Soft iron does not self-consist.</strong> It is a single-pass induced estimate
+          evaluated in pole-insertion order, so two soft-iron pieces near each other never mutually
+          magnetize. The legacy ran three induction passes for exactly that.</li>
+          <li><strong>Fantasy's anti-flicker is a ratchet, not hysteresis.</strong> There is no
+          per-material coercive field and no switching model, so the 0.15 / 0.60 thresholds are global
+          constants applied identically to a hard magnet (saturation 22) and Para Mist (1.0). A latched
+          M can rotate but effectively cannot shrink along its own axis under the self-field alone, so
+          a body can hold a physically unjustified magnetization for a long time. Fantasy also runs
+          self-field 1.6 and chain boost 2.2, which makes it the generation most likely to
+          over-compact.</li>
+          <li><strong>The default is still Legacy</strong> (<code>g_magnetic_backend = 0</code>). Out of
+          the box you get the ring, despite the consolidation proposal recommending New as canonical.
+          Only the combo, or a scene preset carrying <code>"magnetic_backend": 1</code>, switches it.</li>
+          <li><strong>Doc drift, code wins.</strong> The backend combo tooltip still claims New
+          <em>does not yet do per-particle remanence, Rosensweig spikes, or the field overlay</em>
+          &#8212; all three shipped. The status page's Heavy Ferrofluid row still lists saturation 14
+          and alpha 3.0 while both shaders use 8.0 and 2.0 (its own caveat list, four lines above, has
+          the correct numbers).</li>
+          <li><strong>A deliberate 2D compromise.</strong> The pole kernel falls off as 1/r for a
+          monopole and 1/r&#178; for a dipole pair, not the 3D 1/r&#179;. Consistent for a 2D world, but
+          <em>no ring</em> is partly bought with <em>the magnet reaches the whole world</em>.</li>
+          <li><strong>Vestigial, harmless.</strong> <code>magnetic_rasterize.comp</code> still carries
+          the old <code>max(alpha*hmag, 1e-4)</code> form. It cannot reproduce the clumping &#8212; its
+          only call site is guarded by <code>hmag &gt; 1e-5</code> and applies to SDF shell pixels, not
+          thousands of particles &#8212; but it should go.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="note">
+      <p><strong>When you would still pick an older version.</strong> Four real reasons, not nostalgia.
+      (1) Legacy is the only way to <em>see</em> the ring and the drop-on-move, which is the
+      demonstration the whole rebuild exists to justify. (2) Six mechanisms are legacy-only and go
+      completely dead under New and Fantasy because they are gated on
+      <code>u_use_real_magnetics</code>: demag pressure, occupancy anti-collapse pressure, the per-cell
+      M cap, the interface Maxwell shaping in <code>ferro_surface_force</code>, the legacy dipole chain
+      force, and <code>hf_suppress</code>. If a scene depends on demag-pressure anti-packing, New has no
+      equivalent. (3) The Mechanic Toggles panel exposes each legacy gate individually, which is how you
+      attribute a symptom to a specific gate; New has no analogue. (4) Legacy is the only backend that
+      produces a real solved field <em>texture</em>, so every debug view that samples one &#8212; M Raw,
+      the source texture, the magnetization texture &#8212; works only there.</p>
+      <p>Fantasy versus New is not old versus new at all. Pick Fantasy when you want the game feel
+      &#8212; activation that propagates and latches, orbiting matter, bold chains, arcane colour
+      &#8212; and New when you want the physically defensible answer. Fantasy is a deliberate sibling,
+      not a successor.</p>
+    </div>
+
+    <div class="callout">
+      <p><strong>The A/B to run.</strong> Load <em>Ferro Spike Bench</em> (it already sets
+      <code>magnetic_backend: 1</code>, self-field on, spikes on), let a pool settle, then flip
+      Magnetics &#8594; Magnetic Backend between the three entries with the same pool and the same
+      cursor motion.</p>
+      <ul>
+        <li><strong>The ring.</strong> On Legacy, hold a magnet above the pool: only a thin annulus
+        moves, the fluid directly under the pole and everything past about 10 to 20 cells sits still.
+        Sweep sideways and the gathered blob is <em>dropped in place</em> while a new ring forms at the
+        new position. On New the whole pool leans toward the cursor and follows continuously.</li>
+        <li><strong>The hold.</strong> Gather a blob and stop moving. Legacy: it slumps and falls. New:
+        the spring-damper holds it at the cursor.</li>
+        <li><strong>The self-field.</strong> On New, toggle NM Self-Field off &#8212; the spike row
+        collapses into an undifferentiated mound and two magnetized bodies stop distorting each other's
+        pull. NM Spike Spacing changes the lattice pitch.</li>
+        <li><strong>The 1e-4 bug.</strong> Select Legacy, set cursor strength 0, no scene magnets,
+        Ambient H = 0, and watch a puddle. Today it stays a viscous puddle. The pre-April build that
+        lumped under zero field is preserved in the archived snapshots for comparison.</li>
+        <li><strong>Fantasy.</strong> Sweep the source over a permanent-magnet body: the glow propagates
+        edge to edge and <em>holds</em> after the source leaves; hold it over ferro and matter orbits in
+        a vortex instead of clamping on. Then turn FM Anti-Flicker off, magnetize a body and move the
+        cursor away: colour and field membrane strobe frame to frame. Turn it back on and it
+        settles.</li>
+        <li><strong>The hidden regression.</strong> On Legacy, watch the demag-pressure and occupancy
+        anti-collapse toggles do something. Switch to New: those toggles no longer do anything at all,
+        because <code>u_use_real_magnetics</code> is 0 on that backend.</li>
+      </ul>
+    </div>
+  </section>
+
+
+  <section id="living">
+    <div class="section-top">
+      <div class="colorbar mpm"></div>
+      <p class="eyebrow">Living material &#183; four modules, three selectable</p>
+      <h2>Growing tissue: what actually produces new area</h2>
+      <p class="lede">A living material has to answer two separate questions &#8212; <em>where</em>
+      should the body be, and <em>how</em> does material get there &#8212; and every failure in this
+      family came from answering them with one mechanism. Growth also has to terminate: a body that
+      keeps growing is not an organism, it is a leak.</p>
+    </div>
+
+    <div class="chip-row">
+      <span class="chip">Culture</span>
+      <span class="chip">Automata [legacy]</span>
+      <span class="chip">Colony + Bloom [legacy]</span>
+    </div>
+
+    <h3>The generations</h3>
+    <table>
+      <tr><th>Generation</th><th>What it did</th><th>The symptom you saw</th><th>Root cause</th></tr>
+      <tr>
+        <td class="name">Colony &#183; spawn-first<br><span class="b yellow">selectable</span></td>
+        <td>A dedicated 128&#178; life grid with occupancy, a diffusing energy field sourced by placed
+        cores, and a selectable SmoothLife or Gray-Scott guide. <strong>Growth is particle
+        spawning</strong>: a frontier cell that is wanted, fed and empty atomically claims a slot, and
+        the CPU expands it into a 2&#215;2 cluster of new cells. Energy is debited at each spawn, so a
+        colony cut off from a core runs down; cores latch dead below vitality 0.06, making
+        "burn every heart" a permanent kill.</td>
+        <td class="notes">The body did not grow, it <em>appeared</em> &#8212; discrete 2&#215;2 clumps
+        popping in at the edge (the changelog's "strange cell-generating look") &#8212; and it ate the
+        particle budget at 256 cells &#215; 4 particles every 3 frames.</td>
+        <td class="notes">Making discrete particle insertion the primary motion makes the visual
+        quantum of growth a whole cluster. There is no continuous mechanism between <em>nothing</em>
+        and <em>four new particles</em>.</td>
+      </tr>
+      <tr>
+        <td class="name">Colony &#183; expand + fill<br><span class="b yellow">selectable</span></td>
+        <td>Expansion becomes primary, spawning demoted to gap-fill. A per-cell
+        <code>growth_drive</code> is baked into phase data and read by the constitutive branch as
+        <code>J_rest = 1 + phase_data</code>, so fed cells push outward continuously; the frontier scan
+        can now only repair already-living cells that thinned.</td>
+        <td class="notes">It grows forever. The body inflates smoothly and pleasantly and keeps
+        inflating until it hits the soft particle cap or the energy radius. There is no state at which
+        it is done.</td>
+        <td class="notes">Named in the design spec that replaced it: <em>"the current EXPAND_FILL growth
+        never saturates"</em>. The drive uses <code>max(want, sparse)</code>, and the edge of a spreading body
+        is permanently sparse, so the drive never turns off. The first cut also spawned at the empty
+        edge, compounding spawn front and expansion into a 36k-particle runaway before the predicate
+        was narrowed.</td>
+      </tr>
+      <tr>
+        <td class="name">Bloom &#183; bounded<br><span class="b yellow">selectable</span></td>
+        <td>Eases each cell's rest-volume excess toward a fixed target and holds there; spawning fires
+        only in a genuine interior tear (an empty cell with tissue on <em>opposite</em> sides), never at
+        the advancing edge. The same entry also made the living materials burnable at all &#8212; they
+        had been absent from the thermal gate, so their temperature literally never moved and fire did
+        nothing to them.</td>
+        <td class="notes">It inflates once and is then inert. A balloon, not an organism. Roughly four
+        tear repairs across a whole verified run at about 725 particles.</td>
+        <td class="notes">The bounded target has <em>no guide term and no occupancy term at all</em>.
+        The pattern engine is still computed every frame and contributes nothing to a bloom's shape.
+        Boundedness was achieved by removing the feedback rather than closing it.</td>
+      </tr>
+      <tr>
+        <td class="name">Automata<br><span class="b yellow">selectable</span></td>
+        <td>Split the two questions properly for the first time: a SmoothLife field that is an automaton
+        on <em>itself</em> (so it self-bounds) decides where, and a purely geometric ring rule decides
+        whether to insert &#8212; one particle into an empty cell encircled by at least 6 of 8 occupied
+        neighbours. A <strong>bio force</strong> is the link: particles drift up
+        grad(field &#8722; occ) into the field's empty birth ring. Two distinct burn end-states as
+        separate materials: hard brittle ash that shatters, and soft wood char.</td>
+        <td class="notes">The ring rule essentially never fires: <strong>8 insertions in 2520
+        frames</strong> (about 21 s at 120&#160;Hz) on an 882-particle blob. Tissue thickens and drifts
+        but never develops the porous structure the field preview promises.</td>
+        <td class="notes">The field is force-fed the body's own shape: <code>target = max(target, occ)</code>,
+        then an ash boost on top. The field can never dip below occupancy inside the body, so no
+        interior hole can be <em>carved</em> &#8212; only torn open mechanically &#8212; and the ring
+        rule then demands that torn hole also be ringed by 6 of 8. Compounding it, the kernel is a toy:
+        17 inner plus 32 ring taps at radii 2 and 5 cells, which can only low-pass occupancy into a
+        blob.</td>
+      </tr>
+      <tr>
+        <td class="name">Culture<br><span class="b green">default</span></td>
+        <td>A 256&#178; module with a faithful port of a reference SmoothLife: <strong>489 taps at
+        radius 13</strong>, an order of magnitude more kernel, and critically <em>not</em> max()'d with
+        occupancy. Occupancy only <em>confines</em> the field (a blurred mask multiplies it) and
+        <em>nucleates</em> it (hash noise injected where tissue exists but the field is still flat).
+        The coupling is inverted: instead of asking for particles to be inserted into holes, every
+        particle is pushed <strong>up grad(field)</strong> onto the membrane ridge, so holes evacuate
+        and the material inherits the porous structure. Sculpt mode is mass-conserving; grow mode
+        inserts only on membrane cells adjacent to tissue, under a hard lifetime budget.</td>
+        <td class="notes">Current. Its own first cut ran away to the 100k cap because the density target
+        was never reached, so the same cells re-fired forever.</td>
+        <td class="notes">That took <em>three</em> stacked guards to bound &#8212; a build-once density
+        threshold, a frontier adjacency gate, and a hard lifetime counter &#8212; rather than one
+        principled bound. Worth knowing before trusting grow mode in a new scene.</td>
+      </tr>
+    </table>
+
+    <div class="grid-2">
+      <div class="panel">
+        <h3>Why Culture is good enough</h3>
+        <p>It is the first generation where the pattern engine and the material are coupled in the
+        direction that works. Colony asked <em>spawning</em> to be the growth (quantised, popcorn);
+        expand+fill asked <em>inflation</em> to be the growth (never terminates); Automata asked the
+        geometry to <em>find</em> holes the field never carved (8 firings in 21 seconds). Culture
+        separates them: a properly resolved continuous automaton &#8212; 489 taps at radius 13, with
+        occupancy confining and nucleating it but never overwriting it &#8212; genuinely produces
+        membranes and holes; then a gradient force drags existing matter onto the ridges.</p>
+        <p>That is the whole argument. The porous structure is achieved by <strong>rearrangement</strong>,
+        which is mass-conserving and therefore bounded by construction, and insertion becomes an
+        optional budgeted extra rather than the mechanism. Sculpt mode <em>cannot</em> run away; grow
+        mode's bound is a counter, not a tuned feedback loop.</p>
+        <p>The regrowth rule is deliberately asymmetric &#8212; living tissue heals to full unless
+        actually hot, dead tissue converts back only where green is nearby &#8212; so green always wins
+        at a boundary and a burn scar heals as a visible front. Every earlier heal/starve pair diluted
+        into a grey equilibrium instead. The project confirmed the result in-app before building on it,
+        and tagged a checkpoint at that state.</p>
+      </div>
+      <div class="panel">
+        <h3>What is still wrong</h3>
+        <ul class="bullet-list">
+          <li><strong>It cannot die of anything but heat.</strong> The starve rate is still passed in,
+          and the shader marks it <em>unused: living tissue is sticky, only burning kills</em> &#8212;
+          while the panel tooltip still tells you the body dies if you do not beat the starve rate.
+          That tooltip is false.</li>
+          <li><strong>No kill switch.</strong> Culture has no cores and no energy budget, so it lost
+          Colony's best mechanic: a permanently latched dead core. Any surviving green reclaims any
+          adjacent white, so the only kill is burning 100&#37; of the body.</li>
+          <li><strong>The changelog overstates the material transition.</strong> It says burnable tissue
+          becomes a brittle husk material; the code never changes a material id &#8212; the husk is a
+          <code>vitality &lt;= u_dead_floor</code> branch (default 0.15) <em>inside</em> the tissue material, and the husk id
+          is only ever placeable by hand.</li>
+          <li><strong>The revival field is not self-limiting</strong>, contrary to the changelog. Its
+          source is the blurred <em>living</em> occupancy; the husk texture is read only by the stats
+          pass. Ash gating happens per particle, not in the field, so the field is computed over empty
+          air around any green tissue.</li>
+          <li><strong>Hidden coupling.</strong> One mask texture is used both as the field's confinement
+          mask and as the revival field's green source, so moving <em>Confine Radius</em> silently
+          changes regrowth reach. No tooltip says so.</li>
+          <li><strong>It only reads correctly at low gravity.</strong> The showcase scenes hard-code
+          &#8722;1.5&#160;g with the comment <em>"so the porous structure shows"</em>. At &#8722;9.81 the
+          membrane impulse (clamped to 1.8) loses to gravity and the tissue puddles.</li>
+          <li><strong>It is the most expensive backend</strong>: 489 taps &#215; 65,536 cells per frame,
+          8 to 14&#160;ms/frame against Automata's 6 to 8.</li>
+          <li><strong>Grow-then-hold is a lifetime counter, not physiology.</strong> The counter resets
+          only when the module is disabled, so a body cut in half can recover vitality but never
+          mass.</li>
+          <li><strong>Discoverability.</strong> The Creation menu still lists all eight living materials,
+          but placing a Colony core in a default scene does nothing, because scene load forces the
+          Version selector back to Culture and disables the other two modules. Only one tooltip
+          mentions the Version dropdown at all.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="note">
+      <p><strong>When you would still pick an older version.</strong> <em>Colony + Bloom</em> is the only
+      generation with cores, metabolic energy and a permanent kill &#8212; "burn the heart and the
+      creature stays dead" exists nowhere else. It is also the only one whose growth follows level
+      geometry (a bias toward SDF surfaces) and the only one offering Gray-Scott mitosis as a growth
+      guide; within it, Bounded organism is the cheapest way to get a fixed-size organic body (about 725
+      particles, about 4 spawns for a whole run). <em>Automata</em> is the cheapest per frame and the
+      only one with two <em>distinct</em> burn end-states as separate materials &#8212; hard brittle ash
+      that accumulates fracture and shatters into chunks, and soft wood char &#8212; plus an ash
+      accelerant that makes regrowth race into dead ash. If you want a shatterable burnt organism rather
+      than a porous one, Automata is still the right pick.</p>
+    </div>
+
+    <div class="callout">
+      <p><strong>The A/B to run.</strong> Scene load sets the backend to Culture and disables all three
+      modules every time; only the five legacy showcase scenes override it.</p>
+      <ul>
+        <li>Load <em>Showcase: Living Culture</em> and open Advanced &#8594; Living Material. Three live
+        previews: field, occupancy, revival. The field should be bright rings around dark holes, and the
+        occupancy preview should have holes <em>in the same places</em> &#8212; that is the membrane
+        force working. Watch <code>grown: N / 4000</code> climb and then stop.</li>
+        <li>Switch Version to <em>Automata [legacy]</em>, tick Enable, load its showcase. Its single
+        field preview is a smoothed copy of the body silhouette with no interior holes, and
+        <em>last insert</em> sits at 0 for tens of seconds. That is the ring rule not firing,
+        visibly.</li>
+        <li>Switch to <em>Colony + Bloom [legacy]</em> with Growth Mode = Spawn-first. The particle
+        readout jumps in blocks of hundreds and the body pops in as 2&#215;2 clumps. Change to
+        Expand + fill mid-run: spawning collapses to 4 to 16 per tick and the body inflates smoothly
+        &#8212; and never stops until it hits the soft cap. Set Bounded organism and it swells once and
+        freezes.</li>
+        <li>Burn test: heat-gun a corner of Culture tissue. Plain tissue burns only where you point and
+        the green sweeps back as a front; the flammable variant self-heats and the whole blob goes.
+        Uncheck <em>Revive</em> first to see the burnt patch stay white forever &#8212; that is the A/B
+        for the regrowth field itself.</li>
+      </ul>
+    </div>
+  </section>
+
+
+  <section id="regrowth">
+    <div class="section-top">
+      <div class="colorbar heat"></div>
+      <p class="eyebrow">Ash regrowth &#183; two generations</p>
+      <h2>Two shaders, one buffer: an ownership bug wearing a tuning bug's clothes</h2>
+      <p class="lede">This family is small and worth reading anyway, because it is the cleanest example
+      in the project of a defect that no amount of threshold tuning could have fixed. The goal is
+      modest: burnt ash next to living tissue should come back.</p>
+    </div>
+
+    <h3>The generations</h3>
+    <table>
+      <tr><th>Generation</th><th>What it did</th><th>The symptom you saw</th><th>Root cause</th></tr>
+      <tr>
+        <td class="name">Legacy<br><span class="b orange">superseded</span></td>
+        <td>Two independent state machines wrote the <em>same</em> two per-particle buffers every
+        frame. p2g integrated regrow and ash from <strong>temperature alone</strong>
+        (heal below 360&#160;K, burn above 540&#160;K) and stored them; g2p then integrated the same
+        two channels from a <strong>field-gated neighbour rule</strong> and stored them again. g2p runs
+        last, so g2p won every frame.</td>
+        <td class="notes">Burn a corner off an ash block, let it cool: the black patch either sits there
+        or briefly lightens and then goes dark again. After you release the heat gun it idles for a long
+        time doing nothing at all.</td>
+        <td class="notes">Three defects stacked. <em>Fighting:</em> g2p ran second and relaxed regrow
+        toward a near-zero field target, stalling or reversing p2g's temperature heal.
+        <em>Dead code:</em> the whole g2p neighbour branch sat behind a bio-field toggle that was off by
+        default <em>and</em> reset to false on every scene load, so in ordinary scenes the rule never
+        executed at all. <em>Band mismatch:</em> p2g healed below 360&#160;K while g2p's ash gate faded
+        from 365&#160;K, leaving a recovery-critical window where neither machine progressed. The p2g
+        comment block still preserves the archaeology (<em>420K was too low, raise to 540K, widen the
+        neutral band</em>) &#8212; a log of failed tuning against an ownership bug.</td>
+      </tr>
+      <tr>
+        <td class="name">Living Regrowth v2<br><span class="b green">default</span></td>
+        <td>Single-owner state. p2g still computes its values for this frame's stress but
+        <strong>defers the writes</strong>; g2p owns the buffers. Impact crumble stays p2g-owned,
+        because g2p does not compute it. The neighbour branch is forced on rather than depending on
+        legacy toggles. "Living nearby" is redefined as a robust locality envelope, seeded by both ash
+        and living tissue and surviving fire heat. The temperature band collapses to a single ramp over
+        380 to 420&#160;K, eliminating the dead zone. The integrator is an explicit per-second rate
+        (0.25/s, boosted up to 2.5&#215; when adjacent), so roughly 3 to 8&#160;s to full. Finally, the
+        Eulerian bio passes auto-enable whenever the solver reports living materials present.</td>
+        <td class="notes">Current and default-on.</td>
+        <td class="notes">The remaining defects are scoping, not correctness &#8212; see below.</td>
+      </tr>
+    </table>
+
+    <div class="grid-2">
+      <div class="panel">
+        <h3>Why v2 is good enough</h3>
+        <p>The legacy failure was not a tuning problem, it was an ownership problem: two writers to one
+        buffer, with the loser recomputed from scratch every frame. That is why the shader comment reads
+        like a log of failed thresholds. v2 makes g2p the sole owner and leaves p2g's values as
+        read-only intermediates for the current frame's stress. The second fix is equally structural:
+        the neighbour rule had been gated behind a toggle scene loading reset to false, so the feature
+        was unreachable in normal play; v2 forces the branch on and auto-enables the bio passes from
+        spawn-time material detection, so it works without the user knowing a bio field exists. Aligning
+        the temperature bands &#8212; the only part that looks like tuning &#8212; only became possible
+        once there was a single owner to align.</p>
+      </div>
+      <div class="panel">
+        <h3>What is still wrong</h3>
+        <ul class="bullet-list">
+          <li><strong>"Same object" is a proximity heuristic.</strong> The changelog admits it: no
+          per-particle object id exists. Two unrelated ash bodies touching will heal each other.</li>
+          <li><strong>The detection latch is sticky.</strong> It is cleared only by a full particle
+          clear, so once any living material has existed in a session the Eulerian bio passes stay on
+          for the rest of that scene even after the material is gone.</li>
+          <li><strong>It costs work the default configuration does not use.</strong> The detection list
+          includes the Culture tissue materials, so placing Culture tissue flips the bio passes on
+          &#8212; but nothing in the Culture backend reads that field. Culture has its own 256&#178;
+          revival field.</li>
+          <li><strong>Narrower scope than the name suggests.</strong> The v2 branch applies to the two
+          ash-regrowth materials only. Morph Tissue and Cell Sheet are the <em>neighbours</em> that
+          make ash regrow; they do not regrow through this path themselves.</li>
+          <li><strong>It is state recovery, not resurrection.</strong> No material-id transition and no
+          particle spawn, so a fully destroyed region cannot come back.</li>
+          <li><strong>No measured regrow curve.</strong> Only a smoke-test recipe was recorded.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="note">
+      <p><strong>When you would still pick the older version.</strong> Never for behaviour &#8212; the
+      legacy path is strictly worse. The toggle survives as a diagnostic bisector: if regrow or ash
+      values look wrong, turning v2 off tells you whether the g2p neighbour path or the p2g temperature
+      path produced them, and <em>Force Bio Passes</em> separately isolates whether the problem is the
+      field gate or the two-writer conflict.</p>
+    </div>
+
+    <div class="callout">
+      <p><strong>The A/B to run.</strong> In an ordinary scene (not a bench), place an ash-regrowth block
+      directly beside Morph Tissue or Cell Sheet. Burn part of the ash, release, let it cool. With v2 on
+      the burnt region darkens and then visibly regrows to alive in roughly 3 to 8&#160;s, bulging
+      slightly past its original outline; raise <em>Regrow Rate</em> to move the front faster. Untick
+      <em>Living Regrowth v2</em> and repeat: either no neighbour regrowth at all, or a front that starts
+      and stalls. Then turn <em>Force Bio Passes</em> on with v2 still off &#8212; the passes now run, so
+      whatever stall remains is the two state machines fighting, not the dead gate.</p>
+    </div>
+  </section>
+
+
+  <section id="fracture">
+    <p class="note"><strong>2026-09-19 qualification:</strong> the nonlocal damage path exists, but
+    <code>l0 = profile_ratio × scale × dx</code> in <code>shaders/physics/mpm_p2g.comp</code>.
+    Keeping the ratio fixed changes the physical length with resolution. References below to
+    resolution-independent crack width or speed describe an intended property, not a demonstrated
+    result. See <a href="model_audit_20260919.md#7-tearing-anisotropic-damage-and-solver-coupling">the current audit</a>.</p>
+    <div class="section-top">
+      <div class="colorbar mpm"></div>
+      <p class="eyebrow">Fracture &#183; three models</p>
+      <h2>A threshold makes a scatter of failures; a length scale makes a crack</h2>
+      <p class="lede">Breaking a solid in MPM means deciding, per particle, how much of its stress to
+      keep. The hard part is that a crack is not a property of any single particle: it is a
+      <em>front</em>, and a front needs its neighbours in the equation. The legacy model had no
+      neighbour term at all, which is why its cracks had no tip and why their speed depended on the grid
+      you happened to be running.</p>
+    </div>
+
+    <div class="chip-row">
+      <span class="chip">Legacy (hand-tuned)</span>
+      <span class="chip">AnisoMPM isotropic</span>
+      <span class="chip">AnisoMPM anisotropic</span>
+    </div>
+
+    <h3>The generations</h3>
+    <table>
+      <tr><th>Generation</th><th>What it did</th><th>The symptom you saw</th><th>Root cause</th></tr>
+      <tr>
+        <td class="name">Legacy<br><span class="b green">still default</span><br><span class="b yellow">selectable</span></td>
+        <td>Per-material, hand-tuned strain thresholds on the singular values, replicated roughly 35
+        times across the constitutive branches with their own magic numbers. The glass branch is
+        representative: <code>crack += max(tensile*1.6 + shear*1.2 - thresh, 0) * rate * dt</code>, then
+        <code>integrity = max(1 - crack*0.82, 0.18)</code> multiplying the already-summed stress.</td>
+        <td class="notes">What looks like a crack is a <em>scatter</em> of independently failed
+        particles. Tears go limp and mushy instead of stringy. The same scene cracks at a visibly
+        different speed if you change the grid resolution.</td>
+        <td class="notes">Four separate problems. The drive was singular-value <em>stretches</em>, not
+        energy or stress &#8212; no fracture energy, no critical stress anywhere in the code. There was
+        <strong>no regularization</strong>, so no crack tip, no propagation front, and a crack width
+        equal to the particle spacing, which is exactly why the crack speed tracks the resolution.
+        Degradation was linear with a large floor (18&#37; of the stress survives full damage) instead
+        of (1&#8722;d)&#178;. And it multiplied the <em>already-summed</em> stress including the fiber
+        term &#8212; the direct cause of limp tears &#8212; while the drive itself was essentially
+        isotropic even though fiber directions were driving orthotropic stiffness.</td>
+      </tr>
+      <tr>
+        <td class="name">AnisoMPM isotropic<br><span class="b yellow">selectable</span></td>
+        <td>The paper's own controlled reference at &#945; = 0: an anisotropic driving force
+        &#934; = (A&#963;&#8314;):(&#963;&#8314;A)/&#963;<sub>c</sub>&#178; from a structural tensor
+        built on the <em>polar</em> rotation, an elastic threshold below which no damage accrues at
+        all, a monotone driving-force history so cracks do not stall mid-propagation, and explicit
+        damage evolution with the non-local term
+        &#951;&#7691; = &#10216;(1&#8722;d)D&#771; &#8722; (d &#8722; l&#8320;&#178;&#8711;&#178;d)&#10217;.</td>
+        <td class="notes">Selectable, off by default. This mode exists so that switching mode 1 to mode 2
+        changes <em>directionality only</em>, at matched toughness.</td>
+        <td class="notes">Getting that matched-toughness property right took a correctness pass: the
+        critical stress had been normalized hydrostatically while the stress it was compared against was
+        uniaxial, so the isotropic mode needed &#8730;2&#215; more stress than authored. Mode 1 to mode 2
+        therefore changed toughness as well as direction, defeating the entire point of having a
+        control.</td>
+      </tr>
+      <tr>
+        <td class="name">AnisoMPM anisotropic<br><span class="b yellow">selectable</span></td>
+        <td>&#945; = &#8722;1, where the structural tensor <em>is</em> the cross-fiber projector, so
+        along-fiber tension cannot drive damage at all and cracks run <strong>along the grain</strong>.
+        Degradation g(d) = (1&#8722;d)&#178; is applied selectively: shear always, volumetric only in
+        tension (so fragments push apart instead of interpenetrating), the fiber term
+        <strong>never</strong> &#8212; intact fibers surviving a failed matrix is what makes a tear
+        stringy.</td>
+        <td class="notes">Selectable, off by default. Enrolled so far: the orthotropic tear material,
+        brittle and tough.</td>
+        <td class="notes">The legacy orthotropic drive
+        (<code>cross*3.2 + shear*1.8 - along*0.80</code>) was an unnormalized hand-rolled approximation
+        of exactly the projector this formalizes.</td>
+      </tr>
+    </table>
+
+    <figure class="schem-fig">
+      <div class="schem">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img"
+             aria-label="Left: the legacy fracture model has each particle cross its own strain threshold independently, producing a scattered cloud of failed particles with no crack tip, a crack width equal to the particle spacing, and a residual stress floor of eighteen percent. Right: AnisoMPM adds a non-local Laplacian of damage read from a weight normalized damage grid, which concentrates damage at a tip and gives the crack a physical width l zero, independent of the grid.">
+        <defs>
+          <marker id="frG" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#DDE3E0" fill-opacity="0.45"/></marker>
+        </defs>
+        <g font-family="ui-monospace, 'Cascadia Mono', Consolas, monospace" font-size="12" fill="#DDE3E0" stroke-width="1.5">
+
+          <rect x="16" y="21" width="18" height="2" fill="#FFD264" stroke="none"/>
+          <text x="40" y="26" fill-opacity="0.75">damage field d</text>
+          <rect x="176" y="21" width="18" height="2" fill="#78C8FF" stroke="none"/>
+          <text x="200" y="26" fill-opacity="0.75">plate and grain</text>
+          <circle cx="317" cy="25" r="3" fill="#FF4646"/>
+          <text x="326" y="26" fill-opacity="0.75">failed particle</text>
+          <text x="624" y="26" text-anchor="end" fill="#9AA3A0">same plate, same load</text>
+
+          <rect x="14" y="40" width="300" height="262" rx="6" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.25)"/>
+          <rect x="326" y="40" width="300" height="262" rx="6" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.25)"/>
+          <text x="26" y="60">legacy: a local strain threshold</text>
+          <text x="338" y="60">AnisoMPM: a regularized field</text>
+
+          <rect x="44" y="76" width="240" height="90" rx="3" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+          <path d="M40,121 L22,121" fill="none" stroke="#DDE3E0" stroke-opacity="0.45" marker-end="url(#frG)"/>
+          <path d="M288,121 L306,121" fill="none" stroke="#DDE3E0" stroke-opacity="0.45" marker-end="url(#frG)"/>
+          <path d="M60,90 H268 M60,121 H268 M60,152 H268" fill="none" stroke="#78C8FF" stroke-opacity="0.25" stroke-width="1"/>
+          <circle cx="150" cy="86" r="2.6" fill="#FF4646"/><circle cx="163" cy="99" r="2.6" fill="#FF4646"/>
+          <circle cx="147" cy="108" r="2.6" fill="#FF4646"/><circle cx="171" cy="117" r="2.6" fill="#FF4646"/>
+          <circle cx="155" cy="128" r="2.6" fill="#FF4646"/><circle cx="176" cy="137" r="2.6" fill="#FF4646"/>
+          <circle cx="149" cy="148" r="2.6" fill="#FF4646"/><circle cx="168" cy="158" r="2.6" fill="#FF4646"/>
+          <circle cx="112" cy="95" r="2.6" fill="#FF4646"/><circle cx="215" cy="143" r="2.6" fill="#FF4646"/>
+          <circle cx="234" cy="101" r="2.6" fill="#FF4646"/><circle cx="90" cy="146" r="2.6" fill="#FF4646"/>
+          <text x="32" y="190">d += max(stretch - thr, 0) rate dt</text>
+          <text x="32" y="206">each particle crosses alone, so</text>
+          <text x="32" y="220">there is no tip and no front</text>
+          <text x="32" y="242" fill="#9AA3A0">crack width = particle spacing,</text>
+          <text x="32" y="256" fill="#9AA3A0">so crack speed changes with dx</text>
+          <text x="32" y="278" fill="#9AA3A0">floor 0.18: a failed particle keeps</text>
+          <text x="32" y="292" fill="#9AA3A0">18 percent, and fibers degrade too</text>
+
+          <rect x="356" y="76" width="240" height="90" rx="3" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+          <path d="M352,121 L334,121" fill="none" stroke="#DDE3E0" stroke-opacity="0.45" marker-end="url(#frG)"/>
+          <path d="M600,121 L618,121" fill="none" stroke="#DDE3E0" stroke-opacity="0.45" marker-end="url(#frG)"/>
+          <path d="M372,90 H580 M372,152 H580" fill="none" stroke="#78C8FF" stroke-opacity="0.25" stroke-width="1"/>
+          <text x="580" y="86" text-anchor="end" fill="#78C8FF" fill-opacity="0.6">grain</text>
+          <path d="M356,121 L410,119 L452,124 L496,120" fill="none" stroke="#DDE3E0"/>
+          <path d="M356,113 L410,111 L452,116 L492,112" fill="none" stroke="#FFD264" stroke-opacity="0.5" stroke-width="1" stroke-dasharray="2 2"/>
+          <path d="M356,129 L410,127 L452,132 L492,128" fill="none" stroke="#FFD264" stroke-opacity="0.5" stroke-width="1" stroke-dasharray="2 2"/>
+          <text x="404" y="106" fill="#FFD264" fill-opacity="0.8">l0</text>
+          <path d="M496,120 m-11,0 a11,11 0 1,0 22,0 a11,11 0 1,0 -22,0" fill="none" stroke="#FFD264" stroke-opacity="0.7" stroke-width="1"/>
+          <path d="M496,120 m-17,0 a17,17 0 1,0 34,0 a17,17 0 1,0 -34,0" fill="none" stroke="#FFD264" stroke-opacity="0.45" stroke-width="1"/>
+          <path d="M496,120 m-23,0 a23,23 0 1,0 46,0 a23,23 0 1,0 -46,0" fill="none" stroke="#FFD264" stroke-opacity="0.3" stroke-width="1"/>
+          <circle cx="496" cy="120" r="5" fill="none" stroke="#FFFFFF" stroke-width="2"/>
+          <text x="344" y="190">eta d' = (1-d)D - (d - l0&#178; Lap d)</text>
+          <text x="344" y="206">Lap d from the B-spline second</text>
+          <text x="344" y="220">derivative on the scatter support</text>
+          <text x="344" y="242">g(d) = (1-d)&#178;: shear always,</text>
+          <text x="344" y="256">volumetric in tension, fiber NEVER</text>
+          <text x="344" y="278" fill="#9AA3A0">alpha = -1: cracks run ALONG grain</text>
+          <text x="344" y="292" fill="#9AA3A0">measured: 500 to 971 particles, 25 s</text>
+
+          <text x="320" y="348" text-anchor="middle">the tip is the one place a neighbour term can put damage</text>
+        </g>
+        </svg>
+      </div>
+      <div class="schem-legend">
+        <i class="grid"></i><span>the damage field<em>a weight normalized grid, gathered back as l0 squared times Lap(d)</em></span>
+        <i class="part"></i><span>the plate and its grain<em>fiber direction, which the anisotropic mode follows</em></span>
+        <i class="mark"></i><span>an individually failed particle<em>legacy has only these; there is no field to connect them</em></span>
+      </div>
+      <figcaption>Left is not a crack, it is a set. Each particle crossed its own threshold with no
+      knowledge of any other, so there is nothing that concentrates, nothing that advances, and the only
+      length in the problem is the particle spacing &#8212; which is why the same scene cracks at a
+      different speed on a different grid. Right, the non-local term supplies the missing length
+      l&#8320;: damage at a node is pulled toward its neighbours' damage, so it piles up at the tip
+      (white ring) and the front advances into intact material. The three nested contours are that
+      concentration, not a glow effect.</figcaption>
+    </figure>
+
+    <div class="grid-2">
+      <div class="panel">
+        <h3>Why AnisoMPM is the right model, and why it is not the default</h3>
+        <p>The single load-bearing change is the non-local term. Everything else &#8212; an energy-based
+        drive, an elastic threshold, a monotone history, (1&#8722;d)&#178; degradation &#8212; is
+        correctness housekeeping that a careful person could have hand-tuned into the legacy branch. The
+        Laplacian cannot be: it introduces a physical length l&#8320; into a model that previously had
+        none, and that is what converts a threshold heuristic into an actual propagating crack with
+        resolution-independent speed. It also makes the anisotropy real, because the structural tensor
+        is built on the polar rotation rather than the deformation-gradient pushforward, which would
+        contaminate direction with stretch.</p>
+        <p>It stays off by default because the shipped v1 had six real defects, all found by a re-run
+        adversarial review after the first review was cut off mid-flight. The most instructive: the
+        damage transfer <strong>was not weight-normalized</strong> &#8212; the scatter early-returned on
+        d &#8804; 0, so the denominator accumulated weight only from already-damaged particles, making
+        the node value a mean over damaged particles that intact neighbours never diluted, and making
+        the free-surface fallback fire for nodes full of intact material. All four review lenses
+        converged on that one line independently. The gather's Laplacian was also a hand-rolled 5-point
+        stencil centred on <code>floor(cell_pos)</code> while the scatter deposits on
+        <code>round(cell_pos)</code>, so for about half of all particles it was sampled a full node
+        down-left, and the offset flipped discontinuously as a particle drifted across each half-cell
+        line. A third defect is a good warning for this codebase generally: the per-particle damage aux
+        was cleared only in <code>init()</code>, but the particle buffer is a bump allocator whose
+        rewind does not re-run init, and the driving-force history is monotone &#8212; so a respawned
+        particle could be born at maximum driving force and damage itself to failure under no
+        load.</p>
+        <p>Storage deserves a note, because it is a reusable trick here: both p2g and g2p sit
+        <em>at</em> the 16-SSBO driver cap, so the per-material fracture profile rides a
+        <code>samplerBuffer</code> and the per-particle damage aux rides an <code>imageBuffer</code>
+        &#8212; image uniforms live in a separate binding namespace. That escape hatch is now used by
+        three subsystems on this page.</p>
+      </div>
+      <div class="panel">
+        <h3>What is still wrong</h3>
+        <ul class="bullet-list">
+          <li><strong>Enrollment is real work, not a data edit</strong> &#8212; and the first changelog
+          entry said otherwise, which the correctness pass explicitly retracts. p2g has exactly
+          <em>two</em> enrolled hooks, which is why exactly three materials work. Ceramic, splinter,
+          tear-skin, laminated pastry, stoneware, composite and aniso each have their own constitutive
+          branch with no hook, so setting the allow bit would enrol them in the scatter and gather
+          &#8212; polluting the shared damage grid &#8212; while p2g never ran the damage step.</li>
+          <li><strong>The damage grid carries no material key.</strong> Damage can diffuse across a
+          contact between two different enrolled materials under zero load.</li>
+          <li><strong>The free-surface test is a magnitude test.</strong> <code>den &lt; 1e-8</code>
+          cannot express "negligible weight" given the 1e&#8722;6 fixed-point quantization.</li>
+          <li><strong>&#934; is exactly invariant to thermal softening</strong>, because
+          &#963;<sub>c</sub> and the stress scale with the same moduli. That is arguably correct for a
+          strain criterion, but the code comment claims otherwise, so one of the two is wrong.</li>
+          <li><strong>A claim in the record did not survive measurement, and it is left standing on
+          purpose.</strong> The verifier argued Lap(d) was identically zero for an isolated damaged
+          particle, i.e. that the regularization was inert. It did not reproduce: a seeded probe gives
+          min &#8722;811 / mean &#8722;327 with the bug against &#8722;604 / &#8722;201 with the fix
+          &#8212; nonzero and correctly signed in both, because the idealized isolation is destroyed
+          within a frame or two. The real effect was that the length scale came out 1.5 to 2.8&#215; too
+          large, not that the term was dead. Fixed anyway, because it is not what the spec
+          prescribes.</li>
+          <li><strong>Nine lower-severity findings were capped unverified</strong> when the review run
+          hit a usage limit, and live A/B in the tearing-lab scenes &#8212; the actual calibration step
+          &#8212; has not been done.</li>
+          <li><strong>Doc drift.</strong> The status page still says phase-field brittle has
+          <em>no Laplacian regularization</em> and calls the AT2 PDE a future improvement of about 300
+          lines. That is essentially what shipped here, for the enrolled materials.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="note">
+      <p><strong>When you would still pick Legacy.</strong> For everything except the three enrolled
+      materials, Legacy <em>is</em> the model &#8212; there is no alternative branch to select. Beyond
+      that: Legacy is byte-identical off (the CPU gates both damage dispatches entirely, so it is also
+      strictly cheaper: zero GPU cost, two fewer passes per substep), and its per-material hand tuning
+      encodes a lot of look development that the AnisoMPM profiles have not been calibrated against yet.
+      If a scene's brittle or glass shatter reads right today, switching fracture models will change it.
+      Mode 1 against mode 2 is the interesting comparison; mode 0 against the rest is a different
+      material model entirely.</p>
+    </div>
+
+    <div class="callout">
+      <p><strong>The A/B to run.</strong> Take a tearing-lab scene with the orthotropic tear material and
+      pull it apart with the cursor. On <em>Legacy</em>, watch the failure region: a widening mush with
+      no leading point, and the tear goes limp because the fiber term is degraded along with everything
+      else. Switch to <em>AnisoMPM: anisotropic</em> and repeat: the crack acquires a tip, and because
+      the fiber term is never degraded you get stringy fibrils bridging the gap. Then switch to
+      <em>AnisoMPM: isotropic</em> with the same toughness slider &#8212; the crack should be equally
+      easy to start but should no longer prefer the grain direction. That pair is the controlled
+      experiment. To see the resolution dependence directly, run the same scene at two grid resolutions
+      on Legacy and time the crack across the plate.</p>
+    </div>
+  </section>
+
+
+  <section id="stiffness">
+    <div class="section-top">
+      <div class="colorbar mpm"></div>
+      <p class="eyebrow">Stiffness &#183; three models</p>
+      <h2>Why everything was too soft: a catalog written for the wrong world size</h2>
+      <p class="lede">A one-metre column of material has to support &#961;gH at its base, which in this
+      6.4&#160;m world is roughly 10 to 20&#160;kPa. The material catalog was authored at 4 to
+      12&#160;kPa. That single mismatch produced most of the project's "everything feels floaty"
+      complaints, and two of the three generations here are attempts to fix it without retuning the
+      catalog.</p>
+    </div>
+
+    <div class="chip-row">
+      <span class="chip">Legacy (v1)</span>
+      <span class="chip">v2: Barrier</span>
+      <span class="chip">v3: World Scale</span>
+    </div>
+
+    <h3>The generations</h3>
+    <table>
+      <tr><th>Generation</th><th>What it did</th><th>The symptom you saw</th><th>Root cause</th></tr>
+      <tr>
+        <td class="name">Legacy v1<br><span class="b yellow">selectable</span></td>
+        <td>Plain fixed-corotated elasticity with a deformation-gradient singular-value clamp to
+        [0.5, 3.0] and a stress-norm ceiling at roughly 0.8&#215;E.</td>
+        <td class="notes"><em>Collapse into a line.</em> Drop a heavy ball on a brittle pillar and past
+        about 50&#37; compression it keeps compacting with no growing resistance. Spawn a rope or fiber
+        horizontally and it flattens to a literal line.</td>
+        <td class="notes">The clamp and the ceiling together <strong>saturate</strong> the compressive
+        restoring stress, so gravity keeps loading a material that has stopped pushing back &#8212;
+        bottomless compaction. Separately, the orthotropic cross-fiber stiffness was 5 to 8&#37; of an
+        already-kPa-scale modulus, which is <em>below the weight of one grid cell</em>, so those
+        materials had no cross-section to defend.</td>
+      </tr>
+      <tr>
+        <td class="name">v2: Barrier<br><span class="b yellow">selectable</span></td>
+        <td>An isotropic compression-barrier pressure that keeps growing with the <strong>raw
+        pre-clamp</strong> overcompression, applied <em>after</em> the ceiling so it cannot be clipped;
+        floors on the ortho cross and shear scales while keeping strong anisotropy; and a global
+        log-scale stiffness multiplier (default 1.0&#215;, i.e. unchanged) instead of blind-retuning
+        the whole catalog.</td>
+        <td class="notes">Columns stop collapsing into lines and ropes keep a cross-section. But
+        structural solids are still soft: a tall column still compacts, just more gently, and the fix
+        for that is a slider the user has to find.</td>
+        <td class="notes">v2 fixed the <em>saturation</em> without fixing the <em>scale</em>. The
+        volumetric law is hard-bounded at 0.25&#955;, so at E = 9000 the maximum support is around
+        1.3&#160;kPa &#8212; an order of magnitude short of what the column base needs, and the material
+        compacts until the SVD floor freezes it in a shrunken, non-physical rest state. A global
+        multiplier can reach the right number, but applying one multiplier to bread and to granite is
+        not a model, it is a knob.</td>
+      </tr>
+      <tr>
+        <td class="name">v3: World Scale<br><span class="b green">default</span></td>
+        <td>Three coordinated changes. (1) Per-<em>family</em> multipliers: structural solids
+        &#215;12 so &#955; finally exceeds &#961;gH, the puffy/soft-body family &#215;2 so it firms up
+        without losing squish, fluids and living culture untouched. (2) The solid SVD compression floor
+        rises 0.5 to 0.85, so the clamp becomes a rare safety guard rather than the resting state
+        &#8212; and since the compression barrier activates at J = &#963;<sub>min</sub>&#178;, it now
+        engages at J about 0.72 instead of 0.25, growing support continuously. (3) Substeps scale with
+        &#8730;(E ratio), 5 up to 20, so the raised elastic wave speed stays CFL-stable.</td>
+        <td class="notes">Current, and promoted to default after live user validation: <em>"some overly
+        weak materials are now firm enough (like the glass / tempered glass)"</em>.</td>
+        <td class="notes">The cost is real and known: at &#215;12 the solver runs about 18 substeps,
+        measured at 7.5 to 9.3&#160;ms/frame against a roughly 7&#160;ms baseline.</td>
+      </tr>
+    </table>
+
+    <div class="grid-2">
+      <div class="panel">
+        <h3>Why v3 is good enough</h3>
+        <p>Because it is the first version that made the three changes <em>together</em>. Raising E alone
+        blows up an explicit scheme &#8212; that was the audit's own caveat &#8212; so the substep
+        scaling is not a performance afterthought, it is part of the fix. Raising E without moving the
+        SVD floor would have left the clamp as the resting state, so the material would still have been
+        frozen in a shrunken configuration, just a stiffer one. And doing it per family rather than
+        globally is what lets bread stay squishy while a column holds: the soft-body list is shared with
+        the existing stress-ceiling branch, so the two agree by construction rather than by
+        coincidence.</p>
+        <p>The honest framing is that v3 is a <em>calibration</em>, not a new constitutive model. It
+        does not change any law; it puts the catalog's numbers into the right decade for the world size
+        and then pays the CFL bill that implies.</p>
+      </div>
+      <div class="panel">
+        <h3>What is still wrong</h3>
+        <ul class="bullet-list">
+          <li><strong>The multipliers are per family, not per material.</strong> Twelve is one number
+          covering every structural solid; the right answer is a re-authored catalog in physical units,
+          which nobody has done.</li>
+          <li><strong>It costs up to 4&#215; the substeps.</strong> That is the known trade, and it is
+          charged to every MPM material in the scene, not only the stiffened ones.</li>
+          <li><strong>Real-Time Pacing is a separate, still-off toggle.</strong> The legacy loop runs
+          exactly one fixed 1/120&#160;s step per rendered frame, so at 60&#160;Hz vsync the entire
+          simulation runs at <em>half real-time speed</em> and sim speed depends on frame rate &#8212; a
+          large part of the same floaty feel that v3 addresses from the other side. If a scene still
+          feels weak with v3 on, check the pacing toggle before touching the multipliers.</li>
+          <li><strong>&#215;12 changes look, not just strength.</strong> Any scene tuned against v1 or
+          v2 will read differently: stiffer bounces, less settle, different pile angles.</li>
+          <li><strong>The technique guide's glass section is now partly stale.</strong> "Why glass still
+          collapses too easily" describes a v1/v2 world; glass is one of the materials the user
+          specifically confirmed as fixed by v3.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="note">
+      <p><strong>When you would still pick an older version.</strong> Pick <em>v2: Barrier</em> when frame
+      budget matters more than realism &#8212; it keeps the anti-collapse fix, which is the one that
+      prevents outright broken-looking behaviour, at 5 substeps instead of up to 20. Pick it also for any
+      scene whose look was authored before v3 became default. Pick <em>Legacy v1</em> only to demonstrate
+      the collapse: it is the cleanest possible illustration of what a saturating stress law does under
+      sustained load, and the pillar test takes about five seconds.</p>
+    </div>
+
+    <div class="callout">
+      <p><strong>The A/B to run.</strong> Build a tall column of Elastic or Ceramic. On
+      <em>Legacy (v1)</em> it compacts and collapses. On <em>v2: Barrier</em> it resists with growing
+      force but still settles noticeably shorter. On <em>v3: World Scale</em> it should hold its height.
+      Then check the other end of the range in the same run: bread, goo, crumb and tissue should still be
+      squishy under v3 &#8212; if they have gone rigid, the soft multiplier is too high, not the solid
+      one. Watch the substep counter while you switch; the frame-time rise from 5 to 18 substeps is the
+      price on the label.</p>
+    </div>
+  </section>
+
+
+  <section id="blast">
+    <div class="section-top">
+      <div class="colorbar air"></div>
+      <p class="eyebrow">Explosions &#183; two models</p>
+      <h2>One energy, or four unrelated polynomials</h2>
+      <p class="lede">An explosion in this engine has to do five things at once: push air, push
+      particles, heat, make smoke, and draw a ring. The legacy model did all five from separate
+      hand-authored curves, so they could not agree with each other; the current one derives all five
+      from a single energy scalar and a closed-form front radius.</p>
+    </div>
+
+    <h3>The generations</h3>
+    <table>
+      <tr><th>Generation</th><th>What it did</th><th>The symptom you saw</th><th>Root cause</th></tr>
+      <tr>
+        <td class="name">Legacy (per-frame push)<br><span class="b green">still default</span></td>
+        <td>A per-frame emitter at the blast site that injects strength, heat, smoke and velocity
+        divergence into the air grid from four independent polynomial falloffs, while the drawn
+        shockwave ring integrates its own <code>speed &#215; dt</code> radius separately.</td>
+        <td class="notes">Blasts feel weak or too strong and the knobs fight each other; the drawn ring
+        and the thing that actually pushes you are not in the same place; the outward push is largely
+        eaten by the pressure projection.</td>
+        <td class="notes">Named in the audit as "independent polynomials". With four unrelated curves
+        there is no conserved quantity anywhere, so tuning the push changes the heat by an unrelated
+        amount and the visible ring is decoration rather than a readout. Worse, a per-frame velocity
+        injection is exactly the kind of source a divergence-free projection is designed to
+        annihilate.</td>
+      </tr>
+      <tr>
+        <td class="name">Sedov Front<br><span class="b yellow">selectable</span></td>
+        <td>One analytic front per rupture, with radius following the 2D Sedov&#8211;Taylor law
+        r(t) = &#958;(Et&#178;/&#961;&#8320;)<sup>1/4</sup>, transitioning to a constant acoustic speed
+        once it slows below c&#8320;. <strong>One energy scalar E</strong> drives front speed,
+        overpressure, heat, smoke and particle impulse together. Each substep the CPU advances the
+        radius and three GPU passes read the annulus between the old and new radius: a divergence, heat
+        and smoke deposit <em>before</em> the projection; a one-frame directional gust on the MAC faces
+        <em>after</em> it; and an outward particle kick where each particle is hit
+        <strong>at most once per front</strong> via a persistent guard buffer.</td>
+        <td class="notes">Selectable, still off by default pending live-fire calibration.</td>
+        <td class="notes">The ordering is the point: depositing divergence before the projection makes
+        it the one blast channel the projection <em>cannot</em> annihilate &#8212; it gets converted
+        into wall-aware outward flow instead &#8212; and reflection and diffraction of the aftermath
+        then come free from the Neumann boundary conditions.</td>
+      </tr>
+    </table>
+
+    <div class="grid-2">
+      <div class="panel">
+        <h3>Why Sedov is the better model</h3>
+        <p>Two structural wins. First, single ownership of energy: under Sedov the legacy per-frame
+        emitter is skipped entirely, so exactly one thing owns strength, heat, smoke and divergence, and
+        a follow-on pass extended that discipline to vents (the trapped pressure inside a vented cluster
+        is deducted so the legacy cavity-vent branch cannot release the same energy twice). Second,
+        correct time semantics: all front-crossing deposits are dt-free impulses consumed by exactly one
+        projection per step, which is what makes the behaviour independent of substep count.</p>
+        <p>The follow-on pass also made the drawn ring honest: it now follows the physical front radius
+        instead of a fabricated integration, and a retired front hands its record back to the legacy
+        integrator so it fades from its last radius with no pop. Casing particles are pre-seeded into
+        the guard buffer at rupture, so the front no longer double-kicks the shell that the legacy burst
+        pushes already carry.</p>
+      </div>
+      <div class="panel">
+        <h3>What is still wrong</h3>
+        <ul class="bullet-list">
+          <li><strong>It is not the default</strong>, because live-fire calibration was never done. Every
+          number in it &#8212; &#958;, c&#8320;, overpressure, impulse, thickness &#8212; is a live knob
+          with an unvalidated starting value.</li>
+          <li><strong>Vent fronts and backdraft flash fronts are both default-off</strong> even under
+          Sedov, so out of the box a dug-wall rupture still uses the legacy path.</li>
+          <li><strong>Mirror and reflection fronts were deliberately deferred</strong>: the image-source
+          origin lands inside the reflecting wall, so it would need a change to the front packing to
+          paint anything. Reflections you see are the aftermath through the projection, not reflected
+          fronts.</li>
+          <li><strong>Two real defects were found by review after shipping</strong>, both fixed, both
+          worth knowing as failure modes of this design: the ring froze at radius 0 in single-substep
+          pacing because the radius query shared its zero sentinel between "absent" and "alive at
+          t = 0"; and backdraft fronts replayed frozen bins after the backdraft feature was turned
+          off.</li>
+          <li><strong>The cosmetic emitters still fire at rupture</strong> (shockwave, scorch, crack
+          ring) independently of the model, so there remain two sources of visual truth.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="note">
+      <p><strong>When you would still pick Legacy.</strong> It is the default and the calibrated one:
+      every shipped explosion scene was authored against it. Sedov is the physically defensible model
+      with unvalidated constants; Legacy is the tuned model with no conserved quantity. Until the
+      calibration pass happens, that trade favours Legacy for authored content and Sedov for anything
+      where you care that the ring you draw is the thing that pushed you.</p>
+    </div>
+
+    <div class="callout">
+      <p><strong>The A/B to run.</strong> Rupture a vessel in an enclosed room with the Explosion panel
+      open. On <em>Legacy</em>, watch the drawn ring and the debris: they diverge, and the outward gust
+      is weak relative to the ring because the projection ate most of it. Switch <em>Blast Model</em> to
+      <em>Sedov Front</em>: the ring now <em>is</em> the front, its radius visibly decelerates and then
+      settles to a constant acoustic speed, and the wind reaches around obstacles because it went
+      through the projection rather than around it. Sweep the single <em>Energy</em> knob and check that
+      speed, heat, smoke and impulse all move together &#8212; on Legacy the equivalent sweep requires
+      four sliders that do not agree.</p>
+    </div>
+  </section>
+
+
+  <section id="contact-heat">
+    <p class="note"><strong>2026-09-19 qualification:</strong> both hot and cold participants now
+    respond, which fixes the one-way ratchet. However, each particle gathers a different normalized
+    mixture; equal relaxation rates alone do not establish global energy conservation. The word
+    “conserving” in this historical section should be read as the design intention. The
+    <a href="model_audit_20260919.md#1-heating-phase-change-and-thermal-contact">current audit</a>
+    gives a counterexample and separates this path from the new shared-face grid alternative.</p>
+    <div class="section-top">
+      <div class="colorbar heat"></div>
+      <p class="eyebrow">Thermal &#183; two generations</p>
+      <h2>A maximum is not a mixture</h2>
+      <p class="lede">Two touching particles at different temperatures should end up somewhere between
+      them. The legacy path implemented that with an <code>atomicMax</code> on a shared grid cell,
+      which is a perfectly reasonable way to make a lock-free write and a completely unreasonable model
+      of thermal contact &#8212; it has no way to express cooling, no way to add contributions, and no
+      way to run backwards.</p>
+    </div>
+
+    <h3>The generations</h3>
+    <table>
+      <tr><th>Generation</th><th>What it did</th><th>The symptom you saw</th><th>Root cause</th></tr>
+      <tr>
+        <td class="name">Legacy ratchet<br><span class="b yellow">selectable</span></td>
+        <td>SPH particles scatter an <code>atomicMax</code>'d temperature into a grid channel; MPM
+        particles only ever <em>absorb</em> from it in g2p. A second, separate channel &#8212; also an
+        <code>atomicMax</code>, of <code>2000 &#8722; T</code> &#8212; was bolted on later to allow
+        cooling at all.</td>
+        <td class="notes">Drop burning embers into water: the water heats, the embers never cool, and
+        they keep igniting things. Ten warm particles in a cell read as a single warm particle. SPH
+        itself never receives contact heat at all, in either direction.</td>
+        <td class="notes">The audit called it "energy from nothing", severity 8. A maximum cannot
+        conserve: contributions do not add, nothing can lower a cell (hence the second channel), and the
+        exchange is structurally one-way, so a hot source heats an unlimited amount of cold material
+        while staying exactly as hot as it started.</td>
+      </tr>
+      <tr>
+        <td class="name">Contact Heat v2<br><span class="b green">default</span></td>
+        <td>A conserving <strong>mixture grid</strong>. Two fixed-point accumulators hold
+        &#8721;w&#183;mC and &#8721;w&#183;mC&#183;T. <em>Every</em> thermal particle, SPH and MPM alike,
+        deposits with <code>atomicAdd</code> once per frame; then each particle relaxes toward
+        T<sub>avg</sub> = num/den at 0.45/s in its own dedicated pass. Water carries 2&#215; thermal
+        mass. Impact heating still injects as genuinely generated energy, numerator only. The legacy g2p
+        ratchet consume is disabled under v2 so heat is not applied twice.</td>
+        <td class="notes">Current, and default-on since 2026-07-27. Embers visibly quench while the
+        water warms; a pile of warm particles reads hotter than one.</td>
+        <td class="notes">Relaxing every participant toward the common mass-weighted mean at roughly
+        equal rates conserves energy in aggregate, which is the property the ratchet could not have at
+        any threshold setting.</td>
+      </tr>
+    </table>
+
+    <figure class="schem-fig">
+      <div class="schem">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img"
+             aria-label="Left: the legacy contact heat grid holds an atomic maximum of the temperatures deposited into it, so an ember at nine hundred kelvin sets the cell to nine hundred, two clay particles absorb from it, and nothing ever lowers the ember. Right: version two accumulates a mass weighted numerator and denominator, every particle deposits and every particle relaxes toward the resulting average, so the ember cools while the clay warms.">
+        <defs>
+          <marker id="chY" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#FFD264"/></marker>
+          <marker id="chB" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#78C8FF"/></marker>
+        </defs>
+        <g font-family="ui-monospace, 'Cascadia Mono', Consolas, monospace" font-size="12" fill="#DDE3E0" stroke-width="1.5">
+
+          <rect x="16" y="21" width="18" height="2" fill="#FFD264" stroke="none"/>
+          <text x="40" y="26" fill-opacity="0.75">grid cell state</text>
+          <rect x="176" y="21" width="18" height="2" fill="#78C8FF" stroke="none"/>
+          <text x="200" y="26" fill-opacity="0.75">particles</text>
+          <circle cx="317" cy="25" r="3" fill="#FF4646"/>
+          <text x="326" y="26" fill-opacity="0.75">deposit</text>
+          <text x="624" y="26" text-anchor="end" fill="#9AA3A0">one ember, two cold bodies</text>
+
+          <rect x="14" y="40" width="300" height="262" rx="6" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.25)"/>
+          <rect x="326" y="40" width="300" height="262" rx="6" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.25)"/>
+          <text x="26" y="60">legacy: atomicMax ratchet</text>
+          <text x="338" y="60">v2: conserving mixture</text>
+
+          <rect x="44" y="74" width="240" height="52" rx="4" fill="rgba(255,255,255,0.06)" stroke="#FFD264" stroke-opacity="0.45"/>
+          <text x="164" y="96" text-anchor="middle" fill="#FFD264">grid_contact_temp</text>
+          <text x="164" y="114" text-anchor="middle">max(900, 300, 300) = 900</text>
+
+          <path d="M70,162 V130" fill="none" stroke="#78C8FF" marker-end="url(#chB)"/>
+          <circle cx="70" cy="128" r="3.2" fill="#FF4646"/>
+          <path d="M88,130 V158" fill="none" stroke="#FFD264" stroke-opacity="0.45" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#chY)"/>
+          <text x="96" y="150" fill="#9AA3A0">no return</text>
+          <path d="M184,130 V158" fill="none" stroke="#FFD264" marker-end="url(#chY)"/>
+          <path d="M264,130 V158" fill="none" stroke="#FFD264" marker-end="url(#chY)"/>
+          <circle cx="76" cy="170" r="6" fill="none" stroke="#78C8FF"/>
+          <circle cx="184" cy="170" r="6" fill="none" stroke="#78C8FF"/>
+          <circle cx="264" cy="170" r="6" fill="none" stroke="#78C8FF"/>
+          <text x="76" y="194" text-anchor="middle">SPH 900</text>
+          <text x="184" y="194" text-anchor="middle">MPM 300</text>
+          <text x="264" y="194" text-anchor="middle">MPM 300</text>
+
+          <text x="26" y="222">ten warm particles read as one</text>
+          <text x="26" y="240" fill="#9AA3A0">nothing lowers a cell, so a second</text>
+          <text x="26" y="254" fill="#9AA3A0">atomicMax channel was bolted on</text>
+          <text x="26" y="274" fill="#9AA3A0">SPH never receives contact heat</text>
+          <text x="26" y="294">energy from nothing, every frame</text>
+
+          <rect x="356" y="74" width="240" height="52" rx="4" fill="rgba(255,255,255,0.06)" stroke="#FFD264" stroke-opacity="0.45"/>
+          <text x="476" y="96" text-anchor="middle" fill="#FFD264">num += w mC T, den += w mC</text>
+          <text x="476" y="114" text-anchor="middle">T_avg = num / den = 460</text>
+          <circle cx="476" cy="126" r="5" fill="none" stroke="#FFFFFF" stroke-width="2"/>
+
+          <path d="M394,162 V130" fill="none" stroke="#78C8FF" marker-end="url(#chB)"/>
+          <circle cx="394" cy="128" r="3.2" fill="#FF4646"/>
+          <path d="M414,130 V158" fill="none" stroke="#FFD264" marker-end="url(#chY)"/>
+          <path d="M456,162 V130" fill="none" stroke="#78C8FF" marker-end="url(#chB)"/>
+          <circle cx="456" cy="128" r="3.2" fill="#FF4646"/>
+          <path d="M496,130 V158" fill="none" stroke="#FFD264" marker-end="url(#chY)"/>
+          <path d="M538,162 V130" fill="none" stroke="#78C8FF" marker-end="url(#chB)"/>
+          <circle cx="538" cy="128" r="3.2" fill="#FF4646"/>
+          <path d="M558,130 V158" fill="none" stroke="#FFD264" marker-end="url(#chY)"/>
+          <circle cx="404" cy="170" r="6" fill="none" stroke="#78C8FF"/>
+          <circle cx="476" cy="170" r="6" fill="none" stroke="#78C8FF"/>
+          <circle cx="548" cy="170" r="6" fill="none" stroke="#78C8FF"/>
+          <text x="404" y="194" text-anchor="middle">900 cools</text>
+          <text x="476" y="194" text-anchor="middle">300 warms</text>
+          <text x="548" y="194" text-anchor="middle">300 warms</text>
+
+          <text x="338" y="222">both solvers deposit and both relax</text>
+          <text x="338" y="240" fill="#9AA3A0">warm plus warm sums hotter than</text>
+          <text x="338" y="254" fill="#9AA3A0">either; water carries 2x mC, so it</text>
+          <text x="338" y="268" fill="#9AA3A0">quenches natively</text>
+          <text x="338" y="294">impact heat still deposits num only</text>
+
+          <text x="320" y="348" text-anchor="middle">the ratchet could only ever go one way</text>
+        </g>
+        </svg>
+      </div>
+      <div class="schem-legend">
+        <i class="grid"></i><span>the shared grid cell<em>a maximum on the left, a mass weighted mean on the right</em></span>
+        <i class="part"></i><span>the participating particles<em>on the left only SPH deposits and only MPM absorbs</em></span>
+        <i class="mark"></i><span>a deposit<em>atomicMax on the left, atomicAdd into two accumulators on the right</em></span>
+      </div>
+      <figcaption>The dashed arrow on the left is the whole bug: it is drawn because it is what a
+      thermal model needs, and it is dashed because it does not exist. With a maximum there is no
+      arithmetic that could lower the ember, which is why cooling had to arrive as a second, separate,
+      also one-way channel. On the right the same three particles both write and read, so the ember sits
+      above the mean and falls toward it while the clay rises &#8212; and because the accumulators are
+      mass-weighted sums rather than a maximum, ten warm particles genuinely sum hotter than one. The
+      white ring marks the single shared value every participant reads.</figcaption>
+    </figure>
+
+    <div class="grid-2">
+      <div class="panel">
+        <h3>Why v2 is good enough</h3>
+        <p>It replaces a comparison with an average, which is the entire content of the fix. Once the
+        cell holds &#8721;w&#183;mC and &#8721;w&#183;mC&#183;T instead of a maximum, three separate
+        symptoms stop being symptoms: contributions add, so a crowd is hotter than an individual; the
+        mean can be below a participant, so hot things cool; and water having twice the thermal mass
+        makes quenching fall out of the same arithmetic instead of needing its own quench channel.
+        Impact heating is correctly left as a numerator-only deposit, because kinetic-to-thermal really
+        is generated energy and should not be conserved against the mixture.</p>
+        <p>It cost two dedicated passes rather than an edit to the existing shaders, because both g2p
+        and the SPH force shader sit exactly at the driver's SSBO-block limit and adding two buffers
+        fails to link at all. That is the same wall the fracture and coupling work hit, and it is worth
+        internalising: in this codebase, new shared state usually means a new small pass.</p>
+        <p>Measured cost: no measurable frame-time change over 15&#160;s forced on, about
+        7&#160;ms/frame.</p>
+      </div>
+      <div class="panel">
+        <h3>What is still wrong</h3>
+        <ul class="bullet-list">
+          <li><strong>The SDF-wall and air-injection heat paths are still one-way</strong>, explicitly
+          deferred. A hot wall still heats a particle without cooling; that half of the audit finding is
+          open.</li>
+          <li><strong>The relaxation rate is a single global constant</strong> (0.45/s) that stands in
+          for every real contact conductance. Two materials with wildly different conductivity exchange
+          at the same rate.</li>
+          <li><strong>Conservation is aggregate, not exact.</strong> "Roughly equal rates keep the
+          exchange near-conserving" is the actual claim; nothing enforces a balance per pair, and the
+          fixed-point accumulators quantize.</li>
+          <li><strong>The deposit is once per frame, the relax is its own pass</strong>, so the
+          effective exchange rate has a mild dependence on how the frame is subdivided.</li>
+          <li><strong>The sound-field SDF diffusion is untouched</strong> and remains a separate thermal
+          path with its own semantics.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="note">
+      <p><strong>When you would still pick the legacy ratchet.</strong> Only two reasons. It is the A/B
+      that makes the conservation argument visible, and it is the behaviour every pre-July scene was
+      authored against &#8212; a scene tuned so that embers stay hot forever will read very differently
+      when the embers start quenching. If an old fire scene suddenly goes out, this toggle is the first
+      thing to check.</p>
+    </div>
+
+    <div class="callout">
+      <p><strong>The A/B to run.</strong> Drop burning embers into a pool of SPH water. With
+      <em>Contact Heat v2</em> on (default) the embers visibly cool and go out while the water warms;
+      turn it off and the embers heat the water, stay exactly as hot as they were, and keep igniting
+      whatever they touch. Second test, for the summing property: put one warm particle against a cold
+      block, then ten. Under v2 the ten drive the block hotter; under the ratchet they read identically
+      to one, because a maximum ignores the other nine.</p>
+    </div>
+  </section>
+
+
+  <section id="burn">
+    <div class="section-top">
+      <div class="colorbar heat"></div>
+      <p class="eyebrow">Fire &#183; two generations</p>
+      <h2>Why the burning wavefront never read as a front</h2>
+      <p class="lede">Fire spreading through a solid should look like a narrow advancing band with cool
+      spent material behind it. It looked instead like a whole object turning orange at once, and no
+      amount of water would put it out. Five separate mechanisms were responsible, and one of them made
+      fire <em>physically</em> inextinguishable rather than merely hard to extinguish.</p>
+    </div>
+
+    <h3>The generations</h3>
+    <table>
+      <tr><th>Generation</th><th>What it did</th><th>The symptom you saw</th><th>Root cause</th></tr>
+      <tr>
+        <td class="name">Legacy<br><span class="b yellow">selectable</span></td>
+        <td>Deterministic ignition above a fixed temperature, exothermic self-heating, and &#8212; the
+        decisive line &#8212; a <strong>temperature floor</strong> applied to any burning particle:
+        <code>temp = max(temp, 505 + &#8230;)</code>, with ember ash clamped to 410&#160;K forever.</td>
+        <td class="notes">Ignite one end of a wood log row: the whole log lights up at once, there is no
+        ragged edge, and the ash glows forever producing infinite smoke. Pouring water on it does
+        nothing.</td>
+        <td class="notes">Five stacked causes. (1) The floor <em>teleported</em> a barely-ignited
+        particle at burn = 0.011 straight to at least 505&#160;K, so every touched particle instantly
+        became a full-power heat source &#8212; smearing the front &#8212; and because the floor is
+        re-applied every frame, no amount of cooling could ever reduce the temperature. Fire was
+        unextinguishable by construction, not by tuning. (2) Ignition was fully deterministic, so whole
+        bands lit in lockstep. (3) Burn duration far exceeded layer-to-layer conduction lag, so the
+        whole object burned as one phase. (4) A one-way preheat ratchet let fuel absorb heat ten times
+        faster than it shed it, creeping entire bodies to ignition. (5) Ash was clamped hot forever: an
+        eternal pilot light.</td>
+      </tr>
+      <tr>
+        <td class="name">Burn Front v2<br><span class="b green">default</span></td>
+        <td>Bounded exothermic self-heating gated by a <code>sustain</code> ramp instead of a floor, so
+        active cooling can smother a flame; per-particle ignition jitter so neighbours do not light in
+        lockstep; 2.2&#215; default burn-through so the front is thin with a trailing char edge; the
+        preheat ratchet softened 0.1 to 0.45; ash cools to near ambient. Shipped with
+        <em>Water Quench</em>, a cold-contact grid channel that lets cool SPH liquid pull grid
+        temperature down hard.</td>
+        <td class="notes">Current and default-on. A visible advancing front with a ragged edge and
+        burnt-out cool ash behind it; water puts fire out.</td>
+        <td class="notes">Replacing a clamp with a gate is the whole structural change: a clamp is
+        unconditional and destroys information, a gate multiplies and leaves the cooling term able to
+        win.</td>
+      </tr>
+    </table>
+
+    <div class="grid-2">
+      <div class="panel">
+        <h3>Why v2 is good enough</h3>
+        <p>Because the floor was not a tuning parameter, it was a <em>lower bound on the state
+        variable</em>, and no other subsystem could beat it. Nothing about a heat-conduction term, a
+        water quench, an air-cooling term or an oxygen gate matters if the last thing that runs sets the
+        temperature back to 505&#160;K. The replacement &#8212; a <code>smoothstep(330, 380)</code>
+        sustain multiplier on the self-heating &#8212; keeps the property the floor was there to provide
+        (a burning particle resists ordinary grid cooling) while restoring the property it destroyed
+        (enough cooling wins).</p>
+        <p>The other four fixes are each small and each removes a distinct reason the front smeared. The
+        one worth calling out is jitter: a deterministic threshold on a regular particle lattice is a
+        <em>synchroniser</em>, and any spatial randomness at all breaks the lockstep. Water Quench is
+        the complementary half &#8212; the legacy SPH-to-MPM heat exchange was strictly hot-to-cold via
+        <code>atomicMax</code>, so water had no channel through which to cool anything, which is the
+        same defect the contact-heat family fixed properly a fortnight later.</p>
+      </div>
+      <div class="panel">
+        <h3>What is still wrong</h3>
+        <ul class="bullet-list">
+          <li><strong>Water Quench is now partly redundant.</strong> Contact Heat v2 makes cold water
+          quench <em>natively</em> through the mixture mean. Two mechanisms now cool with water, both
+          default-on, and nothing reconciles them.</li>
+          <li><strong>The sustain thresholds are global constants</strong> (330 to 380&#160;K for
+          burning material, 320 to 370 for embers), not per-material. A material that should smoulder
+          at low temperature and one that should not are gated identically.</li>
+          <li><strong>Burn-through speed is a look knob, not a fuel property.</strong> The 2.2&#215;
+          default multiplies every material's burn rate; per-material burn duration remains
+          hand-authored.</li>
+          <li><strong>Ignition jitter is a hash of the particle index</strong>, so it is spatially
+          uncorrelated. Real flame fronts are rough at a length scale; this is rough at the particle
+          scale.</li>
+          <li><strong>It interacts with the later fire oxygen chemistry and structural fire
+          damage</strong>, neither of which was re-tuned against v2's thinner front.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="note">
+      <p><strong>When you would still pick Legacy.</strong> One legitimate use: a scene that wants
+      guaranteed, unstoppable, decorative fire &#8212; a permanently burning brazier, a torch that must
+      not go out when a splash lands on it. The legacy floor gives you exactly that, for free, and there
+      is no "unquenchable" flag in v2 to reproduce it. It is also the A/B that demonstrates why a clamp
+      on a state variable is a different kind of bug from a badly chosen constant.</p>
+    </div>
+
+    <div class="callout">
+      <p><strong>The A/B to run.</strong> Lay a row of wood logs and ignite one end. With
+      <em>Burn Front v2</em> on you should see an advancing band with a ragged leading edge and cool
+      dark ash behind it; toggle it off and the whole row lights at once and the ash keeps glowing and
+      smoking indefinitely. Then pour SPH water on burning material: with v2 and Water Quench on the
+      fire goes out; with Water Quench off the water does nothing at all. Turn Water Quench off but
+      leave Contact Heat v2 on to see the newer, more general quench path working on its own.</p>
+    </div>
+  </section>
+
+
+  <section id="coupling">
+    <div class="section-top">
+      <div class="colorbar sph"></div>
+      <p class="eyebrow">MPM &#8596; SPH &#183; two generations</p>
+      <h2>A contact that teleported, and a force that only pointed one way</h2>
+      <p class="lede">The MPM and SPH solvers share a world but not a pressure solve, so they meet
+      through a contact model. That model had two defects, one per direction: it moved positions
+      instead of applying forces, and it never applied any force back at all.</p>
+    </div>
+
+    <h3>The generations</h3>
+    <table>
+      <tr><th>Generation</th><th>What it did</th><th>The symptom you saw</th><th>Root cause</th></tr>
+      <tr>
+        <td class="name">Legacy one-way penalty<br><span class="b green">still default</span></td>
+        <td>SPH particles that penetrate MPM material are pushed out by a fixed fraction of the grid
+        spacing <em>per frame</em>, and their normal velocity is reflected with a stacked factor. MPM
+        never sees SPH at all.</td>
+        <td class="notes">Fluid slowly pops and jitters its way <em>out</em> of concave MPM pockets while
+        resting in them. A water jet cannot move a sand pile. The same scene behaves differently at a
+        different timestep or grid resolution.</td>
+        <td class="notes">Two independent defects. (a) The correction <em>teleported</em> position: it
+        was dt-independent and scaled with the grid spacing, so depenetration speed tracked dx and frame
+        rate rather than time. The reflection factor summed to 1.05 + 1.30 + 0.75 = 3.10; since k = 1
+        kills the normal velocity and k = 2 reflects it perfectly, k = 3.10 <em>reverses</em> it at
+        about 2.1&#215; speed &#8212; resting contact injected kinetic energy. (b) The coupling was
+        strictly one-way: SPH felt MPM as an immovable static collider, MPM felt nothing, and momentum
+        was created from nothing every frame.</td>
+      </tr>
+      <tr>
+        <td class="name">Coupling v2<br><span class="b yellow">selectable</span></td>
+        <td>A <strong>passive</strong> response: k = 1 + e with e in [0,1], so it can never add energy,
+        and a rate-based recovery in 1/s so behaviour is timestep-independent. Then the loop closes: the
+        SPH force pass records the exact impulse each particle received from the contact and MPM receives
+        its negative.</td>
+        <td class="notes">Selectable, still off by default pending live calibration.</td>
+        <td class="notes">Two hard constraints shaped it, and both are characteristic of this codebase.
+        The SPH force shader sits <em>at</em> the 16-SSBO cap so it cannot bind the grid &#8212; the
+        reaction rides an <code>imageBuffer</code> instead, which also avoids duplicating contact logic
+        in a second shader that could drift. And SPH runs <em>after</em> the whole MPM step, which the
+        clear pass wipes, so the impulse lands in persistent reaction grids and is consumed by the
+        <em>next</em> step: a documented one-frame latency, the same order of accuracy as the rest of the
+        explicit scheme.</td>
+      </tr>
+    </table>
+
+    <div class="grid-2">
+      <div class="panel">
+        <h3>Why v2 is the right model</h3>
+        <p>Restitution above 1 is not a tuning choice, it is a sign error in disguise: any resting
+        contact with k &gt; 2 is a pump. Clamping k to 1 + e with e &#8804; 1 makes the response passive
+        by construction, which is a property rather than a setting &#8212; you cannot tune your way back
+        into the bug. Making recovery a rate in 1/s rather than a fraction of dx per frame is the same
+        kind of change: it removes dx and frame rate from a physical quantity's units.</p>
+        <p>The back-reaction is the part that makes it a coupling rather than a boundary condition.
+        Recording the impulse <em>at the one site where the contact force is actually known</em>, rather
+        than recomputing it in the scatter pass, is a deliberate anti-drift decision worth copying.</p>
+        <p>The verification is the most instructive part of this entry. Forcing it on with a temporary
+        GPU readback caught a bug that a clean build and a no-crash run would both have missed: the
+        consume-and-zero sat <em>after</em> grid_op's empty-cell early-out, but SPH deposits with
+        B-spline weights and therefore reaches nodes carrying no MPM mass. Those cells were never
+        cleared and the fixed-point accumulator climbed monotonically, 0.6 to 126 over 25&#160;s
+        &#8212; int32 wraparound in roughly seven minutes, and a phantom kick of minutes-worth of stale
+        impulse for anything that later drifted in. Moving the read and clear above the early-out made
+        it flat: about 140 cells at about 0.18 peak impulse, steady over 30&#160;s.</p>
+      </div>
+      <div class="panel">
+        <h3>What is still wrong</h3>
+        <ul class="bullet-list">
+          <li><strong>It is not the default</strong>, because the live A/B is the calibration step and it
+          has not been run: does a water jet now visibly move a sand pile, and does fluid stop climbing
+          out of pockets?</li>
+          <li><strong>One frame of latency</strong> on the back-reaction, by construction. Acceptable in
+          an explicit scheme, but it means action and reaction are not simultaneous.</li>
+          <li><strong>The applied velocity change is clamped to one cell per step</strong> so a
+          near-empty node cannot produce an unbounded kick. That is a safety clamp, i.e. exactly the kind
+          of compensator this page is generally suspicious of.</li>
+          <li><strong>It is still a penalty contact, not a unified pressure solve.</strong> The
+          relationship map's own wording remains accurate: soft coupling for contact and thermal
+          exchange. Two-way momentum makes it honest, not unified.</li>
+          <li><strong>SDF geometry still receives no momentum back</strong> from either solver. That
+          one-way arrow is a separate, still-open item.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="note">
+      <p><strong>When you would still pick Legacy.</strong> Default-off here is enforced structurally
+      &#8212; the diff across every touched shader and source is 111 lines added and <em>zero</em>
+      removed, with the legacy contact block reproduced verbatim in the else branch &#8212; so Legacy is
+      byte-identical and every existing scene is unaffected. Keep it for any scene where SPH is meant to
+      act as a decorative fluid over static terrain and you do not want a water jet redistributing your
+      carefully placed sand. Switch to v2 when the interaction is the point.</p>
+    </div>
+
+    <div class="callout">
+      <p><strong>The A/B to run.</strong> Two tests, one per defect. (1) <em>Energy:</em> rest a pool of
+      SPH fluid in a concave MPM bowl and leave it alone. On Legacy it jitters and slowly climbs out; on
+      v2 it sits. (2) <em>Momentum:</em> aim a water jet at a loose sand pile. On Legacy the sand does
+      not move at all no matter how hard you push, because MPM never receives the force; on v2 the pile
+      erodes. Then change the timestep or grid resolution and repeat test 1: Legacy's depenetration speed
+      changes with both, v2's does not.</p>
+    </div>
+  </section>
+
+
+  <section id="where">
+    <div class="section-top">
+      <div class="colorbar debug"></div>
+      <p class="eyebrow">Cross-reference</p>
+      <h2>Where each family's detail table lives</h2>
+      <p class="lede">This page is the argument, not the reference. Per-material parameters, status
+      badges and coupling rows live on the three companion pages and are deliberately not duplicated
+      here.</p>
+    </div>
+    <table>
+      <tr><th>Family</th><th>Detail lives on</th><th>What you will find there</th></tr>
+      <tr><td class="name">Magnetics</td>
+          <td><a href="mechanics_status.html#magnetic">mechanics_status.html #magnetic</a><br>
+              <a href="mechanics_relationships.html#ferro">mechanics_relationships.html #ferro</a></td>
+          <td class="notes">Per-material magnetic table (saturation, alpha, phase behaviour), the April
+          post-mortem, and the list of anti-compaction mitigations. The relationship map carries the
+          force-decomposition figure: Kelvin lift, surface Maxwell stress, Tait plus demag pressure,
+          pseudo-thickness bridge. <span class="b yellow">check</span> both still quote 14 / 3.0 for
+          Heavy Ferrofluid where the shaders use 8.0 / 2.0.</td></tr>
+      <tr><td class="name">Living material</td>
+          <td><a href="mechanics_relationships.html#atlas">mechanics_relationships.html #atlas</a><br>
+              <a href="mechanics_relationships.html#thermal">the same page, #thermal</a></td>
+          <td class="notes">The bio and automata fields as solver inputs, and the regrowth lens. There is
+          no per-material table for the eight living materials anywhere yet; the Creation menu is the
+          only enumeration.</td></tr>
+      <tr><td class="name">Ash regrowth</td>
+          <td><a href="mechanics_relationships.html#thermal">mechanics_relationships.html #thermal</a></td>
+          <td class="notes">The regrowth chain, plus the symptom table that includes
+          <em>"regrowth turns black"</em> and what to check for it.</td></tr>
+      <tr><td class="name">Fracture</td>
+          <td><a href="mechanics_status.html#granular">mechanics_status.html #granular</a><br>
+              <a href="technique_guide.html#materials">technique_guide.html #materials</a></td>
+          <td class="notes">Granular and fracture status rows, and the full material atlas.
+          <span class="b yellow">check</span> the status row still says phase-field brittle has no
+          Laplacian regularization and calls it a future improvement.</td></tr>
+      <tr><td class="name">Stiffness</td>
+          <td><a href="technique_guide.html#glass">technique_guide.html #glass</a><br>
+              <a href="mechanics_status.html#solids">mechanics_status.html #solids</a></td>
+          <td class="notes">The long-form analysis of why glass collapsed, written against v1 and v2.
+          <span class="b yellow">check</span> glass is one of the materials v3 was validated on.</td></tr>
+      <tr><td class="name">Blast</td>
+          <td><a href="mechanics_relationships.html#thermal">mechanics_relationships.html #thermal</a></td>
+          <td class="notes">The explosion chain: combustion and sealed charges feeding vapor, heat,
+          airtight pressure and blast impulse, and how the cavity mask decides vent against
+          pressurize.</td></tr>
+      <tr><td class="name">Contact heat</td>
+          <td><a href="mechanics_status.html#thermal">mechanics_status.html #thermal</a><br>
+              <a href="mechanics_relationships.html#thermal">mechanics_relationships.html #thermal</a></td>
+          <td class="notes">Thermal coupling status, and the SPH / MPM / air / SDF thermal chain.</td></tr>
+      <tr><td class="name">Burn front</td>
+          <td><a href="mechanics_relationships.html#thermal">mechanics_relationships.html #thermal</a><br>
+              <a href="technique_guide.html#systems">technique_guide.html #systems</a></td>
+          <td class="notes">The thermal chain, and the current simulation stack including where fire
+          reads air temperature back.</td></tr>
+      <tr><td class="name">MPM &#8596; SPH</td>
+          <td><a href="mechanics_relationships.html#relationships">mechanics_relationships.html #relationships</a></td>
+          <td class="notes">The coupling matrix. The row that matters is
+          <em>SPH to MPM: soft coupling for contact and thermal exchange, not a fully unified pressure
+          solve</em> &#8212; still accurate under v2.</td></tr>
+      <tr><td class="name">All of them</td>
+          <td><a href="mechanics_relationships.html#frame">mechanics_relationships.html #frame</a><br>
+              <a href="mechanics_relationships.html#debugging">the same page, #debugging</a></td>
+          <td class="notes">The frame loop, which is the ordering every argument on this page depends on,
+          and the debug view index for running the A/Bs.</td></tr>
+    </table>
+
+    <p class="footer-note">Primary source for all of the above is <code>data/changelog.json</code>.
+    Where an entry and the code disagree, the code is authoritative and the disagreement is called out
+    in the relevant section.</p>
+  </section>
+
+</main>
+</body>
+</html>

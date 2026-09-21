@@ -1,0 +1,182 @@
+<!doctype html><html lang="en"><head><style data-portfolio-paint>html{background:#0b0d0c;color-scheme:dark}html.portfolio-booting body{opacity:0}</style><script src="../../../portfolio-navigation.js?v=688f1905bc"></script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Analytical Render · LTC · Garage medium model</title><meta name="description" content="The numerical transport approximation behind the bounded atmosphere and its stated limits."><meta name="color-scheme" content="dark"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="../../../portfolio.css?v=b7ed8602e5"><link rel="stylesheet" href="../../../portfolio-effects.css?v=62be30dafa"><link rel="stylesheet" href="../../../portfolio-atmospheres.css?v=4b74c57939"><link rel="stylesheet" href="../../../portfolio-motion.css?v=4b098d8184"><link rel="stylesheet" href="../../../portfolio-case-studies.css?v=243caf2b0d"><link rel="stylesheet" href="../../../portfolio-brochures.css?v=a1e5e16132"><link rel="stylesheet" href="../../../portfolio-project-themes.css?v=a898c35e78"><link rel="stylesheet" href="../../../portfolio-location.css?v=9c4c1ad84f"><link rel="stylesheet" href="../../../portfolio-controls.css?v=9376de7761"><link rel="stylesheet" href="../../../portfolio-media.css?v=c51f7712ea"><link rel="stylesheet" href="../../../portfolio-overviews.css?v=8612c4ee0a"><link rel="stylesheet" href="../../../portfolio-motivations.css?v=ccc1c1d866"><link rel="stylesheet" href="../../../portfolio-claims.css?v=058dbd00ef"><link rel="stylesheet" href="../../../portfolio-feature-atlas.css?v=e73f02cb31"><script type="application/json" id="media-framing">{"media/brochures/physics-2d/thermal-furnace-magnetic-field-probe.png":{"width":1602,"height":940,"top":39},"media/brochures/physics-2d/magnetic-field-direction-appearance-controls.png":{"width":1602,"height":940,"top":39},"media/brochures/physics-2d/time-bomb-blast-particle-plume.png":{"width":1602,"height":940,"top":39}}</script><script defer src="../../../portfolio-claims.js?v=ed914a4d3a"></script><script defer src="../../../portfolio-visual-defaults.js?v=eecfd5c771"></script><script defer src="../../../portfolio-motion.js?v=a642c710f9"></script><script defer src="../../../portfolio-fire-studies.js?v=7717e15582"></script><script defer src="../../../portfolio-embers.js?v=8a8be5569d"></script><script defer src="../../../portfolio-atmospheres.js?v=021b2f100e"></script><script defer src="../../../portfolio-effects.js?v=03a6c89d6c"></script><script defer src="../../../portfolio-brochures.js?v=055cad29d6"></script><script defer src="../../../portfolio-location.js?v=3846586893"></script><script defer src="../../../portfolio-media.js?v=d2d555a888"></script><script defer src="../../../portfolio-articles.js?v=acb89575ce"></script><script defer src="../../../portfolio-labs.js?v=a0b86a3809"></script><link rel="stylesheet" href="../../../portfolio-technical.css?v=0ecb3a48c7"><!-- universal-navigation:start --><script defer src="../../../portfolio-routes.js?v=054b6b462c"></script><script defer src="../../../portfolio-universal-navigation.js?v=054b6b462c"></script><!-- universal-navigation:end --><style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head><body data-page="technical" data-project-theme="optics" data-project-id="analytical-render" data-default-atmosphere="caustics"><a class="skip-link" href="#main">Skip to content</a><nav class="site-nav portfolio-route" data-route-group="methods" aria-label="Portfolio location"><div class="route-path"><a class="route-node route-home" href="../../../index.html#project-analytical-render" aria-label="Portfolio"><img class="route-mark" src="../../../media/identity/portfolio-mark.svg" alt="" width="52" height="52"><span class="route-copy"><small>Work / ideas</small><strong>Portfolio</strong></span></a><span class="route-wire" aria-hidden="true"><i></i><b></b></span><div class="route-node route-group"><span class="route-glyph" aria-hidden="true">◫</span><span class="route-copy"><small>Collection</small><strong>Practical</strong></span></div><span class="route-wire" aria-hidden="true"><i></i><b></b></span><div class="route-node route-project"><span class="route-glyph" hidden aria-hidden="true">◈</span><img class="route-thumb" src="../../../media/previews/analytical-render/native-material-garage-ltc-bsdf-split.png" width="42" height="42" alt=""><span class="route-copy"><small>Project</small><strong>Analytical Render · LTC</strong></span></div></div><div class="route-end"><span class="route-meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><a class="route-back" href="../../../index.html#project-analytical-render">← Back to portfolio</a></div></nav><main id="main" class="project-page technical-page"><header class="technical-hero"><span class="eyebrow">Analytical Render · LTC · technical notes</span><h1>Garage medium model</h1><p>The numerical transport approximation behind the bounded atmosphere and its stated limits.</p><div class="technical-actions"><a href="../index.html">← Analytical Render · LTC brochure</a><a href="../../../live_demos/analytical-render/index.html">Open interactive study ↗</a></div></header><article class="technical-document"><p>The garage&#39;s optional atmosphere is a <strong>numerical single-scattering extension</strong>.
+It does not turn the surface LTC fit into a closed-form volume renderer. The
+manual room-wide atmosphere defaults off. The separate <strong>Extra fancy</strong> option
+enables a compact luminescent cube and coordinated ground details, and can be
+switched off to return to the ordinary material/atmosphere controls.</p>
+<h2 id="transport-that-is-evaluated">Transport that is evaluated</h2><p>A finite scene-space box contains a scalar extinction field. Each camera/lens
+ray is clipped to that box and to its first visible surface. At each midpoint,
+the shader evaluates the actual 3D density, attenuates the remaining radiance,
+and accumulates in-scattered radiance. A homogeneous segment uses:</p>
+<pre><code class="language-text">Tsegment = exp(−σt Δs)
+Lsegment = albedo × incident_isotropic_source × (1 − Tsegment)
+Lcamera += Tprevious × Lsegment
+Tprevious *= Tsegment
+</code></pre>
+<p>The final surface radiance is multiplied by the accumulated camera transmittance.
+This follows the <a href="https://pbr-book.org/4ed/Volume_Scattering/Transmittance" rel="noopener">beam-transmittance relation</a>
+and the source structure in the <a href="https://pbr-book.org/4ed/Light_Transport_II_Volume_Rendering/The_Equation_of_Transfer" rel="noopener">equation of transfer</a>.
+The bounded midpoint discretization is an approximation, particularly for rapidly
+varying density. It is not an unbiased Monte Carlo transmittance estimator.</p>
+<p>The phase function is isotropic, <code>1/(4π)</code>. The unoccluded angular integral of each
+constant-radiance rectangular emitter is therefore its <strong>ordinary solid angle</strong>,
+computed as two spherical triangles. This is different from the projected-solid-
+angle cosine integral used for a diffuse surface. The <a href="https://pbr-book.org/4ed/Volume_Scattering/Phase_Functions" rel="noopener">normalized isotropic phase
+function</a> permits this
+angular simplification; the remaining integration along the camera ray is still
+numerical.</p>
+<p>Light-path attenuation uses four midpoint samples along the direction to each
+quad&#39;s center. That one transmittance multiplies the quad&#39;s integrated source.
+The same approximation is applied to incident surface lighting on both the LTC
+and MC branches, so their material comparison remains matched. It is not exact
+integration of spatially varying attenuation over a large area emitter.
+The compact extra-fancy cube uses two center-ray samples to bound its additional
+cost; this is a coarser approximation and not an accuracy improvement.</p>
+<h2 id="density-and-motion">Density and motion</h2><ul>
+<li><strong>Uniform:</strong> constant density inside the box; vacuum outside.</li>
+<li><strong>Rolling noise:</strong> smoothly interpolated 3D value noise with a continuous warp.</li>
+<li><strong>Filaments:</strong> folded procedural sheets shaped by the same noise.</li>
+</ul>
+<p>Density stays in <code>[0,1]</code>; the extinction scale supplies the coefficient per world
+unit. The animation clock translates the density coordinates smoothly. This is
+a prescribed moving field, not a fluid simulation. A medium-only view displays
+the accumulated in-scattered component without the attenuated surface background.</p>
+<p>Ground motion is independent: a scene-clock translation moves the procedural
+two-material finish mask. The slab geometry and tile grout stay fixed. This is
+an animated material field rather than a moving or deforming floor.</p>
+<h2 id="extra-fancy-cube-and-hollow-seal">Extra-fancy cube and hollow seal</h2><p>The cube is one world unit wide, centered at <code>(1.44, 1.29, −1.5)</code>, rotated by
+<code>Rz(0.16) Ry(0.48) Rx(0.22)</code> radians. Density coordinates, camera and light-ray
+intervals, the thin metal edge cage, and its normals share this rigid transform.
+This exposes three faces without turning the medium into a screen-space image.
+Extinction is zero outside its rotated bounds, and scene surfaces occlude it.</p>
+<p>A smooth warped trigonometric field forms tubes with smaller connecting branches.
+It is a prescribed organic pattern, not Physarum, a reaction-diffusion solver, or
+a biological growth simulation. The field supplies real volume density in
+<code>[0,1]</code>, with extinction scale <code>1.4</code>, scattering albedo <code>0.78</code>, and 28 view-ray
+integration steps, independently of the manual room-haze setting.</p>
+<p>The volume has a bounded teal/gold luminescent source function <code>E</code>, whose channels
+stay in <code>[0,6.5]</code>. Its emission coefficient is <code>j = σt E</code>. A constant segment adds
+<code>E (1 − Tsegment)</code> alongside the scattered source, attenuated by all earlier
+segments. This represents actual source integration along the ray, not a colored
+overlay. The source is prescribed and does not illuminate other scene objects;
+secondary emission transport and multiple scattering remain outside the model.
+The volume-only view includes both this emission and in-scattering.</p>
+<p>Ground detail follows the same atmosphere clock in this mode. A hollow double
+rim at <code>(-1.32, 0, 1.22)</code> modulates finish and shading normals; its center remains
+open. The outer and inner rims use explicit smooth height profiles, and the
+normal gradient is differentiated from those profiles. Coordinated broad ripple
+normals and moving finish colors add motion. These are bump/material effects:
+the floor&#39;s intersection geometry and silhouette remain planar.</p>
+<h2 id="boundaries">Boundaries</h2><p>This study omits multiple scattering, anisotropic phase functions, volumetric
+object shadows, and integration through the glass&#39;s internal
+and secondary transmission paths. Existing glass/film/environment extensions
+remain boundary-radiance approximations. It does not claim to reproduce a full
+volumetric path tracer, a physical fluid, or photon transport through every
+surface interaction. The constant-density segment relation and isotropic angular
+integral have closed forms; the heterogeneous rendered result does not.</p>
+<p>The material inspector views bypass camera volume accumulation so normals, masks,
+base and coat contributions remain readable. With the atmosphere enabled, base
+and coat views still use medium-attenuated incident lighting.</p>
+<h2 id="solid-rear-light-housing">Solid rear-light housing</h2><p>Four oriented bronze box bars surround rear panel 2, following its actual center,
+axes, width, and height as it moves. These are intersected 3D surfaces with the
+same direct microfacet lighting as the other opaque materials. The frame does not
+consume object-buffer slots or change the blocker index, and it is not a screen
+outline. It leaves the emitter aperture unobstructed. Its material highlights
+are shaded; no bevel geometry or rounded silhouette is claimed.</p>
+<h2 id="uniform-contract">Uniform contract</h2><div class="case-table-wrap technical-table" tabindex="0" role="region" aria-label="Technical comparison"><table>
+<thead>
+<tr>
+<th>Slot</th>
+<th>Meaning</th>
+<th>Suggested default</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>82</td>
+<td>Manual extinction scale <code>σt</code>, zero disables room haze</td>
+<td>0</td>
+</tr>
+<tr>
+<td>83</td>
+<td>Density: 0 uniform, 1 rolling noise, 2 filaments</td>
+<td>1</td>
+</tr>
+<tr>
+<td>84</td>
+<td>Single-scattering albedo</td>
+<td>0.85</td>
+</tr>
+<tr>
+<td>85</td>
+<td>Density frequency multiplier</td>
+<td>1</td>
+</tr>
+<tr>
+<td>86</td>
+<td>Independent atmosphere animation time, seconds</td>
+<td>0</td>
+</tr>
+<tr>
+<td>87</td>
+<td>Camera-ray integration steps, clamped to 8–40</td>
+<td>20</td>
+</tr>
+<tr>
+<td>88</td>
+<td>Ground pattern flow speed, zero disables</td>
+<td>0</td>
+</tr>
+<tr>
+<td>89</td>
+<td>Rear light housing enabled</td>
+<td>1</td>
+</tr>
+<tr>
+<td>90</td>
+<td>Volume only: in-scattering, plus emission in extra-fancy mode</td>
+<td>0</td>
+</tr>
+<tr>
+<td>91</td>
+<td>Ground animation time from the scene clock</td>
+<td>0</td>
+</tr>
+<tr>
+<td>92</td>
+<td>Extra-fancy cube, edge cage, and coordinated ground effects</td>
+<td>1</td>
+</tr>
+</tbody></table></div>
+<p>When slot 92 is enabled, the compact cube replaces room haze and uses its own
+fixed integration settings. Slot 86 advances both its organic field and the
+coordinated ground effects. Slot 89 still controls only the rear-light housing.</p>
+<p>For a visible demonstration, try extinction <code>0.25–0.45</code>, frequency <code>1</code>, and 20
+steps. Keep the lens at pinhole initially: finite aperture repeats volume work
+for each lens sample. Large frequency benefits from more integration steps.</p>
+<h2 id="validation">Validation</h2><p>Open <code>tests/garage-medium-check.html</code> in a native WebGPU browser. It extracts and
+executes production WGSL functions to check vacuum, pure absorption, the constant
+source solution and segment composition, exact rectangular solid angle, parallel
+ray-box intersections, bounded noise/density, atmosphere motion, transmittance
+reversal, and clipping extinction to the actual medium boundary.
+Additional cases check that the extra mode works with manual extinction zero,
+that density and emission remain bounded, that rigid rotation preserves ray
+distance and excludes outside points, and that the hollow-rim normal gradient
+matches its explicit height profile.</p>
+<p>These checks validate kernel limits and invariants. Full-scene appearance,
+the frame&#39;s location, and animation also require browser review.</p>
+<p>Native WebGPU validation on 2026-09-10 passed all checks, including the rectangular
+solid angle (<code>0.8054317 sr</code>). Browser review confirmed the bronze housing follows
+the rear emitter, the filament medium and its isolated scattering view render,
+and atmosphere animation remains active with the scene animation disabled.</p>
+<p>The extra-fancy revision also passed all 21 native WebGPU checks on 2026-09-10,
+including the seven new cube, emission, rigid-transform, and hollow-rim cases.
+Browser review confirmed that volume-only isolates the cube on black, the ground
+rim remains hollow, and switching the extra mode off restores manual room haze.</p>
+</article><footer class="technical-footer"><div class="technical-actions"><a href="../index.html">← Analytical Render · LTC brochure</a><a href="../../../live_demos/analytical-render/index.html">Open interactive study ↗</a></div></footer></main></body></html>

@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+  <head><style id="portfolio-early-paint">html{background:#0b0d0c;color-scheme:dark}html.portfolio-booting body{opacity:0}</style><script src="../../portfolio-navigation.js"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="data:," />
+    <title>5D Explorer · Reading hidden dimensions</title>
+    <script type="module" crossorigin src="./assets/main-DXAua4yj.js"></script>
+    <link rel="modulepreload" crossorigin href="./assets/mode-switch-KVTmJce4.js">
+    <link rel="modulepreload" crossorigin href="./assets/whats-new-BGrxnqJH.js">
+    <link rel="modulepreload" crossorigin href="./assets/sdf2d-CdOQmIPv.js">
+    <link rel="stylesheet" crossorigin href="./assets/mode-switch-Bw2z5Q4v.css">
+    <link rel="stylesheet" crossorigin href="./assets/main-BqnPS-nu.css">
+    <link rel="stylesheet" href="./portfolio-return.css">
+<link rel="stylesheet" href="../../portfolio-controls.css"><link rel="stylesheet" href="../../portfolio-demo-return.css"><script defer src="../../portfolio-demo-return.js" data-project="5D" data-title="High-dimensional Fields &amp; Shadow Design" data-overview="projects/field-4d/overview.html" data-group="hobby" data-thumbnail="media/projects/field-4d/shadow.png" data-routes="[{&quot;project&quot;:&quot;5D&quot;,&quot;title&quot;:&quot;High-dimensional Fields &amp; Shadow Design&quot;,&quot;group&quot;:&quot;hobby&quot;,&quot;thumbnail&quot;:&quot;media/projects/field-4d/shadow.png&quot;,&quot;overview&quot;:&quot;projects/field-4d/overview.html&quot;,&quot;path&quot;:&quot;live_demos/field-4d/creator.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:2},{&quot;project&quot;:&quot;5D&quot;,&quot;title&quot;:&quot;High-dimensional Fields &amp; Shadow Design&quot;,&quot;group&quot;:&quot;hobby&quot;,&quot;thumbnail&quot;:&quot;media/projects/field-4d/shadow.png&quot;,&quot;overview&quot;:&quot;projects/field-4d/overview.html&quot;,&quot;path&quot;:&quot;live_demos/field-4d/creator.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:1},{&quot;project&quot;:&quot;5D&quot;,&quot;title&quot;:&quot;High-dimensional Fields &amp; Shadow Design&quot;,&quot;group&quot;:&quot;hobby&quot;,&quot;thumbnail&quot;:&quot;media/projects/field-4d/shadow.png&quot;,&quot;overview&quot;:&quot;projects/field-4d/overview.html&quot;,&quot;path&quot;:&quot;live_demos/field-4d/inverse.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:1},{&quot;project&quot;:&quot;5D&quot;,&quot;title&quot;:&quot;High-dimensional Fields &amp; Shadow Design&quot;,&quot;group&quot;:&quot;hobby&quot;,&quot;thumbnail&quot;:&quot;media/projects/field-4d/shadow.png&quot;,&quot;overview&quot;:&quot;projects/field-4d/overview.html&quot;,&quot;path&quot;:&quot;live_demos/field-4d/index.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:1},{&quot;project&quot;:&quot;5D&quot;,&quot;title&quot;:&quot;High-dimensional Fields &amp; Shadow Design&quot;,&quot;group&quot;:&quot;hobby&quot;,&quot;thumbnail&quot;:&quot;media/projects/field-4d/shadow.png&quot;,&quot;overview&quot;:&quot;projects/field-4d/overview.html&quot;,&quot;path&quot;:&quot;live_demos/field-4d/blend.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:1},{&quot;project&quot;:&quot;5D&quot;,&quot;title&quot;:&quot;High-dimensional Fields &amp; Shadow Design&quot;,&quot;group&quot;:&quot;hobby&quot;,&quot;thumbnail&quot;:&quot;media/projects/field-4d/shadow.png&quot;,&quot;overview&quot;:&quot;projects/field-4d/overview.html&quot;,&quot;path&quot;:&quot;live_demos/field-4d/&quot;,&quot;query&quot;:{},&quot;priority&quot;:-1}]"></script><!-- universal-navigation:start --><link rel="stylesheet" href="../../portfolio-location.css?v=054b6b462c"><script defer src="../../portfolio-location.js?v=054b6b462c"></script><script defer src="../../portfolio-routes.js?v=054b6b462c"></script><script defer src="../../portfolio-universal-navigation.js?v=054b6b462c"></script><!-- universal-navigation:end --><style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head>
+  <body>
+    <canvas id="field"></canvas>
+
+    <div class="heatmap-inset" id="heatmapInset">
+      <canvas id="heatmapCanvas" width="240" height="240"></canvas>
+      <div class="heatmap-legend" id="heatmapLegend" aria-label="Slot mappings">
+        <span class="hl-slot" data-slot="x">X<em data-axis>·</em></span>
+        <span class="hl-slot" data-slot="y">Y<em data-axis>·</em></span>
+        <span class="hl-slot" data-slot="z">Z<em data-axis>·</em></span>
+        <span class="hl-slot" data-slot="t">T<em data-axis>·</em></span>
+        <span class="hl-slot" data-slot="w">W<em data-axis>·</em></span>
+      </div>
+      <div class="heatmap-controls">
+        <label>
+          <span>T-W heatmap</span>
+          <select id="heatmapRes" aria-label="Heatmap grid resolution">
+            <option value="32">32 × 32</option>
+            <option value="64" selected>64 × 64</option>
+            <option value="128">128 × 128</option>
+            <option value="256">256 × 256</option>
+          </select>
+        </label>
+        <label class="heatmap-toggle">
+          <input id="heatmapEnabled" type="checkbox" checked />
+          <span>show</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="reticle" aria-hidden="true"></div>
+
+    <aside class="panel" aria-label="Field controls">
+        <a class="portfolio-return" href="../../projects/field-4d/index.html" aria-label="Back to this project's portfolio page"><span aria-hidden="true">←</span> Project overview</a>
+      <header class="panel-header">
+        <div>
+          <h1>5D Explorer</h1>
+          <p id="status">WebGPU field</p>
+        </div>
+        <button id="engage" type="button">Engage</button>
+      </header>
+
+      <section class="field-journey" aria-label="Purpose and first steps">
+        <p class="journey-kicker">02 / Read a higher-dimensional field</p>
+        <p class="journey-goal"><strong>What changes when we move through an unseen axis?</strong> A prescribed set of shadows only constrains part of a higher-dimensional object. Here the question shifts to constructing a rich field across the hidden coordinates: hold the camera still and move W to reveal a new 3D slice of the same five-dimensional field.</p>
+        <details><summary>Extra space is useful only when its slices are useful</summary><p>A shape reconstructed from projections may be absent over much of a hidden coordinate. That can be undesirable if the coordinate drives an animation. Procedural, periodic constructions offer another design route: distribute structure across coordinate directions, then choose one coordinate as the playback parameter.</p><p>Coordinate symmetry and looping are different from strict rotational isotropy. The time label here describes how the application samples a field; this is not a physical spacetime model.</p><a class="journey-route" href="inverse.html"><span aria-hidden="true" style="font-size:32px;text-align:center">4→3</span><span><strong>Test the inverse problem</strong><small>See which target projections can coexist</small></span></a></details>
+        <details>
+          <summary>Try this first · separate movement from slicing</summary>
+          <ol>
+            <li>Set <strong>Time flow</strong> to zero, then move the <strong>5th axis</strong> slider. Shapes change without a camera move.</li>
+            <li>Switch <strong>Space → Time → Pair</strong>. The axis labels show which coordinates now fill the view.</li>
+            <li>Try <strong>Tilt</strong> and compare the T–W heatmap. It samples the same field across two hidden coordinates.</li>
+          </ol>
+          <p class="journey-scope">X, Y and Z span the view; T and W select the remaining coordinates. This is an interactive field visualization, not a claim that a 3D image displays every higher-dimensional detail at once.</p>
+        </details>
+        <details>
+          <summary>Explore the related field viewers</summary>
+          <nav class="journey-routes" aria-label="Suggested exploration order">
+            <a class="journey-route" href="creator.html"><img src="./assets/shadow-FBsK3RSF.png" alt="Saved capture: one solid casting different shadows" loading="lazy" decoding="async"><span><strong>01 · Shadow inversion</strong><small>3D → 2D · build the intuition</small></span></a>
+            <a class="journey-route" href="index.html" aria-current="page"><img src="./assets/field-CA3t-t1E.png" alt="Saved capture of the five-dimensional field viewer" loading="lazy" decoding="async"><span><strong>03 · 5D Explorer</strong><small>One field · compare slices</small></span></a>
+            <a class="journey-route" href="blend.html"><img src="./assets/prism-C0MWvhpN.png" alt="Saved capture of Compounded 5D Explorer with its axis controls" loading="lazy" decoding="async"><span><strong>04 · Compounded 5D Explorer</strong><small>Composed fields · the same question</small></span></a>
+          </nav>
+        </details>
+      </section>
+
+      <div class="readout" id="readout">x 0.0 y 0.0 z 10.5 w 0.00 t 0.0</div>
+
+      <div class="mode-bar" role="group" aria-label="Quality mode">
+        <button class="mode-button active" data-quality="speed" type="button" aria-pressed="true">Speed</button>
+        <button class="mode-button" data-quality="balanced" type="button" aria-pressed="false">Balanced</button>
+        <button class="mode-button" data-quality="quality" type="button" aria-pressed="false">Quality</button>
+      </div>
+
+      <label style="display:flex;align-items:center;gap:8px;margin:4px 0 8px;cursor:pointer;font-size:12px;color:#cfe7e3;">
+        <input id="richLook" type="checkbox" checked style="margin:0;flex:none;" />
+        <span>rich look</span><input id="lighting" type="checkbox" checked style="margin:0 0 0 10px;flex:none;" /><span>lighting</span>
+        <em style="font-style:normal;font-size:9px;letter-spacing:0.08em;padding:1px 5px;border-radius:999px;background:#f1a6cf;color:#2a0a1c;font-weight:700;">NEW</em><span class="newdot" data-batch="nav"></span>
+      </label>
+
+      <div class="preset-bar" role="group" aria-label="Slice presets">
+        <button class="mode-button active" data-preset="space" type="button" aria-pressed="true">Space</button>
+        <button class="mode-button" data-preset="time" type="button" aria-pressed="false">Time</button>
+        <button class="mode-button" data-preset="pair" type="button" aria-pressed="false">Pair</button>
+        <button class="mode-button" data-preset="tilted" type="button" aria-pressed="false">Tilt</button>
+      </div>
+
+      <div class="scene-bar" id="sceneBar" role="group" aria-label="Field scene presets"></div>
+
+      <section class="stage-graph" aria-label="Pipeline">
+        <div class="stage-node active">
+          <strong>Field</strong>
+          <span>5D fbm</span>
+        </div>
+        <div class="stage-link"></div>
+        <div class="stage-node">
+          <strong>Warp</strong>
+          <span>gyroid</span>
+        </div>
+        <div class="stage-link"></div>
+        <div class="stage-node">
+          <strong>Slice</strong>
+          <span>volume</span>
+        </div>
+        <div class="stage-link"></div>
+        <div class="stage-node">
+          <strong>Grade</strong>
+          <span>glow</span>
+        </div>
+      </section>
+
+      <div class="controls">
+        <div class="axis-grid" aria-label="Dimension mapping">
+          <label>
+            <span>X</span>
+            <select id="axisX" aria-label="X dimension"></select>
+          </label>
+          <label>
+            <span>Y</span>
+            <select id="axisY" aria-label="Y dimension"></select>
+          </label>
+          <label>
+            <span>Z</span>
+            <select id="axisZ" aria-label="Z dimension"></select>
+          </label>
+          <label>
+            <span>T</span>
+            <select id="axisT" aria-label="T dimension"></select>
+          </label>
+          <label>
+            <span>W</span>
+            <select id="axisW" aria-label="W dimension"></select>
+          </label>
+        </div>
+
+        <label>
+          <span>5th axis <output id="hiddenValue">0.00</output></span>
+          <input id="hidden" type="range" min="-8" max="8" step="0.01" value="0" />
+        </label>
+
+        <label>
+          <span>Time flow <output id="timeRateValue">1.00</output></span>
+          <input id="timeRate" type="range" min="0" max="2.4" step="0.01" value="1" />
+        </label>
+
+        <label>
+          <span>Density <output id="densityValue">1.05</output></span>
+          <input id="density" type="range" min="0.25" max="2.4" step="0.01" value="1.05" />
+        </label>
+
+        <label>
+          <span>Detail <output id="detailValue">3.00</output></span>
+          <input id="detail" type="range" min="1" max="5" step="0.01" value="3" />
+        </label>
+
+        <label>
+          <span>Warp <output id="warpValue">0.88</output></span>
+          <input id="warp" type="range" min="0" max="1.8" step="0.01" value="0.88" />
+        </label>
+
+        <label>
+          <span>Glow <output id="glowValue">1.25</output></span>
+          <input id="glow" type="range" min="0" max="2.6" step="0.01" value="1.25" />
+        </label>
+
+        <label>
+          <span>Exposure <output id="exposureValue">1.10</output></span>
+          <input id="exposure" type="range" min="0.45" max="2.2" step="0.01" value="1.1" />
+        </label>
+
+        <label>
+          <span>Tilt <output id="tiltValue">0.00</output></span>
+          <input id="tilt" type="range" min="-1.4" max="1.4" step="0.01" value="0" />
+        </label>
+
+        <label>
+          <span>Spin <output id="spinValue">0.00</output></span>
+          <input id="spin" type="range" min="-3.14" max="3.14" step="0.01" value="0" />
+        </label>
+
+        <label>
+          <span>Resolution <output id="scaleValue">42%</output></span>
+          <input id="scale" type="range" min="0.3" max="1" step="0.01" value="0.42" />
+        </label>
+      </div>
+    </aside>
+
+    <div class="unsupported" id="unsupported" hidden>
+      <strong>WebGPU is unavailable.</strong>
+      <span>Use a current Chromium or Edge build with hardware acceleration enabled.</span>
+    </div>
+
+  </body>
+</html>

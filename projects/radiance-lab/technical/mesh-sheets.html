@@ -1,0 +1,170 @@
+<!doctype html><html lang="en"><head><style data-portfolio-paint>html{background:#0b0d0c;color-scheme:dark}html.portfolio-booting body{opacity:0}</style><script src="../../../portfolio-navigation.js?v=688f1905bc"></script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Caustics from dielectric meshes — RadianceLab</title><meta name="description" content="Numerical sheets through real glass meshes, including the geometry and topology cuts behind the result."><meta name="color-scheme" content="dark"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="../../../portfolio.css?v=b7ed8602e5"><link rel="stylesheet" href="../../../portfolio-effects.css?v=62be30dafa"><link rel="stylesheet" href="../../../portfolio-atmospheres.css?v=4b74c57939"><link rel="stylesheet" href="../../../portfolio-motion.css?v=4b098d8184"><link rel="stylesheet" href="../../../portfolio-case-studies.css?v=243caf2b0d"><link rel="stylesheet" href="../../../portfolio-brochures.css?v=a1e5e16132"><link rel="stylesheet" href="../../../portfolio-project-themes.css?v=a898c35e78"><link rel="stylesheet" href="../../../portfolio-location.css?v=9c4c1ad84f"><link rel="stylesheet" href="../../../portfolio-controls.css?v=9376de7761"><link rel="stylesheet" href="../../../portfolio-media.css?v=c51f7712ea"><link rel="stylesheet" href="../../../portfolio-overviews.css?v=8612c4ee0a"><link rel="stylesheet" href="../../../portfolio-motivations.css?v=ccc1c1d866"><link rel="stylesheet" href="../../../portfolio-claims.css?v=058dbd00ef"><link rel="stylesheet" href="../../../portfolio-feature-atlas.css?v=e73f02cb31"><script type="application/json" id="media-framing">{"media/brochures/physics-2d/thermal-furnace-magnetic-field-probe.png":{"width":1602,"height":940,"top":39},"media/brochures/physics-2d/magnetic-field-direction-appearance-controls.png":{"width":1602,"height":940,"top":39},"media/brochures/physics-2d/time-bomb-blast-particle-plume.png":{"width":1602,"height":940,"top":39}}</script><script defer src="../../../portfolio-claims.js?v=ed914a4d3a"></script><script defer src="../../../portfolio-visual-defaults.js?v=eecfd5c771"></script><script defer src="../../../portfolio-motion.js?v=a642c710f9"></script><script defer src="../../../portfolio-fire-studies.js?v=7717e15582"></script><script defer src="../../../portfolio-embers.js?v=8a8be5569d"></script><script defer src="../../../portfolio-atmospheres.js?v=021b2f100e"></script><script defer src="../../../portfolio-effects.js?v=03a6c89d6c"></script><script defer src="../../../portfolio-brochures.js?v=055cad29d6"></script><script defer src="../../../portfolio-location.js?v=3846586893"></script><script defer src="../../../portfolio-media.js?v=d2d555a888"></script><script defer src="../../../portfolio-articles.js?v=acb89575ce"></script><script defer src="../../../portfolio-labs.js?v=a0b86a3809"></script><link rel="stylesheet" href="../../../portfolio-technical.css?v=0ecb3a48c7"><script defer src="../../../portfolio-technical.js"></script><!-- universal-navigation:start --><script defer src="../../../portfolio-routes.js?v=054b6b462c"></script><script defer src="../../../portfolio-universal-navigation.js?v=054b6b462c"></script><!-- universal-navigation:end --><style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head><body data-page="technical" data-project-theme="optics" data-project-id="radiance-lab" data-default-atmosphere="caustics"><canvas class="spark-field" aria-hidden="true"></canvas><a class="skip-link" href="#main">Skip to content</a><nav class="site-nav portfolio-route" data-route-group="flagships" aria-label="Portfolio location"><div class="route-path"><a class="route-node route-home" href="../../../index.html#project-radiance-lab" aria-label="Portfolio"><img class="route-mark" src="../../../media/identity/portfolio-mark.svg" alt="" width="52" height="52"><span class="route-copy"><small>Work / ideas</small><strong>Portfolio</strong></span></a><span class="route-wire" aria-hidden="true"><i></i><b></b></span><div class="route-node route-group"><span class="route-glyph" aria-hidden="true">✦</span><span class="route-copy"><small>Collection</small><strong>Flagship</strong></span></div><span class="route-wire" aria-hidden="true"><i></i><b></b></span><a class="route-node route-project" href="../index.html"><span class="route-glyph" hidden aria-hidden="true">◈</span><img class="route-thumb" src="../../../media/previews/radiance-lab/caustic-showcase.png" width="42" height="42" alt=""><span class="route-copy"><small>Project</small><strong>RadianceLab</strong></span></a><span class="route-wire" aria-hidden="true"><i></i><b></b></span><a class="route-node technical-route" href="index.html"><span class="route-copy"><small>Technical reading room</small><strong>Caustics from dielectric meshes</strong></span></a></div><div class="route-end"><span class="route-meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><a class="route-back" href="../../../index.html#project-radiance-lab">← Back to portfolio</a></div></nav><nav class="section-rail technical-rail" aria-label="Technical document sections"><span class="rail-indicator" aria-hidden="true"></span><a href="#technical-top" data-section="technical-top"><span>⌂</span><span>Start</span></a><a href="#three-related-modes-not-one-rasterizer" data-section="three-related-modes-not-one-rasterizer" title="Three related modes, not one rasterizer"><small>01</small><span>Three related modes, not one rasterizer</span></a><a href="#open-a-complete-experiment" data-section="open-a-complete-experiment" title="Open a complete experiment"><small>02</small><span>Open a complete experiment</span></a><a href="#from-a-ray-family-to-a-mesh-sheet" data-section="from-a-ray-family-to-a-mesh-sheet" title="From a ray family to a mesh sheet"><small>03</small><span>From a ray family to a mesh sheet</span></a><a href="#quality-controls" data-section="quality-controls" title="Quality controls"><small>04</small><span>Quality controls</span></a><a href="#research-scope" data-section="research-scope" title="Research scope"><small>05</small><span>Research scope</span></a><a href="#reproduce-validation" data-section="reproduce-validation" title="Reproduce validation"><small>06</small><span>Reproduce validation</span></a></nav><main id="main" class="project-page technical-page"><header id="technical-top" class="technical-hero"><span class="eyebrow">RadianceLab · Native implementation document</span><h1>Caustics from dielectric meshes</h1><p>Numerical sheets through real glass meshes, including the geometry and topology cuts behind the result.</p><div class="technical-actions"><a href="../index.html">← RadianceLab brochure</a><a href="index.html">Technical reading room</a><a href="../validation/index.html">Rendered evidence ↗</a></div></header><aside class="technical-scope"><span>◈</span><p>Implementation notes describe the native application. A working experiment, an approximate preview and a general transport estimator establish different things; each document states its own scope.</p></aside><article class="technical-document"><p>Strategy <strong>32</strong> follows a sampled light-ray family through actual triangle meshes,
+then gathers the refracted sheets in a participating medium. It extends the
+hourglass experiment to concave objects, holes, changing surface normals and
+chains of separated glass solids. The older analytical sphere hourglass remains
+strategy 20.</p>
+<h2 id="three-related-modes-not-one-rasterizer">Three related modes, not one rasterizer</h2><div class="case-table-wrap technical-table" tabindex="0" role="region" aria-label="Technical comparison"><table>
+<thead>
+<tr>
+<th>Mode</th>
+<th>Support construction</th>
+<th>Camera evaluation</th>
+<th>Accuracy character</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Analytical hourglass 20</td>
+<td>Exact axis-revolved sheet for an analytical sphere (plus its selected chain extensions)</td>
+<td>Solve camera-ray/sheet crossings with the analytical Jacobian</td>
+<td>No finite angular tessellation for the one-sphere sheet; still subject to the documented support limits and optional Jacobian guard</td>
+</tr>
+<tr>
+<td>Mesh sheets 32, normal</td>
+<td>Trace a finite angular ray family through triangle meshes, adaptively join matching path histories into triangles</td>
+<td>Intersect each camera ray with the sheet BVH and evaluate the local projected Jacobian</td>
+<td>Approximate finite angular quadrature; increasing passes removes Monte Carlo noise, while increasing angular resolution reduces discretization error</td>
+</tr>
+<tr>
+<td>Fast structure preview on 20 or 32</td>
+<td>Reuse the corresponding analytical or mesh-derived sheet triangles</td>
+<td>Project and rasterize triangles into a reduced-resolution screen buffer, then optionally filter and enlarge it</td>
+<td>Deliberately biased viewfinder; reduced resolution, interpolation, a grazing clamp, filtering and incomplete camera-side visibility remain</td>
+</tr>
+</tbody></table></div>
+<p>Strategy 32 can handle difficult shapes because it replaces the sphere-specific
+closed-form construction with traced mesh rays. Bias is not what grants that
+support. The normal mode is already an approximation because a continuous ray
+family is represented by finitely many angular samples, but it still evaluates
+camera intersections in scene space. The fast toggle introduces a second,
+more aggressive approximation by moving that gather into screen space.</p>
+<p>The useful mental model is therefore: <strong>20 derives the sheet, 32 reconstructs
+the sheet numerically, and Fast preview draws either sheet as a filtered image.</strong></p>
+<p>The fast image may reveal a narrow fold much sooner because fractional pixel
+coverage draws geometry that no stochastic camera sample happened to hit. Its
+grazing floor and blur also tame extreme Jacobian values. This explains the
+clean early image, but it is exactly where additional bias enters: these
+regularizers change the limiting image rather than merely reducing noise.</p>
+<h2 id="open-a-complete-experiment">Open a complete experiment</h2><p>Run <code>Mesh-Photon-Sheets.bat</code> in the RadianceLab folder and choose a subject.
+Each launch gets a separate runtime directory, leaving ordinary viewer settings
+alone. Alternatively use <strong>File → Scene Presets → Mesh photon sheets [32, ready to render]</strong>
+inside the viewer. The menu sets the estimator, camera, medium and display
+defaults together; no separate estimator selection is needed.</p>
+<div class="case-table-wrap technical-table" tabindex="0" role="region" aria-label="Technical comparison"><table>
+<thead>
+<tr>
+<th>Preset</th>
+<th>Subject</th>
+<th>What to inspect</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>83</td>
+<td>Suzanne, the Blender monkey</td>
+<td>Concave geometry and asymmetric refracted sheets</td>
+</tr>
+<tr>
+<td>84</td>
+<td>Utah teapot</td>
+<td>Body, handle, spout and lid in a closed glass casting</td>
+</tr>
+<tr>
+<td>85</td>
+<td>Three triangulated spheres</td>
+<td>Familiar focusing geometry rendered as meshes</td>
+</tr>
+<tr>
+<td>86</td>
+<td>Glass torus</td>
+<td>Multiple intersections around a hole</td>
+</tr>
+<tr>
+<td>87</td>
+<td>Four glass bodies</td>
+<td>Caustic segments between bodies and beyond the last one</td>
+</tr>
+</tbody></table></div>
+<p>The monkey and teapot assets were repaired into watertight, consistently oriented
+solid castings. In particular, this teapot is a <strong>solid refractor</strong>, not a hollow
+glass vessel. The <span class="technical-source-label">asset record</span> retains
+the source files, licenses, conversion procedure and topology checks.</p>
+<p>The paired scenes initially isolate <strong>refracted fog</strong>. Enable <strong>Direct fog
+context</strong> to add the ordinary, unbent illumination of the medium. The initial
+display is a path-family view; hiding that component is not a change to the
+underlying scattering coefficient. Glass and stage surfaces can remain visible
+independently. The striped background in the single-object scenes is scene
+geometry, so its distortion is produced by the glass camera rays.</p>
+<h2 id="from-a-ray-family-to-a-mesh-sheet">From a ray family to a mesh sheet</h2><ol>
+<li>Sample a light point and azimuth. Sweep the polar angle through a finite set
+of rays. Each ray follows Snell refraction, Fresnel transmission and internal
+total reflection through the glass.</li>
+<li>Record the outgoing medium intervals after each glass traversal. Adjacent
+rays can be joined only when their entry/exit history and terminal geometry
+agree. Rapid changes trigger local angular subdivision; unresolved branch
+boundaries are dropped rather than bridged.</li>
+<li>Join matching intervals into two-triangle strips. A camera ray gathers all
+strips it crosses, using their projected Jacobians, local scattering, phase
+function and attenuation on both sides of the connection.</li>
+<li>Average independent light/azimuth batches over time. Mesh geometry is cached
+in a BVH and shared across the frame. Moving the camera resets accumulation;
+holding it still refines the image.</li>
+</ol>
+<p>For a parameter chart <code>X(theta,t)</code>, the geometric factor is</p>
+<pre><code>J = |(dX/dtheta × dX/dt) · camera_direction|.
+</code></pre>
+<p>The input measure includes <code>sin(theta) dtheta dt</code> and <code>1/p(azimuth) = 2*pi</code>.
+Each triangle carries its parameter-cell extent, so finer tessellation does not
+add light merely by adding triangles. The denominator is the projected
+triangle cross product; its associated parameter area is included in the
+numerator. There is no normalization by the number of successful intersections.</p>
+<h2 id="quality-controls">Quality controls</h2><ul>
+<li><strong>Rays along each sheet:</strong> resolves angular curvature and branch boundaries.</li>
+<li><strong>Sheets per pass:</strong> more independent azimuth/light samples per displayed pass.</li>
+<li><strong>Glass interfaces:</strong> entry and exit each count once; four solids need at least
+eight interfaces. Internal reflections also use the budget.</li>
+<li><strong>Smooth glass normals:</strong> interpolated vertex normals versus literal facets.
+Geometric sidedness still prevents a smoothed normal from sending a transmitted
+ray back through the face it entered.</li>
+<li><strong>Max bend between rays:</strong> prompts refinement; unresolved large changes are
+discarded. Compare resolutions when a narrow feature appears to be missing.</li>
+<li><strong>Grazing cutoff:</strong> a dimensionless camera/sheet cosine threshold, independent
+of triangle size. A nonzero threshold removes some grazing contributions.</li>
+<li><strong>Full viewport resolution:</strong> use for a still image; half resolution reduces
+the cost while framing a view.</li>
+</ul>
+<h2 id="research-scope">Research scope</h2><p>This is <strong>finite angular quadrature with Monte Carlo light/azimuth sampling</strong>,
+not an exact or unbiased arbitrary-mesh version of the sphere solver. More
+passes reduce sampling noise; they do not eliminate a fixed angular resolution&#39;s
+discretization error. The angle threshold, unresolved topology changes and
+grazing cutoff can discard energy. Compare both sample count and angular
+resolution before treating an image as converged.</p>
+<p>Current support is closed, nonoverlapping dielectric solids, scalar central IOR
+in RGB, homogeneous media and one volume-scattering event after a transmitted
+glass chain. The light-side family includes transmission and internal total
+reflection; it does not include every externally reflected or multiply
+scattered path. Camera rays can reflect and refract through the mesh. The stage
+uses direct surface lighting; this mode does not yet add the focused surface
+caustic on the floor. Analytical compositing/MIS and correlated-raster settings
+from the older modes are not applied to this separate renderer.</p>
+<h2 id="reproduce-validation">Reproduce validation</h2><p>The <span class="technical-source-label">native validation report</span> includes all five rendered
+scenes, timings, angular-resolution comparisons and the four-body chain through
+eight glass interfaces. The paired presets use exposure 10; the launcher starts
+with those scene-specific camera and display defaults.</p>
+<pre><code>cmake --build build --config Release --target PrismMeshSheetTest
+build/bin/Release/PrismMeshSheetTest.exe
+python docs/mesh-photon-sheets/validate_renders.py build/mesh-sheet-validation smoke --passes 64 --width 480 --height 300
+python docs/mesh-photon-sheets/validate_renders.py build/mesh-sheet-validation chain --passes 64
+python docs/mesh-photon-sheets/validate_renders.py build/mesh-sheet-validation refinement --passes 64
+</code></pre>
+<p>The native runner retains float films, display PNGs, exact configuration, binary
+hashes, timing and sheet counts by interface depth. Image differences are
+diagnostics, not a ground-truth error estimate. Use a fresh run directory after
+rebuilding: the runner refuses to mix different executable versions.</p>
+</article><footer class="technical-footer"><div class="technical-actions"><a href="../index.html">← RadianceLab brochure</a><a href="index.html">Technical reading room</a><a href="../validation/index.html">Rendered evidence ↗</a></div></footer></main></body></html>

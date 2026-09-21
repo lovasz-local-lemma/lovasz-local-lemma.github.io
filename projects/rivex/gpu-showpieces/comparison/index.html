@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Four paired instruments, two delivery routes — RIVX</title>
+<meta name="description" content="Compare a signed GPU Canvas .riv against a script-free Rive interface with the same WGSL executed by external JavaScript.">
+<link rel="stylesheet" href="../showpieces.css?v=20260921-finish"><link rel="stylesheet" href="comparison.css">
+<link rel="icon" type="image/webp" href="../../../../media/thumbs/rivex.webp">
+<script src="../../../../portfolio-lab-frame.js"></script>
+<!-- universal-navigation:start --><link rel="stylesheet" href="../../../../portfolio-location.css?v=054b6b462c"><script defer src="../../../../portfolio-location.js?v=054b6b462c"></script><script defer src="../../../../portfolio-routes.js?v=054b6b462c"></script><script defer src="../../../../portfolio-universal-navigation.js?v=054b6b462c"></script><!-- universal-navigation:end --><style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head><body>
+<header class="page-heading"><a href="../index.html#spectral-observatory">← Studies in light</a><span>FOUR INSTRUMENTS / TWO EXPORT FORMATS</span><span class="runtime">Shared WGSL · shared controls</span></header>
+<main>
+<div class="intro"><p class="eyebrow">BOTH FORMATS ARE SUPPORTED. CHOOSE WHAT TRAVELS TOGETHER.</p><h1>Two export formats. One instrument.</h1><p>Each of these four instruments is supplied in both forms: a GPU Canvas .riv containing its visual behavior, and a browser bundle pairing an ordinary .riv interface with JavaScript and WebGPU. Use either instrument; linked controls and clocks keep their scene parameters aligned. Both diagrams are native Rive vector paths.</p></div>
+<nav class="comparison-tabs" aria-label="Compare a study"><button id="material-nocturne" data-piece="material-nocturne">Material nocturne</button><button id="spectral-observatory" data-piece="spectral-observatory">Spectral observatory</button><button id="resonant-membrane" data-piece="resonant-membrane">Resonant membrane</button><button id="interactive-optics" data-piece="interactive-optics">Liquid optics</button></nav><div class="compare-controls"><label><input type="checkbox" id="linked" checked> Link the two instruments</label><button id="crisp-details" aria-pressed="true" hidden>Crisp details · on</button><button id="restart">Restart both</button><span id="status" role="status">Loading documents…</span></div>
+<div class="compare-scroll"><div class="compare-grid">
+<article><div class="route-heading"><span class="eyebrow">01 / COMPLETE DOCUMENT</span><h2>GPU Canvas inside .riv</h2><p>Rive owns the shader, logic and vector composition.</p></div>
+<div class="instrument" id="leftStage"><canvas id="left" aria-label="Complete GPU Canvas Rive instrument"></canvas><div class="route-loading" id="leftLoading" role="status">Loading signed .riv…</div></div>
+</article>
+<article><div class="route-heading"><span class="eyebrow">02 / RIVE + GPU BUNDLE</span><h2>.riv + JavaScript / WebGPU</h2><p>Export the Rive interface together with its renderer and application logic.</p></div>
+<div class="instrument" id="rightStage"><canvas id="right" aria-label="Script-free Rive interface"></canvas><canvas id="external" aria-label="Same optical scene rendered by external WebGPU"></canvas><canvas id="externalControls" aria-hidden="true"></canvas><div class="route-loading" id="rightLoading" role="status">Loading Rive + external WebGPU…</div></div>
+</article>
+</div></div>
+<section class="anatomy wide"><h2>What travels with the file?</h2><div class="table-scroll"><table><thead><tr><th></th><th>GPU Canvas .riv</th><th>Ordinary .riv + external GPU</th></tr></thead><tbody>
+<tr><th>Inside .riv</th><td>Native Rive UI, diagrams, animation, Luau and compiled shader assets.</td><td>Native Rive buttons, slider shapes, diagram paths, bindings and animation. No embedded script or shader.</td></tr>
+<tr><th>What the website provides</th><td>Compatible official runtime and the file. Here JavaScript also links controls and supplies optional procedural membrane audio on both routes.</td><td>Official runtime, interface file, shader, WebGPU renderer, continuous gestures and application logic.</td></tr>
+<tr><th>Authoring / signing</th><td>Embedded scripts are compiled and signed by Rive before production playback.</td><td>This script-free file needs no Rive script signing. Shader compilation happens in the browser.</td></tr>
+<tr><th>Playback here</th><td>Official WebGL2 runtime with GPU Canvas enabled.</td><td>Official WebGL2 runtime for Rive, plus browser WebGPU over HTTPS or localhost.</td></tr>
+<tr><th>Opening only the .riv</th><td>The complete visual instrument remains interactive in a compatible runtime. Procedural audio on this page requires its Web Audio bridge.</td><td>The interface remains; the GPU scene and host-driven graph updates are absent.</td></tr>
+</tbody></table></div>
+<p>The signed file is self-hosted and does not contact the signing service during playback. No visitor login is required. The CLI export retains Rive’s watermark. Signing enables compatible runtimes; it does not add support to older runtimes or unsupported devices.</p>
+<p>Choose the bundle when an application already owns its renderer, custom data or browser libraries. Choose GPU Canvas when the visual instrument should travel together inside Rive. Both are supported delivery routes in this project; these paired studies demonstrate selected exports, rather than a converter for every possible Rive document. The optical model is the same in either package.</p>
+<p class="muted" id="model-note"></p><p class="muted">The same scene equations run through different graphics backends. The host compiler guards negative bases of even powers to avoid WebGPU NaNs; other rasterization and precision differences remain measurable. Control materials are composed for each instrument: Liquid spring in Material Nocturne and Resonant Membrane, and Constructive geometry in Spectral Observatory. Native Rive supplies labels and interaction geometry. The membrane phase follows official runtime advance events; the other studies expose their clock through data binding. Scroll horizontally on narrow screens to keep the two routes adjacent.</p>
+<p><a href="../../technical-notes/gpu-comparison.html">How the two routes work ↗</a> · <a href="../index.html">Explore all five instruments ↗</a></p></section>
+</main><script src="../vendor/rive.js"></script><script type="module" src="comparison.js?v=20260921-finish"></script></body></html>

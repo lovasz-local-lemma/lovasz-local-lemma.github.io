@@ -1,0 +1,452 @@
+{{SECTION:_head.html}}
+{{NAV}}
+
+<!-- ================= HERO ================= -->
+<header class="hero">
+  <div class="wrap hero-in">
+    <p class="eyebrow">Simulation &middot; RadianceLab</p>
+    <h1>Things that move<br>on their <i>own</i></h1>
+    <p class="thesis">Five physics solvers, a Gray-Scott reaction and a bank of shaders that carry state between frames run inside a real-time path tracer, and three of the solvers put their state into the transport itself &mdash; as media that shadow rays intersect, not as an overlay. Which of these systems a photon can actually see is the subject of this page.</p>
+    <p class="note" style="max-width:58ch;margin:14px 0 0;color:#9fb0ad">Every claim on this page was read out of the source and anchored to a line, not measured off a film, so the marks are <b>seen</b> and <b>never viewed</b> rather than <b>measured</b>. Almost none of it has been photographed yet: simulation is the one subject on this site a still cannot carry, so the placeholders below are shooting lists for clips.</p>
+    <div class="spectrum"></div>
+    <div class="stats">
+      <div class="stat"><span class="k">Solvers that reach the traced image</span>
+        <div class="v"><span class="from">5</span><span class="arr">&rarr;</span><span class="to">3</span></div>
+        <div class="sub">SPH and MPM as injected volume spheres, Euler by density grid &mdash; and &sect;03 on what happens to that grid</div></div>
+      <div class="stat"><span class="k">Integrators that read the noise config</span>
+        <div class="v"><span class="to">2 / 9</span></div>
+        <div class="sub">of the nine integrator <span class="mono">.cpp</span> files in <span class="mono">src/render/</span> &mdash; megakernel 17 references, UPBP 7, the rest 0</div></div>
+      <div class="stat"><span class="k">Accumulated passes while physics runs</span>
+        <div class="v"><span class="to">1</span></div>
+        <div class="sub">the stepper sets <span class="mono">needsAccumReset</span> every frame</div></div>
+      <div class="stat"><span class="k">Live Gray-Scott sim, warmed and bound</span>
+        <div class="v"><span class="from">64&sup3;</span><span class="arr">&rarr;</span><span class="to">0</span></div>
+        <div class="sub">sampling sites reached by the presets that start it</div></div>
+    </div>
+  </div>
+</header>
+
+<!-- ================= 01 · THE COUPLING ================= -->
+<section id="coupling" style="--secc:var(--l400)" data-nav="The coupling">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">01 &mdash; Where simulation meets transport</p>
+      <h2>Three routes carry simulated state into the light transport; the best of them turns a fluid into participating media, and each has a limit worth naming</h2>
+      <p class="lead">The test of a renderer with a physics engine inside it is not whether the physics runs. It is whether a photon can see the result. Here it can, by three genuinely different mechanisms &mdash; and the strongest of the three is not the one the UI advertises.</p>
+      <p>The advertised route is the <b>Physics</b> density source: a button in the volume properties panel whose tooltip reads &ldquo;Euler/SPH/MPM fluid density from physics simulation.&rdquo; That tooltip is a mislabel and the catalogue records it as one. <span class="mono">uploadPhysDensityTexture</span> reads <span class="mono">m_physics.eulerDensity()</span> and nothing else, and <span class="mono">m_eulerDensity[&hellip;]</span> is written only inside the three Euler routines. Choose SPH, MPM, Simple Particles or Soft Body and the grid stays at the zeros <span class="mono">init()</span> filled it with, so the volume renders empty.</p>
+      <p>The <em>unadvertised</em> route is the real coupling. When <b>Show Particles</b> is on and the solver is SPH or MPM, every particle is pushed into the tracer&rsquo;s primitive buffer as a real volume sphere &mdash; radius 0.03, &sigma;<sub>s</sub> 20, &sigma;<sub>a</sub> 2, isotropic phase, material 0. These are not an overlay. They are scene primitives that shadow rays intersect, that appear in mirrors, and that scatter along every bounce. It is the only place in the renderer where a particle simulation becomes participating media.</p>
+    </div>
+
+    <div class="tw"><table>
+      <thead><tr><th>Route</th><th>What travels</th><th>Who can see it</th><th>Mark</th></tr></thead>
+      <tbody>
+        <tr><td><b>Euler grid &rarr; density texture</b><br><span class="mono">EnginePhysics.cpp:278-300</span></td><td>An <span class="mono">R16F</span> 3-D texture, 64&sup3;, re-uploaded every physics frame</td><td>GPU megakernel only, as <span class="mono">volType == 5</span>. The transport side of this route is complete; the <em>initialisation</em> side has an ordering problem &mdash; &sect;03</td><td><span class="st st-c">scene-dependent</span></td></tr>
+        <tr><td><b>SPH / MPM particles &rarr; volume spheres</b><br><span class="mono">EngineRender.cpp:2010-2026</span></td><td>One <span class="mono">GPUPrimitive</span> per particle, appended after the scene&rsquo;s own primitives</td><td>GPU megakernel only. Every CPU integrator builds its scene from <span class="mono">scene.entities</span>, which never contains them</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td><b>Node-graph live procedural &rarr; surface channels</b><br><span class="mono">pathTrace.comp:1017-1136</span></td><td>A time-linked 3-D pattern overriding albedo, roughness, metallic, emission colour or opacity per hit</td><td>GPU megakernel only. NEE reads the material buffer and never sees the override</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td><b>Live Gray-Scott 3-D texture</b><br><span class="mono">EngineRender.cpp:1835-1841</span></td><td>An <span class="mono">RGBA16F</span> 64&sup3; ping-pong sim, bound as <span class="mono">uRDTexture</span></td><td>Two shader branches, both behind a gate the presets that start the sim happen to close &mdash; &sect;04</td><td><span class="st st-d">superseded</span></td></tr>
+        <tr><td>SPH / MPM / Soft Body particles &rarr; GL points</td><td>Screen-space points coloured by speed or material type</td><td>Drawn <em>over</em> the finished frame. No shadow, no reflection, no light</td><td><span class="st st-b">seen</span></td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="narrow">
+      <p class="note"><b>The coupling, and its edge in the same breath.</b> Three of the five solvers reach the traced image &mdash; two by particle injection, one by the density grid &mdash; and they reach it on the GPU megakernel, the renderer that runs in real time, not on any of the other eight integrators. The remaining two, Simple Particles and Soft Body, reach it by no route at all; their output is the GL point overlay and nothing else. So &ldquo;five physics solvers coupled to a path-traced medium,&rdquo; the phrase on the landing page, is exact for three of them on one renderer, and this is the page that names the other two.</p>
+      <p>The injection route also costs more than it looks. <span class="mono">invalidateScene()</span> is called on the frame the particle list changes, which rebuilds and re-uploads the entire primitive SSBO; while the simulation is running that is every frame. And the GPU intersector is a linear scan, with a second full scan per bounce for the volume interaction, so the SPH <b>Dam Break</b> preset&rsquo;s 2,000 particles are 2,000 extra entries in a list that is walked twice on every bounce of every path. This is a physically correct visualisation mode rather than a production path &mdash; and physically correct is the part that matters in a renderer whose subject is where light goes.</p>
+    </div>
+
+    <figure>
+      {{VIDEO:Particles that are actually media | Preset 0 Cornell Box, GPU tracer, integrator Path Tracing. Advanced ▸ Volume ▸ Physics Simulation on, Sim Type SPH Fluid, preset Dam Break (2,000 particles), Show Particles ON. Press Play and record 20 seconds from the collapse to the first rebound. Keep the camera still. | the particle cloud casting a real soft shadow on the Cornell floor and picking up the red and green wall bounce. That colour is the proof it is inside the transport rather than composited on top; then note the single-sample grain that never resolves, which is section 02}}
+      <figcaption><b>The one route worth photographing</b><span>SPH and MPM particles enter the tracer as volume spheres with &sigma;<sub>s</sub> = 20. Compare against the same clip with Show Particles off and the density source set to Physics, where the same solver produces an empty grid.</span></figcaption>
+    </figure>
+
+    <figure>
+      {{SHOT:THE DECIDING CAPTURE for section 03. Preset 0 Cornell Box, GPU tracer. Select the box, Properties ▸ + Add Media ▸ VolumeBox, density source Physics. Advanced ▸ Volume ▸ Physics Simulation on, Sim Type Euler Fluid, press Play, wait five seconds, then pause and let it converge to 300 passes. Beside it, the identical setup with Sim Type switched to SPH Fluid and nothing else touched. Caption whichever way it comes out}}
+      <figcaption><b>The tooltip names three solvers; at most one writes the grid</b><span>The right-hand frame is what &ldquo;Euler/SPH/MPM fluid density from physics simulation&rdquo; delivers for two of the three solvers it names: an empty box. Whether the left-hand frame shows smoke is the open question of &sect;03, and this is the capture that answers it.</span></figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ================= 02 · THE PRICE OF MOTION ================= -->
+<section id="accum" style="--secc:var(--l460)" data-nav="Accumulation">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">02 &mdash; What motion costs a progressive renderer</p>
+      <h2>The engine has two answers to &ldquo;the scene changed&rdquo;, and the good one is a per-pixel adaptive accumulator</h2>
+      <p class="lead">A progressive path tracer accumulates. Anything that moves invalidates what has been accumulated. This renderer solves it twice, with two different mechanisms; one of them is genuinely good, and the subsystem that gets it is not the one that needs it most.</p>
+      <p><b>Animated volume noise gets the good one.</b> The <span class="mono">Animate Volumes</span> toggle does not reset accumulation. It changes the accumulator&rsquo;s weight from the uniform running mean 1/(n+1) to a per-pixel floor derived from how much that pixel actually changed:</p>
+    </div>
+
+    <div class="formula">
+      <div class="f">diff = |c &minus; prev| / max(|prev|, 0.01)<br>w = max<span class="hl">(</span> 1/(n+1), &nbsp;mix<span class="hl">(</span> 1/64, 1/4, clamp(2&middot;diff, 0, 1) <span class="hl">)</span> <span class="hl">)</span></div>
+      <div class="n">A pixel whose radiance is not changing keeps converging at 1/(n+1). A pixel that is changing falls back to a four-frame exponential memory. Verified at <span class="mono">pathTrace.comp:3750-3754</span>.</div>
+    </div>
+
+    <div class="narrow">
+      <p>That is a genuinely good design, and the code says so out loud &mdash; the reaction-diffusion stepper carries the comment &ldquo;Do NOT resetAccumulation here &mdash; the adaptive temporal EMA in the shader handles the time-varying RD texture, keeping static parts smooth.&rdquo; The walls of an RD room converge to a clean image while the volume in the middle churns.</p>
+      <p><b>Physics gets the blunt one.</b> The physics step sets <span class="mono">m_ui.needsAccumReset = true</span> unconditionally at the end of every stepped frame, and the render loop turns that into a full <span class="mono">resetAccumulation()</span> &mdash; the accumulation image is cleared and the frame counter returns to zero. So while a simulation is playing, every displayed frame is a fresh one-sample-per-pixel path trace, everywhere in the image, including the parts of the room that are not moving at all. The adaptive EMA that would have fixed exactly this is sitting in the same shader.</p>
+    </div>
+
+    <div class="readout">
+      <div class="row"><span class="lbl">Animated volumes &mdash; accumulation</span><span class="val">never reset; per-pixel adaptive EMA</span></div>
+      <div class="row"><span class="lbl">Animated volumes &mdash; fastest weight</span><span class="val">1/4 (four-frame memory)</span></div>
+      <div class="row"><span class="lbl">Animated volumes &mdash; slowest weight</span><span class="val">1/64, or 1/(n+1) if that is larger</span></div>
+      <div class="row"><span class="lbl">Reaction-diffusion &mdash; accumulation</span><span class="val">never reset; relies on the same EMA</span></div>
+      <div class="row hi"><span class="lbl">Physics running &mdash; accumulation</span><span class="val">cleared every frame; effective 1 spp</span></div>
+      <div class="row"><span class="lbl">Where the volume clock comes from</span><span class="val"><span class="mono">uTime = ImGui::GetTime()</span> &mdash; wall clock, not frame count</span></div>
+    </div>
+
+    <div class="narrow">
+      <p>The wall clock in that last row has a consequence worth stating. Because <span class="mono">scene.nodeTime</span> is assigned <span class="mono">ImGui::GetTime()</span> unconditionally every frame, and the uniform prefers it over the frame-counter fallback, a slow render <em>skips</em> animation rather than slowing it. A heterogeneous volume that runs at 8 fps advances the same distance per second as one running at 60, so the EMA is averaging over larger jumps and the fog reads blurrier. The frame-counter fallback at <span class="mono">ComputePathTracer.cpp:1803-1805</span> would have made animation deterministic per frame; it is unreachable, because <span class="mono">nodeTime</span> is positive from the first frame onward.</p>
+      <p class="note"><b>A second self-adjusting knob, in the other direction.</b> The physics stepper measures its own wall time and edits the UI. SPH and MPM get a minimum substep count computed from a target sub-timestep &mdash; 0.004 s for SPH, 0.002 s for MPM, hard-capped at 16 &mdash; written back into <span class="mono">m_ui.physSubsteps</span> so the slider visibly jumps up when you select a solver. Then, if a step takes longer than 16 ms, the substep count is decremented and written back again. Under load the simulation silently trades accuracy for frame rate and moves the slider while you watch. Honest, undocumented, and worth one clip.</p>
+    </div>
+
+    <figure>
+      {{VIDEO:Two answers to the same problem | Split screen, same room, GPU tracer, Path Tracing. Left half: preset 15 Cornell + Volume (animated), Render ▸ animate volumes ON, physics OFF. Right half: preset 0 with a VolumeBox on the Physics source, Sim Type Euler Fluid, physics Playing. Record 30 seconds of each side from a cold start. | the left frame's walls and floor going clean within a few seconds while only the fog stays grainy, against the right frame staying uniformly noisy forever including the static walls. Same accumulation buffer, two different policies}}
+      <figcaption><b>Adaptive EMA versus a reset every frame</b><span>The mechanism that keeps the left frame&rsquo;s static geometry smooth is available to the right frame and is not used by it.</span></figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ================= 03 · FIVE SOLVERS ================= -->
+<section id="solvers" style="--secc:var(--l500)" data-nav="Five solvers">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">03 &mdash; The physics bank</p>
+      <h2>Five solvers, sixteen seeding presets, and a sixth solver that steps every frame over an empty list</h2>
+      <p class="lead">All five live in <span class="mono">PhysicsWorld</span> behind one <span class="mono">simType</span> integer, stepped from <span class="mono">Engine::update</span> with a substep loop. Four of the five are guarded by an emptiness check, so selecting a solver does nothing until something seeds it; Euler is the exception and steps unconditionally, which is part of why it is the one that ends up with a grid worth uploading.</p>
+      <p class="note"><b>Sixteen is what the buttons come to.</b> Exactly sixteen named preset buttons exist &mdash; SPH 4, MPM 6, Simple Particles 6, all built from one <span class="mono">presetBtn</span> lambda at <span class="mono">UIManagerRender.cpp:5009&ndash;5123</span>. The Seeding column below also mentions SPH's default uniform grid and Soft Body's two shapes, which are not buttons; an earlier heading rounded the whole thing up to twenty, and twenty is not derivable from anything.</p>
+    </div>
+
+    <div class="tw"><table>
+      <thead><tr><th>Solver</th><th>Method</th><th>Seeding presets</th><th>Feeds the tracer</th><th>Mark</th></tr></thead>
+      <tbody>
+        <tr><td><b>SPH Fluid</b></td><td>Smoothed-particle hydrodynamics; kernel radius and rest density auto-solved from particle spacing on init and logged</td><td>4 &mdash; Dam Break, Droplet, Double Dam, Column &mdash; plus a default uniform grid</td><td>Yes, as injected volume spheres</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td><b>MPM</b></td><td>MLS-MPM with an APIC affine velocity field; three material types &mdash; elastic, snow, fluid</td><td>6 &mdash; Snowball, Elastic Cube, Two Material, Fluid Pour, Wall Smash, Snow Stack</td><td>Yes, as injected volume spheres</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td><b>Euler Fluid</b></td><td>MAC grid, semi-Lagrangian advection with Jacobi pressure projection, buoyancy and vorticity confinement. Labelled <span class="mono">[WIP]</span> in its own panel</td><td>None. <span class="mono">initEulerFluidTopEmpty</span> fills the lower half and is called once; <span class="mono">initEulerFluidBlob</span> has no caller</td><td>Its grid is the only one uploaded &mdash; but see the ordering problem below</td><td><span class="st st-c">scene-dependent</span></td></tr>
+        <tr><td><b>Simple Particles</b></td><td>AABB-bounded balls, two collision modes &mdash; soft repulsive spring or hard positional penalty</td><td>6 &mdash; Rain, Fountain, Explosion, Dam Break, Snow Globe, Zero-G</td><td>No</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td><b>Soft Body</b></td><td>Mass-spring with structural, shear and bend springs; box or ball. Labelled <span class="mono">[WIP]</span></td><td>2 shapes &times; grid resolution 2&ndash;10</td><td>No</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td><b>Rigid bodies</b></td><td><span class="mono">stepRigidBodies</span> runs every substep regardless of <span class="mono">simType</span>, with restitution, friction and a sphere inertia model</td><td><b>None.</b> <span class="mono">addRigidBody</span> has zero call sites anywhere in <span class="mono">src/</span></td><td>No &mdash; the list is always empty</td><td><span class="st st-d">absent</span></td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="narrow">
+      <p class="note"><b>Reachability, not call sites.</b> The rigid-body row is the one case here that survives the audit rule that caught the light tracer. The <em>function</em> has a caller &mdash; it runs on every substep of every solver &mdash; so a naive grep grades it live. But the <em>feature</em> has no route: nothing anywhere constructs a <span class="mono">RigidBody</span>, no preset, no panel, no config key. Q1 is no, so this is genuinely absent, and it is absent while still costing a loop iteration sixteen times a frame.</p>
+    </div>
+
+    <div class="narrow">
+      <h3>The Euler grid is seeded, then erased, on the same frame</h3>
+      <p>This is a source read, not a measurement, and it comes with the one capture that settles it, because it bears directly on the claim the landing page makes.</p>
+      <p>One press of Play, or any change that sets <span class="mono">physNeedsInit</span>, runs a single block in <span class="mono">Engine::update</span> in this order:</p>
+    </div>
+
+    <div class="formula">
+      <div class="f">m_physics.reset()<br>m_physics.setEulerRes(<span class="hl">ui.physEulerRes</span>)<br>&hellip; seed the chosen solver &mdash; for Euler, <span class="hl">initEulerFluidTopEmpty()</span> fills the lower half<br>m_physics.<span class="hl">init(cfg)</span></div>
+      <div class="n"><span class="mono">Engine.cpp:576-1030</span>. The last line is the problem.</div>
+    </div>
+
+    <div class="narrow">
+      <p><span class="mono">PhysicsWorld::init</span> is four statements long. It stores the config, sets <span class="mono">m_eulerRes = 64</span> unconditionally, and reassigns both the density and the velocity vector to 64&sup3; zeros. So it runs after the seeding and undoes it: the resolution the slider asked for is replaced by 64, and the &ldquo;bottom half dense&rdquo; field <span class="mono">initEulerFluidTopEmpty</span> just built is replaced by zeros. <span class="mono">uploadPhysDensityTexture()</span>, three lines later, uploads that.</p>
+      <p>Nothing puts density back. <span class="mono">stepEulerFluid</span> has no source term &mdash; it advects and dissipates what is already there, at 0.995 per step &mdash; and the wind injects velocity, not density. The only two routines that write density are the two initialisers, one of which is erased and the other of which, <span class="mono">initEulerFluidBlob</span>, has no caller anywhere in <span class="mono">src/</span>.</p>
+      <p class="note"><b>What this predicts, and how to falsify it in one screenshot.</b> If the reading is right, a VolumeBox on the Physics density source renders empty for <em>every</em> solver, Euler included, and the Resolution slider is inert while still visibly restarting the sim &mdash; the same &ldquo;fakes a response&rdquo; class as the three photon-map controls on the catalogue&rsquo;s inert list. The test is the shot specified at the top of &sect;01: preset 0, a VolumeBox with density source Physics, Sim Type Euler Fluid, press Play, wait five seconds. Smoke means the reading is wrong and this paragraph should be deleted. An empty box means the advertised coupling has been broken by a four-line function called one line too late. Either way it is one capture, and it is the highest-value capture on this page.</p>
+      <p>Three more Euler parameters sit just behind that. <span class="mono">eulerBuoyancy</span>, <span class="mono">eulerVorticity</span> and <span class="mono">eulerDissipation</span> each occur exactly twice in the entire source tree &mdash; the struct default and the read inside the solver. There is no slider, no config key and no writer, so buoyancy is pinned at 1.0, vorticity confinement at 0.5 and dissipation at 0.995 forever. The solver implements them properly; nothing can reach them.</p>
+    </div>
+
+    <div class="narrow">
+      <h3>Wind is camera-driven, and its shape control is a drawing</h3>
+      <p>Pressing <b>R</b> in FPS capture toggles a wind force whose origin is the camera position and whose direction is the camera forward vector. You aim it by looking. On the CPU path it adds a quadratic-falloff velocity impulse to the Euler grid cells within the radius, and separately pushes SPH, MPM and Simple particles; on the GPU particle path the same parameters go to <span class="mono">particleSim.comp</span> as uniforms.</p>
+      <p>The Wind Blower panel offers a <b>Shape</b> combo &mdash; Cone or Cylinder &mdash; and a <b>Width</b> slider that only appears for Cylinder. Neither reaches the solver. <span class="mono">windShape</span> occurs in five places in <span class="mono">EngineRenderViz.cpp</span>, three in the panel, one in the header; <span class="mono">windWidth</span> in two, one and one. <span class="mono">applyWindForce</span> takes origin, direction, strength and radius, and the field it applies is a sphere. So the shape control changes the overlay you are shown and not the force you are applying, which is the same defect class as the physics-density tooltip: a widget that draws its own promise.</p>
+      <p>One more asymmetry: the wind pushes SPH, MPM and Simple particles, and does not touch soft-body nodes. A soft body is immune to the wind.</p>
+    </div>
+
+    <div class="readout">
+      <div class="row"><span class="lbl">Wind strength</span><span class="val">0.1 &ndash; 200, logarithmic</span></div>
+      <div class="row"><span class="lbl">Wind radius</span><span class="val">0.1 &ndash; 50, logarithmic</span></div>
+      <div class="row"><span class="lbl">Wind width (Cylinder)</span><span class="val">0.1 &ndash; 20 &mdash; overlay only</span></div>
+      <div class="row"><span class="lbl">Solvers the force reaches</span><span class="val">Euler grid, SPH, MPM, Simple</span></div>
+      <div class="row"><span class="lbl">Solvers it does not</span><span class="val">Soft Body</span></div>
+      <div class="row hi"><span class="lbl">Force shape actually applied</span><span class="val">sphere, quadratic falloff, always</span></div>
+    </div>
+
+    <figure>
+      {{VIDEO:Aiming the wind with the camera | Preset 0, a VolumeBox on the Physics source, Sim Type Euler Fluid, Fluid Viz set to Both so the velocity arrows are visible whether or not any density survives. Note that the Fluid Viz overlay is silent unless some entity's density source is Physics — it looks for one to map grid cells to world space. Enter FPS capture, press R, then walk around the box and look at it from three sides over 25 seconds. | the velocity arrows in the Y slice swinging to follow the crosshair and the quadratic falloff at the edge of the radius. Then switch Shape from Cone to Cylinder mid-clip: the drawn overlay changes and the arrows do not, because the force is a sphere either way}}
+      <figcaption><b>The one control in the renderer you aim by looking</b><span>Origin is <span class="mono">camera.position</span>, direction is the normalised look vector, and the cone drawn on screen is a separate piece of code from the force. Watch the arrows rather than the smoke &mdash; velocity is the field the wind actually writes.</span></figcaption>
+    </figure>
+
+    <figure>
+      {{SHOT:Advanced ▸ Volume ▸ Physics Simulation with Sim Type MPM and preset Two Material selected, Show Grid on, Show Particles on, captured mid-fall so both material colours and the background grid are visible in one frame}}
+      <figcaption><b>MPM, two materials</b><span>Particle colour is assigned by <span class="mono">materialType</span> &mdash; blue elastic, white snow, cyan fluid &mdash; in the GL overlay path. In the tracer-injection path all particles share material 0 and the distinction disappears.</span></figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ================= 04 · REACTION-DIFFUSION ================= -->
+<section id="rd" style="--secc:var(--l540)" data-nav="Reaction&ndash;diffusion">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">04 &mdash; The simulation nobody has seen</p>
+      <h2>A real Gray-Scott simulation runs 64&sup3; cells a frame, drives density <em>and</em> colour, and is pre-empted three lines before it is read</h2>
+      <p class="lead">This is the sharpest example on the page of a system that evolves state, feeds the transport, and is invisible &mdash; and unlike most such stories the mechanism is short enough to state in full.</p>
+      <p>Loading any of the eight RD scene presets does four things. It applies a Gray-Scott parameter pair to <span class="mono">ReactionDiffusion</span>, initialises a 64&sup3; <span class="mono">RGBA16F</span> ping-pong pair seeded with five overlapping blobs plus noise, runs <b>500</b> warm-up steps so the pattern is already formed when the first frame draws, and builds a scene whose volume spheres carry <span class="mono">volNoiseScale = 51.0f</span> with the source comment <span class="mono">// Style 51 = RD 3D texture</span>. From then on the sim steps <span class="mono">rdSubsteps</span> times per frame &mdash; a 1 to 32 slider &mdash; and the result is bound as <span class="mono">uRDTexture</span>.</p>
+      <p>Two shader branches read that texture. One turns the V concentration into density through a <span class="mono">smoothstep(0.05, 0.35, v)</span> with a boundary fade. The other &mdash; the better one &mdash; turns it into <b>coloured emission</b>: a hue cycled by V concentration and world position, masked by <span class="mono">pow(smoothstep(0.25, 0.5, v), 2.0)</span> and multiplied by 8.0, so the activated regions of the reaction glow and light the room.</p>
+      <p>Both branches sit inside <span class="mono">if (!typeHandled)</span>. And the same scene builders that set <span class="mono">volNoiseScale = 51</span> also set <span class="mono">volumeType = ReactionDiffusion</span>, which is <span class="mono">volType == 2</span>, which is dispatched about eighty lines earlier and sets <span class="mono">typeHandled = true</span>. What you see in presets 5&ndash;8 and 10&ndash;13 is therefore <span class="mono">reactionDiffusionPattern3DNode</span> &mdash; a hand-tuned procedural <em>emulation</em> built from Worley cells, a sine fold and a domain warp &mdash; while the actual simulation runs, steps, and is thrown away.</p>
+    </div>
+
+    <div class="tw"><table>
+      <thead><tr><th>What</th><th>Where</th><th>State</th><th>Mark</th></tr></thead>
+      <tbody>
+        <tr><td>Gray-Scott 64&sup3; GPU compute sim</td><td><span class="mono">ReactionDiffusion.h:29-145</span>, <span class="mono">reactionDiffusion.comp</span></td><td>Runs, steps, is bound as a sampler</td><td><span class="st st-d">superseded</span></td></tr>
+        <tr><td>&mdash; density branch</td><td><span class="mono">pathTrace.comp:384-395</span></td><td>Behind <span class="mono">!typeHandled</span> and <span class="mono">vNoise &gt; 50</span></td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>&mdash; coloured emission branch</td><td><span class="mono">pathTrace.comp:671-686</span></td><td>Also needs a non-zero volume emission strength, which no RD preset sets &mdash; the field defaults to 0</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>Procedural RD emulation (what you actually see)</td><td><span class="mono">pt_noise.glsl:267-318</span></td><td>Three pattern families in the function; the volume path hardcodes <span class="mono">rdType = 0</span></td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>RD panel &mdash; 8 presets, feed / kill / diffusion U and V, substeps 1&ndash;32, Reset Grid</td><td><span class="mono">UIManagerRender.cpp:5148-5182</span></td><td>Drives the sim that is not sampled</td><td><span class="st st-b">seen</span></td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="narrow">
+      <h3>The route back, and why it exists by accident</h3>
+      <p>There is a way to see the real simulation, and it is one click. The volume properties panel&rsquo;s <b>Remove Source</b> button sets <span class="mono">volumeType = None</span>, clears <span class="mono">useNoiseLab</span> and clears <span class="mono">proceduralStyle</span>. It does not touch <span class="mono">volNoiseScale</span>. So the entity drops out of the typed dispatch, falls through to the legacy fallback, arrives at <span class="mono">vNoise &gt; 50.0</span> with its 51 still set, and samples <span class="mono">uRDTexture</span> &mdash; the live sim, stepping, warmed. Add a volume emission strength above 0.01 and the emission branch lights up too.</p>
+      <p class="note"><b>Correction to a page already published.</b> <span class="mono">ten-integrators-one-scene.html</span> &sect;06 grades this row &ldquo;branch runs, result discarded&rdquo; and describes the investigation honestly: the branch was forced to <span class="mono">density = 0.0</span> and the probe re-run byte-identical, centre pixel 0.04631 either way, concluding &ldquo;something downstream throws its result away. Unfixed.&rdquo; The measurement was right and the conclusion was one step short. Nothing downstream discards anything &mdash; the branch that was zeroed is never reached, because a typed dispatch upstream claims the entity first. The same page&rsquo;s practical advice, shoot one preset per RD group, holds for a different reason than the one given: the emulation does vary with preset index, but only through two coefficients, so the four RD presets differ far less than the four Gray-Scott parameter pairs would.</p>
+    </div>
+
+    <figure>
+      {{VIDEO:The simulation, once you get out of its way | Scene ▸ RD Box: Coral Growth. Let it run 10 seconds as shipped. Then select the volume, Properties ▸ Remove Source, and let it run 30 more without touching anything else. Then add Volume Emission at strength 2 and run 20 more. | the pattern changing character at the first cut — the shipped view drifts and folds like advected noise, the post-Remove-Source view grows and splits like an actual reaction front, because it is one. At the second cut the activated regions start emitting and lighting the box from inside}}
+      <figcaption><b>Emulation, then simulation, then simulation as a light source</b><span>Three states of the same volume, reached by one button and one slider. The third has never once been rendered on purpose; this clip would be the first.</span></figcaption>
+    </figure>
+
+    <figure>
+      {{SHOT:Contact sheet, four frames, GPU tracer, identical camera, animate volumes on, 200 frames of EMA settling each: Scene ▸ RD: Mitosis, RD: Coral, RD: Worms, RD: Spirals, all as shipped. Label each with its rdPreset index}}
+      <figcaption><b>Four presets of the emulation</b><span>Preset index enters the emulation twice, as <span class="mono">worleyNoise(q &middot; (1.4 + 0.1&middot;preset))</span> and as the cell-to-fold mix weight <span class="mono">0.22 + 0.06&middot;preset</span>. That is the entire difference between these four frames.</span></figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ================= 05 · NOISE ================= -->
+<section id="noise" style="--secc:var(--l580)" data-nav="Noise">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">05 &mdash; Every generator, and who reads it</p>
+      <h2>The noise is good, it lives in one 853-line module, and seven of the nine integrators cannot see any of it</h2>
+      <p class="lead">All procedural density in this renderer comes from <span class="mono">shaders/modules/pt_noise.glsl</span>, a single 853-line module built on one value-noise base. It generates eight density sources and six Noise Lab types, animated; the finding is which renderer is allowed to look.</p>
+    </div>
+
+    <h3 style="max-width:none">The generators</h3>
+    <div class="tw"><table>
+      <thead><tr><th>Function</th><th>What it is</th><th>Calls in the volume path</th><th>Mark</th></tr></thead>
+      <tbody>
+        <tr><td><span class="mono">hash3</span> / <span class="mono">noise3</span></td><td>The value-noise base everything else is built on</td><td>14 / 39</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td><span class="mono">fbmNoise(p, octaves)</span></td><td>Fixed-parameter FBM; the workhorse of the legacy style bands</td><td>5</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td><span class="mono">worleyNoise</span></td><td>Cellular F1 distance, inverted so cells read dense</td><td>7</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td><span class="mono">voronoiNoise</span></td><td>F2 minus F1 &mdash; cell-edge detection</td><td>3</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td><span class="mono">fbmConfigurable</span></td><td>FBM with explicit lacunarity and persistence</td><td>1</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td><span class="mono">ridgedNoise</span>, <span class="mono">marbleNoise</span>, <span class="mono">turbulenceNoise</span>, <span class="mono">worleyFBM</span></td><td>Named, compiled, never called</td><td><b>0 each</b></td><td><span class="st st-d">superseded</span></td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="narrow">
+      <p>The last row is a Rule-1 case in the good direction. Those four functions have no call site, but the noise <em>types</em> they name are all reachable, because <span class="mono">noiseLabDensity</span> inlines its own octave loop with the same formulae so it can apply the eight per-octave amplitude mutes. Ridged is <span class="mono">rn&sup2;</span> where <span class="mono">rn = 1 &minus; |2n &minus; 1|</span>, turbulence is <span class="mono">|2n &minus; 1|</span>, Voronoi is <span class="mono">1 &minus; voronoiNoise</span>, and Marble skips the loop entirely for a multi-axis sinusoidal warp with <span class="mono">1 &minus; |vein|<sup>0.3</sup></span> giving thin bright veins. The functions are dead; the features are not. Grade superseded, and say where they live.</p>
+      <p>Animation enters the Noise Lab as an anisotropic drift of the sample position, <span class="mono">vt &middot; timeSpeed &middot; (1, 0.7, &minus;0.5)</span>, gated by <span class="mono">uAnimateVolumes</span>. Every legacy style band advects differently &mdash; the Fire band falls at <span class="mono">&minus;0.4t</span> in y so the flames rise, the Lightning band shifts its filaments on a sine.</p>
+    </div>
+
+    <h3 style="max-width:none">Who reads it</h3>
+    <div class="narrow">
+      <p>This is the finding, counted. Whole-word occurrences of the six entity fields that carry heterogeneous density &mdash; <span class="mono">noiseConfig</span>, <span class="mono">volNoiseScale</span>, <span class="mono">proceduralStyle</span>, <span class="mono">volumeType</span>, <span class="mono">sdfShape</span>, <span class="mono">rdPreset</span> &mdash; across every file in <span class="mono">src/render/</span>:</p>
+    </div>
+
+    <div class="tw"><table>
+      <thead><tr><th>Integrator</th><th>Refs</th><th>What a structured medium looks like there</th><th>Mark</th></tr></thead>
+      <tbody>
+        <tr><td>GPU megakernel (<span class="mono">ComputePathTracer.cpp</span>)</td><td><b>17</b></td><td>All eight density sources, all six Noise Lab types, all three phase functions, animated</td><td><span class="st st-a">measured</span></td></tr>
+        <tr><td>UPBP (<span class="mono">UPBPIntegrator.cpp</span>)</td><td><b>7</b></td><td>A partial CPU re-implementation &mdash; see below</td><td><span class="st st-c">scene-dependent</span></td></tr>
+        <tr><td>Photon primitives (<span class="mono">PPIntegrator.cpp</span>, mode 9)</td><td><b>0</b></td><td>Homogeneous. Structured fog is inert; the Noise Lab scale slider does nothing</td><td><span class="st st-d">superseded</span></td></tr>
+        <tr><td>VCM, MLT / PSSMLT, Path Guiding, Manifold, Photon Mapper, Light Tracer</td><td><b>0 each</b></td><td>Homogeneous, and static &mdash; none of them has a time input either</td><td><span class="st st-d">superseded</span></td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="narrow">
+      <p class="note"><b>Two counting notes, because both numbers have been wrong on this page before and the corrections stay visible.</b> The <em>nine</em> is nine integrator <span class="mono">.cpp</span> files &mdash; <span class="mono">src/render/</span> holds twelve, of which <span class="mono">RasterRenderer.cpp</span>, <span class="mono">PPDiagram.cpp</span> and <span class="mono">PhotonPrimitive.cpp</span> are not integrators. MLT and PSSMLT share <span class="mono">MLTIntegrator.cpp</span>, and the ninth file is <span class="mono">LightTracer.cpp</span>, which an earlier version of this table left out. It belongs in the row: the <em>file</em> is superseded, but the <em>feature</em> is reachable as two Light Strategy combo entries running inside the megakernel &mdash; the exemplar case in <span class="mono">docs/FEATURE-REACHABILITY.md</span>, and not one to leave off a list of integrators on this of all sites. And the reference counts are whole-word occurrences of the six fields. A substring grep returns 23 for the megakernel, because it also matches <span class="mono">noiseConfigs</span> — the local vector of packed GPU structs, a different identifier; counting matching <em>lines</em> instead returns 21, because two of those lines carry two matches each. Seventeen and seven are the occurrences of the six named fields, and that is the number this row means.</p>
+    </div>
+
+    <div class="narrow">
+      <p>UPBP&rsquo;s seven references are a partial re-implementation with its own Perlin FBM, and its failure modes are specific enough to be worth naming. Its Noise Lab branch honours octaves, lacunarity, persistence and frequency and <b>ignores the noise type</b>, so Worley, Ridged, Marble, Turbulence and Voronoi all render as Perlin FBM. Its legacy-procedural branch covers styles 1&ndash;10 and falls back to FBM for 11&ndash;15. SDF, Physics and NanoVDB are not handled at all. And the fall-through case, <span class="mono">volNoiseScale &gt; 0.01</span>, is a plain FBM at that frequency &mdash; which means loading an RD scene in UPBP renders the volume as fine-grained FBM at frequency 51, because 51 was a style selector, not a frequency. Nothing in UPBP takes a time argument, so all of it is frozen.</p>
+      <p class="note"><b>The finding, stated plainly.</b> A noise field that drives density in one renderer and is silently ignored by another is not a bug report; it is a property of the system, and a reader needs it before comparing two images. Loading preset 15 and switching from the GPU tracer to mode 9 does not give you the same scene at a different noise level. It gives you a different scene: uniform fog at the volume&rsquo;s base &sigma;, holding still.</p>
+    </div>
+
+    <h3 style="max-width:none">Density only, on the volume path &mdash; but not on the other one</h3>
+    <div class="narrow">
+      <p>The volume noise config drives density and nothing else. It never displaces geometry and never touches surface colour, and <span class="mono">evalVolDensityAt</span> returns a single float.</p>
+      <p>The node graph is the other mechanism, and it does more. A live 3-D procedural wired into a BSDF or Emission output is evaluated per hit in the shader and can override <b>albedo, roughness, metallic, emission colour or opacity</b>, either replacing the material value or multiplying it, chosen per channel by a blend bitmask. On the volume side the same machinery reaches &sigma;<sub>a</sub>, &sigma;<sub>s</sub>, medium tint, volume emission colour and volume emission strength, from up to two procedural slots per primitive.</p>
+      <p>Two limits sit on that, and both are one line of source each.</p>
+    </div>
+
+    <ul class="clean" style="max-width:70ch;margin-left:auto;margin-right:auto">
+      <li><b>Nothing animates until you wire a Time node.</b> <span class="mono">animTime</span> returns <span class="mono">0.0f</span> when input pin 0 has no link, and the GPU mirrors it with <span class="mono">timeScale = timeLinked ? speed : 0.0</span>. Every pattern node in the editor is frozen out of the box, and the Speed slider beside it does nothing until a Time node is connected. That is a defensible default and an undiscoverable one.</li>
+      <li><b>Next-event estimation never sees an animated emitter.</b> The per-hit override rewrites a local <span class="mono">emission</span> variable used on the emission-on-hit path. Light sampling reads <span class="mono">materials[i].emissionMetallic &times; emissionStrength</span> straight out of the material buffer. So a node-driven pulsing emitter illuminates the room with its <em>static</em> material value and shows its animation only where a path happens to hit it by BSDF sampling &mdash; and under the pure-NEE light strategies, which suppress emission-on-hit, the animation disappears from the frame entirely. The strength channel is not overridden at all; only the colour is.</li>
+    </ul>
+
+    <figure>
+      {{VIDEO:An animated emitter that the shadows do not know about | Preset 0 Cornell Box. Open the node editor on the ceiling quad, wire Time into a Noise3D node into EmissionOutput colour, set Speed to 1. Render 20 seconds under Render ▸ Light Strategy MIS, then switch to Pure NEE and render 20 more without touching anything else. | under MIS the emitter surface visibly churns while the light it casts on the floor stays perfectly steady — the shadows are being lit by the material value, not the animation. Under Pure NEE the churn vanishes and the quad goes flat}}
+      <figcaption><b>Two consumers of the same emission, one of them animated</b><span>The gap is not subtle once you know to look for it: an emitter can be visibly flickering while the room it lights holds still.</span></figcaption>
+    </figure>
+
+    <figure>
+      {{SHOT:Same scene, same camera, same seed: preset 15 Cornell + Volume (animated) rendered by the GPU path tracer at 400 passes, beside the identical scene rendered by integrator mode 9 (photon primitives) at equivalent cost. The GPU frame shows five structurally different volume spheres; the mode 9 frame shows five uniform fog balls}}
+      <figcaption><b>The same scene file, two integrators</b><span>Zero references to the noise configuration in <span class="mono">PPIntegrator.cpp</span>. The scene did not change; the reader did.</span></figcaption>
+    </figure>
+
+    <h3 style="max-width:none">Two more noises in this program, and neither is the thing its name says</h3>
+    <div class="narrow">
+      <p>The eight density sources above are the noise a reader comes to this page for. Two others sit outside them: the random stream that drives every sample in the megakernel, and the only sensor-side noise model in the renderer. Both are worth a line because in both cases the source is narrower than the name.</p>
+    </div>
+
+    <div class="tw"><table>
+      <thead><tr><th>What</th><th>Where</th><th>What it actually is</th><th>Mark</th></tr></thead>
+      <tbody>
+        <tr><td><b>Sampler RNG</b></td><td><span class="mono">pt_random.glsl:5-66</span>, seeded <span class="mono">pathTrace.comp:3685</span></td><td>One PCG hash and a five-line <span class="mono">rng()</span> advancing a single <span class="mono">uint</span> in place. Three samplers are built on it &mdash; cosine-hemisphere, isotropic GGX, anisotropic GGX &mdash; and so is the sub-pixel filter offset</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td><b>Sensor noise models</b></td><td><span class="mono">tofCW.frag:164-175</span>, <span class="mono">tofTracer.frag:263-267, 347-349</span></td><td>An ambient offset and a &ldquo;shot noise&rdquo; term added to a synthetic four-shot phase measurement, in the two time-of-flight benches. Uniform, signal-independent, and frozen &mdash; see below</td><td><span class="st st-c">never viewed</span></td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="narrow">
+      <p>The RNG is seeded once per pixel per frame as <span class="mono">pcgHash(pixelIndex ^ pcgHash(uGlobalFrame))</span>, and everything a path needs is drawn from that one stream in order. There is no low-discrepancy sequence and no stratification: <span class="mono">sobol</span>, <span class="mono">halton</span>, <span class="mono">low-discrepancy</span> and <span class="mono">owen</span> have zero occurrences anywhere in <span class="mono">shaders/</span>; <em>blue noise</em> appears only as a 64&times;64 <span class="mono">R8</span> texture generated for the dithering post-effect, and never in the tracer; <em>stratify</em> appears only in the photon-primitive picker, where it thins a hover selection for display. The tracer is plain independent Monte Carlo, and the site should not be read as claiming otherwise.</p>
+      <p class="note"><b>A catalogue row this page has to correct.</b> The inventory&rsquo;s sampler row names four samplers built on <span class="mono">rng()</span>, the fourth being VNDF &mdash; visible-normal-distribution sampling. <span class="mono">vndf</span> and <span class="mono">visible normal</span> have <b>zero occurrences in <span class="mono">src/</span> and in <span class="mono">shaders/</span></b>, case-insensitively. The GGX samplers here draw a half-vector from the NDF itself, and the renderer states that in the one place it had to be precise: the photon-primitive integrator&rsquo;s white-furnace self-test records that it integrates the GGX arms &ldquo;by sampling the NDF half-vector &hellip; <span class="mono">pdf_wi = D NdotH / (4 VdotH)</span>&rdquo;, because a uniform hemisphere cannot integrate a roughness-0.05 lobe. That is the NDF form and not the visible-normal one. Three of the four names are right; the fourth is not, and where a row and the source disagree the source wins.</p>
+
+      <h3>The ambient slider cancels itself, by construction</h3>
+      <p>The two time-of-flight benches each synthesise a four-shot continuous-wave measurement per pixel and recover the phase from it. Both use the same two lines:</p>
+    </div>
+
+    <div class="formula">
+      <div class="f">I<sub>k</sub> = clamp<span class="hl">(</span> &frac12; + &frac12;&middot;cos(&phi; + k&pi;/2) &nbsp;+&nbsp; <span class="hl">ambient</span> &nbsp;+&nbsp; <span class="hl">noise</span>, &nbsp;0, &nbsp;1.5 <span class="hl">)</span><br>&phi;&#770; = atan2<span class="hl">(</span> I<sub>3</sub> &minus; I<sub>1</sub>, &nbsp;I<sub>0</sub> &minus; I<sub>2</sub> <span class="hl">)</span></div>
+      <div class="n">The ambient term is added identically to all four shots, so it cancels exactly in <em>both</em> differences.</div>
+    </div>
+
+    <div class="narrow">
+      <p>Its only remaining route to the recovered phase is the clamp, and over the sliders&rsquo; full range the upper bound is unreachable: the largest a shot can be is 1.0 + 0.3 + 0.1 = 1.4, against a ceiling of 1.5. The lower bound at zero <em>does</em> bite, and only near a trough, and only when the ambient offset is smaller than the noise amplitude. So the one effect the Ambient slider has on a recovered depth is to <b>reduce</b> the error, by lifting the shots off the zero clamp &mdash; the opposite of what a control labelled Ambient reads as promising.</p>
+      <p>The noise term is <span class="mono">(hash(uv, k) &minus; 0.5) &middot; 2 &middot; uNoise</span>: uniform on a symmetric interval and independent of the signal. Shot noise in a real sensor is Poisson and scales with the square root of the collected charge; this does not, so the slider is a fixed-amplitude dither wearing the name of a physical process. And neither shader takes a time or frame uniform, so the pattern is identical every frame &mdash; it is fixed-pattern noise, pinned to sensor <span class="mono">uv</span>, and accumulating passes will never average it away. That is the property that decides whether the multi-frequency unwrapping cascade beside it is being tested or merely decorated, and it is the reason this row is worth a paragraph rather than a line.</p>
+    </div>
+
+    <figure>
+      {{SHOT:Effects &#9656; CV &#9656; CW ToF on, any converged render with real depth range &mdash; preset 47 Vol Caustic Lab works. Three panels, same camera, Display set to "Phase error vs GT" with Error Scale 5: (a) Ambient 0.00, Shot Noise 0.05; (b) Ambient 0.20, Shot Noise 0.05; (c) Ambient 0.20, Shot Noise 0.00. Label each with its two slider values}}
+      <figcaption><b>The falsifiable version of the paragraph above</b><span>If the reading is right, panel (b) is <em>cleaner</em> than panel (a) &mdash; the ambient offset lifts the four shots off the zero clamp and removes the only nonlinearity the recovery has &mdash; and panel (c) is exact. If (b) is noisier than (a), this subsection is wrong and should be deleted. One capture settles it.</span></figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ================= 06 · PATTERN NODES ================= -->
+<section id="nodes" style="--secc:var(--l600)" data-nav="Pattern nodes">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">06 &mdash; Simulations that are patterns</p>
+      <h2>Three node types name a solver and implement a pattern, and two of them say so</h2>
+      <p class="lead">Sitting in the node editor&rsquo;s texture palette are three nodes whose names promise simulation. All three are procedural fields. They are not fake &mdash; a shaped noise field that reads as fluid is a legitimate texture, and one of the three is a rather good one &mdash; but the naming invites a reader to expect a coupling that is not there, and one of the three exposes a solver selector that changes almost nothing.</p>
+    </div>
+
+    <div class="tw"><table>
+      <thead><tr><th>Node</th><th>Name promises</th><th>Implementation</th><th>Mark</th></tr></thead>
+      <tbody>
+        <tr><td><b>Eulerian Fluid 3D</b><br><span class="mono">pt_noise.glsl:360-396</span></td><td>An Eulerian fluid</td><td>A curl-like flow field built from six <span class="mono">noise3</span> differences advecting the sample point, then a billow FBM mixed with inverted Worley filaments and a sine eddy term. Snapped to a voxel lattice by a <span class="mono">gridRes</span> parameter, which is what gives it the grid look. Genuinely time-varying and rather good</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td><b>Physics 2D / Physics 3D</b><br><span class="mono">NodeGraph.cpp:1096-1112</span></td><td>A Source combo reading <b>Euler / SPH / MPM</b></td><td>Orbiting Gaussian blobs on sine and cosine paths. The solver selector sets the blob <em>count</em> &mdash; 3 for Euler, 6 for SPH, 4 for MPM &mdash; and changes nothing else. No connection to <span class="mono">PhysicsWorld</span> of any kind. The panel says so: <em>&ldquo;Physics nodes are still preview approximations while the real source path is being restructured.&rdquo;</em></td><td><span class="st st-d">honest stub</span></td></tr>
+        <tr><td><b>Reaction Diffusion 3D</b><br><span class="mono">pt_noise.glsl:267-318</span></td><td>Gray-Scott, SmoothLife or Stylized, by a Type combo</td><td>All three families are implemented and reachable <em>from the node editor</em>. The volume Properties panel&rsquo;s RD density source hardcodes <span class="mono">rdType = 0</span>, so two of the three are unreachable by that route</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td><b>Volume Incremental 3D</b><br><span class="mono">pt_noise.glsl:412-432</span></td><td>&mdash;</td><td>A translating soft shape with a velocity vector, shape selector and softness &mdash; the closest thing in the file to a genuine advected emitter</td><td><span class="st st-c">never viewed</span></td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="narrow">
+      <p class="note"><b>Where the Physics node ends up.</b> <span class="mono">detectProcType</span>, which decides what a live 3-D procedural becomes on the GPU, lists ten node types and does not list <span class="mono">Physics3D</span>. But <span class="mono">isSpatial3DNodeType</span> does. So a Physics node is treated as a live 3-D procedural for one purpose and as an ordinary bakeable node for the other. Whatever reaches the render from it reaches through the CPU bake, not through the per-hit path the other nine take. The panel&rsquo;s own note is the correct summary and this is a footnote to it, not a contradiction.</p>
+      <p>The Eulerian Fluid node deserves better than its neighbours. It is called from two sites in the megakernel &mdash; the volume density path and the per-hit surface override path &mdash; so the same field can drive fog density and a surface&rsquo;s albedo in one scene, at the same wall-clock time, from one node. Nobody has rendered that yet.</p>
+    </div>
+
+    <figure>
+      {{VIDEO:One field, fog and surface at once | Node editor, one EulerianFluid3D node with Time wired in, Speed 0.6. Wire its output into a MediumContainer sigma-s on a VolumeBox and into the BSDF albedo of the floor plane under it. Render 30 seconds with the GPU tracer. | the floor pattern and the fog structure moving in lock-step because they are literally the same evaluation at the same uTime, and the fog's cast shadow on the floor tracking a pattern the floor is already wearing}}
+      <figcaption><b>The node the palette buried</b><span>Two call sites, one field, one clock. The grid snap in <span class="mono">gridRes</span> is what makes it read as a solver rather than as noise.</span></figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ================= 07 · MEMORY ================= -->
+<section id="memory" style="--secc:var(--l620)" data-nav="Memory">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">07 &mdash; Which of these actually evolve</p>
+      <h2>The useful test is whether the thing reads its own previous frame</h2>
+      <p class="lead">The image-space bank contains twenty operators filed under &ldquo;field-based and animated&rdquo; plus three under &ldquo;statistical physics and stochastic,&rdquo; and their names &mdash; Navier-Stokes, Schr&ouml;dinger evolution, Ising model, percolation, morphogenesis &mdash; all suggest state evolving over time. Most of them have none. The distinction is mechanical and cheap to check: does the shader sample a previous-frame texture? Note <em>sample</em>, not <em>declare</em> &mdash; two shaders here declare one and never read it, and both say so in the declaration. <a href="one-hundred-and-fifty-seven-ways.html#clock" style="color:var(--accent);text-decoration:none;border-bottom:1px solid var(--line)">The image-operator page</a> applies the same test to the whole display chain, NPR combo and tail included, and finds seventeen; this table is the twenty-three field-based and statistical-physics operators only, which is why the two numbers differ.</p>
+      <p>Five do &mdash; four from those twenty-three, plus SmoothLife, which is NPR mode 13 rather than a bank toggle and is here because it is the cleanest example of the mechanism. The rest are pure functions of the current frame, re-derived from scratch every time it is drawn, which is why they hold still when the camera does and why they change discontinuously when it moves.</p>
+    </div>
+
+    <div class="tw"><table>
+      <thead><tr><th>Operator</th><th>Reads prior state</th><th>What that means on screen</th><th>Mark</th></tr></thead>
+      <tbody>
+        <tr><td><b>Wave equation</b></td><td><b>Yes</b> &mdash; two levels, <span class="mono">uPrevTex</span> and <span class="mono">uPrev2Tex</span>, ping-ponging over three buffers</td><td>A genuine explicit leapfrog. Ripples propagate, reflect and interfere across frames</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td><b>SmoothLife</b> (NPR mode 13)</td><td><b>Yes</b> &mdash; ping-pong <span class="mono">RGBA16F</span> pair, with a scene-influence parameter for continuous coupling to the render</td><td>The only true cellular automaton in the repository. Evolves over frames rather than filtering one</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td><b>IBFV</b></td><td><b>Yes</b> &mdash; advects the previous IBFV frame along the flow</td><td>Image-based flow visualisation as designed; streaks build up over time</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td><b>Curl noise flow</b></td><td><b>Yes</b></td><td>Divergence-free advection of the accumulated frame</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td><b>n-body attractor</b></td><td><b>Yes</b> &mdash; warps the previous warped frame</td><td>Compounding deformation</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>Reaction flow</td><td>No &mdash; <span class="mono">uPrevTex</span> is declared and commented <em>&ldquo;unused but kept for C++ binding compat&rdquo;</em></td><td>A per-frame filter with a reaction-diffusion look</td><td><span class="st st-d">stateless</span></td></tr>
+        <tr><td>Morphogenesis</td><td>No &mdash; <span class="mono">uPrevTex</span> declared, marked unused</td><td>Same</td><td><span class="st st-d">stateless</span></td></tr>
+        <tr><td>Navier-Stokes, Schr&ouml;dinger evolution, magnetic field, plasma spectrum, EM scattering, gradient-descent flow, Hodge and Helmholtz decomposition, heat method, Laplace eigenfunctions, Ricci flow, parallel transport, spinor field, gauge theory</td><td>No &mdash; no previous-frame sampler declared at all</td><td>Each is a closed-form or fixed-iteration function of the current frame</td><td><span class="st st-d">stateless</span></td></tr>
+        <tr><td><b>Ising model</b></td><td>No &mdash; N Metropolis sweeps run <em>inside one shader invocation</em>, on a lattice re-seeded from scene luminance every frame</td><td>Domains form, but from the image, not from the last frame. The shader header states this in full</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td><b>Percolation</b></td><td>No &mdash; occupancy hashed from luminance, then N label-propagation passes in one invocation</td><td>Connected components resolved out to a neighbourhood of 2N pixels; the spanning cluster is highlighted separately</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td><b>Markov chain walk</b></td><td>No &mdash; N steps back-evolved per pixel in one invocation</td><td>A stationary-like density over the image&rsquo;s luminance basins</td><td><span class="st st-c">never viewed</span></td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="narrow">
+      <p>Being stateless is not a defect here and the source does not pretend otherwise &mdash; the Ising shader&rsquo;s header explains the choice and its reason: <em>&ldquo;no ping-pong state needed &hellip; a re-seeded run per frame &hellip; visualises how correlations build up from the image content.&rdquo;</em> That is a design decision with an argument attached. But it changes what you are looking at. A per-frame Ising is a function of the image, so once the path tracer has converged and the input stops changing, the Ising output stops changing too. It looks like a simulation that has reached equilibrium. It is a still image of a fixed computation.</p>
+      <p>The three statistical-physics operators are also the only ones in the bank shipped with their critical constant on a button: <span class="mono">p_c</span> = 0.593 for percolation, <span class="mono">kT_c</span> = 2.269 for Ising. One press puts you on the critical point, which is the only place the fractal structure exists, and the sliders around it are wide enough to walk off it in either direction.</p>
+    </div>
+
+    <div class="readout">
+      <div class="row"><span class="lbl">Percolation &mdash; p, iterations</span><span class="val">0.05 &ndash; 0.95, one-click 0.593 &middot; 2 &ndash; 48</span></div>
+      <div class="row"><span class="lbl">Ising &mdash; kT/J, sweeps, external H</span><span class="val">0.2 &ndash; 5.0, one-click 2.269 &middot; 1 &ndash; 48 &middot; &minus;2 to +2</span></div>
+      <div class="row"><span class="lbl">Ising &mdash; displays</span><span class="val">spin map, energy, magnetisation bands</span></div>
+      <div class="row"><span class="lbl">Markov &mdash; steps, temperature</span><span class="val">4 &ndash; 80 &middot; 0.02 &ndash; 2.0</span></div>
+      <div class="row"><span class="lbl">Markov &mdash; displays</span><span class="val">density heatmap, trajectory field, entropy</span></div>
+      <div class="row hi"><span class="lbl">Ising lattice cell size</span><span class="val">4 px &mdash; a coarsening chosen so domains are visible</span></div>
+    </div>
+
+    <figure>
+      {{VIDEO:Walking through the critical point | Effects ▸ CV ▸ Ising Model on, Overlay 1.0, Display Spin Map, on any converged render — preset 47 Vol Caustic Lab is a good input because it has large smooth luminance gradients. Sweep Temperature slowly from 0.5 to 4.0 over 40 seconds without moving the camera, pausing 5 seconds on the T_c button value of 2.269. | the ordered ferromagnetic blocks at low T breaking up into scale-free domains right at 2.269 and dissolving into salt-and-pepper above it. Then move the camera one pixel and watch the entire lattice re-seed, which is the tell that there is no state}}
+      <figcaption><b>The critical point, and the tell</b><span>The camera nudge at the end is the whole point of the clip: a simulation with memory would perturb; this one restarts.</span></figcaption>
+    </figure>
+
+    <figure>
+      {{SHOT:Three panels of the same converged frame with Effects ▸ CV ▸ Percolation on, Colour Clusters on, Overlay 0.85, at p = 0.45, p = 0.593 via the p_c button, and p = 0.75. Iterations 48 in all three so the labelling is as complete as the shader allows}}
+      <figcaption><b>Below, at, and above threshold</b><span>Cluster colouring is label propagation, so the labels resolve components only out to about 2&times;iterations pixels &mdash; at 48 iterations a large cluster can still show as several colours. That is a property of the algorithm, not of the percolation.</span></figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ================= 08 · WHAT IS MISSING ================= -->
+<section id="gaps" style="--secc:var(--l680)" data-nav="What is missing">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">08 &mdash; The absences</p>
+      <h2>Nothing here can be recorded yet: the machinery for recording it is designed to the header and unbuilt</h2>
+      <p class="lead">Everything above happens in real time in a viewport and then stops existing. The renderer has no timeline, no keyframes, no motion blur and no frame export. That is the single largest gap on this page, and unlike most gaps on this site it is not a case of a feature living somewhere else.</p>
+    </div>
+
+    <div class="tw"><table>
+      <thead><tr><th>What is not there</th><th>What exists instead</th><th>Mark</th></tr></thead>
+      <tbody>
+        <tr><td><b>Animation timeline</b></td><td><span class="mono">src/ui/Timeline.h</span> is a complete 108-line design &mdash; tracks with string target paths like <span class="mono">entity.0.transform.position.x</span>, four interpolation modes including cubic Bezier with tangent handles, track groups with mute and lock, playback state. There is no <span class="mono">Timeline.cpp</span>, no file includes the header, and it is not in <span class="mono">CMakeLists.txt</span>. Nothing is reachable, so this is absent rather than superseded</td><td><span class="st st-d">design only</span></td></tr>
+        <tr><td><b>Motion blur</b></td><td><span class="mono">shutterOpen</span> and <span class="mono">shutterClose</span> exist in <span class="mono">CameraParams</span> and <span class="mono">Camera::generateRay</span> writes <span class="mono">ray.time</span> from them. Nothing downstream reads <span class="mono">ray.time</span>. The field is not merely unused: it consumes an RNG draw, which the photon-primitive integrator has to account for explicitly in its correlated-batch stream split &mdash; a dead feature that still perturbs the sample sequence</td><td><span class="st st-d">absent</span></td></tr>
+        <tr><td><b>Frame or sequence export</b></td><td>File ▸ Export Image and Render ▸ Take Snapshot (F12) are stubs; F12 logs &ldquo;Snapshot requested&rdquo; and returns. The only working image writer in the program is the comparison-report generator</td><td><span class="st st-d">absent</span></td></tr>
+        <tr><td><b>NanoVDB volumes</b></td><td>An enum value, a name in the type-label array, and a disabled button reading &ldquo;NanoVDB (soon)&rdquo;. No loader, no shader branch; <span class="mono">volType == 4</span> falls through to the legacy path</td><td><span class="st st-d">absent</span></td></tr>
+        <tr><td><b>A GPU Euler solver</b></td><td><span class="mono">shaders/eulerFluid.comp</span> exists, complete with its own wind term, and is loaded by nothing. The live solver is CPU, in <span class="mono">PhysicsWorld.cpp:565-732</span></td><td><span class="st st-d">superseded</span></td></tr>
+        <tr><td><b>Surfacing a simulated field</b></td><td><span class="mono">marchingCubes</span> and <span class="mono">splatNodesToDensity</span> compile and have no callers, so a fluid can be a medium but never a mesh</td><td><span class="st st-d">absent</span></td></tr>
+        <tr><td><b>A SmoothLife volume</b></td><td>Presets 4 and 14 are labelled SmoothLife and are legacy noise band 41&ndash;50: an FBM bell with a tentacle falloff and a sine pulse. The only real SmoothLife in the repository is the NPR post-process in &sect;07</td><td><span class="st st-c">mislabelled</span></td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="narrow">
+      <p>The timeline row is the one to sit with. Somebody designed an animation system carefully &mdash; the target-path scheme is the right one, the Bezier handles are stored normalised, groups carry mute and lock &mdash; and then stopped before the implementation file. Every simulation on this page is consequently a live performance: you can drive it with the wind key, watch it, and lose it. That is why this page is mostly video placeholders, and why every one of them is a screen recording of a session rather than a render.</p>
+      <p>Two of the rows above &mdash; the Euler solver and the soft body, both of which print <span class="mono">[WIP]</span> on their own panel &mdash; are also entries in the program-wide register of thirteen partly-built modules on <a href="everything-else.html#wip" style="color:var(--accent);text-decoration:none;border-bottom:1px solid var(--line)">the page for everything that did not get one</a>. That register counts them; this page is the census behind them, and neither repeats the other.</p>
+      <p class="note"><b>What would change the picture.</b> Four of these gaps are one route each rather than one subsystem. Moving <span class="mono">m_physics.init(cfg)</span> above the seeding block instead of below it would give the Euler grid its initial density and give the resolution slider an effect &mdash; &sect;03, and one screenshot away from being confirmed or dropped. Injecting Simple Particles alongside SPH and MPM in the tracer-visualisation path would take the coupled-solver count from three to four. Clearing <span class="mono">volNoiseScale</span> in Remove Source and adding the missing dispatch case would make the live Gray-Scott sim the thing the RD presets show. And moving the physics stepper from <span class="mono">resetAccumulation()</span> onto the adaptive EMA that reaction-diffusion already uses would let a simulated fluid converge everywhere it is not moving. None of the four is a research problem; each is a short edit to a route that already exists, and they are listed here so the next reader knows exactly where the coupling widens.</p>
+    </div>
+
+    <figure>
+      {{SHOT:The Advanced ▸ Volume tab with Physics Simulation expanded on Sim Type Euler Fluid, showing the [WIP] label, the resolution slider, the Fluid Viz combo, the inert Show Debug Viz toggle beside it, and the three grey hint lines ending in "R=wind blow, E=projector (in FPS mode)". This one panel contains a working solver, an inert toggle, an honest WIP label and the only documentation of the wind hotkey}}
+      <figcaption><b>One panel, four kinds of honesty</b><span>The hotkey line is the only place in the interface where the wind key is written down. The toggle above the combo is one of the thirty-two catalogued inert controls: <span class="mono">physDebugViz</span> has two references and the combo beside it is the real gate.</span></figcaption>
+    </figure>
+  </div>
+</section>
+
+{{SECTION:_foot.html}}

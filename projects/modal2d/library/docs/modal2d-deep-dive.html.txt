@@ -1,0 +1,1231 @@
+<meta charset="utf-8">
+<title>Modal2D — Going Deeper</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0e1116; --bg2:#141a22; --card:#161d27; --inline:#1c2530;
+  --bd:#243140; --bd2:#1c2632;
+  --tx:#c9d4e0; --dim:#8a99ab; --faint:#5e6e80; --hd:#e8eef5;
+  --ac:#34d3c4; --ac2:#4fd6e8; --acd:#1e3a3a;
+  --warm:#f0a35e; --warmd:#3a2a18; --rose:#ff8a6a; --blue:#5aa9ff;
+  --viol:#b98cff;
+  --mono:'JetBrains Mono',ui-monospace,Consolas,monospace;
+  --sans:'Inter',system-ui,'Segoe UI',Roboto,sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:var(--sans);
+  font-size:16px;line-height:1.75;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto;padding:0 26px}
+header.hero{padding:66px 0 38px;border-bottom:1px solid var(--bd2);
+  background:radial-gradient(1200px 400px at 50% -120px,rgba(185,140,255,.13),transparent 70%)}
+h1{margin:0;font-size:42px;line-height:1.15;letter-spacing:-.02em;color:var(--hd);font-weight:700}
+h1 .g{background:linear-gradient(92deg,var(--viol),var(--ac2));-webkit-background-clip:text;
+  background-clip:text;-webkit-text-fill-color:transparent}
+.tag{margin:14px 0 0;font-size:19px;color:var(--dim);max-width:780px}
+.back{display:inline-block;margin-top:20px;font-size:13.5px;color:var(--ac2);text-decoration:none;
+  border:1px solid var(--bd);padding:7px 14px;border-radius:8px}
+.back:hover{border-color:var(--ac)}
+nav.top{position:sticky;top:0;z-index:50;background:rgba(14,17,22,.92);
+  backdrop-filter:blur(10px);border-bottom:1px solid var(--bd2)}
+nav.top .wrap{display:flex;gap:4px;flex-wrap:wrap;padding-top:9px;padding-bottom:9px}
+nav.top a{font-size:13px;color:var(--dim);text-decoration:none;padding:6px 11px;border-radius:7px}
+nav.top a:hover{color:var(--ac2);background:var(--inline)}
+section{padding:52px 0;border-bottom:1px solid var(--bd2)}
+h2{font-size:29px;margin:0 0 6px;color:var(--hd);letter-spacing:-.01em}
+h2 .n{font-family:var(--mono);font-size:14px;color:var(--viol);margin-right:11px;font-weight:600}
+.lede{font-size:17.5px;color:var(--dim);max-width:830px;margin:0 0 26px}
+h3{font-size:19.5px;color:var(--hd);margin:36px 0 8px}
+p{max-width:840px}
+code{font-family:var(--mono);font-size:.88em;background:var(--inline);
+  padding:2px 6px;border-radius:4px;color:var(--ac2)}
+.eq{background:var(--bg2);border:1px solid var(--bd);border-left:3px solid var(--viol);
+  border-radius:8px;padding:15px 19px;margin:19px 0;font-family:var(--mono);
+  font-size:14.5px;color:var(--hd);overflow-x:auto;max-width:840px}
+.eq .c{color:var(--faint);font-size:12.5px;font-family:var(--sans);display:block;margin-top:7px}
+.note{background:var(--card);border:1px solid var(--bd);border-left:3px solid var(--warm);
+  border-radius:8px;padding:14px 18px;margin:20px 0;max-width:840px;color:var(--dim);font-size:15px}
+.note b{color:var(--warm)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px;margin:24px 0}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:11px;padding:19px}
+.card h4{margin:0 0 7px;font-size:15.5px;color:var(--ac2)}
+.card p{margin:0;font-size:14.5px;color:var(--dim)}
+.demo{background:var(--card);border:1px solid var(--bd);border-radius:13px;margin:26px 0;overflow:hidden}
+.demo .hd{display:flex;align-items:center;gap:11px;padding:13px 18px;
+  background:linear-gradient(180deg,rgba(185,140,255,.10),transparent);border-bottom:1px solid var(--bd)}
+.demo .hd .k{font-family:var(--mono);font-size:11px;color:var(--bg);background:var(--viol);
+  padding:2px 8px;border-radius:5px;font-weight:700}
+.demo .hd h4{margin:0;font-size:16px;color:var(--hd);flex:1}
+.demo .body{padding:18px}
+.demo .exp{font-size:14.5px;color:var(--dim);margin:0 0 15px;max-width:850px}
+.ctl{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin:14px 0 4px;font-size:13px;color:var(--dim)}
+.ctl label{display:flex;align-items:center;gap:7px}
+.ctl input[type=range]{width:130px;accent-color:var(--viol)}
+button.b{font-family:var(--sans);font-size:13px;font-weight:600;color:var(--bg);
+  background:var(--viol);border:0;padding:7px 15px;border-radius:7px;cursor:pointer}
+button.b:hover{filter:brightness(1.12)}
+button.b.alt{background:var(--inline);color:var(--ac2);border:1px solid var(--bd)}
+.seg{display:inline-flex;border:1px solid var(--bd);border-radius:8px;overflow:hidden}
+.seg button{background:var(--inline);color:var(--dim);border:0;padding:6px 12px;
+  font-size:12.5px;cursor:pointer;font-family:var(--sans)}
+.seg button.on{background:var(--viol);color:var(--bg);font-weight:600}
+canvas{display:block;max-width:100%;border-radius:8px;background:#0b0f14}
+.row{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start}
+.val{font-family:var(--mono);color:var(--ac2);font-size:12.5px}
+.hint{font-size:12.5px;color:var(--faint);margin-top:9px;font-style:italic}
+table.t{border-collapse:collapse;margin:20px 0;font-size:14.5px;width:100%;max-width:840px}
+table.t th,table.t td{border:1px solid var(--bd);padding:9px 13px;text-align:left}
+table.t th{background:var(--bg2);color:var(--ac2);font-weight:600}
+table.t td b{color:var(--hd)}
+footer{padding:40px 0 70px;color:var(--faint);font-size:13.5px}
+footer a{color:var(--ac2)}
+
+/* ---- interactive affordances ---- */
+canvas.ia{cursor:grab;transition:box-shadow .2s ease}
+canvas.ia:hover{box-shadow:0 0 0 1px rgba(185,140,255,.5),0 0 26px rgba(185,140,255,.18)}
+canvas.ia:active{cursor:grabbing;box-shadow:0 0 0 1px rgba(185,140,255,.85),0 0 32px rgba(185,140,255,.3)}
+button.b{transition:background .16s,box-shadow .16s,transform .12s,filter .16s}
+button.b:hover{box-shadow:0 0 18px rgba(185,140,255,.4);transform:translateY(-1px)}
+button.b:active{transform:translateY(0)}
+button.b.alt:hover{box-shadow:0 0 16px rgba(79,214,232,.26)}
+.ctl label{transition:color .16s;border-radius:6px;padding:2px 4px}
+.ctl label:hover{color:var(--ac2)}
+.ctl input[type=range]{transition:filter .16s}
+.ctl input[type=range]:hover{filter:brightness(1.28) saturate(1.2)}
+.ctl input[type=checkbox]{accent-color:var(--viol);cursor:pointer}
+.seg button:hover{background:rgba(185,140,255,.18);color:var(--hd)}
+table.t tr{transition:background .15s}
+table.t tbody tr:hover,table.t tr:hover{background:rgba(185,140,255,.06)}
+
+</style>
+
+<nav class="top"><div class="wrap">
+  <a href="modal2d-how-it-works.html">&larr; back to the basics</a>
+  <a href="#air">1 · Seeing sound in air</a>
+  <a href="#views">2 · Nine views of a field</a>
+  <a href="#cavity">3 · Trapped air</a>
+  <a href="#dims">4 · Higher dimensions</a>
+  <a href="#time">5 · Time as an axis</a>
+  <a href="#why">6 · Why FEM?</a>
+</div></nav>
+
+<header class="hero"><div class="wrap">
+  <h1>Going <span class="g">deeper</span></h1>
+  <p class="tag">The first page covered the spine of the engine: shape, modes, sound. This one
+  covers the parts that sit around it &mdash; how the sound field in the air is drawn, what the
+  air trapped <em>inside</em> an instrument does, and what changes when you leave flat 2D behind.
+  Same rule as before: every demo computes for real.</p>
+  <a class="back" href="modal2d-how-it-works.html">&larr; Start with "How it actually works"</a>
+</div></header>
+
+<section id="air"><div class="wrap">
+  <h2><span class="n">01</span>Seeing sound in the air</h2>
+  <p class="lede">The mesh tells you how the object moves. The next question is what that motion
+  does to the air around it &mdash; and unlike the object, the air is not meshed at all.</p>
+
+  <h3>Every point on the surface is a little speaker</h3>
+  <p>Christiaan Huygens had the idea in 1678: treat every point of a disturbance as the source of
+  its own expanding ripple, then add all the ripples up. Whatever pattern emerges <em>is</em> the
+  wave. It sounds too simple to work, and it works remarkably well.</p>
+
+  <p>So the viewer takes the boundary of the shape, notes how fast each boundary point is moving
+  outward, and treats each one as a tiny source. For any pixel of empty space it adds up the
+  contribution of every source &mdash; delayed by how long the sound took to travel there.</p>
+
+  <div class="eq">pressure at a point  =  SUM over boundary points of
+      (how hard it pushes) &times; (a ripple delayed by distance/speed) &times; (spreading) &times; (facing you?)
+    <span class="c">Four factors. The delay is what creates interference; the "facing you" factor
+    stops the back of the surface from radiating forward through the material.</span></div>
+
+  <p>Interference does the rest. Two sources whose ripples arrive in step reinforce; arrive half a
+  cycle apart and they cancel. That is the entire origin of the lobes, beams and quiet zones you
+  see in the medium view.</p>
+
+  <div class="demo">
+    <div class="hd"><span class="k">DEMO</span><h4>Huygens: ripples adding up</h4></div>
+    <div class="body">
+      <p class="exp">A row of sources along the bottom, each emitting the same tone. The field is
+      computed by summing every source at every pixel &mdash; exactly the calculation the viewer
+      does on the GPU. Widen the array or raise the frequency and watch a smooth bubble collapse
+      into sharp beams.</p>
+      <canvas id="cvHuy" width="860" height="330"></canvas>
+      <div class="ctl">
+        <label>frequency <input type="range" id="huyF" min="4" max="60" value="20"></label>
+        <label>array width <input type="range" id="huyW" min="1" max="30" value="12"></label>
+        <label>curvature <input type="range" id="huyC" min="-40" max="40" value="0"></label>
+        <span class="val" id="huyInfo">&mdash;</span>
+      </div>
+      <p class="hint">Set curvature away from zero and the sources delay each other into a lens:
+      the beam focuses to a point. That is a phased array, and it is the same maths.</p>
+    </div>
+  </div>
+
+  <h3>The trick that makes all the other views possible</h3>
+  <p>Here is the neat part. If everything is ringing at one frequency, then every point in the air
+  is doing the same thing: going round and round a circle at that frequency. The only thing that
+  differs from point to point is <em>how big</em> its circle is and <em>where on the circle</em>
+  it currently is.</p>
+
+  <p>Two numbers per point. Size and angle. And once you store those two numbers, you no longer
+  need to store time at all &mdash; you can rebuild the pressure at <em>any</em> instant, past or
+  future, instantly. That pair is called a <strong>phasor</strong>.</p>
+
+  <div class="eq">pressure(x, t)  =  size(x) &times; cos( omega&middot;t  +  angle(x) )
+    <span class="c">Store size and angle once; get every moment for free. This is why the viewer
+    can show a frozen interference pattern, or a whole slab of time, at no extra cost.</span></div>
+
+  <div class="demo">
+    <div class="hd"><span class="k">DEMO</span><h4>One phasor, every instant</h4></div>
+    <div class="body">
+      <p class="exp">Left: a point in the air, drawn as an arrow going round a circle. Right: the
+      pressure that arrow traces out over time. The arrow is the stored data; the wave is what you
+      hear. Nothing is being simulated forward &mdash; the wave is read straight off the rotation.</p>
+      <canvas id="cvPhasor" width="860" height="230"></canvas>
+      <div class="ctl">
+        <label>size <input type="range" id="phA" min="10" max="100" value="70"></label>
+        <label>angle <input type="range" id="phP" min="0" max="360" value="40"></label>
+        <span class="val" id="phInfo">&mdash;</span>
+      </div>
+      <p class="hint">Drag "angle" and the whole wave slides in time without changing shape. That
+      is all a phase is: a head start.</p>
+    </div>
+  </div>
+</div></section>
+
+<section id="views"><div class="wrap">
+  <h2><span class="n">02</span>Nine ways to look at the same field</h2>
+  <p class="lede">Once the field is stored as phasors, you can ask it questions that a plain
+  animation cannot answer. The viewer's Field Lab offers nine; here is what each one means.</p>
+
+  <p>The animated blue-and-red view is the obvious one, but it is also the least informative:
+  everything is moving, so nothing stands still long enough to be read. The other views trade the
+  animation for insight.</p>
+
+  <table class="t">
+    <tr><th>View</th><th>What it draws</th><th>What it is good for</th></tr>
+    <tr><td><b>Live</b></td><td>the pressure right now</td><td>the intuitive picture &mdash; waves moving outward</td></tr>
+    <tr><td><b>Envelope</b></td><td>how big each point's circle is</td><td>the standing pattern: bright = always loud, dark = permanently quiet</td></tr>
+    <tr><td><b>Phase</b></td><td>where each point is on its circle, as a colour wheel</td><td>seeing wavefronts as bands, and spotting singularities</td></tr>
+    <tr><td><b>Complex</b></td><td>phase as hue, size as brightness</td><td>both at once &mdash; the mathematician's view of a complex field</td></tr>
+    <tr><td><b>Intensity</b></td><td>which way energy is actually flowing</td><td>tracing where the sound goes, not just where it is</td></tr>
+    <tr><td><b>Vorticity</b></td><td>where that flow swirls</td><td>finding the whirlpools of acoustic energy</td></tr>
+    <tr><td><b>Divergence</b></td><td>where flow appears from nothing</td><td>locating the effective sources</td></tr>
+    <tr><td><b>Laplacian</b></td><td>how sharply the envelope curves</td><td>picking out nodal lines and fringe edges</td></tr>
+    <tr><td><b>Spacetime</b></td><td>a slab of time as a solid block</td><td>seeing the whole history at once (section 5)</td></tr>
+  </table>
+
+  <h3>The strangest one: places where phase gives up</h3>
+  <p>If the size of a point's circle shrinks to exactly zero, then its angle is meaningless &mdash;
+  there is no direction to point. These are <strong>phase singularities</strong>, and they are not
+  rare accidents. In any field made of a few interfering waves they appear naturally, as isolated
+  points where all the colours of the phase wheel meet.</p>
+
+  <p>Circle one and the phase runs through a full turn. Energy does not just sit there either: it
+  <em>orbits</em> the singularity. That is what the Vorticity view finds &mdash; genuine
+  whirlpools in the flow of sound energy. They are a real, studied phenomenon (acoustic vortices),
+  not a rendering artifact.</p>
+
+  <div class="demo">
+    <div class="hd"><span class="k">DEMO</span><h4>The same field, six ways</h4></div>
+    <div class="body">
+      <p class="exp">Three sources interfering. Every panel below is computed from one stored
+      phasor field &mdash; the derived views are just arithmetic on the two stored numbers.
+      Look for the little swirls in Vorticity: each one sits exactly on a point where the
+      Phase panel has all its colours meeting.</p>
+      <div class="seg" id="fldSeg"></div>
+      <canvas id="cvField" width="860" height="330"></canvas>
+      <div class="ctl">
+        <label>frequency <input type="range" id="fldF" min="6" max="40" value="18"></label>
+        <label>source spread <input type="range" id="fldS" min="10" max="90" value="45"></label>
+        <span class="val" id="fldInfo">&mdash;</span>
+      </div>
+      <p class="hint">Envelope and Phase are the two halves of the stored data. Everything else is
+      derived from them by taking differences between neighbouring pixels.</p>
+    </div>
+  </div>
+
+  <div class="note"><b>A note on honesty:</b> this whole picture assumes one single frequency, and
+  ignores reflections, obstacles and the object getting in the way of its own sound. It is a
+  intuition-builder, not an acoustics solver. The real engine says the same thing in its own
+  documentation.</div>
+</div></section>
+<section id="cavity"><div class="wrap">
+  <h2><span class="n">03</span>Trapped air: the cavity</h2>
+  <p class="lede">A guitar is not a vibrating plate. It is a vibrating plate wrapped around a box
+  of air &mdash; and that air is an instrument in its own right.</p>
+
+  <h3>Air is a spring made of nothing</h3>
+  <p>Blow across a bottle and you get a note. Nothing solid is vibrating: the plug of air in the
+  neck is sloshing in and out, and the air in the body is being squashed and released. The plug is
+  the <em>mass</em>, the trapped body of air is the <em>spring</em>. It is the simplest oscillator
+  there is, made purely of air.</p>
+
+  <div class="eq">bigger body  &rarr;  softer spring  &rarr;  lower note
+longer neck  &rarr;  heavier plug  &rarr;  lower note
+    <span class="c">This is a Helmholtz resonator. Drink from the bottle, the body gets bigger,
+    the note drops &mdash; you have heard this experiment many times.</span></div>
+
+  <h3>Bigger cavities have modes, just like plates</h3>
+  <p>Once the box is large compared to the wavelength, it stops being one simple oscillator and
+  starts having <strong>standing waves</strong> &mdash; the same story as the string, but in
+  pressure instead of displacement. A closed box of length L has a lowest air mode at roughly
+  <code>speed of sound / 2L</code>, then multiples of it.</p>
+
+  <p>The engine handles this with the same machinery as the structure. It meshes the air, builds a
+  stiffness and a mass matrix for pressure instead of displacement, and solves the very same
+  eigenproblem. Air modes come out looking exactly like string modes &mdash; because mathematically
+  they are.</p>
+
+  <div class="demo">
+    <div class="hd"><span class="k">DEMO</span><h4>Air in a box</h4></div>
+    <div class="body">
+      <p class="exp">Left: the pressure pattern of the air modes in a closed duct &mdash; red is
+      compressed, blue is rarefied, and the pale bands are where the pressure never changes at all.
+      Right: how the resonance frequency moves as you change the box.</p>
+      <div class="row">
+        <canvas id="cvDuct" width="420" height="290"></canvas>
+        <canvas id="cvHelm" width="420" height="290"></canvas>
+      </div>
+      <div class="ctl">
+        <label>box length <input type="range" id="ductL" min="20" max="100" value="55"></label>
+        <label>neck length <input type="range" id="helmN" min="5" max="60" value="22"></label>
+        <span class="val" id="ductInfo">&mdash;</span>
+      </div>
+      <p class="hint">Note the air modes are a plain harmonic series, like a string. It is the
+      geometry of the container, not the material, that sets them.</p>
+    </div>
+  </div>
+
+  <h3>When the two systems talk to each other</h3>
+  <p>Now the interesting bit. The wooden top pushes the air; the pressurised air pushes back on
+  the wooden top. Neither is independent any more &mdash; they are <strong>coupled</strong>, and
+  you have to solve them together.</p>
+
+  <p>And when you do, something familiar happens. If you tune the air resonance close to a plate
+  resonance, the two do not simply coincide. They repel: one moves down, one moves up, and both
+  become a blend of wood-motion and air-motion. It is the avoided crossing from the first page,
+  turning up again in a completely different guise.</p>
+
+  <div class="note"><b>This is instrument design, not trivia.</b> Luthiers deliberately place the
+  guitar's air resonance relative to the top-plate resonance, because the split pair is what fills
+  out the low end. Move the soundhole and you move the air mode &mdash; and the coupling changes
+  the whole bottom octave of the instrument.</div>
+
+  <div class="demo">
+    <div class="hd"><span class="k">DEMO</span><h4>Wood and air, refusing to cross</h4></div>
+    <div class="body">
+      <p class="exp">The horizontal axis tunes the air cavity through the plate's frequency. Dashed
+      lines are what you would naively expect (they cross). Solid lines are what a coupled solve
+      actually gives &mdash; computed live by solving the 2&times;2 coupled system at each step.</p>
+      <canvas id="cvCouple" width="860" height="300"></canvas>
+      <div class="ctl">
+        <label>coupling strength <input type="range" id="cplG" min="0" max="60" value="22"></label>
+        <span class="val" id="cplInfo">&mdash;</span>
+      </div>
+      <p class="hint">Turn the coupling to zero and the solid lines drop onto the dashed ones. Any
+      coupling at all, and they split apart at the meeting point.</p>
+    </div>
+  </div>
+</div></section>
+
+<section id="dims"><div class="wrap">
+  <h2><span class="n">04</span>Leaving flat 2D behind</h2>
+  <p class="lede">Everything so far assumed a flat sheet moving in its own plane. Real objects are
+  curved, thick, and three-dimensional &mdash; and each step up costs something.</p>
+
+  <h3>What "degrees of freedom" really buys you</h3>
+  <p>The size of the problem is set by how many numbers you need per node to describe the motion.
+  That number is the difference between a membrane and a bell.</p>
+
+  <table class="t">
+    <tr><th>Model</th><th>Numbers per node</th><th>What it can do</th><th>Cost</th></tr>
+    <tr><td><b>Membrane</b></td><td>2 &mdash; slide in x, y</td><td>a drum skin; stretches but cannot bend</td><td>cheapest</td></tr>
+    <tr><td><b>Plate</b></td><td>3 &mdash; lift, plus two tilts</td><td>proper bending stiffness; a cymbal, a bar</td><td>modest</td></tr>
+    <tr><td><b>Shell</b></td><td>5 &mdash; slide, lift, and tilt</td><td>curvature, which couples stretching to bending</td><td>higher</td></tr>
+    <tr><td><b>Solid</b></td><td>3 &mdash; but every node is in 3D</td><td>real volume; thick, chunky objects</td><td>far more nodes</td></tr>
+  </table>
+
+  <p>The jump to a solid is brutal not because 3 is a big number but because filling a
+  <em>volume</em> with elements needs vastly more of them than covering a surface. Double the
+  detail on a 2D mesh and you get four times the nodes; do it in 3D and you get eight. The
+  eigensolve grows faster still. That is why the 3D solids in the app are coarse and marked
+  experimental.</p>
+
+  <h3>Why curving a sheet makes it stiff</h3>
+  <p>Take a flat sheet of paper and it flops. Curve it slightly &mdash; a taco, a bent business
+  card &mdash; and suddenly it holds itself up. Nothing about the material changed.</p>
+
+  <p>The reason: on a curved surface you cannot bend without also <em>stretching</em>. Bending is
+  easy, stretching is enormously harder, and curvature welds the two together so the easy motion
+  has to drag the hard one along. That coupling is exactly what a shell model adds over a plate,
+  and it is why a curved cymbal rings so differently from a flat disc of the same metal.</p>
+
+  <div class="demo">
+    <div class="hd"><span class="k">DEMO</span><h4>Curvature stiffens</h4></div>
+    <div class="body">
+      <p class="exp">The same strip, curved by different amounts, with the same push applied.
+      Flat, it folds easily. Curved, the deflection collapses and the frequency climbs &mdash; and
+      the pitch rises even though nothing about the material changed.</p>
+      <canvas id="cvShell" width="860" height="270"></canvas>
+      <div class="ctl">
+        <label>curvature <input type="range" id="shC" min="0" max="100" value="30"></label>
+        <span class="val" id="shInfo">&mdash;</span>
+      </div>
+      <p class="hint">This is why a curved shell needs five numbers per node: the in-plane sliding
+      and the out-of-plane lifting can no longer be treated as separate problems.</p>
+    </div>
+  </div>
+
+  <div class="demo">
+    <div class="hd"><span class="k">DEMO</span><h4>Filling a volume</h4></div>
+    <div class="body">
+      <p class="exp">A solid is chopped into tetrahedra &mdash; the 3D cousin of the triangle.
+      Drag to rotate. The counter shows why this gets expensive so quickly.</p>
+      <canvas class="ia" id="cvTet" width="860" height="320"></canvas>
+      <div class="ctl">
+        <label>detail <input type="range" id="tetN" min="2" max="7" value="4"></label>
+        <label><input type="checkbox" id="tetSpin" checked> spin</label>
+        <span class="val" id="tetInfo">&mdash;</span>
+      </div>
+      <p class="hint">Each step of the detail slider multiplies the node count by about eight, and
+      the solve time by far more than that.</p>
+    </div>
+  </div>
+</div></section>
+
+<section id="time"><div class="wrap">
+  <h2><span class="n">05</span>Time as an extra dimension</h2>
+  <p class="lede">The last idea is the one that sounds most abstract and turns out to be the most
+  visual: stop animating time, and draw it as an axis instead.</p>
+
+  <p>An animation shows you one instant, then throws it away. If instead you stack every instant
+  into a solid block &mdash; two dimensions of space, one of time &mdash; you can see the whole
+  history at once. A photograph of a wave becomes a sculpture of a wave.</p>
+
+  <p>What was moving becomes something you can read off a shape:</p>
+
+  <div class="grid2">
+    <div class="card"><h4>A standing wave</h4><p>becomes a set of <b>straight vertical columns</b>
+      &mdash; the still points never move, so they carve stationary lines through the whole block.</p></div>
+    <div class="card"><h4>A travelling wave</h4><p>becomes a <b>slanted sheet</b>. The slope of the
+      slant is the wave speed: shallow means fast.</p></div>
+    <div class="card"><h4>A decaying note</h4><p>becomes a block that <b>fades along its length</b>,
+      so you can see the decay envelope directly rather than waiting for it.</p></div>
+    <div class="card"><h4>Two frequencies</h4><p>produce a <b>beating pattern</b> that shows up as
+      regular bulges up the time axis &mdash; obvious in the block, easy to miss live.</p></div>
+  </div>
+
+  <p>And because the field is stored as phasors, this costs nothing. The viewer does not record
+  frames; it simply evaluates the same two stored numbers at whatever time each layer needs. Time
+  becomes a coordinate you can look along rather than a thing you wait for.</p>
+
+  <div class="demo">
+    <div class="hd"><span class="k">DEMO</span><h4>A slab of time</h4></div>
+    <div class="body">
+      <p class="exp">The same 1D wave shown two ways: animated on the left, and stacked into a
+      space-time block on the right (space across, time downward). Switch between a standing and a
+      travelling wave and watch the block change character completely.</p>
+      <canvas id="cvSpace" width="860" height="330"></canvas>
+      <div class="ctl">
+        <div class="seg" id="stSeg"></div>
+        <label>window <input type="range" id="stW" min="1" max="6" value="3"></label>
+        <span class="val" id="stInfo">&mdash;</span>
+      </div>
+      <p class="hint">Standing: vertical stripes, fixed nodes. Travelling: diagonal stripes whose
+      slope is the speed. Same maths, completely different picture.</p>
+    </div>
+  </div>
+
+  <div class="note"><b>Where this shows up in the app:</b> the Field Lab's "Spacetime" view builds
+  exactly this block out of the live phasor field, with sliders for how much time to include and
+  how far to tilt the stack. It is the one view that shows you history rather than a moment.</div>
+</div></section>
+
+
+<section id="why"><div class="wrap">
+  <h2><span class="n">06</span>Why the real thing is harder than this page</h2>
+  <p class="lede">Everything you have played with so far quietly cheated. Not in the physics
+  &mdash; the equations are right &mdash; but in the <em>shapes</em>. And that one cheat is the
+  entire reason finite elements exist.</p>
+
+  <h3>The cheat</h3>
+  <p>Every demo here used a string, a rectangle, or a disc. Those three are not a random
+  selection: they are essentially the complete list of shapes whose modes can be written down as
+  a formula. A string gives sines. A rectangle gives products of sines. A disc gives Bessel
+  functions. Pick literally anything else &mdash; a guitar body, a bell, a bar with a notch filed
+  in it, a rectangle with a hole &mdash; and <strong>no formula exists</strong>. Not "is hard to
+  find". Does not exist.</p>
+
+  <p>That is the wall. And the way through it is to stop looking for a formula and start
+  approximating: chop the shape into thousands of pieces so simple that each one <em>does</em>
+  have a formula, then let the computer stitch them back together. That is the finite element
+  method, and it is why this project has one.</p>
+
+  <div class="demo">
+    <div class="hd"><span class="k">DEMO</span><h4>Where the formulas run out</h4></div>
+    <div class="body">
+      <p class="exp">Drag the slider to deform a perfect circle. At zero, the modes are known
+      exactly &mdash; textbook Bessel functions. Move it even slightly and every closed form
+      evaporates, while the meshing approach carries on without noticing.</p>
+      <canvas id="cvWhy" width="860" height="290"></canvas>
+      <div class="ctl">
+        <label>deform <input type="range" id="whyD" min="0" max="100" value="0"></label>
+        <label>mesh detail <input type="range" id="whyR" min="4" max="13" value="8"></label>
+        <span class="val" id="whyInfo">&mdash;</span>
+      </div>
+      <p class="hint">The mesh does not care what shape you give it. That indifference is the
+      whole point of the method.</p>
+    </div>
+  </div>
+
+  <h3>What else the demos quietly skip</h3>
+  <p>The shape cheat is the big one, but it is not the only one. Here is an honest accounting of
+  this page against the actual engine.</p>
+
+  <table class="t">
+    <tr><th></th><th>These demos</th><th>Modal2D</th></tr>
+    <tr><td><b>Shapes</b></td><td>string, rectangle, disc &mdash; because formulas exist</td>
+        <td>any outline, plus holes, curvature, thickness, multiple joined bodies</td></tr>
+    <tr><td><b>Where modes come from</b></td><td>closed forms, or a 36&times;36 matrix</td>
+        <td>stiffness and mass assembled from thousands of triangles</td></tr>
+    <tr><td><b>Solver</b></td><td>dense Jacobi rotations &mdash; lovely, and hopeless past a few hundred</td>
+        <td>sparse shift-invert Lanczos, or a GPU dense solver; only the lowest 24&ndash;120 modes</td></tr>
+    <tr><td><b>Elements</b></td><td>none &mdash; nothing is discretised in space</td>
+        <td>membrane, thin plate, thick plate, shallow shell, tetrahedron, beam</td></tr>
+    <tr><td><b>Material</b></td><td>one stiffness number</td>
+        <td>stiffness, Poisson ratio, density, thickness, grain direction, tension, per-mode damping</td></tr>
+    <tr><td><b>Audio</b></td><td>a two-second buffer built in JavaScript</td>
+        <td>a GPU kernel at 44.1&nbsp;kHz, repeated-strike ring buffers, reverb and nonlinear stages</td></tr>
+    <tr><td><b>Air</b></td><td>one frequency, no obstacles, purely decorative</td>
+        <td>meshed cavity modes genuinely coupled to the structure</td></tr>
+    <tr><td><b>Interaction</b></td><td>sliders</td>
+        <td>strike, bow, pluck, sustain, live re-solve while you edit, and a search that tunes a
+        shape to a target pitch</td></tr>
+  </table>
+
+  <h3>Why the solver had to change</h3>
+  <p>The eigensolver on the first page is real, and it is genuinely the algorithm Jacobi published
+  in 1846. It is also the wrong tool at scale. It works on a dense matrix and costs roughly the
+  cube of the size: 36 unknowns is instant, 600 is a pause, and a few thousand is hopeless &mdash;
+  and it computes <em>every</em> mode when we only ever wanted the lowest few dozen.</p>
+
+  <p>The engine therefore does three things differently. It keeps the matrices
+  <span class="kk" style="color:var(--warm)">sparse</span>, since a node only touches its
+  neighbours and storing the zeros would be absurd. It asks only for the
+  <span class="kk" style="color:var(--warm)">lowest modes</span>, using a shift that turns the
+  smallest, most awkward frequencies into the largest and easiest ones. And it pushes the dense
+  work onto the <span class="kk" style="color:var(--warm)">GPU</span> when the problem is small
+  enough to fit.</p>
+
+  <div class="note"><b>None of this changes the story you already know.</b> Shape becomes
+  matrices, matrices become modes, modes become sound. Everything on the first page is still
+  exactly what the engine does &mdash; the difference is that it does it for shapes nobody has a
+  formula for, fast enough that you can drag a slider and hear the result change.</div>
+</div></section>
+
+<footer><div class="wrap">
+  Modal2D &middot; the deeper half &middot;
+  <a href="modal2d-how-it-works.html">back to the basics</a> &middot;
+  <a href="modal2d-technical-overview.html">full technical overview</a><br>
+  Deliberately simplified throughout: single frequencies, no reflections or obstacles, and
+  idealised geometry. For the equations as actually implemented, see the technical overview.
+</div></footer>
+<script>
+(function(){
+"use strict";
+var $ = function(id){ return document.getElementById(id); };
+var C = { ac:'#34d3c4', ac2:'#4fd6e8', warm:'#f0a35e', viol:'#b98cff',
+          blue:'#5aa9ff', dim:'#8a99ab', faint:'#5e6e80', hd:'#e8eef5', bg:'#0b0f14' };
+
+
+/* ---- frame-time meter (click the "perf" badge, or press P) ----
+   Every animation loop is routed through RAF() below, so wrapping the call
+   there gives a per-demo cost breakdown for free: instead of guessing which
+   canvas is expensive, the meter names it. Costs nothing while switched off
+   (one boolean test per frame). */
+var PERF = (function(){
+  var on=false, per={}, times=[], frameNo=0, lastUI=0;
+  var btn, box, list, spark, sctx;
+  function css(el,s){ for(var k in s) el.style[k]=s[k]; }
+  function build(){
+    btn=document.createElement('button');
+    btn.textContent='perf';
+    css(btn,{position:'fixed',left:'14px',bottom:'14px',zIndex:'300',
+      font:'11px JetBrains Mono,ui-monospace,monospace',background:'#1c2530',
+      color:'#8a99ab',border:'1px solid #243140',padding:'5px 10px',
+      borderRadius:'7px',cursor:'pointer',opacity:'0.65'});
+    btn.onmouseenter=function(){ btn.style.opacity='1'; };
+    btn.onmouseleave=function(){ btn.style.opacity=on?'1':'0.65'; };
+    btn.onclick=toggle;
+    box=document.createElement('div');
+    css(box,{position:'fixed',left:'14px',bottom:'50px',zIndex:'300',display:'none',
+      background:'rgba(11,15,20,0.95)',border:'1px solid #243140',borderRadius:'9px',
+      padding:'10px 12px',font:'11.5px JetBrains Mono,ui-monospace,monospace',
+      color:'#c9d4e0',minWidth:'216px',boxShadow:'0 10px 30px rgba(0,0,0,0.55)'});
+    list=document.createElement('div'); box.appendChild(list);
+    spark=document.createElement('canvas'); spark.width=204; spark.height=36;
+    css(spark,{marginTop:'8px',borderRadius:'4px',background:'#0b0f14',display:'block'});
+    box.appendChild(spark); sctx=spark.getContext('2d');
+    document.body.appendChild(btn); document.body.appendChild(box);
+  }
+  function toggle(){
+    on=!on;
+    box.style.display=on?'block':'none';
+    btn.style.color=on?'#4fd6e8':'#8a99ab';
+    btn.style.opacity=on?'1':'0.65';
+    per={}; times=[]; frameNo=0;
+    if(on) tick();
+  }
+  function tick(){
+    if(!on) return;
+    var t=(window.performance&&performance.now)?performance.now():Date.now();
+    times.push(t); if(times.length>150) times.shift();
+    frameNo++;
+    if(t-lastUI>250){ lastUI=t; render(); }
+    requestAnimationFrame(tick);
+  }
+  function render(){
+    var n=times.length, fps=0, total=0, i, k;
+    if(n>2) fps=1000*(n-1)/(times[n-1]-times[0]);
+    var rows=[];
+    for(k in per){ if(frameNo-per[k].seen<14) rows.push([k,per[k].ms]); }
+    rows.sort(function(a,b){ return b[1]-a[1]; });
+    var h='<div style="color:#34d3c4;font-weight:600;margin-bottom:6px">'+
+          fps.toFixed(0)+' fps  <span style="color:#5e6e80">(target 60)</span></div>';
+    if(!rows.length){
+      h+='<div style="color:#5e6e80">no demo on screen</div>';
+    } else {
+      for(i=0;i<rows.length;i++){
+        var ms=rows[i][1]; total+=ms;
+        var col = ms>4 ? '#f0a35e' : (ms>1.5 ? '#e8eef5' : '#4fd6e8');
+        h+='<div style="display:flex;justify-content:space-between;gap:16px">'+
+           '<span style="color:#8a99ab">'+rows[i][0]+'</span>'+
+           '<span style="color:'+col+'">'+ms.toFixed(2)+' ms</span></div>';
+      }
+      h+='<div style="display:flex;justify-content:space-between;gap:16px;'+
+         'margin-top:5px;border-top:1px solid #243140;padding-top:4px">'+
+         '<span style="color:#5e6e80">js total</span><span style="color:'+
+         (total>8?'#f0a35e':'#8a99ab')+'">'+total.toFixed(2)+' ms / 16.7</span></div>';
+    }
+    list.innerHTML=h;
+    sctx.fillStyle='#0b0f14'; sctx.fillRect(0,0,204,36);
+    sctx.strokeStyle='rgba(240,163,94,0.55)';
+    var y60=36-16.7*1.05;
+    sctx.beginPath(); sctx.moveTo(0,y60); sctx.lineTo(204,y60); sctx.stroke();
+    sctx.strokeStyle='#34d3c4'; sctx.lineWidth=1; sctx.beginPath();
+    for(var j=1;j<n;j++){
+      var dt=times[j]-times[j-1];
+      var px=204*(j-1)/((n-2)||1), py=36-Math.min(35,dt*1.05);
+      if(j===1) sctx.moveTo(px,py); else sctx.lineTo(px,py);
+    }
+    sctx.stroke();
+  }
+  document.addEventListener('keydown',function(e){
+    var tn=(e.target&&e.target.tagName)||'';
+    if((e.key==='p'||e.key==='P') && !/INPUT|TEXTAREA|SELECT/.test(tn)) toggle();
+  });
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',build);
+  else build();
+  return { run:function(cv,fn){
+    if(!on){ fn(); return; }
+    var t0=performance.now(); fn(); var d=performance.now()-t0;
+    var id=(cv&&cv.id)||'canvas';
+    var e=per[id]||(per[id]={ms:0,seen:0});
+    e.ms=e.ms*0.82+d*0.18; e.seen=frameNo;
+  }};
+})();
+
+/* ---- only animate what is actually on screen ----
+   Every demo used to run its animation loop forever, so scrolling past one
+   left it burning frames in the background. This gates each loop on an
+   IntersectionObserver: off-screen demos re-arm cheaply and do no work. */
+var _vis = (window.WeakMap ? new WeakMap() : null);
+var _io = (window.IntersectionObserver && _vis) ? new IntersectionObserver(function(es){
+  for(var i=0;i<es.length;i++) _vis.set(es[i].target, es[i].isIntersecting);
+}, {rootMargin:'140px'}) : null;
+function RAF(cv, fn){
+  if(_io && _vis && !_vis.has(cv)){ _vis.set(cv, true); _io.observe(cv); }
+  requestAnimationFrame(function(){
+    if(!_io || !_vis || _vis.get(cv) !== false) PERF.run(cv, fn);
+    else RAF(cv, fn);
+  });
+}
+
+function clear(x,w,h){ x.fillStyle=C.bg; x.fillRect(0,0,w,h); }
+function txt(x,s,px,py,col,size,al){
+  x.fillStyle=col||C.dim; x.font=(size||11)+'px Inter,sans-serif';
+  x.textAlign=al||'left'; x.fillText(s,px,py); x.textAlign='left'; }
+function hsv(h,s,v){ // h in [0,1]
+  var i=Math.floor(h*6), f=h*6-i, p=v*(1-s), q=v*(1-f*s), t=v*(1-(1-f)*s), r,g,b;
+  switch(i%6){ case 0:r=v;g=t;b=p;break; case 1:r=q;g=v;b=p;break; case 2:r=p;g=v;b=t;break;
+    case 3:r=p;g=q;b=v;break; case 4:r=t;g=p;b=v;break; default:r=v;g=p;b=q; }
+  return [Math.round(r*255),Math.round(g*255),Math.round(b*255)]; }
+
+/* ============ 1. Huygens interference ============ */
+(function(){
+  var cv=$('cvHuy'); if(!cv) return;
+  var x=cv.getContext('2d'), W=cv.width, H=cv.height;
+  function mk(w){
+    var h=Math.round(w*H/W), c=document.createElement('canvas');
+    c.width=w; c.height=h;
+    var cx=c.getContext('2d');
+    return {c:c, x:cx, img:cx.createImageData(w,h), w:w, h:h};
+  }
+  /* Two buffers. Dragging renders the smaller one every frame; once you stop,
+     the large one is filled a BAND AT A TIME across successive frames, so a
+     much sharper image costs no dropped frames. Note both use every source --
+     dropping sources would change the interference pattern itself, so the
+     preview would stop resembling the result. Fewer pixels merely blurs. */
+  var LO=mk(210), HI=mk(560);
+  var pending=false, idleT=null, job=null;
+
+  function params(){
+    var k=+$('huyF').value*0.055, half=+$('huyW').value, curv=+$('huyC').value*0.012;
+    var NS=2*half+1, sx=new Float64Array(NS), sy=new Float64Array(NS);
+    for(var i=0;i<NS;i++){
+      var u=(i-half)*9;
+      sx[i]=W/2+u; sy[i]=H-26 + curv*u*u*0.02;
+    }
+    return {k:k, NS:NS, sx:sx, sy:sy, curv:curv};
+  }
+  function rows(B,buf,y0,y1,P){
+    var kx=W/B.w, ky=H/B.h, mx=0;
+    for(var py=y0;py<y1;py++){
+      var wy=py*ky;
+      for(var px=0;px<B.w;px++){
+        var wx=px*kx, re=0, im=0;
+        for(var i=0;i<P.NS;i++){
+          var dx=wx-P.sx[i], dy=wy-P.sy[i];
+          var r=Math.sqrt(dx*dx+dy*dy); if(r<3) r=3;
+          var a=1/Math.sqrt(r), ph=-P.k*r;
+          re+=a*Math.cos(ph); im+=a*Math.sin(ph);
+        }
+        var m=Math.sqrt(re*re+im*im);
+        buf[py*B.w+px]=m; if(m>mx) mx=m;
+      }
+    }
+    return mx;
+  }
+  function blit(B,buf,mx,P,note){
+    var d=B.img.data, n=B.w*B.h, i;
+    for(i=0;i<n;i++){
+      var v=buf[i]/(mx||1); v=Math.pow(v,0.75);
+      d[i*4]=Math.round(20+235*v*v); d[i*4+1]=Math.round(30+180*v);
+      d[i*4+2]=Math.round(60+150*Math.sqrt(v)); d[i*4+3]=255;
+    }
+    B.x.putImageData(B.img,0,0);
+    x.imageSmoothingEnabled=true;
+    x.drawImage(B.c,0,0,W,H);
+    x.fillStyle=C.warm;
+    for(i=0;i<P.NS;i++){ x.beginPath(); x.arc(P.sx[i],P.sy[i],2.2,0,6.284); x.fill(); }
+    txt(x,'brightness = how loud the air is at that point',12,20,C.hd,12.5);
+    if(note) txt(x,note,W-14,20,C.faint,11.5,'right');
+    var wl=6.283185/P.k;
+    $('huyInfo').textContent='array is '+((P.NS*9)/wl).toFixed(1)+' wavelengths wide'+
+      (Math.abs(P.curv)>0.02?'  ·  focused':'');
+  }
+  function fast(){
+    job=null;
+    var P=params(), buf=new Float32Array(LO.w*LO.h);
+    blit(LO, buf, rows(LO,buf,0,LO.h,P), P, 'sharpening...');
+  }
+  function fullStart(){
+    job={P:params(), buf:new Float32Array(HI.w*HI.h), y:0, mx:0};
+    requestAnimationFrame(fullStep);
+  }
+  function fullStep(){
+    if(!job) return;
+    var band=Math.max(8, Math.round(HI.h/9));
+    var y1=Math.min(HI.h, job.y+band);
+    var m=rows(HI, job.buf, job.y, y1, job.P);
+    if(m>job.mx) job.mx=m;
+    job.y=y1;
+    if(job.y<HI.h) requestAnimationFrame(fullStep);
+    else { blit(HI, job.buf, job.mx, job.P, null); job=null; }
+  }
+  function schedule(){
+    job=null;                                  // abandon any in-flight sharp pass
+    if(!pending){ pending=true;
+      requestAnimationFrame(function(){ pending=false; fast(); }); }
+    if(idleT) clearTimeout(idleT);
+    idleT=setTimeout(fullStart,170);
+  }
+  ['huyF','huyW','huyC'].forEach(function(id){ $(id).addEventListener('input',schedule); });
+  fullStart();
+})();
+
+/* ============ 2. phasor ============ */
+(function(){
+  var cv=$('cvPhasor'); if(!cv) return;
+  var x=cv.getContext('2d'), t0=performance.now();
+  function frame(){
+    clear(x,cv.width,cv.height);
+    var A=+$('phA').value/100, ph=+$('phP').value*Math.PI/180;
+    var t=(performance.now()-t0)/1000;
+    var cx=118, cy=cv.height/2, R=72;
+    x.strokeStyle='rgba(90,110,130,.35)'; x.lineWidth=1;
+    x.beginPath(); x.arc(cx,cy,R,0,6.284); x.stroke();
+    x.beginPath(); x.moveTo(cx-R-8,cy); x.lineTo(cx+R+8,cy); x.stroke();
+    x.beginPath(); x.moveTo(cx,cy-R-8); x.lineTo(cx,cy+R+8); x.stroke();
+    var ang=t*2.2+ph;
+    var ex=cx+Math.cos(ang)*R*A, ey=cy-Math.sin(ang)*R*A;
+    x.strokeStyle=C.viol; x.lineWidth=2.6;
+    x.beginPath(); x.moveTo(cx,cy); x.lineTo(ex,ey); x.stroke();
+    x.fillStyle=C.viol; x.beginPath(); x.arc(ex,ey,4.5,0,6.284); x.fill();
+    x.strokeStyle='rgba(240,163,94,.55)'; x.setLineDash([3,3]); x.lineWidth=1;
+    x.beginPath(); x.moveTo(ex,ey); x.lineTo(ex,cy); x.stroke(); x.setLineDash([]);
+    txt(x,'the stored phasor',cx,cy+R+30,C.dim,12,'center');
+    // wave
+    var ox=250, ow=cv.width-ox-24, oy=cv.height/2;
+    x.strokeStyle='rgba(90,110,130,.3)';
+    x.beginPath(); x.moveTo(ox,oy); x.lineTo(ox+ow,oy); x.stroke();
+    x.strokeStyle=C.ac; x.lineWidth=2; x.beginPath();
+    for(var i=0;i<ow;i++){
+      var tt=t-(ow-i)/ow*4.2;
+      var v=A*Math.cos(tt*2.2+ph);
+      var py=oy-v*62;
+      if(i===0) x.moveTo(ox+i,py); else x.lineTo(ox+i,py);
+    }
+    x.stroke();
+    x.fillStyle=C.ac2; x.beginPath();
+    x.arc(ox+ow-1, oy-A*Math.cos(t*2.2+ph)*62, 4,0,6.284); x.fill();
+    txt(x,'the pressure it produces  ->  read off, never simulated',ox,26,C.hd,12.5);
+    $('phInfo').textContent='size '+A.toFixed(2)+'  ·  angle '+$('phP').value+' deg';
+    RAF(cv,frame);
+  }
+  ['phA','phP'].forEach(function(id){ $(id).addEventListener('input',function(){}); });
+  frame();
+})();
+
+/* ============ 3. nine views (six shown) ============ */
+(function(){
+  var cv=$('cvField'); if(!cv) return;
+  var x=cv.getContext('2d'), W=cv.width, H=cv.height, mode=0;
+  var names=['Live','Envelope','Phase','Intensity','Vorticity','Divergence'];
+  var seg=$('fldSeg');
+  names.forEach(function(nm,i){
+    var b=document.createElement('button'); b.textContent=nm;
+    if(i===0) b.className='on';
+    b.onclick=function(){ mode=i;
+      Array.prototype.forEach.call(seg.children,function(c,j){ c.className=(j===i)?'on':''; });
+      draw(); };
+    seg.appendChild(b);
+  });
+  var GW=215, GH=82; // computation grid, upscaled to canvas
+  var RE=new Float32Array(GW*GH), IM=new Float32Array(GW*GH);
+  var goff=document.createElement('canvas'); goff.width=GW; goff.height=GH;
+  var goct=goff.getContext('2d'), img=goct.createImageData(GW,GH), t0=performance.now();
+  function compute(){
+    var k=+$('fldF').value*0.06, spread=+$('fldS').value;
+    var src=[[GW/2-spread*0.6,GH*0.85],[GW/2,GH*0.15],[GW/2+spread*0.6,GH*0.8]];
+    for(var j=0;j<GH;j++) for(var i=0;i<GW;i++){
+      var re=0,im=0;
+      for(var s=0;s<3;s++){
+        var dx=i-src[s][0], dy=j-src[s][1];
+        var r=Math.sqrt(dx*dx+dy*dy); if(r<2) r=2;
+        var a=1/Math.sqrt(r);
+        re+=a*Math.cos(-k*r); im+=a*Math.sin(-k*r);
+      }
+      RE[j*GW+i]=re; IM[j*GW+i]=im;
+    }
+  }
+  function at(a,i,j){ i=Math.max(0,Math.min(GW-1,i)); j=Math.max(0,Math.min(GH-1,j)); return a[j*GW+i]; }
+  function inten(i,j){ // energy flow vector
+    var re=at(RE,i,j), im=at(IM,i,j);
+    var gxr=(at(RE,i+1,j)-at(RE,i-1,j))*0.5, gxi=(at(IM,i+1,j)-at(IM,i-1,j))*0.5;
+    var gyr=(at(RE,i,j+1)-at(RE,i,j-1))*0.5, gyi=(at(IM,i,j+1)-at(IM,i,j-1))*0.5;
+    return [re*gxi-im*gxr, re*gyi-im*gyr];
+  }
+  function draw(){
+    var t=(performance.now()-t0)/1000, d=img.data;
+    // precompute per-grid value then upscale
+    var val=new Float32Array(GW*GH), hue=new Float32Array(GW*GH), useHue=(mode===2), mx=0, i,j;
+    for(j=0;j<GH;j++) for(i=0;i<GW;i++){
+      var idx=j*GW+i, re=RE[idx], im=IM[idx], v=0;
+      if(mode===0) v=re*Math.cos(t*2.4)-im*Math.sin(t*2.4);
+      else if(mode===1) v=Math.sqrt(re*re+im*im);
+      else if(mode===2){ v=Math.sqrt(re*re+im*im); hue[idx]=(Math.atan2(im,re)/6.283185+0.5); }
+      else if(mode===3){ var I=inten(i,j); v=Math.sqrt(I[0]*I[0]+I[1]*I[1]); }
+      else if(mode===4){ var a1=inten(i+1,j)[1],a2=inten(i-1,j)[1],
+                             b1=inten(i,j+1)[0],b2=inten(i,j-1)[0];
+                         v=(a1-a2)*0.5-(b1-b2)*0.5; }
+      else { var c1=inten(i+1,j)[0],c2=inten(i-1,j)[0],
+                 e1=inten(i,j+1)[1],e2=inten(i,j-1)[1];
+             v=(c1-c2)*0.5+(e1-e2)*0.5; }
+      val[idx]=v; if(Math.abs(v)>mx) mx=Math.abs(v);
+    }
+    if(mx<1e-12) mx=1;
+    for(var py=0;py<GH;py++){
+      var gj=py;
+      for(var px=0;px<GW;px++){
+        var gi=px;
+        var idx2=gj*GW+gi, v2=val[idx2]/mx, o=(py*GW+px)*4, r,g,b;
+        if(useHue){
+          var c=hsv(hue[idx2],0.82,Math.min(1,Math.abs(v2)*2.2));
+          r=c[0]; g=c[1]; b=c[2];
+        } else if(mode===1||mode===3){
+          var u=Math.pow(Math.abs(v2),0.7);
+          r=Math.round(18+230*u*u); g=Math.round(28+200*u); b=Math.round(58+150*Math.sqrt(u));
+        } else {
+          var s2=Math.max(-1,Math.min(1,v2*2.2));
+          if(s2>0){ r=Math.round(20+235*s2); g=Math.round(28+60*s2); b=Math.round(40+30*s2); }
+          else { r=Math.round(20-10*s2); g=Math.round(60-60*s2); b=Math.round(70-185*s2); }
+        }
+        d[o]=r; d[o+1]=g; d[o+2]=b; d[o+3]=255;
+      }
+    }
+    goct.putImageData(img,0,0);
+    x.imageSmoothingEnabled=true;
+    x.drawImage(goff,0,0,W,H);
+    txt(x,names[mode],14,24,C.hd,14);
+    var ex={0:'the wave, moving',1:'standing pattern - dark = permanently quiet',
+      2:'colour = phase; where all colours meet is a singularity',
+      3:'brightness = how fast energy flows there',
+      4:'swirl of the energy flow - whirlpools sit on the singularities',
+      5:'where flow appears from nothing'};
+    txt(x,ex[mode],14,H-14,C.warm,12);
+    $('fldInfo').textContent=names[mode]+' view';
+    if(mode===0) RAF(cv,draw);
+  }
+  function redo(){ compute(); draw(); }
+  ['fldF','fldS'].forEach(function(id){ $(id).addEventListener('input',redo); });
+  redo();
+})();
+
+/* ============ 4. duct + helmholtz ============ */
+(function(){
+  var cd=$('cvDuct'), ch=$('cvHelm'); if(!cd||!ch) return;
+  var a=cd.getContext('2d'), b=ch.getContext('2d');
+  function draw(){
+    var L=+$('ductL').value, neck=+$('helmN').value;
+    clear(a,cd.width,cd.height);
+    var ox=26, oy=44, w=cd.width-52, h=52;
+    for(var m=1;m<=3;m++){
+      var yy=oy+(m-1)*74;
+      for(var i=0;i<w;i++){
+        var v=Math.cos(m*Math.PI*i/w);
+        var r,g,bl;
+        if(v>0){ r=Math.round(242-72*v); g=Math.round(235-200*v); bl=Math.round(220-190*v); }
+        else { r=Math.round(242+216*v); g=Math.round(235+140*v); bl=Math.round(220-10*v); }
+        a.fillStyle='rgb('+r+','+g+','+bl+')';
+        a.fillRect(ox+i,yy,1.4,h);
+      }
+      a.strokeStyle='rgba(90,169,255,.35)'; a.strokeRect(ox,yy,w,h);
+      txt(a,'mode '+m+'   f = '+m+' x (c/2L)',ox,yy-6,C.dim,11.5);
+      for(var n2=1;n2<m;n2++){
+        var px=ox+w*n2/m;
+        a.strokeStyle='rgba(240,163,94,.8)'; a.setLineDash([3,3]);
+        a.beginPath(); a.moveTo(px,yy); a.lineTo(px,yy+h); a.stroke(); a.setLineDash([]);
+      }
+    }
+    txt(a,'air modes in a closed box (pressure)',14,20,C.hd,12.5);
+    // helmholtz curve
+    clear(b,ch.width,ch.height);
+    var bx=44, by=ch.height-42, bw=ch.width-70, bh=ch.height-80;
+    b.strokeStyle='rgba(90,110,130,.35)';
+    b.beginPath(); b.moveTo(bx,by-bh); b.lineTo(bx,by); b.lineTo(bx+bw,by); b.stroke();
+    b.strokeStyle=C.viol; b.lineWidth=2.2; b.beginPath();
+    for(var i2=0;i2<bw;i2++){
+      var V=0.25+2.4*i2/bw;
+      var f=1/Math.sqrt(V*neck*0.02);
+      var py=by-Math.min(bh,f*bh*0.30);
+      if(i2===0) b.moveTo(bx+i2,py); else b.lineTo(bx+i2,py);
+    }
+    b.stroke();
+    var Vm=0.25+2.4*(L-20)/80, fm=1/Math.sqrt(Vm*neck*0.02);
+    var mxp=bx+bw*(L-20)/80, myp=by-Math.min(bh,fm*bh*0.30);
+    b.fillStyle=C.warm; b.beginPath(); b.arc(mxp,myp,5,0,6.284); b.fill();
+    txt(b,'bottle note vs body size',14,20,C.hd,12.5);
+    txt(b,'bigger body  ->',bx+bw,by+18,C.dim,11,'right');
+    txt(b,'pitch',10,by-bh+4,C.dim,11);
+    $('ductInfo').textContent='box '+L+'  ·  neck '+neck+
+      '  ·  bottle note '+(fm*100).toFixed(0)+' (arb)';
+  }
+  ['ductL','helmN'].forEach(function(id){ $(id).addEventListener('input',draw); });
+  draw();
+})();
+
+/* ============ 5. structure-air coupling ============ */
+(function(){
+  var cv=$('cvCouple'); if(!cv) return;
+  var x=cv.getContext('2d');
+  function draw(){
+    clear(x,cv.width,cv.height);
+    var g=+$('cplG').value/1000, W=cv.width, H=cv.height, N=180;
+    var lo=0.55, hi=1.5;
+    function PX(i){ return 52+(W-80)*i/(N-1); }
+    function PY(v){ return H-38-(H-70)*(v-lo)/(hi-lo); }
+    // uncoupled (dashed)
+    x.setLineDash([4,4]); x.lineWidth=1.3;
+    x.strokeStyle='rgba(140,160,180,.55)';
+    x.beginPath();
+    for(var i=0;i<N;i++){ var p=i/(N-1), y=PY(1.0);
+      if(i===0) x.moveTo(PX(i),y); else x.lineTo(PX(i),y); }
+    x.stroke();
+    x.beginPath();
+    for(i=0;i<N;i++){ var p2=i/(N-1), y2=PY(0.65+0.72*p2);
+      if(i===0) x.moveTo(PX(i),y2); else x.lineTo(PX(i),y2); }
+    x.stroke(); x.setLineDash([]);
+    // coupled: eigenvalues of [[a,g],[g,b]]
+    var cols=[C.ac,C.warm];
+    for(var br=0;br<2;br++){
+      x.strokeStyle=cols[br]; x.lineWidth=2.4; x.beginPath();
+      for(i=0;i<N;i++){
+        var p3=i/(N-1), A=1.0, B=0.65+0.72*p3;
+        var mean=(A+B)/2, dd=Math.sqrt(((A-B)/2)*((A-B)/2)+g*g);
+        var v=br===0? mean-dd : mean+dd;
+        var yy=PY(v);
+        if(i===0) x.moveTo(PX(i),yy); else x.lineTo(PX(i),yy);
+      }
+      x.stroke();
+    }
+    var minGap=2*g;
+    txt(x,'frequency',14,26,C.dim,12);
+    txt(x,'air cavity tuned upward  ->',W-24,H-14,C.dim,12,'right');
+    txt(x,'dashed = if they ignored each other   solid = the real coupled answer',
+        52,H-14,C.viol,12);
+    $('cplInfo').textContent = g<0.001 ? 'no coupling: they cross'
+      : 'closest approach '+(minGap).toFixed(3)+' - they never touch';
+  }
+  $('cplG').addEventListener('input',draw); draw();
+})();
+
+/* ============ 6. curvature stiffens ============ */
+(function(){
+  var cv=$('cvShell'); if(!cv) return;
+  var x=cv.getContext('2d');
+  function draw(){
+    clear(x,cv.width,cv.height);
+    var c=+$('shC').value/100;
+    var W=cv.width, cx=W/2, y0=118, L=W-160;
+    // stiffness rises steeply with curvature (illustrative)
+    var stiff=1+34*c*c;
+    var defl=52/stiff;
+    for(var pass=0;pass<2;pass++){
+      x.strokeStyle= pass===0 ? 'rgba(120,140,160,.45)' : C.viol;
+      x.lineWidth= pass===0?1.4:2.6;
+      x.setLineDash(pass===0?[4,4]:[]);
+      x.beginPath();
+      for(var i=0;i<=120;i++){
+        var u=i/120, px=cx-L/2+L*u;
+        var curve=-c*70*Math.sin(Math.PI*u);
+        var bend= pass===0 ? 0 : defl*Math.sin(Math.PI*u);
+        x.lineTo(px, y0+curve+bend);
+      }
+      x.stroke();
+    }
+    x.setLineDash([]);
+    // arrow (the push)
+    x.strokeStyle=C.warm; x.lineWidth=2;
+    x.beginPath(); x.moveTo(cx,y0-c*70-46); x.lineTo(cx,y0-c*70-8); x.stroke();
+    x.beginPath(); x.moveTo(cx,y0-c*70-4); x.lineTo(cx-5,y0-c*70-14);
+    x.lineTo(cx+5,y0-c*70-14); x.closePath(); x.fillStyle=C.warm; x.fill();
+    // bar
+    var bw=250, bx=cv.width/2-bw/2, by=cv.height-52;
+    x.fillStyle='rgba(90,110,130,.25)'; x.fillRect(bx,by,bw,13);
+    x.fillStyle=C.viol; x.fillRect(bx,by,bw*Math.min(1,Math.sqrt(stiff)/6),13);
+    txt(x,'stiffness',bx,by-7,C.dim,11.5);
+    txt(x,'dashed = shape at rest   solid = pushed',18,26,C.hd,12.5);
+    $('shInfo').textContent='curvature '+(c*100).toFixed(0)+'%  ·  '+stiff.toFixed(1)+
+      'x stiffer  ·  pitch x'+Math.sqrt(stiff).toFixed(2);
+  }
+  $('shC').addEventListener('input',draw); draw();
+})();
+
+/* ============ 7. tetrahedra ============ */
+(function(){
+  var cv=$('cvTet'); if(!cv) return;
+  var x=cv.getContext('2d'), yaw=0.6, pitch=0.42, drag=false, lx=0, ly=0, t0=performance.now();
+  var nodeCache={n:-1,c:0};
+  cv.addEventListener('mousedown',function(e){ drag=true; lx=e.clientX; ly=e.clientY; });
+  window.addEventListener('mouseup',function(){ drag=false; });
+  window.addEventListener('mousemove',function(e){
+    if(!drag) return; yaw+=(e.clientX-lx)*0.01; pitch+=(e.clientY-ly)*0.01;
+    lx=e.clientX; ly=e.clientY; });
+  function frame(){
+    clear(x,cv.width,cv.height);
+    var n=+$('tetN').value, spin=$('tetSpin').checked;
+    var t=(performance.now()-t0)/1000;
+    var Y=yaw+(spin?t*0.35:0), P=pitch;
+    var cx=cv.width/2, cy=cv.height/2+10, S=Math.min(cv.width,cv.height)*0.34;
+    function proj(px,py,pz){
+      var X=px*Math.cos(Y)-pz*Math.sin(Y);
+      var Z=px*Math.sin(Y)+pz*Math.cos(Y);
+      var Yy=py*Math.cos(P)-Z*Math.sin(P);
+      var Zz=py*Math.sin(P)+Z*Math.cos(P);
+      var f=1/(1+Zz*0.30);
+      return [cx+X*S*f, cy-Yy*S*f, Zz];
+    }
+    var edges=[], i,j,k;
+    for(k=0;k<n;k++) for(j=0;j<n;j++) for(i=0;i<n;i++){
+      var u=(i/(n-1||1))*2-1, v=(j/(n-1||1))*2-1, w=(k/(n-1||1))*2-1;
+      if(u*u+v*v+w*w>1.05) continue;
+      var s=2/(n-1||1)*0.5;
+      var a=proj(u,v,w), b=proj(u+s,v,w), c=proj(u,v+s,w), d=proj(u,v,w+s);
+      edges.push([a,b,(a[2]+b[2])/2]); edges.push([a,c,(a[2]+c[2])/2]);
+      edges.push([a,d,(a[2]+d[2])/2]); edges.push([b,c,(b[2]+c[2])/2]);
+      edges.push([b,d,(b[2]+d[2])/2]); edges.push([c,d,(c[2]+d[2])/2]);
+    }
+    edges.sort(function(p,q){ return q[2]-p[2]; });
+    for(i=0;i<edges.length;i++){
+      var e=edges[i], dep=Math.max(0,Math.min(1,(e[2]+1)/2));
+      x.strokeStyle='rgba('+Math.round(80+100*(1-dep))+','+Math.round(180+50*(1-dep))+',235,'+(0.22+0.5*(1-dep))+')';
+      x.lineWidth=0.9;
+      x.beginPath(); x.moveTo(e[0][0],e[0][1]); x.lineTo(e[1][0],e[1][1]); x.stroke();
+    }
+    if(nodeCache.n!==n){ var cnt=0;
+      for(k=0;k<n;k++) for(j=0;j<n;j++) for(i=0;i<n;i++){
+        var u2=(i/(n-1||1))*2-1, v2=(j/(n-1||1))*2-1, w2=(k/(n-1||1))*2-1;
+        if(u2*u2+v2*v2+w2*w2<=1.05) cnt++;
+      }
+      nodeCache={n:n,c:cnt};
+    }
+    var nodes=nodeCache.c;
+    txt(x,'drag to rotate',14,24,C.dim,12);
+    $('tetInfo').textContent=nodes+' nodes  ·  '+(nodes*3)+' degrees of freedom  ·  '+
+      'solve cost ~ '+((nodes*3/100)*(nodes*3/100)*(nodes*3/100)).toFixed(0)+' units';
+    RAF(cv,frame);
+  }
+  frame();
+})();
+
+/* ============ 8. spacetime block ============ */
+(function(){
+  var cv=$('cvSpace'); if(!cv) return;
+  var x=cv.getContext('2d'), kind=0, t0=performance.now();
+  var seg=$('stSeg');
+  ['standing','travelling'].forEach(function(nm,i){
+    var b=document.createElement('button'); b.textContent=nm;
+    if(i===0) b.className='on';
+    b.onclick=function(){ kind=i;
+      Array.prototype.forEach.call(seg.children,function(c,j){ c.className=(j===i)?'on':''; }); };
+    seg.appendChild(b);
+  });
+  var SW=190, SH=96, soff=document.createElement('canvas');
+  soff.width=SW; soff.height=SH;
+  var soct=soff.getContext('2d'), simg=soct.createImageData(SW,SH);
+  function wave(u,t){
+    return kind===0 ? Math.sin(u*9.4)*Math.cos(t*2.4)
+                    : Math.sin(u*9.4 - t*2.4);
+  }
+  function frame(){
+    clear(x,cv.width,cv.height);
+    var t=(performance.now()-t0)/1000, win=+$('stW').value;
+    // left: animated
+    var ox=26, ow=340, oy=cv.height/2;
+    x.strokeStyle='rgba(90,110,130,.3)';
+    x.beginPath(); x.moveTo(ox,oy); x.lineTo(ox+ow,oy); x.stroke();
+    x.strokeStyle=C.ac; x.lineWidth=2.2; x.beginPath();
+    for(var i=0;i<=ow;i++){
+      var u=i/ow, v=wave(u,t);
+      var py=oy-v*66;
+      if(i===0) x.moveTo(ox+i,py); else x.lineTo(ox+i,py);
+    }
+    x.stroke();
+    txt(x,'live: one instant at a time',ox,26,C.hd,12.5);
+    // right: spacetime block
+    var bx=430, bw=cv.width-bx-26, bh=cv.height-70, by=44;
+    var sd=simg.data;
+    for(var r=0;r<SH;r++){
+      var tt=t+(r/SH)*win*2.6;
+      for(var c=0;c<SW;c++){
+        var u2=c/SW, v2=wave(u2,tt);
+        var s=Math.max(-1,Math.min(1,v2)), o=(r*SW+c)*4;
+        if(s>0){ sd[o]=(20+235*s)|0; sd[o+1]=(30+70*s)|0; sd[o+2]=(45+35*s)|0; }
+        else { sd[o]=(20-8*s)|0; sd[o+1]=(60-60*s)|0; sd[o+2]=(72-183*s)|0; }
+        sd[o+3]=255;
+      }
+    }
+    soct.putImageData(simg,0,0);
+    x.imageSmoothingEnabled=true;
+    x.drawImage(soff,bx,by,bw,bh);
+    x.strokeStyle='rgba(90,169,255,.3)'; x.strokeRect(bx,by,bw,bh);
+    txt(x,'space  ->',bx,by-8,C.dim,11.5);
+    txt(x,'time',bx-22,by+bh/2,C.dim,11.5);
+    txt(x, kind===0?'vertical stripes = nodes that never move'
+                   :'slanted stripes = the wave travelling',
+        bx,cv.height-14,C.warm,12);
+    $('stInfo').textContent = kind===0? 'standing: nodes fixed in space'
+                                      : 'travelling: slope = speed';
+    RAF(cv,frame);
+  }
+  frame();
+})();
+
+/* ============ 9. where the formulas run out ============ */
+(function(){
+  var cv=$('cvWhy'); if(!cv) return;
+  var x=cv.getContext('2d');
+  function radius(th, d){
+    // a circle at d=0, progressively lumpier after that
+    return 1 + d*(0.26*Math.sin(3*th+0.6) + 0.15*Math.sin(5*th+2.1) - 0.11*Math.cos(2*th));
+  }
+  function draw(){
+    clear(x,cv.width,cv.height);
+    var d=+$('whyD').value/100, g=+$('whyR').value;
+    var cx=cv.width*0.30, cy=cv.height*0.52, S=Math.min(cv.width*0.20,cv.height*0.38);
+    function inShape(u,v){
+      var r=Math.sqrt(u*u+v*v); if(r<1e-9) return true;
+      return r <= radius(Math.atan2(v,u), d);
+    }
+    // outline
+    x.strokeStyle=d>0.001?'rgba(185,140,255,.85)':'rgba(79,214,232,.9)';
+    x.lineWidth=2; x.beginPath();
+    for(var a=0;a<=180;a++){
+      var th=6.283185*a/180, rr=radius(th,d);
+      var px=cx+Math.cos(th)*rr*S, py=cy-Math.sin(th)*rr*S;
+      if(a===0) x.moveTo(px,py); else x.lineTo(px,py);
+    }
+    x.closePath(); x.stroke();
+    // mesh
+    var nodes=0, tris=0, i, j;
+    var idx={};
+    for(j=-g;j<=g;j++) for(i=-g;i<=g;i++){
+      var u=i/g*1.35, v=j/g*1.35;
+      if(inShape(u,v)){ idx[i+','+j]=1; nodes++; }
+    }
+    x.strokeStyle='rgba(52,211,196,.35)'; x.lineWidth=0.8;
+    for(j=-g;j<g;j++) for(i=-g;i<g;i++){
+      var a1=idx[i+','+j], b1=idx[(i+1)+','+j], c1=idx[i+','+(j+1)], d1=idx[(i+1)+','+(j+1)];
+      var X=function(ii){ return cx+(ii/g*1.35)*S; }, Y=function(jj){ return cy-(jj/g*1.35)*S; };
+      if(a1&&b1&&c1){ x.beginPath(); x.moveTo(X(i),Y(j)); x.lineTo(X(i+1),Y(j));
+        x.lineTo(X(i),Y(j+1)); x.closePath(); x.stroke(); tris++; }
+      if(b1&&d1&&c1){ x.beginPath(); x.moveTo(X(i+1),Y(j)); x.lineTo(X(i+1),Y(j+1));
+        x.lineTo(X(i),Y(j+1)); x.closePath(); x.stroke(); tris++; }
+    }
+    // verdict panel
+    var bx=cv.width*0.56, by=52;
+    if(d<0.005){
+      x.fillStyle='rgba(79,214,232,.10)';
+      x.fillRect(bx-14,by-30,cv.width-bx-12,132);
+      x.strokeStyle='rgba(79,214,232,.5)'; x.lineWidth=1;
+      x.strokeRect(bx-14,by-30,cv.width-bx-12,132);
+      txt(x,'a perfect circle',bx,by-6,C.ac2,15);
+      txt(x,'modes have a closed form:',bx,by+22,C.dim,13);
+      txt(x,'J_m( j_mn  r / R ) cos( m theta )',bx,by+46,C.hd,14);
+      txt(x,'no mesh, no solver, no computer needed',bx,by+72,C.faint,12);
+    } else {
+      x.fillStyle='rgba(240,163,94,.10)';
+      x.fillRect(bx-14,by-30,cv.width-bx-12,132);
+      x.strokeStyle='rgba(240,163,94,.5)'; x.lineWidth=1;
+      x.strokeRect(bx-14,by-30,cv.width-bx-12,132);
+      txt(x,'not a circle any more',bx,by-6,C.warm,15);
+      txt(x,'closed form:  none exists',bx,by+22,C.warm,13);
+      txt(x,'the only way through is to mesh it',bx,by+46,C.hd,13);
+      txt(x,'and solve the matrices numerically',bx,by+66,C.hd,13);
+      txt(x,'-> exactly what Modal2D does',bx,by+90,C.ac,12.5);
+    }
+    txt(x,nodes+' nodes  ·  '+tris+' triangles  ·  '+(nodes*2)+' unknowns',
+        cx,cv.height-14,C.dim,12,'center');
+    $('whyInfo').textContent = d<0.005 ? 'circle: solvable with a pencil'
+                                       : 'deformed: needs the full machinery';
+  }
+  ['whyD','whyR'].forEach(function(id){ $(id).addEventListener('input',draw); });
+  draw();
+})();
+
+
+})();
+</script>

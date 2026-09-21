@@ -1,0 +1,147 @@
+<!doctype html><html lang="en"><head><style data-portfolio-paint>html{background:#0b0d0c;color-scheme:dark}html.portfolio-booting body{opacity:0}</style><script src="../../../portfolio-navigation.js?v=688f1905bc"></script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>The rendering frontier, inside RadianceLab — RadianceLab</title><meta name="description" content="Restricted native rotational and three-scatter sheet estimators, plus an isolated visibility-cache experiment."><meta name="color-scheme" content="dark"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="../../../portfolio.css?v=b7ed8602e5"><link rel="stylesheet" href="../../../portfolio-effects.css?v=62be30dafa"><link rel="stylesheet" href="../../../portfolio-atmospheres.css?v=4b74c57939"><link rel="stylesheet" href="../../../portfolio-motion.css?v=4b098d8184"><link rel="stylesheet" href="../../../portfolio-case-studies.css?v=243caf2b0d"><link rel="stylesheet" href="../../../portfolio-brochures.css?v=a1e5e16132"><link rel="stylesheet" href="../../../portfolio-project-themes.css?v=a898c35e78"><link rel="stylesheet" href="../../../portfolio-location.css?v=9c4c1ad84f"><link rel="stylesheet" href="../../../portfolio-controls.css?v=9376de7761"><link rel="stylesheet" href="../../../portfolio-media.css?v=c51f7712ea"><link rel="stylesheet" href="../../../portfolio-overviews.css?v=8612c4ee0a"><link rel="stylesheet" href="../../../portfolio-motivations.css?v=ccc1c1d866"><link rel="stylesheet" href="../../../portfolio-claims.css?v=058dbd00ef"><link rel="stylesheet" href="../../../portfolio-feature-atlas.css?v=e73f02cb31"><script type="application/json" id="media-framing">{"media/brochures/physics-2d/thermal-furnace-magnetic-field-probe.png":{"width":1602,"height":940,"top":39},"media/brochures/physics-2d/magnetic-field-direction-appearance-controls.png":{"width":1602,"height":940,"top":39},"media/brochures/physics-2d/time-bomb-blast-particle-plume.png":{"width":1602,"height":940,"top":39}}</script><script defer src="../../../portfolio-claims.js?v=ed914a4d3a"></script><script defer src="../../../portfolio-visual-defaults.js?v=eecfd5c771"></script><script defer src="../../../portfolio-motion.js?v=a642c710f9"></script><script defer src="../../../portfolio-fire-studies.js?v=7717e15582"></script><script defer src="../../../portfolio-embers.js?v=8a8be5569d"></script><script defer src="../../../portfolio-atmospheres.js?v=021b2f100e"></script><script defer src="../../../portfolio-effects.js?v=03a6c89d6c"></script><script defer src="../../../portfolio-brochures.js?v=055cad29d6"></script><script defer src="../../../portfolio-location.js?v=3846586893"></script><script defer src="../../../portfolio-media.js?v=d2d555a888"></script><script defer src="../../../portfolio-articles.js?v=acb89575ce"></script><script defer src="../../../portfolio-labs.js?v=a0b86a3809"></script><link rel="stylesheet" href="../../../portfolio-technical.css?v=0ecb3a48c7"><script defer src="../../../portfolio-technical.js"></script><!-- universal-navigation:start --><script defer src="../../../portfolio-routes.js?v=054b6b462c"></script><script defer src="../../../portfolio-universal-navigation.js?v=054b6b462c"></script><!-- universal-navigation:end --><style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head><body data-page="technical" data-project-theme="optics" data-project-id="radiance-lab" data-default-atmosphere="caustics"><canvas class="spark-field" aria-hidden="true"></canvas><a class="skip-link" href="#main">Skip to content</a><nav class="site-nav portfolio-route" data-route-group="flagships" aria-label="Portfolio location"><div class="route-path"><a class="route-node route-home" href="../../../index.html#project-radiance-lab" aria-label="Portfolio"><img class="route-mark" src="../../../media/identity/portfolio-mark.svg" alt="" width="52" height="52"><span class="route-copy"><small>Work / ideas</small><strong>Portfolio</strong></span></a><span class="route-wire" aria-hidden="true"><i></i><b></b></span><div class="route-node route-group"><span class="route-glyph" aria-hidden="true">✦</span><span class="route-copy"><small>Collection</small><strong>Flagship</strong></span></div><span class="route-wire" aria-hidden="true"><i></i><b></b></span><a class="route-node route-project" href="../index.html"><span class="route-glyph" hidden aria-hidden="true">◈</span><img class="route-thumb" src="../../../media/previews/radiance-lab/caustic-showcase.png" width="42" height="42" alt=""><span class="route-copy"><small>Project</small><strong>RadianceLab</strong></span></a><span class="route-wire" aria-hidden="true"><i></i><b></b></span><a class="route-node technical-route" href="index.html"><span class="route-copy"><small>Technical reading room</small><strong>The rendering frontier, inside RadianceLab</strong></span></a></div><div class="route-end"><span class="route-meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><a class="route-back" href="../../../index.html#project-radiance-lab">← Back to portfolio</a></div></nav><nav class="section-rail technical-rail" aria-label="Technical document sections"><span class="rail-indicator" aria-hidden="true"></span><a href="#technical-top" data-section="technical-top"><span>⌂</span><span>Start</span></a><a href="#three-experiments" data-section="three-experiments" title="Three experiments"><small>01</small><span>Three experiments</span></a><a href="#rotational-atlas-the-same-physical-ledger" data-section="rotational-atlas-the-same-physical-ledger" title="Rotational atlas: the same physical ledger"><small>02</small><span>Rotational atlas: the same physical ledger</span></a><a href="#tri-sheets-three-distance-pair-charts" data-section="tri-sheets-three-distance-pair-charts" title="Tri-sheets: three distance-pair charts"><small>03</small><span>Tri-sheets: three distance-pair charts</span></a><a href="#visibility-cache-signed-correction-explicit-scope" data-section="visibility-cache-signed-correction-explicit-scope" title="Visibility cache: signed correction, explicit scope"><small>04</small><span>Visibility cache: signed correction, explicit scope</span></a><a href="#verification-performed" data-section="verification-performed" title="Verification performed"><small>05</small><span>Verification performed</span></a><a href="#integration-checks-and-recordings" data-section="integration-checks-and-recordings" title="Integration checks and recordings"><small>06</small><span>Integration checks and recordings</span></a></nav><main id="main" class="project-page technical-page"><header id="technical-top" class="technical-hero"><span class="eyebrow">RadianceLab · Native implementation document</span><h1>The rendering frontier, inside RadianceLab</h1><p>Restricted native rotational and three-scatter sheet estimators, plus an isolated visibility-cache experiment.</p><div class="technical-actions"><a href="../index.html">← RadianceLab brochure</a><a href="index.html">Technical reading room</a><a href="../validation/index.html">Rendered evidence ↗</a></div></header><aside class="technical-scope"><span>◈</span><p>Implementation notes describe the native application. A working experiment, an approximate preview and a general transport estimator establish different things; each document states its own scope.</p></aside><article class="technical-document"><p>The earlier Python experiments now have a small C++ research instrument inside RadianceLab. It owns its own progressive CPU film and analytic scene; opening it does not replace or change <code>PPIntegrator</code>, the main GPU path tracer, or an existing saved scene. This is an opt-in native experiment, not a claim that these methods already support the editor&#39;s arbitrary meshes, materials, lights, heterogeneous media or every scattering order.</p>
+<p>The purpose is practical: compose a recording, inspect how a connection succeeds, then show its failure case. The C++ renderer evaluates transport or visibility anew. It does not replay the old PNGs.</p>
+<h2 id="three-experiments">Three experiments</h2><div class="case-table-wrap technical-table" tabindex="0" role="region" aria-label="Technical comparison"><table>
+<thead>
+<tr>
+<th>Study</th>
+<th>What actually runs</th>
+<th>Useful recording</th>
+<th>Honest failure case</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Rotational atlas</td>
+<td>Physical, selected <strong>two-volume-scatter</strong> contribution; cylinder, cone, hyperboloid and distance–distance plane sample one bounded path integral</td>
+<td>Slit scene, balanced atlas; compare one chart at a time and then independent reference</td>
+<td>Narrow slit and extra blocker reject many connections; isolated charts can have rare large weights</td>
+</tr>
+<tr>
+<td>Tri-sheets</td>
+<td>Physical, selected <strong>three-volume-scatter</strong> contribution; three planes release different pairs of flight lengths</td>
+<td>Clear or slit scene; alternate the retained first/second/third flight and the equal mixture</td>
+<td>Distant or nearly parallel directions make individual plane charts inefficient; extra visibility tests can outweigh easier connections</td>
+</tr>
+<tr>
+<td>Visibility cache</td>
+<td>An actual finite-sheet visibility field through opaque AABB screens; exact, coarse cache-only, or stochastic residual correction</td>
+<td>Broad coherent screen: exact → cached → corrected; move the screen and watch the cache rebuild</td>
+<td>Fine crossed slats outresolve the cache; corrections become large and noisy, so fewer exact queries need not mean a better image per second</td>
+</tr>
+</tbody></table></div>
+<p>The tri-sheet study is a forward three-scatter path. It is <strong>not</strong> the separate tridirectional proposal in which a medium subpath is sampled independently and joined to camera and photon subpaths. That more speculative relay remains a browser schematic and research proposal. The distinction matters: the middle leg is real volume transport here, but it is not evidence of a new independent-subpath sampling strategy.</p>
+<p>All film passes accumulate with double-precision sums. A render budget controls work per UI update, not the total history. Changing scene, camera, method, medium parameters or geometry resets the film. Cache settings and screen movement also invalidate the cached visibility. Exposure and display glow only change presentation. Raw PFM output keeps signed corrections; it is not clamped or bloomed.</p>
+<p>The overlaid path guides show <strong>representative topology</strong>, not a selected accepted Monte Carlo sample. In the cache study the cyan line is the actual kind of visibility query being cached, not a camera transport leg. The UI labels this explicitly.</p>
+<h2 id="rotational-atlas-the-same-physical-ledger">Rotational atlas: the same physical ledger</h2><p>The native port follows <span class="technical-source-label"><code>physical_suite.py</code></span> and <span class="technical-source-label">the physical-suite derivation</span>. A directional point emitter is at the origin, the two volume vertices are</p>
+<pre><code>y = t1 b
+x = y + t2 c = o + s d
+</code></pre>
+<p>Both distances lie in <code>[0.12, 3.2]</code>, all volume vertices lie inside a homogeneous sphere of radius 3.5, and <code>s &gt;= 0</code>. The source and medium use normalized Henyey–Greenstein angular functions. The source angular distribution is an emission model, not an extra scattering event.</p>
+<p>The common target is</p>
+<pre><code>integral F delta^3(t1 b + t2 c - o - s d)
+         dt1 dt2 dmu1 dphi1 dmu2 dphi2 ds
+
+F = power HG(mu1; source_g) sigma_s^2
+    HG(mu2; g) HG(c dot -d; g) exp(-sigma_t * optical_length)
+    * visibility_of_all_three_legs * finite_support
+</code></pre>
+<p>The three rotational charts release <code>(t1, phi2)</code>, <code>(t2, phi2)</code> and <code>(t2, phi1)</code> respectively. The plane releases <code>(t1, t2)</code>. Stable quadratic solving retains both valid crossings, the linear limit and one copy of a double root. Reconstructed endpoint residuals are checked before contribution. No positive Jacobian floor, radiance clamp or visibility approximation is applied.</p>
+<p>The balanced mixture assigns <code>0.3 / 0.3 / 0.3 / 0.1</code>. At each reconstructed path its denominator is the sum of mixture probability × residual-coordinate density × absolute crossing determinant. Every contributing segment is visibility-tested. Beer attenuation uses the segment&#39;s length <strong>inside the medium</strong>, excluding vacuum between the sphere and camera.</p>
+<p>The independent reference samples distance along the camera ray and a first volume vertex, then explicitly connects the two. It contains the remaining <code>1 / t2²</code> connection factor and does not use quadric roots, plane intersections or atlas determinants.</p>
+<h2 id="tri-sheets-three-distance-pair-charts">Tri-sheets: three distance-pair charts</h2><p>Now use three flight directions <code>b,c,e</code> and three distances:</p>
+<pre><code>y = t1 b
+z = y + t2 c
+x = z + t3 e = o + s d
+</code></pre>
+<p>All three distances have the same finite interval as above. Each chart retains one distance and solves the other two plus camera distance by a 3×3 linear system:</p>
+<div class="case-table-wrap technical-table" tabindex="0" role="region" aria-label="Technical comparison"><table>
+<thead>
+<tr>
+<th>Retained coordinate</th>
+<th>Released pair</th>
+<th>Absolute crossing determinant</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>t1</code></td>
+<td><code>t2, t3</code></td>
+<td><code>abs(det(c,e,d))</code></td>
+</tr>
+<tr>
+<td><code>t2</code></td>
+<td><code>t3, t1</code></td>
+<td><code>abs(det(e,b,d))</code></td>
+</tr>
+<tr>
+<td><code>t3</code></td>
+<td><code>t1, t2</code></td>
+<td><code>abs(det(b,c,d))</code></td>
+</tr>
+</tbody></table></div>
+<p>All directions are sampled from normalized angular distributions: emitter HG for <code>b</code>, then medium HG for <code>c</code> relative to <code>b</code> and <code>e</code> relative to <code>c</code>. Their azimuths span the full circle. The common residual density is <code>angular_pdf / distance_range</code>. In balanced mode each chart has probability <code>1/3</code>; the MIS denominator is that residual density times the mean of the three absolute determinants.</p>
+<p>The physical factor has <strong>three</strong> powers of <code>sigma_s</code>, two internal phase functions, the third phase function toward the camera, and Beer attenuation/visibility over <strong>four</strong> reconstructed legs. Singular charts produce no contribution; they are not rescued by clamping a determinant. Another chart can help only where it has nonzero support.</p>
+<p>An independent reference samples the camera distance and two forward vertex distances/directions, then connects to the camera vertex. Its final connection carries <code>1 / t3²</code>. This validates the finite-window target through a different parameterization, not the performance of every possible future plane family.</p>
+<h2 id="visibility-cache-signed-correction-explicit-scope">Visibility cache: signed correction, explicit scope</h2><p>The diagnostic sheet is</p>
+<pre><code>X(phi,u) = R_z(phi) (.58, .50u, .90u) + (0,0,1.60)
+phi in [0,2pi), u in [-1.35,1.35]
+</code></pre>
+<p>Each query joins a sheet point to the fixed endpoint <code>(3.8,-3.5,3.7)</code> and tests actual segment–box occlusion. A finite atlas stores visibility at cell centers. The smooth weight is recomputed at the current point: HG phase, attenuation, inverse-square falloff and sheet area Jacobian, matching the earlier <span class="technical-source-label">conditional probe</span>. The color palette and rim factor visualize the field. They are <strong>not</strong> a complete transport estimator or a claim of physically emitted sheet radiance.</p>
+<p>Exact mode tests every point. Cache-only uses the cell prediction and can be biased. Corrected mode independently tests a point with probability <code>p &gt; 0</code>:</p>
+<pre><code>V_hat = V_cache + Bernoulli(p) * (V_exact - V_cache) / p
+</code></pre>
+<p>Conditional on any frozen prediction, <code>E[V_hat] = V_exact</code>. A false-light correction is negative, sometimes strongly so. The progressive linear film retains it. Display clamps negative RGB only when converting the average to an image. A noisy early display therefore does not have the same expectation as the signed linear film; the raw PFM is the numerical artifact.</p>
+<p>Screen movement invalidates the atlas automatically in this native implementation. The older Python “stale screen” experiment remains useful as a deliberate failure demonstration, but this UI does not silently reuse a stale atlas. Build-query and per-sample-query counts are separate. Neither count alone proves a wall-clock speedup or lower equal-time error.</p>
+<h2 id="verification-performed">Verification performed</h2><p><code>PrismFrontierTest</code> runs without a graphics context. The initial integrated test passed <strong>581,166</strong> scalar/invariant checks:</p>
+<ul>
+<li>two real crossings, double-root deduplication, stable small roots and linear degeneracy;</li>
+<li>the correction expectation for both binary predictions/truths at four probabilities, retaining negative values;</li>
+<li>deterministic accumulation across split <code>step()</code> calls, continuing beyond a small batch count;</li>
+<li>presentation leaves the linear film unchanged;</li>
+<li>finite films and nonempty support for every exposed physical chart;</li>
+<li>exact film equals corrected film bit-for-bit at <code>p=1</code>;</li>
+<li>the cache is built once per configuration, rebuilt after moving geometry, and fine slats exercise negative residuals;</li>
+<li>independent finite-window volume integration comparisons, using 140,000 film-position samples for each physical study.</li>
+</ul>
+<p>Initial clear-scene numerical results (seeded; arbitrary radiance units):</p>
+<div class="case-table-wrap technical-table" tabindex="0" role="region" aria-label="Technical comparison"><table>
+<thead>
+<tr>
+<th>Target</th>
+<th align="right">Atlas mean</th>
+<th align="right">Independent reference mean</th>
+<th align="right">Standard error of difference</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Two scatter</td>
+<td align="right">0.0295949</td>
+<td align="right">0.0312993</td>
+<td align="right">0.00111453</td>
+</tr>
+<tr>
+<td>Three scatter</td>
+<td align="right">0.0197706</td>
+<td align="right">0.0183216</td>
+<td align="right">0.00102434</td>
+</tr>
+</tbody></table></div>
+<p>Agreement within sampling uncertainty is an implementation check, not a proof of correctness for every scene or a performance benchmark. Difficult-scene convergence, equal-time error against the main PP implementation, general heterogeneous media, refractive meshes, adaptive chart selection and independently sampled medium bridges remain outside this bounded port.</p>
+<p>The deterministic <code>sampleRay()</code> hook also allows root-by-root comparison against the existing Python ledger. Recording/capture tools can write display images and raw PFM from the exact native panel core. See the recording instructions added alongside this document for launch and capture commands.</p>
+<h2 id="integration-checks-and-recordings">Integration checks and recordings</h2><p>The native application and research UI compile in the isolated AIO build. Twelve hidden-window captures cover the original three receiver tabs and all three frontier startup modes at 1280 and 760 pixels wide, with no OpenGL errors or ImGui assertions.</p>
+<p>A per-sample comparison against the pre-existing NumPy physical ledger checks 52,500 samples across cylinder, cone, hyperboloid, plane and independent reference, over slit, difficult and clear scenes. 7,055 samples contribute; maximum absolute native/Python difference is 1.634e-11, with no tolerance failures. The adverse scene comparison explicitly keeps the native medium settings when constructing the Python oracle.</p>
+<p>Retained native films include 512-pass rotational and 768-pass tri-sheet views at 320 by 200 pixels. They remain finite-sample images, not converged references. Both use the same +4 EV display and optional display-only glow.</p>
+<p>At 192 by 120 pixels and 256 passes, the broad-screen visibility comparison gives RGB linear RMSE 0.0284184 for cache-only and 0.00594011 for corrected, relative to the matched finite exact film. Fine-screen values are 0.0312936 and 0.00659992. These are one-seed finite-film checks, not general error or speed claims. The broad corrected run performs 147,309 exact queries plus 384 cache-build queries, compared with 1,218,858 exact queries in the baseline, and retains 10,796 negative corrections. Query reduction alone does not establish a speedup.</p>
+<p>For repeatable native captures, build <code>PrismFrontierCapture</code> and run:</p>
+<pre><code class="language-powershell">.\build-local\bin\Release\PrismFrontierCapture.exe .work\frontier-rotational 0 0 0 512 320 200
+.\build-local\bin\Release\PrismFrontierCapture.exe .work\frontier-sheets 1 0 0 768 320 200
+.\build-local\bin\Release\PrismFrontierCapture.exe .work\frontier-cache 2 0 2 256 192 120
+</code></pre>
+<p>Arguments are output directory, study, scene, method, passes, width and height. Study IDs are rotational 0, tri-sheets 1, cache 2. Scene IDs are slit 0, difficult 1, clear 2. Physical methods are balance 0, members 1–3, plane 4 (rotational only), reference 5. Cache methods are exact 0, approximate 1, corrected 2. Exports contain unclamped signed PFM, display PNGs and settings/counters; effective dimensions respect the core&#39;s 1024-pixel per-axis limit.</p>
+</article><footer class="technical-footer"><div class="technical-actions"><a href="../index.html">← RadianceLab brochure</a><a href="index.html">Technical reading room</a><a href="../validation/index.html">Rendered evidence ↗</a></div></footer></main></body></html>

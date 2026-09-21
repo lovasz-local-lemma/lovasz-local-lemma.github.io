@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="./../../../portfolio-lab-frame.js"></script><script defer src="./../../../portfolio-document-frame.js"></script><script defer src="./../../../portfolio-media.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>noita_gish - Solver Internals</title>
+<style>
+  :root {
+    --ink: #171a1f;
+    --muted: #5e6470;
+    --line: #d8dce1;
+    --paper: #f5f6f4;
+    --panel: #ffffff;
+    --mpm: #4067b1;
+    --sph: #0f8a84;
+    --air: #b06125;
+    --field: #6a7f32;
+    --heat: #b43d32;
+    --sdf: #6f6b74;
+    --debug: #4a7a9f;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    color: var(--ink);
+    background: var(--paper);
+    font: 14px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  main {
+    width: min(1220px, calc(100% - 40px));
+    margin: 0 auto;
+    padding: 28px 0 56px;
+  }
+  header {
+    display: grid;
+    grid-template-columns: 1.35fr 0.65fr;
+    gap: 24px;
+    align-items: end;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 18px;
+  }
+  h1 { margin: 0 0 8px; font-size: clamp(30px, 4vw, 48px); line-height: 1.05; letter-spacing: 0; }
+  h2 { margin: 36px 0 12px; font-size: 21px; line-height: 1.2; }
+  h3 { margin: 0 0 8px; font-size: 15px; line-height: 1.25; }
+  p { margin: 0 0 10px; }
+  a { color: #2454a6; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .lede { max-width: 760px; color: var(--muted); font-size: 16px; }
+  .meta {
+    color: var(--muted);
+    font-size: 12px;
+    text-align: right;
+  }
+  .toc {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+  }
+  .toc a, .tag {
+    display: inline-flex;
+    align-items: center;
+    min-height: 28px;
+    padding: 4px 9px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--panel);
+    color: #2d333b;
+    font-size: 12px;
+    font-weight: 650;
+  }
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 18px;
+  }
+  .grid-2 { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(330px, 0.9fr); gap: 18px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+  .atlas { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+  .mini {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #fbfbfa;
+    padding: 12px;
+  }
+  .mini p { color: var(--muted); font-size: 12px; margin: 0; }
+  .mini strong { display: block; margin-bottom: 4px; }
+  .colorbar { width: 100%; height: 6px; border-radius: 999px; margin: 0 0 9px; background: #999; }
+  .mpm { background: var(--mpm); }
+  .sph { background: var(--sph); }
+  .air { background: var(--air); }
+  .field { background: var(--field); }
+  .heat { background: var(--heat); }
+  .sdf { background: var(--sdf); }
+  .debug { background: var(--debug); }
+  svg { display: block; width: 100%; height: auto; }
+  .caption { color: var(--muted); font-size: 12px; margin-top: 10px; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  th, td {
+    padding: 10px 11px;
+    text-align: left;
+    vertical-align: top;
+    border-bottom: 1px solid #e9ecef;
+    font-size: 13px;
+  }
+  th {
+    color: #4f5662;
+    background: #eef1f1;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  tr:last-child td { border-bottom: 0; }
+  code {
+    padding: 1px 5px;
+    border-radius: 4px;
+    background: #eceff1;
+    font-family: ui-monospace, "SF Mono", Consolas, monospace;
+    font-size: 12px;
+  }
+  .callout {
+    border-left: 4px solid var(--field);
+    background: #fbfbf2;
+    padding: 11px 13px;
+    border-radius: 6px;
+    color: #343820;
+  }
+  .callout.warn { border-left-color: var(--heat); background: #fff4f1; color: #3d2420; }
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .legend .tag { gap: 6px; }
+  .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    background: currentColor;
+  }
+  @media (max-width: 900px) {
+    main { width: min(100% - 24px, 1220px); }
+    header, .grid-2, .grid-3, .atlas { grid-template-columns: 1fr; }
+    .meta { text-align: left; }
+  }
+</style>
+  <link rel="stylesheet" href="assets/docs-dark.css">
+<style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head>
+<body><style>.portfolio-document-return{position:relative;z-index:100;display:flex;flex-wrap:wrap;gap:10px;padding:16px 24px;background:#111d25;border-bottom:1px solid #b3ceb74d;font:12px/1.5 Arial,sans-serif}.portfolio-document-return a{color:#cbded2;text-decoration:none;padding:8px 12px;border:1px solid #b3ceb733;border-radius:8px;transition:color .5s,box-shadow .5s,border-color .5s}.portfolio-document-return a:hover{color:#fff;border-color:#d9c18488;box-shadow:0 0 16px #d9c18422}@media(prefers-reduced-motion:reduce){.portfolio-document-return a{transition:none}}</style><link rel="stylesheet" href="./../../../portfolio-controls.css"><aside class="portfolio-document-return"><a href="./../index.html#html-library">← Crucible2.5D brochure</a><a href="./index.html">Document library</a><a href="./../../../index.html">← Back to portfolio</a><a href="solver_internals.html.txt" download>Original HTML ↓</a></aside><aside class="portfolio-document-return" style="display:block"><strong>Current scope note.</strong> This is a retained source guide. Contact Heat v2 does not establish exact whole-scene energy conservation; the fracture length scales with grid spacing, so resolution independence is not established; Thermo Metal implements heat-treatment memory rather than calibrated annealing. <a href="./../technical/model-audit.html">Read the current model audit →</a></aside>
+<main>
+  <header>
+    <div>
+      <h1>Solver Internals</h1>
+      <p class="lede">Every other page here assumes the MPM step and describes what sits on top of it. This
+      one opens it. One substep, both directions, read out of the shaders: which nine nodes a particle
+      touches and with what weights, what the fixed-point boundary is for, what the grid does in between,
+      and why everything computed after the gather is invisible to the grid until the next substep.</p>
+      <nav class="toc">
+        <a href="#stencil">The Stencil</a>
+        <a href="#mls">The MLS Shortcut</a>
+        <a href="#roundtrip">The Round Trip</a>
+        <a href="#gridpass">The Grid Pass</a>
+        <a href="#tail">The Tail</a>
+        <a href="#rails">Safety Rails</a>
+        <a href="#ceiling">Two Ceilings</a>
+        <a href="#consequences">Consequences</a>
+      </nav>
+    </div>
+    <div class="meta">
+      <p><strong>Companion pages</strong><br>
+      <a href="mechanics_relationships.html">Mechanics Relationship Map</a><br>
+      <a href="explosive_lab.html">The Explosive Lab</a><br>
+      <a href="mechanics_status.html">Mechanics Status Report</a><br><a href="evolution.html">Why This Version</a></p>
+      <p>Source of truth: <code>mpm_p2g.comp</code>, <code>mpm_grid_op.comp</code>,
+      <code>mpm_g2p.comp</code><br>Updated: 2026-09-08</p>
+    </div>
+  </header>
+
+  <!-- ==================================================================== -->
+  <section id="stencil">
+    <h2>The Stencil</h2>
+    <div class="panel">
+      <figure class="schem-fig">
+        <div class="schem">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img"
+             aria-label="The quadratic B-spline transfer stencil. On the left, a particle sits inside a three by three block of grid nodes; each node is drawn with an area proportional to its weight and labelled with that weight, and the nine weights sum to one with the centre node taking 0.469. On the right, the three one-dimensional weight curves are plotted against the fractional coordinate; a dashed line at 0.80 marks where the left panel sampled them.">
+        <defs>
+          <marker id="figure-1-msB" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#78C8FF"/></marker>
+        </defs>
+        <g font-family="ui-monospace, 'Cascadia Mono', Consolas, monospace" font-size="12" fill="#DDE3E0" stroke-width="1.5">
+
+          <circle cx="20" cy="22" r="4" fill="#FFD264"/>
+          <text x="30" y="26" fill-opacity="0.75">grid node, area = weight</text>
+          <circle cx="216" cy="22" r="3.5" fill="#78C8FF"/>
+          <text x="226" y="26" fill-opacity="0.75">the particle</text>
+          <text x="624" y="26" text-anchor="end" fill="#9AA3A0">9 nodes per particle, every substep</text>
+
+          <rect x="24" y="52" width="316" height="264" rx="6" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+          <text x="32" y="68" fill-opacity="0.5">the 3x3 block it writes into</text>
+
+          <line x1="68" y1="104" x2="68" y2="272" stroke="#DDE3E0" stroke-width="1" stroke-opacity="0.2"/>
+          <line x1="140" y1="104" x2="140" y2="272" stroke="#DDE3E0" stroke-width="1" stroke-opacity="0.2"/>
+          <line x1="212" y1="104" x2="212" y2="272" stroke="#DDE3E0" stroke-width="1" stroke-opacity="0.2"/>
+          <line x1="52" y1="120" x2="228" y2="120" stroke="#DDE3E0" stroke-width="1" stroke-opacity="0.2"/>
+          <line x1="52" y1="192" x2="228" y2="192" stroke="#DDE3E0" stroke-width="1" stroke-opacity="0.2"/>
+          <line x1="52" y1="264" x2="228" y2="264" stroke="#DDE3E0" stroke-width="1" stroke-opacity="0.2"/>
+
+          <circle cx="68" cy="120" r="5.1" fill="#FFD264"/>
+          <circle cx="140" cy="120" r="7.2" fill="#FFD264"/>
+          <circle cx="212" cy="120" r="3.3" fill="#FFD264"/>
+          <text x="82" y="110" fill="#9AA3A0">0.078</text>
+          <text x="154" y="110" fill="#9AA3A0">0.227</text>
+          <text x="226" y="110" fill="#9AA3A0">0.014</text>
+
+          <circle cx="68" cy="192" r="6.4" fill="#FFD264"/>
+          <circle cx="140" cy="192" r="9.5" fill="#FFD264"/>
+          <circle cx="212" cy="192" r="3.9" fill="#FFD264"/>
+          <text x="82" y="182" fill="#9AA3A0">0.162</text>
+          <text x="154" y="182">0.469</text>
+          <text x="226" y="182" fill="#9AA3A0">0.030</text>
+
+          <circle cx="68" cy="264" r="2.8" fill="#FFD264"/>
+          <circle cx="140" cy="264" r="3.3" fill="#FFD264"/>
+          <circle cx="212" cy="264" r="2.3" fill="#FFD264"/>
+          <text x="82" y="254" fill="#9AA3A0">0.005</text>
+          <text x="154" y="254" fill="#9AA3A0">0.014</text>
+          <text x="226" y="254" fill="#9AA3A0">0.001</text>
+
+          <line x1="129" y1="167" x2="205" y2="126" stroke="#78C8FF" stroke-width="1" marker-end="url(#figure-1-msB)"/>
+          <text x="180" y="162" fill="#78C8FF">dpos</text>
+          <circle cx="125.6" cy="170.4" r="3.5" fill="#78C8FF"/>
+
+          <text x="32" y="288" fill="#9AA3A0">base = floor(cell_pos - 0.5)</text>
+          <text x="32" y="304" fill-opacity="0.6">sampled at fx = (0.80, 0.70)</text>
+
+          <rect x="356" y="52" width="270" height="264" rx="6" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+          <text x="364" y="68" fill-opacity="0.5">the 1D weights they came from</text>
+
+          <text x="386" y="112" fill-opacity="0.7">w0</text>
+          <text x="490" y="112" text-anchor="middle" fill-opacity="0.7">w1</text>
+          <text x="594" y="112" text-anchor="end" fill-opacity="0.7">w2</text>
+
+          <line x1="380" y1="120" x2="380" y2="272" stroke="#DDE3E0" stroke-width="1" stroke-opacity="0.35"/>
+          <line x1="380" y1="272" x2="600" y2="272" stroke="#DDE3E0" stroke-width="1" stroke-opacity="0.35"/>
+          <line x1="446" y1="120" x2="446" y2="272" stroke="#DDE3E0" stroke-width="1" stroke-dasharray="2 2" stroke-opacity="0.6"/>
+
+          <polyline fill="none" stroke="#DDE3E0" points="380,177 385.5,181.7 391,186.3 396.5,190.7 402,195 407.5,199.3 413,203.4 418.5,207.3 424,211.2 429.5,214.9 435,218.6 440.5,222.1 446,225.4 451.5,228.7 457,231.9 462.5,234.9 468,237.8 473.5,240.6 479,243.3 484.5,245.8 490,248.2 495.5,250.6 501,252.8 506.5,254.8 512,256.8 517.5,258.6 523,260.4 528.5,262 534,263.4 539.5,264.8 545,266.1 550.5,267.2 556,268.2 561.5,269.1 567,269.9 572.5,270.5 578,271 583.5,271.5 589,271.8 594.5,271.9 600,272"/>
+          <polyline fill="none" stroke="#DDE3E0" points="380,177 385.5,172.4 391,168 396.5,163.8 402,159.9 407.5,156.2 413,152.8 418.5,149.6 424,146.6 429.5,143.9 435,141.4 440.5,139.1 446,137.1 451.5,135.3 457,133.8 462.5,132.5 468,131.4 473.5,130.6 479,130 484.5,129.6 490,129.5 495.5,129.6 501,130 506.5,130.6 512,131.4 517.5,132.5 523,133.8 528.5,135.3 534,137.1 539.5,139.1 545,141.4 550.5,143.9 556,146.6 561.5,149.6 567,152.8 572.5,156.2 578,159.9 583.5,163.8 589,168 594.5,172.4 600,177"/>
+          <polyline fill="none" stroke="#DDE3E0" points="380,272 385.5,271.9 391,271.8 396.5,271.5 402,271 407.5,270.5 413,269.9 418.5,269.1 424,268.2 429.5,267.2 435,266.1 440.5,264.8 446,263.4 451.5,262 457,260.4 462.5,258.6 468,256.8 473.5,254.8 479,252.8 484.5,250.6 490,248.2 495.5,245.8 501,243.3 506.5,240.6 512,237.8 517.5,234.9 523,231.9 528.5,228.7 534,225.4 539.5,222.1 545,218.6 550.5,214.9 556,211.2 561.5,207.3 567,203.4 572.5,199.3 578,195 583.5,190.7 589,186.3 594.5,181.7 600,177"/>
+
+          <circle cx="446" cy="225.4" r="3" fill="#FF4646"/>
+          <circle cx="446" cy="137.1" r="3" fill="#FF4646"/>
+          <circle cx="446" cy="263.4" r="3" fill="#FF4646"/>
+
+          <text x="380" y="288" fill="#9AA3A0">0.5</text>
+          <text x="446" y="288" text-anchor="middle" fill="#9AA3A0">0.80</text>
+          <text x="600" y="288" text-anchor="end" fill="#9AA3A0">1.5</text>
+          <text x="606" y="288" fill="#9AA3A0">fx</text>
+          <text x="380" y="304" fill-opacity="0.6">w = (0.245, 0.710, 0.045)</text>
+
+          <text x="320" y="330" text-anchor="middle" fill-opacity="0.85">the nine weights are the outer product of the three &#183; both sum to exactly 1</text>
+          <text x="320" y="348" text-anchor="middle">quadratic B-spline transfer weights &#183; the centre node always takes the most</text>
+        </g>
+        </svg>
+        </div>
+        <div class="schem-legend">
+          <i class="grid"></i><span>grid nodes, drawn with area proportional to weight<em>the centre node takes 0.469 of this particle</em></span>
+          <i class="part"></i><span>the particle, and one of its nine <code>dpos</code> offsets</span>
+          <i class="mark"></i><span>where the left panel sampled the three curves</span>
+        </div>
+        <figcaption>The nine numbers on the left are the outer product of the three curves on the right.
+        Both sum to exactly 1. Evaluated at <code>fx = (0.80, 0.70)</code>.</figcaption>
+      </figure>
+    </div>
+
+    <div class="grid-2">
+      <div class="panel">
+        <h3>Three lines of arithmetic</h3>
+        <p>The whole transfer basis is one function, in
+        <code>shaders/common/mpm_utils.glsl</code>:</p>
+        <table>
+          <tr><th>Node</th><th>Weight</th></tr>
+          <tr><td><code>w0</code> (left / below)</td><td><code>0.5 * (1.5 - fx) * (1.5 - fx)</code></td></tr>
+          <tr><td><code>w1</code> (centre)</td><td><code>0.75 - (fx - 1.0) * (fx - 1.0)</code></td></tr>
+          <tr><td><code>w2</code> (right / above)</td><td><code>0.5 * (fx - 0.5) * (fx - 0.5)</code></td></tr>
+        </table>
+        <p>That is the quadratic B-spline. It has three properties the solver depends on and none of them
+        are optional:</p>
+        <ul>
+          <li><strong>The three weights sum to 1 for every <code>fx</code>.</strong> This is what makes the
+          transfer conserve mass. Any bug that breaks it leaks or invents material.</li>
+          <li><strong>It is C&sup1; continuous.</strong> The weights and their first derivatives vary
+          smoothly as a particle crosses a cell boundary, so nothing pops when it does. Linear weights would
+          be cheaper and would visibly stutter.</li>
+          <li><strong>It has compact support of exactly 3 cells.</strong> Nine nodes in 2D, always. Not a
+          neighbour search, not a variable count &mdash; a fixed double loop.</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h3>The <code>- 0.5</code> that centres it</h3>
+        <p>The stencil origin is computed like this, identically in five shaders:</p>
+        <p><code>cell_pos = (pos - grid_origin) / dx</code><br>
+        <code>base&nbsp;&nbsp;&nbsp;&nbsp; = floor(cell_pos - 0.5)</code><br>
+        <code>fx&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; = cell_pos - base</code></p>
+        <p>Without the <code>- 0.5</code>, <code>base</code> would be the cell the particle is standing in
+        and the 3&times;3 block would be lopsided &mdash; one node behind, two ahead. With it,
+        <code>base + 1</code> is the <em>nearest</em> node, so the block is centred and
+        <code>fx</code> lands in <code>[0.5, 1.5]</code> rather than <code>[0, 1)</code>. That shifted range
+        is exactly the domain over which the three weight expressions above are the correct B-spline pieces.
+        The offset and the weight formulas are one design, not two.</p>
+        <div class="callout warn">
+          <p>This is a real trap, and it has bitten this codebase. The damage scatter/gather pair once used
+          <code>round(cell_pos)</code> on one side and <code>floor(cell_pos)</code> on the other. Both are
+          defensible in isolation; together they mean the pass writes to one block and reads from a
+          different one, and the Laplacian it computes is over-magnified rather than obviously dead. It was
+          measured at 1.5&ndash;2.8&times; too large, which is precisely the kind of error that looks like
+          bad tuning.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================================================================== -->
+  <section id="mls">
+    <h2>The MLS Shortcut</h2>
+    <div class="grid-2">
+      <div class="panel">
+        <h3>One constant instead of a matrix inverse</h3>
+        <p>APIC gives each particle an affine velocity matrix <code>C</code> so that momentum transfers carry
+        local rotation and shear instead of losing them. The general form needs an inertia-like matrix
+        <code>D</code> inverted per particle per step.</p>
+        <p>For a quadratic B-spline, <code>D</code> is <em>always</em>
+        <code>(1/4) &middot; dx&sup2; &middot; I</code>. It does not depend on where the particle is inside its
+        cell. So <code>D&#8315;&sup1;</code> is the compile-time constant <code>4 / dx&sup2;</code>, and the
+        inverse disappears from the inner loop entirely. That is the MLS-MPM identity (Hu et al., 2018), and
+        it is why you see this literal <code>4.0</code> in both directions:</p>
+        <p><code>// p2g</code><br>
+        <code>affine = (-dt * p_vol * 4.0 * inv_dx * inv_dx) * stress + mass * C;</code></p>
+        <p><code>// g2p</code><br>
+        <code>new_C += 4.0 * inv_dx * inv_dx * weight * outer(g_vel, dpos);</code></p>
+        <p>Change the interpolation order and that constant is wrong. It is not a tuning parameter.</p>
+      </div>
+      <div class="panel">
+        <h3>Stress and APIC in one term</h3>
+        <p>Look at the P2G line again. It fuses two things that are conceptually separate:</p>
+        <ul>
+          <li><code>-dt &middot; p_vol &middot; D&#8315;&sup1; &middot; stress</code> &mdash; the internal force
+          the material exerts, integrated over the step.</li>
+          <li><code>mass &middot; C</code> &mdash; the APIC affine momentum.</li>
+        </ul>
+        <p>Both end up multiplying the same <code>dpos</code> in the scatter, so MLS-MPM adds them once and
+        multiplies once:</p>
+        <p><code>momentum = weight * (mass * vel + affine * dpos) * z_occ</code></p>
+        <p>The practical consequence is that <em>the constitutive model is the only thing a material author
+        writes</em>. Every material branch in <code>mpm_p2g.comp</code> &mdash; all sixty-odd of them &mdash;
+        exists to produce one <code>mat2 stress</code>. The transfer machinery below it never changes. That
+        is why a new material is a branch and not a subsystem.</p>
+        <p><code>p_vol</code> is <code>p_spacing&sup2;</code>, set once on the CPU at
+        <code>mpm_solver.cpp:1011</code>.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================================================================== -->
+  <section id="roundtrip">
+    <h2>The Round Trip</h2>
+    <div class="panel">
+      <figure class="schem-fig">
+        <div class="schem">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img"
+             aria-label="One MPM substep in both directions. Four stages run left to right: the particle-to-grid scatter, the grid operation, the grid-to-particle gather, and a tail of per-particle post forces. A dashed vertical line between the first two marks the fixed-point boundary where momentum crosses into the grid as scaled integers. A return path across the top shows that everything computed in the tail is only carried into the next substep, so the grid never sees it this frame. A ledger below lists what crosses at each stage.">
+        <defs>
+          <marker id="figure-2-mtD" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#DDE3E0"/></marker>
+          <marker id="figure-2-mtB" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#78C8FF"/></marker>
+        </defs>
+        <g font-family="ui-monospace, 'Cascadia Mono', Consolas, monospace" font-size="12" fill="#DDE3E0" stroke-width="1.5">
+
+          <rect x="16" y="21" width="18" height="2" fill="#78C8FF" stroke="none"/>
+          <text x="40" y="26" fill-opacity="0.75">particle state</text>
+          <rect x="152" y="21" width="18" height="2" fill="#FFD264" stroke="none"/>
+          <text x="176" y="26" fill-opacity="0.75">grid state</text>
+          <circle cx="286" cy="22" r="3.5" fill="#FF4646"/>
+          <text x="296" y="26" fill-opacity="0.75">the read-back</text>
+          <text x="624" y="26" text-anchor="end" fill="#9AA3A0">one substep, dt = 1/120 s</text>
+
+          <path d="M 565 84 L 565 60 L 83 60 L 83 80" fill="none" stroke="#78C8FF" stroke-width="1" marker-end="url(#figure-2-mtB)"/>
+          <text x="324" y="54" text-anchor="middle" fill="#78C8FF" fill-opacity="0.85">carried to the next substep</text>
+
+          <rect x="24" y="84" width="118" height="48" rx="4" fill="none" stroke="#78C8FF"/>
+          <text x="83" y="106" text-anchor="middle">p2g scatter</text>
+          <text x="83" y="122" text-anchor="middle" fill-opacity="0.6">9 atomic adds</text>
+
+          <rect x="186" y="84" width="118" height="48" rx="4" fill="none" stroke="#FFD264"/>
+          <text x="245" y="106" text-anchor="middle" fill="#FFD264">grid op</text>
+          <text x="245" y="122" text-anchor="middle" fill-opacity="0.6">per cell</text>
+
+          <rect x="348" y="84" width="118" height="48" rx="4" fill="none" stroke="#78C8FF"/>
+          <text x="407" y="106" text-anchor="middle">g2p gather</text>
+          <text x="407" y="122" text-anchor="middle" fill-opacity="0.6">9 reads</text>
+
+          <rect x="506" y="84" width="118" height="48" rx="4" fill="none" stroke="#78C8FF" stroke-opacity="0.55"/>
+          <text x="565" y="106" text-anchor="middle">post forces</text>
+          <text x="565" y="122" text-anchor="middle" fill-opacity="0.6">per particle</text>
+
+          <line x1="142" y1="108" x2="182" y2="108" stroke="#DDE3E0" marker-end="url(#figure-2-mtD)"/>
+          <line x1="304" y1="108" x2="344" y2="108" stroke="#DDE3E0" marker-end="url(#figure-2-mtD)"/>
+          <line x1="466" y1="108" x2="502" y2="108" stroke="#DDE3E0" marker-end="url(#figure-2-mtD)"/>
+          <circle cx="324" cy="108" r="3.5" fill="#FF4646"/>
+
+          <line x1="164" y1="70" x2="164" y2="140" stroke="#9AA3A0" stroke-width="1" stroke-dasharray="2 2"/>
+          <text x="164" y="152" text-anchor="middle" fill="#9AA3A0">int32 x 1e6</text>
+
+          <text x="32" y="182">1 particle to grid</text>
+          <text x="196" y="182">mass, momentum m v + A dpos, mass x temp</text>
+          <text x="32" y="204">2 grid to grid</text>
+          <text x="196" y="204">v = p / m, then gravity, mouse, SDF, walls</text>
+          <text x="32" y="226">3 grid to particle</text>
+          <text x="196" y="226">v gathered, C rebuilt from the same 9 weights</text>
+          <text x="32" y="248" fill="#9AA3A0">4 particle only</text>
+          <text x="196" y="248" fill="#9AA3A0">buoyancy, drag, magnetic, chain, surface</text>
+
+          <line x1="24" y1="264" x2="616" y2="264" stroke="#DDE3E0" stroke-width="1" stroke-opacity="0.2"/>
+          <text x="320" y="284" text-anchor="middle" fill-opacity="0.6">clamped twice: 3 cells per substep going in, per material coming out</text>
+
+          <text x="320" y="314" text-anchor="middle" fill-opacity="0.85">the grid is the only place two particles ever meet</text>
+          <text x="320" y="348" text-anchor="middle">one MPM substep in both directions, and the lag on everything after the gather</text>
+        </g>
+        </svg>
+        </div>
+        <div class="schem-legend">
+          <i class="part"></i><span>particle state &mdash; stages 1, 3 and 4</span>
+          <i class="grid"></i><span>grid state &mdash; stage 2, the only stage that is not per-particle</span>
+          <i class="mark"></i><span>the read-back &mdash; where a globally solved field re-enters a particle</span>
+        </div>
+        <figcaption>Four stages, one substep. The dashed vertical is the fixed-point boundary; the long
+        return path across the top is the lag on everything computed after the gather.</figcaption>
+      </figure>
+    </div>
+
+    <div class="panel">
+      <h3>What actually crosses</h3>
+      <table>
+        <tr><th>Stage</th><th>Direction</th><th>Payload</th><th>Shape</th></tr>
+        <tr><td>1</td><td>particle &rarr; grid</td>
+            <td><code>mass</code>, <code>mass&middot;vel + affine&middot;dpos</code>,
+                <code>mass&middot;temp</code></td>
+            <td>4 atomic adds &times; 9 nodes = 36 per particle</td></tr>
+        <tr><td>2</td><td>grid &rarr; grid</td>
+            <td><code>vel = mom / mass</code>, then gravity, mouse force, SDF friction, wall boundaries,
+                and (with Coupling v2) the SPH reaction impulse</td>
+            <td>1 invocation per cell</td></tr>
+        <tr><td>3</td><td>grid &rarr; particle</td>
+            <td><code>new_vel</code> gathered, <code>new_C</code> rebuilt from the same nine weights</td>
+            <td>9 reads per particle</td></tr>
+        <tr><td>4</td><td>particle only</td>
+            <td>buoyancy, drag, magnetic Kelvin / chain / surface forces, held-magnet velocity, bulk lift</td>
+            <td>no grid access at all</td></tr>
+      </table>
+      <p class="caption">Note the asymmetry in stage 3: velocity is gathered but <code>C</code> is
+      <em>rebuilt</em>. The particle&rsquo;s previous <code>C</code> is discarded entirely and reconstructed
+      from the grid velocities it just read. APIC has no memory; the affine field is a property of the
+      current grid state, not an accumulated quantity.</p>
+    </div>
+  </section>
+
+  <!-- ==================================================================== -->
+  <section id="gridpass">
+    <h2>The Grid Pass</h2>
+    <div class="grid-2">
+      <div class="panel">
+        <h3>Order matters, and it is deliberate</h3>
+        <p><code>mpm_grid_op.comp</code> runs once per grid cell, and its ordering encodes several decisions
+        that are easy to get wrong:</p>
+        <div class="ledger">
+          <div class="ledger-row"><i>a</i><strong>consume, then early-out</strong>
+            <span>The Coupling v2 reaction impulse is read <em>and cleared</em> before the
+            <code>mass &lt; 1e-10</code> early-out. SPH deposits with B-spline weights, so it reaches nodes
+            carrying no MPM mass; clearing only on the mass path lets a fixed-point accumulator grow without
+            bound until it wraps, and then slams whatever drifts in later with minutes of stale
+            impulse.</span></div>
+          <div class="ledger-row"><i>b</i><strong>decode momentum</strong>
+            <span><code>vel = mom / mass</code>, both back from int32. Dividing by node mass is also what
+            makes the impulse application dimensionally free &mdash; an impulse is already a momentum, so no
+            <code>dt</code> appears.</span></div>
+          <div class="ledger-row"><i>c</i><strong>body forces</strong>
+            <span>Gravity (optionally reduced by the Real 2.5D support factor), then the mouse force. Both
+            before the boundary conditions, deliberately, so that neither can push material through a
+            wall.</span></div>
+          <div class="ledger-row"><i>d</i><strong>SDF boundary</strong>
+            <span>The terrain normal comes from central differences of the SDF texture; the node velocity is
+            projected and friction applied along it.</span></div>
+          <div class="ledger-row"><i>e</i><strong>grid boundary</strong>
+            <span>A hard zero on the normal component inside the border band. Last, so nothing after it can
+            reintroduce penetration.</span></div>
+        </div>
+      </div>
+      <div class="panel">
+        <h3>Why the grid is thrown away</h3>
+        <p>The grid holds no state between substeps. It is zeroed, scattered into, operated on, gathered
+        from, and discarded. Nothing about a node survives to the next step.</p>
+        <p>This is what makes MPM behave like a mesh-free method despite having a mesh: the grid is a
+        scratchpad for resolving contact and internal forces, not a representation of the material. Material
+        state lives entirely on particles &mdash; <code>F</code>, <code>C</code>, temperature, and the
+        per-material lanes.</p>
+        <p>It also means the grid resolution is a purely numerical knob. Raising it makes contact sharper and
+        self-collision tighter without changing what any material <em>is</em>. Lowering it makes thin
+        features merge, because two particles closer than a cell can no longer be told apart by the only
+        machinery that lets them interact.</p>
+        <div class="callout">
+          <p>This is the honest answer to &ldquo;why does my thin sheet stick to itself?&rdquo;. Nothing is
+          sticky. Two surfaces within one cell of each other share nodes, and sharing nodes <em>is</em>
+          contact in this method.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================================================================== -->
+  <section id="tail">
+    <h2>The Tail</h2>
+    <div class="grid-2">
+      <div class="panel">
+        <h3>Everything after the gather is per-particle</h3>
+        <p>Once <code>new_vel</code> and <code>new_C</code> exist, <code>mpm_g2p.comp</code> keeps going for
+        several hundred more lines. Buoyancy for burning particles, air drag, the whole magnetic force
+        family, held-magnet dragging, bulk lift, chain force, surface Maxwell stress, corrugation, bridging.
+        All of them do the same thing: <code>new_vel += force * u_dt</code>.</p>
+        <p>None of them touch the grid. They cannot &mdash; the grid pass has already run and will not run
+        again until the next substep.</p>
+        <h3>The consequence</h3>
+        <p>A force applied in the tail is not seen by any other particle until the next P2G scatter. It
+        arrives one substep late, and it arrives having already moved the particle it acted on. For most
+        forces this is invisible. For anything that should produce a reaction &mdash; a magnet pulling ferro
+        toward it should feel the pull back &mdash; the reaction simply is not there.</p>
+        <p>That is not a bug in the tail. It is the reason the magnetic force pipeline is drawn the way it is
+        on the <a href="mechanics_relationships.html#ferro">Relationship Map</a>: the field solve is
+        two-way, but the force application is not.</p>
+      </div>
+      <div class="panel">
+        <h3>The material-specific speed caps</h3>
+        <p>The gathered velocity is clamped, and the cap is per material. The default is 3 cells per substep;
+        the magnetic family gets far less:</p>
+        <table>
+          <tr><th>Material</th><th>Cap</th><th>Why</th></tr>
+          <tr><td>default</td><td>3.00</td><td>The CFL-ish safety limit; the same number appears in P2G.</td></tr>
+          <tr><td>para mist (69)</td><td>1.40</td><td>A light aerosol should move briskly.</td></tr>
+          <tr><td>rubber (58)</td><td>1.20</td><td>Room for bend response.</td></tr>
+          <tr><td>heavy ferro (67)</td><td>0.82</td><td>Headroom for cursor-following lift.</td></tr>
+          <tr><td>permanent ferro (81)</td><td>0.72</td><td>Heavy and remanent, but must still wick upward.</td></tr>
+          <tr><td>ferrofluid (31)</td><td>0.60</td><td>Must chase a moving pole without going ballistic.</td></tr>
+          <tr><td>diamagnetic (68)</td><td>0.50</td><td>Moderate cap; it is allowed to drift away.</td></tr>
+          <tr><td>sticky ferro (70)</td><td>0.48</td><td>Stays cohesive, so it stays slow.</td></tr>
+        </table>
+        <p class="caption">These are not physical properties. They are an admission that the magnetic forces
+        can exceed what the transfer can carry stably, and the cap is where that is absorbed. When the clamp
+        fires it scales <code>new_C</code> by the same factor, so the affine field never outruns the velocity
+        it was built from &mdash; clamping velocity alone would leave a particle spinning faster than it
+        translates.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================================================================== -->
+  <section id="rails">
+    <h2>Safety Rails</h2>
+    <div class="grid-2">
+      <div class="panel">
+        <h3>Fixed point, because there is no atomic float</h3>
+        <p>GLSL has no portable atomic float add on an SSBO. The scatter needs one &mdash; nine nodes, many
+        particles, all racing. So the four grid accumulators are declared <code>int</code> and everything
+        crosses scaled:</p>
+        <p><code>const float FIXED_SCALE = 1000000.0;</code><br>
+        <code>atomicAdd(grid_mass[cell], int(m * FIXED_SCALE));</code></p>
+        <table>
+          <tr><th>Property</th><th>Value</th></tr>
+          <tr><td>Resolution</td><td>10&#8315;&#8310; of a unit</td></tr>
+          <tr><td>Range before int32 wraps</td><td>&plusmn;2147.48 units at a single node</td></tr>
+          <tr><td>Temperature accumulator scale</td><td><code>FIXED_SCALE * 0.001</code></td></tr>
+        </table>
+        <p>The temperature channel is deliberately a thousand times coarser. It accumulates
+        <code>mass &times; temp</code>, and temperatures reach 1500&nbsp;K, so at the full scale a hot,
+        dense node would be much closer to the wrap point than a cold one. Dropping three decimal places
+        buys back that headroom. It is the same trade every fixed-point format makes, made once, per
+        channel.</p>
+      </div>
+      <div class="panel">
+        <h3>The velocity clamp, twice</h3>
+        <p>The same 3-cells-per-substep limit appears on both sides of the grid:</p>
+        <p><strong>Before the scatter</strong> (<code>mpm_p2g.comp</code>), because a particle moving more
+        than its own stencil width per step would deposit its momentum into nodes it has already left. This
+        one also catches NaN explicitly &mdash; <code>spd != spd</code> zeroes the velocity rather than
+        propagating a NaN into the grid, where it would poison every particle that shares a node.</p>
+        <p><strong>After the gather</strong> (<code>mpm_g2p.comp</code>), per material, as above.</p>
+        <p>Neither clamp is a physical model, and both are load-bearing. A single NaN reaching
+        <code>atomicAdd</code> is not recoverable at the particle level: the node is corrupt, and every
+        particle that gathers from it next step inherits the corruption. The scatter-side check is the last
+        place that can be stopped cheaply.</p>
+        <div class="callout">
+          <p>Related, and easy to miss: <code>z_occ</code> (Real 2.5D occupancy) scales the scattered
+          footprint &mdash; mass, momentum and heat together &mdash; but the constitutive
+          <code>stress</code> is <em>not</em> rescaled. A half-carved particle deposits half the grid mass
+          but the same node velocity, because <code>z_occ</code> cancels in the mass-weighted average. The
+          remaining material keeps full per-unit stiffness. That is an honest load-shed rather than a
+          stiffness fudge, and the distinction is written into the shader comment at the line that does
+          it.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================================================================== -->
+  <section id="ceiling">
+    <h2>Two Ceilings</h2>
+    <div class="grid-2">
+      <div class="panel">
+        <h3>Sixteen storage blocks</h3>
+        <p><code>mpm_p2g.comp</code>, <code>mpm_g2p.comp</code> and <code>sph_force.comp</code> each declare
+        exactly <strong>16</strong> <code>std430</code> buffer blocks. That is not a coincidence and it is
+        not a style choice &mdash; it is the driver&rsquo;s cap on shader storage blocks per stage, and all
+        three shaders are sitting on it.</p>
+        <p>Anything that needs new per-particle state in those shaders cannot simply add a buffer. The
+        escape hatches actually used in this codebase, in rough order of preference:</p>
+        <ul>
+          <li>A <code>samplerBuffer</code> lookup table on a free texture unit &mdash; textures are a
+          separate binding namespace. This is how the authored material, bake, thermal and fracture profile
+          tables get in.</li>
+          <li>An <code>imageBuffer</code>, likewise a separate namespace, when writes are needed.</li>
+          <li>A dedicated compute pass with its own binding budget &mdash; how the damage scatter/gather pair
+          exists at all.</li>
+          <li>Bit-packing into an existing lane. <code>material_ids</code> carries the z-occupancy in bits
+          8&ndash;15, which is why every read of it is masked with <code>&amp; 0x7Fu</code>.</li>
+          <li>Reusing a lane that a given material does not need &mdash; the explosives borrow
+          <code>Jp_data</code> for crack, described on
+          <a href="explosive_lab.html#machine">The Explosive Lab</a>.</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h3>Two particle index spaces</h3>
+        <p>This is the single most dangerous detail in the codebase, because getting it wrong produces no
+        error of any kind.</p>
+        <table>
+          <tr><th>Space</th><th>Index</th><th>Sized</th><th>Buffers</th></tr>
+          <tr><td>Global</td><td><code>p = u_offset + idx</code></td><td>SPH + MPM capacity</td>
+              <td><code>positions</code>, <code>velocities</code>, <code>material_ids</code>,
+                  <code>masses</code>, <code>colors</code>, <code>temperatures</code></td></tr>
+          <tr><td>MPM-local</td><td><code>idx</code></td><td>MPM capacity only</td>
+              <td><code>damage</code>, <code>Jp_data</code>, <code>fiber</code>, <code>phase_data</code>,
+                  <code>deform_grads</code>, <code>affine_moms</code></td></tr>
+        </table>
+        <p>The offset is the SPH capacity, currently 300000. Both index forms appear within a few lines of
+        each other in essentially every material branch:</p>
+        <p><code>temperatures[p] = clamp(temp, 0.0, 1400.0);</code><br>
+        <code>damage[idx]&nbsp;&nbsp;&nbsp; = fuse;</code></p>
+        <div class="callout warn">
+          <p>Using <code>idx</code> where <code>p</code> belongs reads a different particle&rsquo;s data
+          &mdash; silently, plausibly, and with values in the right numeric range. Using <code>p</code> where
+          <code>idx</code> belongs reads past the end of an MPM-local buffer. Neither produces a validation
+          error, a crash, or a log line. The only defence is that the convention is uniform: if the buffer is
+          in the MPM-local row above, it takes <code>idx</code>. Always.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================================================================== -->
+  <section id="consequences">
+    <h2>Consequences You Can See</h2>
+    <div class="panel">
+      <p>Most of what looks like a material bug is one of these five properties of the transfer, showing
+      through. None of them are fixable by tuning a material.</p>
+      <table>
+        <tr><th>What you see</th><th>What it actually is</th></tr>
+        <tr><td>Thin sheets stick to themselves; two surfaces will not separate cleanly</td>
+            <td>They are within one cell, so they share grid nodes. Sharing nodes is contact. Raise the grid
+            resolution or thicken the feature.</td></tr>
+        <tr><td>A fast object passes through a thin wall</td>
+            <td>The 3-cells-per-substep clamp is the only tunnelling guard, and it is a clamp, not a
+            continuous collision test. Below the clamp there is no sweep at all.</td></tr>
+        <tr><td>Fine detail dissolves after a few seconds</td>
+            <td>Every substep round-trips the material through a grid and back. That is a filter, applied at
+            120&nbsp;Hz. APIC loses far less than PIC would, but it does not lose nothing.</td></tr>
+        <tr><td>A magnet pulls but nothing pulls back</td>
+            <td>Magnetic force is applied in the tail, after the grid pass. There is no path for a reaction
+            this substep.</td></tr>
+        <tr><td>Terrain never moves, however hard something hits it</td>
+            <td>The SDF writes into the grid pass; nothing writes back. This is drawn as an explicitly
+            missing edge on the <a href="mechanics_relationships.html#relationships">coupling graph</a>.</td></tr>
+      </table>
+    </div>
+
+    <div class="grid-2">
+      <div class="panel">
+        <h3>What this page does not cover</h3>
+        <ul>
+          <li>The constitutive models themselves &mdash; the sixty-odd material branches that produce
+          <code>stress</code>. Each is its own design; several are documented on
+          <a href="explosive_lab.html">The Explosive Lab</a> and the
+          <a href="technique_guide.html">Technique Guide</a>.</li>
+          <li>The SVD. Every branch that needs principal stretches calls <code>svd2x2(F)</code> and works in
+          <code>sigma</code>; the decomposition itself is a closed-form 2&times;2 routine and is not
+          interesting.</li>
+          <li>The damage scatter/gather pair, which is a second, independent grid round trip layered on top
+          of this one for the AnisoMPM fracture model.</li>
+          <li>Everything outside MPM: SPH, the Eulerian air solve, XPBD, and the field solves each have
+          their own step. The <a href="mechanics_relationships.html#frame">frame loop figure</a> places them
+          in order.</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h3>Reading the shaders yourself</h3>
+        <p>If you go looking, the order that makes sense is:</p>
+        <ul>
+          <li><code>shaders/common/mpm_utils.glsl</code> &mdash; twenty lines, and the weights are all of
+          it.</li>
+          <li><code>shaders/physics/mpm_p2g.comp</code>, <strong>from the bottom</strong>. The last forty
+          lines are the transfer. Everything above them is one enormous
+          <code>else if (mat_type == ...)</code> chain producing <code>stress</code>, and you can skip all of
+          it on a first read.</li>
+          <li><code>shaders/physics/mpm_grid_op.comp</code> &mdash; short, and reads top to bottom in the
+          order the grid pass actually happens.</li>
+          <li><code>shaders/physics/mpm_g2p.comp</code> &mdash; the gather is the first thirty lines. The
+          rest is the tail.</li>
+        </ul>
+        <p class="caption">One stale comment to ignore: <code>mpm_utils.glsl</code> describes an
+        <code>GL_NV_shader_atomic_float</code> path and says the P2G shader declares its grid buffers as
+        <code>float</code>. It does not. They are declared <code>int</code> at
+        <code>mpm_p2g.comp:21-24</code> and the transfer is fixed-point, as described above.</p>
+      </div>
+    </div>
+  </section>
+</main>
+</body>
+</html>

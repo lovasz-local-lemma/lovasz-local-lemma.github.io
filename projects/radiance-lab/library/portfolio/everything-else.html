@@ -1,0 +1,834 @@
+<!doctype html><html lang="en" data-theme="dark"><head><script src="../../../../portfolio-lab-frame.js"></script><script defer src="../../../../portfolio-document-frame.js"></script><script defer src="../../../../portfolio-media.js"></script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Everything that did not get a page</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300&display=swap">
+
+<style>
+/* ============================================================
+   Single-theme dark by deliberate commitment: this is a page about
+   light transport, and the renders are dark. Every colour is painted
+   explicitly so the page holds on any host ground.
+   ============================================================ */
+:root{
+  color-scheme: dark;
+  --bg:#070a0c; --bg-deep:#040607; --bg-lift:#0b1013;
+  --surface:rgba(255,255,255,.035);
+  --surface-2:rgba(255,255,255,.06);
+  --line:rgba(255,255,255,.10);
+  --line-2:rgba(255,255,255,.18);
+  --text:#eef2f0; --muted:#98a5a8; --muted-2:#6c797d;
+
+  /* Literal wavelength ramp — these are the section identities, not decoration */
+  --l400:#7B6CF6; --l460:#4E93F5; --l500:#3FD0D4;
+  --l540:#5FDD9B; --l560:#A9D877; --l580:#E3C55F; --l600:#EDA457; --l620:#F09A4E; --l680:#F2685C;
+
+  --accent:#E3B45F;            /* caustic gold: the light itself */
+  --accent-soft:rgba(227,180,95,.13);
+  --good:#5FDD9B; --bad:#F2685C;
+  --shadow:0 28px 80px rgba(0,0,0,.55), 0 3px 18px rgba(0,0,0,.4);
+
+  --sans:Inter,ui-sans-serif,-apple-system,"Segoe UI",sans-serif;
+  --display:Newsreader,"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--text);
+  font-family:var(--sans); font-size:16.5px; line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1140px;margin:0 auto;padding:0 32px}
+.narrow{max-width:720px}
+
+h1,h2,h3{font-family:var(--display);font-weight:400;letter-spacing:-.01em;text-wrap:balance}
+.mono{font-family:var(--mono)}
+em{font-style:italic;color:#cfd8d6}
+
+/* ---------------- side navigation ---------------- */
+#rail{
+  position:fixed;left:22px;top:50%;transform:translateY(-50%);z-index:50;
+  display:flex;flex-direction:column;gap:15px;align-items:flex-start
+}
+#railtrack,#railfill{position:absolute;left:4px;width:1px;top:3px;pointer-events:none}
+#railtrack{bottom:3px;background:rgba(255,255,255,.10)}
+#railfill{height:0;background:linear-gradient(to bottom,var(--l460),var(--l620));
+  transition:height .18s linear;box-shadow:0 0 8px rgba(255,255,255,.18)}
+#rail a{
+  display:flex;align-items:center;gap:11px;position:relative;text-decoration:none;
+  opacity:.34;transition:opacity .35s
+}
+#rail a::before{
+  content:"";width:9px;height:9px;border-radius:50%;background:var(--dot,#444);flex:none;
+  transition:transform .35s, box-shadow .35s
+}
+#rail a:hover,#rail a.on{opacity:1}
+#rail a.on::before{transform:scale(1.5);box-shadow:0 0 14px var(--dot)}
+#rail a span{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--dot);white-space:nowrap
+}
+@media (max-width:1439px){#rail a span{display:none}#rail{gap:16px}}
+@media (max-width:1180px){#rail{display:none}}
+
+/* ---------------- video placeholder: a shooting instruction, not a grey box ---------------- */
+.vslot{
+  border:1px dashed rgba(255,255,255,.22);border-radius:12px;padding:18px 20px;margin:22px 0;
+  background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.012))
+}
+.vslot-h{
+  font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--secc,#9fb0ad);margin-bottom:9px
+}
+.vslot-r{font-size:13.5px;color:#c8d2d0;line-height:1.55}
+.vslot-n{font-size:12.5px;color:var(--muted);margin-top:8px}
+.vslot-n b{color:#c8d2d0;font-weight:600}
+
+/* ---------------- hero ---------------- */
+.hero{position:relative;overflow:hidden;border-bottom:1px solid var(--line)}
+.hero-img{position:absolute;inset:0;z-index:0}
+.hero-img img{width:100%;height:100%;object-fit:cover;opacity:.62;filter:saturate(1.15)}
+.hero-img::after{
+  content:"";position:absolute;inset:0;
+  background:
+    radial-gradient(120% 90% at 50% 42%, rgba(7,10,12,0) 0%, rgba(7,10,12,.55) 48%, var(--bg) 88%),
+    linear-gradient(to bottom, rgba(7,10,12,.75) 0%, rgba(7,10,12,0) 25%, rgba(7,10,12,.9) 100%);
+}
+.hero-in{position:relative;z-index:1;padding:132px 0 70px}
+.eyebrow{
+  font-family:var(--mono);font-size:11px;letter-spacing:.26em;text-transform:uppercase;
+  color:var(--accent);margin:0 0 26px
+}
+.hero h1{
+  font-size:clamp(46px,8.2vw,96px);line-height:.96;margin:0 0 26px;
+  font-weight:300;letter-spacing:-.025em
+}
+.hero h1 i{font-style:italic;color:var(--accent)}
+.thesis{
+  font-family:var(--display);font-size:clamp(19px,2.4vw,25px);line-height:1.5;
+  color:#d3dbd9;max-width:30ch;margin:0 0 46px;font-weight:300
+}
+.spectrum{
+  height:2px;width:100%;margin:0 0 40px;border-radius:2px;
+  background:linear-gradient(90deg,var(--l400),var(--l460),var(--l500),var(--l540),var(--l580),var(--l620),var(--l680))
+}
+.stats{display:flex;flex-wrap:wrap;gap:14px}
+.stat{
+  background:var(--surface);border:1px solid var(--line);border-radius:11px;
+  padding:15px 20px 16px;backdrop-filter:blur(9px);min-width:168px;flex:1 1 168px
+}
+.stat .k{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--muted-2);display:block;margin-bottom:9px
+}
+.stat .v{
+  font-family:var(--mono);font-size:23px;font-weight:700;font-variant-numeric:tabular-nums;
+  letter-spacing:-.02em;display:flex;align-items:baseline;gap:8px
+}
+.stat .from{color:var(--bad)}
+.stat .arr{color:var(--muted-2);font-size:14px;font-weight:400}
+.stat .to{color:var(--good)}
+.stat .sub{font-size:12px;color:var(--muted-2);margin-top:5px;line-height:1.4}
+
+/* ---------------- sections ---------------- */
+section{padding:104px 0;border-bottom:1px solid var(--line)}
+section:last-of-type{border-bottom:0}
+.sec-label{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--secc,var(--accent));margin:0 0 16px;display:flex;align-items:center;gap:11px
+}
+.sec-label::before{content:"";width:22px;height:1px;background:var(--secc,var(--accent));opacity:.65}
+h2{font-size:clamp(30px,4.4vw,46px);line-height:1.1;margin:0 0 22px;font-weight:300}
+h3{font-size:22px;margin:44px 0 12px;font-weight:400;color:#e6ece9}
+p{margin:0 0 19px;color:#c2ccca}
+.lead{font-size:19px;line-height:1.62;color:#d5ddda;font-family:var(--display);font-weight:300}
+strong{color:var(--text);font-weight:600}
+code{
+  font-family:var(--mono);font-size:.85em;background:var(--surface-2);
+  padding:2px 6px;border-radius:4px;color:#d6e0dd;border:1px solid var(--line)
+}
+
+/* ---------------- schematics + screenshot slots ---------------- */
+.schem{
+  border:1px solid var(--line);border-radius:12px;background:var(--bg-lift);
+  padding:14px 10px;overflow-x:auto
+}
+.schem svg{width:100%;height:auto;display:block;max-width:900px;margin:0 auto}
+.slot{
+  border:1px dashed var(--line-2);border-radius:12px;min-height:180px;
+  display:flex;align-items:center;justify-content:center;text-align:center;
+  padding:28px 24px;font-family:var(--mono);font-size:12.5px;line-height:1.7;
+  color:var(--muted-2);background:var(--surface)
+}
+
+/* ---------------- figures ---------------- */
+figure{margin:44px 0}
+figure img{width:100%;display:block;border-radius:12px;border:1px solid var(--line);background:#000}
+figcaption{
+  margin-top:13px;font-size:13.5px;color:var(--muted);line-height:1.55;
+  display:flex;gap:9px;align-items:baseline
+}
+figcaption b{color:var(--muted-2);font-family:var(--mono);font-size:10px;letter-spacing:.14em;
+  text-transform:uppercase;white-space:nowrap;padding-top:2px}
+
+.paircap{margin-top:13px;font-size:13.5px;color:var(--muted);line-height:1.55;display:flex;gap:9px;align-items:baseline}
+.paircap b{color:var(--muted-2);font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap;padding-top:2px}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:760px){.pair{grid-template-columns:1fr}}
+.pane{position:relative}
+.pane img{width:100%;display:block;border-radius:11px;border:1px solid var(--line);background:#000}
+.tag{
+  position:absolute;top:11px;left:11px;font-family:var(--mono);font-size:10px;
+  letter-spacing:.12em;text-transform:uppercase;padding:4px 9px;border-radius:5px;
+  background:rgba(4,6,7,.8);border:1px solid var(--line-2);backdrop-filter:blur(6px)
+}
+.tag.a{color:var(--bad)} .tag.b{color:var(--good)}
+
+/* measured readout rows — straight from the reference UI */
+.readout{
+  margin:22px 0 0;border:1px solid var(--line);border-radius:11px;overflow:hidden;
+  background:var(--surface)
+}
+.readout .row{
+  display:flex;justify-content:space-between;align-items:center;gap:18px;
+  padding:11px 17px;border-bottom:1px solid var(--line);font-size:13.5px
+}
+.readout .row:last-child{border-bottom:0}
+.readout .row .lbl{color:var(--muted)}
+.readout .row .val{
+  font-family:var(--mono);font-variant-numeric:tabular-nums;font-weight:500;
+  font-size:13.5px;white-space:nowrap
+}
+.readout .row.hi .val{color:var(--accent);font-weight:700}
+.readout .row .val .d{color:var(--muted-2)}
+
+/* ---------------- roster table ---------------- */
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface);margin:34px 0}
+table{border-collapse:collapse;width:100%;min-width:640px;font-size:13.5px}
+th{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.15em;text-transform:uppercase;
+  text-align:left;color:var(--muted-2);padding:13px 16px;border-bottom:1px solid var(--line);
+  white-space:nowrap;font-weight:500
+}
+td{padding:11px 16px;border-bottom:1px solid rgba(255,255,255,.055);color:#bcc6c4;vertical-align:top}
+tr:last-child td{border-bottom:0}
+td:first-child{font-family:var(--mono);color:var(--text);font-weight:500;white-space:nowrap}
+td b{color:var(--text);font-weight:600}
+tr.key td{background:var(--accent-soft)}
+tr.key td:first-child{color:var(--accent)}
+
+/* ---------------- formula ---------------- */
+.formula{
+  margin:30px 0;padding:26px 28px;border-radius:12px;
+  background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.02));
+  border:1px solid var(--line);text-align:center
+}
+.formula .f{
+  font-family:var(--mono);font-size:clamp(14px,2.1vw,19px);color:var(--text);
+  letter-spacing:.01em;line-height:1.75
+}
+.formula .f .hl{color:var(--accent)}
+.formula .n{margin-top:14px;font-size:13px;color:var(--muted-2);line-height:1.5}
+
+/* ---------------- notes / honesty ---------------- */
+.note{
+  border-left:2px solid var(--secc,var(--accent));padding:3px 0 3px 22px;margin:30px 0;
+  color:var(--muted);font-size:15px
+}
+.note b{color:#dbe3e0}
+ul.clean{padding-left:0;list-style:none;margin:26px 0}
+ul.clean li{
+  padding:15px 0 15px 26px;border-bottom:1px solid var(--line);position:relative;
+  color:#bcc6c4;font-size:15px
+}
+ul.clean li:last-child{border-bottom:0}
+ul.clean li::before{
+  content:"";position:absolute;left:0;top:24px;width:7px;height:7px;border-radius:50%;
+  background:var(--secc,var(--accent));opacity:.75
+}
+ul.clean li b{color:var(--text)}
+
+/* ---------------- footer ---------------- */
+footer{padding:76px 0 96px;background:var(--bg-deep)}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:30px;margin-top:36px}
+.fgrid div .k{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--muted-2);display:block;margin-bottom:8px
+}
+.fgrid div .v{font-size:14.5px;color:#c2ccca;line-height:1.55}
+.scope{
+  margin-top:52px;padding:22px 26px;border:1px solid var(--line);border-radius:12px;
+  background:var(--surface);font-size:14.5px;color:var(--muted)
+}
+.scope b{color:var(--text)}
+
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media (max-width:640px){
+  .wrap{padding:0 20px}
+  .hero-in{padding:92px 0 54px}
+  section{padding:72px 0}
+}
+
+/* ---------------- index: card grid ---------------- */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:22px;margin:44px 0 10px}
+.card{
+  display:block;text-decoration:none;color:inherit;position:relative;overflow:hidden;
+  border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.022);
+  transition:border-color .3s, transform .3s, background .3s
+}
+.card:hover{border-color:var(--cc,#7a8a88);transform:translateY(-3px);background:rgba(255,255,255,.045)}
+.card::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:var(--cc,#666)}
+.card-in{padding:20px 22px 22px}
+.card .eyebrow{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.17em;text-transform:uppercase;
+  color:var(--cc,#8fa09d);opacity:.9
+}
+.card h3{font-family:var(--display),serif;font-size:22px;line-height:1.2;margin:9px 0 8px;font-weight:500}
+.card p{font-size:13.5px;line-height:1.6;color:var(--muted);margin:0 0 14px}
+.card-thumb{
+  border-radius:9px;overflow:hidden;border:1px solid var(--line);margin:0 0 14px;
+  background:#0c100f;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center
+}
+.card-thumb img,.card-thumb svg{width:100%;height:100%;object-fit:cover;display:block}
+.card-num{display:flex;align-items:baseline;gap:9px;margin-bottom:12px}
+.card-num b{font-family:var(--mono);font-size:19px;color:var(--cc,#d8e0de);font-weight:600;letter-spacing:-.01em}
+.card-num span{font-size:11.5px;color:var(--muted-2,#7f8b89)}
+.card-st{display:flex;gap:13px;flex-wrap:wrap;font-family:var(--mono);font-size:9.5px;
+  letter-spacing:.09em;color:var(--muted-2,#7f8b89);border-top:1px solid var(--line);padding-top:11px}
+
+/* ---------------- status marks: same object as a rail dot ---------------- */
+.st{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.st::before{content:"";width:9px;height:9px;border-radius:50%;flex:none;box-sizing:border-box}
+.st-a::before{background:var(--good,#7BD88F)}
+.st-b::before{background:linear-gradient(90deg,var(--l500) 50%,transparent 50%);border:1px solid var(--l500)}
+.st-c::before{border:1px solid var(--l580);background:none}
+.st-d::before{border:1px solid var(--muted-2,#7f8b89);background:none;border-radius:2px;transform:rotate(45deg)}
+
+/* ---------------- index: the honest ledger ---------------- */
+.chips{display:flex;gap:9px;flex-wrap:wrap;margin:26px 0 16px}
+.chip{
+  font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  padding:7px 13px;border-radius:999px;border:1px solid var(--line);background:none;color:var(--muted);
+  cursor:pointer;transition:border-color .25s,color .25s
+}
+.chip:hover{color:#d5dedc}
+.chip[aria-pressed="true"]{border-color:var(--accent,#EDA457);color:#e9efee}
+table.ledger{width:100%;border-collapse:collapse;font-size:13px}
+table.ledger th{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--muted-2,#7f8b89);text-align:left;padding:0 14px 9px 0;border-bottom:1px solid var(--line);font-weight:500
+}
+table.ledger td{padding:9px 14px 9px 0;border-bottom:1px solid rgba(255,255,255,.045);vertical-align:top}
+table.ledger td:nth-child(2){color:var(--muted)}
+table.ledger td:nth-child(3){font-family:var(--mono);font-size:11.5px;color:#c3ceccff}
+</style>
+<style>.portfolio-document-return{position:relative;z-index:100;display:flex;flex-wrap:wrap;gap:10px;padding:16px 24px;background:#111d25;border-bottom:1px solid #b3ceb74d;font:12px/1.5 Arial,sans-serif}.portfolio-document-return a{color:#cbded2;text-decoration:none;padding:8px 12px;border:1px solid #b3ceb733;border-radius:8px;transition:color .5s,box-shadow .5s,border-color .5s}.portfolio-document-return a:hover{color:#fff;border-color:#d9c18488;box-shadow:0 0 16px #d9c18422}@media(prefers-reduced-motion:reduce){.portfolio-document-return a{transition:none}}</style><link rel="stylesheet" href="../../../../portfolio-controls.css"><style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head><body><aside class="portfolio-document-return"><a href="../../index.html#html-library">← RadianceLab brochure</a><a href="../index.html">Document library</a><a href="../../technical/index.html">Current technical documents</a><a href="../../../../index.html">← Back to portfolio</a></aside><nav id="rail" aria-label="Sections">
+  <i id="railtrack"></i><i id="railfill"></i>
+  <a href="#residue" style="--dot:var(--accent)" data-s="residue"><span>The residue</span></a>
+  <a href="#wip" style="--dot:var(--l680)" data-s="wip"><span>Started, not finished</span></a>
+  <a href="#projector" style="--dot:var(--l400)" data-s="projector"><span>The other projector</span></a>
+  <a href="#spectrum" style="--dot:var(--l460)" data-s="spectrum"><span>Spectrum</span></a>
+  <a href="#absent" style="--dot:var(--l500)" data-s="absent"><span>Declared, never read</span></a>
+  <a href="#inert" style="--dot:var(--l580)" data-s="inert"><span>Does nothing</span></a>
+  <a href="#surface" style="--dot:var(--l540)" data-s="surface"><span>Control surface</span></a>
+  <a href="#headless" style="--dot:var(--l620)" data-s="headless"><span>The headless keys</span></a>
+</nav>
+
+<!-- ================= HERO ================= -->
+<header class="hero">
+  <div class="wrap hero-in">
+    <p class="eyebrow">The residue &middot; RadianceLab</p>
+    <h1>Everything that did<br>not get a <i>page</i></h1>
+    <p class="thesis">Ten threads were chosen. This is what was left over &mdash; graded in the same vocabulary, including the rows that say the thing does not work.</p>
+    <p class="note" style="max-width:58ch;margin:14px 0 0;color:#9fb0ad">A curated portfolio can always be accused of having picked its ten best subjects. The reply is to publish the eleventh page: the half-built modules, the controls that do nothing, the fields that were declared and never read, and the headless vocabulary nobody has typed. Nothing here is promoted; everything here is named.</p>
+    <div class="spectrum"></div>
+    <div class="stats">
+      <div class="stat"><span class="k">Catalogued features</span>
+        <div class="v"><span>551</span></div>
+        <div class="sub">the ten threads cover the interesting ones; this page covers the rest</div></div>
+      <div class="stat"><span class="k">WIP tab controls with a backend</span>
+        <div class="v"><span class="from">0</span><span class="arr">of</span><span>18</span></div>
+        <div class="sub">three panels that print <span class="mono">[No backend]</span> on their own faces</div></div>
+      <div class="stat"><span class="k">Header files included by nothing</span>
+        <div class="v"><span>14</span></div>
+        <div class="sub">1,410 lines, and not one of them has an implementation file</div></div>
+      <div class="stat"><span class="k">Headless keys under <span class="mono">pp.</span></span>
+        <div class="v"><span class="to">67</span></div>
+        <div class="sub">the estimator's whole config surface; the site has printed almost none of them</div></div>
+    </div>
+  </div>
+</header>
+
+<!-- ================= 01 · THE RESIDUE ================= -->
+<section id="residue" style="--secc:var(--accent)" data-nav="The residue">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">01 &mdash; What a curated site leaves out</p>
+      <h2>Ten threads is a selection. This is the complement</h2>
+      <p class="lead">Every other page here argues something. This one does not: it is an inventory, and its only claim is that the inventory is complete enough to be worth publishing. The ten threads were chosen because each had a mechanism or a number behind it. Choosing has a cost, and the cost is that a reader cannot tell what was passed over from what does not exist.</p>
+      <p>So the rule this page applies to itself is stated up front, and it is a rule about <em>refusal</em> more than about coverage:</p>
+      <p class="note"><b>A feature earns prose only where the site can say something about it that its own name does not already say</b> &mdash; a number, a mechanism, or a defect. Everything else earns a table row: name, one clause, grade. An absence earns a row and never a paragraph, unless the absence corrects something the site has already claimed. And a control that does nothing earns a line, because saying so is the editorial position rather than an omission.</p>
+      <p>Applied honestly that rule mostly says no. The photon-primitive family, bidirectional transport and the camera all pass it, and all three already have pages; nothing here is going to out-argue them. What is left below is a projector mode with a real mechanism, a spectral pipeline with one specific hole in it, thirteen half-built modules, and several hundred rows that reduce to a clause each.</p>
+    </div>
+
+    <div class="schem"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360">
+  <defs>
+    <marker id="figure-1-m30b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#78C8FF" fill-opacity="0.8"/>
+    </marker>
+    <marker id="figure-1-m30y" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#FFD264" fill-opacity="0.8"/>
+    </marker>
+    <marker id="figure-1-m30g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#DDE3E0" fill-opacity="0.45"/>
+    </marker>
+  </defs>
+  <g font-family="JetBrains Mono, ui-monospace, monospace" font-size="12" fill="#DDE3E0">
+
+    <text x="16" y="22" fill-opacity="0.75">the ten threads are a curated selection &#183; the tag says which covers each box</text>
+
+    <!-- the scene -->
+    <rect x="8" y="150" width="98" height="44" rx="4" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.25)" stroke-width="1.5"/>
+    <text x="57" y="169" text-anchor="middle" font-size="11">scene</text>
+    <text x="57" y="184" text-anchor="middle" font-size="10">one description</text>
+
+    <!-- the two render paths -->
+    <rect x="126" y="94" width="138" height="46" rx="4" fill="#78C8FF" fill-opacity="0.10" stroke="#78C8FF" stroke-opacity="0.75" stroke-width="1.5"/>
+    <text x="195" y="113" text-anchor="middle" font-size="11" fill="#78C8FF">GPU megakernel</text>
+    <text x="195" y="128" text-anchor="middle" font-size="10" fill-opacity="0.62">one dispatch, real time</text>
+
+    <rect x="126" y="208" width="138" height="46" rx="4" fill="#FFD264" fill-opacity="0.10" stroke="#FFD264" stroke-opacity="0.75" stroke-width="1.5"/>
+    <text x="195" y="227" text-anchor="middle" font-size="11" fill="#FFD264">CPU integrators</text>
+    <text x="195" y="242" text-anchor="middle" font-size="10" fill-opacity="0.62">eight, interactive</text>
+
+    <path d="M108,168 L122,124" fill="none" stroke="#78C8FF" stroke-width="1.5" stroke-opacity="0.7" marker-end="url(#figure-1-m30b)"/>
+    <path d="M108,178 L122,222" fill="none" stroke="#FFD264" stroke-width="1.5" stroke-opacity="0.7" marker-end="url(#figure-1-m30y)"/>
+
+    <!-- spine into the subsystems -->
+    <path d="M264,117 L274,117 M264,231 L274,231" fill="none" stroke="#DDE3E0" stroke-opacity="0.35" stroke-width="1.5"/>
+    <path d="M274,84 L274,278" fill="none" stroke="#DDE3E0" stroke-opacity="0.30" stroke-width="1.5"/>
+    <g stroke="#DDE3E0" stroke-opacity="0.4" stroke-width="1.5" marker-end="url(#figure-1-m30g)" fill="none">
+      <path d="M274,84 L282,84"/>
+      <path d="M274,148 L282,148"/>
+      <path d="M274,212 L282,212"/>
+      <path d="M274,276 L282,276"/>
+    </g>
+
+    <!-- seven subsystems with a thread of their own -->
+    <g fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.25)" stroke-width="1.5">
+      <rect x="286" y="60"  width="180" height="48" rx="4"/>
+      <rect x="470" y="60"  width="154" height="48" rx="4"/>
+      <rect x="286" y="124" width="180" height="48" rx="4"/>
+      <rect x="470" y="124" width="154" height="48" rx="4"/>
+      <rect x="286" y="188" width="180" height="48" rx="4"/>
+      <rect x="470" y="188" width="154" height="48" rx="4"/>
+      <rect x="286" y="252" width="180" height="48" rx="4"/>
+    </g>
+    <!-- the one box with no thread -->
+    <rect x="470" y="252" width="154" height="48" rx="4" fill="rgba(255,255,255,0.03)"
+          stroke="#FFB347" stroke-opacity="0.8" stroke-width="1.5" stroke-dasharray="5 3"/>
+
+    <g font-size="11">
+      <text x="296" y="80">estimator family</text>
+      <text x="480" y="80">transport bank</text>
+      <text x="296" y="144">imaging bench</text>
+      <text x="480" y="144">node graph</text>
+      <text x="296" y="208">image operators</text>
+      <text x="480" y="208">physics</text>
+      <text x="296" y="272">camera</text>
+      <text x="480" y="272" fill="#FFB347">control surface</text>
+    </g>
+    <g font-size="10" fill-opacity="0.62">
+      <text x="296" y="95">31 strategy slots</text>
+      <text x="480" y="95">10 integrators</text>
+      <text x="296" y="159">projector, ToF, holography</text>
+      <text x="480" y="159">57 node types</text>
+      <text x="296" y="223">157 toggleable passes</text>
+      <text x="480" y="223">3 of 5 reach the film</text>
+      <text x="296" y="287">two lens models</text>
+      <text x="480" y="287" fill="#FFB347" fill-opacity="0.9">panels, menus, hotkeys</text>
+    </g>
+    <g font-size="10.5" text-anchor="end" fill="#FFD264" fill-opacity="0.9">
+      <text x="458" y="80">01&#8211;03</text>
+      <text x="616" y="80">04 06</text>
+      <text x="458" y="144">05</text>
+      <text x="616" y="144">07</text>
+      <text x="458" y="208">08</text>
+      <text x="616" y="208">09</text>
+      <text x="458" y="272">10</text>
+      <text x="616" y="272" fill="#FFB347">11</text>
+    </g>
+
+    <!-- the residue band: what belongs to no box above -->
+    <rect x="14" y="306" width="610" height="42" rx="4" fill="rgba(255,255,255,0.03)"
+          stroke="#FFB347" stroke-opacity="0.7" stroke-width="1.5" stroke-dasharray="5 3"/>
+    <text x="26" y="325" font-size="11" fill="#FFB347">the residue</text>
+    <text x="120" y="325" font-size="10" fill-opacity="0.78">the WIP tab &#183; the absences &#183; the four dead tools &#183; the inert selectors</text>
+    <text x="120" y="340" font-size="10" fill-opacity="0.78">67 headless keys &#183; each of them crosses every box above</text>
+  </g>
+</svg></div>
+    <div class="narrow">
+      <p class="note" style="margin-top:18px"><b>Reading the map.</b> One scene description feeds two render paths that share nothing else, and eight subsystems hang off them. Seven of the eight have one of the first ten threads. The eighth &mdash; the control surface, which is what every screenshot on this site is taken <em>through</em> &mdash; is drawn dashed because its only thread is this one; thread 07 describes the parts of it that its own argument needed, and &sect;07 below is the rest. The dashed band underneath is the reason the page exists at all: the work-in-progress register, the absences, the dead tools and the headless keys each cut across every box above, so none of them could be filed under a single thread.</p>
+      <p>The exhaustive version is not here and should not be. <span class="mono">docs/FEATURE-CATALOGUE.md</span> carries all 555 rows with a source anchor on each &mdash; 253 seen, 116 never viewed, 97 measured, 31 inert, 24 absent, 18 superseded, 16 scene-dependent. This page is the part of that document a reader would actually finish.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 02 · WIP ================= -->
+<section id="wip" style="--secc:var(--l680)" data-nav="Started, not finished">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">02 &mdash; The work-in-progress register</p>
+      <h2>Started, not finished</h2>
+      <p class="lead">Thirteen modules in this program are partly built. The unusual thing about them is not that they exist &mdash; every large renderer has them &mdash; but that most of them are <strong>labelled by the code that hosts them</strong>. Three panels print <span class="mono">[No backend]</span> on their own faces. A menu greys out the four tools that are headers and nothing else. An integrator that never runs a Newton iteration reports that its step count is always zero. A gather mode is named &ldquo;Final Gather (not built - renders kNN)&rdquo; in the combo box you select it from.</p>
+      <p>The register below is the honest version. Each row says what runs and what does not, in that order, and no row is softened. Where a module builds data that nothing reads, the row says exactly that.</p>
+    </div>
+
+    <div class="tw"><table>
+      <thead><tr><th>Module</th><th>What runs</th><th>What does not</th><th>Grade</th></tr></thead>
+      <tbody>
+        <tr class="key"><td>Advanced &#9656; WIP tab</td><td>The panel draws, and labels itself: a button reading <em>UI ONLY &mdash; backends not yet wired</em>, then three collapsing headers each printing <span class="mono">[No backend]</span></td><td><b>All of it.</b> Eighteen controls across Temporal Techniques, Differential Rendering and Inverse Rendering. Twelve are function-local statics, so nothing outside the panel <em>can</em> read them; the other six are <span class="mono">diffRender*</span> fields declared on the UI struct, and every reference to all six is either that declaration or a line inside this same panel. Inverse Rendering's own line says it depends on Differential Rendering, which has no backend either</td><td><span class="st st-d">inert</span></td></tr>
+        <tr><td>Physics, two of five solvers</td><td>Five solvers step. Three reach the traced image &mdash; thread 09 is the census</td><td>The panel prints <span class="mono">[WIP] Euler Fluid (Grid-based)</span> and <span class="mono">[WIP] Soft Body (Mass-Spring)</span> in yellow above its own controls</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>UPBP beams</td><td>Beams are built, stored and drawn</td><td>Nothing gathers from them. The integrator's own header records that <span class="mono">enableBeamMerge</span> is assigned from the UI and read nowhere, and that <span class="mono">beamMaxPerPath</span> is declared, assigned nowhere and read nowhere</td><td><span class="st st-d">inert</span></td></tr>
+        <tr><td>VCM visualisation</td><td>The integrator runs</td><td><span class="mono">vcmVizMode</span> has no reader outside the UI. The combo is greyed and titled <em>Viz Mode [inert]</em> &mdash; and it is offered <b>twice</b>, in two different panels</td><td><span class="st st-d">inert</span></td></tr>
+        <tr><td>Manifold Exploration</td><td>The integrator renders</td><td>There is no Newton solve. The reported step count is assigned the literal zero, and both Newton sliders reach config fields the integrator never reads &mdash; which its own greyed heading, <em>Newton Solver (not built)</em>, says</td><td><span class="st st-d">inert</span></td></tr>
+        <tr><td>Photon mapper, third gather</td><td>Two gather modes work</td><td>The third is named in its own combo box: <em>Final Gather (not built - renders kNN)</em>. Max Iter sits behind a Confirm button so a slider drag cannot launch fifty passes</td><td><span class="st st-d">absent</span>, labelled</td></tr>
+        <tr><td>Goldstein branch-cut unwrap</td><td>The weighted-least-squares unwrapper beside it works and scores itself</td><td><span class="mono">runGoldstein</span> is an empty function body, and so is <span class="mono">runPostAndDepth</span> next to it. The two textures the algorithm would write are allocated on every run and never touched</td><td><span class="st st-d">absent</span></td></tr>
+        <tr><td>Off-axis holography, second implementation</td><td>The working bench lives in the VFX source and renders</td><td><span class="mono">src/spectral/Holography.h</span> declares <span class="mono">OffAxisHolography</span> and <span class="mono">CWToFSensor</span> in full &mdash; configs, method signatures, 72 lines &mdash; with no implementation file, and is included by nothing</td><td><span class="st st-d">design only</span></td></tr>
+        <tr><td>Mesh pipeline</td><td>Analytic primitives only, and that is a decision thread 04 defends</td><td><span class="mono">tinyobjloader</span> is vendored and linked with zero call sites. A 153-line marching-cubes implementation compiles into the binary and its header is included by no other file</td><td><span class="st st-d">absent</span></td></tr>
+        <tr><td>Texture pipeline</td><td>Node-graph textures reach the tracer; the projector bakes into an albedo array</td><td>The material struct's three texture indices &mdash; <span class="mono">albedoTexture</span>, <span class="mono">normalTexture</span>, <span class="mono">roughnessTexture</span> &mdash; have exactly one reference each: their own declaration</td><td><span class="st st-d">absent</span></td></tr>
+        <tr><td>The Tools menu</td><td>Nothing. All four entries are greyed, and a tooltip says why</td><td>Flatland Slicer, Sampling Visualizer, Field Visualizer and NeRF Training are named in the menu and nowhere else. Their four headers are part of a larger set: <b>fourteen headers, 1,410 lines</b>, that no file includes and no <span class="mono">.cpp</span> implements</td><td><span class="st st-d">absent</span>, labelled</td></tr>
+        <tr><td>Scene input and output</td><td>Fifty-odd presets load from the menu, and the comparison report writes PNGs</td><td>Open Scene, Save Scene, Export Image and Take Snapshot (F12) are four stubs that draw a not-implemented border and return</td><td><span class="st st-d">absent</span>, labelled</td></tr>
+        <tr><td>Backend selection</td><td>One backend exists: the GL compute shader</td><td>The Compute&nbsp;/&nbsp;CUDA&nbsp;/&nbsp;OptiX radio group is disabled, and its variable is a function-local static read nowhere. No CUDA or OptiX code ships here</td><td><span class="st st-d">inert</span>, labelled</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="narrow">
+      <p class="note"><b>Preset 9 belongs in this list and is one line long.</b> The scene menu entry once read <em>Outdoor (WIP)</em> and built a plain Cornell Box under that name. It now reads <em>Outdoor (not built)</em> and is greyed &mdash; the correction is the interesting part, not the preset.</p>
+      <p>What the register is <em>not</em> is a confession. <b>Nine of the thirteen rows are visible to a user who never opens the source</b>, because the running program says so itself &mdash; in a greyed label, a tooltip, an <span class="mono">[inert]</span> suffix or a combo entry that names its own gap. That is a deliberate convention in this codebase, and it is the same convention that produced the ledger on the landing page: a control that lies about what it reaches is a worse defect than a control that does nothing. The other four &mdash; the Goldstein branch, the second holography declaration, the mesh pipeline and the three texture indices &mdash; are silent, and were found by reading the source rather than by driving the program. They are in this table for that reason.</p>
+    </div>
+
+    <div class="slot">Screenshot — Render Settings &#9656; Advanced tab. Expand all three collapsing headers &mdash; Temporal Techniques [WIP], Differential Rendering [WIP], Inverse Rendering [WIP] &mdash; so the amber &ldquo;[No backend]&rdquo; line under each is legible, and keep the orange &ldquo;UI ONLY - backends not yet wired&rdquo; button at the top of the tab in frame. The point of the frame is that all four self-labels are visible at once.</div>
+    <div class="slot">Screenshot — Menu bar &#9656; Tools, opened. Four greyed entries &mdash; Flatland Slicer, Sampling Visualizer, Field Visualizer, NeRF Training, each suffixed &ldquo;(not built)&rdquo; &mdash; with the mouse resting on one so the disabled tooltip is showing, and the &ldquo;Data Moshing is BUILT, not WIP&rdquo; footer of the same menu in frame beneath them.</div>
+  </div>
+</section>
+
+<!-- ================= 03 · THE OTHER PROJECTOR ================= -->
+<section id="projector" style="--secc:var(--l400)" data-nav="The other projector">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">03 &mdash; Six modes, four destinations</p>
+      <h2>The projector that bakes, and the projector that lights</h2>
+      <p class="lead">There are two projectors in this renderer and they are unrelated. The first is the structured-light lamp inside the megakernel &mdash; four delta geometries, seven patterns, a time-of-flight carrier &mdash; and thread 05 is about it. The second lives in the node graph and has six modes. Thread 05 names three of them in a paragraph and thread 07 has an unshot clip of the bake; what no page has said is <em>where each mode lands</em>, and that is the fact the mode combo hides.</p>
+      <p>Wire a <b>Camera</b> node, which freezes the live view-projection at one button press, and a <b>Texture</b> node into a <b>DataMosh Projector</b>, and a photograph is cast into the scene from that frozen pose. The combo box beside it offers six modes, and they land in four different places &mdash; which is the whole reason the mode matters more than any slider under it.</p>
+    </div>
+
+    <div class="schem"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360">
+  <defs>
+    <marker id="figure-2-m31y" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#FFD264" fill-opacity="0.85"/>
+    </marker>
+    <marker id="figure-2-m31g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#DDE3E0" fill-opacity="0.4"/>
+    </marker>
+  </defs>
+  <g font-family="JetBrains Mono, ui-monospace, monospace" font-size="12" fill="#DDE3E0">
+
+    <text x="16" y="22" fill-opacity="0.75">two projectors, unrelated &#183; gold re-enters light transport</text>
+
+    <!-- projector one: the megakernel lamp -->
+    <rect x="14" y="46" width="180" height="76" rx="4" fill="#FFD264" fill-opacity="0.10"
+          stroke="#FFD264" stroke-opacity="0.75" stroke-width="1.5"/>
+    <text x="26" y="66" font-size="11" fill="#FFD264">structured-light lamp</text>
+    <text x="26" y="81" font-size="10" fill-opacity="0.65">megakernel next-event</text>
+    <text x="26" y="96" font-size="10" fill-opacity="0.65">4 shapes &#183; 7 patterns</text>
+    <text x="26" y="111" font-size="10" fill-opacity="0.65">a real light, with shadows</text>
+    <text x="26" y="140" font-size="10.5" fill-opacity="0.5">thread 05 describes this one</text>
+
+    <!-- projector two: the node-graph DataMosh projector -->
+    <rect x="14" y="166" width="180" height="76" rx="4" fill="rgba(255,255,255,0.06)"
+          stroke="rgba(255,255,255,0.25)" stroke-width="1.5"/>
+    <text x="26" y="186" font-size="11">DataMosh projector</text>
+    <text x="26" y="201" font-size="10" fill-opacity="0.65">Camera node, frozen pose</text>
+    <text x="26" y="216" font-size="10" fill-opacity="0.65">+ Texture node</text>
+    <text x="26" y="231" font-size="10" fill-opacity="0.65">= one photograph</text>
+    <text x="26" y="260" font-size="10.5" fill-opacity="0.5">six modes, one combo box</text>
+
+    <path d="M196,204 L218,204" fill="none" stroke="#DDE3E0" stroke-opacity="0.4" stroke-width="1.5" marker-end="url(#figure-2-m31g)"/>
+
+    <!-- the six modes -->
+    <g font-size="11">
+      <text x="228" y="70"  fill-opacity="0.55">0 &#183; Reproject</text>
+      <text x="228" y="106" fill="#FFD264">1 &#183; Project</text>
+      <text x="228" y="142" fill-opacity="0.55">2 &#183; Forward</text>
+      <text x="228" y="178" fill="#FFD264">3 &#183; Light cone</text>
+      <text x="228" y="214" fill="#FFD264">4 &#183; Light plane</text>
+      <text x="228" y="250" fill="#FFD264">5 &#183; Bake to UV</text>
+    </g>
+
+    <!-- connectors: mode -> where it lands -->
+    <g stroke="#DDE3E0" stroke-opacity="0.4" stroke-width="1.5" marker-end="url(#figure-2-m31g)" fill="none">
+      <path d="M366,66  L424,76"/>
+      <path d="M366,138 L424,124"/>
+    </g>
+    <g stroke="#FFD264" stroke-opacity="0.85" stroke-width="1.5" marker-end="url(#figure-2-m31y)" fill="none">
+      <path d="M366,102 L424,172"/>
+      <path d="M366,174 L424,184"/>
+      <path d="M366,210 L424,196"/>
+      <path d="M366,246 L424,262"/>
+    </g>
+
+    <!-- destinations -->
+    <rect x="428" y="58"  width="196" height="36" rx="4" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.25)" stroke-width="1.5"/>
+    <text x="440" y="81" font-size="11" fill-opacity="0.7">screen-space post-pass</text>
+
+    <rect x="428" y="106" width="196" height="36" rx="4" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.25)" stroke-width="1.5"/>
+    <text x="440" y="129" font-size="11" fill-opacity="0.7">rasteriser only</text>
+
+    <rect x="428" y="154" width="196" height="76" rx="4" fill="#FFD264" fill-opacity="0.10" stroke="#FFD264" stroke-opacity="0.75" stroke-width="1.5"/>
+    <text x="440" y="174" font-size="11" fill="#FFD264">GPU path tracer, per hit</text>
+    <text x="440" y="189" font-size="10" fill-opacity="0.65">image &#215; intensity &#215; N&#183;L</text>
+    <text x="440" y="204" font-size="10" fill-opacity="0.65">no shadow ray, no falloff</text>
+    <text x="440" y="219" font-size="10" fill-opacity="0.65">and no MIS</text>
+
+    <rect x="428" y="242" width="196" height="58" rx="4" fill="#FFD264" fill-opacity="0.10" stroke="#FFD264" stroke-opacity="0.75" stroke-width="1.5"/>
+    <text x="440" y="262" font-size="11" fill="#FFD264">per-mesh UV texture</text>
+    <text x="440" y="277" font-size="10" fill-opacity="0.65">64&#8211;4096 px, behind Re-bake</text>
+    <text x="440" y="292" font-size="10" fill-opacity="0.65">read back as tracer albedo</text>
+
+    <text x="320" y="326" text-anchor="middle" font-size="11" fill-opacity="0.75">no CPU integrator sees either projector</text>
+    <text x="320" y="343" text-anchor="middle" font-size="10" fill-opacity="0.6">1, 3 and 4 also draw in the rasteriser; 3, 4 and 1-unlit are skipped for light strategies 3, 4, 7</text>
+  </g>
+</svg></div>
+
+    <div class="tw"><table>
+      <thead><tr><th>Mode</th><th>Where it lands</th><th>What that means</th></tr></thead>
+      <tbody>
+        <tr><td>0 &middot; Reproject</td><td>Screen-space post-pass</td><td>Applied to the display texture after tonemap, only when an enabled projector is fully wired. The float film never sees it</td></tr>
+        <tr class="key"><td>1 &middot; Project</td><td>Rasteriser <em>and</em> path tracer</td><td>Repaints albedo at the hit. A sub-option decides whether the photo is shown unlit &mdash; an exact colour match, absorbed on contact &mdash; or becomes a surface colour that the scene then lights</td></tr>
+        <tr><td>2 &middot; Forward</td><td>Rasteriser only</td><td>The one mode the traced image never sees</td></tr>
+        <tr class="key"><td>3 &middot; Light cone</td><td>Path tracer, as a luminaire</td><td>A perspective cone from the captured apex. Image colour &times; intensity &times; N&middot;L is added at each hit &mdash; <b>no shadow ray, no distance falloff, no MIS</b>, and skipped entirely for the two pure light-tracing strategies and for light-sample-only</td></tr>
+        <tr class="key"><td>4 &middot; Light plane</td><td>Path tracer, as a luminaire</td><td>The same addition with an orthographic beam of a world size you set, so N&middot;L is taken against the fixed projector forward rather than the direction to it</td></tr>
+        <tr class="key"><td>5 &middot; Bake to UV</td><td>A per-mesh UV texture the tracer then reads</td><td>The baking mode. Covered below</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="narrow">
+      <h3>The baking half</h3>
+      <p>Mode 5 is the only one that leaves something behind. The rasteriser renders the projection <em>into texture space</em>: for every mesh with a layer in the tracer's baked-albedo array, it binds that layer as a framebuffer attachment, draws the mesh through a UV-space vertex shader at the chosen resolution, and writes the projected photograph into the texels the mesh covers. There is deliberately no clear &mdash; texels the projection misses keep the tracer's own material fill, so a bake paints onto a surface rather than replacing it.</p>
+      <p>Three controls belong to that mode alone. <b>Bake res</b> runs 64 to 4096 and, because a high-resolution bake is slow, it does not re-bake while you drag: a separate <b>Re-bake</b> button commits it. <b>Bake side</b> is a three-way choice &mdash; the side facing the projector, the side facing away, or both &mdash; which is the question a decal system has to answer and usually answers silently. The result is not a decal or an overlay: those layers become entries in the array the path tracer samples for albedo, so the photograph is lit, shadowed and reflected like any other surface colour.</p>
+      <p class="note"><b>Two limits worth stating in the same breath.</b> No CPU integrator sees any of the six modes &mdash; every projector uniform is written by the megakernel's uploader and the rasteriser, and by nothing else, so the entire projector surface is GPU-only in a renderer whose research half is on the CPU. And one function that looks like the CPU's way in, <span class="mono">sampleProjectorBake</span>, has zero callers anywhere, although the header comment above it describes the CPU material bakes calling it per texel.</p>
+    </div>
+
+    <div class="vslot"><div class="vslot-h">video &middot; The photograph as a lamp</div><div class="vslot-r">Preset 3 (Material Showcase). Open the node editor, add a Camera node and press its capture button to freeze the current pose, add a Texture node and use its in-engine capture to grab a bright image, and wire both into a DataMosh Projector. Set Mode = Light cone and Intensity ~2. Do not move the camera. Let it accumulate 10 s, then switch the combo to Light plane and hold another 10 s, then to Bake to UV, press Re-bake at 1024, and hold 10 s more.</div><div class="vslot-n"><b>Watch for</b> the three modes are three different physical objects. Light cone lights from a point and its falloff is wrong on purpose &mdash; there is none. Light plane lights from a direction, so the shading flattens. Bake to UV stops lighting anything and instead paints the photograph onto the surfaces, which then darken correctly in the shadowed corner because they entered the tracer as albedo.</div></div>
+  </div>
+</section>
+
+<!-- ================= 04 · SPECTRUM ================= -->
+<section id="spectrum" style="--secc:var(--l460)" data-nav="Spectrum">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">04 &mdash; A curve for reflectance, none for emission</p>
+      <h2>The spectral pipeline, and the one field it is missing</h2>
+      <p class="lead">Spectral rendering here is whole, and all of it but one piece runs on the GPU. A hero wavelength is drawn per path, uniformly across the visible band, carried through the bidirectional connection and drawn again for the light-tracer path; conversion home is the CIE 1931 curves. Reflectance is up to eight Gaussian lobes per material, edited on a rainbow canvas that replaces the ordinary colour picker, packed into the material buffer and read back in the shading module. Spectral mode compiles its own kernel variant. Thread 04 covers that machinery, and it is the part of it that <em>works</em>.</p>
+      <p>What has no spectrum is <strong>emission</strong>. The scene material carries a field named <span class="mono">spectralEmission</span> with a full spectral-curve type behind it, and that field has exactly one reference in the entire program: its own declaration. The consequence is visible rather than theoretical &mdash; in spectral mode an emitter falls back to its <em>albedo</em> curve, or to plain luminance when it has none. A spectral light source in this renderer borrows the spectrum it reflects with. A second field, <span class="mono">spectralSPP</span>, was declared for wavelength samples per pixel and has the same one reference.</p>
+      <p>One piece of the spectral work is not GPU-only, and it is the piece the research half needed: dispersion. The CPU estimator evaluates the identical Cauchy expression per colour channel, anchored at the sodium D line, written deliberately verbatim from the shader so the two cannot drift &mdash; which is why the dispersive caustic on thread 01 can be compared against the megakernel at all.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 05 · DECLARED, NEVER READ ================= -->
+<section id="absent" style="--secc:var(--l500)" data-nav="Declared, never read">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">05 &mdash; The absences, one clause each</p>
+      <h2>Declared, and never read</h2>
+      <p class="lead">A field with one reference is a promise the program has not kept. These are cheap to find and cheap to state, and stating them is the only reason a reader can trust the rest of the site: a portfolio that lists only what works has not told you how it counted.</p>
+      <p>Every row below is a name that exists in the source and reaches nothing. None of them earns a paragraph.</p>
+    </div>
+
+    <div class="tw"><table>
+      <thead><tr><th>Name</th><th>What it was for</th><th>Grade</th></tr></thead>
+      <tbody>
+        <tr><td>spectralEmission</td><td>An emission spectrum per material. One reference; a spectral emitter uses its albedo curve instead (&sect;04)</td><td><span class="st st-d">absent</span></td></tr>
+        <tr><td>spectralSPP</td><td>Wavelength samples per pixel per frame. One reference</td><td><span class="st st-d">absent</span></td></tr>
+        <tr><td>albedoTexture / normalTexture / roughnessTexture</td><td>Three texture indices on the material struct. One reference each &mdash; textures reach the tracer through the node graph and the projector bake instead</td><td><span class="st st-d">absent</span></td></tr>
+        <tr><td>envMapIndex</td><td>An HDR environment map on the scene. One reference. The sky is procedural</td><td><span class="st st-d">absent</span></td></tr>
+        <tr><td>hasSSS / sssRadius</td><td>A per-material subsurface flag and mean free path. The subsurface <em>material</em> works; these two fields are not how it is reached</td><td><span class="st st-d">absent</span></td></tr>
+        <tr><td>LightType Directional / Environment</td><td>Two of the four light kinds. The rasteriser and the light panel handle both; the megakernel's uploader takes only Point lights from <span class="mono">scene.lights[]</span>, so neither reaches the traced image by that route</td><td><span class="st st-d">absent</span> in the tracer</td></tr>
+        <tr><td>aoIgnoreSurfaceType</td><td>&ldquo;Treat all surfaces the same&rdquo; for ambient occlusion. One reference</td><td><span class="st st-d">absent</span></td></tr>
+        <tr><td>pmPrimitiveType</td><td>Point / beam / surface selection for the photon mapper. One reference &mdash; the photon primitives live in the CPU estimator instead, where they are thread 01</td><td><span class="st st-d">absent</span></td></tr>
+        <tr><td>allowNegativeEmission</td><td>Not absent, and worth the exception: it gates a signed emission slider, and it turns itself on when a material is found already carrying negative emission</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>Fourteen orphan headers</td><td><b>1,410 lines.</b> No file includes any of them and none has an implementation file: <span class="mono">SDF.h</span>, <span class="mono">Timeline.h</span>, <span class="mono">Pipeline.h</span>, <span class="mono">NDScene.h</span>, <span class="mono">NeRF.h</span>, <span class="mono">Medium.h</span>, <span class="mono">DiffRenderer.h</span>, <span class="mono">Holography.h</span>, <span class="mono">DebugDraw.h</span>, <span class="mono">SamplingVis.h</span>, <span class="mono">FieldVis.h</span>, <span class="mono">FlatlandView.h</span>, <span class="mono">Registry.h</span>, <span class="mono">DipoleApprox.h</span>. Nine of them, 637 lines, are the ones the rest of this page names for other reasons &mdash; four Tools entries, the Advanced tab, the holography bench, a subsurface approximation; the whole list came out of a scan of every header in the tree for an includer</td><td><span class="st st-d">absent</span></td></tr>
+        <tr><td>Marching cubes</td><td>153 lines that compile into the binary. Its header is included by no other file, and a second, independent declaration of the same algorithm sits inside one of the orphans above</td><td><span class="st st-d">absent</span></td></tr>
+        <tr><td>tinyobjloader</td><td>Vendored and linked, zero call sites. Not one triangle reaches the GPU &mdash; and thread 04 argues that this is a decision, not an omission</td><td><span class="st st-d">absent</span></td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</section>
+
+<!-- ================= 06 · INERT ================= -->
+<section id="inert" style="--secc:var(--l580)" data-nav="Does nothing">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">06 &mdash; Reachable, and does nothing</p>
+      <h2>The controls that are honest about being dead</h2>
+      <p class="lead">Thirty-two catalogue rows are graded inert: reachable, and reaching nothing. That is a large number and it is published rather than hidden, because the alternative &mdash; a slider that appears to work &mdash; is the failure mode that costs a reader a day. Most of them are greyed at the source with a tooltip that says why, and a handful carry the date the correction was made.</p>
+      <p>The register in &sect;02 has the ones that belong to a half-built module. These are the strays &mdash; and the last two rows are here for contrast, because a tab that only signposts and a tab that is entirely live are the two things an inert-control audit keeps mistaking for each other.</p>
+    </div>
+
+    <div class="tw"><table>
+      <thead><tr><th>Control</th><th>Where</th><th>What it reaches</th></tr></thead>
+      <tbody>
+        <tr><td>Compute / CUDA / OptiX</td><td>Tracer tab</td><td>A function-local static. Disabled, with a tooltip saying the GL compute shader is the only backend that exists and that this group is read nowhere</td></tr>
+        <tr><td>Viz Mode</td><td>VCM, twice</td><td>Nothing, and titled <em>[inert]</em> in both places</td></tr>
+        <tr><td>Beam-beam merge</td><td>UPBP</td><td>Assigned from the UI, read nowhere &mdash; recorded as such in the integrator's own header</td></tr>
+        <tr><td>MSAA</td><td>Rasteriser tab</td><td>Nothing. The GL context is created with one sample, so the raster view is aliased however the knob is set</td></tr>
+        <tr><td>Debug tab</td><td>Render Settings</td><td>Three lines of signposting and no control at all: it says its contents moved to the tabs that own them, and names two of the destinations. Empty by design, which is not the same as inert</td></tr>
+        <tr><td>Misc tab</td><td>Render Settings</td><td>Two toggles, both live: select in tracer mode, select in FPS mode with a crosshair. The smallest tab in the program, and it is in this table only to be the row that is fine</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</section>
+
+<!-- ================= 07 · CONTROL SURFACE ================= -->
+<section id="surface" style="--secc:var(--l540)" data-nav="Control surface">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">07 &mdash; What every screenshot is taken through</p>
+      <h2>The rest of the control surface</h2>
+      <p class="lead">Thread 07 covers the authoring apparatus &mdash; the node editor, the picker, the gizmo, the alarms, and the hotkey collision it found by reading both handlers. What it does not cover is the surface the <em>camera work</em> runs through, and that surface is not incidental to the research: a hotkey that switches the view mode without touching the accumulation buffer, or a clean-view key that hides every overlay, is the difference between a usable frame and a re-run. Everything below has been seen in the running program &mdash; that is what the grade means &mdash; and none of it has ever appeared in a figure. These are one line each, and the line is the point.</p>
+    </div>
+
+    <div class="tw"><table>
+      <thead><tr><th>Surface</th><th>What it is</th><th>Grade</th></tr></thead>
+      <tbody>
+        <tr><td>F1 &ndash; F8</td><td>Eight view modes &mdash; shaded, wireframe, normals, UV, depth, tangent, material ID, checker &mdash; each logging its own name as it switches</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>E / R / Q, in FPS capture</td><td>Projector on, wind on, dolly zoom on. The dolly key stores the camera's original position, look-at and focal length, and puts them back on release if the dolly moved the camera. The projector half is the one piece here the catalogue still grades <span class="st st-c">never viewed</span></td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>Ctrl+1 / 2 / 3</td><td>Pinhole, thin lens, tilt-shift on the C++ camera &mdash; which the megakernel does not read (thread 10)</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>Window title</td><td>Frame rate, active renderer, camera type and frame number, rewritten every frame. A screenshot of the title bar dates and identifies the run</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>UI Test panel</td><td>A gallery of the custom widget set &mdash; eight knob styles, eight toggle styles, meters, LEDs and progress bars, the parts the rest of the panels are built from &mdash; kept as a live reference under View</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>Style Editor</td><td>Global and per-panel header style overrides, small-widget vertical alignment in absolute pixels and as a factor, and a box-label mode, in its own window</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>Scene Hierarchy</td><td>The entity tree, docked left, and the route into the node editor's focus-on-node request</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>Background depth prepass</td><td>The rasteriser renders a linear-depth buffer every frame <em>whichever</em> integrator is active, before the image-operator chain runs. That is why a depth-driven operator and the exact selection overlay both work while a CPU integrator with no depth buffer of its own is the one drawing the picture</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>Ambient Occlusion</td><td><b>A separate GPU render mode, not a post-process.</b> The megakernel replaces its whole shading path with a cosine-weighted hemisphere visibility test &mdash; radius, sample count and intensity &mdash; and returns white where nothing is hit. This page is the first place on the site that names it</td><td><span class="st st-b">seen</span></td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="slot">Screenshot — View &#9656; UI Test, with the panel undocked and made tall enough that the fancy borders, the styled toggles, the knobs and the LED indicators are all on screen at once. Put Render Settings beside it showing any tab that uses the same widgets, so the gallery and its use are in the same frame.</div>
+    <div class="slot">Screenshot — Preset 0. Render Settings &#9656; Visualization &#9656; Ambient Occlusion, Enable AO on, Radius 2.0, Samples 64, Intensity 1.0. Shoot the viewport and the AO block together. Then a second frame at Radius 0.2 with everything else identical, for the local-crevice versus global comparison the tooltip describes.</div>
+  </div>
+</section>
+
+<!-- ================= 08 · HEADLESS ================= -->
+<section id="headless" style="--secc:var(--l620)" data-nav="The headless keys">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">08 &mdash; The vocabulary nobody has typed</p>
+      <h2>Sixty-seven keys, and the site has printed almost none</h2>
+      <p class="lead">Every number on thread 01 came out of a headless run, and a headless run is a config file. The estimator's configuration surface is <b>67 distinct keys under the <span class="mono">pp.</span> prefix</b>, read in one block when the config selects the estimator mode. Most of the concepts are described elsewhere on this site; the keys are the part that would let somebody else reproduce a figure, and until this table they had not been printed.</p>
+      <p>They are worth one table because the shape of the list is itself the argument: a research estimator needs a switch for every claim it makes, including the switches that exist only to turn a claim <em>off</em> and prove the film does not change.</p>
+    </div>
+
+    <div class="tw"><table>
+      <thead><tr><th>Key</th><th>What it selects</th></tr></thead>
+      <tbody>
+        <tr class="key"><td>pp.strategy</td><td>Which of the 31 slots runs. 0&ndash;2 are the baselines, 25 is the rasterised gather, the rest are the primitive family</td></tr>
+        <tr><td>pp.misMask</td><td>A bitmask choosing the subset of primitives that enter the mixture, so any sub-combination is one integer</td></tr>
+        <tr><td>pp.misBalance</td><td>Balance heuristic on or off, which is how a mixture is compared against its own members</td></tr>
+        <tr><td>pp.surfaceNEE / pp.surfaceBSDF / pp.surfaceSpec / pp.specNEE</td><td>The camera walk's shading: one Lambertian connection, the BSDF-general version, specular chains, and next-event through them</td></tr>
+        <tr><td>pp.surfPhotons / pp.surfPhotonCount / pp.surfPhotonRadius / pp.surfPhotonKMask</td><td>The surface caustic photon map, its budget, its fixed radius, and the bounce-class mask that isolates one contribution for validation</td></tr>
+        <tr><td>pp.hgChain / pp.hgChainTol / pp.hgPostMirror / pp.hgRelay / pp.hgGuard / pp.hgJMin</td><td>The refraction chain and its collinearity tolerance, the post-ball mirror, relays, and the two guards that decide when the estimator refuses rather than draws</td></tr>
+        <tr><td>pp.correlated / pp.primCount / pp.freezePool / pp.corrRecords / pp.corrViz</td><td>Correlated mode: one batch of primitives shared across camera rays, its size, a batch frozen across passes so the sheets stop flickering and can be studied (its film then stops converging, and says so), the record-versus-rebuild switch, and the visualiser</td></tr>
+        <tr><td>pp.compBackup / pp.compSeam / pp.compClassLog</td><td>Complement mode &mdash; the backup estimator that owns the transport the primary does not, the seam policy, and the class counters</td></tr>
+        <tr><td>pp.b&hellip; (ten keys)</td><td>The B side of the strategy, the comp mode, the surface shading and the photon map, for split A/B rendering: two estimator configurations in one file</td></tr>
+        <tr><td>pp.raster / pp.rasterFamily</td><td>The rasterised gather and which primitive family it draws</td></tr>
+        <tr><td>pp.emitLambertian / pp.emitterCos</td><td>How many cosines an area light contributes in next-event &mdash; the area-to-solid-angle Jacobian is always one of them, the emitter's own directional term is the choice &mdash; and, on the photon side, whether the emitter is Lambertian. Two estimators cannot be compared until they agree what the lamp <em>is</em>, and this is where that agreement is set</td></tr>
+        <tr><td>pp.passesPerFrame</td><td>Accumulation passes per rendered frame. 0 is auto; 1 is the historical behaviour, where every pass paid a full frame of vsync, GL and UI &mdash; 7.0 ms against 0.7 ms of actual estimation. Byte-identical by construction at any value</td></tr>
+        <tr><td>pp.camPos / pp.camLookAt / pp.camFarCap</td><td>A headless camera override, so a figure is a config rather than a remembered mouse drag</td></tr>
+        <tr><td>pp.dumpCpuAt / pp.dumpGpuRefAt / pp.dumpPpRefAt / pp.compareMode</td><td>Write the film at a named pass, from the estimator, from the GPU reference, or both &mdash; which is where every ratio on this site comes from</td></tr>
+        <tr><td>pp.vizPrimitive / pp.vizSize / pp.vizGridN</td><td>Draw the swept manifolds themselves. Thread 02 is made of these</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="narrow">
+      <p class="note"><b>One key outside the prefix, for the same reason.</b> <span class="mono">window.vsync</span> exists because a per-pass timing measurement taken with vsync on measures the display, not the estimator.</p>
+      <h3>Three strays that belong nowhere else</h3>
+      <p>A <b>standalone crossing harness</b> is a single translation unit that links nothing from the renderer and re-implements the general refraction chain's per-pixel crossing exactly as its specification describes it, so the cost of a design can be measured before it is built. It was written because the specification had <em>withdrawn</em> an earlier cost estimate whose two factors were both assumed, and then forbade replacing it with another guess. Its verdict on the off-axis pair, at the same resolution the rest of the family is measured at, is that the general chain would cost 14 to 42 times the one-ball estimator per pass &mdash; so that tier is a no-go, and the harness is the reason it was never started.</p>
+      <p>Two presets carry a correction in their own menu label rather than in a document. <em>Jellyfish Giant (FBM, not SmoothLife)</em> renames itself after the thing it actually builds. <em>Caustic Room (enclosed, roam inside)</em> says in its own entry that it must be viewed from within, which is the answer to the question its earlier name provoked every time somebody rendered it from outside and got a black frame.</p>
+      <p>Two more of the same kind sit in the scene layer rather than the estimator: <span class="mono">vclGateGeom</span> and <span class="mono">vclGoboSlab</span>, the shared aperture vocabulary the gate presets are built from &mdash; four apertures across five scenes: a slot, an annulus, a grille and a dispersive slit, all derived from one light position, one ball and one gobo height rather than typed in as coordinates. That is why the annulus can be said to match the slot's aperture area to 1.4 %: the two were computed from the same geometry, not eyeballed into agreement.</p>
+      <p class="note" style="border-color:var(--muted-2)"><b>What this page does not do.</b> It does not reprint the catalogue, and it does not re-grade anything: wherever <span class="mono">docs/FEATURE-CATALOGUE.md</span> carries a row, the grade shown here is that row's. Two entries have no catalogue row and are graded here for the first time &mdash; the second holography declaration, and the projector's mode-by-mode destinations. The <em>counts</em> are a different matter and were re-derived rather than copied, which is how the orphan-header figure moved from the catalogue's ten to fourteen. It does not claim the residue is complete: 551 is a floor, and the catalogue says so itself, because the 157 image operators are filed as 22 grouped rows and the 31 estimator slots as a far smaller number of grouped ones. And it does not photograph anything &mdash; the two schematics above were drawn, and the other five slots are four screenshot recipes and a clip that will stay recipes until somebody runs the program and follows them.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="spectrum" style="margin-bottom:34px"></div>
+    <h2 style="font-size:28px;margin:0 0 10px">RadianceLab</h2>
+    <p style="color:var(--muted);max-width:56ch;margin:0">A from-scratch physically-based renderer in C++ and OpenGL compute, written to make estimator research directly visible.</p>
+    <div class="fgrid">
+      <div><span class="k">Renderer</span><span class="v">GPU megakernel path tracer, rasterizer, and seven CPU integrators — photon mapping, VCM, MLT, PSSMLT, UPBP, path guiding</span></div>
+      <div><span class="k">This work</span><span class="v">31 strategy slots in the picker: 0–2 are the baselines the rest are measured against, 3–24 and 26–30 are the photon-primitive family, 25 is a rasterised gather, and 21 of the slots are analytic swept manifolds sharing one MIS network</span></div>
+      <div><span class="k">Validation</span><span class="v">Ratio and byte-identical harnesses, degenerate-limit pins, standalone numerical gates in Python</span></div>
+      <div><span class="k">Media</span><span class="v">Homogeneous and heterogeneous participating media, Henyey–Greenstein and Mie phase functions, dispersive dielectrics</span></div>
+    </div>
+    <div class="scope">
+      <b>Scope note.</b> This page covers one subsystem. The renderer also carries a structured-light projector and time-of-flight pipeline, off-axis holography with a GPU FFT and phase unwrapping, five physics solvers coupled to volumetric density, a node-graph material and projection editor with texture-space baking, and roughly 140 post-process and NPR passes. Those are documented separately.
+    </div>
+    <p style="margin:28px 0 0"><a href="index.html" style="color:var(--muted);font-size:13px;letter-spacing:.03em;text-decoration:none;border-bottom:1px solid var(--line)">&larr; All eleven threads</a></p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var links = Array.prototype.slice.call(document.querySelectorAll('#rail a'));
+  var secs  = links.map(function(a){ return document.getElementById(a.dataset.s); });
+  var fill  = document.getElementById('railfill');
+  var track = document.getElementById('railtrack');
+
+  links.forEach(function(a){
+    a.addEventListener('click', function(e){
+      var t = document.getElementById(a.dataset.s);
+      if (!t) return;
+      e.preventDefault();
+      t.scrollIntoView({ behavior:'smooth', block:'start' });
+      if (history.replaceState) history.replaceState(null, '', '#' + a.dataset.s);
+    });
+  });
+
+  function progress(){
+    if (!fill || !track) return;
+    var h = document.documentElement.scrollHeight - window.innerHeight;
+    var p = h > 0 ? Math.min(1, Math.max(0, window.scrollY / h)) : 0;
+    fill.style.height = (p * track.offsetHeight) + 'px';
+  }
+  var queued = false;
+  window.addEventListener('scroll', function(){
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(function(){ progress(); queued = false; });
+  }, { passive:true });
+  window.addEventListener('resize', progress, { passive:true });
+  progress();
+
+  if (!('IntersectionObserver' in window)) return;
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      var i = secs.indexOf(e.target);
+      if (i < 0) return;
+      links[i].classList.toggle('on', e.isIntersecting && e.intersectionRatio > 0.12);
+    });
+  }, { threshold:[0, .12, .5] });
+  secs.forEach(function(s){ if (s) io.observe(s); });
+})();
+</script>
+
+</body></html>

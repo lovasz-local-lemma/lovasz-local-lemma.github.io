@@ -1,0 +1,90 @@
+<!doctype html><html lang="en"><head><style data-portfolio-paint>html{background:#0b0d0c;color-scheme:dark}html.portfolio-booting body{opacity:0}</style><script src="../../../portfolio-navigation.js?v=688f1905bc"></script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Emitter size and angular profile — RadianceLab</title><meta name="description" content="Compare complementary strategies on controlled source sizes and emission distributions."><meta name="color-scheme" content="dark"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="../../../portfolio.css?v=b7ed8602e5"><link rel="stylesheet" href="../../../portfolio-effects.css?v=62be30dafa"><link rel="stylesheet" href="../../../portfolio-atmospheres.css?v=4b74c57939"><link rel="stylesheet" href="../../../portfolio-motion.css?v=4b098d8184"><link rel="stylesheet" href="../../../portfolio-case-studies.css?v=243caf2b0d"><link rel="stylesheet" href="../../../portfolio-brochures.css?v=a1e5e16132"><link rel="stylesheet" href="../../../portfolio-project-themes.css?v=a898c35e78"><link rel="stylesheet" href="../../../portfolio-location.css?v=9c4c1ad84f"><link rel="stylesheet" href="../../../portfolio-controls.css?v=9376de7761"><link rel="stylesheet" href="../../../portfolio-media.css?v=c51f7712ea"><link rel="stylesheet" href="../../../portfolio-overviews.css?v=8612c4ee0a"><link rel="stylesheet" href="../../../portfolio-motivations.css?v=ccc1c1d866"><link rel="stylesheet" href="../../../portfolio-claims.css?v=058dbd00ef"><link rel="stylesheet" href="../../../portfolio-feature-atlas.css?v=e73f02cb31"><script type="application/json" id="media-framing">{"media/brochures/physics-2d/thermal-furnace-magnetic-field-probe.png":{"width":1602,"height":940,"top":39},"media/brochures/physics-2d/magnetic-field-direction-appearance-controls.png":{"width":1602,"height":940,"top":39},"media/brochures/physics-2d/time-bomb-blast-particle-plume.png":{"width":1602,"height":940,"top":39}}</script><script defer src="../../../portfolio-claims.js?v=ed914a4d3a"></script><script defer src="../../../portfolio-visual-defaults.js?v=eecfd5c771"></script><script defer src="../../../portfolio-motion.js?v=a642c710f9"></script><script defer src="../../../portfolio-fire-studies.js?v=7717e15582"></script><script defer src="../../../portfolio-embers.js?v=8a8be5569d"></script><script defer src="../../../portfolio-atmospheres.js?v=021b2f100e"></script><script defer src="../../../portfolio-effects.js?v=03a6c89d6c"></script><script defer src="../../../portfolio-brochures.js?v=055cad29d6"></script><script defer src="../../../portfolio-location.js?v=3846586893"></script><script defer src="../../../portfolio-media.js?v=d2d555a888"></script><script defer src="../../../portfolio-articles.js?v=acb89575ce"></script><script defer src="../../../portfolio-labs.js?v=a0b86a3809"></script><link rel="stylesheet" href="../../../portfolio-technical.css?v=0ecb3a48c7"><script defer src="../../../portfolio-technical.js"></script><!-- universal-navigation:start --><script defer src="../../../portfolio-routes.js?v=054b6b462c"></script><script defer src="../../../portfolio-universal-navigation.js?v=054b6b462c"></script><!-- universal-navigation:end --><style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head><body data-page="technical" data-project-theme="optics" data-project-id="radiance-lab" data-default-atmosphere="caustics"><canvas class="spark-field" aria-hidden="true"></canvas><a class="skip-link" href="#main">Skip to content</a><nav class="site-nav portfolio-route" data-route-group="flagships" aria-label="Portfolio location"><div class="route-path"><a class="route-node route-home" href="../../../index.html#project-radiance-lab" aria-label="Portfolio"><img class="route-mark" src="../../../media/identity/portfolio-mark.svg" alt="" width="52" height="52"><span class="route-copy"><small>Work / ideas</small><strong>Portfolio</strong></span></a><span class="route-wire" aria-hidden="true"><i></i><b></b></span><div class="route-node route-group"><span class="route-glyph" aria-hidden="true">✦</span><span class="route-copy"><small>Collection</small><strong>Flagship</strong></span></div><span class="route-wire" aria-hidden="true"><i></i><b></b></span><a class="route-node route-project" href="../index.html"><span class="route-glyph" hidden aria-hidden="true">◈</span><img class="route-thumb" src="../../../media/previews/radiance-lab/caustic-showcase.png" width="42" height="42" alt=""><span class="route-copy"><small>Project</small><strong>RadianceLab</strong></span></a><span class="route-wire" aria-hidden="true"><i></i><b></b></span><a class="route-node technical-route" href="index.html"><span class="route-copy"><small>Technical reading room</small><strong>Emitter size and angular profile</strong></span></a></div><div class="route-end"><span class="route-meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><a class="route-back" href="../../../index.html#project-radiance-lab">← Back to portfolio</a></div></nav><nav class="section-rail technical-rail" aria-label="Technical document sections"><span class="rail-indicator" aria-hidden="true"></span><a href="#technical-top" data-section="technical-top"><span>⌂</span><span>Start</span></a><a href="#what-the-analysis-measures" data-section="what-the-analysis-measures" title="What the analysis measures"><small>01</small><span>What the analysis measures</span></a><a href="#reference-scope" data-section="reference-scope" title="Reference scope"><small>02</small><span>Reference scope</span></a><a href="#retained-outputs" data-section="retained-outputs" title="Retained outputs"><small>03</small><span>Retained outputs</span></a></nav><main id="main" class="project-page technical-page"><header id="technical-top" class="technical-hero"><span class="eyebrow">RadianceLab · Native implementation document</span><h1>Emitter size and angular profile</h1><p>Compare complementary strategies on controlled source sizes and emission distributions.</p><div class="technical-actions"><a href="../index.html">← RadianceLab brochure</a><a href="index.html">Technical reading room</a><a href="../validation/index.html">Rendered evidence ↗</a></div></header><aside class="technical-scope"><span>◈</span><p>Implementation notes describe the native application. A working experiment, an approximate preview and a general transport estimator establish different things; each document states its own scope.</p></aside><article class="technical-document"><p>The scene definition and power normalization are in
+<span class="technical-source-label"><code>../primitive-emitter-studies/README.md</code></span>.
+The estimator&#39;s multi-source measure is in
+<a href="custom-combinations.html"><code>../custom-combinations/README.md</code></a>.</p>
+<p>This directory retains the experiment runner and analysis. Runs use their own
+runtime directory and never overwrite the user&#39;s working application settings.
+The runner copies the current Release binary into that directory and records its
+SHA-256 beside every film. A changed binary or configuration refuses stale resume.</p>
+<pre><code class="language-powershell">python docs/emitter-study/run_study.py C:/path/to/run pilot
+python docs/emitter-study/run_study.py C:/path/to/run bench --passes 1024 --seeds 6
+python docs/emitter-study/run_study.py C:/path/to/run composite --passes 1024 --seeds 6
+python docs/emitter-study/run_study.py C:/path/to/run beauty --passes 4096 --width 640 --height 400
+python docs/emitter-study/analyze_study.py C:/path/to/run C:/path/to/analysis --min-seeds 6
+python docs/emitter-study/analyze_study.py --self-test
+</code></pre>
+<p>The benchmark&#39;s film dimensions default to 160×100. The runner deterministically
+shuffles the order of methods and seed-key runs. The native measurement encloses
+the primary CPU <code>renderPass</code>, with eight passes omitted from timing as warmup.
+It does not include application startup, UI, display or film dumping. The film
+still contains every pass: estimated rendering time is total passes multiplied
+by measured post-warmup milliseconds per pass, not just the shorter timed span.</p>
+<p>These configurations isolate direct medium scattering: minimum bounce 0,
+maximum bounce 1, no surface composition or correlated pool, and camera-far
+capping disabled. They measure the declared primitive-layer target, not a full
+surface-plus-multiple-scattering render. Exact per-run settings remain beside
+each film and in the generated protocol. An optional <code>machine.json</code> in the run
+root is copied into that protocol; it records the actual CPU experiment host
+separately from the OpenGL display renderer.</p>
+<h2 id="what-the-analysis-measures">What the analysis measures</h2><p>For each condition, let <code>mu_m</code> be method m&#39;s mean image over K seed-key runs.
+Let <code>mu_pool</code> be the equal-weight mean of all required methods&#39; <code>mu_m</code>, and define
+the shared denominator <code>D = sum_pixel,RGB mu_pool^2</code>. For each method:</p>
+<pre><code>V = sum_pixel,RGB sample_variance(seed films, ddof=1) / D
+per-pass proxy = N * V
+variance-cost proxy = N * V * median(native milliseconds per pass)
+</code></pre>
+<p>Here the seed films are N-pass running means. Lower variance-cost proxy means
+less <strong>observed seed dispersion</strong> for the measured cost. It is not a ground-truth
+MSE and is not proof of lower bias, finite variance or asymptotic convergence.
+The pooled denominator is itself estimated and is shared within each condition;
+it is not a reference solution. Six repeats remain a small sample for methods
+with rare, very large contributions. No confidence intervals or universal winner
+are inferred. Timing min/max columns are observed run spread only.</p>
+<p>The mean luminance, seed standard deviation/range and ratio to pooled mean are
+separate energy-consistency diagnostics. Agreement among methods cannot exclude
+a shared error. Broad spatially dark regions are retained: there is no
+method-dependent brightness threshold, image mask, exposure or clipping in the
+numerical calculation.</p>
+<p>Each pass draws one record per active member; a record may yield paired roots.
+One six-member pass therefore differs from one UV-only pass. The cost proxy
+accounts for measured pass cost rather than treating these as equal-work samples.</p>
+<h2 id="reference-scope">Reference scope</h2><p>The analysis does not use strategy 2 as ground truth. Its existing direct
+continuation-to-emitter term has an angular-profile limitation, so agreement in
+an all-diffuse scene does not establish a reference for the laser/cone room.
+Separate native conformance tests must state their path class, visibility rules,
+camera geometry and emitter weighting. A correct multi-source density ledger
+and an image&#39;s finite-sample dispersion answer different questions.</p>
+<h2 id="retained-outputs">Retained outputs</h2><ul>
+<li><code>summary.csv</code> / <code>summary.json</code>: per-method variance, timing, mean-energy and
+provenance statistics.</li>
+<li><code>raw-timings.csv</code>: every completed run&#39;s actual timing, dimensions, passes,
+seed key and binary/config/film hashes. Launch seconds are diagnostic only.</li>
+<li><code>protocol.json</code>: exact common conditions, formulas, seed keys, source hashes,
+incompleteness checks and display transforms.</li>
+<li><code>factorial-*.png</code> / <code>.svg</code>: common-scale heatmaps for per-pass dispersion,
+native cost and their product. Rows are profiles, columns are source sizes.</li>
+<li><code>composite-*.png</code> / <code>.svg</code>: the three complete rooms. Their spatial arrangement,
+overlapping contributions and source-selection probabilities remain part of
+the test; only the recentered probes isolate the source properties.</li>
+<li>Beauty PNGs preserve each full native frame and use a shared exposure with
+<code>1-exp(-exposure*max(linear RGB,0))</code>, then sRGB encoding. There is no crop,
+denoising, local contrast edit or synthetic image content. Measurements use the
+unchanged float films, before this display transform.</li>
+</ul>
+<p>The analyzer validates the recorded config/film hashes and timing metadata.
+It requires all eight intended probe methods, or all four composite methods,
+with matching seed-key sets. Incomplete conditions are listed and omitted from
+statistics; they are never silently treated as zero-valued results.</p>
+<p>The <span class="technical-source-label">retained 2026-09-13 results</span> include the compact summary
+CSV and exact protocol, observed findings, executable provenance and the
+separate high-resolution stress disclosure. Full films and run records remain
+in the external experiment directory recorded by that protocol.</p>
+</article><footer class="technical-footer"><div class="technical-actions"><a href="../index.html">← RadianceLab brochure</a><a href="index.html">Technical reading room</a><a href="../validation/index.html">Rendered evidence ↗</a></div></footer></main></body></html>

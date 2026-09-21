@@ -1,0 +1,57 @@
+{
+  "schema": "rivx-browser-bundle/v1",
+  "entrypoints": {
+    "offline": "retained-caustic-splats.html",
+    "hybrid": "retained-caustic-splats.hybrid.html"
+  },
+  "composition": "official Rive underlay -> retained WebGL2 -> official Rive overlay",
+  "layers": [
+    {
+      "file": "../../../projects/rivex/photon-studio/ink-pool.riv",
+      "format": "Rive .riv",
+      "renderer": "official @rive-app/webgl2-advanced 2.37.8",
+      "z": 0,
+      "owns": [
+        "projected sphere and box guides from the RIVX3D occluder section",
+        "camera-synchronized scene context"
+      ]
+    },
+    {
+      "file": "retained-caustic-splats.rivx",
+      "format": "RIVX3D",
+      "renderer": "custom WebGL2",
+      "z": 1,
+      "owns": [
+        "retained 3D splats",
+        "manifolds",
+        "continuous orbit",
+        "continuous TOF gate"
+      ]
+    },
+    {
+      "file": "retained-caustic-splats.overlay.riv",
+      "format": "Rive .riv",
+      "renderer": "official @rive-app/canvas-single 2.42.0",
+      "z": 2,
+      "owns": [
+        "vector HUD",
+        "animated time cursor"
+      ]
+    }
+  ],
+  "runtimeTruth": "The official Rive runtime draws only the .riv layers. It does not decode or render the RIVX3D payload.",
+  "gpuCanvas": {
+    "used": false,
+    "reason": "This bundle proves the custom-backend plus official-Rive-frontend architecture. It must not be described as an official GPU Canvas export."
+  },
+  "network": {
+    "offlineEntry": "none",
+    "hybridEntry": "loads the pinned official runtime, the local scene-guides module and its ordinary Rive shape pool"
+  },
+  "synchronization": "Scene guides follow the retained view-projection matrix. The foreground HUD follows the retained TOF phase.",
+  "notRenderToTexture": "The lower .riv is composited behind WebGL; WebGL does not sample its pixels. Literal Rive-to-shader feedback remains a native GPU Canvas/ORE experiment.",
+  "knownLimits": [
+    "browser occluders are retained but not evaluated",
+    "Portfolio companion loads scene-guides.js and a local Rive pool; the older generic underlay.riv is retained as a historical artifact and no longer drawn."
+  ]
+}

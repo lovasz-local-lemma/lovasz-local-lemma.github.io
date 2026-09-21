@@ -1,0 +1,49 @@
+{
+  "source": "AIO RIVX build-rel/photon_record.rivx",
+  "sha256": "9d0e6adc6e2772c3a45eef0387ba5724623fc0e694bfbf4669bfc44bf418876d",
+  "format": "RIVXP1 v1",
+  "paths": 8000,
+  "verticesPerPath": 17,
+  "change": "Unused optional DOTS section removed; path positions, throughput, arrival clocks, normals, scene and lights preserved byte for byte. Header dotSlots set to zero.",
+  "nativeBytes": 6784300,
+  "denseScatteringStudio": {
+    "entry": "index.html?scene=relay&mode=cloud",
+    "implementation": "scattering.js",
+    "transport": "Weighted exponential free flights, HG multiple scattering, Snell/Fresnel transmission, TIR and finite mirrors. Clear glass has no participating medium.",
+    "representations": [
+      "retained beams",
+      "azimuth rings at actual scatter vertices",
+      "sphere/cone sweeps",
+      "two-segment photon planes",
+      "finite Snell receiver-map fold"
+    ],
+    "limits": "Finite path order and event budgets, finite stratified primitive subset, rasterized kernel/Jacobian regularization, artistic gains, numerical fold reconstruction; no exact native gather/MIS or radiometric equivalence claim.",
+    "exports": "Browser JSON cache and standalone custom-WebGL2 + official-Rive HTML. Native record export unchanged.",
+    "references": [
+      {
+        "project": "AIO RIVX",
+        "path": "backend/src/lab3d/photon_sweep.hpp",
+        "sha256": "40a6420be8ec5f82060f888f647c28a301bb7086731824653187ff78a80e7c61",
+        "access": "read-only"
+      },
+      {
+        "project": "AIO RIVX",
+        "path": "backend/src/lab3d/photon_primitives.hpp",
+        "sha256": "3165cff12437e36992b2b40883197c36e5b351f5c8e523bf43d59be2669c4c58",
+        "access": "read-only"
+      },
+      {
+        "project": "AIO RIVX",
+        "path": "backend/src/lab3d/lab3d_photon.cpp",
+        "sha256": "2b4e0f674061689179232436450a8df0a6b48f27ec78e2cc737308fd18fd590d",
+        "access": "read-only"
+      },
+      {
+        "project": "AIO RadianceLab",
+        "path": "docs/ring-arc/SPEC.md",
+        "sha256": "b16d86cbed8c7328c04f6a841055418e5f4c275aac67c877775d11ff18cc7b31",
+        "access": "read-only"
+      }
+    ]
+  }
+}

@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head><style id="portfolio-early-paint">html{background:#0b0d0c;color-scheme:dark}html.portfolio-booting body{opacity:0}</style><script src="../../portfolio-navigation.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Differentiable double pendulum — BalanceForge</title>
+<style>
+  :root { --bg:#0b0d12; --panel:#131722; --line:#232838; --text:#e6e9f2; --muted:#9aa3bb;
+          --accent:#6aa9ff; --accent2:#4ee0c0; --good:#73e08a; --warn:#f5b769; --violet:#bd87ff; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:radial-gradient(900px 500px at 60% -10%, #16233a 0%, var(--bg) 55%) fixed;
+         color:var(--text); font:15px/1.6 ui-sans-serif,system-ui,"Segoe UI",Roboto,Arial,sans-serif; }
+  .wrap { max-width:760px; margin:0 auto; padding:26px 20px 48px; }
+  h1 { font-size:24px; margin:0 0 4px; letter-spacing:-.01em; }
+  h1 .g { background:linear-gradient(100deg,var(--violet),var(--accent2)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .kick { font:600 12px/1 ui-monospace,monospace; letter-spacing:.16em; text-transform:uppercase; color:var(--violet); margin-bottom:12px; }
+  p.cap { color:var(--muted); margin:0 0 14px; font-size:14px; }
+  .tabs { display:flex; gap:8px; margin-bottom:12px; }
+  .tab { flex:1; text-align:center; background:#1b2031; color:var(--muted); border:1px solid var(--line); border-radius:10px; padding:9px 10px; font-size:13px; cursor:pointer; }
+  .tab small { display:block; font-size:11px; opacity:.75; margin-top:2px; }
+  .tab.on { color:var(--text); border-color:var(--violet); background:#1a1630; }
+  .tab.on.g2 { border-color:var(--accent2); background:#132322; }
+  .stage { background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:14px; }
+  canvas { display:block; width:100%; height:auto; background:linear-gradient(180deg,#0c1422,#0a0f18); border-radius:10px; }
+  .status { display:flex; align-items:center; gap:10px; margin-top:12px; font-size:13.5px; color:var(--muted); flex-wrap:wrap; }
+  .pill { font:600 11px/1 ui-monospace,monospace; padding:5px 9px; border-radius:999px; border:1px solid var(--line); white-space:nowrap; }
+  .pill.train { color:var(--warn); border-color:rgba(245,183,105,.4); }
+  .pill.hold  { color:var(--good); border-color:rgba(115,224,138,.4); }
+  .bar { flex:1; min-width:110px; height:7px; background:#0a1422; border:1px solid var(--line); border-radius:999px; overflow:hidden; }
+  .bar > i { display:block; height:100%; width:0%; background:linear-gradient(90deg,var(--violet),var(--accent2)); transition:width .12s; }
+  .note { margin-top:18px; color:var(--muted); font-size:13px; border-left:3px solid var(--violet); padding:8px 14px; background:#11182a; border-radius:8px; }
+  .note b { color:var(--text); } code { color:#cfe6ff; }
+  .gradbox { margin-top:14px; background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:12px 14px; }
+  .gradhead { font-size:12.5px; color:var(--muted); margin-bottom:8px; }
+  .gradhead .gk { color:var(--violet); font-weight:600; } .gradhead .gsub { opacity:.7; }
+  .gradbox canvas { width:100%; height:auto; background:linear-gradient(180deg,#0c1422,#0a0f18); border-radius:8px; }
+  .gradlabels { display:flex; justify-content:space-between; font:11px/1 ui-monospace,monospace; color:var(--muted); margin-top:6px; }
+  .gradlabels #gradStat { color:var(--accent2); }
+</style>
+<link rel="stylesheet" href="../../portfolio-controls.css"><link rel="stylesheet" href="../../portfolio-demo-return.css"><script defer src="../../portfolio-demo-return.js" data-project="balanceforge" data-title="BalanceForge" data-overview="projects/balanceforge/overview.html" data-group="signature" data-thumbnail="media/previews/balanceforge/native-dodge-spatial-neat-circuit.png" data-routes="[{&quot;project&quot;:&quot;balanceforge&quot;,&quot;title&quot;:&quot;BalanceForge&quot;,&quot;group&quot;:&quot;signature&quot;,&quot;thumbnail&quot;:&quot;media/previews/balanceforge/native-dodge-spatial-neat-circuit.png&quot;,&quot;overview&quot;:&quot;projects/balanceforge/overview.html&quot;,&quot;path&quot;:&quot;live_demos/balanceforge/index.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:2},{&quot;project&quot;:&quot;balanceforge&quot;,&quot;title&quot;:&quot;BalanceForge&quot;,&quot;group&quot;:&quot;signature&quot;,&quot;thumbnail&quot;:&quot;media/previews/balanceforge/native-dodge-spatial-neat-circuit.png&quot;,&quot;overview&quot;:&quot;projects/balanceforge/overview.html&quot;,&quot;path&quot;:&quot;live_demos/balanceforge/index.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:1},{&quot;project&quot;:&quot;balanceforge&quot;,&quot;title&quot;:&quot;BalanceForge&quot;,&quot;group&quot;:&quot;signature&quot;,&quot;thumbnail&quot;:&quot;media/previews/balanceforge/native-dodge-spatial-neat-circuit.png&quot;,&quot;overview&quot;:&quot;projects/balanceforge/overview.html&quot;,&quot;path&quot;:&quot;live_demos/balanceforge/control-study.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:1},{&quot;project&quot;:&quot;balanceforge&quot;,&quot;title&quot;:&quot;BalanceForge&quot;,&quot;group&quot;:&quot;signature&quot;,&quot;thumbnail&quot;:&quot;media/previews/balanceforge/native-dodge-spatial-neat-circuit.png&quot;,&quot;overview&quot;:&quot;projects/balanceforge/overview.html&quot;,&quot;path&quot;:&quot;live_demos/balanceforge/report.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:1},{&quot;project&quot;:&quot;balanceforge&quot;,&quot;title&quot;:&quot;BalanceForge&quot;,&quot;group&quot;:&quot;signature&quot;,&quot;thumbnail&quot;:&quot;media/previews/balanceforge/native-dodge-spatial-neat-circuit.png&quot;,&quot;overview&quot;:&quot;projects/balanceforge/overview.html&quot;,&quot;path&quot;:&quot;live_demos/balanceforge/diffsim-balance.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:1},{&quot;project&quot;:&quot;balanceforge&quot;,&quot;title&quot;:&quot;BalanceForge&quot;,&quot;group&quot;:&quot;signature&quot;,&quot;thumbnail&quot;:&quot;media/previews/balanceforge/native-dodge-spatial-neat-circuit.png&quot;,&quot;overview&quot;:&quot;projects/balanceforge/overview.html&quot;,&quot;path&quot;:&quot;live_demos/balanceforge/&quot;,&quot;query&quot;:{},&quot;priority&quot;:-1}]"></script><!-- universal-navigation:start --><link rel="stylesheet" href="../../portfolio-location.css?v=054b6b462c"><script defer src="../../portfolio-location.js?v=054b6b462c"></script><script defer src="../../portfolio-routes.js?v=054b6b462c"></script><script defer src="../../portfolio-universal-navigation.js?v=054b6b462c"></script><!-- universal-navigation:end --><style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head>
+<body>
+<div class="wrap">
+  <div class="kick">BalanceForge · differentiable physics</div>
+  <h1>The double pendulum, held upright by <span class="g">the model</span></h1>
+  <p class="cap">Two model-based controllers on the SAME differentiable simulator — the physics you're watching.
+    Gradient-free evolution (CMA-ES/NEAT) plateaus at ~13% hold on this task no matter the budget; both of
+    these use the known dynamics and win.</p>
+
+  <div class="tabs">
+    <div class="tab on" id="tabLqr">LQR — holds forever<small>analytic · provably stable</small></div>
+    <div class="tab g2" id="tabNeural">Neural — learns live<small>exact gradients · finite basin</small></div>
+  </div>
+
+  <div class="stage">
+    <canvas id="c" width="720" height="440"></canvas>
+    <div class="status">
+      <span class="pill" id="phasePill">starting…</span>
+      <div class="bar"><i id="bar"></i></div>
+      <span id="msg"></span>
+    </div>
+  </div>
+
+  <div class="gradbox" id="gradSection">
+    <div class="gradhead">backprop-through-time · <span class="gk">∂loss / ∂action</span> across the rollout
+      <span class="gsub">— which control moments the gradient blames. Only gradient methods can show this.</span></div>
+    <canvas id="grad" width="720" height="120"></canvas>
+    <div class="gradlabels"><span>t = 0 (start of rollout)</span><span id="gradStat">—</span><span>t = end</span></div>
+  </div>
+
+  <div class="note" id="noteLqr">
+    <b>LQR (analytic).</b> Reads the linearized dynamics straight out of the differentiable simulator (finite-
+    difference at the true inverted fixed point), then solves the discrete Riccati equation for a state-feedback
+    gain <code>u = -K·x</code>. Provably asymptotically stable near upright → it holds <b>indefinitely</b>
+    (verified 30s, no fall, from any small tilt). This is how real multi-pendulum rigs do it.
+    Engine: <code>js/diffsim_lqr.js</code> (proof: <code>diffsim-lqr-probe.js</code>).
+  </div>
+  <div class="note" id="noteNeural" style="display:none; border-left-color:var(--accent2)">
+    <b>Neural (exact gradients).</b> Trains a small feedback MLP live by Adam backprop THROUGH the simulator —
+    watch the "best hold" climb. But a memoryless policy trained on a short (~1.5s, near-linear) horizon has a
+    <b>finite basin</b>: it holds cleanly ~1.5–2s, so this loops fresh catches. Same physics, learned rather than
+    solved. Engine: <code>js/diffsim_trainer.js</code> (<code>diffsim-trainer-probe.js</code>).
+  </div>
+</div>
+
+<script src="js/diff_simulator.js"></script>
+<script src="js/diffsim_trainer.js"></script>
+<script src="js/diffsim_lqr.js"></script>
+<script>
+(function () {
+  'use strict';
+  var BF = window.BF, TRAIN = BF && BF.diffsimTrainer, LQR = BF && BF.diffsimLqr;
+  var cv = document.getElementById('c'), ctx = cv.getContext('2d');
+  var phasePill = document.getElementById('phasePill'), bar = document.getElementById('bar'), msg = document.getElementById('msg');
+  var tabLqr = document.getElementById('tabLqr'), tabNeural = document.getElementById('tabNeural');
+  var noteLqr = document.getElementById('noteLqr'), noteNeural = document.getElementById('noteNeural');
+  var gradSection = document.getElementById('gradSection'), gradCv = document.getElementById('grad'),
+      gradCtx = gradCv.getContext('2d'), gradStat = document.getElementById('gradStat');
+  if (!TRAIN || !LQR) { msg.textContent = 'engine failed to load'; return; }
+
+  var PERTS = [3, -3, 5, -5, 4, -4, 6, -2];
+  var mode = 'lqr', t = null, lqrD = null, traj = null, frameIdx = 0, epi = 0;
+
+  function nextEpisode() {
+    var pd = PERTS[epi % PERTS.length];
+    traj = (mode === 'lqr') ? LQR.trajectory(lqrD, pd, 10) : TRAIN.trajectory(t, pd, t.config.horizonS);
+    frameIdx = 0; epi++;
+  }
+  function setMode(m) {
+    mode = m; traj = null; frameIdx = 0; epi = 0;
+    tabLqr.classList.toggle('on', m === 'lqr'); tabNeural.classList.toggle('on', m === 'neural');
+    noteLqr.style.display = m === 'lqr' ? '' : 'none'; noteNeural.style.display = m === 'neural' ? '' : 'none';
+    gradSection.style.display = m === 'neural' ? '' : 'none';   // gradients exist only in neural mode
+    if (m === 'neural') { t = TRAIN.create({ seed: (Math.floor(Math.random() * 1e9)) >>> 0 }); }
+    if (m === 'lqr' && !lqrD) { phasePill.textContent = 'designing controller…'; lqrD = LQR.design(); }
+  }
+  tabLqr.addEventListener('click', function () { setMode('lqr'); });
+  tabNeural.addEventListener('click', function () { setMode('neural'); });
+
+  function dot(x, y, r) { ctx.beginPath(); ctx.arc(x, y, r, 0, 6.2832); ctx.fill(); }
+  function drawFrame(f) {
+    var W = cv.width, H = cv.height, cx = W / 2, cy = H * 0.72, sc = 1.35, L = (t && t.config.segLen) || (lqrD && lqrD.config.segLen) || 80;
+    function X(wx) { return cx + wx * sc; } function Y(wy) { return cy + wy * sc; }
+    ctx.clearRect(0, 0, W, H);
+    ctx.strokeStyle = '#2c324a'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(46, cy); ctx.lineTo(W - 46, cy); ctx.stroke();
+    ctx.strokeStyle = 'rgba(189,135,255,0.16)'; ctx.setLineDash([5, 6]); ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx, Y(-2 * L)); ctx.stroke(); ctx.setLineDash([]);
+    if (!f) return;
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = '#6aa9ff'; ctx.lineWidth = 7; ctx.beginPath(); ctx.moveTo(X(f.cx), Y(0)); ctx.lineTo(X(f.n1.x), Y(f.n1.y)); ctx.stroke();
+    ctx.strokeStyle = '#4ee0c0'; ctx.beginPath(); ctx.moveTo(X(f.n1.x), Y(f.n1.y)); ctx.lineTo(X(f.n2.x), Y(f.n2.y)); ctx.stroke();
+    ctx.fillStyle = '#6aa9ff'; ctx.fillRect(X(f.cx) - 24, Y(0) - 9, 48, 18);
+    ctx.fillStyle = '#e6e9f2'; dot(X(f.n1.x), Y(f.n1.y), 7);
+    ctx.fillStyle = '#73e08a'; dot(X(f.n2.x), Y(f.n2.y), 11);
+  }
+
+  // The backprop-through-time view: |dLoss/dAction| across the rollout timeline,
+  // bars colored by sign. Only gradient methods produce this.
+  function drawGrad(gt) {
+    var W = gradCv.width, H = gradCv.height, mid = H * 0.5, A = gt.adjoint, n = A.length;
+    gradCtx.clearRect(0, 0, W, H);
+    gradCtx.strokeStyle = '#2c324a'; gradCtx.lineWidth = 1;
+    gradCtx.beginPath(); gradCtx.moveTo(0, mid); gradCtx.lineTo(W, mid); gradCtx.stroke();
+    var amax = 1e-6; for (var i = 0; i < n; i++) if (Math.abs(A[i]) > amax) amax = Math.abs(A[i]);
+    var bw = W / n;
+    for (i = 0; i < n; i++) {
+      var h = (Math.abs(A[i]) / amax) * (H * 0.44);
+      gradCtx.fillStyle = A[i] < 0 ? 'rgba(106,169,255,0.9)' : 'rgba(245,183,105,0.9)';
+      gradCtx.fillRect(i * bw, A[i] < 0 ? mid - h : mid, Math.max(1, bw - 0.6), h);
+    }
+    gradStat.textContent = '‖∇w‖ ' + gt.gradNorm.toFixed(1) + ' · loss ' + gt.loss.toFixed(2);
+  }
+
+  function loop() {
+    if (mode === 'neural' && t && t.bestMeanUp <= 0.985 && t.iter < 800) {
+      TRAIN.trainIters(t, 3);
+      if (!traj || frameIdx >= traj.frames.length || (t.iter % 18 < 3)) nextEpisode();
+      if (t.iter % 9 < 3) { try { drawGrad(TRAIN.gradTrace(t)); } catch (e) {} }
+      var pct = Math.max(0, Math.min(100, t.bestMeanUp * 100));
+      bar.style.width = pct.toFixed(0) + '%';
+      phasePill.className = 'pill train'; phasePill.textContent = 'training';
+      msg.textContent = 'exact gradients · iter ' + t.iter + ' · best hold ' + pct.toFixed(0) + '%';
+    } else {
+      if (!traj || frameIdx >= traj.frames.length) nextEpisode();
+      bar.style.width = '100%';
+      phasePill.className = 'pill hold'; phasePill.textContent = mode === 'lqr' ? 'holding' : 'balancing';
+      msg.textContent = (mode === 'lqr')
+        ? 'analytic LQR · asymptotically stable · catch #' + epi
+        : 'exact-gradient controller · hold ' + (traj.meanUp * 100).toFixed(0) + '% · catch #' + epi;
+    }
+    drawFrame(traj ? traj.frames[frameIdx] : null);
+    frameIdx++;
+    requestAnimationFrame(loop);
+  }
+
+  setMode('lqr');
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,34 @@
+#wavelet-lab { --wl-gold:#f0c657; --wl-mint:#7ee1c3; --wl-violet:#ad91f4; margin:32px 0; padding:28px; border:1px solid #d8b95066; border-radius:16px; color:#eae2ce; background:radial-gradient(ellipse at 10% 0,#a8883020,transparent 60%),linear-gradient(135deg,#211d35eb,#151526ee); box-shadow:inset 0 1px #fff2ac30,0 18px 45px #0006,0 0 30px #cfaa2412; }
+#wavelet-lab .wl-kicker { color:var(--wl-gold); font-size:.76rem; letter-spacing:.13em; text-transform:uppercase; margin:0 0 10px; }
+#wavelet-lab h2 { margin:0 0 12px; color:#f2d881; font-family:Georgia,serif; font-size:clamp(1.5rem,2.5vw,2.25rem); text-shadow:0 0 20px #d9a83e25; }
+#wavelet-lab p { max-width:90ch; line-height:1.7; }
+#wavelet-lab .wl-intro { color:#d4ccdf; margin:0 0 18px; font-size:.9rem; }
+#wavelet-lab .wl-controls { display:flex; flex-wrap:wrap; gap:14px 22px; padding:16px; border:1px solid #b8a67d35; border-radius:10px; background:#ffffff05; align-items:end; }
+#wavelet-lab label { display:grid; gap:7px; color:#ece0b9; font-size:.79rem; flex:1 1 170px; }
+#wavelet-lab input[type=range] { width:100%; accent-color:var(--wl-gold); height:18px; cursor:pointer; }
+#wavelet-lab .wl-actions { display:flex; flex-wrap:wrap; gap:8px; }
+#wavelet-lab button { padding:9px 12px; border:1px solid #d6b15e75; border-radius:7px; background:linear-gradient(#b98a2628,#4c34381a); color:#f0db9d; font-size:.78rem; cursor:pointer; min-height:38px; }
+#wavelet-lab button:hover { background:#dcb84325; box-shadow:0 0 16px #dcb84324; }
+#wavelet-lab button:disabled { opacity:.4; cursor:default; }
+#wavelet-lab button:focus-visible,#wavelet-lab input:focus-visible,#wavelet-lab summary:focus-visible,#wavelet-lab a:focus-visible { outline:2px solid var(--wl-mint); outline-offset:4px; }
+#wavelet-lab .wl-views { display:grid; grid-template-columns:minmax(260px,.8fr) minmax(300px,1.2fr); gap:16px; margin:20px 0 12px; }
+#wavelet-lab figure { margin:0; min-width:0; border:1px solid #c1a55942; border-radius:11px; overflow:hidden; background:#101020; box-shadow:inset 0 1px #fff1; }
+#wavelet-lab canvas { display:block; width:100%; height:295px; }
+#wavelet-lab .wl-scale-map { height:255px; cursor:crosshair; touch-action:pan-y; }
+#wavelet-lab figcaption { padding:11px 14px; font-size:.76rem; line-height:1.6; color:#c8beda; background:#f2d77e05; }
+#wavelet-lab .wl-coefficients { border-color:#a384d56b; }
+#wavelet-lab .wl-legend { display:flex; flex-wrap:wrap; gap:10px 22px; font-size:.74rem; color:#c5bacf; margin:12px 0; }
+#wavelet-lab .wl-legend span::before { content:''; display:inline-block; width:14px; height:3px; margin-right:7px; vertical-align:middle; background:var(--legend-color); box-shadow:0 0 6px var(--legend-color); }
+#wavelet-lab .wl-metrics { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:16px; }
+#wavelet-lab .wl-metric { padding:12px 14px; border-left:2px solid var(--wl-gold); background:#e2bf6510; border-radius:0 8px 8px 0; }
+#wavelet-lab .wl-metric:nth-child(2) { border-color:var(--wl-mint); background:#78d9bb0a; }
+#wavelet-lab .wl-metric:nth-child(3) { border-color:var(--wl-violet); background:#ae8ded0c; }
+#wavelet-lab .wl-metric output { display:block; color:#f3e3b8; font:600 1.12rem ui-monospace,monospace; margin-bottom:5px; }
+#wavelet-lab .wl-metric small { color:#c6bdd1; font-size:.74rem; }
+#wavelet-lab .wl-selection { color:#d5cce3; padding:12px 14px; border-left:2px solid var(--wl-violet); background:#9c7cdf0c; font-size:.81rem; }
+#wavelet-lab details { border:1px solid #b998d13d; border-radius:9px; padding:14px 16px; margin-top:20px; font-size:.83rem; }
+#wavelet-lab summary { cursor:pointer; color:#d9c6ed; }
+#wavelet-lab .wl-formula { color:#9be8d3; font-family:ui-monospace,monospace; padding:12px 14px; background:#09141b80; border-radius:6px; }
+#wavelet-lab a { display:inline-block; color:#f2d37f; border:1px solid #cfac5770; border-radius:6px; padding:6px 10px; text-decoration:none; }
+@media(max-width:800px) { #wavelet-lab { padding:18px; } #wavelet-lab .wl-views { grid-template-columns:1fr; } #wavelet-lab canvas { height:260px; } }
+@media(max-width:480px) { #wavelet-lab .wl-metrics { grid-template-columns:1fr; } }

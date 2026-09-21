@@ -1,0 +1,856 @@
+<!doctype html>
+<html lang="en">
+  <head><style id="portfolio-early-paint">html{background:#0b0d0c;color-scheme:dark}html.portfolio-booting body{opacity:0}</style><script src="../../portfolio-navigation.js"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="An experiment in what closeness to a circle means: five geometric measurements, explicit scoring criteria, and visual counterexamples."
+    />
+    <title>Roundness Lab — geometry behind a circle score</title>
+    <link rel="stylesheet" href="styles.css?v=schematic-1" />
+    <link rel="stylesheet" href="criteria-lab.css?v=schematic-1" />
+    <link rel="stylesheet" href="score-formula.css?v=schematic-3" />
+    <link rel="stylesheet" href="drawing-closure.css?v=closure-2" />
+  <link rel="stylesheet" href="../../portfolio-controls.css"><link rel="stylesheet" href="../../portfolio-demo-return.css"><script defer src="../../portfolio-demo-return.js" data-project="circle" data-title="Circle · Roundness Lab" data-overview="projects/circle/overview.html" data-group="mathematics" data-thumbnail="media/previews/circle/native-contour-fit-and-five-component-score.png" data-routes="[{&quot;project&quot;:&quot;circle&quot;,&quot;title&quot;:&quot;Circle · Roundness Lab&quot;,&quot;group&quot;:&quot;mathematics&quot;,&quot;thumbnail&quot;:&quot;media/previews/circle/native-contour-fit-and-five-component-score.png&quot;,&quot;overview&quot;:&quot;projects/circle/overview.html&quot;,&quot;path&quot;:&quot;live_demos/circle/index.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:2},{&quot;project&quot;:&quot;circle&quot;,&quot;title&quot;:&quot;Circle · Roundness Lab&quot;,&quot;group&quot;:&quot;mathematics&quot;,&quot;thumbnail&quot;:&quot;media/previews/circle/native-contour-fit-and-five-component-score.png&quot;,&quot;overview&quot;:&quot;projects/circle/overview.html&quot;,&quot;path&quot;:&quot;live_demos/circle/index.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:1},{&quot;project&quot;:&quot;circle&quot;,&quot;title&quot;:&quot;Circle · Roundness Lab&quot;,&quot;group&quot;:&quot;mathematics&quot;,&quot;thumbnail&quot;:&quot;media/previews/circle/native-contour-fit-and-five-component-score.png&quot;,&quot;overview&quot;:&quot;projects/circle/overview.html&quot;,&quot;path&quot;:&quot;live_demos/circle/&quot;,&quot;query&quot;:{},&quot;priority&quot;:-1}]"></script><!-- universal-navigation:start --><link rel="stylesheet" href="../../portfolio-location.css?v=054b6b462c"><script defer src="../../portfolio-location.js?v=054b6b462c"></script><script defer src="../../portfolio-routes.js?v=054b6b462c"></script><script defer src="../../portfolio-universal-navigation.js?v=054b6b462c"></script><!-- universal-navigation:end --><style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
+.studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
+.review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
+.capture-slot,.capture-request-panel,.capture-request-dialog,.capture-requests,.case-captures,.capture-request,
+.punchline-editor,.punchline-edit,.punchline-edit-button,[data-punchline-editor],.atmosphere-tools,
+.tile-pending,
+.pc-appearance-launch,.pc-appearance-panel{display:none!important}
+.review-mark{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important}
+</style></head>
+  <body>
+    <nav class="lab-nav" aria-label="Roundness Lab sections">
+      <span class="lab-nav-caption" aria-hidden="true">Field notes</span>
+      <a href="#measure" aria-current="location"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7.5"/><path d="M12 2v4m10 6h-4M12 22v-4M2 12h4"/></svg><span>Measure</span></a>
+      <a href="#criteria"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5m0 14h16M7 15l4-6 4 3 5-7"/><circle cx="11" cy="9" r="1.5"/><circle cx="15" cy="12" r="1.5"/></svg><span>Criteria</span></a>
+      <a href="#calipers"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4v16M20 4v16M4 7h16M4 17h16"/><path d="M12 7c5 1 7 6 3 9-5 2-10-3-3-9Z"/></svg><span>Calipers</span></a>
+      <a href="#turning"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 7a8 8 0 1 0 2 8M18 3v5h-5M12 12l-5 3"/><circle cx="12" cy="12" r="1"/></svg><span>Turning</span></a>
+      <a href="#flow"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5c6-6 18 5 14 12-4 6-17 1-15-6Z"/><path d="M9 8c5-3 10 6 5 8-5 2-9-5-5-8Z"/><circle cx="12" cy="12" r="1.5"/></svg><span>Flow</span></a>
+      <a href="#scale-space"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5l3 3 3-5 3 5 3-4 3 4 3-3M3 13q3-5 6 0t6 0 6 0M3 20q4-3 9-1t9 0"/></svg><span>Scale-space</span></a>
+      <a href="#notes"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h11l3 3v15H5ZM9 8h6M9 12h6M9 16h4"/></svg><span>Notes</span></a>
+    </nav>
+    <div class="site-shell">
+      <header class="site-header">
+        <a class="brand" href="#top" aria-label="Roundness Lab home">
+          <span class="brand-orbit" aria-hidden="true"><span></span></span>
+          <span>Roundness Lab</span>
+        </a>
+        <p class="header-note">Geometric measurement · explicit criteria</p>
+      </header>
+
+      <main id="top">
+        <section class="hero" aria-labelledby="page-title">
+          <div class="hero-copy">
+            <p class="eyebrow">A drawing experiment, examined through geometry</p>
+            <h1 id="page-title">How round is <em>round?</em></h1>
+            <p class="hero-deck">
+              Draw-a-perfect-circle games turn a familiar shape into a numerical challenge.
+              Yet a high score can accompany a visibly imperfect loop. That mismatch raises
+              a geometric question: what should closeness to a circle actually mean?
+            </p>
+            <p class="hero-context">This lab compares average error, worst-case deviation, compactness,
+              local curvature, and harmonic structure. A stronger criterion should resist
+              size tricks, expose local defects, and distinguish a complete loop from a well-fitted arc.</p>
+            <a class="hero-evidence-link" href="#criteria">Inspect the counterexamples <span aria-hidden="true">↗</span></a>
+          </div>
+          <aside class="curvature-note" aria-label="A note about curvature">
+            <p class="eyebrow">One local criterion</p>
+            <p class="formula" aria-label="kappa of s equals d theta over d s">
+              κ(s) = dθ/ds
+            </p>
+            <p>
+              A circle has constant curvature <span class="nowrap">κ = 1/R</span>.
+              Measuring departures from that ideal reveals local defects,
+              while differentiation also amplifies sampling noise.
+            </p>
+          </aside>
+        </section>
+
+        <section id="measure" class="specimen-toolbar" tabindex="-1" data-nav-target aria-label="Specimen controls">
+          <div class="toolbar-title">
+            <span class="step-index">01</span>
+            <span>Choose a specimen or draw your own</span>
+          </div>
+          <div class="toolbar-actions">
+            <label for="presetSelect" class="sr-only">Example specimen</label>
+            <select id="presetSelect" class="select-control">
+              <option value="perfect">Perfect reference</option>
+              <option value="human">Near circle</option>
+              <option value="ellipse">Ellipse</option>
+              <option value="dent">One dent</option>
+              <option value="noisy">Noisy rim</option>
+              <option value="trilobe">Three-lobe</option>
+              <option value="roundedSquare">Rounded square</option>
+              <option value="openArc">Incomplete arc</option>
+            </select>
+            <button id="drawAgainButton" class="button button-primary" type="button">
+              Draw your own
+            </button>
+          </div>
+        </section>
+
+        <section class="lab-grid" aria-label="Interactive roundness analyzer">
+          <article class="draw-panel panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Specimen</p>
+                <h2 id="specimenName">Near circle</h2>
+              </div>
+              <span id="traceStatus" class="status-pill" role="status" aria-live="polite" aria-atomic="true">Ready to inspect</span>
+            </div>
+
+            <div class="closure-controls">
+              <label for="closureModeSelect">Complete the last gap
+                <select id="closureModeSelect" class="select-control">
+                  <option value="straight">Straight segment · default</option>
+                  <option value="tangent">Tangent-matched curve</option>
+                </select>
+              </label>
+              <p id="closureModeNote">Joins the endpoints without reshaping the stroke. A straight seam can leave a small corner.</p>
+            </div>
+            <div id="drawingStage" class="drawing-stage">
+              <svg
+                id="drawingSvg"
+                viewBox="0 0 640 520"
+                role="img"
+                aria-labelledby="drawingTitle drawingDescription"
+              >
+                <title id="drawingTitle">Analyzed circle outline</title>
+                <desc id="drawingDescription">
+                  The entered outline with the currently selected roundness overlay.
+                </desc>
+                <defs>
+                  <pattern id="smallGrid" width="26" height="26" patternUnits="userSpaceOnUse">
+                    <path d="M 26 0 L 0 0 0 26" class="grid-minor" />
+                  </pattern>
+                  <pattern id="largeGrid" width="104" height="104" patternUnits="userSpaceOnUse">
+                    <rect width="104" height="104" fill="url(#smallGrid)" />
+                    <path d="M 104 0 L 0 0 0 104" class="grid-major" />
+                  </pattern>
+                  <clipPath id="stageClip"><rect width="640" height="520" rx="14" /></clipPath>
+                </defs>
+                <g clip-path="url(#stageClip)">
+                  <rect class="stage-background" width="640" height="520" />
+                  <rect class="stage-grid" width="640" height="520" fill="url(#largeGrid)" />
+                  <g id="shapeFillLayer"></g>
+                  <g id="referenceLayer"></g>
+                  <g id="residualLayer"></g>
+                  <g id="rawLayer"></g>
+                  <g id="processedLayer"></g>
+                  <g id="completionLayer"></g>
+                  <g id="annotationLayer"></g>
+                </g>
+              </svg>
+              <div id="drawPrompt" class="draw-prompt" hidden>
+                <span class="prompt-ring" aria-hidden="true"></span>
+                <strong>Draw one continuous loop</strong>
+                <span>Release in the glowing zone; the previewed seam completes the loop.</span>
+              </div>
+            </div>
+
+            <div class="canvas-footer">
+              <div class="legend" aria-label="Drawing legend">
+                <span><i class="legend-line legend-raw"></i>raw gesture</span>
+                <span><i class="legend-line legend-analysis"></i>analysis contour</span>
+                <span id="overlayLegend"><i class="legend-line legend-reference"></i>least-squares circle</span>
+              </div>
+              <p id="pipelineSummary" class="pipeline-summary">
+                180 raw → 240 equal-distance samples → smoothed → fitted
+              </p>
+            </div>
+            <div id="closureStatus" class="closure-status" role="status" aria-live="polite" hidden></div>
+            <details class="closure-reasoning">
+              <summary>What does gap completion change?</summary>
+              <p><strong>Straight:</strong> the shortest join adds no inferred shape. Its corners can affect curvature, especially across a wider gap.</p>
+              <p><strong>Tangent-matched:</strong> a short cubic follows estimated endpoint directions. This softens the join, but does not match curvature or guarantee a better score. Unstable or crossing curves fall back to straight.</p>
+              <p>Only a nearly complete loop inside the release zone is joined. A short overshoot past the start can be trimmed; longer tails remain part of the stroke. The added seam is teal, discarded tail amber. Scores describe the completed contour; exports retain the captured stroke and all completion details.</p>
+            </details>
+          </article>
+
+          <aside class="analysis-panel panel" aria-labelledby="analysis-title">
+            <div class="panel-heading analysis-heading">
+              <div>
+                <p class="eyebrow"><span class="step-index">02</span> Measurements → result</p>
+                <h2 id="analysis-title">A score with an explicit criterion</h2>
+              </div>
+            </div>
+
+            <div class="mode-switch" role="group" aria-label="Analysis mode">
+              <button class="mode-button is-active" type="button" data-mode="comprehensive" aria-pressed="true">Comprehensive</button>
+              <button class="mode-button" type="button" data-mode="explore" aria-pressed="false">Explore methods</button>
+            </div>
+
+            <div class="scale-control">
+              <div class="scale-label-row">
+                <label for="smoothingRange">Analysis scale</label>
+                <output id="smoothingValue" for="smoothingRange">1.3% circumference</output>
+              </div>
+              <input id="smoothingRange" type="range" min="0" max="10" value="3" step="1" />
+              <div class="range-labels" aria-hidden="true"><span>fine / noisy</span><span>coarse / smooth</span></div>
+            </div>
+
+            <section id="comprehensivePanel" class="comprehensive-panel">
+              <div class="score-heading">
+                <div>
+                  <p class="eyebrow">Declared aggregation</p>
+                  <h3>One result, five measurements</h3>
+                  <p id="overallLabel" class="score-label">Calculating…</p>
+                </div>
+                <div id="scoreDial" class="score-dial" style="--score: 0">
+                  <strong id="overallScore">—</strong>
+                  <span>/ 100</span>
+                </div>
+              </div>
+              <div class="scoring-policy-control">
+                <label for="scoringPolicySelect">Scoring criterion</label>
+                <select id="scoringPolicySelect" class="select-control">
+                  <option value="geometric">Weighted geometric mean</option>
+                  <option value="arithmetic">Weighted arithmetic mean</option>
+                  <option value="bottleneck">Weakest component</option>
+                </select>
+              </div>
+              <div class="policy-equation" aria-live="polite">
+                <span class="eyebrow">Active score · S</span>
+                <strong id="policyFormula" class="sr-only">100 × exp(Σ wᵢ ln(qᵢ / 100))</strong>
+                <div id="scoreFormulaDiagram" aria-label="Color-coded score formula"></div>
+                <p id="policyExplanation"></p>
+                <details class="formula-details">
+                  <summary>How a measurement becomes a quality</summary>
+                  <div id="qualityFormulaDiagram"></div>
+                  <p class="formula-calibration">Anchors and weights are declared design choices. The measurements overlap; this score is not fitted to human ratings.</p>
+                </details>
+              </div>
+              <p class="method-description">
+                The criterion determines how normalized measurements contribute to the result.
+                A fixed 1.3% smoothing scale keeps drawings comparable under the same criterion.
+              </p>
+              <div class="confidence-row">
+                <span>Measurement evidence</span>
+                <strong id="scoreConfidence">—</strong>
+                <small id="scoreConfidenceDetail">Checks sampling, drawing size, closure, and smoothing sensitivity.</small>
+              </div>
+              <div id="scoreStatus" class="score-status"></div>
+              <p id="scoreEvidence" class="score-scale-note"></p>
+              <div id="scaleStability" class="scale-stability" aria-label="Score stability at nearby smoothing scales" hidden></div>
+              <div id="scoreComponents" class="score-components" aria-label="Composite score breakdown"></div>
+              <p id="scoreLimiting" class="score-limiting"></p>
+              <div class="result-actions" aria-label="Result utilities">
+                <button id="inspectLimitingButton" class="button button-compact" type="button">Inspect weakest lens</button>
+                <button id="copySummaryButton" class="button button-compact" type="button">Copy summary</button>
+                <button id="copyViewLinkButton" class="button button-compact" type="button">Copy view link</button>
+                <button id="downloadJsonButton" class="button button-compact" type="button">Download JSON</button>
+                <span id="exportStatus" class="export-status" role="status" aria-live="polite"></span>
+              </div>
+              <p class="score-scale-note">
+                The scale slider still changes the diagnostic plots below; the overall score always uses
+                240 equal-distance samples at the declared 1.3% scale.
+              </p>
+            </section>
+
+            <div id="explorePanel" hidden>
+            <div id="methodTabs" class="method-tabs" role="tablist" aria-label="Roundness method">
+              <button id="methodTab-fit" class="method-tab is-active" type="button" role="tab" aria-selected="true" aria-controls="methodPanel" tabindex="0" data-method="fit">Average fit</button>
+              <button id="methodTab-zone" class="method-tab" type="button" role="tab" aria-selected="false" aria-controls="methodPanel" tabindex="-1" data-method="zone">Minimum zone</button>
+              <button id="methodTab-compactness" class="method-tab" type="button" role="tab" aria-selected="false" aria-controls="methodPanel" tabindex="-1" data-method="compactness">Compactness</button>
+              <button id="methodTab-curvature" class="method-tab" type="button" role="tab" aria-selected="false" aria-controls="methodPanel" tabindex="-1" data-method="curvature">Curvature</button>
+              <button id="methodTab-harmonics" class="method-tab" type="button" role="tab" aria-selected="false" aria-controls="methodPanel" tabindex="-1" data-method="harmonics">Harmonics</button>
+            </div>
+
+            <section id="methodPanel" class="method-reading" role="tabpanel" aria-labelledby="methodTab-fit">
+              <div class="method-reading-topline">
+                <div>
+                  <p id="methodKicker" class="eyebrow">Least-squares reference circle</p>
+                  <h3 id="methodTitle">Average radial miss</h3>
+                </div>
+                <p class="method-value"><span id="methodValue">—</span><small id="methodUnit"></small></p>
+              </div>
+              <p id="methodDescription" class="method-description"></p>
+              <div class="tradeoff-grid">
+                <div>
+                  <span>Sensitivity</span>
+                  <p id="methodGoodAt"></p>
+                </div>
+                <div>
+                  <span>Blind spots</span>
+                  <p id="methodMisses"></p>
+                </div>
+              </div>
+              <details class="calculation-details">
+                <summary>Show calculation</summary>
+                <div id="methodFormula" class="calculation-body"></div>
+              </details>
+            </section>
+
+            <div class="metric-strip" aria-label="Live comparison metrics">
+              <div class="metric">
+                <span>RMS radial error</span>
+                <strong id="rmsMetric">—</strong>
+              </div>
+              <div class="metric">
+                <span>Minimum-zone band</span>
+                <strong id="zoneMetric">—</strong>
+              </div>
+              <div class="metric">
+                <span>Compactness</span>
+                <strong id="compactnessMetric">—</strong>
+              </div>
+            </div>
+            </div>
+            <p id="resultAnnouncer" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></p>
+          </aside>
+        </section>
+
+        <section class="intermediate-section" aria-labelledby="intermediate-title">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow"><span class="step-index">03</span> Intermediate geometry</p>
+              <h2 id="intermediate-title">From gesture to measurement</h2>
+            </div>
+            <p>Equal-arclength sampling separates boundary geometry from drawing speed.</p>
+          </div>
+          <div class="pipeline-visuals">
+            <article class="mini-stage">
+              <div class="mini-label"><span>Raw input</span><output id="rawCount">— points</output></div>
+              <svg id="rawMini" viewBox="0 0 260 150" role="img" aria-label="Raw input points"></svg>
+            </article>
+            <span class="pipeline-arrow" aria-hidden="true">→</span>
+            <article class="mini-stage">
+              <div class="mini-label"><span>Arc-length sample</span><output>240 points</output></div>
+              <svg id="sampledMini" viewBox="0 0 260 150" role="img" aria-label="Uniformly resampled points"></svg>
+            </article>
+            <span class="pipeline-arrow" aria-hidden="true">→</span>
+            <article class="mini-stage">
+              <div class="mini-label"><span>Analysis contour</span><output id="smoothCount">scale 1.3%</output></div>
+              <svg id="smoothedMini" viewBox="0 0 260 150" role="img" aria-label="Smoothed analysis contour"></svg>
+            </article>
+          </div>
+        </section>
+
+        <section class="plots-section" aria-labelledby="plots-title">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow"><span class="step-index">04</span> Signals around the loop</p>
+              <h2 id="plots-title">The structure behind the error</h2>
+            </div>
+            <p>Radial error is indexed by angle, curvature by boundary position, and harmonics by spatial frequency.</p>
+          </div>
+          <div class="plots-grid">
+            <article class="plot-card">
+              <div class="plot-heading">
+                <div><span>Radial signature</span><small>(r − R) / R</small></div>
+                <output id="radialPlotSummary">—</output>
+              </div>
+              <svg id="radialPlot" viewBox="0 0 520 250" role="img" aria-label="Radial deviation by angle" aria-describedby="radialPlotSummary radialPlotCaption"></svg>
+              <p id="radialPlotCaption" class="plot-caption">Angle 0° points right from the fitted center.</p>
+            </article>
+            <article class="plot-card">
+              <div class="plot-heading">
+                <div><span>Curvature signal</span><small>normalized κR; ideal = 1</small></div>
+                <output id="curvaturePlotSummary">—</output>
+              </div>
+              <svg id="curvaturePlot" viewBox="0 0 520 250" role="img" aria-label="Normalized curvature by boundary position" aria-describedby="curvaturePlotSummary curvaturePlotCaption"></svg>
+              <p id="curvaturePlotCaption" class="plot-caption">Boundary 0% is the first equal-distance sample along the stroke.</p>
+            </article>
+            <article class="plot-card">
+              <div class="plot-heading">
+                <div><span>Harmonic fingerprint</span><small>radial error by lobe count</small></div>
+                <output id="harmonicPlotSummary">—</output>
+              </div>
+              <svg id="harmonicPlot" viewBox="0 0 520 250" role="img" aria-label="Harmonic amplitudes from one to twelve lobes" aria-describedby="harmonicPlotSummary harmonicPlotCaption"></svg>
+              <p id="harmonicPlotCaption" class="plot-caption">Mode 1 mostly reflects centering; 2, 3, and 4 read as oval, triangular, and squarish.</p>
+            </article>
+          </div>
+        </section>
+
+        <section id="criteria" class="criteria-section" tabindex="-1" data-nav-target aria-label="Scoring criteria and validation">
+          <div id="criteriaLab"></div>
+        </section>
+
+        <section id="calipers" class="caliper-section" tabindex="-1" data-nav-target aria-labelledby="caliper-title">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow"><span class="step-index">05</span> The caliper paradox <span class="theorem-tag">Theorem-backed</span></p>
+              <h2 id="caliper-title">Same width. Different roundness.</h2>
+            </div>
+            <p>A noncircular constant-width family isolates what a caliper measurement cannot distinguish.</p>
+          </div>
+
+          <article class="caliper-lab">
+            <div class="caliper-controls" aria-label="Constant-width curve controls">
+              <label for="caliperDeformation">
+                <span>Shape deformation</span>
+                <output id="caliperDeformationValue" for="caliperDeformation">a = 0.080</output>
+                <input id="caliperDeformation" type="range" min="0" max="120" value="80" step="2" aria-describedby="caliperDeformationHint" />
+                <small id="caliperDeformationHint">circle <span aria-hidden="true">→</span> stops at 0.120; singular boundary is a = ⅛</small>
+              </label>
+              <label for="caliperAngle">
+                <span>Roll between fixed calipers</span>
+                <output id="caliperAngleValue" for="caliperAngle">0°</output>
+                <input id="caliperAngle" type="range" min="0" max="180" value="0" step="1" />
+                <small>scrub the angle; the contact midpoint moves but the gap does not</small>
+              </label>
+            </div>
+
+            <div class="caliper-main-grid">
+              <div class="caliper-visual">
+                <svg
+                  id="caliperDemo"
+                  viewBox="0 0 720 420"
+                  role="img"
+                  aria-labelledby="caliperDemoTitle caliperDemoDescription"
+                >
+                  <title id="caliperDemoTitle">A constant-width curve between fixed parallel calipers</title>
+                  <desc id="caliperDemoDescription">The curve changes shape and rolls while remaining tangent to two support lines with unchanged separation.</desc>
+                </svg>
+              </div>
+
+              <aside class="caliper-readout" aria-label="Caliper paradox readings">
+                <p class="eyebrow">Exact construction</p>
+                <p class="caliper-formula">h(θ) = R[1 + a cos(3θ)]</p>
+                <p class="caliper-intro">
+                  The three-lobed term changes the boundary, but cancels when opposite support distances are added.
+                </p>
+                <dl class="caliper-metrics">
+                  <div>
+                    <dt>Exact gap variation</dt>
+                    <dd id="caliperExactGap">0</dd>
+                    <small>h(θ) + h(θ + π) = 2R</small>
+                  </div>
+                  <div>
+                    <dt>Existing circle score</dt>
+                    <dd id="caliperRoundnessScore">—</dd>
+                    <small>same transparent calibration as above</small>
+                  </div>
+                  <div>
+                    <dt>Local bend ratio</dt>
+                    <dd id="caliperCurvatureRatio">—</dd>
+                    <small>κmax / κmin for this smooth family</small>
+                  </div>
+                  <div>
+                    <dt>Rim length / area</dt>
+                    <dd id="caliperBarbier">—</dd>
+                    <small>change from the equal-width circle</small>
+                  </div>
+                </dl>
+                <p id="caliperNarration" class="caliper-narration" role="status" aria-live="polite"></p>
+              </aside>
+            </div>
+
+            <div class="caliper-width-panel">
+              <div class="plot-heading">
+                <div><span>Directional width trace</span><small>w(θ) / mean(w) − 1</small></div>
+                <output id="caliperWidthSummary">—</output>
+              </div>
+              <svg
+                id="caliperWidthPlot"
+                viewBox="0 0 760 205"
+                role="img"
+                aria-label="Numerically sampled directional width deviation"
+                aria-describedby="caliperWidthSummary caliperWidthCaption"
+              ></svg>
+              <p id="caliperWidthCaption" class="plot-caption">
+                The theorem is exact; this trace exposes the tiny residual introduced by representing a smooth curve with finitely many points.
+              </p>
+            </div>
+
+            <div class="support-spectrum-panel">
+              <div class="plot-heading">
+                <div><span>Why the paradox works</span><small>support-function spectrum; exact for this constructed family</small></div>
+                <output id="supportSpectrumSummary">odd n = 3 cancels</output>
+              </div>
+              <div class="research-svg-scroll" role="region" aria-label="Scrollable support-function spectrum" tabindex="0">
+                <svg
+                  id="supportSpectrum"
+                  viewBox="0 0 760 220"
+                  role="img"
+                  aria-label="Exact support-function spectrum before and after opposite directions are added"
+                  aria-describedby="supportSpectrumSummary supportSpectrumCaption"
+                ></svg>
+              </div>
+              <p id="supportSpectrumCaption" class="plot-caption">Opposite directions multiply mode n by (−1)<sup>n</sup>. Adding them doubles even modes and erases odd modes; n = 1 is translation, while n = 3 changes this shape without changing its width. The two DC bars are normalized independently: support has coefficient R and width has 2R.</p>
+            </div>
+
+            <aside class="caliper-boundary" aria-labelledby="caliper-boundary-title">
+              <div class="maturity-pair" aria-label="Caliper lab maturity">
+                <span>The support-function theorem: established</span>
+                <span class="is-experimental">Sampled drawing diagnosis: experimental</span>
+              </div>
+              <div>
+                <h3 id="caliper-boundary-title">What directional width leaves unresolved</h3>
+                <p>
+                  Directional width sees only the convex hull, so outlines that share a hull have identical width traces and inward dent depth beyond that hull is not measured. A single outward speck can also control a support line.
+                  The slider stops below a = ⅛, where the minimum radius of curvature reaches zero and numerical curvature becomes singular.
+                </p>
+                <p class="experimental-source">
+                  Research basis:
+                  <a href="https://arxiv.org/pdf/2303.04359" target="_blank" rel="noreferrer">Hynd, support functions and constant width</a>
+                  ·
+                  <a href="https://arxiv.org/abs/1504.06733" target="_blank" rel="noreferrer">Resnikoff, Fourier structure</a>
+                </p>
+              </div>
+            </aside>
+          </article>
+
+        </section>
+
+        <section id="turning" class="turning-section" tabindex="-1" data-nav-target aria-labelledby="turning-title">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow"><span class="step-index">06</span> The tangent walk <span class="theorem-tag">Theorem-backed</span></p>
+              <h2 id="turning-title">Same total turning. Different local geometry.</h2>
+            </div>
+            <p>A regular simple closed loop has one full tangent rotation. A circle distributes that turning uniformly along arclength.</p>
+          </div>
+
+          <article class="turning-lab">
+            <div class="turning-control">
+              <label for="turningPosition">
+                <span>Walk around the current analysis contour</span>
+                <output id="turningPositionValue" for="turningPosition">0%</output>
+                <input id="turningPosition" type="range" min="0" max="1000" value="360" step="1" />
+                <small>The arrow is the local tangent; the filled path tracks measured arclength, not sample count.</small>
+              </label>
+              <label class="turning-microscope-toggle" for="turningOsculating">
+                <input id="turningOsculating" type="checkbox" />
+                <span>Osculating-circle microscope</span>
+                <small>Experimental · blue local circle · yellow center trail · near-flat centers may leave the stage.</small>
+              </label>
+            </div>
+
+            <div class="turning-main-grid">
+              <div class="turning-visual">
+                <svg
+                  id="turningContour"
+                  viewBox="0 0 640 420"
+                  role="img"
+                  aria-labelledby="turningContourTitle turningContourDescription"
+                >
+                  <title id="turningContourTitle">A tangent walking around the current contour</title>
+                  <desc id="turningContourDescription">The traced portion and tangent arrow update with boundary position.</desc>
+                </svg>
+              </div>
+              <aside class="turning-readout" aria-label="Tangent walk readings">
+                <p class="eyebrow">Hopf's Umlaufsatz</p>
+                <p class="turning-formula">∮ κ ds = ±2π</p>
+                <p class="turning-intro">Closing the path forces the tangent direction to return after an integer number of revolutions. A simple loop has exactly one.</p>
+                <dl class="turning-metrics">
+                  <div>
+                    <dt>Turn so far</dt>
+                    <dd id="turningSoFar">—</dd>
+                    <small>orientation-normalized cumulative tangent change</small>
+                  </div>
+                  <div>
+                    <dt>Final signed turn</dt>
+                    <dd id="turningFinal">—</dd>
+                    <small>the theorem target is one revolution</small>
+                  </div>
+                  <div>
+                    <dt>Turn nonuniformity</dt>
+                    <dd id="turningBacktrack">—</dd>
+                    <small>phase-neutral deviation from the circle ramp</small>
+                  </div>
+                </dl>
+                <p id="turningNarration" class="turning-narration" role="status" aria-live="polite"></p>
+              </aside>
+            </div>
+
+            <div class="turning-plot-panel">
+              <div class="plot-heading">
+                <div><span>Cumulative tangent turn</span><small>measured versus a circle's uniform 360° ramp</small></div>
+                <output id="turningPlotSummary">—</output>
+              </div>
+              <div class="research-svg-scroll" role="region" aria-label="Scrollable cumulative tangent-turn plot" tabindex="0">
+                <svg
+                  id="turningPlot"
+                  viewBox="0 0 760 270"
+                  role="img"
+                  aria-label="Cumulative tangent turning around the current contour"
+                  aria-describedby="turningPlotSummary turningPlotCaption"
+                ></svg>
+              </div>
+              <p id="turningPlotCaption" class="plot-caption">Above the dashed ramp: more turning has accumulated than on a circle at the same relative arclength. The shared endpoint alone does not distinguish roundness.</p>
+            </div>
+
+            <aside class="turning-boundary" aria-labelledby="turning-boundary-title">
+              <div class="maturity-pair" aria-label="Tangent walk maturity">
+                <span>Simple-loop theorem: established</span>
+                <span class="is-experimental">Sampled local diagnosis: exploratory</span>
+              </div>
+              <div>
+                <h3 id="turning-boundary-title">The total is exact; the route is diagnostic</h3>
+                <p>Open strokes and self-crossings do not receive the simple-loop guarantee. Discrete tangent turns depend on resampling and smoothing, and a cusp or near-180° sample jump can make angle unwrapping unstable. Reversing stroke direction flips the raw sign, so the plot normalizes orientation while reporting the original direction.</p>
+                <p class="experimental-source">
+                  Research basis:
+                  <a href="https://numdam.org/item/CM_1935__2__50_0/" target="_blank" rel="noreferrer">Hopf's tangent-turning theorem (1935)</a>
+                  ·
+                  <a href="https://www.numdam.org/item/CM_1937__4__276_0.pdf" target="_blank" rel="noreferrer">Whitney on rotation number (1937)</a>
+                  ·
+                  <a href="https://arxiv.org/abs/1207.5662" target="_blank" rel="noreferrer">Ghys, Tabachnikov &amp; Timorin on osculating circles</a>
+                </p>
+              </div>
+            </aside>
+          </article>
+
+          <article id="flow" class="flow-lab" tabindex="-1" data-nav-target aria-labelledby="flow-title">
+            <div class="flow-heading">
+              <div>
+                <p class="eyebrow">Curvature as an evolution law <span class="experimental-tag">Numerical telescope</span></p>
+                <h3 id="flow-title">The approach to a round point</h3>
+              </div>
+              <p>Each point follows its curvature vector. Convex bulges retreat, concave dents can fill outward, and tighter bends move faster.</p>
+            </div>
+
+            <div class="flow-control">
+              <label for="flowPosition">
+                <span>Curve-shortening time</span>
+                <output id="flowPositionValue" for="flowPosition">72%</output>
+                <input id="flowPosition" type="range" min="0" max="1000" value="720" step="1" />
+                <small>both views recentered · physical scale versus equal-area magnification</small>
+              </label>
+            </div>
+
+            <div class="flow-main-grid">
+              <div class="flow-visual">
+                <div class="research-svg-scroll" role="region" aria-label="Scrollable curve-shortening telescope" tabindex="0">
+                  <svg
+                    id="flowStage"
+                    viewBox="0 0 760 350"
+                    role="img"
+                    aria-labelledby="flowStageTitle flowStageDescription"
+                  >
+                    <title id="flowStageTitle">Physical and magnified curve-shortening flow</title>
+                    <desc id="flowStageDescription">The original contour is compared with a shrinking contour and an equal-area magnified copy.</desc>
+                  </svg>
+                </div>
+              </div>
+              <aside class="flow-readout" aria-label="Curve-shortening readings">
+                <p class="eyebrow">Local motion, global clock</p>
+                <p class="flow-formula">∂<sub>t</sub>γ = κN</p>
+                <p class="flow-intro">The tangent walk supplies the surprise: for a smooth embedded one-turn loop, total curvature makes enclosed area fall at the universal rate <strong>dA/dt = −2π</strong>.</p>
+                <dl class="flow-metrics">
+                  <div>
+                    <dt>Area remaining</dt>
+                    <dd id="flowArea">—</dd>
+                    <small>recentered physical scale, before magnification</small>
+                  </div>
+                  <div>
+                    <dt>Area-clock drift</dt>
+                    <dd id="flowClock">—</dd>
+                    <small>discrete preview versus A/A₀ = 1 − t/T</small>
+                  </div>
+                  <div>
+                    <dt>Shape excess</dt>
+                    <dd id="flowDeficit">—</dd>
+                    <small>polygon-corrected isoperimetric deficit</small>
+                  </div>
+                </dl>
+                <p id="flowNarration" class="flow-narration"></p>
+              </aside>
+            </div>
+
+            <div class="flow-plot-panel">
+              <div class="plot-heading">
+                <div><span>The universal area clock</span><small>measured polygon area versus the continuum law</small></div>
+                <output id="flowPlotSummary">—</output>
+              </div>
+              <div class="research-svg-scroll" role="region" aria-label="Scrollable curve-shortening area plot" tabindex="0">
+                <svg
+                  id="flowAreaPlot"
+                  viewBox="0 0 760 235"
+                  role="img"
+                  aria-label="Area remaining during numerical curve shortening"
+                  aria-describedby="flowPlotSummary flowPlotCaption"
+                ></svg>
+              </div>
+              <p id="flowPlotCaption" class="plot-caption">The dashed diagonal is exact for the smooth continuum flow. The orange path is this finite polygon solver; the distance between them is shown, not hidden.</p>
+            </div>
+
+            <aside class="flow-boundary" aria-labelledby="flow-boundary-title">
+              <div class="maturity-pair" aria-label="Curve-shortening maturity">
+                <span>Round-point theorem: established</span>
+                <span class="is-experimental">Polygon animation: experimental</span>
+              </div>
+              <div>
+                <h3 id="flow-boundary-title">Continuum prediction and numerical resolution</h3>
+                <p>The theorem belongs to smooth embedded curves. This preview first withholds contours that its 96-point grid cannot resolve faithfully. Every step must decrease area and stay within five percentage points of the universal clock; crossings are checked every tenth step and before every displayed frame. If a guard fails, the telescope stops early. The equal-area enlargement is display-only. Nothing here changes the roundness score.</p>
+                <p class="experimental-source">
+                  Research basis:
+                  <a href="https://doi.org/10.4310/jdg/1214439902" target="_blank" rel="noreferrer">Gage &amp; Hamilton (1986)</a>
+                  ·
+                  <a href="https://doi.org/10.4310/JDG/1214441371" target="_blank" rel="noreferrer">Grayson (1987)</a>
+                </p>
+              </div>
+            </aside>
+          </article>
+        </section>
+
+        <section id="scale-space" class="experimental-section" tabindex="-1" data-nav-target aria-labelledby="experimental-title">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow"><span class="step-index">07</span> Scale sensitivity <span class="experimental-tag">Experimental</span></p>
+              <h2 id="experimental-title">What survives when the smoothing scale changes?</h2>
+            </div>
+            <p>Feature persistence across scale is a separate diagnostic; it does not enter the composite score.</p>
+          </div>
+
+          <div class="experimental-plots">
+            <article class="plot-card experimental-map-card">
+              <div class="plot-heading">
+                <div><span>Multiscale curvature map</span><small>κR − 1 across boundary position and scale</small></div>
+                <output id="experimentalMapSummary">—</output>
+              </div>
+              <svg
+                id="experimentalMap"
+                viewBox="0 0 560 290"
+                role="img"
+                aria-label="Experimental heatmap of curvature deviation across smoothing scales"
+                aria-describedby="experimentalMapSummary experimentalMapCaption"
+              ></svg>
+              <div class="experimental-legend" aria-label="Curvature map legend">
+                <span><i class="experimental-swatch is-flat"></i>lower signed κR</span>
+                <span><i class="experimental-swatch is-near"></i>near κR = 1</span>
+                <span><i class="experimental-swatch is-sharp"></i>higher signed κR</span>
+                <span><i class="experimental-inflection-dot"></i>κ = 0 crossing</span>
+              </div>
+              <p id="experimentalMapCaption" class="plot-caption">Fine scales sit at the bottom; each pixel preserves the strongest signed deviation in its bin. Boundary 0% is tied to the stroke start.</p>
+            </article>
+
+            <article class="plot-card experimental-energy-card">
+              <div class="plot-heading">
+                <div><span>Bending excess</span><small>B(σ) = L∫κ²ds / 4π² − 1</small></div>
+                <output id="experimentalBendingSummary">—</output>
+              </div>
+              <svg
+                id="experimentalBendingPlot"
+                viewBox="0 0 420 290"
+                role="img"
+                aria-label="Experimental bending excess across smoothing scales"
+                aria-describedby="experimentalBendingSummary experimentalBendingCaption"
+              ></svg>
+              <p id="experimentalBendingCaption" class="plot-caption">Zero is the continuous-theory circle limit. Negative values are shown as numerical undershoot, not “better than a circle.”</p>
+            </article>
+          </div>
+
+          <aside class="experimental-boundary" aria-labelledby="experimental-boundary-title">
+            <div class="maturity-pair" aria-label="Research maturity">
+              <span>Theory: established</span>
+              <span class="is-experimental">Roundness interpretation: experimental</span>
+            </div>
+            <div>
+              <h3 id="experimental-boundary-title">Scale-space theory and this implementation</h3>
+              <p>
+                Curvature scale-space tracks how curvature features change under path-based Gaussian smoothing.
+                This lab adds a nonstandard deviation heatmap and bending-energy view so convex shapes are not blank.
+                Neither is an accepted metrology parameter, probability, or uncertainty interval.
+              </p>
+              <details>
+                <summary>Numerical limits and interpretation</summary>
+                <ul id="experimentalWarnings">
+                  <li>Fine scales amplify pointer sampling and numerical differentiation.</li>
+                  <li>Feature locations depend on the stroke start, and smoothing can merge or shift narrow dents.</li>
+                  <li>Classical zero-crossing scale-space can be blank for both a circle and a noncircular convex shape.</li>
+                  <li>Discrete curvature and bending estimates may rebound across scale because of aliasing.</li>
+                </ul>
+              </details>
+              <p class="experimental-source">
+                Research basis:
+                <a href="https://www.cs.ubc.ca/~mack/Publications/b2hd-IEEE-PAMI86.html" target="_blank" rel="noreferrer">Mokhtarian &amp; Mackworth (1986)</a>
+                ·
+                <a href="https://www.cs.ubc.ca/tr/1989/tr-89-14" target="_blank" rel="noreferrer">multiscale theory (1989)</a>
+              </p>
+              <p id="experimentalStatus" class="experimental-status" role="status" aria-live="polite"></p>
+            </div>
+          </aside>
+        </section>
+
+        <section id="notes" class="method-guide" tabindex="-1" data-nav-target aria-labelledby="guide-title">
+          <div class="guide-intro">
+            <p class="eyebrow">Interpreting the result</p>
+            <h2 id="guide-title">A score depends on what it rewards.</h2>
+            <p>
+              Small average error, a tight tolerance band, efficient use of area,
+              and consistent local bending are different requirements. I kept the
+              measurements separate so a high aggregate score can be traced back
+              to its assumptions. Counterexamples and controlled defects test those assumptions.
+            </p>
+          </div>
+          <div class="guide-list">
+            <div class="guide-row">
+              <span class="guide-number">A</span>
+              <div><strong>Least-squares circle</strong><p>Typical radial error relative to a fitted reference.</p></div>
+              <span>average</span>
+            </div>
+            <div class="guide-row">
+              <span class="guide-number">B</span>
+              <div><strong>Minimum-zone annulus</strong><p>Metrology-style worst case; sensitive to the single deepest dent.</p></div>
+              <span>worst case</span>
+            </div>
+            <div class="guide-row">
+              <span class="guide-number">C</span>
+              <div><strong>Isoperimetric compactness</strong><p>Center-free and scale-free, but rough edges inflate perimeter.</p></div>
+              <span>global shape</span>
+            </div>
+            <div class="guide-row">
+              <span class="guide-number">D</span>
+              <div><strong>Curvature consistency</strong><p>Local bending relative to a circle; sensitive to sampling and smoothing.</p></div>
+              <span>local bend</span>
+            </div>
+            <div class="guide-row">
+              <span class="guide-number">E</span>
+              <div><strong>Radial harmonics</strong><p>Explains the wobble: mode 2 is oval, 3 is triangular, 4 is squarish.</p></div>
+              <span>diagnosis</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="geometry-first" aria-labelledby="geometry-first-title">
+          <p class="eyebrow">Implementation and evidence</p>
+          <h2 id="geometry-first-title">Explicit geometry makes the assumptions testable.</h2>
+          <div class="geometry-first-copy">
+            <p>
+              The geometry pipeline is deterministic: resampling, smoothing, fitting,
+              and signal analysis have inspectable intermediate results. Known circles,
+              transformed copies, local defects, and constant-width counterexamples
+              distinguish numerical behavior from choices in the scoring policy.
+            </p>
+            <p>
+              Agreement with human preference remains a separate validation problem.
+              The current calibration expresses a set of geometric priorities; it was
+              not fitted to human ratings. That boundary matters when a plausible number
+              conflicts with the visible shape—the observation that started this experiment.
+            </p>
+          </div>
+          <p class="geometry-thesis">Question → criterion → measurements → result → validation.</p>
+          <p class="research-references">Measurement background:
+            <a href="https://www.itl.nist.gov/div898/handbook/mpc/section3/mpc344.htm" target="_blank" rel="noreferrer">NIST · roundness measurement</a> ·
+            <a href="https://arxiv.org/abs/cs/0301001" target="_blank" rel="noreferrer">Chernov &amp; Lesort · circle fitting</a> ·
+            <a href="https://www.oecd.org/en/publications/handbook-on-constructing-composite-indicators-methodology-and-user-guide_9789264043466-en.html" target="_blank" rel="noreferrer">OECD/JRC · composite indicators</a>
+          </p>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <p>Minimum-zone results are numerical approximations; instrument calibration and ISO conformance are outside this experiment.</p>
+        <p>Roundness Lab · measurements normalized by fitted radius</p>
+      </footer>
+    </div>
+
+    <script src="roundness.js?v=closure-1"></script>
+    <script src="comprehensive.js?v=closure-1"></script>
+    <script src="reporting.js?v=closure-1"></script>
+    <script src="view-state.js?v=criteria-20260909"></script>
+    <script src="experimental.js"></script>
+    <script src="constant-width.js"></script>
+    <script src="tangent-turning.js"></script>
+    <script src="curve-flow.js"></script>
+    <script src="criteria-lab.js?v=closure-1"></script>
+    <script src="drawing-closure.js?v=closure-1"></script>
+    <script src="capture-return.js?v=closure-1"></script>
+    <script src="score-formula.js?v=schematic-3"></script>
+    <script src="app.js?v=closure-2"></script>
+    <script src="navigation.js?v=chapter-ui-1"></script>
+  </body>
+</html>

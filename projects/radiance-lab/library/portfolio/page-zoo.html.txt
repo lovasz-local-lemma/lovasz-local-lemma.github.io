@@ -1,0 +1,719 @@
+{{SECTION:_head.html}}
+{{NAV}}
+
+<!-- ================= HERO ================= -->
+<header class="hero">
+  <div class="hero-img">{{IMG:caustic_room}}</div>
+  <div class="wrap hero-in">
+    <p class="eyebrow">Light transport research · RadianceLab</p>
+    <h1>The transport <i>zoo</i></h1>
+    <p class="thesis">Eleven ways to estimate the same integral live in this renderer, and one of them is real-time bidirectional path tracing with every (s,t) family inside the megakernel — one of very few open real-time codebases that carry it. The photon-primitive family is another, and the sharp question about it is not whether it is the best but which axis it generalises, and which axis it does not touch at all.</p>
+    <p class="note" style="max-width:56ch;margin:14px 0 0;color:#9fb0ad">The rest of this site is mostly about mode 9. This page is about the other ten, read from the source rather than from the mode names — because four of them are not quite what their name says, and the light tracer exists in two places, one of which is switched off every frame so the two do not both run.</p>
+    <div class="spectrum"></div>
+    <div class="stats">
+      <div class="stat"><span class="k">Transport modes in the enum</span>
+        <div class="v"><span class="to">10</span></div>
+        <div class="sub">plus ReSTIR DI and ReSTIR PT as post-passes</div></div>
+      <div class="stat"><span class="k">BDPT (s,t) cells implemented</span>
+        <div class="v"><span class="to">all six</span></div>
+        <div class="sub">including interior connections, which a stale source comment denied until 2026-09-04</div></div>
+      <div class="stat"><span class="k">MIS methods offered</span>
+        <div class="v"><span class="from">2</span><span class="arr">→</span><span class="to">1</span></div>
+        <div class="sub">method A was specified, never landed; it resolves to flat 1/N, and since 2026-09-04 the panel says so</div></div>
+      <div class="stat"><span class="k">Integrators with a volume path</span>
+        <div class="v"><span class="to">3 of 10</span></div>
+        <div class="sub">GPU tracer, UPBP, photon primitives</div></div>
+    </div>
+  </div>
+</header>
+
+
+<!-- ================= 01 INVENTORY ================= -->
+<section id="inventory" style="--secc:var(--l400)" data-nav="Inventory">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">01 — What is actually in the box</p>
+      <h2>Ten modes, one enum, seven enable flags</h2>
+      <p class="lead">Mode selection is a single integer, <span class="mono">m_ui.integratorMode</span>, dispatched at <span class="mono">EngineRender.cpp:2005-2265</span>. Modes 0-2 always run the GPU path tracer. Modes 3-9 each carry a second boolean — <span class="mono">vcmEnabled</span>, <span class="mono">mltEnabled</span>, <span class="mono">pssEnabled</span>, <span class="mono">upbpEnabled</span>, <span class="mono">pgEnabled</span>, <span class="mono">meEnabled</span>, <span class="mono">ppEnabled</span> — and <b>every one of them is declared false</b> (<span class="mono">UIManager.h:379-478</span>). What ticks them is a separate control one panel above: <b>Auto-enable on switch</b>, which defaults <em>on</em>, so completing a mode switch turns that mode's integrator on for you. An earlier draft of this page said selecting mode 4 without ticking its box silently falls back to the GPU tracer. The declaration is right and the conclusion was wrong: at defaults you get MLT. Turn auto-enable off and the fallback is real — and it is not quite silent either, because the Integrators HUD writes "(Tracer for viewing)" after the mode's name — in the HUD's own one-based numbering, which calls this mode 5. That HUD also defaults off, so the honest sentence is that <b>the mode number is a request, and whether anything honours it depends on a checkbox in a different panel</b>.</p>
+      <p>That is the first thing to know about this zoo: the mode number is a request, not a state. The second is that the seven CPU integrators share exactly three things — the scene, the camera, and <span class="mono">intersectScene</span>. They do not share a film, an RNG, a light-sampling routine, a BSDF evaluator or a tone-mapper. Each one carries its own copy, written at a different time, and the copies have drifted.</p>
+    </div>
+
+    <div class="tw"><table>
+      <thead><tr><th>#</th><th>Mode</th><th>What it actually implements</th><th>Volume</th><th>State</th></tr></thead>
+      <tbody>
+        <tr><td>0</td><td>Rasteriser</td><td>GL forward pass; LTC area lights (Heitz 2016), 64×64 tables generated at init</td><td>—</td><td><span class="st st-a">works</span></td></tr>
+        <tr class="key"><td>1</td><td>GPU path tracer</td><td>Megakernel with eight light strategies, from naive BSDF sampling to BDPT with interior connections</td><td><b>yes</b></td><td><span class="st st-a">the reference</span></td></tr>
+        <tr><td>2</td><td>Photon mapper</td><td>CPU emission + KD-tree build, GPU kNN gather. Global and caustic maps. <b>Surface only</b></td><td>no</td><td><span class="st st-b">partial</span></td></tr>
+        <tr><td>3</td><td>VCM</td><td>Connections + merging, but the weights are a photon-density heuristic, not the VCM MIS</td><td>no</td><td><span class="st st-b">approximate</span></td></tr>
+        <tr><td>4</td><td>MLT</td><td>Primary-sample-space Metropolis over a fixed-length random vector</td><td>no</td><td><span class="st st-b">named wrong</span></td></tr>
+        <tr><td>5</td><td>PSSMLT</td><td>Kelemen-style PSS-MLT with lazy per-coordinate mutation timestamps</td><td>no</td><td><span class="st st-a">the real one</span></td></tr>
+        <tr><td>6</td><td>UPBP</td><td>Connections + point merging in volume and on surfaces; delta tracking; heterogeneous media. <b>Beams built and never queried</b></td><td><b>yes</b></td><td><span class="st st-b">beams stubbed</span></td></tr>
+        <tr><td>7</td><td>Path guiding</td><td>Uniform 3D grid of 16×16 directional histograms, one-sample MIS against the cosine lobe</td><td>no</td><td><span class="st st-b">bin count now pinned</span></td></tr>
+        <tr><td>8</td><td>Manifold exploration</td><td>PSS-MLT with a 0.1× perturbation on randoms that fed a specular bounce. <b>No Newton solve exists</b></td><td>no</td><td><span class="st st-c">mislabelled</span></td></tr>
+        <tr class="key"><td>9</td><td>Photon primitives</td><td>31 strategy slots — 30 estimators and a rasterised gather; 21 analytic swept manifolds, six kernel estimators, three baselines</td><td><b>medium only</b></td><td><span class="st st-a">the research</span></td></tr>
+        <tr><td>—</td><td>ReSTIR DI</td><td>Reservoir RIS + temporal + spatial reuse over the tracer's G-buffer; replaces the direct term</td><td>no</td><td><span class="st st-a">post-pass</span></td></tr>
+        <tr><td>—</td><td>ReSTIR PT</td><td>Screen-space reservoir reuse over accumulated radiance. Its own header calls it an approximation</td><td>no</td><td><span class="st st-c">experimental</span></td></tr>
+        <tr><td>PT · strategies 3–4</td><td>Light tracer</td><td><b>Works, and ships in the megakernel.</b> Two entries in the light-strategy picker, “Light Tracer (Naive)” and “Light Tracer (NEE)”, running <span class="mono">traceLightPath()</span> with a camera splat. Its signature is visible and correct: a mirror renders <i>black</i>, because a light path cannot be connected to the camera through a delta lobe. The standalone <span class="mono">LightTracer</span> class is a superseded first implementation, deliberately disabled so the two do not both run.</td><td><span class="st st-b">seen</span></td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="narrow">
+      <p>The last row is worth stating plainly rather than burying. <span class="mono">LightTracer</span> is constructed, <span class="mono">init()</span>-ed at <span class="mono">Engine.cpp:253</span>, and then <b>hard-disabled at the top of every frame</b>:</p>
+    </div>
+
+    <div class="formula">
+      <div class="f">m_lightTracer.enabled = <span class="hl">false</span>;</div>
+      <div class="n"><span class="mono">EngineRender.cpp:2087</span>, unconditional, with the comment "handled inline in <span class="mono">pathTrace.comp</span>'s <span class="mono">traceLightPath()</span> … disabled to avoid double light tracing". <span class="mono">LightTracer::trace()</span> has no call site anywhere in the tree. The shaders it owns — <span class="mono">lightTrace.comp</span> and <span class="mono">lightTraceCombine.comp</span> — are never dispatched. The feature is real and reachable — two entries in the light-strategy picker — and it lives in the megakernel; this class is the superseded first implementation. The distinction matters: an audit that greps for call sites and stops there reads “disabled every frame” and concludes the feature is gone, when the comment two lines above the disable says exactly why, and names a feature a user can select today.</div>
+    </div>
+
+    <div class="narrow">
+      <p>The same applies one level down. <span class="mono">photonGather.comp</span> (357 lines) is loaded by <span class="mono">Engine::applyPhotonGather</span>, which has <b>no caller</b>; the gather that actually runs is <span class="mono">photonGatherV2.comp</span> via <span class="mono">applyPhotonGatherV2</span> at <span class="mono">EngineRender.cpp:2652</span>, gated on <span class="mono">pmV2Mode</span>, which defaults true. Two full gather kernels, one live.</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ================= 02 PYRAMID ================= -->
+<section id="pyramid" style="--secc:var(--l460)" data-nav="The pyramid">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">02 — The BDPT pyramid</p>
+      <h2>A grid you can click a cell out of and watch the image lose exactly one kind of light</h2>
+      <p class="lead">Bidirectional path tracing is not one estimator. It is a family of them, indexed by how many vertices come from the light and how many from the camera, all summed with MIS weights. That family is usually invisible: you get the combined image and take the decomposition on faith. Here it is a draggable panel with a clickable cell per technique, sitting over a real-time BDPT that implements all six (s,t) families — one of very few open real-time codebases that do — and two clicks reproduce Veach's figure inside one running render. It is the explanation of multiple importance sampling that no diagram can give: not a picture of the decomposition, the decomposition itself, live.</p>
+      <p>Light strategy 5 turns it on. The overlay lives at <span class="mono">EngineRenderViz.cpp:1859 drawBDPTPyramidOverlay</span>; the filter it writes, <span class="mono">bdptFilterS</span> / <span class="mono">bdptFilterT</span>, reaches the shader as <span class="mono">uBDPTFilterS/T</span> and is tested by two short functions in <span class="mono">shaders/modules/pt_bdpt.glsl</span> — <span class="mono">bdptPass(s,t)</span> at <span class="mono">:53</span> for ordinary contributions and <span class="mono">bdptSplatPass(s,t,px)</span> at <span class="mono">:68</span> for light-tracer splats. Between them they are called at <b>22 sites</b> in <span class="mono">pathTrace.comp</span> — thirteen and nine — and those 22 are every place in the megakernel where a contribution is added: emitter hits on the eye path, both NEE branches, the light-to-camera splats, the light-to-camera connects, and the interior-connection loop. Isolating a technique is therefore exact rather than approximate; the other 21 sites return early.</p>
+    </div>
+
+    <div class="schem">
+      <svg viewBox="0 0 640 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The BDPT strategy grid: light vertices l on the columns, eye vertices e on the rows, each cell coloured by the technique it represents">
+        <defs>
+          <style>
+            .gl{font-family:ui-monospace,Consolas,monospace;font-size:9.5px;fill:#DDE3E0}
+            .gt{font-family:ui-monospace,Consolas,monospace;font-size:8.5px;fill:#DDE3E0;opacity:.75}
+            .gk{font-family:ui-monospace,Consolas,monospace;font-size:10px;fill:#FFFFFF}
+            .ax{font-family:ui-monospace,Consolas,monospace;font-size:10.5px;fill:#DDE3E0}
+          </style>
+        </defs>
+
+        <!-- axis labels: l runs along the COLUMNS, e down the ROWS, matching the panel -->
+        <text class="ax" x="128" y="30">l  —  light vertices  (columns)</text>
+        <text class="ax" x="26" y="215" transform="rotate(-90 26 215)">e  —  eye vertices  (rows)</text>
+
+        <!-- column headers (l = 0..5) -->
+        <text class="gt" x="118" y="46">l=0</text>
+        <text class="gt" x="163" y="46">1</text>
+        <text class="gt" x="208" y="46">2</text>
+        <text class="gt" x="253" y="46">3</text>
+        <text class="gt" x="298" y="46">4</text>
+        <text class="gt" x="343" y="46">5</text>
+
+        <!-- row headers (e = 0..5) -->
+        <text class="gt" x="76" y="78">e=0</text>
+        <text class="gt" x="86" y="123">1</text>
+        <text class="gt" x="86" y="168">2</text>
+        <text class="gt" x="86" y="213">3</text>
+        <text class="gt" x="86" y="258">4</text>
+        <text class="gt" x="86" y="303">5</text>
+
+        <!-- cells: x = 110 + 45*l , y = 52 + 45*e -->
+
+        <!-- e = 0 : pure light tracing, needs a physical aperture -->
+        <rect x="110" y="52" width="42" height="42" fill="rgba(255,255,255,.06)" stroke="rgba(255,255,255,.25)"/>
+        <rect x="155" y="52" width="42" height="42" fill="rgba(255,255,255,.06)" stroke="rgba(255,255,255,.25)"/>
+        <rect x="200" y="52" width="42" height="42" fill="#FF4646" opacity=".35" stroke="#FF4646"/>
+        <rect x="245" y="52" width="42" height="42" fill="#FF4646" opacity=".35" stroke="#FF4646"/>
+        <rect x="290" y="52" width="42" height="42" fill="#FF4646" opacity=".35" stroke="#FF4646"/>
+        <rect x="335" y="52" width="42" height="42" fill="#FF4646" opacity=".35" stroke="#FF4646"/>
+
+        <!-- e = 1 : light-to-camera connect; l=1,e=1 is LE -->
+        <rect x="110" y="97" width="42" height="42" fill="rgba(255,255,255,.06)" stroke="rgba(255,255,255,.25)"/>
+        <rect x="155" y="97" width="42" height="42" fill="#FFE9A6" opacity=".7" stroke="#FFD264"/>
+        <rect x="200" y="97" width="42" height="42" fill="#FFB347" opacity=".65" stroke="#FFB347"/>
+        <rect x="245" y="97" width="42" height="42" fill="#FFB347" opacity=".65" stroke="#FFB347"/>
+        <rect x="290" y="97" width="42" height="42" fill="#FFB347" opacity=".65" stroke="#FFB347"/>
+        <rect x="335" y="97" width="42" height="42" fill="#FFB347" opacity=".65" stroke="#FFB347"/>
+
+        <!-- e >= 2 : l=0 pure PT, l=1 NEE, l>=2 interior connection -->
+        <g>
+          <rect x="110" y="142" width="42" height="42" fill="#78C8FF" opacity=".55" stroke="#78C8FF"/>
+          <rect x="155" y="142" width="42" height="42" fill="#FFD264" opacity=".65" stroke="#FFD264"/>
+          <rect x="200" y="142" width="42" height="42" fill="#CFE868" opacity=".55" stroke="#CFE868"/>
+          <rect x="245" y="142" width="42" height="42" fill="#CFE868" opacity=".55" stroke="#CFE868"/>
+          <rect x="290" y="142" width="42" height="42" fill="#CFE868" opacity=".55" stroke="#CFE868"/>
+          <rect x="335" y="142" width="42" height="42" fill="#CFE868" opacity=".55" stroke="#CFE868"/>
+        </g>
+        <g>
+          <rect x="110" y="187" width="42" height="42" fill="#78C8FF" opacity=".55" stroke="#78C8FF"/>
+          <rect x="155" y="187" width="42" height="42" fill="#FFD264" opacity=".65" stroke="#FFD264"/>
+          <rect x="200" y="187" width="42" height="42" fill="#CFE868" opacity=".55" stroke="#CFE868"/>
+          <rect x="245" y="187" width="42" height="42" fill="#CFE868" opacity=".55" stroke="#CFE868"/>
+          <rect x="290" y="187" width="42" height="42" fill="#CFE868" opacity=".55" stroke="#CFE868"/>
+          <rect x="335" y="187" width="42" height="42" fill="#CFE868" opacity=".55" stroke="#CFE868"/>
+        </g>
+        <g>
+          <rect x="110" y="232" width="42" height="42" fill="#78C8FF" opacity=".55" stroke="#78C8FF"/>
+          <rect x="155" y="232" width="42" height="42" fill="#FFD264" opacity=".65" stroke="#FFD264"/>
+          <rect x="200" y="232" width="42" height="42" fill="#CFE868" opacity=".55" stroke="#CFE868"/>
+          <rect x="245" y="232" width="42" height="42" fill="#CFE868" opacity=".55" stroke="#CFE868"/>
+          <rect x="290" y="232" width="42" height="42" fill="#CFE868" opacity=".55" stroke="#CFE868"/>
+          <rect x="335" y="232" width="42" height="42" fill="#CFE868" opacity=".55" stroke="#CFE868"/>
+        </g>
+        <g>
+          <rect x="110" y="277" width="42" height="42" fill="#78C8FF" opacity=".55" stroke="#78C8FF"/>
+          <rect x="155" y="277" width="42" height="42" fill="#FFD264" opacity=".65" stroke="#FFD264"/>
+          <rect x="200" y="277" width="42" height="42" fill="#CFE868" opacity=".55" stroke="#CFE868"/>
+          <rect x="245" y="277" width="42" height="42" fill="#CFE868" opacity=".55" stroke="#CFE868"/>
+          <rect x="290" y="277" width="42" height="42" fill="#CFE868" opacity=".55" stroke="#CFE868"/>
+          <rect x="335" y="277" width="42" height="42" fill="#CFE868" opacity=".55" stroke="#CFE868"/>
+        </g>
+
+        <!-- the l+e = 3 anti-diagonal: the two cells the Veach figure is made of -->
+        <circle cx="131" cy="208" r="19" fill="none" stroke="#FFFFFF" stroke-width="1.6" opacity=".85"/>
+        <circle cx="176" cy="163" r="19" fill="none" stroke="#FFFFFF" stroke-width="1.6" opacity=".85"/>
+        <line x1="145" y1="194" x2="162" y2="177" stroke="#FFFFFF" stroke-width="1" stroke-dasharray="3 3" opacity=".7"/>
+        <text class="gt" x="196" y="342" fill="#FFFFFF" opacity=".85">circled: l+e = 3 — BSDF sampling (l=0,e=3) and NEE (l=1,e=2)</text>
+
+        <!-- legend -->
+        <rect x="412" y="52" width="14" height="14" fill="#FF4646" opacity=".35" stroke="#FF4646"/>
+        <text class="gl" x="434" y="63">e=0  pure LT — the photon must physically</text>
+        <text class="gl" x="434" y="75">enter the aperture. Black unless Pinhole &gt; 0.</text>
+        <rect x="412" y="92" width="14" height="14" fill="#FFE9A6" opacity=".7" stroke="#FFD264"/>
+        <text class="gl" x="434" y="103">l=1,e=1  LE — light point straight to the film</text>
+        <rect x="412" y="120" width="14" height="14" fill="#FFB347" opacity=".65" stroke="#FFB347"/>
+        <text class="gl" x="434" y="131">e=1  LT + camera connect — where caustics</text>
+        <text class="gl" x="434" y="143">arrive, and the only route through glass</text>
+        <rect x="412" y="160" width="14" height="14" fill="#78C8FF" opacity=".55" stroke="#78C8FF"/>
+        <text class="gl" x="434" y="171">l=0  pure PT — the eye path hits an emitter</text>
+        <rect x="412" y="188" width="14" height="14" fill="#FFD264" opacity=".65" stroke="#FFD264"/>
+        <text class="gl" x="434" y="199">l=1  NEE — the shadow-ray workhorse</text>
+        <rect x="412" y="216" width="14" height="14" fill="#CFE868" opacity=".55" stroke="#CFE868"/>
+        <text class="gl" x="434" y="227">l≥2,e≥2  interior connection — implemented,</text>
+        <text class="gl" x="434" y="239">diffuse endpoints only</text>
+        <rect x="412" y="256" width="14" height="14" fill="rgba(255,255,255,.06)" stroke="rgba(255,255,255,.25)"/>
+        <text class="gl" x="434" y="267">fewer than 2 vertices — no path exists</text>
+
+        <text class="gk" x="412" y="294">Each anti-diagonal l+e = V is one path length.</text>
+        <text class="gk" x="412" y="310">MIS mixes across a diagonal, never down it.</text>
+        <text class="gt" x="412" y="330">The shader calls these s and t; the panel labels</text>
+        <text class="gt" x="412" y="342">them l and e. Same numbers, pbrt's convention.</text>
+      </svg>
+    </div>
+    <div class="paircap"><b>The grid, in the panel's own orientation</b><span>Columns are <span class="mono">l</span>, rows are <span class="mono">e</span> — <span class="mono">bdptTileS = px.x / tileW</span>, <span class="mono">bdptTileT = px.y / tileH</span> at <span class="mono">pathTrace.comp:3639-3640</span>, and the overlay draws the same way, "<span class="mono">l:</span>" across the top at <span class="mono">EngineRenderViz.cpp:2084</span> and "<span class="mono">e0…e5</span>" down the side at <span class="mono">:2107</span>. Every cell on one anti-diagonal builds a path of the same length by a different route, so those are the techniques MIS has to weight against each other. The <span class="mono">e=1</span> row is where caustics arrive; the <span class="mono">l=0</span> column is what an ordinary path tracer finds on its own.</span></div>
+
+    <div class="narrow">
+      <h3>Three ways to look at one grid</h3>
+      <p>The pyramid has a <b>tile mode</b> with three settings, chosen by the <span class="mono">[T]</span> button on its own title bar. <b>Off</b> gives one full-screen image filtered to a single cell. <b>Tiled</b> divides the film into an <span class="mono">(l,e)</span> grid and lets each cell accept only its own technique, so the scene is cut into a technique checkerboard. <b>Shrunken</b> remaps the camera UV per tile (<span class="mono">pathTrace.comp:3649-3657</span>) so every tile is the <i>whole</i> scene rendered by one technique — a contact sheet of the decomposition. Light-tracer splats are remapped into the matching tile by eight lines inside <span class="mono">bdptSplatPass</span> (<span class="mono">pt_bdpt.glsl:75-82</span>), which is what stops a caustic splat from landing in the wrong cell.</p>
+      <p>Two affordances make the panel teach rather than merely filter. Hovering a cell highlights <b>every cell on the same anti-diagonal</b>, in the panel and in the tiled viewport at once (<span class="mono">EngineRenderViz.cpp:2153</span> and <span class="mono">:2314</span>) — the UI draws "MIS mixes across a diagonal" for you instead of asserting it. And each cell carries prose written in the renderer's own voice, assembled at <span class="mono">:1918-1975</span>: <i>"Useless for small/occluded lights"</i>, <i>"Nearly useless unless aperture is huge"</i>, <i>"Excellent for caustics (L-&gt;S*-&gt;D-&gt;E)"</i>.</p>
+      <p><b>One correction to this project's own shooting notes.</b> <span class="mono">docs/CAPTURE-SHOOTING-LIST.md:564</span> calls shrunken mode "expensive — it renders the scene once per cell". It does not. Every pixel still traces its full eye subpath and its light subpaths and then <i>discards</i> every contribution that does not match its tile, so a shrunken frame costs about what an ordinary BDPT frame costs. What you lose is samples per technique — one forty-ninth of the film at the default 7×7 grid. The constraint is convergence time, not frame rate, which is why the recipes below ask for a lot of passes and not for patience with the viewport.</p>
+    </div>
+
+    {{SHOT:GPU tracer (key `2`) · preset 40 "MIS: Veach Test" · DO NOT move the camera from (0,4.5,-12)->(0,3,1.5) — the plate normals are computed from it · Light Strategy = "BDPT (Bidirectional)" · MIS = "B balance" · BDPT Pyramid ON · Grid = 4 · Tile Mode = Shrunken · [M] = Raw · clean view G ON (it does not hide the pyramid) · accumulate ~1500 passes · frame so the 5x5 tile grid and the floating pyramid panel are both in shot}}
+    <div class="paircap"><b>Shrunken mode — the whole decomposition in one frame</b><span>Each tile is the same scene rendered by one <span class="mono">(l,e)</span> technique alone, columns <span class="mono">l</span>, rows <span class="mono">e</span>. The first column is what a unidirectional path tracer finds; the second row is what a light tracer finds; the green block is the transport that needs both ends. The top row is black on this rig, and correctly so: see the note on the aperture below.</span></div>
+
+    <div class="narrow">
+      <h3>Two cells, one anti-diagonal, and the reason MIS exists</h3>
+      <p>Preset 40 is a purpose-built Veach rig — four metal plates at roughness <span class="mono">.02 / .07 / .18 / .40</span> in a staircase, five emissive spheres from radius <span class="mono">.90</span> down to <span class="mono">.04</span> at matched power, each plate's normal computed as the half-vector between the camera position and the light row. The direct reflection off a plate is a three-vertex path, and exactly two cells of the pyramid can build it: <b>(l=0, e=3)</b>, where the eye path bounces off the plate and happens to hit an emitter, which is BSDF sampling; and <b>(l=1, e=2)</b>, where the eye path stops on the plate and sends a shadow ray, which is next-event estimation. Same anti-diagonal, <span class="mono">l+e = 3</span>, circled in the figure above.</p>
+      <p>The complementarity is designed into the rig and it is visible without measuring anything. Cell (0,3) is clean on the sharp plate under the big light and catastrophic on the rough plate under the tiny one, because BSDF sampling has to hit a small emitter by luck. Cell (1,2) is noisy in exactly the opposite places, because a shadow ray to a large light is a poor match for a nearly specular lobe. Neither is usable alone. Their weighted sum is clean across all four plates. That is the whole of multiple importance sampling on one screen, and here you produce it by clicking two cells of one running render — no change of integrator, no change of scene, and accumulation reset on each click so the noise you are looking at is that technique's own.</p>
+    </div>
+
+    {{VIDEO:Two cells make the Veach figure | Preset 40, camera locked at (0,4.5,-12)->(0,3,1.5), GPU tracer, Light Strategy = BDPT, MIS = "B balance", pyramid ON, Grid 4, Tile Mode OFF, clean view G ON. Start unfiltered and let it converge ~20 s. Click cell (l=0, e=3) — first column, fourth row — and hold 8 s while it re-accumulates from zero. Click (l=1, e=2) and hold 8 s. Click it again to clear the filter and hold 10 s. Do not touch the camera or any slider. | Cell (0,3) is BSDF sampling: clean on the sharp plate under the big light, a mess on the rough plate under the small one. Cell (1,2) is next-event estimation and is noisy in exactly the opposite places. Neither is usable; the unfiltered frame is clean across all four plates. Each click resets accumulation, so what you are watching is each technique converge on its own terms.}}
+
+    <div class="narrow">
+      <h3>And the half almost no renderer shows: the weights themselves</h3>
+      <p>The decomposition above answers "why two techniques". It does not answer "why <i>weight</i> them rather than average them", and that is the part the pyramid can actually display. The <span class="mono">[M]</span> button cycles the display through <b>raw → weighted → weight-only</b> (<span class="mono">EngineRenderViz.cpp:2004-2013</span>). In a per-strategy view, <span class="mono">applyBDPTMIS</span> returns the contribution, or the contribution times its weight, or <span class="mono">vec3(w)</span> — the weight, rendered as an image (<span class="mono">pt_bdpt.glsl:119-123</span>). Method B honours the same three modes through <span class="mono">applyBDPTMISW</span> (<span class="mono">:130-138</span>), whose own comment reads "weight only (inspect the weight!)".</p>
+      <p>So the figure is a pair, one setting apart. Under <b>Flat 1/N</b> the weight image is a flat grey per anti-diagonal, because <span class="mono">countActiveStrategies</span> depends only on <span class="mono">s+t</span> and the uniforms — the structure you see is the technique's <i>support</i>, not its weighting. Under <b>B balance</b> the same image acquires structure: bright where this technique is the one that sampled the path well, dark where another technique wins. One is a picture of a constant; the other is a picture of a decision.</p>
+      <p>One qualification on reading it. Weight-only mode accumulates <span class="mono">w</span> at every site that actually fired, so what lands on the film is the weight <i>masked by where the technique contributes at all</i>, not a weight field defined everywhere. A dark region can mean "this technique is down-weighted here" or "this technique never fires here"; the raw view next to it disambiguates.</p>
+    </div>
+
+    {{SHOT:Same frame as the shrunken shot above, camera unmoved · Tile Mode = Shrunken · pyramid [M] = Weight only · shoot TWICE: once with MIS = "Flat 1/N", once with MIS = "B balance" · ~600 passes each · deliver as a left/right pair}}
+    <div class="paircap"><b>Flat versus balance, as weight images</b><span>Left: <span class="mono">1/N</span>, one grey level per anti-diagonal, masked by each technique's support. Right: the balance heuristic, where every tile shows which paths that technique is trusted with. This is the same design decision the photon-primitive side of this renderer measures numerically — flat versus balance over a frozen batch of swept primitives drops the film maximum from <b>4562</b> to <b>368.7</b>, a 12.4× knockdown from the heuristic alone (<span class="mono">docs/correlated/README.md:600</span>). Two different families, one decision, and it is worth the same on both.</span></div>
+
+    <div class="narrow">
+      <h3>The correction: the code comment was wrong about its own capability, and has been fixed</h3>
+      <p>Until 2026-09-04 the strategy map at <span class="mono">pathTrace.comp:2471-2484</span> read, for the <span class="mono">l≥2, e≥2</span> block, "<b>NOT YET IMPLEMENTED.</b> Requires storing light subpath vertices and connecting each to eye subpath vertices via shadow ray." That was true when it was written and had been false for a long time. Interior connections are implemented in full: both subpaths are stored (<span class="mono">g_lightVerts</span> and <span class="mono">g_eyeVerts</span>, <span class="mono">pt_sky.glsl:382</span> and <span class="mono">:384</span>), the double loop over them runs from <span class="mono">pathTrace.comp:3923</span>, and each pair gets a shadow ray, a geometry term, a BRDF or phase function at both endpoints, and an MIS weight. The stale comment sat about 1,400 lines above the loop that contradicted it. It now reads "IMPLEMENTED", points at the loop, and records what it used to say; the strategy-5 tooltip that repeated the old claim was corrected the same day.</p>
+      <p>This matters beyond tidiness, because that block is the cell that separates BDPT proper from a light tracer bolted onto a path tracer. The renderer has it, and now the file says so.</p>
+
+      <h3>The MIS selector offers a method that does not exist — and now says so</h3>
+      <p>The Render panel exposes five MIS settings — <span class="mono">Flat 1/N</span>, <span class="mono">A balance</span>, <span class="mono">A power</span>, <span class="mono">B balance</span>, <span class="mono">B power</span>. Until 2026-09-04 its tooltip read "A = dVC/dVCM recurrence; B = explicit path-pdf sum. A and B must match (the correctness oracle)"; it now reads "A (dVC/dVCM recurrence) is NOT IMPLEMENTED … the A-vs-B cross-check they were meant to provide CANNOT BE RUN. Use B", and the two A entries carry <span class="mono">[inert]</span> in the combo itself (<span class="mono">UIManagerRender.cpp:1039-1055</span>). The design that specified them is <span class="mono">docs/2026-06-07-bdpt-real-mis-surface-design.md</span>, and its own progress log ends with "then <b>(c) method A</b> gated on A==B". Step (c) never happened.</p>
+      <p>What ships: method B is real. It assembles the full connection path into <span class="mono">gBpos/gBnrm/gBmat/gBspec</span> and runs the pbrt-style <span class="mono">sumRi</span> walk with a consistent light-origin pdf at every site, with <span class="mono">beta = 2</span> selecting the power heuristic. It is compiled only when it is the selected path, behind <span class="mono">FEAT_BDPT_MIS_B</span>, because it does not fit alongside participating media on the measured GPU. Method A is one function:</p>
+    </div>
+
+    <div class="formula">
+      <div class="f">float bdptMISWeight(int s, int t) {<br>
+&nbsp;&nbsp;int N = countActiveStrategies(s + t);<br>
+&nbsp;&nbsp;<span class="hl">// TODO: balance/power heuristic weights require storing PDFs at each vertex</span><br>
+&nbsp;&nbsp;<span class="hl">// For now, all schemes use 1/N as the baseline</span><br>
+&nbsp;&nbsp;return 1.0 / float(N);<br>
+}</div>
+      <div class="n"><span class="mono">shaders/modules/pt_bdpt.glsl:101-106</span>, quoted whole. The scheme argument is not read. So "A balance" and "A power" both produce a frame byte-identical to "Flat 1/N", and the oracle the old tooltip described cannot be run. The <span class="mono">dVCM</span> / <span class="mono">dVC</span> fields A would have used exist on the vertex structs at <span class="mono">pt_sky.glsl:357-358, 376-377</span>, carrying the comment "0 until Task 4", and nothing in the tree ever assigns them. Method A is also the <i>default</i> (<span class="mono">UIManager.h:329</span>), so out of the box the pyramid has one MIS scheme, not five — one click to B gives it the real one.</div>
+    </div>
+
+    <div class="narrow">
+      <p>The pyramid's own <span class="mono">[S]</span> button is stale in the opposite direction: its tooltip still labels the balance and power schemes "<span class="mono">(TODO)</span>" (<span class="mono">EngineRenderViz.cpp:2033</span>), which was true of method A and has been false of method B since it landed and was validated as unbiased and faster-converging. The Render panel's tooltip was corrected on 2026-09-04; this one was not, so the two now disagree about the same control. The precise statement is that the scheme control is <b>live under method B and inert under method A</b>.</p>
+
+      <h3>Three more places the panel says more than the code does</h3>
+      <ul class="clean">
+        <li><b>The pure-LT row is dead at defaults, and the overlay does not admit it.</b> <span class="mono">pinholeSize</span> defaults to <span class="mono">0.0f</span> (<span class="mono">UIManager.h:222</span>), so <span class="mono">uPinholeRadius</span> is zero and <span class="mono">aperFeasible</span> is false (<span class="mono">pt_bdpt.glsl:28</span>). The shader handles this correctly — <span class="mono">countActiveStrategies</span> drops the <span class="mono">e=0</span> techniques from <span class="mono">N</span>. The overlay does not: it paints the <span class="mono">l≥2, e=0</span> cells with <span class="mono">active = hasLT</span> and no aperture test at all (<span class="mono">EngineRenderViz.cpp:2142</span>, with <span class="mono">hasLT = (ls &gt;= 3 &amp;&amp; ls &lt;= 5)</span> at <span class="mono">:1892</span>). So those cells are coloured active, their hover text says "nearly useless unless aperture is huge", and they render pure black. The panel contradicts itself in two places and the image settles it. To make the row live, raise Pinhole Size above zero.</li>
+        <li><b>The grid can draw cells that cannot fire.</b> <span class="mono">MAX_EYE_VERTS</span> and <span class="mono">MAX_LIGHT_VERTS</span> are both 8 (<span class="mono">pt_sky.glsl:360, 379</span>), so interior connections cap at <span class="mono">l=8, e=9</span>. The overlay's out-of-range shading is driven only by <span class="mono">maxVerts = maxBounces + 2</span> (<span class="mono">EngineRenderViz.cpp:1869</span>), and Max Bounces goes to 32. Above <span class="mono">maxBounces = 8</span> the panel marks cells in-range that no site in the shader will ever reach. Harmless at the default of 6, and the sort of thing that is only a problem the first time someone believes the grid.</li>
+        <li><b>"T = cycle mode" names a key that does not exist.</b> The panel's hint line reads "Click cell to isolate | T=cycle mode | drag title" (<span class="mono">EngineRenderViz.cpp:2261</span>). There is no <span class="mono">GLFW_KEY_T</span> handler anywhere in <span class="mono">src/</span>; <span class="mono">T</span> is the on-panel button at <span class="mono">:2036-2052</span>. A one-word documentation bug, listed here because this page's rule is that a claim gets checked or it does not get made.</li>
+      </ul>
+
+      <p>The last note on this panel is one the renderer already makes about itself, and it now has a cause. The Render panel's simplified-BDPT tooltip admits the image "may be slightly bright due to path overlap at diffuse vertices (no inter-technique MIS yet)" (<span class="mono">UIManagerRender.cpp:914</span>). The mechanism is flat <span class="mono">1/N</span>: <span class="mono">countActiveStrategies</span> counts the techniques that <i>could</i> exist at that path length, not the ones that can actually sample the given path — a specular vertex makes NEE unable to — so the weights along a diagonal do not sum to one. The design doc names the same thing, "the strategy-count fudge can leave it slightly biased". Method B fixes it; on volume scenes method B is masked off (<span class="mono">ComputePathTracer.cpp:88-93</span>) and the flat-<span class="mono">1/N</span> bias comes back, which is why the volumetric bidirectional showcase declares itself <b>BIASED — not a converged estimator</b> in its own checkbox tooltip.</p>
+
+      <h3>Three controls behind everything above, graded</h3>
+      <p>Method B can vanish in <b>two independent ways</b>, and only one of them is the ladder. The first makes it <b>statically unavailable</b>: the feature mask never <em>requests</em> <span class="mono">FEAT_BDPT_MIS_B</span> when <span class="mono">FEAT_VOLUMES</span> is set, so on any scene with fog, selecting B renders flat <span class="mono">1/N</span> before a runtime fallback could occur. The second is the degrade ladder, which drops B on a compile failure and keeps bidirectional transport. The panel now admits the first in the MIS tooltip, with the file and line in the tooltip text — one of the few places in this program where a control cites its own source at the user.</p>
+    </div>
+
+    <div class="tw"><table>
+      <thead><tr><th>Control</th><th>What it does</th><th>Catalogue grade</th></tr></thead>
+      <tbody>
+        <tr><td>Pyramid Grid slider</td><td>Caps the grid at 2 &hellip; <span class="mono">maxBounces + 2</span>, clamps itself down when Max Bounces falls, and resets to the full grid every time the pyramid is switched on. It is also the tile count: the shrunken contact sheet is <span class="mono">(grid + 1)&sup2;</span> tiles, which is why the recipe above sets Grid to 4 and expects 5 &times; 5</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>MIS method B — statically unavailable on a volume scene</td><td>Not a fallback but an omission: the mask function refuses the combination, so B is not compiled in at all and the selector silently gives you flat <span class="mono">1/N</span></td><td><span class="st st-c">scene-dependent</span></td></tr>
+        <tr><td>Feature-mask degrade ladder</td><td>The other route to the same place. Full mask, then drop <span class="mono">FEAT_BDPT_MIS_B</span>, then the minimal kernel, then keep the previously compiled program — each rung logged, each rung resetting accumulation. <a href="ten-integrators-one-scene.html" style="color:var(--l460)">The megakernel page</a> walks it rung by rung</td><td><span class="st st-b">seen</span></td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</section>
+
+
+<!-- ================= 03 DENSITY ================= -->
+<section id="density" style="--secc:var(--l500)" data-nav="Density estimation">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">03 — The density-estimation branch</p>
+      <h2>Photon mapper, VCM and UPBP: three implementations, one shared shortcut</h2>
+      <p class="lead">Connection-based estimators fail when the connecting segment has zero density — through glass, at a specular vertex. Density estimation is the standard answer: store what the light path did, and reuse a stored vertex when a camera vertex lands near it. All three of this renderer's density estimators work, and all three take the same shortcut in the same place.</p>
+
+      <h3>Mode 2 — the photon mapper</h3>
+      <p>Genuinely split across the two processors, and that split is the interesting part. Photons are emitted and bounced on the CPU into two maps, <b>global</b> and <b>caustic</b> (a photon is filed as caustic when a specular chain precedes its first diffuse hit, <span class="mono">PhotonMapper.cpp:337-347</span>). Each map builds a KD-tree, which is packed and uploaded as three SSBOs. Then a compute shader traces the camera rays and does a stack-based KD-tree radius search per pixel, with an Epanechnikov kernel and a <b>per-photon</b> radius so progressive batches with different radii can coexist in one tree.</p>
+      <p>Progressive photon mapping is here too, with both the PPM radius formula and a plain multiplier, plus an outer loop that restarts the sequence and averages across restarts. It is a real implementation. Three things it is not:</p>
+      <ul class="clean">
+        <li><b>It is surface-only.</b> <span class="mono">opts.skipVolumes = true</span> at <span class="mono">PhotonMapper.cpp:56</span>, with the comment "Photon mapper only traces surface geometry". There is a <span class="mono">m_volumeMap</span>; nothing anywhere in the tree pushes a photon into it. Its count is structurally zero.</li>
+        <li><b>The volume-method control has no implementation under it.</b> The UI offers "points / beams / primitives". The beams branch is an empty block: <span class="mono">if (config.enableVolume &amp;&amp; config.volumeMethod == 1) { /* comment only */ }</span> at <span class="mono">PhotonMapper.cpp:378-382</span>. Not a partial implementation — a comment and two braces.</li>
+        <li><b>"Final Gather" is a menu item, not a mode.</b> Both gather shaders branch on <span class="mono">uGatherMode == 0</span> and fall through everything else to the kNN path, so option 2 has always been option 1. Since 2026-09-04 the entry is named for what it does — "Final Gather (not built - renders kNN)" — and its tooltip says NOT IMPLEMENTED (<span class="mono">UIManagerRender.cpp:5396-5402</span>).</li>
+      </ul>
+      <p>And the result is not combined with the path tracer by MIS. It is <span class="mono">mix(tracerResult, photonIrradiance, uOverlayBlend)</span> — a slider. That makes mode 2 an excellent teaching instrument and not an estimator you would quote a number from.</p>
+
+      <h3>Its panel is the laboratory, and it has one control with two different matchers behind it</h3>
+      <p>The photon tab offers <b>two progressive shrink formulas</b>, side by side, which is the useful shape for a teaching instrument: Hachisuka's <span class="mono">R &larr; R&middot;&radic;((N + &alpha;M)/(N + M))</span>, and a plain <span class="mono">R &larr; R&middot;&alpha;</span> the tooltip calls fast and dramatic. The precise thing to say about the first is where its <span class="mono">N</span> and <span class="mono">M</span> come from. In the published formulation they are per-measurement-point photon counts and every pixel shrinks at its own rate; here they are the <em>global map's</em> photon totals before and after the batch, applied to <b>one scene-wide radius</b>, so the whole image shrinks in lockstep. It is PPM's schedule without PPM's per-pixel statistics — and the PPM branch also skips the shrink entirely on any batch that added no photons, where the multiplier would have shrunk anyway.</p>
+      <p>Beside it, one small piece of interface design worth more than its size: <b>Max Iter sits behind a Confirm button.</b> The slider writes a pending value and the engine reads a separate confirmed one, so dragging across the range cannot launch fifty photon passes on the way to the number you wanted. Two variables where one would do, because one would have made the control dangerous.</p>
+      <p>The path-expression box is the one to be careful about. It is <b>read by two different matchers</b> that do not implement the same language. Feeding the gather, it is compiled to five integers — a mode, plus a prefix and suffix as bit-masks of "specular here or not" with their lengths — and everything that is not <span class="mono">L</span>, <span class="mono">S</span>, <span class="mono">D</span> or the first <span class="mono">*</span> is dropped without comment, with any pattern not beginning in <span class="mono">L</span> discarded entirely. Feeding the on-screen photon-path overlay, the same string is handed to <span class="mono">std::regex</span> and matched case-insensitively against a built path notation, so it really is a regular expression there. The field is named <span class="mono">pmFilterRegex</span>, and in exactly one of its two readers that name is true.</p>
+    </div>
+
+    <div class="tw"><table>
+      <thead><tr><th>Photon-mapper panel</th><th>What it does</th><th>Catalogue grade</th></tr></thead>
+      <tbody>
+        <tr><td>Progressive PPM, two shrink formulas</td><td>The PPM radius schedule and a direct multiplier, on one shared scene-wide radius. Each batch records the radius it was emitted at, so batches with different radii coexist inside one KD-tree</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>Max Iter behind a Confirm button</td><td>Pending value and effective value are separate variables; only the second reaches the engine's pass loop. The panel also does an optical calculation on the pair: it solves <span class="mono">R&#8320;&middot;&alpha;<sup>N/2</sup> = D&middot;pixelAngle</span> for the pass at which the gather disk stops covering a pixel, and prints "itr &gt; N not recommended (disk &lt; pixel at 2m)" — from a hard-coded 60&deg; field, 720 lines and a two-metre subject</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>PM path-expression filter</td><td>Free text over <span class="mono">L S D *</span>, compiled to five integers for the gather and to a real <span class="mono">std::regex</span> for the overlay</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>PM storage: photons vs paths</td><td>Not a storage format but a choice of what the overlay draws: photons are dots coloured by which progressive batch emitted them, paths are polylines from the light through every stored vertex — and only the path view is filtered by the expression above</td><td><span class="st st-b">seen</span></td></tr>
+        <tr><td>Accumulate when static</td><td>Image-space averaging over its own pass, with its own frame counter shown in the panel and its own exposure, reset the moment the camera moves. Defaults on. It is the photon mapper borrowing the path tracer's one good habit</td><td><span class="st st-b">seen</span></td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="narrow">
+      <h3>And the other path-expression box, one panel away</h3>
+      <p>The path tracer has its own filter over Heckbert notation, and it compresses even harder: up to four include-or-exclude patterns, each compiled to <b>an <span class="mono">ivec4</span></b> of the bounce type nearest the light, the bounce type nearest the eye, an exact length and a minimum length. Interiors are never inspected, and the panel says so in its own tooltip — <span class="mono">LDSDE</span> and <span class="mono">LDDDE</span> are the same filter. What the tooltip does not say is that <b>the wildcard's position is not read either</b>: <span class="mono">*</span> is a single boolean that turns "exact length" into "minimum length", so <span class="mono">LD*SE</span>, <span class="mono">L*DSE</span> and <span class="mono">LDS*E</span> all compile to the same four numbers. Two path-expression languages in one renderer, three matchers between them, and no two of the three agree on what the syntax means.</p>
+    </div>
+
+    <div class="tw"><table>
+      <thead><tr><th>Tracer path filter</th><th>What it does</th><th>Catalogue grade</th></tr></thead>
+      <tbody>
+        <tr><td>Path-type regex filter</td><td>Four patterns over <span class="mono">L D S V E *</span>, include or exclude, tested at six sites — all of them on the eye path, so the light subpath's own connections are not filtered by it. Turning it on is one of the five conditions that raise the pulsing orange "non-standard state" banner with its one-click reset, because a forgotten filter looks exactly like a broken renderer</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>&mdash; the language is weaker than the box implies</td><td>Four integers per pattern; interior vertices and the wildcard's position both discarded; characters outside the vocabulary dropped in silence</td><td><span class="st st-b">seen</span></td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="narrow">
+      <h3>Mode 3 — VCM, and what its weights actually are</h3>
+      <p>VCM's whole contribution over its parts is the MIS weight: a connection and a merge that could both have produced a path must be weighted by their relative densities, which Georgiev's recurrence tracks with three running quantities per vertex, <span class="mono">dVCM</span>, <span class="mono">dVC</span>, <span class="mono">dVM</span>. This implementation computes all three, stores them on every light vertex, and never reads them again. The weight that is applied is this:</p>
+    </div>
+
+    <div class="formula">
+      <div class="f">float density = (float)nearbyIdx.size() / (float)max(config.mergeK, 1);<br>
+w = <span class="hl">1.0f - density</span>;&nbsp;&nbsp;&nbsp;&nbsp;// connection<br>
+w = clamp(w, 0.05f, 0.95f);<br>
+…<br>
+color = directContrib + (connectionContrib + mergeContrib) * <span class="hl">0.5f</span>;</div>
+      <div class="n"><span class="mono">VCMIntegrator.cpp:551-563</span> and <span class="mono">:675</span>. The merge gets <span class="mono">density</span>, the connection gets <span class="mono">1 − density</span>, where <span class="mono">density</span> is the fraction of the kNN budget that the search filled — a proxy for "is the photon map trustworthy here", not a pdf ratio. Then both are halved against the BSDF continuation with a flat 0.5, described in the source as an approximation "without full BDPT MIS across all (s,t) strategies". Two helper functions, <span class="mono">misWeight</span> (balance) and <span class="mono">misWeightPower</span> (power), are defined at <span class="mono">:230</span> and <span class="mono">:235</span> and have no call site; <span class="mono">config.misMode</span>, the UI's balance/power selector, is never read — and since 2026-09-04 the selector is greyed and labelled <span class="mono">[inert]</span> in the panel (<span class="mono">UIManagerRender.cpp:5948</span>).</div>
+    </div>
+
+    <div class="narrow">
+      <p>The BSDF at both ends of a connection is also approximated as Lambertian regardless of material (<span class="mono">mat.albedo / π</span>, <span class="mono">:542-546</span>). So mode 3 is a working connection-plus-merge integrator with a heuristic blend, and calling it VCM overstates it. It is also, like MLT and path guiding, surface-only: <span class="mono">skipVolumes = true</span> at <span class="mono">VCMIntegrator.cpp:47</span>.</p>
+
+      <div class="note"><b>"Fix Bias" is the one row where this page and the project's own catalogue disagree, and the source settles it.</b> The catalogue grades the VCM <span class="mono">fixBias</span> checkbox <span class="st st-b">seen</span> and describes it as toggling the substitute complementary weights. It reaches <span class="mono">VCMConfig::fixBias</span> from the UI, and then the string <span class="mono">fixBias</span> <b>does not occur once in <span class="mono">VCMIntegrator.cpp</span></b>. The field's own declaration says why — "always enabled; kept for UI compat" — so the weights described above are what you get in both positions and the box changes nothing. That matters more than an ordinary dead knob, because the greyed MIS-mode selector directly beside it carries a tooltip pointing at this control as the live one: "'Fix Bias' below is the MIS control that does change the image." One inert control is now vouched for by another.<br><br>And the weights it claims to fix are not complementary in the first place, for two reasons that compound. The clamp to <span class="mono">[0.05, 0.95]</span> breaks the sum wherever the density is extreme — which is exactly where a weight matters. And the two halves are not computed from the same count: the connection uses every neighbour the kNN search returned, while the merge uses only those that survived a bounce-0 rejection and a normal-compatibility test, so the merge's density is the smaller number and the pair sums to less than one whenever a single photon is rejected. The comment above each says "complementary". Grade carried from the catalogue; the reading is this page's.</div>
+
+      <h3>Mode 6 — UPBP, which is the more complete of the two</h3>
+      <p>Counter to the naming, the volumetric integrator in this renderer is UPBP, not VCM. It intersects volume shells when media are on (<span class="mono">:397</span>), delta-tracks through heterogeneous density, scatters in the medium, stores volume vertices with a null normal so the estimator falls back to isotropic, and does point merging <b>at volume scatter events</b> with a doubled search radius. That is P-P3D — the volumetric photon-point estimator — and it works.</p>
+      <p>What is missing is the part the acronym is named for. UPBP is <i>unifying points, beams and paths</i>; the beams are built and never used:</p>
+      <ul class="clean">
+        <li>Beam segments are constructed and pushed into <span class="mono">m_allBeams</span> at <span class="mono">UPBPIntegrator.cpp:537</span> and <span class="mono">:581</span>, and packed into a GPU SSBO at <span class="mono">:1163</span> for the viewport overlay.</li>
+        <li><span class="mono">enableBeamMerge</span> — "Beam-beam estimation", <span class="mono">UPBPIntegrator.h:39</span> — is declared and <b>read nowhere in the .cpp</b>. There is no BB1D, no PB2D, no beam query of any kind in the radiance estimate. Since 2026-09-04 the header says so flag by flag in an audit comment above the declarations, and the panel's Beam-Beam Merge toggle is greyed <span class="mono">[inert]</span>.</li>
+        <li><span class="mono">m_beamEvents</span>, the visualisation record, is cleared twice and never filled.</li>
+        <li><span class="mono">enableBeams</span> does do something, but not what it says: it enables a <i>global homogeneous fallback medium</i> when no volume entity is found (<span class="mono">:506</span>, <span class="mono">:723</span>), and it gates the analytic transmittance on connections at <span class="mono">:974</span>.</li>
+      </ul>
+      <p>UPBP also inherits VCM's <span class="mono">1 − density</span> / <span class="mono">density</span> weights and the flat 0.5 (<span class="mono">:996</span>), because the surface half was transcribed from it. And it is the one CPU integrator with headless output: <span class="mono">pp.dumpCpuAt</span> writes its film in the same PGR1 format the PP and GPU dumps use, so it is directly subtractable from them.</p>
+    </div>
+
+    <div class="schem">{{SVG:f18-tracer-beam.svg}}</div>
+    <div class="paircap"><b>The beam UPBP does not have</b><span>This is the camera-ray-versus-beam kernel, drawn from the photon-primitive family's strategy 18, which does implement it: a one-dimensional kernel of radius <span class="mono">r</span> around a traced photon segment, with <span class="mono">K = 1/(2r|ω×d|)</span>. It is here to make the gap concrete — the estimator UPBP builds the geometry for and never queries exists in this renderer, validated at 1.048 against next-event estimation, in the other integrator.</span></div>
+  </div>
+</section>
+
+
+<!-- ================= 04 CHAINS ================= -->
+<section id="chains" style="--secc:var(--l540)" data-nav="Markov chains">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">04 — The Markov-chain branch</p>
+      <h2>Three modes, one algorithm, and a bias fix that is a blur</h2>
+      <p class="lead">Metropolis light transport is not an estimator in the sense the rest of this page uses the word. It is a <i>sampler</i>: it takes some existing way of turning random numbers into a path contribution and explores the high-contribution regions by mutating the random numbers instead of redrawing them. That distinction decides the superset question later, so it is worth being exact about here.</p>
+      <p>Modes 4, 5 and 8 are all primary-sample-space Metropolis over the same underlying path tracer. They differ in bookkeeping, not in kind.</p>
+      <ul class="clean">
+        <li><b>Mode 4, "MLT."</b> Bootstraps <span class="mono">seedPaths</span> candidates, takes the average luminance as the normalisation constant <span class="mono">b</span>, importance-samples a start state, then mutates a <b>fixed-length vector of random numbers</b> and replays <span class="mono">tracePath</span> on it (<span class="mono">MLTIntegrator.cpp:210-225</span>). Large step = redraw everything; small step = wrapped Gaussian per coordinate. Veach's dual splat: both the current and the proposed state are splatted, weighted <span class="mono">(1−a)/L</span> and <span class="mono">a/L</span>. This is Kelemen's algorithm, not Veach's path-space MLT — there is no lens perturbation, no caustic perturbation, no bidirectional mutation. A <span class="mono">kelemenMLT</span> flag exists in its config, commented "true=primary sample space, false=path space", defaults false, and is read nowhere. It is primary sample space either way.</li>
+        <li><b>Mode 5, "PSSMLT."</b> The same algorithm done properly: primary samples are created lazily on demand and each carries a <span class="mono">lastModIter</span> so a coordinate the path never asked for is never mutated, plus explicit backup/restore on rejection (<span class="mono">:415-461</span>). This is the Kelemen implementation; mode 4 is a simpler sibling that happens to be named after the more famous algorithm.</li>
+        <li><b>Mode 8, "Manifold exploration."</b> Manifold exploration is Jakob and Marschner's method: a Newton solve that walks a specular chain back onto the manifold where the half-vector constraints hold, letting a chain be perturbed without breaking. This is not that. It is mode 4's mutation loop with one change — a random number that fed a bounce flagged specular gets <span class="mono">sigma × 0.1</span> instead of <span class="mono">sigma</span> (<span class="mono">ManifoldIntegrator.cpp:234</span>). <span class="mono">newtonIterations</span> and <span class="mono">newtonStepSize</span> are written into its config from the UI at <span class="mono">EngineRender.cpp:2277</span> and appear in the .cpp exactly once, as <span class="mono">cv.newtonSteps = 0</span> in a visualisation record. A smaller step near a specular vertex is a reasonable heuristic. It is not a manifold walk, and the name promises the thing the code does not do.</li>
+      </ul>
+
+      <h3>The border blur</h3>
+      <p>PSSMLT carries a checkbox called "fix bias". MCMC renderers do have a real start-up bias problem, and there are real fixes for it. This is not one:</p>
+    </div>
+
+    <div class="formula">
+      <div class="f">Vec3 c = m_film[i] * scale * m_exposure;<br>
+c = c / (c + Vec3(1.0f));&nbsp;&nbsp;<span class="hl">// Reinhard</span><br>
+c = pow(max(c, 0), 1/2.2);&nbsp;&nbsp;<span class="hl">// gamma</span><br>
+…<br>
+if (m_fixBias) { <span class="hl">3×3 box blur, border pixels only</span> }</div>
+      <div class="n"><span class="mono">MLTIntegrator.cpp:815-847</span>. It runs after tone mapping and gamma, on the display texture, on pixels within two of the film edge, and its stated purpose is "redistribute energy to under-sampled borders". It is a cosmetic pass over a symptom. Calling it a bias fix is the misleading part; the blur itself is harmless and does what it says.</div>
+    </div>
+
+    <div class="narrow">
+      <p>All three chains are surface-only (<span class="mono">skipVolumes = true</span> at <span class="mono">MLTIntegrator.cpp:36</span> and <span class="mono">:395</span>, <span class="mono">ManifoldIntegrator.cpp:28</span>), all three hold a 12 ms per-frame mutation budget so the viewport stays interactive, and all three expose acceptance-rate and chain-length statistics that the viewport can draw. The visualisers are the reason to keep them: watching the acceptance rate collapse when <span class="mono">smallStepSigma</span> is raised is a better explanation of Metropolis than a paragraph is.</p>
+    </div>
+
+    {{SHOT:Mode 5 (PSSMLT), enabled, on preset 3 or another surface scene · let it run ~30 s · frame the viewport together with the MLT panel showing acceptance rate, large/small step counts and the chain visualiser · clean view off}}
+    <div class="paircap"><b>A chain, watched</b><span>The number to look at is the acceptance rate. Too high means the small steps are too small and the chain is not moving; too low means it is rejecting nearly everything and only the large steps are doing work. Neither shows up in the image except as noise that does not go away.</span></div>
+  </div>
+</section>
+
+
+<!-- ================= 05 CACHES ================= -->
+<section id="caches" style="--secc:var(--l580)" data-nav="Caches &amp; reservoirs">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">05 — Learned and resampled</p>
+      <h2>Two ways of remembering where the light was last time</h2>
+      <p class="lead">Path guiding and ReSTIR both attack the same weakness — a sampler that has no idea which direction is worth trying — and they attack it from opposite ends. Guiding builds a persistent spatial cache and samples from it. ReSTIR keeps a one-sample reservoir per pixel and improves it by borrowing from neighbours in space and from the previous frame in time.</p>
+
+      <h3>Mode 7 — path guiding</h3>
+      <p>A uniform 3D grid over the scene bounds, resolution configurable, one <span class="mono">GuidingCell</span> per voxel holding a directional histogram. After <span class="mono">trainingPasses</span> passes of unguided tracing, each diffuse bounce draws from the local histogram with probability <span class="mono">guidingStrength</span>, and the throughput divides by a one-sample-MIS mixture of the guided pdf and the cosine pdf (<span class="mono">PathGuidingIntegrator.cpp:332</span>). The training signal is the path's luminance splatted back along its bounces with a learning rate, spread over a 3×3 angular neighbourhood so the histogram smooths rather than spikes.</p>
+      <p>That is a fair, simplified version of practical path guiding. Two things separate it from Müller's: there is no adaptive subdivision — no SD-tree, just a fixed grid — and the histogram is not fitted, so it cannot represent a lobe more sharply than one bin. And there is a mismatch in the bin arithmetic worth stating precisely, because it was invisible at the default and the panel has since been pinned to it:</p>
+    </div>
+
+    <div class="formula">
+      <div class="f">// addSample / sampleDirection<br>
+int tBin = clamp((int)(theta / π * <span class="hl">16.0f</span>), 0, 15);<br>
+int idx  = t * <span class="hl">16</span> + p;&nbsp;&nbsp;&nbsp;&nbsp;// dirWeights is std::array&lt;float, 256&gt;<br><br>
+// thetaPhi — the decoder<br>
+int tBin = bin / <span class="hl">bins</span>;&nbsp;&nbsp;int pBin = bin % <span class="hl">bins</span>;&nbsp;&nbsp;<span class="hl">// bins = config.dirBins</span></div>
+      <div class="n">The histogram is hard-coded 16×16 in <span class="mono">GuidingCell::addSample</span> and <span class="mono">::sampleDirection</span> (<span class="mono">PathGuidingIntegrator.cpp:12-56</span>), but the decoder and the bin solid angle both use <span class="mono">config.dirBins</span>, which the UI used to expose as a slider from 4 to 32. At 16 they agree. At any other value the sampled bin index was decoded into the wrong direction <i>and</i> normalised by the wrong solid angle — silently, because guiding is MIS-weighted against the cosine lobe. On 2026-09-04 the slider was pinned to 16 and greyed, with a tooltip that says why (<span class="mono">UIManagerRender.cpp:7391-7400</span>). That closes the trap at the panel; the encode and decode sides still read two different constants, so it is closed rather than removed.</div>
+    </div>
+
+    <div class="narrow">
+      <p>One more note on this mode: <span class="mono">addSample</span> ends with a per-bin cap at 15% of the cell's total weight, redistributing the excess by discarding it. That is a variance clamp on the learned distribution. It makes the guide better behaved and it is not part of any published formulation.</p>
+      <div class="note"><b>And one correction that runs the other way, since this page keeps score in both directions.</b> This project's own capture notes carry a confirmed bug for this panel — "4.1: the Path Guiding tab's enable toggle is wired to the wrong variable", binding the enable switch to <span class="mono">poisEnabled</span> (Poisson gradient editing) so that revealing the field visualiser also ran a gradient filter over the frame. <b>It is fixed.</b> <span class="mono">UIManagerRender.cpp:7386-7391</span> now binds <span class="mono">pgEnabled</span>, and carries the comment "<span class="mono">pgEnabled, NOT poisEnabled — the latter is Poisson Gradient Editing</span>". The shooting note is the stale document, not the code. The <span class="mono">Dir Bins</span> trap two paragraphs up has since been pinned shut the same way.</div>
+
+      <h3>ReSTIR — the two passes that are not in the mode enum</h3>
+      <p>ReSTIR DI is the full construction — resampled importance sampling into per-pixel reservoirs, temporal reuse against the previous frame, spatial reuse from neighbours — not a checkbox that blurs the direct term, and it is easy to miss because it is not a mode. It runs as a post-pass over the path tracer's G-buffer (<span class="mono">EngineRender.cpp:2666-2682</span>): <span class="mono">restir.comp</span> generates candidates and does temporal reuse against the previous frame's reservoirs, <span class="mono">restirSpatial.comp</span> combines each pixel's reservoir with its neighbours', and the result replaces the direct-lighting term while specular pixels pass the tracer's own value through. 907 lines of GLSL across the two passes.</p>
+      <p><b>ReSTIR PT is not the same thing</b>, and its own file header says so: "screen-space multi-scatter reservoir reuse … uses the tracer's accumulated HDR radiance as the candidate pool … still an approximation of ReSTIR GI/PT rather than a full sub-path backend" (<span class="mono">restirPT.comp:1-7</span>). It reuses <i>radiance</i> between geometrically similar pixels. It does not resample paths, so it is not ReSTIR PT in Lin et al.'s sense; the UI labels it Experimental and the header labels it an approximation, which between them is an accurate description.</p>
+
+      <h3>The debug surface underneath both, which nobody has switched on</h3>
+      <p>Both ReSTIR passes carry an instrument panel that is larger than the algorithm's own controls, and it is the place a survey expects to find dead knobs. There are none. Every control below reaches a uniform and every uniform is read in the shader — the seven-way visualisation combo goes into <em>both</em> compute passes and each consumes all six of its non-zero modes; the BRDF overrides pack into one integer that both passes branch on; all nine multi-scatter damping controls arrive as nine separate uniforms and appear in the arithmetic. What is worth stating is not deadness but three details a reader would otherwise have to grep for.</p>
+      <p><b>The two BRDF overrides look independent and are not.</b> They are drawn as two separate toggles and encoded as one integer 0&ndash;3: All Lambertian claims 1 or 2 depending on Keep Color, and Ignore Dielectric is reached only by the <span class="mono">else</span>. Tick both and you get All Lambertian; the second toggle stays lit and stops meaning anything. <b>The visualisation combo is a replacement, not an overlay</b> — any non-zero mode zeroes the path-traced colour first, so what reaches the film is the debug channel alone, so a visualisation frame is a picture of the reservoir field and not a tinted render. And <b>three of the damping controls ship in the position that does nothing</b>: reuse blend defaults to the top of its range, the radiance clamp defaults to the top of its range, and outlier rejection defaults to zero. Each of the three can only damp from there, and none of them is damping until you move it.</p>
+      <p>Which explains the button beside them. "Reset Legacy Profile" promises to restore "the older, stronger multi-bounce reuse profile before the newer damping controls", and the nine values it writes are <b>byte-identical to the nine declared defaults</b>. On a fresh session it is a no-op. That is not a defect — the older profile is deliberately what ships, so the damping is opt-in and the button is an escape hatch back from your own experiment — but the label describes a state you have to leave before the button can return you to it.</p>
+    </div>
+
+    <div class="tw"><table>
+      <thead><tr><th>ReSTIR debug surface</th><th>What it does</th><th>Catalogue grade</th></tr></thead>
+      <tbody>
+        <tr><td>Seven-way visualisation combo</td><td>Off, reservoir weight <span class="mono">W</span>, selected sample, shadow visibility, candidate quality, normals, material ID — into both the temporal and the spatial pass, replacing the image rather than tinting it</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>BRDF-override debug switches</td><td>All Lambertian, with Keep Color choosing albedo against a pure white <span class="mono">1/&pi;</span>, and Ignore Dielectric, which treats glass and mirror as diffuse instead of passing the tracer's own value through. Three states in one integer, so the second override is unreachable while the first is on</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>Nine multi-scatter damping controls</td><td>Max bounces, candidates, spatial reuse, radius scale, centre weight, reuse blend, geometry strictness, radiance clamp, outlier reject — nine uniforms, all read. Geometry strictness alone drives three separate similarity terms in the reuse test: normal, position and luminance</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>"Reset Legacy Profile" button</td><td>Writes nine values identical to the nine defaults</td><td><span class="st st-c">never viewed</span></td></tr>
+        <tr><td>ReSTIR CUDA / OptiX radios</td><td>A function-local <span class="mono">static int</span>, written by the radio group and read nowhere. Greyed on 2026-09-04, with a disabled tooltip saying the GL compute shader is the only backend that exists — the whole group, including the entry that looked live</td><td><span class="st st-d">inert</span></td></tr>
+      </tbody>
+    </table></div>
+
+    {{SHOT:GPU path tracer (key `2`) on preset 0 (Cornell Box) - Technique, Tracer, ReSTIR (Direct Lighting): Enable ReSTIR on, Candidates 32, Spatial Reuse on (it snaps neighbours to 5), Temporal Reuse on - do not move the camera between frames - let it settle about 10 s, then shoot five frames changing ONE control each time: (1) Vis Mode = Off, the ordinary image; (2) Vis Mode = Reservoir Weight (W); (3) Vis Mode = Shadow Visibility; (4) Vis Mode = Candidate Quality; (5) Vis Mode back to Off, then Debug / BRDF Override: All Lambertian ON with Keep Color OFF - deliver the five in that order}}
+    <div class="paircap"><b>The debug surface, switched on for the first time</b><span>Frames 2 to 4 are not overlays. Any non-zero visualisation mode zeroes the path-traced colour before the pass writes, so what you are looking at is the reservoir field alone — which is why the geometry disappears and only the structure the resampler built remains. Frame 5 is the other kind of instrument: every surface forced to white <span class="mono">1/&pi;</span>, so what is left in the image is the light and the geometry and nothing the materials contributed.</span></div>
+  </div>
+</section>
+
+
+<!-- ================= 06 SUPERSET ================= -->
+<section id="superset" style="--secc:var(--l600)" data-nav="The superset claim">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">06 — The claim, scoped</p>
+      <h2>Photon primitives are a superset along one axis and a sibling along the other</h2>
+      <p class="lead">The tempting sentence is "photon primitives generalise the other estimators". Part of that is defensible and worth defending precisely; the rest is a category error a reviewer would find in about a minute. The two parts are cleanly separable, so this section separates them, states the construction as an arithmetic rather than an analogy, and then says what the arithmetic does not reach.</p>
+
+      <h3>The construction, as a dimension count</h3>
+      <p>A light subpath is generated by scalar decisions and nothing else: two for a point on an area emitter (three for a solid one), two for each direction, one for each free-flight distance. Sampling a scalar commits it to a number. <b>Sweeping</b> a scalar refuses to commit and integrates it analytically instead. Sweep <span class="mono">k</span> of them and the photon's final vertex stops being a point and becomes a <span class="mono">k</span>-manifold in space. The camera-side query is a ray — a 1-manifold. Everything else follows from one subtraction.</p>
+    </div>
+
+    <div class="formula">
+      <div class="f">dim( photon manifold ∩ camera ray ) = <span class="hl">k + 1 − 3</span></div>
+      <div class="n">Negative: no generic intersection, so a blur kernel of dimension <span class="mono">3−(k+1)</span> and a bias that goes with its radius. Zero: isolated crossings, admissible against the delta, weight <span class="mono">f / |det[ ∂S/∂u₁ , ∂S/∂u₂ , −ω_cam ]|</span> — no kernel anywhere. Positive: the crossing is a segment, still kernel-free, but a 1-D integral survives and has to be sampled or quadratured. Stated this way in <span class="mono">docs/2026-06-10-photon-primitives-research.md §1.1</span>, which is the repository's own reading of the published theory.</div>
+    </div>
+
+    <div class="schem">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-label="Four rows of the sweep ladder: photon point, beam, sheet and volume against a camera ray.">
+  <g font-family="JetBrains Mono, ui-monospace, monospace" font-size="12" fill="#DDE3E0">
+    <text x="20" y="26">the ladder is one subtraction, and the renderer walks all four rungs</text>
+    <text x="20" y="44" fill-opacity="0.65">red dot = sampled and fixed · yellow = swept · blue = the camera ray · white ring = an exact crossing</text>
+
+    <g font-size="10" fill="#6c797d" letter-spacing="1.2">
+      <text x="20" y="72">SWEPT k</text>
+      <text x="64" y="72">WHICH SCALARS</text>
+      <text x="200" y="72">MANIFOLD ∩ CAMERA RAY</text>
+      <text x="400" y="72">KERNEL</text>
+      <text x="516" y="72">HERE</text>
+    </g>
+    <line x1="20" y1="80" x2="620" y2="80" stroke="#FFFFFF" stroke-opacity="0.12" stroke-width="1"/>
+
+    <!-- ============ row 1 : k = 0, the photon point ============ -->
+    <text x="20" y="108">k = 0</text>
+    <text x="20" y="123" fill-opacity="0.6" font-size="10">∩ = −2</text>
+    <text x="64" y="108" font-size="11">nothing swept</text>
+    <text x="64" y="123" fill-opacity="0.6" font-size="10">y, ω, t all sampled</text>
+    <circle cx="294" cy="112" r="17" fill="#FFD264" fill-opacity="0.07" stroke="#FFD264" stroke-opacity="0.5" stroke-width="1.2" stroke-dasharray="3 3"/>
+    <circle cx="288" cy="105" r="3.4" fill="#FF4646"/>
+    <line x1="200" y1="132" x2="388" y2="92" stroke="#78C8FF" stroke-width="1.5"/>
+    <text x="400" y="108" font-size="11">3-D box × chord</text>
+    <text x="400" y="123" fill-opacity="0.6" font-size="10">3/(4πr³)</text>
+    <text x="516" y="108" font-size="11">19 · point</text>
+
+    <!-- ============ row 2 : k = 1, the photon beam ============ -->
+    <text x="20" y="168">k = 1</text>
+    <text x="20" y="183" fill-opacity="0.6" font-size="10">∩ = −1</text>
+    <text x="64" y="168" font-size="11">t</text>
+    <text x="64" y="183" fill-opacity="0.6" font-size="10">the free flight</text>
+    <line x1="249" y1="200" x2="339" y2="152" stroke="#FFD264" stroke-opacity="0.35" stroke-width="1" stroke-dasharray="3 3"/>
+    <line x1="263" y1="208" x2="353" y2="160" stroke="#FFD264" stroke-opacity="0.35" stroke-width="1" stroke-dasharray="3 3"/>
+    <line x1="256" y1="204" x2="346" y2="156" stroke="#FFD264" stroke-width="1.8"/>
+    <circle cx="256" cy="204" r="3.4" fill="#FF4646"/>
+    <line x1="200" y1="192" x2="388" y2="152" stroke="#78C8FF" stroke-width="1.5"/>
+    <text x="400" y="168" font-size="11">1-D, 1/(2r)</text>
+    <text x="400" y="183" fill-opacity="0.6" font-size="10">÷ sin θ</text>
+    <text x="516" y="168" font-size="11">18 · beam</text>
+
+    <!-- ============ row 3 : k = 2, the swept sheet ============ -->
+    <text x="20" y="228">k = 2</text>
+    <text x="20" y="243" fill-opacity="0.6" font-size="10">∩ = 0</text>
+    <text x="64" y="228" font-size="11">θ,φ · t,φ · t,θ</text>
+    <text x="64" y="243" fill-opacity="0.6" font-size="10">or u,t · u,v · φ,r</text>
+    <path d="M244 204L348 216L348 260L244 248Z" fill="#FFD264" fill-opacity="0.16" stroke="#FFD264" stroke-opacity="0.7" stroke-width="1.5"/>
+    <path d="M244 226L348 238" fill="none" stroke="#FFD264" stroke-opacity="0.3" stroke-width="1"/>
+    <line x1="200" y1="252" x2="388" y2="212" stroke="#78C8FF" stroke-width="1.5"/>
+    <circle cx="294" cy="232" r="4" fill="none" stroke="#FFFFFF" stroke-width="2"/>
+    <text x="400" y="228" font-size="11">none</text>
+    <text x="400" y="243" fill-opacity="0.6" font-size="10">co-area Jacobian</text>
+    <text x="516" y="228" font-size="11">3–17, 20–24, 26, 27</text>
+
+    <!-- ============ row 4 : k = 3, the photon volume ============ -->
+    <text x="20" y="292">k = 3</text>
+    <text x="20" y="307" fill-opacity="0.6" font-size="10">∩ = +1</text>
+    <text x="64" y="292" font-size="11">u,v,w</text>
+    <text x="64" y="307" fill-opacity="0.6" font-size="10">a solid emitter</text>
+    <rect x="244" y="270" width="104" height="52" rx="3" fill="#FFD264" fill-opacity="0.14" stroke="#FFD264" stroke-opacity="0.7" stroke-width="1.5"/>
+    <line x1="200" y1="316" x2="388" y2="276" stroke="#78C8FF" stroke-width="1.5"/>
+    <line x1="244" y1="306.6" x2="348" y2="284.5" stroke="#FFFFFF" stroke-width="2.6" stroke-opacity="0.9"/>
+    <circle cx="310" cy="292.6" r="3.4" fill="#FF4646"/>
+    <text x="400" y="292" font-size="11">none</text>
+    <text x="400" y="307" fill-opacity="0.6" font-size="10">1 chord sample</text>
+    <text x="516" y="292" font-size="11">5, 6 · volumes</text>
+
+    <text x="20" y="348" font-size="10" fill-opacity="0.6">strategy 21's MIS ledger prices the rungs by their radius: A19 = O(r²), A18 = O(r), A20 = O(1) — PPIntegrator.cpp-3944</text>
+  </g>
+</svg>
+    </div>
+    <div class="paircap"><b>The sweep ladder</b><span>One estimator at four settings. The kernel disappears exactly when the second dimension is swept, and the third dimension turns the crossing back into a segment. The photon point and the photon beam are not competitors to this family; they are its lower rungs, and this renderer implements them as such.</span></div>
+
+    <div class="narrow">
+      <h3>The roster is the same split, chosen differently</h3>
+      <p>Two things make this an arithmetic and not a story. First, the direction-sweep trio is <i>exhaustive</i>: strategies 7, 8 and 9 are the three ways to choose two of the three scalars <span class="mono">{θ, φ, t}</span> at one vertex — sweep θ and φ and you get the sphere of radius <span class="mono">t</span>, sweep t and φ and you get a cone, sweep t and θ and you get a meridian half-plane. There is no fourth. Second, the crossings really are closed form and the Jacobians really are the ones the count predicts. The photon sphere's is <span class="mono">t²·|ω·d|</span> (<span class="mono">PPIntegrator.cpp</span>); the plane's is Cramer's rule on <span class="mono">[d | −e | −ω]</span> with determinant <span class="mono">(e×ω)·d</span> (<span class="mono">:2762</span>); the photon volume's chord is a genuine one-dimensional integral with a genuine extra random number, <span class="mono">s = sIn + L·u</span> (<span class="mono">:2364</span>, <span class="mono">:2411</span>) — the only per-sample draw in the family that exists because <span class="mono">k</span> went to three.</p>
+
+      <p class="note"><b>On anchors.</b> File references on this page name the file, not a line. The integrator is under active development and every line number in an earlier draft of this page had already drifted by the time it was checked — one of them by twenty-seven lines, in a document that had been correct when written. Grep the symbol.</p>
+
+      <h3>Whose family this is</h3>
+      <p>The lineage the section above is arguing with, named, because a page that claims to generalise a
+      published family and cites nobody from it reads as a bluff. Photon <b>beams</b> are Jarosz and
+      colleagues, 2011: the light path's free-flight distance is swept rather than sampled, and the camera
+      ray integrates against the resulting segment. <b>Beyond points and beams</b>, Bitterli and Jarosz,
+      2017, is where the higher-dimensional members come from — sweeping two or three consecutive
+      distances gives the photon plane and the photon volume, and their own implementation is vendored in
+      this repository under <span class="mono">REF/correlated/</span>, which is how the plane row in the
+      table below was checked and corrected. <b>Photon surfaces</b>, Deng and colleagues, 2019, is the
+      zero-blur two-dimensional case. Transient extensions by Marco and colleagues in 2019 and by Liu and
+      colleagues in 2022 slice the same primitives temporally, and the non-exponential Tungsten fork those
+      build on is also in <span class="mono">REF/</span>.</p>
+      <p class="note">Venues and years here are given from memory of the literature rather than from a
+      fetched bibliography, so treat the attributions as author-and-idea; the ideas are what the argument
+      rests on. What this project adds to that lineage is the dielectric members — a swept manifold that
+      passes through a refracting sphere and stays analytic — and a balance-heuristic mixture over a
+      deliberately diverse set, which is a different contribution from adding another dimension to the
+      sweep.</p>
+
+      <h3>Which classical members are literally here, and which are only analogous</h3>
+      <p>This is where an overclaim would hide, so each one gets a verdict rather than a family resemblance.</p>
+    </div>
+
+    <div class="tw">
+      <table>
+        <thead><tr><th>Classical estimator</th><th>In the family</th><th>In this renderer</th></tr></thead>
+        <tbody>
+          <tr><td>photon point</td><td>the k = 0 rung</td><td><b>A literal member</b> — strategy 19, same dispatch, 3-D box kernel × chord. But a <i>fresh</i> photon per camera sample and no stored map, which is the whole reason it is unusable: its own comment calls that "the user's <span class="mono">inefficient</span>, which is WHY real VPM stores photons" (<span class="mono">:3011</span>).</td></tr>
+          <tr><td>photon beam</td><td>the k = 1 rung</td><td><b>A literal member</b> — strategy 18, kernel <span class="mono">1/(2r)/sin θ</span> at closest approach. It is the only strategy that traces a multi-vertex light path, and a diffuse surface <i>absorbs</i> the photon rather than bouncing it (<span class="mono">:2999</span>). Un-stored where the published beams are stored: same estimator, no data structure.</td></tr>
+          <tr class="key"><td>photon plane</td><td>k = 2, two swept dimensions</td><td><b>A sibling construction, not the published one — and the published one is structurally out of reach.</b> Bitterli and Jarosz’s plane sweeps two <i>consecutive free-flight distances</i> at adjacent scattering vertices, so it needs a light path with at least two scatters; their own code is in this repo under <span class="mono">REF/correlated/</span> and builds the parallelogram from segments <span class="mono">p0→p1</span> and <span class="mono">p1.dir·p1.sampledLength</span>. Strategies 10 and 11 sweep one emitter-edge coordinate against one distance on a <i>single-scatter</i> path. That is a different split of the same dimension count. And the family cannot reach the published one at all: every row of its class table is declared with exactly one medium scatter, so a two-scatter primitive is not merely absent from the roster, it is inexpressible in the construction as built. The same bound rules out the published photon volume. Strategies 3, 4 and the arbitrary-orientation members 14, 15 and 16 are further k = 2 splits with the same provenance as 10 and 11, which is this project’s own earlier <span class="mono">PathTracer.cpp</span> revisions rather than a published construction.</td></tr>
+          <tr><td>photon volume</td><td>the k = 3 rung</td><td><b>Literal members with a different provenance.</b> Strategies 5 and 6 reach three swept dimensions by translating a <i>solid emissive cube or ball</i>, where the published route reaches k = 3 by leaving three path scalars unsampled. Same estimator shape, same chord integral, different way of arriving.</td></tr>
+          <tr><td>next-event estimation</td><td><b>not a member</b></td><td>See below. It is a transpose of the family, not a rung of it, and the earlier draft of this page had this wrong.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="narrow">
+      <div class="note"><b>A correction, since this page is where it would have done the damage.</b> An earlier draft of this section called next-event estimation "the degenerate member — sweep nothing" and said it "lives in the same dispatch as the rest". Both halves are wrong. NEE closes the same three-dimensional constraint by a <b>connection</b>: sample the light point, sample the scatter point on the camera ray, and the photon direction becomes deterministic, paid for with the <span class="mono">1/r²</span> geometry factor. A sweep closes it by <b>intersection</b>: sample less, and let the camera ray decide the position, paid for with the co-area Jacobian. Sweeping and aiming are different operations and the dimension count does not apply to the second, because NEE does not generate the two subpaths independently. And in this renderer NEE is not in the swept dispatch at all — strategies 1 and 2 are a full multi-bounce camera walk with phase-MIS, and the single surface connection is gated to exactly those two strategies (<span class="mono">PPIntegrator.cpp-4760</span>). It shares the light samplers with the swept strategies and nothing else.</div>
+
+      <p>What <i>is</i> true, and is sharper than the thing it replaces: <b>the photon sphere is NEE with the two segments' roles exchanged.</b> NEE samples the camera distance and solves for the photon distance; strategy 7 samples the photon distance and solves for the camera distance. Same paths, same integrand, opposite assignment of which length is drawn and which is found. The renderer already carries the proof: strategy 7's density along the camera ray is <span class="mono">σ_t·e^(−σ_t·t)·|ω·d|</span> (<span class="mono">ppDirPrimPdf</span>, <span class="mono">:1677</span>) — the free-flight distance pdf, pushed forward to camera arclength by the tangency factor. That is a density in the same measure as NEE's own, so the two <i>could</i> be MIS-combined, and the ingredient for doing it already exists. <b>Nobody has done it.</b> No strategy in the roster MIS-combines a swept primitive with the camera walk. The renderer does <i>compose</i> the two — comp mode runs a swept primary alongside the path-tracing backup — but by a hard 0/1 partition of declared path classes, not by a weight; <span class="mono">ppCompWeight</span> returns a float only so that a weighted seam can replace its body later without touching anything else in the file.</p>
+
+      <h3>Photon <i>mapping</i> is the correlated member — and only partly</h3>
+      <p>Sampling a fresh primitive per camera sample is one choice; drawing a batch once per pass with no reference to any camera ray and letting every pixel sum the same batch is the other, and the second one is photon mapping's move. That mode is built and validated (<span class="mono">pp.correlated</span>, <span class="mono">pp.primCount</span>, <span class="mono">pp.freezePool</span>): twelve films byte-identical with the mode off, and correlated films reaching the uncorrelated energy across two presets and eight strategies. The normalisation is the whole risk, and it is the same rule the reference photon mapper follows — divide by primitives <b>drawn</b>, never by primitives that crossed the ray. The wrong version was built on purpose, measured at <b>2.1× to 6.8×</b> too bright on frame energy and <b>6.6× to 14.2×</b> per lit pixel, found to be flat to 1.5% over a 16× range in passes, and then deleted. It converges cleanly to the wrong answer and nothing in the image says so.</p>
+      <p>But the honest scope of that is narrower than "photon mapping". Three things are still missing, and two of them are missing on purpose:</p>
+      <ul class="clean">
+        <li><b>No radius reduction, and for most members the idea does not apply.</b> A progressive radius schedule exists to drive a kernel's bias to zero while keeping variance finite. Strategies 3–17, 20, 22–24, 26 and 27 have no kernel: nothing in them converges by shrinking a radius, and a progressive shrink would inject bias where there is none. <b>Six slots carry one</b> — 18 and 19, the tracer beam and the tracer point; since the one-dimensional group shipped, the ring at 28, the arc at 29 and their mixture with the beam at 30; and the hourglass pair at 21, whose beam member carries it at weight O(r) on the caustic and at one everywhere else, and whose energy moves with it (+0.9 % at r = 0.15) — and their radius is a single fixed slider, <span class="mono">pp.beamRadius</span>, rather than a schedule. Sharing one width is load-bearing rather than incidental in 30: with the same <span class="mono">r</span> across its three members the <span class="mono">2r</span> cancels identically in the balance weights. So the family does not contain progressive photon mapping — it removes the problem PPM solves for the analytic members, and does not solve it for the five that need it. What it does instead is publish the ladder rather than shrink it: five radii from 0.30 down to 0.019 at 3,200 passes each, every rung carrying its own error bar, on <a href="photon-hourglass.html#onedim" style="color:var(--l460)">Caustics without a kernel</a>.</li>
+          <li><b>No surface gather.</b> Photon mapping's headline is a density estimate on surfaces, and the family has none: no kd-tree, no kNN, no surface photons. Every strategy is single fog scatter, and the only surface term is one Lambertian connection with no continuation.</li>
+        <li><b>No multi-bounce photon storage.</b> The frozen batch stores <i>primitives</i>, not paths. One traced light path can yield several beam segments, but no stored vertex is ever reused by a different estimator, and the light-side chain terminates at the first diffuse surface. And freezing the batch across passes converges to <i>that batch's realisation</i>, not to L — the UI labels it as not converging, because it is the artifact mode, not a render mode.</li>
+      </ul>
+      <p>So the correct sentence is: correlation makes the family a superset of <b>volumetric photon mapping's density-estimation core</b> — the reuse structure, and the point and beam kernels — and not of progressive photon mapping, and not of surface photon mapping at all.</p>
+    </div>
+
+    <div class="pair">
+      <div class="pane"><div class="tag a">strategy 9 · cone</div>{{DOCPNG:correlated/fig-cone-9.png}}</div>
+      <div class="pane"><div class="tag b">strategy 21 · MIS trio</div>{{DOCPNG:correlated/fig-mis-21.png}}</div>
+    </div>
+    <div class="paircap"><b>Correlated mode, low sample count</b><span>A frozen batch of primitives shared by every camera ray, before averaging hides them. Each visible sheet is one photon primitive weighted by its co-area Jacobian. The right pane is strategy 21, whose batch contains a beam, a point and a swept sheet at once — three rungs of the ladder in one frame, under one MIS weight.</span></div>
+
+    <div class="narrow">
+      <h3>What the construction does not reach, and which axis each one varies</h3>
+      <p>Every item below fails to be contained for a structural reason, not for want of work. The test is the same each time: name the axis it varies, and check whether the sweep construction touches that axis at all.</p>
+      <ul class="clean">
+        <li><b>Bidirectional path tracing varies the join index.</b> BDPT's content is the <span class="mono">(l,e)</span> grid — which light-subpath vertex is connected to which eye-subpath vertex — and the megakernel here implements every cell of it, interior connections included. The sweep construction fixes that index and never moves it: light → manifold → camera ray, with a straight camera leg. The renderer states this as a machine-checkable declaration rather than a claim. Its strategy table gives every photon-primitive row <span class="mono">q = 0</span> (no non-scatter vertex between the eye and the fog scatter) and <span class="mono">nV ∈ [1,1]</span> (exactly one fog scatter), and no row is ever allowed a diffuse vertex in the light-side chain (<span class="mono">kPPClass[25]</span>, <span class="mono">PPIntegrator.cpp-1981</span>). A family with one join cannot contain a family indexed by every join.</li>
+        <li><b>Vertex connection and merging varies how the join is made</b> — connection or merge — and then MISes the two across the whole pyramid. That is two moves the family does not have. A merge reuses a <i>stored</i> vertex from a <i>different</i> subpath under a kernel; a sweep integrates one fresh photon analytically. Correlation supplies storage, but not merging, because a kernel-free sheet has no radius to merge inside. And VCM's actual payoff is the MIS <i>between</i> merging and every connection technique — which needs a pyramid to MIS against.</li>
+        <li><b>Metropolis varies the sequence of samples, not the estimator.</b> This is the one that would be embarrassing to get wrong. MLT is a sampler over path space: it mutates the random numbers some estimator consumes, and the estimator underneath is unchanged. In this renderer, modes 4 and 5 mutate the primary sample vector feeding the same CPU path tracer, and mode 8 does the same with a scaled-down mutation on the randoms that fed a specular bounce. You can run Metropolis <i>on</i> a photon-primitive estimator — nothing stops a chain from mutating the primitive's random vector — but you cannot write Metropolis as a strategy number, because it is not a way of forming a path. It is a way of choosing which path to form next.</li>
+        <li><b>Manifold exploration varies how a specular chain is solved.</b> It runs a Newton solve on the half-vector constraint to walk from one valid specular path to a nearby one. The hourglass looks adjacent — both are about chains through glass — but it is the opposite move: it never solves for a path, it parameterises the entire family of them in closed form, because rotating the whole refraction chain about the light-to-centre axis is a rigid motion. Exact where it applies, and it applies only to a sphere with a point-sampled origin. Manifold exploration applies to arbitrary geometry. Neither contains the other. (This renderer's mode 8 is <i>labelled</i> Manifold and implements no Newton solve at all — see the ledger.)</li>
+        <li><b>Path guiding varies the proposal density.</b> It learns a directional distribution and draws from it. That is orthogonal by construction: a swept strategy could draw its <i>non-swept</i> scalars from a learned density and not one line of the derivation would change. The family fixes what is swept; guiding fixes where the remaining draws come from. Nothing in this renderer composes them, and that is a gap rather than a boundary.</li>
+      </ul>
+
+      <h3>The paragraph, if you read only one</h3>
+      <p class="lead">The photon-primitive family is a <b>superset of photon density estimation</b> — photon points, beams, planes and volumes are one estimator at zero, one, two and three swept dimensions, and here they are consecutive blocks of one function under one MIS ledger that prices them by their kernel's order in the radius. It is a <b>sibling of the connection strategies</b> — BDPT, VCM and light tracing vary which two vertices are joined, and every photon primitive joins the same two, so neither family contains the other and their product is larger than either. It is <b>orthogonal to the samplers</b> — Metropolis mutates the numbers an estimator consumes and guiding changes the density they come from; both compose with a swept primitive and neither can be written as one. And it is itself <b>a special case</b>: single scatter in a medium, a straight camera leg, and a light-side chain that may be specular but never diffuse — a restriction this renderer does not merely accept but declares, one row per strategy, in a table a second integrator is checked against.</p>
+      <p>That is less sweeping than "photon primitives generalise the other estimators", and it is the version that survives contact with the source. It is also the more interesting claim, because the boundary it draws is exactly where the next piece of work is: the megakernel's own comment already sketches photon primitives as a third axis on the <span class="mono">(l,e)</span> grid, and strategies 22, 23 and 24 have taken one step onto it.</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ================= 07 MEETING POINT ================= -->
+<section id="meets" style="--secc:var(--l620)" data-nav="Where they meet">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">07 — The third axis</p>
+      <h2>The megakernel wrote down the meeting point before the estimator existed</h2>
+      <p class="lead">Immediately under the BDPT strategy map, in the same comment block that, until 2026-09-04, mislabelled the interior connections, the shader sketches what a photon primitive would be in BDPT's own terms. The comment arrived with the shader on <span class="mono">2026-04-22</span>; <span class="mono">PPIntegrator.cpp</span> was created on <span class="mono">2026-06-14</span>, seven weeks later. It is the most useful sentence either family has about the other — with one loose line of its own, quoted below and corrected under it.</p>
+    </div>
+
+    <div class="formula">
+      <div class="f">// - 0-bounce connection: shadow ray (standard BDPT, what we have now)<br>
+// - 1-bounce connection: photon hits a surface, connects to eye vertex<br>
+//   (equivalent to VCM/UPS — vertex connection + merging)<br>
+// - 2-bounce connection (sweep dimension): photon primitive spans a<br>
+//   region, connects via an intermediate surface. Requires sweepline<br>
+//   integration over the photon primitive's extent.<br>
+// These extend the (l,e) grid into a <span class="hl">3rd "connection complexity" dimension</span>.</div>
+      <div class="n"><span class="mono">shaders/pathTrace.comp:2488-2494</span>, quoted whole. Its second line is the loose one — merging is not a connection at any bounce count, it is a kernel over a stored vertex, and calling it a 1-bounce connection is the same conflation this page spends a section avoiding. The last line is the part that holds, and it is exactly right: BDPT indexes techniques by <i>where</i> the two subpaths are joined, and the photon-primitive family indexes them by <i>how much of the photon is left free</i> at the join. Those are independent, which is why neither contains the other, and why the product of the two is a bigger space than either.</div>
+    </div>
+
+    <div class="narrow">
+      <p>The renderer has already taken one step onto that third axis. Strategies 22, 23 and 24 — the vertex hourglass members — are seeded <b>on the glass</b> rather than at the light, and their light side is <b>traced</b> back to an emissive entity rather than sampled from <span class="mono">scene.lights[]</span>. The light endpoint of a photon primitive is therefore a subpath vertex, which is the beginning of a light-vertex index on a swept estimator. It is not a pyramid yet; it is one column of one.</p>
+      <p>The measurements say the step is sound. Energy ratio 22/20 = <b>1.007</b> and <b>1.020</b> on presets 47 and 52; 23/20 = <b>1.0001</b> on both at 48k passes; 24 against the stochastic beam reference restricted to the reflection branch = <b>0.9982</b>, and <b>0.9996</b> with the top twenty pixels removed from each side. And the other half, stated with the same precision: <b>none of the three has ever been looked at on screen.</b> They pass headless numeric checks — the ratios above, one of them to four digits — and no human has seen a frame — built, validated, and never once looked at. In this project's grading that is a different status from "works", and the triage reference records it as such.</p>
+
+      <h3>What the swept family has that none of the others do</h3>
+      <p>One capability is genuinely absent from every other mode in this renderer, and it is the reason the family exists rather than being a curiosity. A smooth dielectric is a delta BSDF: fix the incoming direction and Snell fixes the outgoing one, so a connection <i>through</i> glass has zero density. NEE cannot do it. BDPT's interior connections cannot do it — the pyramid's own cell description says so, "Diffuse-only (implemented). Specular needs photon primitives or merge (VCM)". Merging can do it, blurred by a radius. Manifold exploration is the published answer and this renderer does not have one.</p>
+      <p>The photon hourglass does it analytically. Rotating the whole refraction chain about the light-to-centre axis is a rigid motion, so the swept manifold is exact, the crossing is closed-form, and the caustic has no kernel radius in it at all. Paired with the stochastic beam as strategy 21, at equal passes (200, preset 48) the median relative error on the isolated caustic is about 1.9× lower than the beam's alone, and the converged pair matches the converged beam at a median ratio of 1.0000.</p>
+    </div>
+
+    <div class="schem">{{SVG:f20-hourglass.svg}}</div>
+    <div class="paircap"><b>Strategy 20</b><span>Sample ψ on the cap of directions that hit the ball, trace one deterministic chain through two refractions, then sweep φ and r. The exit ray revolved about the axis is a quadric; the camera ray pierces it in up to two places. No radius, no kernel, no gather.</span></div>
+
+    <div class="narrow">
+      <p>And the limits, stated as plainly as the capability. It needs a <b>sphere</b> — the derivation rests on rotational symmetry about the light-to-centre axis, and a glass box or plane is not handled. It needs the light <b>outside</b> the ball. It renders the caustic and nothing else: strategy 20 has no direct-airlight term, so a solo frame is mostly black with a bright cone, which looks like a bug and is the entire estimator. Solo, it is about 2.4% low because it cannot express internal-reflection chains, and strategy 21 closes that by carrying them on the beam.</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ================= 08 LEDGER ================= -->
+<section id="ledger" style="--secc:var(--l680)" data-nav="The ledger">
+  <div class="wrap">
+    <div class="narrow">
+      <p class="sec-label">08 — Grading</p>
+      <h2>What is real, what is a stub, and what says something it should not</h2>
+      <p class="lead">A survey that reports only capabilities is a brochure. This is the other column. Every row was read out of the source for this page; four of them were already recorded in an internal audit from June, and six were corrected or relabelled in the source on 2026-09-04 and are marked so.</p>
+    </div>
+
+    <div class="tw"><table>
+      <thead><tr><th>Thing</th><th>Status</th><th>Anchor</th><th>What it means for a reader</th></tr></thead>
+      <tbody>
+        <tr><td>Standalone light tracer <i>class</i> (the feature ships elsewhere)</td><td><span class="st st-d">superseded</span></td><td><span class="mono">EngineRender.cpp:2087</span></td><td>Constructed and disabled every frame; <span class="mono">trace()</span> has no call site. Superseded by the megakernel's own light path.</td></tr>
+        <tr><td><span class="mono">photonGather.comp</span></td><td><span class="st st-d">dead</span></td><td><span class="mono">EnginePhysics.cpp:748</span></td><td>357 lines. <span class="mono">applyPhotonGather</span> has no caller; V2 is the live kernel.</td></tr>
+        <tr><td>Photon-mapper volume map</td><td><span class="st st-d">stub</span></td><td><span class="mono">PhotonMapper.cpp:56, 378-382</span></td><td>Surface-only by flag. The beam branch is an empty block. The volume photon count is structurally zero.</td></tr>
+        <tr><td>Photon mapper "Final Gather"</td><td><span class="st st-d">stub</span></td><td><span class="mono">photonGatherV2.comp:296</span></td><td>Menu option 2 falls through to kNN; the mode does not exist. Since 2026-09-04 the entry reads "Final Gather (not built - renders kNN)".</td></tr>
+        <tr><td>UPBP beams</td><td><span class="st st-d">stub</span></td><td><span class="mono">UPBPIntegrator.h:39</span></td><td>Built, uploaded, drawn. <span class="mono">enableBeamMerge</span> is read nowhere. No beam appears in any radiance estimate. The header has said so, flag by flag, since 2026-09-04, and the panel toggle is greyed.</td></tr>
+        <tr><td>VCM MIS weights</td><td><span class="st st-b">approximate</span></td><td><span class="mono">VCMIntegrator.cpp:551-563, 675</span></td><td>A kNN-fill-fraction heuristic clamped to [0.05, 0.95], plus a flat 0.5. <span class="mono">dVCM</span>/<span class="mono">dVC</span>/<span class="mono">dVM</span> are computed, stored and never read.</td></tr>
+        <tr><td>VCM balance/power selector</td><td><span class="st st-d">dead</span></td><td><span class="mono">VCMIntegrator.cpp:230, 235</span></td><td>Both helper functions have no call site; <span class="mono">config.misMode</span> is never read. Greyed and labelled [inert] in the panel since 2026-09-04.</td></tr>
+        <tr><td>BDPT MIS method A</td><td><span class="st st-d">never built</span></td><td><span class="mono">pt_bdpt.glsl:101-106</span></td><td>"A balance" and "A power" both return flat 1/N; only B exists. Since 2026-09-04 both entries are labelled [inert] and the tooltip says the A-vs-B oracle cannot be run.</td></tr>
+        <tr><td>BDPT MIS method B</td><td><span class="st st-a">real, validated</span></td><td><span class="mono">pathTrace.comp:2498-2679</span></td><td>All-sites pbrt-style path-pdf sum, user-validated as unbiased and faster-converging. Compiled out on volume scenes — it exceeds the instruction ceiling.</td></tr>
+        <tr><td>Interior-connection comment</td><td><span class="st st-a">fixed</span></td><td><span class="mono">pathTrace.comp:2478</span></td><td>Said "NOT YET IMPLEMENTED" about a loop 1,440 lines below it. Corrected 2026-09-04: it now says IMPLEMENTED, points at the loop, and records what it used to claim.</td></tr>
+        <tr><td>Pyramid <span class="mono">[S]</span> tooltip</td><td><span class="st st-c">stale</span></td><td><span class="mono">EngineRenderViz.cpp:2033</span></td><td>Labels balance and power "(TODO)". True of method A, false of method B. The Render panel's tooltip was corrected on 2026-09-04; this one was not.</td></tr>
+        <tr><td>Pyramid <span class="mono">e=0</span> row colouring</td><td><span class="st st-c">misleading</span></td><td><span class="mono">EngineRenderViz.cpp:2142</span></td><td>Painted active with no aperture test while the shader correctly drops it (<span class="mono">pt_bdpt.glsl:28</span>). At the default Pinhole Size of 0 the cells look live and render black.</td></tr>
+        <tr><td>Pyramid grid over-range</td><td><span class="st st-b">minor</span></td><td><span class="mono">EngineRenderViz.cpp:1869</span></td><td>Range shading uses <span class="mono">maxBounces+2</span>; the vertex arrays cap at 8. Above 8 bounces the panel marks cells in-range that no site can reach.</td></tr>
+        <tr><td>Pyramid "T=cycle mode" hint</td><td><span class="st st-c">wrong</span></td><td><span class="mono">EngineRenderViz.cpp:2261</span></td><td>There is no <span class="mono">GLFW_KEY_T</span> handler in <span class="mono">src/</span>. <span class="mono">T</span> is the on-panel button, not a key.</td></tr>
+        <tr><td>Shrunken-mode cost note</td><td><span class="st st-c">wrong</span></td><td><span class="mono">docs/CAPTURE-SHOOTING-LIST.md:564</span></td><td>"Renders the scene once per cell." It does not; every pixel traces once and discards off-tile contributions. The cost is samples per technique, not frame time.</td></tr>
+        <tr><td>The pyramid on screen</td><td><span class="st st-b">never captured</span></td><td>—</td><td>No screenshot of the BDPT pyramid exists anywhere in this repository. The two shots and the clip above are recipes, not records; the pass counts in them are estimates from the rig's character, not measurements.</td></tr>
+        <tr><td>Manifold exploration</td><td><span class="st st-c">mislabelled</span></td><td><span class="mono">ManifoldIntegrator.cpp:234</span></td><td>PSS-MLT with a 0.1× step on specular randoms. No Newton solve. <span class="mono">newtonIterations</span> is written and never read.</td></tr>
+        <tr><td>MLT <span class="mono">kelemenMLT</span> flag</td><td><span class="st st-d">dead</span></td><td><span class="mono">MLTIntegrator.h:20</span></td><td>Offers a path-space mode that does not exist; both modes are primary sample space.</td></tr>
+        <tr><td>PSSMLT "fix bias"</td><td><span class="st st-c">misnamed</span></td><td><span class="mono">MLTIntegrator.cpp:826-847</span></td><td>A 3×3 box blur on border pixels, after tone mapping. Cosmetic, and honestly described in its own comment.</td></tr>
+        <tr><td>Path guiding <span class="mono">Dir Bins</span></td><td><span class="st st-b">pinned</span></td><td><span class="mono">PathGuidingIntegrator.cpp:12-56</span></td><td>Was a 4-32 slider over a hard-coded 16×16 histogram; any value but 16 decoded bins wrongly and normalised by the wrong solid angle. Pinned to 16 and greyed on 2026-09-04 (<span class="mono">UIManagerRender.cpp:7396-7400</span>); the code still holds two constants.</td></tr>
+        <tr><td>ReSTIR PT</td><td><span class="st st-c">approximation</span></td><td><span class="mono">restirPT.comp:1-7</span></td><td>Screen-space radiance reuse, not path resampling. Labelled experimental in the UI and an approximation in its own header.</td></tr>
+        <tr><td>PP strategies 22 / 23 / 24</td><td><span class="st st-b">numerically validated, never seen</span></td><td><span class="mono">docs/EXPECTED-BEHAVIOUR.md §2</span></td><td>Energy ratios within 2 % of two independent references, one of them to four digits. No human has looked at a frame from any of them.</td></tr>
+        <tr><td>Path-guiding enable toggle</td><td><span class="st st-a">fixed</span></td><td><span class="mono">UIManagerRender.cpp:7386-7391</span></td><td>Was bound to <span class="mono">poisEnabled</span>, so enabling the field viz also ran a gradient filter. Now bound to <span class="mono">pgEnabled</span>, with a comment naming the old bug. The capture notes still record it as open; they are stale.</td></tr>
+        <tr><td>GPU light subpath, mirror tint</td><td><span class="st st-c">known bug</span></td><td><span class="mono">pathTrace.comp</span> light path</td><td>A coloured mirror reflects white in LT and BDPT modes. Known, unfixed.</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="narrow">
+      <h3>Rendered, and validated, are different words</h3>
+      <p>It would be tidy to say the CPU integrators have never been rendered on purpose, and it would be false. This project keeps a capture inventory with explicit status codes — <span class="mono">OK</span> = verified working, <span class="mono">UNSEEN</span> = built and headless-checked but never viewed by a human — and modes 2 through 8 are all marked <span class="mono">OK</span> there, with per-mode recipes and viewport visualisers that someone clearly drove (<span class="mono">docs/CAPTURE-SHOOTING-LIST.md §4</span>). They have been looked at. What is marked <span class="mono">UNSEEN</span> is a shorter list: the MLT chain and acceptance visualiser, showcase presets 49-52, the split A/B compare, clean view itself — and, from this page, <b>the BDPT pyramid, which has no capture anywhere in this repository</b>, and photon-primitive strategies 22, 23 and 24.</p>
+
+      <h3>What this page is not claiming</h3>
+      <p>None of the seven CPU integrators has ever been validated against a reference. The photon-primitive family has, extensively, and the GPU path tracer has against it — <b>median 1.0005</b> on the one transport class both express identically, with directly-seen emitter pixels masked because the two disagree there by a factor of 2.96 and it is unresolved which convention is intended. But there is no number anywhere in this repository for "is VCM right", and the reason is plain: nobody built the gate. Modes 2 through 8 are teaching instruments and research scaffolding that happen to render; they are not evidence, and this page does not lean on them as any.</p>
+      <p>Nor is a stub a criticism. A stub in a research renderer is a decision about where the time went, and this project's went into the swept estimators and the machinery to prove they are right. The point of listing them is that a reader can tell which is which without reading 20,000 lines, and that the four labels which promised more than they delivered — method A, final gather, manifold exploration, beam merging — are named here rather than discovered later. Three of the four were relabelled in the panel on 2026-09-04; manifold exploration still carries its name.</p>
+    </div>
+
+    <div class="scope">
+      <b>Read next.</b> The <a href="ten-integrators-one-scene.html" style="color:var(--accent);text-decoration:none;border-bottom:1px solid var(--line)">megakernel and the scene it walks</a> for how the GPU side is built and specialised; <a href="photon-hourglass.html" style="color:var(--accent);text-decoration:none;border-bottom:1px solid var(--line)">the photon hourglass</a> for the analytic caustic in full; <a href="how-i-know.html" style="color:var(--accent);text-decoration:none;border-bottom:1px solid var(--line)">how I know the pictures are right</a> for the validation ladder the numbers on this page come from. The triage reference behind the ledger is <span class="mono">docs/EXPECTED-BEHAVIOUR.md</span>; the June audit that independently found four of the same stubs is <span class="mono">docs/2026-06-06-participating-media-estimator-audit.md</span>.
+    </div>
+  </div>
+</section>
+
+{{SECTION:_foot.html}}
