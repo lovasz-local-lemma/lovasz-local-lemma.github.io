@@ -63,12 +63,13 @@
   }
 
   function installPresentation(nav){
+const releaseHome=nav.querySelector('.route-home'); if(releaseHome){releaseHome.setAttribute('aria-label',"Shaojie Jiao's Portfolio"); const title=releaseHome.querySelector('strong'); if(title)title.textContent="Shaojie Jiao's Portfolio";}
     const html=document.documentElement;
     let mode='top',height=0;
     try{if(localStorage.getItem(presentationKey)==='floating')mode='floating';}catch{/* Session-only controls still work. */}
     document.body.style.setProperty('--portfolio-original-padding-top',getComputedStyle(document.body).paddingTop);
     const toggle=make('button','route-presentation-toggle');toggle.type='button';
-    nav.append(toggle);
+    /* Float control omitted in this release. */
     // Fit viewport-sized app roots without wrappers or reparenting.
     const adjusted=new WeakSet();
     function fitApps(){
@@ -107,7 +108,7 @@
       window.dispatchEvent(new Event('resize'));
     }
     function apply(value,save=false){
-      mode=value==='floating'?'floating':'top';
+      mode='top';
       nav.classList.toggle('universal-route-top',mode==='top');
       nav.classList.toggle('universal-route-dock',mode==='floating');
       nav.classList.toggle('route-compact',mode==='floating');

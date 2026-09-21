@@ -9,7 +9,7 @@
     const path=el('div','route-path');nav.append(path);
     const homeNode=el('a','route-node route-home');homeNode.href=home||new URL('index.html',root);homeNode.setAttribute('aria-label','Portfolio');
     const mark=el('img','route-mark');mark.src=new URL('media/identity/portfolio-mark.svg',root);mark.alt='';mark.width=52;mark.height=52;
-    const homeCopy=el('span','route-copy');homeCopy.append(el('small','','WORK / IDEAS'),el('strong','','Portfolio'));homeNode.append(mark,homeCopy);path.append(homeNode);
+    const homeCopy=el('span','route-copy');homeCopy.append(el('small','','WORK / IDEAS'),el('strong','',"Shaojie Jiao's Portfolio"));homeNode.append(mark,homeCopy);path.append(homeNode);
     for(const key of ['group','project']){
       const wire=el('span','route-wire');wire.setAttribute('aria-hidden','true');wire.append(el('i',''),el('b',''));path.append(wire);
       const node=el('div','route-node route-'+key);node.append(el('span','route-glyph',key==='group'?'✦':'◈'));
