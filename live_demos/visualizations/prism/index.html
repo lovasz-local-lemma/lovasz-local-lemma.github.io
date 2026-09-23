@@ -3,7 +3,7 @@
 <head><style id="portfolio-early-paint">html{background:#0b0d0c;color-scheme:dark}html.portfolio-booting body{opacity:0}</style><script src="../../../portfolio-navigation.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2D Geometric Optics - Prism Light Simulation</title>
+    <title>Spectrum — Different light, same white.</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
@@ -341,6 +341,7 @@
             100% { opacity: 0; }
         }
     </style>
+    <link rel="stylesheet" href="spectrum-lesson.css">
 <link rel="stylesheet" href="../../../portfolio-controls.css"><link rel="stylesheet" href="../../../portfolio-demo-return.css"><script defer src="../../../portfolio-demo-return.js" data-project="prism_optics" data-title="Spectral geometric optics" data-overview="projects/prism_optics/overview.html" data-group="graphics" data-thumbnail="media/thumbs/prism_optics.webp" data-routes="[{&quot;project&quot;:&quot;prism_optics&quot;,&quot;title&quot;:&quot;Spectral geometric optics&quot;,&quot;group&quot;:&quot;graphics&quot;,&quot;thumbnail&quot;:&quot;media/thumbs/prism_optics.webp&quot;,&quot;overview&quot;:&quot;projects/prism_optics/overview.html&quot;,&quot;path&quot;:&quot;live_demos/visualizations/prism/index.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:2},{&quot;project&quot;:&quot;prism_optics&quot;,&quot;title&quot;:&quot;Spectral geometric optics&quot;,&quot;group&quot;:&quot;graphics&quot;,&quot;thumbnail&quot;:&quot;media/thumbs/prism_optics.webp&quot;,&quot;overview&quot;:&quot;projects/prism_optics/overview.html&quot;,&quot;path&quot;:&quot;live_demos/visualizations/prism/index.html&quot;,&quot;query&quot;:{},&quot;priority&quot;:1}]"></script><!-- universal-navigation:start --><link rel="stylesheet" href="../../../portfolio-location.css?v=dade1be0aa"><script defer src="../../../portfolio-location.js?v=dade1be0aa"></script><script defer src="../../../portfolio-routes.js?v=dade1be0aa"></script><script defer src="../../../portfolio-universal-navigation.js?v=dade1be0aa"></script><!-- universal-navigation:end --><style id="portfolio-reader-edition">/* Authoring controls are absent in reader editions. */
 .studio-ui,.studio-preview-arrange,[data-layout-editor],.preview-layout-editor,
 .review-panel,.review-dialog,.review-checkpoint,.review-mark-label,
@@ -352,8 +353,73 @@
 </style></head>
 <body>
     <a href="../../../index.html" class="back-button">Back to Portfolio</a>
-    <h1>2D Geometric Optics Simulation</h1>
-    <p style="max-width:900px;margin:0 auto 24px;text-align:center;color:#dad1ba;line-height:1.7">Put the light path on the workbench. Move the geometry, change the spectrum, and follow every reflection and refraction. This is an optical bench built for intuition: dispersion is exaggerated so the hidden difference between RGB color and a spectrum becomes visible.</p>
+    <section id="spectrum-lesson" aria-labelledby="lesson-title">
+        <header class="lesson-heading">
+            <p class="lesson-eyebrow">Spectrum · A small experiment in seeing</p>
+            <h1 id="lesson-title">Same white. Different light.</h1>
+            <p class="lesson-intro">Full-spectrum white and RGB white can look the same before a prism. Spread their wavelengths across a detector wall: one makes a continuous rainbow, the other three bands.</p>
+        </header>
+
+        <div class="lesson-toolbar">
+            <div id="prism-controls" class="lesson-adjustments">
+                <label for="prism-angle">Tilt both prisms <output id="prism-angle-value" for="prism-angle">0°</output></label>
+                <input id="prism-angle" type="range" min="-8" max="8" step="1" value="0">
+            </div>
+            <div class="lesson-adjustments">
+                <label for="prism-ior">IOR at 550 nm <output id="prism-ior-value" for="prism-ior">1.50</output></label>
+                <input id="prism-ior" type="range" min="1.30" max="1.65" step="0.01" value="1.50" aria-describedby="prism-ior-hint">
+                <span id="prism-ior-hint">Same material in both prisms.</span>
+            </div>
+            <div class="lesson-actions">
+                <label class="energy-shading-control" for="energy-shading">
+                    <input id="energy-shading" type="checkbox" checked aria-describedby="energy-shading-hint"> Energy shading
+                </label>
+                <button type="button" id="lesson-pause" aria-pressed="false">Pause</button>
+                <button type="button" id="lesson-reset">Reset</button>
+            </div>
+        </div>
+        <p id="energy-shading-hint">On: brightness includes energy and eye sensitivity.</p>
+
+        <div class="lesson-comparison">
+            <article class="source-card" aria-labelledby="source-a-title">
+                <header class="source-heading">
+                    <div><p class="source-kicker">Source A · Continuous spectrum</p><h2 id="source-a-title">Full-spectrum white</h2></div>
+                    <div class="input-detector"><div id="source-a-swatch" class="lesson-swatch" role="img" aria-label="Source A before the prism: white"></div><span>Before prism<br><strong>White</strong></span></div>
+                </header>
+                <canvas id="source-a-path" class="light-path" width="600" height="300" role="img" aria-label="Full-spectrum white beam travels from the left through a prism and spreads into a continuous rainbow on the detector wall to the right">Full-spectrum white light separates into a continuous rainbow at the detector wall.</canvas>
+                <button type="button" class="try-source" data-bench-source="white">Try full spectrum in the main display <span aria-hidden="true">↓</span></button>
+            </article>
+            <article class="source-card" aria-labelledby="source-b-title">
+                <header class="source-heading">
+                    <div><p class="source-kicker">Source B · Three narrow bands</p><h2 id="source-b-title">RGB white</h2></div>
+                    <div class="input-detector"><div id="source-b-swatch" class="lesson-swatch" role="img" aria-label="Source B before the prism: white"></div><span>Before prism<br><strong>White</strong></span></div>
+                </header>
+                <canvas id="source-b-path" class="light-path" width="600" height="300" role="img" aria-label="RGB white beam travels from the left through a prism and separates into three bands on the detector wall to the right">Three narrow wavelength bands mix to white before the prism and separate at the detector wall.</canvas>
+                <button type="button" class="try-source" data-bench-source="rgb-white">Try RGB white in the main display <span aria-hidden="true">↓</span></button>
+            </article>
+        </div>
+
+        <div class="lesson-footer">
+            <p class="lesson-legend"><span aria-hidden="true"></span><span id="spectrum-color-note">Outgoing light and wall share one color model; faint spectral ends fade in both.</span></p>
+            <p id="response-status" role="status" aria-live="polite" aria-atomic="true">Same white input. Different patterns on the wall.</p>
+        </div>
+        <details id="lesson-method">
+            <summary>How the white match and detector colors work</summary>
+            <div class="lesson-method-copy">
+                <p><strong>Energy shading.</strong> On shows brightness differences from the light's energy, its spread and the modeled eye response. Off uses bright wavelength colors to reveal the full spread, with the same colors on the outgoing beam and wall. Off is an illustrative view: it normalizes brightness and suppresses the negligible tails of the narrow bands. The source spectra and light paths are unchanged.</p>
+                <p><strong>Two physical spectra, one modeled white.</strong> Here, “RGB white” means three narrow red, green and blue wavelength bands, not an RGB transport shortcut. Their nonnegative powers are balanced to match the full spectrum’s X, Y and Z observer responses, including brightness. This is a modeled metameric pair; real observers can differ.</p>
+                <p><strong>Color and brightness.</strong> The approximate CIE 1931 observer uses the analytic fits by <a href="https://jcgt.org/published/0002/02/01/">Wyman, Sloan and Shirley</a>. Both white inputs share the same display adaptation. With energy shading on, the outgoing beam and wall integrate the same finite-width wavelength samples, add their XYZ responses, and use the same exposure and brightness compression. The wall continues the beam's final column, so the arriving colors line up in either mode. Equal spectral power does not mean equal visible brightness: the observer is less sensitive at the far red and violet ends. Spectral colors outside the monitor's gamut are approximated. Showing the beam in air is a diagram, not a simulation of light scattering toward your eye. Colors inside the prism and on the relative-power charts label wavelengths; the charts are each scaled to their own peak. See the <a href="https://cie.co.at/eilvterm/17-23-006">CIE definition of metameric colour stimuli</a>.</p>
+                <p><strong>A compact optical model.</strong> The IOR control sets the refractive index at 550 nm for both prisms; a defined synthetic dispersion curve varies that index with wavelength. The incoming beam and equilateral prism are arranged to keep every wavelength on the wall throughout both sliders' ranges. The comparison shows first transmitted paths without reflections. The main display below lets you explore reflections, refraction and more source spectra.</p>
+            </div>
+        </details>
+        <noscript><p class="lesson-noscript">Enable JavaScript to trace the light and explore the optical bench. The method notes explain the comparison without animation.</p></noscript>
+    </section>
+
+    <section id="optics-sandbox" aria-labelledby="bench-title">
+    <header class="bench-heading">
+        <h2 id="bench-title">Optical bench</h2>
+        <p>Check out both sources in the main display below. Move the geometry, change the spectrum, and follow the reflections and refractions.</p>
+    </header>
     <div id="container">
         <div id="mainView">
             <div id="canvasContainer">
@@ -376,7 +442,7 @@
                 Accumulates photons over time. Watch the rainbow pattern emerge!
             </p>
             <p style="font-size: 13px; color: #888; margin-top: 5px; font-style: italic; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);">
-                ⚠️ If you see overexposed (white) pixels, adjust the sensitivity slider
+                Adjust sensitivity to reveal faint bands; bright bands keep their color.
             </p>
             </div>
         </div>
@@ -404,16 +470,21 @@
                 <label>Spectrum:</label>
                 <select id="spectrumMode">
                     <option value="white">Full Spectrum (White)</option>
-                    <option value="purple-single">Purple (Single λ=420nm)</option>
-                    <option value="purple-dual">Purple (Red+Blue) ★ Metamerism</option>
+                    <option value="rgb-white">RGB White (Three Narrow Bands)</option>
+                    <option value="purple-single">Violet (Single λ=420nm)</option>
+                    <option value="purple-dual">Red + Blue (Uncalibrated Mix)</option>
                     <option value="red-violet">Red+Violet (Opposite Ends)</option>
                     <option value="yellow-single">Yellow (Single λ=580nm)</option>
-                    <option value="yellow-dual">Yellow (Green+Red) ★ Metamerism</option>
+                    <option value="yellow-dual">Green + Red (Uncalibrated Mix)</option>
                     <option value="cyan">Cyan (Single λ=490nm)</option>
                     <option value="magenta">Magenta (Blue+Red)</option>
                     <option value="green-narrow">Green (Narrow Band)</option>
                     <option value="custom">Custom Ranges</option>
                 </select>
+                <div class="bench-source-detector">
+                    <div id="bench-source-swatch" role="img" aria-label="Selected source before the prism: white"></div>
+                    <span id="bench-source-reading">Before the prism: white</span>
+                </div>
             </div>
             
             <div class="control-group">
@@ -434,10 +505,10 @@
             </div>
             
             <div class="control-group">
-                <label>Sensor Type:</label>
+                <label>Display Response:</label>
                 <select id="sensorType">
-                    <option value="retina">Retina (Logarithmic)</option>
-                    <option value="cmos" selected>CMOS (Linear)</option>
+                    <option value="retina">Logarithmic Compression</option>
+                    <option value="cmos" selected>Standard Compression</option>
                 </select>
             </div>
             
@@ -600,16 +671,14 @@
         <p><strong>Rendering Perspective:</strong></p>
         <p>
             At every interface between materials with different refractive indices, incident light is <em>partially reflected</em> and <em>partially transmitted</em> (refracted). 
-            The Fresnel equations determine the exact energy split between these two components. In path tracing and Monte Carlo rendering, 
-            we cannot afford to deterministically split rays at every interface—instead, we use <strong>stochastic sampling</strong>: each ray makes a probabilistic choice 
+            In this simplified model, the Fresnel equations determine the energy split between these two components. The bench uses <strong>stochastic sampling</strong>: each ray makes a probabilistic choice 
             between reflection and refraction, weighted by the Fresnel reflectance coefficient <em>R</em>. With probability <em>R</em>, the ray reflects; with probability <em>(1-R)</em>, 
-            it refracts. Over many samples, the aggregate distribution converges to the correct energy partition. This approach is unbiased and naturally handles complex 
-            multi-bounce scenarios without exponential ray splitting.
+            it refracts. A finite set of rays gives an approximate, noisy picture of that split; the bench’s other optical and display approximations still apply.
         </p>
         
         <p><strong>What This Demo Shows:</strong></p>
         <ul>
-            <li><strong>White Light as a Statistical Mixture:</strong> We model "white" light as randomly sampled wavelengths across the visible spectrum (380-750 nm).</li>
+            <li><strong>White Light as a Statistical Mixture:</strong> Full-spectrum white samples wavelengths from 380–780 nm. RGB white samples three narrow bands balanced to give the same modeled input color and brightness.</li>
             
             <li><strong>Wavelength-Dependent Refraction:</strong> Each photon's refraction angle is determined by Snell's law with a wavelength-dependent refractive index (Cauchy's approximation: n(λ) ≈ n₀ + B/λ²). Shorter wavelengths (blue) bend more than longer ones (red).</li>
             
@@ -634,16 +703,10 @@
         
         <p><strong>Metamerism: Different Spectra, Same Appearance</strong></p>
         <p>
-            An important phenomenon this demo illustrates is <strong>metamerism</strong>: different spectral distributions can appear identical to the human eye. 
-            For example, the "Purple (Red+Blue)" mode mixes red (~650nm) and blue (~420nm) photons, creating the visual perception of purple—yet 
-            a "true" single-wavelength purple (~420nm) looks nearly the same to us. This is because human color vision is trichromatic: we have only three 
-            types of cone cells, so any combination of wavelengths that stimulates them in the same ratio appears identical.
+            <strong>Metamerism</strong> means different spectral distributions have the same color response for a specified observer and viewing conditions. The guided example above explicitly matches three modeled observer responses, including brightness. A prism can reveal the different wavelength distributions behind that match.
         </p>
         <p>
-            Our simplified model maps wavelength directly to RGB, which approximates but oversimplifies real eye sensitivity curves (the actual spectral 
-            response functions are more complex bell curves). Despite this limitation, the demo shows why <strong>spectral analysis with prisms</strong> 
-            is valuable: two colors that look identical to the eye reveal their true composition when dispersed—a single-wavelength purple creates one 
-            narrow band, while red+blue creates two distinct separated bands. This principle is used in spectroscopy to identify materials.
+            The bench detector uses the same XYZ observer model as the comparison above. Its other source presets are exploratory: the red–blue mixture is not a calibrated match to the 420 nm violet preset, and the single-yellow and green–red presets are not calibrated metamers. Use them to explore wavelength-dependent paths; full-spectrum white and RGB white are the matched pair.
         </p>
         
         <p><strong>Geometric Optics with Chromatic Effects:</strong></p>
@@ -654,6 +717,11 @@
         </p>
     </div>
     
+    </section>
+
+    <script src="spectrum-model.js"></script>
+    <script src="spectrum-transport.js"></script>
+    <script src="spectrum-lesson.js"></script>
     <script src="optics-simulation.js"></script>
 </body>
 </html>

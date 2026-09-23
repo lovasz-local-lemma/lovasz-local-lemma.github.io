@@ -1,0 +1,99 @@
+/* A compact prism comparison introduces the always-visible optical bench. */
+#spectrum-lesson {
+    --lesson-ink: #ede9dd;
+    --lesson-muted: #bcb9ab;
+    --lesson-gold: #e3c57a;
+    box-sizing: border-box;
+    max-width: 1600px;
+    margin: 0 auto 14px;
+    color: var(--lesson-ink);
+    font: 14px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+#spectrum-lesson *, #spectrum-lesson *::before, #spectrum-lesson *::after { box-sizing: border-box; }
+#spectrum-lesson .lesson-heading { margin-bottom: 10px; }
+#spectrum-lesson .lesson-eyebrow { margin: 0 0 3px; color: var(--lesson-gold); font-size: 10px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; }
+#spectrum-lesson h1 { margin: 0 0 5px; color: #eddaa4; font: 600 clamp(28px, 3.3vw, 36px)/1.15 "Playfair Display", Georgia, serif; text-align: left; text-shadow: 0 0 24px #d4af371c; }
+#spectrum-lesson .lesson-intro { max-width: 1000px; margin: 0; color: #c9c7bb; font-size: 13px; line-height: 1.5; }
+#spectrum-lesson .lesson-toolbar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px 24px; margin: 0 0 10px; }
+#spectrum-lesson button { min-height: 34px; margin: 0; padding: 6px 11px; border: 1px solid #b8aa8055; border-radius: 6px; background: #151a1a; color: #e2dfd3; font: 500 12px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif; box-shadow: none; text-shadow: none; cursor: pointer; transition: border-color .15s, background .15s; }
+#spectrum-lesson button:hover { transform: none; border-color: var(--lesson-gold); background: #292719; box-shadow: none; }
+#spectrum-lesson button:focus-visible, #spectrum-lesson input:focus-visible,
+#spectrum-lesson summary:focus-visible, #spectrum-lesson a:focus-visible {
+    outline: 2px solid #f0d58f;
+    outline-offset: 4px;
+}
+#spectrum-lesson .lesson-actions { display: flex; align-items: center; gap: 5px; margin-left: auto; }
+#spectrum-lesson .energy-shading-control { display: inline-flex; align-items: center; gap: 6px; margin: 0 8px 0 0; color: #e2dfd3; font: 500 12px/1.4 system-ui, sans-serif; cursor: pointer; white-space: nowrap; }
+#spectrum-lesson #energy-shading { width: 16px; height: 16px; margin: 0; accent-color: #e3c57a; cursor: pointer; }
+#spectrum-lesson #energy-shading-hint { margin: -3px 0 10px; color: #b4b5a9; font-size: 11px; text-align: right; }
+#spectrum-lesson .lesson-actions button { min-width: 55px; }
+#spectrum-lesson .lesson-adjustments { display: flex; align-items: center; gap: 12px; flex: 0 1 530px; }
+#spectrum-lesson #prism-controls { flex-basis: 380px; }
+#spectrum-lesson .lesson-adjustments label { margin: 0; color: #c9c5b4; white-space: nowrap; font: 500 12px/1.4 system-ui, sans-serif; text-shadow: none; }
+#spectrum-lesson .lesson-adjustments input { max-width: 220px; min-width: 60px; width: 100%; margin: 0; accent-color: #e3c57a; cursor: pointer; }
+#spectrum-lesson .lesson-adjustments output { display: inline-block; min-width: 26px; margin-left: 4px; color: #eddaa4; font-variant-numeric: tabular-nums; }
+#spectrum-lesson #prism-ior-value { min-width: 30px; }
+#spectrum-lesson #prism-ior-hint { flex: 0 0 auto; color: #b4b5a9; font-size: 10px; }
+#spectrum-lesson .lesson-comparison { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+#spectrum-lesson .source-card { min-width: 0; overflow: hidden; border: 1px solid #d4af376b; border-radius: 11px; background: linear-gradient(150deg, #1d211f, #0c1113 70%); box-shadow: 0 0 22px #d4af3712, inset 0 1px #ffe2a110; }
+#spectrum-lesson .source-heading { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 9px 13px; }
+#spectrum-lesson .source-kicker { margin: 0 0 2px; color: #bbb8a6; font-size: 10px; letter-spacing: .04em; }
+#spectrum-lesson .source-heading h2 { margin: 0; padding: 0; border: 0; color: #ead7a1; font: 600 clamp(18px, 2vw, 22px)/1.2 "Playfair Display", Georgia, serif; text-shadow: none; }
+#spectrum-lesson .input-detector { display: flex; flex: 0 0 auto; align-items: center; gap: 7px; color: #bcbdb0; font-size: 10px; line-height: 1.4; }
+#spectrum-lesson .input-detector strong { color: #eae9df; font-size: 11px; }
+#spectrum-lesson .lesson-swatch { flex: 0 0 25px; width: 25px; height: 28px; border: 1px solid #ffffff66; border-radius: 4px; background: #eee; box-shadow: 0 0 14px #ffffff14; }
+#spectrum-lesson .light-path { display: block; width: 100%; height: auto; border-top: 1px solid #c7ae651e; border-bottom: 1px solid #c7ae651e; background: #080d10; }
+#spectrum-lesson .try-source { display: flex; justify-content: space-between; align-items: center; gap: 8px; width: 100%; padding: 8px 13px; border: 0; border-radius: 0; background: #d4af3708; color: #dbc999; text-align: left; font-size: 11px; }
+#spectrum-lesson .try-source span { color: #e7d497; font-size: 15px; }
+#spectrum-lesson .try-source:focus-visible { outline-offset: -4px; }
+#spectrum-lesson .lesson-footer { display: flex; justify-content: space-between; align-items: baseline; gap: 8px 16px; margin-top: 7px; }
+#spectrum-lesson .lesson-footer p { margin: 0; font-size: 10px; }
+#spectrum-lesson .lesson-legend { color: #b0b5ae; }
+#spectrum-lesson .lesson-legend span[aria-hidden] { display: inline-block; width: 25px; height: 3px; margin: 0 5px 2px 0; border-radius: 4px; background: linear-gradient(90deg, #887bea, #42bfb7, #bada69, #ec7766); }
+#spectrum-lesson #response-status { color: #d8c48b; text-align: right; }
+#spectrum-lesson #lesson-method { margin-top: 5px; }
+#spectrum-lesson #lesson-method summary { padding: 5px 0; color: #cfc4a5; font-size: 11px; cursor: pointer; }
+#spectrum-lesson .lesson-method-copy { max-width: 980px; padding: 0 0 6px; color: #bdbeb3; font-size: 13px; line-height: 1.65; }
+#spectrum-lesson .lesson-method-copy p { margin: 4px 0 12px; }
+#spectrum-lesson strong { color: #e0cf9d; }
+#spectrum-lesson a { color: #e4cb87; text-underline-offset: 3px; }
+#spectrum-lesson .lesson-noscript { padding: 12px; border: 1px solid #d4af3760; }
+
+/* The main optical bench and its existing controls remain visible. */
+#optics-sandbox { max-width: 1600px; margin: 0 auto; scroll-margin-top: 100px; }
+#optics-sandbox .bench-heading { margin: 0 auto 12px; padding-top: 13px; border-top: 1px solid #d4af3760; }
+#optics-sandbox .bench-heading h2 { margin: 0 0 5px; padding: 0; border: 0; color: #ead7a1; font: 600 27px/1.25 "Playfair Display", Georgia, serif; }
+#optics-sandbox .bench-heading p { margin: 0; color: #c9c7bb; font: 13px/1.5 system-ui, sans-serif; }
+#optics-sandbox #container, #optics-sandbox #controls { box-sizing: border-box; }
+#optics-sandbox #container { padding: 0; }
+#optics-sandbox #mainView { gap: 22px; }
+#optics-sandbox #canvasContainer { max-width: 100%; }
+#optics-sandbox #canvas { display: block; max-width: 100%; height: auto; }
+#optics-sandbox #sensor { box-sizing: border-box; max-width: 100%; }
+#optics-sandbox #sensorCanvas, #optics-sandbox #spectrumCanvas { max-width: 100%; }
+#optics-sandbox .bench-source-detector { display: flex; align-items: center; gap: 9px; margin-top: 9px; color: #d6d0ba; font: 12px/1.45 system-ui, sans-serif; }
+#optics-sandbox #bench-source-swatch { flex: 0 0 27px; width: 27px; height: 23px; border: 1px solid #ffffff66; border-radius: 4px; background: #eee; }
+
+@media (max-width: 820px) {
+    #spectrum-lesson .lesson-comparison { gap: 10px; }
+    #spectrum-lesson .source-heading { align-items: flex-start; flex-wrap: wrap; gap: 6px; }
+    #spectrum-lesson .input-detector { gap: 5px; }
+    #spectrum-lesson .lesson-footer { flex-direction: column; gap: 2px; }
+    #spectrum-lesson #response-status { text-align: left; }
+}
+@media (max-width: 580px) {
+    #spectrum-lesson .lesson-heading { margin-top: 5px; }
+    #spectrum-lesson .lesson-comparison { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+    #spectrum-lesson .lesson-toolbar { flex-wrap: wrap; }
+    #spectrum-lesson .lesson-adjustments, #spectrum-lesson #prism-controls { flex-basis: 100%; flex-wrap: wrap; gap: 6px 10px; }
+    #spectrum-lesson .lesson-adjustments input { flex: 1; }
+    #spectrum-lesson #prism-ior-hint { flex-basis: 100%; }
+    #spectrum-lesson .lesson-adjustments input { max-width: none; }
+    #spectrum-lesson .lesson-actions { margin-left: auto; }
+    #spectrum-lesson .source-heading { flex-wrap: nowrap; align-items: center; }
+    #optics-sandbox #controls { grid-template-columns: minmax(0, 1fr); padding: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    body::before, body::after, #optics-sandbox #canvas { animation: none; }
+    #spectrum-lesson *, #optics-sandbox button { transition: none; }
+}

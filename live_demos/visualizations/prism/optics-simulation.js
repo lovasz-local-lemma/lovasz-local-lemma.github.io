@@ -70,7 +70,8 @@ class Photon {
     }
     
     getColor() {
-        // Convert wavelength to RGB
+        // Ray colors are bright wavelength keys. Energy is reserved for transport and detection.
+        if (typeof SpectrumModel !== 'undefined') return SpectrumModel.wavelengthColor(this.wavelength);
         const wavelength = this.wavelength;
         let r = 0, g = 0, b = 0;
         
@@ -94,23 +95,15 @@ class Photon {
             r = 1;
             g = -(wavelength - 645) / (645 - 580);
             b = 0;
-        } else if (wavelength >= 645 && wavelength <= 750) {
+        } else if (wavelength >= 645 && wavelength <= 780) {
             r = 1;
             g = 0;
             b = 0;
         }
         
-        // Intensity factor
-        let factor = 1;
-        if (wavelength >= 380 && wavelength < 420) {
-            factor = 0.3 + 0.7 * (wavelength - 380) / (420 - 380);
-        } else if (wavelength >= 645 && wavelength <= 750) {
-            factor = 0.3 + 0.7 * (750 - wavelength) / (750 - 645);
-        }
-        
-        r = Math.round(255 * r * factor * this.energy);
-        g = Math.round(255 * g * factor * this.energy);
-        b = Math.round(255 * b * factor * this.energy);
+        r = Math.round(255 * r);
+        g = Math.round(255 * g);
+        b = Math.round(255 * b);
         
         return `rgb(${r}, ${g}, ${b})`;
     }
@@ -256,22 +249,30 @@ class OpticsSimulation {
         this.lightSourceRadius = 20; // For sphere and flashlight
         this.flashlightBlockerAngle = 0; // Direction blockers point (opposite to light)
         this.flashlightBlockerSpread = 60; // Angle of cone blocked
-        this.spectrumMode = 'white'; // 'white', 'purple-single', 'purple-dual', 'custom'
+        this.spectrumMode = 'white';
+        this.spectrumModel = typeof SpectrumModel !== 'undefined' ? SpectrumModel : null;
+        this.modelSpectra = new Map();
+        this.spectrumMax = this.spectrumModel ? this.spectrumModel.wavelengths.at(-1) : 750;
+        this.spectrumSpan = this.spectrumMax - 380;
         this.customSpectrum = []; // Array of {min, max, weight} ranges
         this.tunnelMode = false;
         this.tunnelTop = 200;
         this.tunnelBottom = 400;
-        this.paused = false;
+        this.reducedMotionQuery = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
+        this.paused = Boolean(this.reducedMotionQuery && this.reducedMotionQuery.matches);
+        this.sandbox = document.getElementById('optics-sandbox');
+        this.inViewport = true;
+        this.animationFrame = null;
         this.showTrails = true;
         this.participatingMedia = 0.001; // Scattering coefficient
         
         // Virtual sensor setup
         this.sensorCanvas = document.getElementById('sensorCanvas');
         this.sensorCtx = this.sensorCanvas.getContext('2d');
-        // Store RGB values per pixel for proper color mixing - default high resolution
+        // Accumulate linear observer XYZ; display conversion happens only after addition.
         this.sensorCanvas.width = 500;
         this.sensorCanvas.height = 400;
-        this.sensorData = new Array(500).fill(0).map(() => new Array(400).fill(0).map(() => ({r: 0, g: 0, b: 0})));
+        this.sensorData = new Array(500).fill(0).map(() => new Array(400).fill(0).map(() => ({X: 0, Y: 0, Z: 0})));
         this.sensorX = 800; // Position on main canvas (updated for 900px width)
         this.sensorDecay = 0.998; // Much slower fade for better persistence
         this.sensorType = 'cmos'; // 'retina' or 'cmos'
@@ -301,11 +302,16 @@ class OpticsSimulation {
         this.setupDefaultScene();
         this.setupEventListeners();
         this.setupSpectrumCanvas();
-        this.lastTime = 0;
-        this.animate();
+        this.updateSourceReading();
+        this.lastTime = null;
+        this.setupAnimationVisibility();
+        this.render();
+        this.renderSensor(false);
+        this.updateAnimationState();
     }
     
     setupDefaultScene(scene = 'prism') {
+        this.currentScene = scene;
         this.objects = [];
         
         // Reset all light source parameters to defaults
@@ -363,19 +369,116 @@ class OpticsSimulation {
                 this.multiSensorMode = true;
                 // Initialize multi-sensor data
                 for (let sensor of this.multiSensors) {
-                    sensor.data = new Array(100).fill(0).map(() => ({r: 0, g: 0, b: 0}));
+                    sensor.data = new Array(100).fill(0).map(() => ({X: 0, Y: 0, Z: 0}));
                 }
                 break;
         }
+        this.syncSceneControls();
+    }
+
+    syncSceneControls() {
+        const setValue = (id, value) => {
+            const element = document.getElementById(id);
+            if (element) element.value = value;
+        };
+        const setText = (id, value) => {
+            const element = document.getElementById(id);
+            if (element) element.textContent = value;
+        };
+        setValue('lightAngle', this.lightAngle);
+        setText('angleValue', this.lightAngle + '°');
+        setValue('lightSourceType', this.lightSourceType);
+        const rangeControl = document.getElementById('lightRange');
+        if (rangeControl) rangeControl.max = this.lightSourceType === 'parallel' ? 150 : 90;
+        setValue('lightRange', this.lightRange);
+        setText('rangeValue', this.lightRange + (this.lightSourceType === 'parallel' ? 'px' : '°'));
+        setValue('sceneSelector', this.currentScene);
+        const prism = this.objects.find(object => object.type === 'prism');
+        const materialControl = document.getElementById('prismMaterial');
+        if (materialControl) {
+            materialControl.disabled = !prism;
+            if (prism) materialControl.value = prism.material;
+        }
+    }
+
+    getModelSpectrum(mode = this.spectrumMode) {
+        const id = mode === 'white' ? 'broad' : mode === 'rgb-white' ? 'bands' : null;
+        if (!id || !this.spectrumModel) return null;
+        if (!this.modelSpectra.has(id)) {
+            const preset = this.spectrumModel.presets.find(source => source.id === id);
+            const broad = this.spectrumModel.presets.find(source => source.id === 'broad');
+            const sum = preset.power.reduce((total, power) => total + power, 0);
+            const broadSum = broad.power.reduce((total, power) => total + power, 0);
+            let cumulative = 0;
+            const cdf = preset.power.map(power => (cumulative += power / sum));
+            cdf[cdf.length - 1] = 1;
+            this.modelSpectra.set(id, {preset, cdf, energyScale: sum / broadSum});
+        }
+        return this.modelSpectra.get(id);
+    }
+
+    setSpectrumMode(mode) {
+        const supported = ['white', 'rgb-white', 'purple-single', 'purple-dual', 'red-violet',
+            'yellow-single', 'yellow-dual', 'cyan', 'magenta', 'green-narrow', 'custom'];
+        const menu = document.getElementById('spectrumMode');
+        if (!supported.includes(mode) || (mode === 'rgb-white' && !this.spectrumModel)) {
+            if (menu) menu.value = this.spectrumMode;
+            return false;
+        }
+        const oldMode = this.spectrumMode;
+        this.spectrumMode = mode;
+        if (menu) menu.value = mode;
+        this.isDraggingSpectrum = false;
+        this.spectrumDragStart = null;
+        const custom = mode === 'custom';
+        const customControls = document.getElementById('customSpectrumControls');
+        if (customControls) customControls.style.display = custom ? 'block' : 'none';
+        if (custom && oldMode !== 'custom') this.customSpectrum = this.getCurrentSpectrumRanges(oldMode);
+        if (this.spectrumCanvas) {
+            this.spectrumCanvas.style.cursor = custom ? 'crosshair' : 'default';
+            this.spectrumCanvas.style.border = custom ? '2px solid #d4af37' : '1px solid #333';
+            this.spectrumCanvas.style.boxShadow = custom ? '0 0 15px rgba(212, 175, 55, 0.5)' : 'none';
+        }
+        this.updateSourceReading();
+        this.renderSpectrumCanvas();
+        this.reset();
+        return true;
+    }
+
+    updateSourceReading() {
+        const swatch = document.getElementById('bench-source-swatch');
+        const reading = document.getElementById('bench-source-reading');
+        const modelSpectrum = this.getModelSpectrum();
+        if (modelSpectrum) {
+            const {preset} = modelSpectrum;
+            const xyz = this.spectrumModel.xyz(preset.power);
+            if (swatch) {
+                swatch.style.background = this.spectrumModel.color(preset.power);
+                swatch.title = 'Source color from the shared XYZ observer model';
+                swatch.setAttribute('aria-label', `${preset.label}: modeled source color before the prism`);
+            }
+            if (reading) reading.textContent = `${preset.label}: model XYZ (${xyz.map(value => value.toFixed(3)).join(', ')}). Source whites match in this model. Detector hits use the same XYZ observer and a hue-preserving display tone map.`;
+        } else {
+            if (swatch) {
+                swatch.style.background = 'transparent';
+                swatch.title = 'Exploratory source; no calibrated color match claimed';
+                swatch.setAttribute('aria-label', 'Exploratory source; calibrated source color not shown');
+            }
+            if (reading) reading.textContent = 'Exploratory source: no calibrated white or metameric match is claimed. Detector hits accumulate observer XYZ before display tone mapping.';
+        }
+    }
+
+    getCanvasPosition(event) {
+        const rect = this.canvas.getBoundingClientRect();
+        return new Vector2(
+            (event.clientX - rect.left) * this.canvas.width / rect.width,
+            (event.clientY - rect.top) * this.canvas.height / rect.height
+        );
     }
     
     setupEventListeners() {
         this.canvas.addEventListener('mousedown', (e) => {
-            const rect = this.canvas.getBoundingClientRect();
-            const mousePos = new Vector2(
-                e.clientX - rect.left,
-                e.clientY - rect.top
-            );
+            const mousePos = this.getCanvasPosition(e);
             
             // Check if clicking on an object
             for (let obj of this.objects) {
@@ -396,11 +499,7 @@ class OpticsSimulation {
         this.canvas.addEventListener('mousemove', (e) => {
             if (!this.dragging || !this.draggedObject) return;
             
-            const rect = this.canvas.getBoundingClientRect();
-            const mousePos = new Vector2(
-                e.clientX - rect.left,
-                e.clientY - rect.top
-            );
+            const mousePos = this.getCanvasPosition(e);
             
             const newCenter = mousePos.add(this.dragOffset);
             const currentCenter = this.draggedObject.getCenter();
@@ -413,7 +512,7 @@ class OpticsSimulation {
             }
         });
         
-        this.canvas.addEventListener('mouseup', () => {
+        window.addEventListener('mouseup', () => {
             this.dragging = false;
             this.draggedObject = null;
         });
@@ -431,41 +530,15 @@ class OpticsSimulation {
         
         document.getElementById('lightRange').addEventListener('input', (e) => {
             this.lightRange = parseInt(e.target.value);
-            document.getElementById('rangeValue').textContent = e.target.value + '°';
+            document.getElementById('rangeValue').textContent = e.target.value + (this.lightSourceType === 'parallel' ? 'px' : '°');
         });
         
-        document.getElementById('spectrumMode').addEventListener('change', (e) => {
-            const oldMode = this.spectrumMode;
-            this.spectrumMode = e.target.value;
-            const customControls = document.getElementById('customSpectrumControls');
-            if (customControls) {
-                customControls.style.display = e.target.value === 'custom' ? 'block' : 'none';
-            }
-            
-            // Copy current spectrum to custom mode when switching
-            if (e.target.value === 'custom' && oldMode !== 'custom') {
-                this.customSpectrum = this.getCurrentSpectrumRanges(oldMode);
-            }
-            
-            // Update spectrum canvas styling for custom mode
-            if (this.spectrumCanvas) {
-                if (e.target.value === 'custom') {
-                    this.spectrumCanvas.style.cursor = 'crosshair';
-                    this.spectrumCanvas.style.border = '2px solid #d4af37';
-                    this.spectrumCanvas.style.boxShadow = '0 0 15px rgba(212, 175, 55, 0.5)';
-                } else {
-                    this.spectrumCanvas.style.cursor = 'default';
-                    this.spectrumCanvas.style.border = '1px solid #333';
-                    this.spectrumCanvas.style.boxShadow = 'none';
-                }
-            }
-            
-            this.renderSpectrumCanvas(); // Update visualization
-            this.reset();
-        });
+        document.getElementById('spectrumMode').addEventListener('change', e => this.setSpectrumMode(e.target.value));
         
         document.getElementById('lightSourceType').addEventListener('change', (e) => {
             this.lightSourceType = e.target.value;
+            if (this.lightSourceType !== 'parallel') this.lightRange = Math.min(90, this.lightRange);
+            this.syncSceneControls();
             const flashlightControl = document.getElementById('flashlightControl');
             if (flashlightControl) {
                 flashlightControl.style.display = e.target.value === 'flashlight' ? 'block' : 'none';
@@ -515,7 +588,7 @@ class OpticsSimulation {
     
     
     updatePhotons(dt) {
-        if (this.paused) return;
+        if (!this.isRunning()) return;
         
         for (let photon of this.photons) {
             if (!photon.alive) continue;
@@ -758,6 +831,18 @@ class OpticsSimulation {
         return incident.multiply(eta).add(normal.multiply(eta * cosI - cosT));
     }
     
+    detectorXYZ(wavelength) {
+        return this.spectrumModel ? this.spectrumModel.observerXYZ(wavelength) : [0, 0, 0];
+    }
+
+    detectorPixelToRGB(pixel) {
+        if (!this.spectrumModel) return [0, 0, 0];
+        // One common gain protects channel ratios at high exposure. Never tone-map XYZ channels separately.
+        const response = this.sensorType === 'retina' ? 'logarithmic' : 'linear';
+        return this.spectrumModel.toneMappedRGB([pixel.X, pixel.Y, pixel.Z], 0.04, response)
+            .map(channel => Math.round(255 * channel));
+    }
+
     recordPhotonHit(y, wavelength, photonEnergy = 1.0) {
         if (!this.multiSensorMode) {
             // Single sensor mode
@@ -766,7 +851,7 @@ class OpticsSimulation {
             const sensorY = (y / 600) * height; // Keep as float for smooth distribution
             if (sensorY < 0 || sensorY >= height) return;
             
-            const rgb = this.wavelengthToRGB(wavelength);
+            const xyz = this.detectorXYZ(wavelength);
             // Multiply by photon energy - dim photons produce dim sensor response
             const energy = 8.0 * this.sensorSensitivity * photonEnergy;
             
@@ -801,9 +886,9 @@ class OpticsSimulation {
                         }
                         // point has no falloff (spreadRadius = 0)
                         
-                        this.sensorData[x][targetY].r += rgb.r * energy * falloff;
-                        this.sensorData[x][targetY].g += rgb.g * energy * falloff;
-                        this.sensorData[x][targetY].b += rgb.b * energy * falloff;
+                        this.sensorData[x][targetY].X += xyz[0] * energy * falloff;
+                        this.sensorData[x][targetY].Y += xyz[1] * energy * falloff;
+                        this.sensorData[x][targetY].Z += xyz[2] * energy * falloff;
                     }
                 }
             }
@@ -831,12 +916,12 @@ class OpticsSimulation {
                 const sensorIdx = Math.floor(((offset + 1) / 2) * 100);
                 
                 if (sensorIdx >= 0 && sensorIdx < 100) {
-                    const rgb = this.wavelengthToRGB(wavelength);
+                    const xyz = this.detectorXYZ(wavelength);
                     // Multiply by photon energy
                     const energy = 10.0 * this.sensorSensitivity * photonEnergy;
-                    sensor.data[sensorIdx].r += rgb.r * energy;
-                    sensor.data[sensorIdx].g += rgb.g * energy;
-                    sensor.data[sensorIdx].b += rgb.b * energy;
+                    sensor.data[sensorIdx].X += xyz[0] * energy;
+                    sensor.data[sensorIdx].Y += xyz[1] * energy;
+                    sensor.data[sensorIdx].Z += xyz[2] * energy;
                 }
             }
         }
@@ -844,7 +929,7 @@ class OpticsSimulation {
     
     wavelengthToRGB(wavelength) {
         // Convert wavelength (nm) to RGB color
-        // Based on CIE color matching functions approximation
+        // Illustrative rainbow palette, not a colorimetric observer model.
         let r = 0, g = 0, b = 0;
         
         if (wavelength >= 380 && wavelength < 440) {
@@ -916,11 +1001,12 @@ class OpticsSimulation {
         // Draw photons
         for (let photon of this.photons) {
             if (!photon.alive) continue;
+            const displayColor = photon.getColor();
             
             // Draw trail if enabled
             if (this.showTrails && photon.trail.length > 1) {
-                this.ctx.strokeStyle = photon.getColor();
-                this.ctx.globalAlpha = 0.3;
+                this.ctx.strokeStyle = displayColor;
+                this.ctx.globalAlpha = 0.5;
                 this.ctx.lineWidth = 1;
                 this.ctx.beginPath();
                 this.ctx.moveTo(photon.trail[0].x, photon.trail[0].y);
@@ -932,7 +1018,7 @@ class OpticsSimulation {
             }
             
             // Draw photon as a bright point
-            this.ctx.fillStyle = photon.getColor();
+            this.ctx.fillStyle = displayColor;
             this.ctx.beginPath();
             this.ctx.arc(photon.position.x, photon.position.y, 2, 0, Math.PI * 2);
             this.ctx.fill();
@@ -1034,18 +1120,64 @@ class OpticsSimulation {
     }
     
     drawObject(obj) {
-        this.ctx.strokeStyle = '#666';
-        this.ctx.fillStyle = 'rgba(100, 150, 255, 0.1)';
-        this.ctx.lineWidth = 2;
-        
-        this.ctx.beginPath();
-        this.ctx.moveTo(obj.vertices[0].x, obj.vertices[0].y);
-        for (let i = 1; i < obj.vertices.length; i++) {
-            this.ctx.lineTo(obj.vertices[i].x, obj.vertices[i].y);
+        if (!obj.vertices.length) return;
+        const ctx = this.ctx;
+        const outline = () => {
+            ctx.beginPath();
+            ctx.moveTo(obj.vertices[0].x, obj.vertices[0].y);
+            for (let i = 1; i < obj.vertices.length; i++) ctx.lineTo(obj.vertices[i].x, obj.vertices[i].y);
+            ctx.closePath();
+        };
+        ctx.save();
+        ctx.lineJoin = 'round';
+        if (obj.material !== 'mirror' && obj.vertices.length > 2) {
+            const minX = Math.min(...obj.vertices.map(vertex => vertex.x));
+            const maxX = Math.max(...obj.vertices.map(vertex => vertex.x));
+            const minY = Math.min(...obj.vertices.map(vertex => vertex.y));
+            const maxY = Math.max(...obj.vertices.map(vertex => vertex.y));
+            const width = maxX - minX;
+            const tint = ctx.createLinearGradient(minX, minY, maxX, maxY);
+            tint.addColorStop(0, 'rgba(180, 228, 255, 0.16)');
+            tint.addColorStop(0.45, 'rgba(112, 184, 230, 0.06)');
+            tint.addColorStop(1, 'rgba(79, 139, 217, 0.20)');
+            outline();
+            ctx.fillStyle = tint;
+            ctx.fill();
+
+            // Clip the diagonal reflection to the existing geometry; rays render above it.
+            ctx.save();
+            ctx.clip();
+            const sheen = ctx.createLinearGradient(minX, minY, maxX, maxY);
+            sheen.addColorStop(0, 'rgba(225, 246, 255, 0.19)');
+            sheen.addColorStop(0.6, 'rgba(225, 246, 255, 0.025)');
+            sheen.addColorStop(1, 'rgba(225, 246, 255, 0.10)');
+            ctx.fillStyle = sheen;
+            ctx.beginPath();
+            ctx.moveTo(minX - width * 0.2, maxY);
+            ctx.lineTo(minX + width * 0.08, maxY);
+            ctx.lineTo(maxX - width * 0.05, minY);
+            ctx.lineTo(maxX - width * 0.33, minY);
+            ctx.closePath();
+            ctx.fill();
+            ctx.restore();
+
+            outline();
+            ctx.strokeStyle = 'rgba(145, 212, 247, 0.15)';
+            ctx.lineWidth = 4;
+            ctx.stroke();
+            const bevel = ctx.createLinearGradient(minX, minY, maxX, maxY);
+            bevel.addColorStop(0, 'rgba(225, 247, 255, 0.80)');
+            bevel.addColorStop(0.5, 'rgba(145, 212, 247, 0.30)');
+            bevel.addColorStop(1, 'rgba(216, 240, 255, 0.66)');
+            ctx.strokeStyle = bevel;
+            ctx.lineWidth = 1.25;
+            ctx.stroke();
+        } else {
+            outline();
+            ctx.strokeStyle = 'rgba(187, 221, 244, 0.8)';
+            ctx.lineWidth = 2;
+            ctx.stroke();
         }
-        this.ctx.closePath();
-        this.ctx.fill();
-        this.ctx.stroke();
         
         // Label the object
         const center = obj.vertices.reduce((sum, v) => sum.add(v), new Vector2(0, 0))
@@ -1054,22 +1186,66 @@ class OpticsSimulation {
         this.ctx.font = '12px Arial';
         this.ctx.textAlign = 'center';
         this.ctx.fillText(obj.material, center.x, center.y);
+        ctx.restore();
     }
     
+    isVisible() {
+        const closedDetails = this.sandbox && this.sandbox.tagName === 'DETAILS' && !this.sandbox.open;
+        return !document.hidden && this.inViewport !== false && !closedDetails;
+    }
+
+    isRunning() {
+        return !this.paused && this.isVisible();
+    }
+
+    setupAnimationVisibility() {
+        const updateVisibility = () => this.updateAnimationState();
+        document.addEventListener('visibilitychange', updateVisibility);
+        if (this.sandbox && this.sandbox.tagName === 'DETAILS') this.sandbox.addEventListener('toggle', updateVisibility);
+        if (typeof IntersectionObserver !== 'undefined') {
+            this.visibilityObserver = new IntersectionObserver(entries => {
+                this.inViewport = entries.some(entry => entry.isIntersecting);
+                this.updateAnimationState();
+            });
+            this.visibilityObserver.observe(this.canvas);
+        }
+        if (this.reducedMotionQuery && this.reducedMotionQuery.addEventListener) {
+            this.reducedMotionQuery.addEventListener('change', event => {
+                if (event.matches) this.paused = true;
+                this.lastTime = null;
+            });
+        }
+    }
+
+    updateAnimationState() {
+        if (!this.isVisible()) {
+            if (this.animationFrame !== null) cancelAnimationFrame(this.animationFrame);
+            this.animationFrame = null;
+            this.lastTime = null;
+        } else if (this.animationFrame === null) {
+            this.lastTime = null;
+            this.animationFrame = requestAnimationFrame(time => this.animate(time));
+        }
+    }
+
     animate(currentTime = 0) {
-        const dt = (currentTime - this.lastTime) / 1000;
+        this.animationFrame = null;
+        if (!this.isVisible()) {
+            this.lastTime = null;
+            return;
+        }
+        // Never catch up with time spent paused, hidden, or outside the viewport.
+        const dt = this.lastTime === null ? 0 : Math.min(0.05, Math.max(0, (currentTime - this.lastTime) / 1000));
         this.lastTime = currentTime;
-        
         this.emitPhotons(dt);
-        
         this.updatePhotons(dt);
         this.render();
         this.renderSensor();
-        
-        requestAnimationFrame((time) => this.animate(time));
+        this.animationFrame = requestAnimationFrame(time => this.animate(time));
     }
     
     emitPhotons(dt) {
+        if (!this.isRunning()) return;
         // Emit photons continuously based on rate
         const photonsToEmit = Math.floor(this.photonRate * dt) + (Math.random() < (this.photonRate * dt) % 1 ? 1 : 0);
         
@@ -1132,19 +1308,25 @@ class OpticsSimulation {
             }
             
             if (!blocked) {
-                this.photons.push(new Photon(
-                    position,
-                    direction,
-                    wavelength
-                ));
+                const photon = new Photon(position, direction, wavelength);
+                // Sample density and ray energy together preserve the model's common power scale.
+                const modelSpectrum = this.getModelSpectrum();
+                if (modelSpectrum) photon.energy = modelSpectrum.energyScale;
+                this.photons.push(photon);
             }
         }
     }
     
     getWavelengthFromSpectrum() {
+        const modelSpectrum = this.getModelSpectrum();
+        if (modelSpectrum) {
+            const choice = Math.random();
+            const index = modelSpectrum.cdf.findIndex(value => choice < value);
+            return this.spectrumModel.wavelengths[index < 0 ? modelSpectrum.cdf.length - 1 : index];
+        }
         switch(this.spectrumMode) {
             case 'white':
-                return 380 + Math.random() * 370; // Full visible spectrum
+                return 380 + Math.random() * this.spectrumSpan; // Full visible spectrum
             case 'purple-single':
                 return 420; // Single purple wavelength
             case 'purple-dual':
@@ -1177,7 +1359,7 @@ class OpticsSimulation {
         }
     }
     
-    renderSensor() {
+    renderSensor(applyDecay = this.isRunning()) {
         const width = this.sensorData.length;
         const height = this.sensorData[0].length;
         
@@ -1201,27 +1383,24 @@ class OpticsSimulation {
                 
                 // Apply decay
                 for (let x = 0; x < 100; x++) {
-                    sensor.data[x].r *= this.sensorDecay;
-                    sensor.data[x].g *= this.sensorDecay;
-                    sensor.data[x].b *= this.sensorDecay;
+                    if (applyDecay) {
+                        sensor.data[x].X *= this.sensorDecay;
+                        sensor.data[x].Y *= this.sensorDecay;
+                        sensor.data[x].Z *= this.sensorDecay;
+                    }
                 }
                 
                 // Render this sensor
+                const colors = sensor.data.map(pixel => this.detectorPixelToRGB(pixel));
                 const imageData = this.sensorCtx.createImageData(sensorWidth, sensorHeight);
                 for (let y = 0; y < sensorHeight; y++) {
                     for (let x = 0; x < sensorWidth; x++) {
                         const dataX = Math.floor((x / sensorWidth) * 100);
-                        const pixel = sensor.data[dataX];
-                        
+                        const color = colors[dataX];
                         const idx = (y * sensorWidth + x) * 4;
-                        const scale = this.sensorType === 'retina' ? 50 : 2;
-                        const r = this.sensorType === 'retina' ? Math.log1p(pixel.r) * scale : pixel.r * scale;
-                        const g = this.sensorType === 'retina' ? Math.log1p(pixel.g) * scale : pixel.g * scale;
-                        const b = this.sensorType === 'retina' ? Math.log1p(pixel.b) * scale : pixel.b * scale;
-                        
-                        imageData.data[idx] = Math.min(255, Math.max(0, r));
-                        imageData.data[idx + 1] = Math.min(255, Math.max(0, g));
-                        imageData.data[idx + 2] = Math.min(255, Math.max(0, b));
+                        imageData.data[idx] = color[0];
+                        imageData.data[idx + 1] = color[1];
+                        imageData.data[idx + 2] = color[2];
                         imageData.data[idx + 3] = 255;
                     }
                 }
@@ -1234,42 +1413,27 @@ class OpticsSimulation {
             }
         } else {
             // Single sensor mode
-            // Apply decay to accumulated RGB values
-            for (let x = 0; x < width; x++) {
-                for (let y = 0; y < height; y++) {
-                    this.sensorData[x][y].r *= this.sensorDecay;
-                    this.sensorData[x][y].g *= this.sensorDecay;
-                    this.sensorData[x][y].b *= this.sensorDecay;
+            // Apply the same decay to all accumulated XYZ components.
+            if (applyDecay) {
+                for (let x = 0; x < width; x++) {
+                    for (let y = 0; y < height; y++) {
+                        this.sensorData[x][y].X *= this.sensorDecay;
+                        this.sensorData[x][y].Y *= this.sensorDecay;
+                        this.sensorData[x][y].Z *= this.sensorDecay;
+                    }
                 }
             }
             
             // Render sensor display
             const imageData = this.sensorCtx.createImageData(width, height);
             for (let y = 0; y < height; y++) {
+                // The vertical detector strip is replicated horizontally; convert each row once.
+                const color = this.detectorPixelToRGB(this.sensorData[0][y]);
                 for (let x = 0; x < width; x++) {
                     const idx = (y * width + x) * 4;
-                    const pixel = this.sensorData[x][y];
-                    
-                    // Apply sensor response curve
-                    let r, g, b;
-                    if (this.sensorType === 'retina') {
-                        // Logarithmic response (human eye)
-                        const scale = 50;
-                        r = Math.log1p(pixel.r) * scale;
-                        g = Math.log1p(pixel.g) * scale;
-                        b = Math.log1p(pixel.b) * scale;
-                    } else {
-                        // Linear response (CMOS sensor)
-                        const scale = 2;
-                        r = pixel.r * scale;
-                        g = pixel.g * scale;
-                        b = pixel.b * scale;
-                    }
-                    
-                    // Clamp to valid range
-                    imageData.data[idx] = Math.min(255, Math.max(0, r));
-                    imageData.data[idx + 1] = Math.min(255, Math.max(0, g));
-                    imageData.data[idx + 2] = Math.min(255, Math.max(0, b));
+                    imageData.data[idx] = color[0];
+                    imageData.data[idx + 1] = color[1];
+                    imageData.data[idx + 2] = color[2];
                     imageData.data[idx + 3] = 255;
                 }
             }
@@ -1301,10 +1465,7 @@ class OpticsSimulation {
     
     reset() {
         this.photons = [];
-        // Reset sensor data with RGB structure - use current dimensions
-        const width = this.sensorCanvas.width;
-        const height = this.sensorCanvas.height;
-        this.sensorData = new Array(width).fill(0).map(() => new Array(height).fill(0).map(() => ({r: 0, g: 0, b: 0})));
+        this.resetSensor();
     }
     
     setupSpectrumCanvas() {
@@ -1313,35 +1474,36 @@ class OpticsSimulation {
         this.renderSpectrumCanvas();
         
         this.spectrumCanvas.addEventListener('mousedown', (e) => {
+            if (this.spectrumMode !== 'custom') return;
             const rect = this.spectrumCanvas.getBoundingClientRect();
             // Scale from display coords to canvas internal coords
             const scaleX = this.spectrumCanvas.width / rect.width;
-            const x = (e.clientX - rect.left) * scaleX;
+            const x = Math.max(0, Math.min(this.spectrumCanvas.width, (e.clientX - rect.left) * scaleX));
             this.isDraggingSpectrum = true;
             this.spectrumDragStart = x;
         });
         
         this.spectrumCanvas.addEventListener('mousemove', (e) => {
-            if (!this.isDraggingSpectrum) return;
+            if (!this.isDraggingSpectrum || this.spectrumMode !== 'custom') return;
             const rect = this.spectrumCanvas.getBoundingClientRect();
             const scaleX = this.spectrumCanvas.width / rect.width;
-            const x = (e.clientX - rect.left) * scaleX;
+            const x = Math.max(0, Math.min(this.spectrumCanvas.width, (e.clientX - rect.left) * scaleX));
             this.renderSpectrumCanvas(this.spectrumDragStart, x);
         });
         
-        this.spectrumCanvas.addEventListener('mouseup', (e) => {
-            if (!this.isDraggingSpectrum) return;
+        window.addEventListener('mouseup', (e) => {
+            if (!this.isDraggingSpectrum || this.spectrumMode !== 'custom') return;
             const rect = this.spectrumCanvas.getBoundingClientRect();
             const scaleX = this.spectrumCanvas.width / rect.width;
-            const x = (e.clientX - rect.left) * scaleX;
+            const x = Math.max(0, Math.min(this.spectrumCanvas.width, (e.clientX - rect.left) * scaleX));
             
             const minX = Math.min(this.spectrumDragStart, x);
             const maxX = Math.max(this.spectrumDragStart, x);
             
             // Convert canvas x to wavelength (use canvas internal width)
             const canvasWidth = this.spectrumCanvas.width;
-            const minWavelength = 380 + (minX / canvasWidth) * 370;
-            const maxWavelength = 380 + (maxX / canvasWidth) * 370;
+            const minWavelength = 380 + (minX / canvasWidth) * this.spectrumSpan;
+            const maxWavelength = 380 + (maxX / canvasWidth) * this.spectrumSpan;
             
             if (maxWavelength - minWavelength > 10) {
                 this.customSpectrum.push({
@@ -1349,6 +1511,7 @@ class OpticsSimulation {
                     max: maxWavelength,
                     weight: 1.0
                 });
+                this.reset();
                 
                 // Flash effect
                 this.flashSpectrumRange(minX, maxX);
@@ -1373,16 +1536,16 @@ class OpticsSimulation {
         
         // Draw spectrum gradient
         for (let x = 0; x < width; x++) {
-            const wavelength = 380 + (x / width) * 370;
+            const wavelength = 380 + (x / width) * this.spectrumSpan;
             const rgb = this.wavelengthToRGB(wavelength);
             ctx.fillStyle = `rgb(${rgb.r * 255}, ${rgb.g * 255}, ${rgb.b * 255})`;
             ctx.fillRect(x, 0, 1, 150); // Taller gradient
         }
         
         // Draw custom ranges with stronger highlight
-        for (let range of this.customSpectrum) {
-            const x1 = ((range.min - 380) / 370) * width;
-            const x2 = ((range.max - 380) / 370) * width;
+        for (let range of this.spectrumMode === 'custom' ? this.customSpectrum : []) {
+            const x1 = ((range.min - 380) / this.spectrumSpan) * width;
+            const x2 = ((range.max - 380) / this.spectrumSpan) * width;
             
             // Bright border
             ctx.strokeStyle = '#d4af37';
@@ -1407,19 +1570,63 @@ class OpticsSimulation {
         ctx.font = '11px Arial';
         ctx.textAlign = 'center';
         ctx.fillText('380nm', 20, 170);
-        ctx.fillText('550nm (green)', width / 2, 170);
-        ctx.fillText('750nm', width - 20, 170);
+        ctx.fillText(`${380 + this.spectrumSpan / 2}nm`, width / 2, 170);
+        ctx.fillText(`${this.spectrumMax}nm`, width - 20, 170);
         
         // Visualize current spectrum mode distribution
-        if (!this.customSpectrum || this.customSpectrum.length === 0) {
+        if (this.spectrumMode !== 'custom') {
             this.drawSpectrumDistribution(ctx, width);
         }
     }
     
     drawSpectrumDistribution(ctx, width) {
+        const modelSpectrum = this.getModelSpectrum();
+        if (modelSpectrum) {
+            // This plot compares source shapes; matching and transport retain the original power.
+            const peak = Math.max(...modelSpectrum.preset.power, Number.EPSILON);
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
+            ctx.fillRect(0, 0, width, 150);
+            const shape = modelSpectrum.preset.power.map((power, index) => ({
+                x: (this.spectrumModel.wavelengths[index] - 380) / this.spectrumSpan * width,
+                y: 145 - power / peak * 130
+            }));
+            const fill = ctx.createLinearGradient(0, 15, 0, 145);
+            fill.addColorStop(0, 'rgba(255, 245, 209, 0.34)');
+            fill.addColorStop(1, 'rgba(255, 245, 209, 0.08)');
+            ctx.fillStyle = fill;
+            ctx.beginPath();
+            ctx.moveTo(0, 145);
+            shape.forEach(point => ctx.lineTo(point.x, point.y));
+            ctx.lineTo(width, 145);
+            ctx.closePath();
+            ctx.fill();
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            shape.forEach((point, index) => {
+                if (index === 0) ctx.moveTo(point.x, point.y);
+                else ctx.lineTo(point.x, point.y);
+            });
+            ctx.stroke();
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.55)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(0, 145);
+            ctx.lineTo(width, 145);
+            ctx.stroke();
+            ctx.fillStyle = '#fff';
+            ctx.font = '11px Arial';
+            ctx.textAlign = 'left';
+            ctx.fillText('0', 5, 140);
+            ctx.textAlign = 'center';
+            ctx.fillText('Relative shape (own peak)', width / 2, 190);
+            return;
+        }
         // Show which wavelengths are being emitted in current mode
         const height = 40;
         const y = 145;
+        const singleWidth = 12;
+        const dualWidth = 8;
         
         ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
         
@@ -1433,57 +1640,55 @@ class OpticsSimulation {
                 ctx.strokeRect(0, y, width, height);
                 break;
             case 'purple-single':
-                const px = ((420 - 380) / 370) * width;
-                const singleWidth = 12; // Wider bars
+                const px = ((420 - 380) / this.spectrumSpan) * width;
                 ctx.fillRect(px - singleWidth/2, y, singleWidth, height);
                 ctx.strokeRect(px - singleWidth/2, y, singleWidth, height);
                 break;
             case 'purple-dual':
-                const p1x = ((420 - 380) / 370) * width;
-                const p2x = ((650 - 380) / 370) * width;
-                const dualWidth = 8;
+                const p1x = ((420 - 380) / this.spectrumSpan) * width;
+                const p2x = ((650 - 380) / this.spectrumSpan) * width;
                 ctx.fillRect(p1x - dualWidth/2, y, dualWidth, height);
                 ctx.strokeRect(p1x - dualWidth/2, y, dualWidth, height);
                 ctx.fillRect(p2x - dualWidth/2, y, dualWidth, height);
                 ctx.strokeRect(p2x - dualWidth/2, y, dualWidth, height);
                 break;
             case 'red-violet':
-                const r1x = ((400 - 380) / 370) * width;
-                const r2x = ((700 - 380) / 370) * width;
+                const r1x = ((400 - 380) / this.spectrumSpan) * width;
+                const r2x = ((700 - 380) / this.spectrumSpan) * width;
                 ctx.fillRect(r1x - dualWidth/2, y, dualWidth, height);
                 ctx.strokeRect(r1x - dualWidth/2, y, dualWidth, height);
                 ctx.fillRect(r2x - dualWidth/2, y, dualWidth, height);
                 ctx.strokeRect(r2x - dualWidth/2, y, dualWidth, height);
                 break;
             case 'yellow-single':
-                const yx = ((580 - 380) / 370) * width;
+                const yx = ((580 - 380) / this.spectrumSpan) * width;
                 ctx.fillRect(yx - singleWidth/2, y, singleWidth, height);
                 ctx.strokeRect(yx - singleWidth/2, y, singleWidth, height);
                 break;
             case 'yellow-dual':
-                const y1x = ((530 - 380) / 370) * width;
-                const y2x = ((630 - 380) / 370) * width;
+                const y1x = ((530 - 380) / this.spectrumSpan) * width;
+                const y2x = ((630 - 380) / this.spectrumSpan) * width;
                 ctx.fillRect(y1x - dualWidth/2, y, dualWidth, height);
                 ctx.strokeRect(y1x - dualWidth/2, y, dualWidth, height);
                 ctx.fillRect(y2x - dualWidth/2, y, dualWidth, height);
                 ctx.strokeRect(y2x - dualWidth/2, y, dualWidth, height);
                 break;
             case 'cyan':
-                const cx = ((490 - 380) / 370) * width;
+                const cx = ((490 - 380) / this.spectrumSpan) * width;
                 ctx.fillRect(cx - singleWidth/2, y, singleWidth, height);
                 ctx.strokeRect(cx - singleWidth/2, y, singleWidth, height);
                 break;
             case 'magenta':
-                const m1x = ((450 - 380) / 370) * width;
-                const m2x = ((650 - 380) / 370) * width;
+                const m1x = ((450 - 380) / this.spectrumSpan) * width;
+                const m2x = ((650 - 380) / this.spectrumSpan) * width;
                 ctx.fillRect(m1x - dualWidth/2, y, dualWidth, height);
                 ctx.strokeRect(m1x - dualWidth/2, y, dualWidth, height);
                 ctx.fillRect(m2x - dualWidth/2, y, dualWidth, height);
                 ctx.strokeRect(m2x - dualWidth/2, y, dualWidth, height);
                 break;
             case 'green-narrow':
-                const g1x = ((520 - 380) / 370) * width;
-                const g2x = ((560 - 380) / 370) * width;
+                const g1x = ((520 - 380) / this.spectrumSpan) * width;
+                const g2x = ((560 - 380) / this.spectrumSpan) * width;
                 ctx.fillRect(g1x, y, g2x - g1x, height);
                 ctx.strokeRect(g1x, y, g2x - g1x, height);
                 break;
@@ -1491,12 +1696,12 @@ class OpticsSimulation {
     }
     
     flashSpectrumRange(minX, maxX) {
-        if (!this.spectrumCtx) return;
+        if (!this.spectrumCtx || (this.reducedMotionQuery && this.reducedMotionQuery.matches)) return;
         
         const ctx = this.spectrumCtx;
         let opacity = 1;
         const flash = () => {
-            if (opacity <= 0) return;
+            if (opacity <= 0 || !this.isVisible() || this.spectrumMode !== 'custom') return;
             
             // Temporarily draw flash overlay
             this.renderSpectrumCanvas();
@@ -1517,7 +1722,16 @@ class OpticsSimulation {
         // Convert a spectrum mode to custom ranges
         switch(mode) {
             case 'white':
-                return [{min: 380, max: 750, weight: 1.0}];
+                return [{min: 380, max: this.spectrumMax, weight: 1.0}];
+            case 'rgb-white': {
+                const modelSpectrum = this.getModelSpectrum('rgb-white');
+                if (!modelSpectrum) return [];
+                const {centers, sigma, weights} = modelSpectrum.preset;
+                // Custom ranges are an exploratory rectangular-band approximation.
+                return centers.map((center, index) => ({
+                    min: center - 3 * sigma, max: center + 3 * sigma, weight: weights[index]
+                }));
+            }
             case 'purple-single':
                 return [{min: 415, max: 425, weight: 1.0}];
             case 'purple-dual':
@@ -1553,11 +1767,14 @@ class OpticsSimulation {
     
     clearCustomSpectrum() {
         this.customSpectrum = [];
+        this.reset();
         this.renderSpectrumCanvas();
     }
     
     togglePause() {
         this.paused = !this.paused;
+        this.lastTime = null;
+        this.updateAnimationState();
     }
     
     toggleTrails() {
@@ -1570,7 +1787,7 @@ class OpticsSimulation {
         
         // Clear all sensor data
         this.sensorData = new Array(width).fill(0).map(() => 
-            new Array(height).fill(0).map(() => ({r: 0, g: 0, b: 0}))
+            new Array(height).fill(0).map(() => ({X: 0, Y: 0, Z: 0}))
         );
         
         // Clear the entire canvas to black (prevents black rectangle artifacts)
@@ -1580,7 +1797,7 @@ class OpticsSimulation {
         // Clear multi-sensor data
         for (let sensor of this.multiSensors) {
             if (sensor.data) {
-                sensor.data = sensor.data.map(() => ({r: 0, g: 0, b: 0}));
+                sensor.data = sensor.data.map(() => ({X: 0, Y: 0, Z: 0}));
             }
         }
     }
@@ -1862,11 +2079,28 @@ class OpticsSimulation {
     }
 }
 
-// Initialize simulation when page loads
+// Start a visible bench immediately; optional DETAILS containers initialize on first opening.
 let simulation;
+function initializeOpticsSimulation() {
+    if (!simulation) {
+        const canvas = document.getElementById('canvas');
+        if (!canvas) return null;
+        simulation = new OpticsSimulation(canvas);
+        window.simulation = simulation;
+    }
+    return simulation;
+}
+
 window.addEventListener('load', () => {
-    const canvas = document.getElementById('canvas');
-    simulation = new OpticsSimulation(canvas);
+    const sandbox = document.getElementById('optics-sandbox');
+    if (sandbox && sandbox.tagName === 'DETAILS') {
+        sandbox.addEventListener('toggle', () => {
+            if (sandbox.open) initializeOpticsSimulation();
+        });
+        if (sandbox.open) initializeOpticsSimulation();
+    } else {
+        initializeOpticsSimulation();
+    }
     
     // Setup lens modal slider listeners
     const radiusSlider = document.getElementById('lensRadius');
