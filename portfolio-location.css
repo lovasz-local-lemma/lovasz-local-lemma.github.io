@@ -34,8 +34,8 @@ html.is-scrolling .site-nav.portfolio-route{backdrop-filter:none;-webkit-backdro
 .portfolio-route .route-end{display:flex;align-items:center;gap:18px;flex-shrink:0}
 .route-meter{display:flex;align-items:center;gap:5px;width:64px;height:24px;opacity:.75}
 .route-meter i{display:block;width:2px;height:6px;background:#cabc8688}.route-meter i:nth-child(3n+1){height:15px;background:#cabc86}.route-meter i:nth-child(3n+2){height:10px;background:#afd4c3}
-.portfolio-route .route-back{display:inline-flex;align-items:center;justify-content:center;padding:9px 13px;border:1px solid #ddc38455;border-radius:10px;text-decoration:none;color:#e5d7b0;background:#d1b8650b;font:500 11px/1.5 Inter,system-ui,sans-serif;white-space:nowrap;transition:box-shadow .5s,border-color .5s,color .5s}
-.portfolio-route .route-back:hover{color:#fff0be;border-color:#dfc884a0;box-shadow:0 0 20px #e0bc5b22}
+.portfolio-route .route-back,.portfolio-route .route-contact{display:inline-flex;align-items:center;justify-content:center;padding:9px 13px;border:1px solid #ddc38455;border-radius:10px;text-decoration:none;color:#e5d7b0;background:#d1b8650b;font:500 11px/1.5 Inter,system-ui,sans-serif;white-space:nowrap;transition:box-shadow .5s,border-color .5s,color .5s}
+.portfolio-route .route-back:hover,.portfolio-route .route-contact:hover{color:#fff0be;border-color:#dfc884a0;box-shadow:0 0 20px #e0bc5b22}
 .portfolio-route a:focus-visible{outline:2px solid #e9ce8c;outline-offset:3px}
 .portfolio-route[data-route-group=mathematics]{--route-ice:#c3bde6}.portfolio-route[data-route-group=research]{--route-ice:#b5dbc0}.portfolio-route[data-route-group=graphics]{--route-ice:#a8cfdd}
 .route-compact{position:relative;padding:4px 7px;border:0;background:transparent;box-shadow:none;min-height:46px;max-width:min(720px,calc(100vw - 28px))}
@@ -49,6 +49,7 @@ html.is-scrolling .site-nav.portfolio-route{backdrop-filter:none;-webkit-backdro
 .technique-map-link:hover,.primary-link:hover,.text-link:hover,.field-follow-ons a:hover,.project-primary:hover,.footer a:hover{border-color:#e7cb86aa;box-shadow:0 0 20px #dcc07022;color:#f6e7c0}
 .hero-hand-labels{display:none}
 @media(max-width:1100px){.portfolio-route{gap:8px;padding:8px 18px}.portfolio-route .route-meter{display:none}.portfolio-route .route-wire{flex-basis:30px}.portfolio-route .route-project .route-copy strong{font-size:16px}}
+@media(max-width:1100px){.portfolio-route .route-contact{display:none}}
 @media(max-width:760px){.site-nav.portfolio-route{padding:7px 10px;gap:5px;min-height:70px}.portfolio-route .route-mark{width:33px;height:33px}.portfolio-route .route-node{gap:6px;padding:5px}.portfolio-route .route-copy small{font-size:7px;letter-spacing:.08em}.portfolio-route .route-home strong,.portfolio-route .route-group .route-copy strong{font-size:14px}.portfolio-route .route-project .route-copy strong{font-size:13px}.portfolio-route .route-glyph{display:none}.portfolio-route .route-project .route-thumb{display:none}.portfolio-route .route-wire{width:16px;flex-basis:16px}.portfolio-route .route-back{font-size:10px;padding:7px;max-width:90px;white-space:normal;text-align:center}.route-compact .route-project{max-width:185px}.route-compact .route-home strong{font-size:12px}.route-compact .route-mark{width:25px;height:25px}.route-compact .route-copy small{display:none}}
 @media(prefers-reduced-motion:reduce){@view-transition{navigation:none}::view-transition-old(root),::view-transition-new(root){animation:none}.portfolio-route *,.primary-link,.text-link,.field-follow-ons a,.project-primary,.footer a{transition:none!important}}
 /* Shared presentation: one component on brochures, studies and live apps. */

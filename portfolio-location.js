@@ -16,6 +16,7 @@
       const copy=el('span','route-copy');copy.append(el('small','',key==='group'?'Collection':'Project'),el('strong','',key==='group'?'Selected':title));node.append(copy);path.append(node);
     }
     const end=el('div','route-end');const meter=el('span','route-meter');meter.setAttribute('aria-hidden','true');for(let i=0;i<9;i++)meter.append(el('i',''));end.append(meter);
+    const contact=el('a','route-contact','shaojie.jiao.gr@dartmouth.edu');contact.href='mailto:shaojie.jiao.gr@dartmouth.edu';end.append(contact);
     if(back){const a=el('a','route-back','← Back to portfolio');a.href=home||new URL('index.html',root);end.append(a);}nav.append(end);
     update(nav,{group,title,thumbnail,mode},true);return nav;
   }
